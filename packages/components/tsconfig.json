@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "custom": ["src/custom"]
+    },
+  }
+}
