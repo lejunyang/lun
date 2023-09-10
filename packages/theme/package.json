@@ -1,0 +1,15 @@
+{
+  "name": "@lun/theme",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@lun/components": "workspace:^",
+    "@radix-ui/colors": "^2.1.0"
+  }
+}
