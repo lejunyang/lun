@@ -24,7 +24,8 @@ import {
 	SlotsType,
 	hydrate, render, camelize, ObjectEmitsOptions,
 } from 'vue';
-import { toNumber, hyphenate } from '../utils';
+import { hyphenate } from '../utils';
+import { toNumberIfValid as toNumber } from '@lun/utils';
 import { NotBindEvents, createPlainEvent, interceptEvent } from '../utils/event';
 
 export type VueElementConstructor<P = {}> = {

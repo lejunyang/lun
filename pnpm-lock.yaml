@@ -32,6 +32,9 @@ importers:
       '@lun/core':
         specifier: workspace:^
         version: link:../core
+      '@lun/utils':
+        specifier: workspace:^
+        version: link:../utils
       '@radix-ui/colors':
         specifier: ^2.1.0
         version: 2.1.0
@@ -78,6 +81,18 @@ importers:
       '@radix-ui/colors':
         specifier: ^2.1.0
         version: 2.1.0
+
+  packages/utils:
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^4.2.3
+        version: 4.2.3(vite@4.4.5)(vue@3.3.4)
+      typescript:
+        specifier: ^5.0.2
+        version: 5.0.2
+      vite:
+        specifier: ^4.4.5
+        version: 4.4.5(@types/node@20.6.0)(sass@1.66.1)
 
 packages:
 

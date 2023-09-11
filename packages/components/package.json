@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@lun/core": "workspace:^",
+    "@lun/utils": "workspace:^",
     "@radix-ui/colors": "^2.1.0"
   },
   "peerDependencies": {
