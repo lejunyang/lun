@@ -1,19 +1,29 @@
 import { VNode, reactive } from 'vue';
-import { GlobalStaticConfig } from '../config/static';
 import { pick } from '@lun/utils';
+import { defaultIconLibrary } from './icon.default';
+import { warn } from 'utils';
 
 export type IconLibraryResolver = (name: string) => string | VNode | Promise<string> | Promise<VNode>;
-export type IconLibraryMutator = <T extends string | VNode>(iconResult: T) => T;
+export type IconLibraryMutator = <T extends string | VNode>(result: T) => T;
 export interface IconLibrary {
-	name: string;
-  type: 'html' | 'htmlUrl' | 'svgUseUrl' | 'vue';
+	library: string;
+	type: 'html' | 'html-url' | 'svg-sprite-href' | 'vnode';
 	resolver: IconLibraryResolver;
 	mutator?: IconLibraryMutator;
 }
 
-export const iconRegistryMap: Record<string, IconLibrary> = reactive({});
+export const iconRegistryMap: Record<string, IconLibrary> = reactive({
+	default: defaultIconLibrary,
+});
 
 export function registerIconLibrary(options: IconLibrary) {
-	if (!options?.name || !(options.resolver instanceof Function) || !options.type) return;
-	iconRegistryMap[options.name] = pick(options, ['name', 'type', 'resolver', 'mutator']);
+	if (!options?.library || !(options.resolver instanceof Function) || !options.type) {
+		if (__DEV__)
+			warn(`Register icon library failed, you may miss 'library', 'type' option, or 'resolver' is not a function`);
+		return;
+	}
+	if (__DEV__ && iconRegistryMap[options.library]) {
+		warn(`Icon library '${options.library}' already exists, it will be overwrite`);
+	}
+	iconRegistryMap[options.library] = pick(options, ['library', 'type', 'resolver', 'mutator']);
 }

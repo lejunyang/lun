@@ -1,60 +1,117 @@
 import { defineCustomElement } from 'custom';
-import { VNode, isVNode, shallowReactive, watchEffect } from 'vue';
-import { useConfig } from '../config';
+import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
+import { GlobalStaticConfig, useConfig } from '../config';
+import { error } from 'utils';
 
-const LIcon = defineCustomElement({
+export const iconResolveCache = new Map<string, { type: string; src: string }>();
+
+const Icon = defineCustomElement({
+	name: GlobalStaticConfig.nameMap.icon,
 	props: {
-		library: { type: String, default: 'default' },
+		library: { type: String, default: () => GlobalStaticConfig.defaultProps.icon.library },
 		name: { type: String, required: true },
+		clearCacheWhenUnmounted: { type: Boolean },
 	},
 	setup(props) {
-		const iconRegistryMap = useConfig('iconRegistryMap');
+		const config = useConfig();
 		const state = shallowReactive({
 			type: '',
 			src: '' as string | VNode,
 		});
 		watchEffect(async () => {
-			const library = iconRegistryMap[props.library];
-			if (!library) return;
-			let { name, type, mutator, resolver } = library;
+			const { library, name } = props;
+			const libraryOption = config.iconRegistryMap[props.library];
+			if (!library || !name || !libraryOption) return;
+			const cache = iconResolveCache.get(`${library}.${name}`);
+			if (cache) {
+				state.type = cache.type;
+				state.src = cache.src;
+				return;
+			}
+			let { type, mutator, resolver } = libraryOption;
 			mutator = mutator instanceof Function ? mutator : (i) => i;
 			try {
 				let result = await resolver(name);
+				if (type === 'html-url' && typeof result === 'string') {
+					// if type is `html-url`, do a fetch to get html text
+					const fileData = await fetch(result, { mode: 'cors' });
+					result = await fileData.text();
+					if (!fileData.ok || !result) {
+						return;
+					}
+					type = 'html';
+				}
+				if (props.library !== library || props.name !== name) {
+					// if props update after await, ignore this effect
+					return;
+				}
 				result = mutator(result) || result;
+				// clear previous
+				state.type = '';
+				state.src = '';
 				switch (type) {
 					case 'html':
 						if (typeof result === 'string') state.src = result;
 						state.type = type;
 						break;
-					case 'htmlUrl':
-						//
-						state.type = 'html';
-						break;
-					case 'svgUseUrl':
+					case 'svg-sprite-href':
 						if (typeof result === 'string') state.src = result;
 						state.type = type;
 						break;
-					case 'vue':
+					case 'vnode':
 						if (isVNode(result)) state.src = result;
-						state.type = 'vue';
+						state.type = 'vnode';
 						break;
 				}
-			} catch (e) {}
+				if (state.src && typeof state.src === 'string') {
+					// vnode cannot be reused, only cache string
+					iconResolveCache.set(`${library}.${name}`, { type: state.type, src: state.src });
+				}
+			} catch (e) {
+				if (__DEV__) error('An error occurred when updating icon', e);
+			}
+		});
+
+		onUnmounted(() => {
+			if (props.clearCacheWhenUnmounted && props.library && props.name) {
+				iconResolveCache.delete(`${props.library}.${props.name}`);
+			}
 		});
 		return () => {
 			if (!state.src) return null;
 			switch (state.type) {
-				case 'vue':
+				case 'vnode':
 					return state.src;
 				case 'html':
-					return <span style={{ display: 'contents' }} v-html={state.src}></span>;
-				case 'svgUseUrl':
+					return <span style={{ display: 'contents' }} v-html={config.vHtmlPreprocessor(state.src as string)}></span>;
+				case 'svg-sprite-href':
 					return (
 						<svg part="svg">
-							<use part="use" url={state.src}></use>
+							<use part="use" href={state.src as string}></use>
 						</svg>
 					);
 			}
 		};
 	},
 });
+
+declare module 'vue' {
+	export interface GlobalComponents {
+		LIcon: typeof Icon;
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'l-icon': typeof Icon;
+	}
+}
+
+export default Icon;
+
+export function defineIcon(name?: string) {
+	name ||= GlobalStaticConfig.nameMap.icon;
+	if (!customElements.get(name)) {
+		customElements.define(name, Icon);
+	}
+}
