@@ -12,7 +12,8 @@
       "@/*": [
         "src/*"
       ],
-      "custom": ["src/custom"]
+      "custom": ["src/custom"],
+      "utils": ["src/utils"],
     },
   }
 }
