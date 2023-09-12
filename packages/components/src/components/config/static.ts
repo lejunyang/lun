@@ -1,4 +1,4 @@
-export const components = Object.freeze(['button', 'input'] as const);
+export const components = Object.freeze(['button', 'input', 'icon'] as const);
 export type ComponentKey = (typeof components)[number];
 
 const extraStyles = (() => {
@@ -22,8 +22,8 @@ let isInInitFunc = false;
  * Please make sure you do it before you import the component or read the config\
  * otherwise you can't modify it anymore
  */
-export const GlobalStaticConfig = new Proxy({
-	components: {
+export const GlobalStaticConfig = new Proxy(
+	{
 		prefix: 'l',
 		get nameMap() {
 			return components.reduce((result, name) => {
@@ -31,20 +31,25 @@ export const GlobalStaticConfig = new Proxy({
 				return result;
 			}, {} as Record<ComponentKey, string>);
 		},
-		defaultProps: {},
+		defaultProps: {
+			icon: {
+				library: 'default',
+			}
+		},
 		/** define every components' styles, also can set global common style with `common` key */
 		extraStyles,
 	},
-}, {
-  get(target, p, receiver) {
-    // deep get, or remove components key
-    return Reflect.get(target, p, receiver);
-  },
-});
+	{
+		get(target, p, receiver) {
+			// deep get, or remove components key
+			return Reflect.get(target, p, receiver);
+		},
+	}
+);
 
 // TODO use Proxy to intercept GlobalStaticConfig, if some properties were read, freeze the whole object, make inited true
 
-/** 
+/**
  * GlobalStaticConfig can be initialized with `initStaticConfig` only once.\
  * Repeat call will not take effect
  */
