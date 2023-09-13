@@ -10,8 +10,9 @@ import {
 	markRaw,
 	triggerRef,
 	ExtractPropTypes,
+	ComponentObjectPropsOptions,
+	VueElementConstructor,
 } from 'vue';
-import { VueElementConstructor } from '../custom/apiCustomElement';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
@@ -25,12 +26,26 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data> = {
 	triggerUpdate: () => void;
 };
 
+/**
+ * create a collector used for collecting component instance between Parent Component and Children Components
+ * @param name collector name
+ * @param _options used for inferring props type of `parent` and `child`. `parent` and `child` can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props
+ * @returns 
+ */
 export function createCollector<
-	P,
-	C,
-	ParentProps = P extends VueElementConstructor<ExtractPropTypes<infer T>> ? T : Data,
-	ChildProps = C extends VueElementConstructor<ExtractPropTypes<infer T>> ? T : Data
->(name: string, _parentComp?: P, _childComp?: C) {
+	P = Data,
+	C = Data,
+	ParentProps = P extends VueElementConstructor<ExtractPropTypes<infer T>>
+		? T
+		: P extends ComponentObjectPropsOptions
+		? ExtractPropTypes<P>
+		: P,
+	ChildProps = C extends VueElementConstructor<ExtractPropTypes<infer T>>
+		? T
+		: P extends ComponentObjectPropsOptions
+		? ExtractPropTypes<P>
+		: C
+>(name: string, _options?: { parent?: P; child?: C }) {
 	const set = new Set<InstanceWithProps<ChildProps>>();
 	const items = shallowRef(set);
 	const COLLECTOR_KEY = Symbol(`l-collector-${name}`);
@@ -69,5 +84,5 @@ export function createCollector<
 		}
 		return context;
 	};
-	return { parent, child };
+	return { parent, child, COLLECTOR_KEY };
 }
