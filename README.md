@@ -1,3 +1,3 @@
-# WebComponents based Vue3
+# Web Components based on Vue3
 
-This is for personal leaning
+## This is for personal leaning for now!
