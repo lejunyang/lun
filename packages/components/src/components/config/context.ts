@@ -5,8 +5,6 @@ const contextConfigKey = Symbol.for('l-context-config-key');
 
 export const GlobalConfig = reactive({
   iconRegistryMap,
-  /** function used to process html string before pass it to v-html, you can use this to do XSS filter */
-  vHtmlPreprocessor: (html: string) => html,
 });
 
 export type TGlobalConfig = typeof GlobalConfig;
