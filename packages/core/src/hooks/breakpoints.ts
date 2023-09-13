@@ -1,4 +1,4 @@
-import { computed } from "@vue/runtime-core";
+import { computed } from 'vue';
 
 export type Breakpoints = 'initial' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type Responsive<T> = T | Partial<Record<Breakpoints, T>>;
@@ -66,10 +66,10 @@ export function withBreakpoints(
 	return classes.join(' ');
 }
 
-export function withComputedBreakpoints(
+export function useComputedBreakpoints(
 	getter: () => Responsive<string | boolean> | undefined, // Value to check
 	classPrefix = '', // CSS class prefix, e.g. "px" in "px-1" class
 	valueMap?: Record<string, string> // Optionally, an object to map prop values to a different CSS suffix
 ) {
-  return computed(() => withBreakpoints(getter(), classPrefix, valueMap));
+	return computed(() => withBreakpoints(getter(), classPrefix, valueMap));
 }

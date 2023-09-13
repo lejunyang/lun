@@ -1,20 +1,13 @@
 import type { ComputedRef } from 'vue';
 import { inject, getCurrentInstance, computed, provide, reactive } from 'vue';
 
-// TODO default null, forceInheritDisabled
-const defaultBoolean = { type: Boolean, default: null };
-export const editProps = {
-	disabled: defaultBoolean,
-	readonly: defaultBoolean,
-	loading: defaultBoolean,
-	forceInheritDisabled: defaultBoolean,
-	forceInheritReadonly: defaultBoolean,
-	forceInheritLoading: defaultBoolean,
-};
-
 export type EditState = {
-	[k in keyof typeof editProps]?: boolean | null;
-} & {
+	disabled?: boolean | null;
+	readonly?: boolean | null;
+	loading?: boolean | null;
+	forceInheritDisabled?: boolean | null;
+	forceInheritReadonly?: boolean | null;
+	forceInheritLoading?: boolean | null;
 	readonly editable: boolean;
 };
 
@@ -26,7 +19,7 @@ export function useSetupEdit(
 ) {
 	const ctx = getCurrentInstance()!;
 	if (!ctx) {
-		throw new Error('Do not use `useEdit` outside the setup function scope');
+		if (__DEV__) throw new Error('Do not use `useSetupEdit` outside the setup function scope');
 	}
 	const parentEditComputed = inject<ComputedRef<EditState> | undefined>(EDIT_PROVIDER_KEY);
 	const localState = reactive({
