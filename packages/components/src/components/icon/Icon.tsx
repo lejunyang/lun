@@ -34,11 +34,8 @@ const Icon = defineCustomElement({
 				let result = await resolver(name);
 				if (type === 'html-url' && typeof result === 'string') {
 					// if type is `html-url`, do a fetch to get html text
-					const fileData = await fetch(result, { mode: 'cors' });
-					result = await fileData.text();
-					if (!fileData.ok || !result) {
-						return;
-					}
+					result = (await GlobalStaticConfig.iconRequest(result))!;
+					if (!result) return;
 					type = 'html';
 				}
 				if (props.library !== library || props.name !== name) {
@@ -83,7 +80,11 @@ const Icon = defineCustomElement({
 				case 'vnode':
 					return state.src;
 				case 'html':
-					return <span style={{ display: 'contents' }} v-html={config.vHtmlPreprocessor(state.src as string)}></span>;
+					return (
+						<span
+							style={{ display: 'contents' }}
+							v-html={GlobalStaticConfig.vHtmlPreprocessor(state.src as string)}></span>
+					);
 				case 'svg-sprite-href':
 					return (
 						<svg part="svg">

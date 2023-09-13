@@ -1,7 +1,7 @@
 export const components = Object.freeze(['button', 'input', 'icon'] as const);
 export type ComponentKey = (typeof components)[number];
 
-const extraStyles = (() => {
+const styles = (() => {
 	const original = {
 		input: [],
 	} as unknown as Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>;
@@ -34,15 +34,31 @@ export const GlobalStaticConfig = new Proxy(
 		defaultProps: {
 			icon: {
 				library: 'default',
-			}
+			},
 		},
 		/** define every components' styles, also can set global common style with `common` key */
-		extraStyles,
+		styles,
+		/** function used to request icon url, should return html string */
+		iconRequest: async (url?: string | null) => {
+			if (!url) return;
+			if (typeof fetch === 'function') {
+				const response = await fetch(url, { mode: 'cors' });
+				const result = await response.text();
+				if (response.ok) return result;
+			}
+		},
+		/** function used to process html string before pass it to v-html, you can use this to do XSS filter */
+		vHtmlPreprocessor: (html: string) => html,
 	},
 	{
 		get(target, p, receiver) {
 			// deep get, or remove components key
 			return Reflect.get(target, p, receiver);
+		},
+		set(target, p, newValue, receiver) {
+			const oldVal = (target as any)[p];
+			if (oldVal instanceof Function && !(newValue instanceof Function)) return false;
+			else return Reflect.set(target, p, newValue, receiver);
 		},
 	}
 );
