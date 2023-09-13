@@ -5,15 +5,17 @@
       "path": "./tsconfig.node.json"
     }
   ],
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "../../global.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
       ],
+      "common": ["src/common"],
       "custom": ["src/custom"],
       "utils": ["src/utils"],
+      "hooks": ["src/hooks"],
     },
   }
 }
