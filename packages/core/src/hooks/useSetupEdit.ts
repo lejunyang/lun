@@ -11,7 +11,7 @@ export type EditState = {
 	readonly editable: boolean;
 };
 
-export const EDIT_PROVIDER_KEY = Symbol('edit-state');
+export const EDIT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-edit-provider-key' : '');
 
 export function useSetupEdit(
 	adjust?: (state: EditState) => EditState | null | void,

@@ -1,6 +1,6 @@
 import { inject, getCurrentInstance, provide, onBeforeUnmount } from 'vue';
 
-const EVENT_PROVIDER_KEY = Symbol('setup-event');
+export const EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-event-provider-key' : '');
 
 export type Events = Record<string, (...args: any[]) => void>;
 
@@ -29,7 +29,7 @@ export function useSetupEvent(events?: Events) {
 	onBeforeUnmount(() => unsubscribes.forEach((fn) => fn()));
 }
 
-const CONTEXT_EVENT_PROVIDER_KEY = Symbol('setup-context-event');
+export const CONTEXT_EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-context-event-provider-key' : '');
 
 /**
  * Create an event context. When current component emits an event, it will also emit that event to its context parent.\
