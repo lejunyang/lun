@@ -1,9 +1,11 @@
-import { getCurrentInstance, onMounted, shallowReactive } from '@vue/runtime-core';
+import { getCurrentInstance, onMounted, shallowReactive } from 'vue';
 
 export function getCurrentShadowInfo<RootEl extends HTMLElement, ParentEl extends HTMLElement>() {
 	const instance = getCurrentInstance();
 	const state = shallowReactive({
+		/** root Element of shadow dom */
 		rootEl: undefined as RootEl | undefined,
+		/** Custom Element itself */
 		CE: undefined as ParentEl | undefined,
 	});
 	/** el of vnode is not null only after onMounted */
