@@ -1,2 +1,2 @@
-export * from './context';
-export * from './static';
+export * from './config.context';
+export * from './config.static';
