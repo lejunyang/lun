@@ -45,10 +45,10 @@ export function createCollector<
 		: P extends ComponentObjectPropsOptions
 		? ExtractPropTypes<P>
 		: C
->(name: string, _options?: { parent?: P; child?: C }) {
+>(name?: string, _options?: { parent?: P; child?: C }) {
 	const set = new Set<InstanceWithProps<ChildProps>>();
 	const items = shallowRef(set);
-	const COLLECTOR_KEY = Symbol(`l-collector-${name}`);
+	const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name}` : '');
 	const parent = () => {
 		let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
 		if (instance) instance = markRaw(instance);
