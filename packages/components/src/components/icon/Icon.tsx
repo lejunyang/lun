@@ -1,6 +1,6 @@
 import { defineCustomElement } from 'custom';
 import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
-import { GlobalStaticConfig, useConfig } from '../config';
+import { GlobalStaticConfig, useContextConfig } from '../config';
 import { error } from 'utils';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
@@ -13,7 +13,7 @@ const Icon = defineCustomElement({
 		clearCacheWhenUnmounted: { type: Boolean },
 	},
 	setup(props) {
-		const config = useConfig();
+		const config = useContextConfig();
 		const state = shallowReactive({
 			type: '',
 			src: '' as string | VNode,
