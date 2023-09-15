@@ -2,15 +2,21 @@ import { shallowReactive, ShallowReactive } from 'vue';
 
 type RefValueType<V> = V extends new (...args: any[]) => infer Refer ? Refer : V;
 
-export function useRefs<T extends Record<string, any>>(
-	init: T
+export function useRefs<
+	T extends Record<string, any>,
+	R extends {
+		[k in keyof T]: (val: RefValueType<T[k]> | null | undefined) => void;
+	} = {
+		[k in keyof T]: (val: RefValueType<T[k]> | null | undefined) => void;
+	}
+>(
+	init: T,
+	onRefCallback?: Partial<R>
 ): {
 	refs: ShallowReactive<{
 		[k in keyof T]: RefValueType<T[k]> | null | undefined;
 	}>;
-	onRef: {
-		[k in keyof T]: (val: RefValueType<T[k]> | null | undefined) => void;
-	};
+	onRef: R;
 } {
 	const refs = shallowReactive(
 		Object.keys(init).reduce((r, c) => {
@@ -21,6 +27,7 @@ export function useRefs<T extends Record<string, any>>(
 	const onRefs = Object.keys(init).reduce((r, c) => {
 		r[c] = (current: any) => {
 			refs[c] = current;
+			if (onRefCallback?.[c] instanceof Function) onRefCallback[c]!(current);
 		};
 		return r;
 	}, {} as Record<string, any>);
