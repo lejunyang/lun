@@ -25,7 +25,7 @@ import {
 	hydrate, render, camelize, ObjectEmitsOptions,
 } from 'vue';
 import { hyphenate } from '../utils';
-import { toNumberIfValid as toNumber } from '@lun/utils';
+import { toNumberIfValid } from '@lun/utils';
 import { NotBindEvents, createPlainEvent, interceptEvent } from '../utils/event';
 
 export type VueElementConstructor<P = {}> = {
@@ -34,9 +34,9 @@ export type VueElementConstructor<P = {}> = {
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
 type EventInit = {
-	bubbles: boolean;
+	bubbles?: boolean;
 	cancelable?: boolean;
-	composed: boolean;
+	composed?: boolean;
 };
 export type EventInitMap = Record<string, EventInit>;
 export type PropUpdateCallback = (key: string, value: any, el: HTMLElement) => void;
@@ -306,7 +306,7 @@ export class VueElement extends BaseClass {
 					const opt = props[key];
 					if (opt === Number || (opt && opt.type === Number)) {
 						if (key in this._props) {
-							this._props[key] = toNumber(this._props[key]);
+							this._props[key] = toNumberIfValid(this._props[key]);
 						}
 						(numberProps || (numberProps = Object.create(null)))[camelize(key)] = true;
 					}
@@ -363,7 +363,7 @@ export class VueElement extends BaseClass {
 		let value: any = this.getAttribute(key);
 		const camelKey = camelize(key);
 		if (this._numberProps && this._numberProps[camelKey]) {
-			value = toNumber(value);
+			value = toNumberIfValid(value);
 		}
 		this._setProp(camelKey, value, false);
 	}
