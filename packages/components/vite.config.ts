@@ -26,6 +26,7 @@ export default defineConfig({
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
 			common: fileURLToPath(new URL('./src/common', import.meta.url)),
+			config: fileURLToPath(new URL('./src/components/config', import.meta.url)),
 			custom: fileURLToPath(new URL('./src/custom', import.meta.url)),
 			utils: fileURLToPath(new URL('./src/utils', import.meta.url)),
 			hooks: fileURLToPath(new URL('./src/hooks', import.meta.url)),

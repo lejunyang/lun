@@ -13,6 +13,7 @@
         "src/*"
       ],
       "common": ["src/common"],
+      "config": ["src/components/config"],
       "custom": ["src/custom"],
       "utils": ["src/utils"],
       "hooks": ["src/hooks"],
