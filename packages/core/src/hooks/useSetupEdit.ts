@@ -2,12 +2,12 @@ import type { ComputedRef } from 'vue';
 import { inject, getCurrentInstance, computed, provide, reactive } from 'vue';
 
 export type EditState = {
-	disabled?: boolean | null;
-	readonly?: boolean | null;
-	loading?: boolean | null;
-	forceInheritDisabled?: boolean | null;
-	forceInheritReadonly?: boolean | null;
-	forceInheritLoading?: boolean | null;
+	disabled?: boolean;
+	readonly?: boolean;
+	loading?: boolean;
+	forceInheritDisabled?: boolean;
+	forceInheritReadonly?: boolean;
+	forceInheritLoading?: boolean;
 	readonly editable: boolean;
 };
 
@@ -61,5 +61,5 @@ export function useSetupEdit(
 
 	provide(EDIT_PROVIDER_KEY, currentEditComputed);
 
-	return [localState, currentEditComputed] as const;
+	return [currentEditComputed, localState] as const;
 }

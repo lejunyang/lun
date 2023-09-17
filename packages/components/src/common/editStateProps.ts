@@ -1,4 +1,4 @@
-const defaultBoolean = { type: Boolean, default: null };
+const defaultBoolean = { type: Boolean, default: undefined };
 export const editStateProps = Object.freeze({
 	disabled: defaultBoolean,
 	readonly: defaultBoolean,
