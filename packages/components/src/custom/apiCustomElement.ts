@@ -26,7 +26,7 @@ import {
 } from 'vue';
 import { hyphenate } from '../utils';
 import { toNumberIfValid } from '@lun/utils';
-import { NotBindEvents, createPlainEvent, interceptEvent } from '../utils/event';
+import { NotBindEvents, createPlainEvent, delegateEvent } from '../utils/event';
 
 export type VueElementConstructor<P = {}> = {
 	new (initialProps?: Record<string, any>): VueElement & P;
@@ -72,7 +72,7 @@ export function defineCustomElement<
 		customEventInit?: EventInitMap;
 		onPropUpdate?: PropUpdateCallback;
 		onCE?: CECallback;
-		interceptCEEvents?: { targetId: string; events: string[] };
+		delegateCEEvents?: { targetId: string; events: string[] };
 	}
 ): VueElementConstructor<Props>;
 
@@ -97,7 +97,7 @@ export function defineCustomElement<
 		customEventInit?: EventInitMap;
 		onPropUpdate?: PropUpdateCallback;
 		onCE?: CECallback;
-		interceptCEEvents?: { targetId: string; events: string[] };
+		delegateCEEvents?: { targetId: string; events: string[] };
 	}
 ): VueElementConstructor<{ [K in PropNames]: any }>;
 
@@ -122,7 +122,7 @@ export function defineCustomElement<
 		customEventInit?: EventInitMap;
 		onPropUpdate?: PropUpdateCallback;
 		onCE?: CECallback;
-		interceptCEEvents?: { targetId: string; events: string[] };
+		delegateCEEvents?: { targetId: string; events: string[] };
 	}
 ): VueElementConstructor<ExtractPropTypes<PropsOptions>>;
 
@@ -157,7 +157,7 @@ type InnerComponentDef = ConcreteComponent & {
 	customEventInit?: EventInitMap;
 	onPropUpdate?: PropUpdateCallback;
 	onCE?: CECallback;
-	interceptCEEvents?: { targetId: string; events: string[] };
+	delegateCEEvents?: { targetId: string; events: string[] };
 };
 
 declare module 'vue' {
@@ -234,14 +234,13 @@ export class VueElement extends BaseClass {
 				this._resolveProps(this._def);
 			}
 		}
-		if (!_def.noShadow && _def.interceptCEEvents?.targetId && _def.interceptCEEvents.events) {
-			const result = interceptEvent(
+		if (!_def.noShadow && _def.delegateCEEvents?.targetId && _def.delegateCEEvents.events) {
+			const result = delegateEvent(
 				this,
 				() => { 
-					// console.log('_def.interceptCEEvents!.targetId', _def.interceptCEEvents!.targetId, this.shadowRoot);
-					return this.shadowRoot!.getElementById(_def.interceptCEEvents!.targetId);
+					return this.shadowRoot!.getElementById(_def.delegateCEEvents!.targetId);
 				},
-				_def.interceptCEEvents.events
+				_def.delegateCEEvents.events
 			);
 			this._notBindEvents = result?.notBindEvents;
 		}
@@ -440,7 +439,7 @@ export class VueElement extends BaseClass {
 					// to match Vue behavior
 					dispatch(event, ...args);
 					if (hyphenate(event) !== event) {
-						dispatch(hyphenate(event), args);
+						dispatch(hyphenate(event), ...args);
 					}
 				};
 

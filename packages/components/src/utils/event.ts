@@ -100,7 +100,7 @@ export type NotBindEvents = Record<string, ['addEventListener' | 'removeEventLis
  * @param events
  * @returns
  */
-export function interceptEvent(
+export function delegateEvent(
 	sourceEl: HTMLElement | null,
 	targetElGetter: HTMLElement | null | (() => HTMLElement | null),
 	events: string[] | Set<string>,
