@@ -1,4 +1,4 @@
-import { warn } from 'console';
+import { warn } from 'utils';
 import { getCurrentInstance, onMounted, shallowReactive } from 'vue';
 
 export function useShadowInfo<CE extends HTMLElement = HTMLElement, RootEl extends HTMLElement = HTMLElement>() {
