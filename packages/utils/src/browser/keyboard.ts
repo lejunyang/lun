@@ -1,5 +1,9 @@
 export function isEnterDown(e: KeyboardEvent) {
-	return e.key === 'Enter';
+	return e.type === 'keydown' && e.key === 'Enter';
+}
+
+export function isNoBasicModifierKey(e: KeyboardEvent) {
+	return !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey;
 }
 
 /**
@@ -11,12 +15,12 @@ export function isEnterDown(e: KeyboardEvent) {
  * @returns `undefined` if it's not keydown event, otherwise `boolean`
  */
 export function isKeyCompositionDown(e: KeyboardEvent, keyPattern: string | string[]) {
-  if (e.type !== 'keydown') return;
+	if (e.type !== 'keydown') return;
 	const keySplits = Array.isArray(keyPattern) ? keyPattern : keyPattern.split('+');
 	let result = true;
 	for (let i = 0; i < keySplits.length; i++) {
-    const k = keySplits[i];
-    if (!k) continue;
+		const k = keySplits[i];
+		if (!k) continue;
 		const finalK = String(k).trim().toLowerCase();
 		if (!finalK) continue;
 		if (['ctrl', 'control'].includes(finalK)) result &&= e.ctrlKey;
