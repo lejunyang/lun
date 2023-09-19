@@ -1,18 +1,5 @@
-export const components = Object.freeze(['button', 'input', 'icon'] as const);
+export const components = Object.freeze(['button', 'base-input', 'input', 'icon'] as const);
 export type ComponentKey = (typeof components)[number];
-
-const styles = (() => {
-	const original = {
-		input: [],
-	} as unknown as Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>;
-	const commonStyles = [] as (string | CSSStyleSheet)[];
-	return new Proxy(original, {
-		get(target, p, receiver) {
-			if (p === 'common') return commonStyles;
-			return [...commonStyles, Reflect.get(target, p, receiver)].filter(Boolean);
-		},
-	});
-})();
 
 let inited = false;
 let isInInitFunc = false;
@@ -35,9 +22,39 @@ export const GlobalStaticConfig = new Proxy(
 			icon: {
 				library: 'default',
 			},
+			'base-input': {
+				changeWhen: 'notComposing',
+				waitType: 'debounce',
+				trim: true,
+				restrictWhen: 'notComposing',
+				toNullWhenEmpty: true,
+				transformWhen: 'notComposing',
+				emitEnterDownWhenComposing: false,
+			} as const,
+			input: {
+				changeWhen: 'notComposing',
+				waitType: 'debounce',
+				trim: true,
+				restrictWhen: 'notComposing',
+				toNullWhenEmpty: true,
+				transformWhen: 'notComposing',
+				emitEnterDownWhenComposing: false,
+			} as const,
 		},
 		/** define every components' styles, also can set global common style with `common` key */
-		styles,
+		styles: (() => {
+			const original = components.reduce((result, name) => {
+				result[name] = [];
+				return result;
+			}, {} as Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>);
+			const commonStyles = [] as (string | CSSStyleSheet)[];
+			return new Proxy(original, {
+				get(target, p, receiver) {
+					if (p === 'common') return commonStyles;
+					return [...commonStyles, ...Reflect.get(target, p, receiver)].filter(Boolean);
+				},
+			});
+		})(),
 		/** function used to request icon url, should return html string */
 		iconRequest: async (url?: string | null) => {
 			if (!url) return;
@@ -57,7 +74,7 @@ export const GlobalStaticConfig = new Proxy(
 		},
 		set(target, p, newValue, receiver) {
 			const oldVal = (target as any)[p];
-			if (oldVal instanceof Function && !(newValue instanceof Function)) return false;
+			if (Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) return false;
 			else return Reflect.set(target, p, newValue, receiver);
 		},
 	}
