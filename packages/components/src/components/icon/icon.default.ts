@@ -17,13 +17,27 @@ const icons = {
       <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
     </svg>
   `
-} as Record<string, string>;
+} as const;
 
 export const defaultIconLibrary: IconLibrary = {
 	library: 'default',
 	type: 'html',
 	resolver(name: string) {
-		if (name in icons) return icons[name];
+		if (name in icons) return icons[name as keyof typeof icons];
 		return '';
 	},
 };
+
+export interface DefaultIcons {
+	library: 'default',
+	name: keyof typeof icons,
+}
+
+/** Other registered icon type info */
+export interface RegisteredIcons {
+}
+
+type P<O, K> = K extends keyof O ? O[K] : never;
+
+export type IconLibraryValue = DefaultIcons['library'] | P<RegisteredIcons, 'library'>;
+export type IconNameValue = DefaultIcons['name'] | P<RegisteredIcons, 'name'>;
