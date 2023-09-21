@@ -1,15 +1,16 @@
 import { defineCustomElement } from 'custom';
-import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
+import { PropType, VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../config';
 import { error } from 'utils';
+import type { IconLibraryValue, IconNameValue } from './icon.default';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 
 const Icon = defineCustomElement({
 	name: GlobalStaticConfig.nameMap.icon,
 	props: {
-		library: { type: String, default: () => GlobalStaticConfig.defaultProps.icon.library },
-		name: { type: String, required: true },
+		library: { type: String as PropType<IconLibraryValue>, default: () => GlobalStaticConfig.defaultProps.icon.library },
+		name: { type: String as PropType<IconNameValue>, required: true },
 		clearCacheWhenUnmounted: { type: Boolean },
 	},
 	setup(props) {
