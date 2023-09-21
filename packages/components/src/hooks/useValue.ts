@@ -2,7 +2,7 @@ import type { UseModel } from "@lun/core";
 import { createUseModel } from "@lun/core";
 import { useShadowInfo } from "./shadowDom";
 
-export const useValueModel = createUseModel({ defaultKey: 'value', defaultEvent: 'update' }) as UseModel;
+export const useValueModel = createUseModel({ defaultKey: 'value', defaultEvent: 'update' }) as UseModel<'value'>;
 
 /**
  * used to make CE compatible with v-model.\

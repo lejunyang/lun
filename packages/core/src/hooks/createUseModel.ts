@@ -15,7 +15,7 @@ interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false,
 }
 
 export function createUseModel<DK extends string>({ defaultKey, defaultEvent }: { defaultKey: DK; defaultEvent: string }) {
-	return function <P extends object, K extends keyof P, Passive extends boolean>(
+	return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
 		props: P,
 		options?: UseModelOptions<P, K, Passive>
 	) {
@@ -71,12 +71,12 @@ export function createUseModel<DK extends string>({ defaultKey, defaultEvent }: 
 	};
 }
 
-export interface UseModel {
-	<P extends object, K extends keyof P>(
+export interface UseModel<DK extends string> {
+	<P extends Record<string | symbol, unknown>, K extends keyof P = DK>(
 		props: P,
 		options?: UseModelOptions<P, K, false>
 	): WritableComputedRef<P[K]>;
-	<P extends object, K extends keyof P>(
+	<P extends Record<string | symbol, unknown>, K extends keyof P = DK>(
 		props: P,
 		options?: UseModelOptions<P, K, true>
 	): Ref<UnwrapRef<P[K]>>;
