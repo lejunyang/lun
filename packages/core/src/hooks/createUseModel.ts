@@ -3,7 +3,7 @@ import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 
 // inspired by @vue/use useVModel
 
-interface UseModelOptions<T, Passive extends boolean = false> {
+interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false, T = O[K]> {
 	passive?: Passive;
 	eventName?: string;
 	deep?: boolean;
@@ -11,16 +11,16 @@ interface UseModelOptions<T, Passive extends boolean = false> {
 	clone?: boolean | ((val: T) => T);
 	shouldEmit?: (v: T) => boolean;
 	emit?: (name: string, ...args: any[]) => void,
+	key?: K,
 }
 
-export function createUseModel({ defaultKey, defaultEvent }: { defaultKey: string; defaultEvent: string }) {
+export function createUseModel<DK extends string>({ defaultKey, defaultEvent }: { defaultKey: DK; defaultEvent: string }) {
 	return function <P extends object, K extends keyof P, Passive extends boolean>(
 		props: P,
-		_key?: K,
-		options?: UseModelOptions<P[K], Passive>
+		options?: UseModelOptions<P, K, Passive>
 	) {
-		let { passive, eventName, deep, extraSource, shouldEmit, clone, emit } = options || {};
-		const key = _key || (defaultKey as K);
+		let { passive, eventName, deep, extraSource, shouldEmit, clone, emit, key } = options || {};
+		key = key || (defaultKey as unknown as K);
 		const event = eventName || defaultEvent;
 		const vm = getCurrentInstance();
 		if (!emit && vm) {
@@ -72,16 +72,12 @@ export function createUseModel({ defaultKey, defaultEvent }: { defaultKey: strin
 }
 
 export interface UseModel {
-	<P extends object, K extends keyof P, Name extends string>(
+	<P extends object, K extends keyof P>(
 		props: P,
-		key?: K,
-		emit?: (name: Name, ...args: any[]) => void,
-		options?: UseModelOptions<P[K], false>
+		options?: UseModelOptions<P, K, false>
 	): WritableComputedRef<P[K]>;
-	<P extends object, K extends keyof P, Name extends string>(
+	<P extends object, K extends keyof P>(
 		props: P,
-		key?: K,
-		emit?: (name: Name, ...args: any[]) => void,
-		options?: UseModelOptions<P[K], true>
+		options?: UseModelOptions<P, K, true>
 	): Ref<UnwrapRef<P[K]>>;
 }
