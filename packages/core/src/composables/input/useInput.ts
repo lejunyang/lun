@@ -38,14 +38,19 @@ export type UseInputOptions<
 	optimizeChPeriodSymbolForNum?: boolean;
 };
 
+type TransformedOption = {
+	min: number;
+	max: number;
+	precision: number | null;
+	step: number | null;
+};
+export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & TransformedOption;
+
 export type UseInputState = {
 	composing: boolean;
 };
 
-function handleNumberBeforeInput<
-	IType extends InputType = 'text',
-	ValueType = IType extends 'number' | 'number-text' ? number : string
->(
+function handleNumberBeforeInput(
 	e: InputEvent,
 	{
 		type,
@@ -56,14 +61,10 @@ function handleNumberBeforeInput<
 		step,
 		strictStep,
 		optimizeChPeriodSymbolForNum,
-	}: UseInputOptions<IType, ValueType>
+	}: TransformedUseInputOption<UseInputOptions<'number', number>>
 ) {
 	if (!e.data || (type !== 'number' && type !== 'number-text')) return;
-	min = Number(min);
-	max = Number(max);
-	precision = Number(precision);
-	step = Number(step);
-	const noDecimal = precision === 0 || (strictStep && Number.isInteger(step));
+	const noDecimal = precision === 0 || (strictStep && step && Number.isInteger(step));
 	const noNegativeSymbol = min >= 0 && noExponent; // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
 	let allowChars = `${optimizeChPeriodSymbolForNum ? '。' : ''}${noExponent ? '' : 'eE'}${
 		noNegativeSymbol ? '' : '\\-'
@@ -114,7 +115,16 @@ export function useInput<
 		| 'onKeydown',
 	E extends Function = (e: Event, optionsGetter: () => UseInputOptions<IType, ValueType>, state: UseInputState) => void
 >(optionsGetter: () => UseInputOptions<IType, ValueType>, extraHandlers?: Partial<Record<Handlers, E>>) {
-	const options = computed(optionsGetter);
+	const options = computed(() => {
+		const result = optionsGetter();
+		return {
+			...result,
+			min: ensureNumber(result.min, -Infinity),
+			max: ensureNumber(result.max, Infinity),
+			precision: toNumberOrNull(result.precision),
+			step: toNumberOrNull(result.step),
+		};
+	});
 	const state = reactive({
 		composing: false,
 	});
@@ -183,11 +193,8 @@ export function useInput<
 			});
 
 			// native number: 粘贴内容如果包含原来就输不进去的内容，那么就取消粘贴，但是空白字符除外，空白字符都会被消除。发现native奇怪的问题，双击空格，会输入小数点
-			let {
-				restrict,
-				restrictWhen,
-			} = options.value;
-			handleNumberBeforeInput(e, options.value);
+			let { restrict, restrictWhen } = options.value;
+			handleNumberBeforeInput(e, options.value as TransformedUseInputOption<UseInputOptions<'number', number>>);
 			if (e.defaultPrevented) return;
 			if (e.data && restrict && restrictWhen === 'beforeInput' && e.inputType.startsWith('insert')) {
 				const nextVal =
