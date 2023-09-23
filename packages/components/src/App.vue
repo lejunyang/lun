@@ -1,19 +1,28 @@
 <script setup lang="tsx">
 import "./components/input/Input";
-import { defineBaseInput, defineInput } from './components';
+import { defineBaseInput, defineInput, defineCustomRenderer } from './components';
 import { defineIcon } from './components/icon';
 import { registerIconLibrary } from './components/icon/icon.registry';
 import { svgFillAndSizeDefaultMutator } from './components/icon/icon.utils';
 import { reactive } from "vue";
+import { registerCustomRenderer } from "./components/custom-renderer/renderer.registry";
 
 defineIcon();
 defineBaseInput();
 defineInput();
+defineCustomRenderer();
 
 const state = reactive({
 	input: '[a-zA-Z]',
 	baseInput: null,
 })
+
+registerCustomRenderer('custom', {
+	isValidSource: (source) => typeof source === 'string' && source.includes('ljy'),
+	onMounted(source, target) {
+		console.log(source, 'target', target);
+	},
+});
 
 registerIconLibrary({
 	library: 'custom',
@@ -66,9 +75,13 @@ registerIconLibrary({
 
 		<l-input :value="state.input" @update="state.input = $event.detail" />
 
-		<l-base-input v-model="state.baseInput" :restrict="state.input" style="color: red" class="i" type="number" />
+		<l-base-input v-model="state.baseInput" style="color: red" class="i" type="number-text" />
+		<l-base-input :value="state.baseInput" @update="state.baseInput = $event.detail" style="color: red" class="i" type="number" inputmode="numeric" />
 		baseInput: {{ state.baseInput }}
 
+		<input type="number" />
+
+		<l-custom-renderer :source="'ljy-test<span>red</span>'" />
 	</div>
 </template>
 
