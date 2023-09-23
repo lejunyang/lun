@@ -1,4 +1,7 @@
-export const components = Object.freeze(['button', 'base-input', 'input', 'icon'] as const);
+import { error } from "../../utils";
+import { getInitialCustomRendererMap } from "../custom-renderer/renderer.registry";
+
+export const components = Object.freeze(['button', 'base-input', 'custom-renderer', 'input', 'icon'] as const);
 export type ComponentKey = (typeof components)[number];
 
 let inited = false;
@@ -66,15 +69,19 @@ export const GlobalStaticConfig = new Proxy(
 		},
 		/** function used to process html string before pass it to v-html, you can use this to do XSS filter */
 		vHtmlPreprocessor: (html: string) => html,
+		customRendererMap: getInitialCustomRendererMap(),
 	},
 	{
 		get(target, p, receiver) {
 			// deep get, or remove components key
 			return Reflect.get(target, p, receiver);
 		},
-		set(target, p, newValue, receiver) {
-			const oldVal = (target as any)[p];
-			if (Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) return false;
+		set(target: any, p, newValue, receiver) {
+			const oldVal = target[p];
+			if (Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) {
+				if(__DEV__) error(`Invalid static config was set on ${String(p)}`, 'old config:', target[p], 'new config:', newValue)
+				return false;
+			}
 			else return Reflect.set(target, p, newValue, receiver);
 		},
 	}
