@@ -4,7 +4,7 @@ import { defineBaseInput, defineInput, defineCustomRenderer } from './components
 import { defineIcon } from './components/icon';
 import { registerIconLibrary } from './components/icon/icon.registry';
 import { svgFillAndSizeDefaultMutator } from './components/icon/icon.utils';
-import { reactive } from "vue";
+import { reactive, h } from "vue";
 import { registerCustomRenderer } from "./components/custom-renderer/renderer.registry";
 
 defineIcon();
@@ -15,13 +15,21 @@ defineCustomRenderer();
 const state = reactive({
 	input: '[a-zA-Z]',
 	baseInput: null,
+	content: (() => h('l-input', { value: 'ttt' })) as any,
 })
 
+const changeContent = () => state.content = `<span style="color: blue">blue</span>`
+
 registerCustomRenderer('custom', {
-	isValidSource: (source) => typeof source === 'string' && source.includes('ljy'),
-	onMounted(source, target) {
-		console.log(source, 'target', target);
+	isValidContent: (source) => typeof source === 'string' && source.includes('ljy'),
+	onMounted(source, target, attrs) {
+		console.log(source, 'target', target, attrs);
+		target.innerHTML = source;
 	},
+	onUpdated(source, target, attrs) {
+		console.log(source, 'target', target, attrs);
+		target.innerHTML = source;
+	}
 });
 
 registerIconLibrary({
@@ -79,9 +87,9 @@ registerIconLibrary({
 		<l-base-input :value="state.baseInput" @update="state.baseInput = $event.detail" style="color: red" class="i" type="number" inputmode="numeric" />
 		baseInput: {{ state.baseInput }}
 
-		<input type="number" />
+		<input type="number" @click="changeContent" />
 
-		<l-custom-renderer :source="'ljy-test<span>red</span>'" />
+		<l-custom-renderer :content="state.content" />
 	</div>
 </template>
 
