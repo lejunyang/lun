@@ -2,10 +2,10 @@ import { error, warn } from 'utils';
 import { GlobalStaticConfig } from 'config';
 
 export type CustomRendererRegistry = {
-	isValidSource: (source: any) => boolean;
-	onMounted: (source: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
-	onUpdated?: (source: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
-	onBeforeUnmount?: (source: any, target: HTMLDivElement) => void;
+	isValidContent: (content: any) => boolean;
+	onMounted: (content: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
+	onUpdated?: (content: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
+	onBeforeUnmount?: (content: any, target: HTMLDivElement) => void;
 };
 
 export function getInitialCustomRendererMap() {
@@ -26,8 +26,8 @@ export function getInitialCustomRendererMap() {
 	});
 }
 
-export function registerCustomRenderer(name: string, registry: CustomRendererRegistry) {
-	if (name) {
-		GlobalStaticConfig.customRendererMap[name] = registry;
+export function registerCustomRenderer(type: string, registry: CustomRendererRegistry) {
+	if (type) {
+		GlobalStaticConfig.customRendererMap[type] = registry;
 	}
 }
