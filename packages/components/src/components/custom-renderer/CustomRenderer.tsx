@@ -55,6 +55,7 @@ const CustomRenderer = defineCustomElement({
 					lastWasHtml = false;
 				}
 			}
+			// TODO if it's vnode previous and html next, will it unmount correctly?
 			if (mounted && renderer?.onUpdated) {
 				renderer.onUpdated(content, div.value!, attrs);
 			}
