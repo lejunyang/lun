@@ -6,9 +6,13 @@ import { CustomRendererRegistry } from './renderer.registry';
 const CustomRenderer = defineCustomElement({
 	name: GlobalStaticConfig.nameMap['custom-renderer'],
 	noShadow: true,
+	inheritAttrs: false,
 	props: {
-		name: { type: String },
-		source: { required: true },
+		type: { type: String },
+		content: { required: true },
+	},
+	onCE(_instance, ce) {
+		ce.style.display = 'contents';
 	},
 	setup(props, { attrs }) {
 		const div = shallowRef<HTMLDivElement>();
@@ -17,27 +21,33 @@ const CustomRenderer = defineCustomElement({
 		let renderer: CustomRendererRegistry | undefined;
 		let lastWasHtml = false;
 		watchEffect(() => {
-			let { name, source } = props;
+			let { type, content } = props;
 			renderer = undefined; // clear before and get new renderer
-			if (name) {
-				const temp = GlobalStaticConfig.customRendererMap[name];
-				if (temp?.isValidSource(source)) renderer = temp;
+			if (type) {
+				const temp = GlobalStaticConfig.customRendererMap[type];
+				if (temp?.isValidContent(content)) renderer = temp;
 			}
 			if (!renderer) {
 				for (const registry of Object.values(GlobalStaticConfig.customRendererMap)) {
-					if (registry.isValidSource(source)) {
+					if (registry.isValidContent(content)) {
 						renderer = registry;
 						break;
 					}
 				}
 			}
-			// no valid renderer, check the source if it is string, number or vnode, render it if yes
+			// no valid renderer, check the content if it is string, number or vnode, render it if yes
 			if (!renderer) {
-				if (source instanceof Function) source = source(); // if it's a function, consider it as a getter
-				if (['string', 'number'].includes(typeof source) && div.value) {
-					div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(source));
+				if (content instanceof Function) content = content(); // if it's a function, consider it as a getter
+				if (['string', 'number'].includes(typeof content) && div.value) {
+					div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content));
 					lastWasHtml = true;
-				} else if (isVNode(source)) defaultSupportContent.value = source;
+				} else if (isVNode(content)) defaultSupportContent.value = content;
+				else if (content instanceof Node && div.value) {
+					div.value.innerHTML = '';
+					if (content instanceof HTMLTemplateElement) content = document.importNode(content.content, true);
+					div.value.append(content as Node);
+					lastWasHtml = true;
+				}
 			} else {
 				defaultSupportContent.value = null;
 				if (lastWasHtml && div.value) {
@@ -46,21 +56,20 @@ const CustomRenderer = defineCustomElement({
 				}
 			}
 			if (mounted && renderer?.onUpdated) {
-				renderer.onUpdated(source, div.value!, attrs);
+				renderer.onUpdated(content, div.value!, attrs);
 			}
 		});
 
 		onMounted(() => {
 			mounted = true;
-			console.log('div', div);
 			if (renderer) {
-				renderer.onMounted(props.source, div.value!, attrs);
+				renderer.onMounted(props.content, div.value!, attrs);
 			}
 		});
 		onBeforeUnmount(() => {
 			mounted = false;
 			if (renderer?.onBeforeUnmount) {
-				renderer.onBeforeUnmount(props.source, div.value!);
+				renderer.onBeforeUnmount(props.content, div.value!);
 			}
 		});
 		return () => (
