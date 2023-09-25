@@ -118,7 +118,8 @@ declare global {
 
 export function defineCustomRenderer(name?: string) {
   name ||= GlobalStaticConfig.nameMap['custom-renderer'];
-  if (!customElements.get(name)) {
+	if (!customElements.get(name)) {
+		GlobalStaticConfig.actualNameMap['custom-renderer'].add(name);
     customElements.define(name, CustomRenderer);
   }
 }
