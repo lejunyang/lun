@@ -4,7 +4,7 @@ import { defineBaseInput, defineInput, defineCustomRenderer } from './components
 import { defineIcon } from './components/icon';
 import { registerIconLibrary } from './components/icon/icon.registry';
 import { svgFillAndSizeDefaultMutator } from './components/icon/icon.utils';
-import { reactive, h } from "vue";
+import { reactive, h, defineComponent, onBeforeUnmount, onUnmounted } from "vue";
 import { registerCustomRenderer } from "./components/custom-renderer/renderer.registry";
 
 defineIcon();
@@ -12,10 +12,22 @@ defineBaseInput();
 defineInput();
 defineCustomRenderer();
 
+const TestUnmount = defineComponent({
+	setup() {
+		onBeforeUnmount(() => {
+			console.log('beforeUnmount success');
+		})
+		onUnmounted(() => {
+			console.log('TestUnmount success');
+		})
+		return () => <div>test unmount</div>
+	}
+})
+
 const state = reactive({
 	input: '[a-zA-Z]',
 	baseInput: null,
-	content: (() => h('l-input', { value: 'ttt' })) as any,
+	content: (() => h(TestUnmount, { value: 'ttt' })) as any,
 })
 
 const changeContent = () => state.content = `<span style="color: blue">blue</span>`
