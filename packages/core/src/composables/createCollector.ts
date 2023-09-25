@@ -1,88 +1,121 @@
-import {
-	ComponentInternalInstance,
-	getCurrentInstance,
-	provide,
-	shallowRef,
-	ShallowRef,
-	inject,
-	onMounted,
-	onBeforeUnmount,
-	markRaw,
-	triggerRef,
-	ExtractPropTypes,
-	ComponentObjectPropsOptions,
-	VueElementConstructor,
+import type {
+  ComponentInternalInstance,
+  ExtractPropTypes,
+  ComponentObjectPropsOptions,
+  VueElementConstructor,
+  Ref,
+  UnwrapRef,
 } from 'vue';
+import { getCurrentInstance, provide, inject, onMounted, onBeforeUnmount, markRaw, ref, onUnmounted } from 'vue';
+import { getPreviousMatchElInTree } from '@lun/utils';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
-	props: P;
+  props: P;
 };
 export type CollectorContext<ParentProps = Data, ChildProps = Data> = {
-	parent: InstanceWithProps<ParentProps> | null;
-	items: ShallowRef<Set<InstanceWithProps<ChildProps>>>;
-	addItem: (child?: InstanceWithProps<ChildProps> | null) => void;
-	removeItem: (child?: InstanceWithProps<ChildProps> | null) => void;
-	triggerUpdate: () => void;
+  parent: InstanceWithProps<ParentProps> | null;
+  items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
+  addItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
+  removeItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
 };
 
 /**
  * create a collector used for collecting component instance between Parent Component and Children Components
  * @param name collector name
- * @param _options used for inferring props type of `parent` and `child`. `parent` and `child` can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props
- * @returns 
+ * @param options used for inferring props type of `parent` and `child`. `parent` and `child` can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props
+ * @returns
  */
 export function createCollector<
-	P = Data,
-	C = Data,
-	ParentProps = P extends VueElementConstructor<ExtractPropTypes<infer T>>
-		? T
-		: P extends ComponentObjectPropsOptions
-		? ExtractPropTypes<P>
-		: P,
-	ChildProps = C extends VueElementConstructor<ExtractPropTypes<infer T>>
-		? T
-		: P extends ComponentObjectPropsOptions
-		? ExtractPropTypes<P>
-		: C
->(name?: string, _options?: { parent?: P; child?: C }) {
-	const set = new Set<InstanceWithProps<ChildProps>>();
-	const items = shallowRef(set);
-	const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name}` : '');
-	const parent = () => {
-		let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
-		if (instance) instance = markRaw(instance);
-		const triggerUpdate = () => {
-			triggerRef(items);
-		};
-		provide<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY, {
-			parent: instance,
-			items,
-			addItem(child) {
-				if (child) {
-					items.value.add(child);
-					triggerUpdate();
-				}
-			},
-			removeItem(child) {
-				if (child) {
-					items.value.delete(child);
-					triggerUpdate();
-				}
-			},
-			triggerUpdate,
-		});
-		return items;
-	};
-	const child = () => {
-		let instance = getCurrentInstance() as InstanceWithProps<ChildProps> | null;
-		if (instance) instance = markRaw(instance);
-		const context = inject<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY);
-		if (context) {
-			onMounted(() => context.addItem(instance));
-			onBeforeUnmount(() => context.removeItem(instance));
-		}
-		return context;
-	};
-	return { parent, child, COLLECTOR_KEY };
+  P = Data,
+  C = Data,
+  ParentProps = P extends VueElementConstructor<ExtractPropTypes<infer T>>
+    ? T
+    : P extends ComponentObjectPropsOptions
+    ? ExtractPropTypes<P>
+    : P,
+  ChildProps = C extends VueElementConstructor<ExtractPropTypes<infer T>>
+    ? T
+    : P extends ComponentObjectPropsOptions
+    ? ExtractPropTypes<P>
+    : C
+>(name?: string, options?: { parent?: P; child?: C; sort?: boolean }) {
+  const { sort } = options || {};
+  const items = ref<InstanceWithProps<ChildProps>[]>([]);
+  const elIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
+  const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
+  const state = {
+    parentMounted: false,
+    parentEl: null as Element | null,
+    parentElTagName: '',
+    childElTagName: '',
+  };
+  const parent = () => {
+    let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
+    if (instance) instance = markRaw(instance);
+    if (instance) {
+      onMounted(() => {
+        state.parentMounted = true;
+        state.parentEl = instance!.vnode.el as Element;
+        state.parentElTagName = state.parentEl.tagName;
+        items.value.forEach((child, index) => {
+          if (child.vnode.el) elIndexMap.set(child.vnode.el as Element, index);
+        });
+      });
+      onUnmounted(() => {
+        elIndexMap.clear();
+        items.value = [];
+      });
+    }
+    provide<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY, {
+      parent: instance,
+      items,
+      addItem(child) {
+        if (child && child.vnode.el) {
+          const el = child.vnode.el as Element;
+          if (!state.childElTagName) state.childElTagName = el.tagName;
+          // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
+          // otherwise, we find previous child in dom order to insert the index
+          if (state.parentMounted && sort) {
+            const prev = getPreviousMatchElInTree(el, {
+              isMatch: (el) => el.tagName === state.childElTagName,
+              needStop: (el) => el.tagName === state.parentElTagName,
+            });
+            const prevIndex = elIndexMap.get(prev!);
+            if (prevIndex != null) {
+              items.value.splice(prevIndex + 1, 0, child);
+            } else {
+              items.value.unshift(child);
+            }
+            // update other elements' index
+            for (const [el, index] of elIndexMap.entries()) {
+              if (index >= (prevIndex || 0)) elIndexMap.set(el, index + 1);
+            }
+          } else items.value.push(child);
+        }
+      },
+      removeItem(child) {
+        if (child) {
+          const el = child.vnode.el as Element;
+          const index = elIndexMap.get(el);
+          if (index != null) {
+            items.value.splice(index, 1);
+            elIndexMap.delete(el);
+          }
+        }
+      },
+    });
+    return items;
+  };
+  const child = () => {
+    let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
+    if (instance) instance = markRaw(instance);
+    const context = inject<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY);
+    if (context) {
+      onMounted(() => context.addItem(instance));
+      onBeforeUnmount(() => context.removeItem(instance));
+    }
+    return context;
+  };
+  return { parent, child, COLLECTOR_KEY, elIndexMap };
 }
