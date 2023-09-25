@@ -21,6 +21,10 @@ export const GlobalStaticConfig = new Proxy(
 				return result;
 			}, {} as Record<ComponentKey, string>);
 		},
+		actualNameMap: components.reduce((result, name) => {
+			result[name] = new Set();
+			return result;
+		}, {} as Record<ComponentKey, Set<string>>),
 		defaultProps: {
 			icon: {
 				library: 'default',

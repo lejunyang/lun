@@ -1,4 +1,4 @@
-import { PropType } from 'vue';
+import { PropType, onBeforeUnmount, onUnmounted } from 'vue';
 import { useInput, useSetupEdit, Responsive, useComputedBreakpoints } from '@lun/core';
 import { defineCustomFormElement } from 'custom';
 import { setDefaultsForPropOptions } from 'utils';
@@ -37,6 +37,12 @@ const LInput = defineCustomFormElement({
 				emit('enterDown', e);
 			},
 		}));
+		onBeforeUnmount(() => {
+			console.log('on beforeUnmount');
+		})
+		onUnmounted(() => {
+			console.log('unmmmmmm');
+		})
 		// TODO mouse enter add class to show the clear button.  animation, hide suffix slot(render both, z-index?)
 		return () => (
 			<span
@@ -106,6 +112,7 @@ const LInput = defineCustomFormElement({
 export function defineInput(name?: string) {
 	name = GlobalStaticConfig.nameMap.input;
 	if (!customElements.get(name)) {
+		GlobalStaticConfig.actualNameMap['input'].add(name);
 		customElements.define(name, LInput);
 	}
 }

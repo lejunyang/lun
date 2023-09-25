@@ -1,6 +1,6 @@
 import { defineCustomElement } from 'custom';
 import { PropType, VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
-import { GlobalStaticConfig, useContextConfig } from '../config';
+import { GlobalStaticConfig, useContextConfig } from 'config';
 import { error } from 'utils';
 import type { IconLibraryValue, IconNameValue } from './icon.default';
 
@@ -114,6 +114,7 @@ export default Icon;
 export function defineIcon(name?: string) {
 	name ||= GlobalStaticConfig.nameMap.icon;
 	if (!customElements.get(name)) {
+		GlobalStaticConfig.actualNameMap['icon'].add(name);
 		customElements.define(name, Icon);
 	}
 }

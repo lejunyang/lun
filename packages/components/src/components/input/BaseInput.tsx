@@ -50,6 +50,7 @@ const LBaseInput = defineCustomFormElement({
 export function defineBaseInput(name?: string) {
 	name ||= GlobalStaticConfig.nameMap['base-input'];
 	if (!customElements.get(name)) {
+		GlobalStaticConfig.actualNameMap['base-input'].add(name);
 		customElements.define(name, LBaseInput);
 	}
 }
