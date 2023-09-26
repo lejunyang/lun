@@ -1,0 +1,29 @@
+@use 'config';
+
+// getVarName(('button', 'text-color')) => '--l-button-text-color'
+@function getVarName($list) {
+  $name: '--' + config.$namespace;
+  @each $item in $list {
+    @if $item != '' {
+      $name: $name + '-' + $item;
+    }
+  }
+  @return $name;
+}
+
+// getCssVarWithDefault(('button', 'text-color'), red) => var(--l-button-text-color, red)
+@function getVarValueWithDefault($args, $default) {
+  @return var(#{getVarName($args)}, #{$default});
+}
+
+// bem('block', 'element', 'modifier') => 'l-block__element--modifier'
+@function bem($block, $element: '', $modifier: '') {
+  $name: config.$namespace + config.$common-separator + $block;
+  @if $element != '' {
+    $name: $name + config.$element-separator + $element;
+  }
+  @if $modifier != '' {
+    $name: $name + config.$modifier-separator + $modifier;
+  }
+  @return $name;
+}
