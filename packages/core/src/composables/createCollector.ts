@@ -79,7 +79,7 @@ export function createCollector<
           if (state.parentMounted && sort) {
             const prev = getPreviousMatchElInTree(el, {
               isMatch: (el) => el.tagName === state.childElTagName,
-              needStop: (el) => el.tagName === state.parentElTagName,
+              shouldStop: (el) => el === state.parentEl,
             });
             const prevIndex = elIndexMap.get(prev!);
             if (prevIndex != null) {
@@ -117,5 +117,5 @@ export function createCollector<
     }
     return context;
   };
-  return { parent, child, COLLECTOR_KEY, elIndexMap };
+  return { parent, child, COLLECTOR_KEY };
 }
