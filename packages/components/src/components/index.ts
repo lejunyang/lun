@@ -1,3 +1,4 @@
+export * from './button';
 export * from './config';
 export * from './custom-renderer';
 export * from './input';
