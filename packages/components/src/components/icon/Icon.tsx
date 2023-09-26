@@ -6,7 +6,7 @@ import type { IconLibraryValue, IconNameValue } from './icon.default';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 
-const Icon = defineCustomElement({
+export const Icon = defineCustomElement({
 	name: GlobalStaticConfig.nameMap.icon,
 	props: {
 		library: { type: String as PropType<IconLibraryValue>, default: () => GlobalStaticConfig.defaultProps.icon.library },
@@ -108,8 +108,6 @@ declare global {
 		'l-icon': typeof Icon;
 	}
 }
-
-export default Icon;
 
 export function defineIcon(name?: string) {
 	name ||= GlobalStaticConfig.nameMap.icon;
