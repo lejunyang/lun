@@ -5,7 +5,7 @@ import { editStateProps, inputProps } from 'common';
 import { GlobalStaticConfig } from 'config';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 
-const LBaseInput = defineCustomFormElement({
+export const BaseInput = defineCustomFormElement({
 	name: GlobalStaticConfig.nameMap['base-input'],
 	inheritAttrs: false,
 	props: {
@@ -51,20 +51,18 @@ export function defineBaseInput(name?: string) {
 	name ||= GlobalStaticConfig.nameMap['base-input'];
 	if (!customElements.get(name)) {
 		GlobalStaticConfig.actualNameMap['base-input'].add(name);
-		customElements.define(name, LBaseInput);
+		customElements.define(name, BaseInput);
 	}
 }
 
-export default LBaseInput;
-
 declare module 'vue' {
 	export interface GlobalComponents {
-		LBaseInput: typeof LBaseInput;
+		LBaseInput: typeof BaseInput;
 	}
 }
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'l-base-input': typeof LBaseInput;
+		'l-base-input': typeof BaseInput;
 	}
 }
