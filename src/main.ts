@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import { importCommonStyle } from '@lun/theme';
 import { GlobalStaticConfig } from '@lun/components';
-import "@lun/theme/src/common/element.scss";
+import "@lun/theme/src/common/index.scss";
 import './style.css';
 import App from './App.vue';
 
