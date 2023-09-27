@@ -8,6 +8,11 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "@lun/components": "workspace:^",
+    "@lun/theme": "workspace:^",
+    "vue": "^3.2.0"
+  },
   "devDependencies": {
     "@types/node": "^20.6.0",
     "@vitejs/plugin-vue": "^4.2.3",

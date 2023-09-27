@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@lun/components": "workspace:^",
     "@radix-ui/colors": "^2.1.0"
+  },
+  "peerDependencies": {
+    "@lun/components": "workspace:^"
   }
 }
