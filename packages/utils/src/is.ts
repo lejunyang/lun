@@ -14,3 +14,14 @@ export function isObject(target: unknown): target is Object {
 export function isNil(target: unknown): target is null | undefined {
   return target === null || target === undefined;
 }
+
+export function isPlainString(target: unknown): target is string {
+  return typeof target === 'string';
+}
+
+export function isString(target: unknown): target is string | String {
+  return typeof target === 'string' || target instanceof String;
+}
+export function isFunction(target: unknown): target is Function {
+  return typeof target === 'function';
+}
