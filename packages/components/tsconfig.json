@@ -1,22 +1,42 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [
     {
       "path": "./tsconfig.node.json"
     }
   ],
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "../../global.d.ts"],
+  "include": [
+    "./index.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "../../global.d.ts"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
       ],
-      "common": ["src/common"],
-      "config": ["src/components/config"],
-      "custom": ["src/custom"],
-      "utils": ["src/utils"],
-      "hooks": ["src/hooks"],
+      "common": [
+        "src/common"
+      ],
+      "config": [
+        "src/components/config"
+      ],
+      "custom": [
+        "src/custom"
+      ],
+      "utils": [
+        "src/utils"
+      ],
+      "hooks": [
+        "src/hooks"
+      ],
+      "@lun/core": ["../core/index.ts"],
+      "@lun/theme": ["../theme/index.ts"],
+      "@lun/utils": ["../utils/index.ts"]
     },
   }
 }

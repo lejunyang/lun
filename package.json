@@ -4,9 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "dev": "vitepress dev src/docs",
+    "type": "tsc -p packages/components && tsc -p packages/core && tsc -p packages/theme && tsc -p packages/utils",
+    "build": "vite build packages/components && vite build packages/core && vite build packages/theme && vite build packages/utils",
+    "docs:build": "vitepress build src/docs",
+    "docs:preview": "vitepress preview src/docs"
   },
   "dependencies": {
     "@lun/components": "workspace:^",
@@ -17,9 +19,11 @@
     "@types/node": "^20.6.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "rimraf": "^5.0.5",
     "sass": "^1.66.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
+    "vite": "^4.4.9",
+    "vitepress": "1.0.0-rc.20",
     "vue-tsc": "^1.8.5"
   }
 }
