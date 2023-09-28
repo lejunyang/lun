@@ -3,15 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "files": [
+    "./dist",
+    "./src/scss"
+  ],
   "main": "./dist/lun-theme.umd.cjs",
   "module": "./dist/lun-theme.js",
   "exports": {
     ".": {
       "require": "./dist/lun-theme.umd.cjs",
-      "import": "./dist/lun-theme.js"
+      "import": "./dist/lun-theme.js",
+      "types": "./dist/index.d.ts"
     },
+    "./scss/common/*.scss": "./src/scss/common/*.scss",
     "./package.json": "./package.json"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",

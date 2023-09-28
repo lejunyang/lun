@@ -8,10 +8,12 @@
   "exports": {
     ".": {
       "require": "./dist/lun-utils.umd.cjs",
-      "import": "./dist/lun-utils.js"
+      "import": "./dist/lun-utils.js",
+      "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",

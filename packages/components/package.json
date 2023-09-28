@@ -8,10 +8,12 @@
   "exports": {
     ".": {
       "require": "./dist/lun-components.umd.cjs",
-      "import": "./dist/lun-components.js"
+      "import": "./dist/lun-components.js",
+      "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",

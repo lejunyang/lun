@@ -8,10 +8,12 @@
   "exports": {
     ".": {
       "require": "./dist/lun-core.umd.cjs",
-      "import": "./dist/lun-core.js"
+      "import": "./dist/lun-core.js",
+      "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
