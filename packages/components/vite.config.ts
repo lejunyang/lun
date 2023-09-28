@@ -18,6 +18,17 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ['vue'],
 	},
+	build: {
+		lib: {
+			entry: './index.ts',
+			name: '@lun/components',
+			fileName: 'lun-components',
+		},
+		minify: false,
+		rollupOptions: {
+			external: ['vue', /@lun\/.+/],
+		}
+	},
 	define: {
 		// __DEV__: "!!(process.env.NODE_ENV !== 'production')",
 		__DEV__: 'true',
