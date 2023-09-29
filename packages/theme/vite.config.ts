@@ -34,7 +34,7 @@ export default defineConfig({
 			scss: {
 				// 引入 mixin.scss 这样就可以在全局中使用 mixin.scss中预定义的变量了
 				// 给导入的路径最后加上 ;
-				additionalData: '@import "@/assets/style/mixin.scss";',
+				// additionalData: '@import "@/assets/style/mixin.scss";',
 			},
 		},
 	},
