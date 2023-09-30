@@ -1,5 +1,6 @@
-import { ElementAnimation } from "./animation.registry";
-import { GlobalStaticConfig } from "config";
+import { ref } from 'vue';
+import { ElementAnimation } from './animation.registry';
+import { GlobalStaticConfig } from 'config';
 
 export function registryAnimation(animationName: string, animation: ElementAnimation) {
   GlobalStaticConfig.animationRegistry[animationName] = animation;
@@ -35,4 +36,16 @@ export function getAnimation(
       keyframes: [],
       options: { duration: 0 },
     };
+}
+
+export function useAnimation(animationName: string, options?: { dir?: 'rtl' | 'ltr' }) {
+  const elRef = ref<Element>();
+  return [
+    elRef,
+    () => {
+      const animation = getAnimation(animationName, { ...options, element: elRef.value });
+      if (!elRef.value || !animation) return;
+      return elRef.value.animate(animation.keyframes, animation.options);
+    },
+  ] as const;
 }

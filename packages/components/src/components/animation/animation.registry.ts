@@ -28,5 +28,6 @@ export function getInitialDefaultAnimationRegistry() {
 
 export function getInitialElementAnimationRegistry() {
   const elementAnimationMap = new WeakMap<Element, Record<string | symbol, ElementAnimation>>();
-  return new Proxy(elementAnimationMap, {});
+  // return new Proxy(elementAnimationMap, {});
+  return elementAnimationMap;
 }
