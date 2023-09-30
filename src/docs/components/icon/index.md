@@ -22,7 +22,7 @@ registerIconLibrary({
 });
 </script>
 
-# 内置默认图标
+## 内置默认图标
 
 <l-icon name="clear" />
 <l-icon name="up" />
@@ -34,7 +34,7 @@ registerIconLibrary({
 <l-icon name="down" />
 ```
 
-# 注册 SVG 图标库
+## 注册 SVG 图标库
 下面为注册font-awesome图标库的例子
 
 <l-icon library="font-awesome" name="far-bell" />

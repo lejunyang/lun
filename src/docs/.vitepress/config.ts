@@ -11,9 +11,6 @@ const wrapLink = (link: string, lang: string = 'zh') => {
 const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
   return {
     // https://vitepress.dev/reference/default-theme-config
-    search: {
-      provider: 'local',
-    },
     nav: [
       { text: locales[lang].nav.home, link: wrapLink('/') },
       { text: locales[lang].nav.components, link: wrapLink('/components/') },
@@ -50,7 +47,7 @@ export default defineConfig({
   markdown: {
     // options for @mdit-vue/plugin-toc
     // https://github.com/mdit-vue/mdit-vue/tree/main/packages/plugin-toc#options
-    toc: { level: [1, 2] },
+    // toc: { level: [1, 2] }, // default: [2, 3]
   },
   vite: {
     plugins: [vueJsx()],
@@ -64,6 +61,32 @@ export default defineConfig({
         '@lun/components': fileURLToPath(new URL('../../../packages/components', import.meta.url)),
         '@lun/core': fileURLToPath(new URL('../../../packages/core', import.meta.url)),
         '@lun/utils': fileURLToPath(new URL('../../../packages/utils', import.meta.url)),
+      },
+    },
+  },
+  themeConfig: {
+    search: {
+      provider: 'local',
+      options: {
+        locales: {
+          // zh doesn't work，should use root
+          root: {
+            translations: {
+              button: {
+                buttonText: '搜索文档',
+                buttonAriaLabel: '搜索文档',
+              },
+              modal: {
+                noResultsText: '无法找到相关结果',
+                resetButtonTitle: '清除查询条件',
+                footer: {
+                  selectText: '选择',
+                  navigateText: '切换',
+                },
+              },
+            },
+          },
+        },
       },
     },
   },
