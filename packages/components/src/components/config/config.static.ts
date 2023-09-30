@@ -1,4 +1,5 @@
 import { error } from "../../utils";
+import { getInitialDefaultAnimationRegistry, getInitialElementAnimationRegistry } from "../animation/animation.registry";
 import { getInitialCustomRendererMap } from "../custom-renderer/renderer.registry";
 
 export const components = Object.freeze(['button', 'base-input', 'custom-renderer', 'input', 'icon'] as const);
@@ -74,6 +75,8 @@ export const GlobalStaticConfig = new Proxy(
 		/** function used to process html string before pass it to v-html, you can use this to do XSS filter */
 		vHtmlPreprocessor: (html: string) => html,
 		customRendererMap: getInitialCustomRendererMap(),
+		animationRegistry: getInitialDefaultAnimationRegistry(),
+		elAnimationRegistry: getInitialElementAnimationRegistry(),
 	},
 	{
 		get(target, p, receiver) {
