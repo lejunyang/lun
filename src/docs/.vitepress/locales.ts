@@ -11,6 +11,9 @@ export default {
         icon: 'Icon 图标',
         baseInput: 'BaseInput 基础输入',
         input: 'Input 输入'
+      },
+      feedback: {
+        spin: 'Spin 加载中'
       }
     }
   },
@@ -26,6 +29,9 @@ export default {
         icon: 'Icon',
         baseInput: 'BaseInput',
         input: 'Input'
+      },
+      feedback: {
+        spin: 'Spin'
       }
     }
   },
