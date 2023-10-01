@@ -16,7 +16,8 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "devBuild": "vite build -w & tsc -w",
+    "build": "vite build && tsc",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -27,6 +27,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
             { text: locales[lang].sidebar.basic.input, link: wrapLink('/components/input/') },
           ],
         },
+        {
+          text: locales[lang].sidebar.feedback.spin,
+          items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/') }],
+        },
       ],
     },
     socialLinks: [{ icon: 'github', link: 'https://github.com/lejunyang/lun' }],
@@ -55,13 +59,11 @@ export default defineConfig({
       // __DEV__: "!!(process.env.NODE_ENV !== 'production')",
       __DEV__: 'true',
     },
+    optimizeDeps: {
+      exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils'],
+    },
     resolve: {
-      alias: {
-        // resolve to source code except for @lun/theme
-        '@lun/components': fileURLToPath(new URL('../../../packages/components', import.meta.url)),
-        '@lun/core': fileURLToPath(new URL('../../../packages/core', import.meta.url)),
-        '@lun/utils': fileURLToPath(new URL('../../../packages/utils', import.meta.url)),
-      },
+      alias: {},
     },
   },
   themeConfig: {
