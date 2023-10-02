@@ -21,14 +21,14 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "devBuild": "vite build -w & tsc -w",
-    "build": "vue-tsc && vite build",
+    "build": "rimraf ./dist && vite build && tsc -p ./tsconfig.build.json",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/colors": "^2.1.0"
-  },
-  "peerDependencies": {
+    "@radix-ui/colors": "^2.1.0",
     "@lun/components": "workspace:^"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5"
   }
 }

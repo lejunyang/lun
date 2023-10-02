@@ -16,8 +16,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "devBuild": "vite build -w & tsc -w",
-    "build": "vite build && tsc",
+    "build": "rimraf ./dist && vite build && tsc -p ./tsconfig.build.json",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -32,6 +31,7 @@
     "typescript": "^5.0.2",
     "vite": "^4.4.9",
     "vue": "^3.2.0",
-    "vue-tsc": "^1.8.5"
+    "vue-tsc": "^1.8.5",
+    "rimraf": "^5.0.5"
   }
 }

@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter \"./packages/**\" run devBuild & vitepress dev src/docs",
-    "type": "tsc -p packages/components && tsc -p packages/core && tsc -p packages/theme && tsc -p packages/utils",
-    "build": "vite build packages/components && vite build packages/core && vite build packages/theme && vite build packages/utils",
+    "dev": "vitepress dev src/docs",
+    "build": "pnpm --filter \"./packages/**\" run build",
     "docs:build": "vitepress build src/docs",
     "docs:preview": "vitepress preview src/docs"
   },

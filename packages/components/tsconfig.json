@@ -7,14 +7,15 @@
   ],
   "include": [
     "./index.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.vue",
     "../../global.d.ts"
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "declarationDir": "dist",
     "paths": {
       "@/*": [
         "src/*"

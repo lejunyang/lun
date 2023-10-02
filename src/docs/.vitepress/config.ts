@@ -28,7 +28,8 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           ],
         },
         {
-          text: locales[lang].sidebar.feedback.spin,
+          text: locales[lang].sidebar.feedback.menu,
+          collapsed: false,
           items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/') }],
         },
       ],
@@ -63,7 +64,22 @@ export default defineConfig({
       exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils'],
     },
     resolve: {
-      alias: {},
+      alias:
+        process.env.NODE_ENV !== 'production'
+          ? {
+              // resolve to source code except for @lun/theme
+              common: fileURLToPath(new URL('../../../packages/components/src/common/index', import.meta.url)),
+              config: fileURLToPath(
+                new URL('../../../packages/components/src/components/config/index', import.meta.url)
+              ),
+              custom: fileURLToPath(new URL('../../../packages/components/src/custom/index', import.meta.url)),
+              utils: fileURLToPath(new URL('../../../packages/components/src/utils/index', import.meta.url)),
+              hooks: fileURLToPath(new URL('../../../packages/components/src/hooks/index', import.meta.url)),
+              '@lun/components': fileURLToPath(new URL('../../../packages/components/index', import.meta.url)),
+              '@lun/core': fileURLToPath(new URL('../../../packages/core/index', import.meta.url)),
+              '@lun/utils': fileURLToPath(new URL('../../../packages/utils/index', import.meta.url)),
+            }
+          : {},
     },
   },
   themeConfig: {

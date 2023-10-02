@@ -14,20 +14,11 @@
     "jsx": "preserve",
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationDir": "./dist",
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@lun/*": ["packages/*"],
-    },
   },
 }
