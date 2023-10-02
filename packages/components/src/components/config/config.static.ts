@@ -59,7 +59,7 @@ export const GlobalStaticConfig = new Proxy(
 			} as const
     },
     preferCSSStyleSheet: supportCSSStyleSheet(),
-    /** define every components' styles, also can set global common style with `common` key */
+    /** define every components' static styles, also can set global common style with `common` key */
     styles: (() => {
       const original = components.reduce((result, name) => {
         result[name] = [];
