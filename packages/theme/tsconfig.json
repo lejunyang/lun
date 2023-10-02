@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [
     {
       "path": "./tsconfig.node.json"
@@ -15,8 +15,17 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "declarationDir": "./dist",
     "paths": {
-      "@lun/components": ["../components/index.ts"]
+      "@lun/components": [
+        "../components/index.ts"
+      ],
+      "@lun/theme": [
+        "../theme/index.ts"
+      ],
+      "@lun/utils": [
+        "../utils/index.ts"
+      ]
     }
   }
 }

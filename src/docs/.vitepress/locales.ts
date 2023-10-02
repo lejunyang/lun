@@ -13,6 +13,7 @@ export default {
         input: 'Input 输入'
       },
       feedback: {
+        menu: 'Feedback 反馈',
         spin: 'Spin 加载中'
       }
     }
@@ -31,6 +32,7 @@ export default {
         input: 'Input'
       },
       feedback: {
+        menu: 'Feedback',
         spin: 'Spin'
       }
     }
