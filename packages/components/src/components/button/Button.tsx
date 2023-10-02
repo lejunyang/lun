@@ -1,19 +1,23 @@
-import { PropType } from 'vue';
+import type { PropType } from 'vue';
+import { h } from 'vue';
 import { defineCustomElement } from 'custom';
 import { editStateProps } from 'common';
 import { Responsive, useComputedBreakpoints, useSetupEdit } from '@lun/core';
 import { GlobalStaticConfig } from 'config';
-import { defineIcon } from '../icon/Icon';
+import { defineSpin } from '../spin';
 
 export const Button = defineCustomElement({
   name: GlobalStaticConfig.nameMap.button,
   props: {
     ...editStateProps,
+    label: { type: String },
     size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>>, default: '1' },
     asyncHandler: { type: Function as PropType<(e: MouseEvent) => void> },
     showLoading: { type: Boolean, default: true },
+    spinProps: { type: Object },
     iconPosition: { type: String as PropType<'left' | 'right'>, default: 'left' },
   },
+  styles: GlobalStaticConfig.styles.button,
   setup(props) {
     const [editComputed, editState] = useSetupEdit();
     const handler = {
@@ -26,10 +30,12 @@ export const Button = defineCustomElement({
       },
     };
     const buttonSizeClass = useComputedBreakpoints(() => props.size, 'l-button-size');
+    const actualSpinName = GlobalStaticConfig.actualNameMap.spin.values().next().value;
 
     return () => {
       const { disabled, loading } = editComputed.value;
       const finalDisabled = !!(disabled || loading);
+      const spinProps = { size: props.size, ...props.spinProps };
       return (
         <button
           class={[buttonSizeClass.value]}
@@ -38,10 +44,17 @@ export const Button = defineCustomElement({
           onClick={handler.onClick}
           part="button"
         >
-          {/* TODO use Icon */}
-          {props.iconPosition === 'left' && props.showLoading && loading ? 'loading...' : <slot name="icon"></slot>}
-          <slot></slot>
-          {props.iconPosition === 'right' && props.showLoading && loading ? 'loading...' : <slot name="icon"></slot>}
+          {props.iconPosition === 'left' && props.showLoading && loading ? (
+            h(actualSpinName, spinProps)
+          ) : (
+            <slot name="icon"></slot>
+          )}
+          <slot>{props.label}</slot>
+          {props.iconPosition === 'right' && props.showLoading && loading ? (
+            h(actualSpinName, spinProps)
+          ) : (
+            <slot name="icon"></slot>
+          )}
         </button>
       );
     };
@@ -60,8 +73,8 @@ declare global {
   }
 }
 
-export function defineButton(buttonName?: string, iconName?: string) {
-  defineIcon(iconName);
+export function defineButton(buttonName?: string, spinName?: string) {
+  defineSpin(spinName);
   buttonName ||= GlobalStaticConfig.nameMap.button;
   if (!customElements.get(buttonName)) {
     GlobalStaticConfig.actualNameMap['button'].add(buttonName);
