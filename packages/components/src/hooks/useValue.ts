@@ -1,6 +1,6 @@
 import type { UseModel } from "@lun/core";
 import { createUseModel } from "@lun/core";
-import { useShadowInfo } from "./shadowDom";
+import { useShadowDom } from "./shadowDom";
 
 export const useValueModel = createUseModel({ defaultKey: 'value', defaultEvent: 'update' }) as UseModel<'value'>;
 
@@ -10,7 +10,7 @@ export const useValueModel = createUseModel({ defaultKey: 'value', defaultEvent:
  * But we can use a tricky way to make it work, since v-model would add an `_assign` function to the element. We just need to call that manually.
  */
 export function useVModelCompatible() {
-  const shadowInfo = useShadowInfo<HTMLInputElement & { _assign?: (val: any) => void }, HTMLInputElement>();
+  const shadowInfo = useShadowDom<HTMLInputElement & { _assign?: (val: any) => void }, HTMLInputElement>();
   return {
     shadowInfo,
     updateVModel(val: any) {
