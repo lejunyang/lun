@@ -17,7 +17,7 @@ export const Button = defineCustomElement({
     spinProps: { type: Object },
     iconPosition: { type: String as PropType<'left' | 'right'>, default: 'left' },
   },
-  styles: GlobalStaticConfig.styles.button,
+  styles: GlobalStaticConfig.computedStyles.button,
   setup(props) {
     const [editComputed, editState] = useSetupEdit();
     const handler = {
