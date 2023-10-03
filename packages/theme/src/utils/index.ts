@@ -1,7 +1,7 @@
-import { supportCSSStyleSheet } from '@lun/components';
+import { GlobalStaticConfig, supportCSSStyleSheet } from '@lun/components';
 
-export function processStringStyle(style: string, useCssStyleSheet = supportCSSStyleSheet()) {
-  if (useCssStyleSheet) {
+export function processStringStyle(style: string) {
+  if (supportCSSStyleSheet() && GlobalStaticConfig.preferCSSStyleSheet) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(style);
     return sheet;
