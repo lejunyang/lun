@@ -18,7 +18,7 @@ export const Input = defineCustomFormElement({
 		showClearIcon: { type: Boolean },
 		...setDefaultsForPropOptions(inputProps, GlobalStaticConfig.defaultProps.input),
 	},
-	styles: GlobalStaticConfig.styles.input,
+	styles: GlobalStaticConfig.computedStyles.input,
 	emits: ['update', 'enterDown'],
 	setup(props, { emit, attrs }) {
 		const valueModel = useValueModel(props);

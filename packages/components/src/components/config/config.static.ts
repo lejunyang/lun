@@ -9,8 +9,15 @@ import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registr
 export const components = Object.freeze(['button', 'base-input', 'custom-renderer', 'input', 'icon', 'spin'] as const);
 export type ComponentKey = (typeof components)[number];
 
+type ComponentStyles = Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>;
+
 let inited = false;
 let isInInitFunc = false;
+
+const styles = components.reduce((result, name) => {
+  result[name] = [];
+  return result;
+}, { common: [] } as unknown as ComponentStyles);
 
 /**
  * use `initStaticConfig` to set up your personal config\
@@ -51,28 +58,22 @@ export const GlobalStaticConfig = new Proxy(
         toNullWhenEmpty: true,
         transformWhen: 'notComposing',
         emitEnterDownWhenComposing: false,
-			} as const,
-			spin: {
+      } as const,
+      spin: {
         type: 'circle',
         strokeWidth: 4,
         size: '1',
-			} as const
+      } as const,
     },
     preferCSSStyleSheet: supportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */
-    styles: (() => {
-      const original = components.reduce((result, name) => {
-        result[name] = [];
-        return result;
-      }, {} as Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>);
-      const commonStyles = [] as (string | CSSStyleSheet)[];
-      return new Proxy(original, {
-        get(target, p, receiver) {
-          if (p === 'common') return commonStyles;
-          return [...commonStyles, ...Reflect.get(target, p, receiver)].filter(Boolean);
-        },
-      });
-    })(),
+    styles,
+    computedStyles: new Proxy(styles, {
+      get(target, p, receiver) {
+        if (p === 'common') return [...Reflect.get(target, 'common', receiver)];
+        return [...Reflect.get(target, 'common', receiver), ...Reflect.get(target, p, receiver)].filter(Boolean);
+      },
+    }),
     /** function used to request icon url, should return html string */
     iconRequest: async (url?: string | null) => {
       if (!url) return;

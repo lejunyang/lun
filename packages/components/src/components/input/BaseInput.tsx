@@ -12,7 +12,7 @@ export const BaseInput = defineCustomFormElement({
 		...editStateProps,
 		...setDefaultsForPropOptions(inputProps, GlobalStaticConfig.defaultProps['base-input']),
 	},
-	styles: GlobalStaticConfig.styles['base-input'],
+	styles: GlobalStaticConfig.computedStyles['base-input'],
 	emits: ['update', 'enterDown'],
 	setup(props, { emit, attrs }) {
 		useSetupContextEvent();
