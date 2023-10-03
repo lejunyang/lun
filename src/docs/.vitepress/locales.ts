@@ -6,14 +6,17 @@ export default {
     },
     sidebar: {
       basic: {
-        menu: 'Basic 基础',
+        menu: '基础组件',
         button: 'Button 按钮',
         icon: 'Icon 图标',
+      },
+      dataInput: {
+        menu: '输入组件',
         baseInput: 'BaseInput 基础输入',
         input: 'Input 输入'
       },
       feedback: {
-        menu: 'Feedback 反馈',
+        menu: '消息反馈',
         spin: 'Spin 加载中'
       }
     }
@@ -28,6 +31,9 @@ export default {
         menu: 'Basic',
         button: 'Button',
         icon: 'Icon',
+      },
+      dataInput: {
+        menu: 'DataInput',
         baseInput: 'BaseInput',
         input: 'Input'
       },

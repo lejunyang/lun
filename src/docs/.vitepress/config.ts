@@ -23,9 +23,13 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           items: [
             { text: locales[lang].sidebar.basic.button, link: wrapLink('/components/button/') },
             { text: locales[lang].sidebar.basic.icon, link: wrapLink('/components/icon/') },
-            { text: locales[lang].sidebar.basic.baseInput, link: wrapLink('/components/base-input/') },
-            { text: locales[lang].sidebar.basic.input, link: wrapLink('/components/input/') },
           ],
+        },
+        {
+          text: locales[lang].sidebar.dataInput.menu,
+          collapsed: false,
+          items: [{ text: locales[lang].sidebar.dataInput.baseInput, link: wrapLink('/components/base-input/') },
+          { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/') },]
         },
         {
           text: locales[lang].sidebar.feedback.menu,
