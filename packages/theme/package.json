@@ -20,7 +20,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "vite",
+    "dev": "rimraf ./dist & vite build -w & tsc -w -p ./tsconfig.build.json",
     "build": "rimraf ./dist && vite build && tsc -p ./tsconfig.build.json",
     "preview": "vite preview"
   },
