@@ -39,7 +39,7 @@ export const Spin = defineCustomElement({
       GlobalStaticConfig.defaultProps.spin
     ),
   },
-  styles: GlobalStaticConfig.styles.spin,
+  styles: GlobalStaticConfig.computedStyles.spin,
   setup(props) {
     const [svgRef, svgAnimate] = useAnimation('spin.rotate');
     const [circleRef, circleAnimate] = useAnimation('spin.circle.stroke');
