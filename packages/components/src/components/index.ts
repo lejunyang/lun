@@ -2,14 +2,18 @@ import { defineButton } from './button';
 import { defineCustomRenderer } from './custom-renderer';
 import { defineIcon } from './icon';
 import { defineBaseInput, defineInput } from './input';
+import { defineRadio, defineRadioGroup } from './radio';
 import { defineSpin } from './spin';
 
 export function defineAllComponents() {
+  if (typeof customElements === 'undefined') return;
   defineButton();
   defineCustomRenderer();
   defineIcon();
   defineBaseInput();
   defineInput();
+  defineRadio();
+  defineRadioGroup();
   defineSpin();
 }
 
