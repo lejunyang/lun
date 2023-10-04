@@ -1,4 +1,4 @@
-import { defineCustomElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { PropType, VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { error } from 'utils';
@@ -6,7 +6,7 @@ import type { IconLibraryValue, IconNameValue } from './icon.default';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 
-export const Icon = defineCustomElement({
+export const Icon = defineSSRCustomElement({
 	name: GlobalStaticConfig.nameMap.icon,
 	props: {
 		library: { type: String as PropType<IconLibraryValue>, default: () => GlobalStaticConfig.defaultProps.icon.library },

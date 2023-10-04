@@ -1,12 +1,12 @@
 import type { PropType } from 'vue';
 import { h } from 'vue';
-import { defineCustomElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { editStateProps } from 'common';
 import { Responsive, useComputedBreakpoints, useSetupEdit } from '@lun/core';
 import { GlobalStaticConfig } from 'config';
 import { defineSpin } from '../spin';
 
-export const Button = defineCustomElement({
+export const Button = defineSSRCustomElement({
   name: GlobalStaticConfig.nameMap.button,
   props: {
     ...editStateProps,

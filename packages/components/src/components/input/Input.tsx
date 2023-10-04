@@ -1,12 +1,12 @@
 import { PropType, onBeforeUnmount, onUnmounted } from 'vue';
 import { useInput, useSetupEdit, Responsive, useComputedBreakpoints } from '@lun/core';
-import { defineCustomFormElement } from 'custom';
+import { defineSSRCustomFormElement } from 'custom';
 import { setDefaultsForPropOptions } from 'utils';
 import { useVModelCompatible, useValueModel } from 'hooks';
 import { editStateProps, inputProps } from 'common';
 import { GlobalStaticConfig } from 'config';
 
-export const Input = defineCustomFormElement({
+export const Input = defineSSRCustomFormElement({
 	name: GlobalStaticConfig.nameMap.input,
 	inheritAttrs: false,
 	props: {
