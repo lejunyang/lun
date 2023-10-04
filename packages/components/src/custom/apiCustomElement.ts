@@ -26,14 +26,11 @@ import {
   render,
   camelize,
   ObjectEmitsOptions,
+  VueElementConstructor,
 } from 'vue';
 import { hyphenate } from '../utils';
 import { toNumberIfValid } from '@lun/utils';
 import { NotBindEvents, createPlainEvent, delegateEvent } from '../utils/event';
-
-export type VueElementConstructor<P = {}> = {
-  new (initialProps?: Record<string, any>): VueElement & P;
-};
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
 type EventInit = {
@@ -143,7 +140,7 @@ export function defineCustomElement(options: any, hydrate?: RootHydrateFunction)
     }
   }
 
-  return VueCustomElement;
+  return VueCustomElement as any;
 }
 
 /*! #__NO_SIDE_EFFECTS__ */
