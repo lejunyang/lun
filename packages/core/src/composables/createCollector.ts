@@ -2,9 +2,9 @@ import type {
   ComponentInternalInstance,
   ExtractPropTypes,
   ComponentObjectPropsOptions,
-  VueElementConstructor,
   Ref,
   UnwrapRef,
+  VueElementConstructor,
 } from 'vue';
 import { getCurrentInstance, provide, inject, onMounted, onBeforeUnmount, markRaw, ref, onUnmounted } from 'vue';
 import { getPreviousMatchElInTree } from '@lun/utils';
@@ -13,7 +13,7 @@ type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
   props: P;
 };
-export type CollectorContext<ParentProps = Data, ChildProps = Data> = {
+export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra = Data> = ParentExtra & {
   parent: InstanceWithProps<ParentProps> | null;
   items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
   addItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
@@ -27,20 +27,21 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data> = {
  * @returns
  */
 export function createCollector<
-  P = Data,
-  C = Data,
-  ParentProps = P extends VueElementConstructor<ExtractPropTypes<infer T>>
+  P extends any = Data,
+  C extends any = Data,
+  ParentProps = P extends VueElementConstructor<infer T>
     ? T
     : P extends ComponentObjectPropsOptions
     ? ExtractPropTypes<P>
     : P,
-  ChildProps = C extends VueElementConstructor<ExtractPropTypes<infer T>>
+  ChildProps = C extends VueElementConstructor<infer T>
     ? T
     : P extends ComponentObjectPropsOptions
     ? ExtractPropTypes<P>
-    : C
->(name?: string, options?: { parent?: P; child?: C; sort?: boolean }) {
-  const { sort } = options || {};
+    : C,
+  PE extends Data = Data
+>(options?: { name?: string; parent?: P; child?: C; sort?: boolean; parentExtra?: PE }) {
+  const { sort, name } = options || {};
   const items = ref<InstanceWithProps<ChildProps>[]>([]);
   const elIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
@@ -50,7 +51,7 @@ export function createCollector<
     parentElTagName: '',
     childElTagName: '',
   };
-  const parent = () => {
+  const parent = (extraProvide?: PE) => {
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) instance = markRaw(instance);
     if (instance) {
@@ -68,6 +69,7 @@ export function createCollector<
       });
     }
     provide<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY, {
+      ...extraProvide,
       parent: instance,
       items,
       addItem(child) {
@@ -105,12 +107,12 @@ export function createCollector<
         }
       },
     });
-    return items;
+    return items as Ref<InstanceWithProps<ChildProps>[]>; // if don't add this, ts will report an error(ts(4058)) on createCollector, don't know why
   };
   const child = () => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
     if (instance) instance = markRaw(instance);
-    const context = inject<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY);
+    const context = inject<CollectorContext<ParentProps, ChildProps, PE>>(COLLECTOR_KEY);
     if (context) {
       onMounted(() => context.addItem(instance));
       onBeforeUnmount(() => context.removeItem(instance));
