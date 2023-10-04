@@ -1,11 +1,11 @@
 import { useInput, useSetupEdit } from '@lun/core';
-import { defineCustomFormElement } from 'custom';
+import { defineSSRCustomFormElement } from 'custom';
 import { setDefaultsForPropOptions } from 'utils';
 import { editStateProps, inputProps } from 'common';
 import { GlobalStaticConfig } from 'config';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 
-export const BaseInput = defineCustomFormElement({
+export const BaseInput = defineSSRCustomFormElement({
 	name: GlobalStaticConfig.nameMap['base-input'],
 	inheritAttrs: false,
 	props: {

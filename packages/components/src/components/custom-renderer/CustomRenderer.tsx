@@ -1,9 +1,9 @@
-import { defineCustomElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
 
-export const CustomRenderer = defineCustomElement({
+export const CustomRenderer = defineSSRCustomElement({
   name: GlobalStaticConfig.nameMap['custom-renderer'],
   noShadow: true,
   inheritAttrs: false,

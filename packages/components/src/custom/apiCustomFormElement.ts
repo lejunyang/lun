@@ -1,6 +1,6 @@
 /*! #__NO_SIDE_EFFECTS__ */
 
-import { RootHydrateFunction, defineComponent } from 'vue';
+import { RootHydrateFunction, defineComponent, hydrate } from 'vue';
 import { VueElement, VueElementConstructor, defineCustomElement } from './apiCustomElement';
 
 export const defineCustomFormElement: typeof defineCustomElement = function (
@@ -25,3 +25,8 @@ export const defineCustomFormElement: typeof defineCustomElement = function (
 	}
 	return VueCustomElement;
 };
+
+export const defineSSRCustomFormElement: typeof defineCustomFormElement = function (options: any) {
+	// @ts-ignore
+	return defineCustomFormElement(options, hydrate) as any;
+}
