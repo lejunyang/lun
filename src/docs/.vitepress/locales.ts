@@ -13,13 +13,14 @@ export default {
       dataInput: {
         menu: '输入组件',
         baseInput: 'BaseInput 基础输入',
-        input: 'Input 输入'
+        input: 'Input 输入',
+        radio: 'Radio 单选框',
       },
       feedback: {
         menu: '消息反馈',
-        spin: 'Spin 加载中'
-      }
-    }
+        spin: 'Spin 加载中',
+      },
+    },
   },
   en: {
     nav: {
@@ -35,12 +36,13 @@ export default {
       dataInput: {
         menu: 'DataInput',
         baseInput: 'BaseInput',
-        input: 'Input'
+        input: 'Input',
+        radio: 'Radio',
       },
       feedback: {
         menu: 'Feedback',
-        spin: 'Spin'
-      }
-    }
+        spin: 'Spin',
+      },
+    },
   },
-}
+};

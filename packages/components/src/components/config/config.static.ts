@@ -6,7 +6,16 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 
-export const components = Object.freeze(['button', 'base-input', 'custom-renderer', 'input', 'icon', 'spin'] as const);
+export const components = Object.freeze([
+  'button',
+  'base-input',
+  'custom-renderer',
+  'icon',
+  'input',
+  'radio',
+  'radio-group',
+  'spin',
+] as const);
 export type ComponentKey = (typeof components)[number];
 
 type ComponentStyles = Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>;
@@ -14,10 +23,13 @@ type ComponentStyles = Record<'common' | ComponentKey, (string | CSSStyleSheet)[
 let inited = false;
 let isInInitFunc = false;
 
-const styles = components.reduce((result, name) => {
-  result[name] = [];
-  return result;
-}, { common: [] } as unknown as ComponentStyles);
+const styles = components.reduce(
+  (result, name) => {
+    result[name] = [];
+    return result;
+  },
+  { common: [] } as unknown as ComponentStyles
+);
 
 /**
  * use `initStaticConfig` to set up your personal config\
@@ -58,6 +70,10 @@ export const GlobalStaticConfig = new Proxy(
         toNullWhenEmpty: true,
         transformWhen: 'notComposing',
         emitEnterDownWhenComposing: false,
+      } as const,
+      radio: {} as const,
+      'radio-group': {
+        looseEqual: false,
       } as const,
       spin: {
         type: 'circle',
