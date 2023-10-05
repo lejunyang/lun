@@ -32,6 +32,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
             { text: locales[lang].sidebar.dataInput.baseInput, link: wrapLink('/components/base-input/') },
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/') },
             { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/') },
+            { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/') },
           ],
         },
         {
