@@ -15,6 +15,7 @@ export default {
         baseInput: 'BaseInput 基础输入',
         input: 'Input 输入',
         radio: 'Radio 单选框',
+        checkbox: 'Checkbox 复选框',
       },
       feedback: {
         menu: '消息反馈',
@@ -38,6 +39,7 @@ export default {
         baseInput: 'BaseInput',
         input: 'Input',
         radio: 'Radio',
+        checkbox: 'Checkbox',
       },
       feedback: {
         menu: 'Feedback',
