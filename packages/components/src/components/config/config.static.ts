@@ -9,6 +9,8 @@ import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registr
 export const components = Object.freeze([
   'button',
   'base-input',
+  'checkbox',
+  'checkbox-group',
   'custom-renderer',
   'icon',
   'input',
@@ -62,6 +64,12 @@ export const GlobalStaticConfig = new Proxy(
         transformWhen: 'notComposing',
         emitEnterDownWhenComposing: false,
       } as const,
+      checkbox: {
+        labelPosition: 'right',
+      } as const,
+      'checkbox-group': {
+        looseEqual: false,
+      } as const,
       input: {
         changeWhen: 'notComposing',
         waitType: 'debounce',
@@ -71,7 +79,9 @@ export const GlobalStaticConfig = new Proxy(
         transformWhen: 'notComposing',
         emitEnterDownWhenComposing: false,
       } as const,
-      radio: {} as const,
+      radio: {
+        labelPosition: 'right',
+      } as const,
       'radio-group': {
         looseEqual: false,
       } as const,
