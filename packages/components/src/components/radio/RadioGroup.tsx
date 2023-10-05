@@ -5,6 +5,9 @@ import { setDefaultsForPropOptions } from 'utils';
 import { editStateProps } from 'common';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { RadioCollector } from '.';
+import { PropType, h } from 'vue';
+
+export type RadioOptions = { label: string; value: any }[];
 
 export const RadioGroup = defineSSRCustomFormElement({
   name: GlobalStaticConfig.nameMap['radio-group'],
@@ -14,6 +17,7 @@ export const RadioGroup = defineSSRCustomFormElement({
       {
         value: {},
         looseEqual: { type: Boolean },
+        options: { type: Array as PropType<RadioOptions> },
       },
       GlobalStaticConfig.defaultProps['radio-group']
     ),
@@ -25,15 +29,17 @@ export const RadioGroup = defineSSRCustomFormElement({
     useSetupContextEvent({
       update(value) {
         valueModel.value = value;
-        emit('update', value);
         updateVModel(value);
-      }
+      },
     });
     useSetupEdit();
     const { updateVModel } = useVModelCompatible();
     RadioCollector.parent({ valueModel });
+    const childName = GlobalStaticConfig.actualNameMap.radio.values().next().value;
     return () => (
       <>
+        {Array.isArray(props.options) &&
+          props.options.map((i, index) => h(childName, { value: i.value, key: i.value + index }, i.label))}
         <slot></slot>
       </>
     );
