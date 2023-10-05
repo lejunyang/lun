@@ -1,6 +1,6 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
-import { computed } from 'vue';
+import { PropType, computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { setDefaultsForPropOptions } from 'utils';
 import { editStateProps } from 'common';
@@ -15,6 +15,7 @@ export const Radio = defineSSRCustomFormElement({
       {
         value: {},
         label: { type: String },
+        labelPosition: { type: String as PropType<'left' | 'right'> },
         checked: { type: Boolean },
       },
       GlobalStaticConfig.defaultProps.radio
@@ -42,6 +43,11 @@ export const Radio = defineSSRCustomFormElement({
     return () => (
       <>
         <label part="label">
+        {props.labelPosition === 'left' && (
+            <span part="label">
+              <slot>{props.label}</slot>
+            </span>
+          )}
           <span>
             <input
               part="radio"
@@ -53,9 +59,11 @@ export const Radio = defineSSRCustomFormElement({
               onChange={handler.onChange}
             />
           </span>
-          <span part="label">
-            <slot>{props.label}</slot>
-          </span>
+          {props.labelPosition === 'right' && (
+            <span part="label">
+              <slot>{props.label}</slot>
+            </span>
+          )}
         </label>
       </>
     );

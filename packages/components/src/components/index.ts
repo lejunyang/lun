@@ -1,4 +1,5 @@
 import { defineButton } from './button';
+import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
 import { defineIcon } from './icon';
 import { defineBaseInput, defineInput } from './input';
@@ -8,6 +9,8 @@ import { defineSpin } from './spin';
 export function defineAllComponents() {
   if (typeof customElements === 'undefined') return;
   defineButton();
+  defineCheckbox();
+  defineCheckboxGroup();
   defineCustomRenderer();
   defineIcon();
   defineBaseInput();
@@ -20,7 +23,9 @@ export function defineAllComponents() {
 export * from './animation';
 export * from './button';
 export * from './config';
+export * from './checkbox';
 export * from './custom-renderer';
 export * from './input';
+export * from './radio';
 export * from './icon';
 export * from './spin';
