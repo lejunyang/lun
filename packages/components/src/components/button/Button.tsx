@@ -5,17 +5,23 @@ import { editStateProps } from 'common';
 import { Responsive, useComputedBreakpoints, useSetupEdit } from '@lun/core';
 import { GlobalStaticConfig } from 'config';
 import { defineSpin } from '../spin';
+import { setDefaultsForPropOptions } from 'utils';
 
 export const Button = defineSSRCustomElement({
   name: GlobalStaticConfig.nameMap.button,
   props: {
     ...editStateProps,
     label: { type: String },
-    size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>>, default: '1' },
     asyncHandler: { type: Function as PropType<(e: MouseEvent) => void> },
-    showLoading: { type: Boolean, default: true },
     spinProps: { type: Object },
-    iconPosition: { type: String as PropType<'left' | 'right'>, default: 'left' },
+    ...setDefaultsForPropOptions(
+      {
+        size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
+        showLoading: { type: Boolean },
+        iconPosition: { type: String as PropType<LogicalPosition> },
+      },
+      GlobalStaticConfig.defaultProps.button
+    ),
   },
   styles: GlobalStaticConfig.computedStyles.button,
   setup(props) {
@@ -44,13 +50,13 @@ export const Button = defineSSRCustomElement({
           onClick={handler.onClick}
           part="button"
         >
-          {props.iconPosition === 'left' && props.showLoading && loading ? (
+          {props.iconPosition === 'start' && props.showLoading && loading ? (
             h(actualSpinName, spinProps)
           ) : (
             <slot name="icon"></slot>
           )}
           <slot>{props.label}</slot>
-          {props.iconPosition === 'right' && props.showLoading && loading ? (
+          {props.iconPosition === 'end' && props.showLoading && loading ? (
             h(actualSpinName, spinProps)
           ) : (
             <slot name="icon"></slot>

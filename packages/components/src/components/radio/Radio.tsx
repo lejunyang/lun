@@ -15,7 +15,7 @@ export const Radio = defineSSRCustomFormElement({
       {
         value: {},
         label: { type: String },
-        labelPosition: { type: String as PropType<'left' | 'right'> },
+        labelPosition: { type: String as PropType<LogicalPosition> },
         checked: { type: Boolean },
       },
       GlobalStaticConfig.defaultProps.radio
@@ -43,7 +43,7 @@ export const Radio = defineSSRCustomFormElement({
     return () => (
       <>
         <label part="label">
-        {props.labelPosition === 'left' && (
+        {props.labelPosition === 'start' && (
             <span part="label">
               <slot>{props.label}</slot>
             </span>
@@ -59,7 +59,7 @@ export const Radio = defineSSRCustomFormElement({
               onChange={handler.onChange}
             />
           </span>
-          {props.labelPosition === 'right' && (
+          {props.labelPosition === 'end' && (
             <span part="label">
               <slot>{props.label}</slot>
             </span>
