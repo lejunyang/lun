@@ -7,7 +7,13 @@ import { editStateProps } from 'common';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
 
-export type CheckboxChangeDetail = { value: any; isCheckForAll: boolean; checked: boolean };
+export type CheckboxUpdateDetail = {
+  value: any;
+  isCheckForAll: boolean;
+  checked: boolean;
+  onlyFor?: string;
+  excludeFromGroup?: boolean;
+};
 
 export const Checkbox = defineSSRCustomFormElement({
   name: GlobalStaticConfig.nameMap.checkbox,
@@ -21,37 +27,50 @@ export const Checkbox = defineSSRCustomFormElement({
         checked: { type: Boolean },
         intermediate: { type: Boolean },
         checkForAll: { type: Boolean },
+        onlyFor: { type: String },
+        excludeFromGroup: { type: Boolean },
       },
       GlobalStaticConfig.defaultProps.checkbox
     ),
   },
   styles: GlobalStaticConfig.computedStyles.checkbox,
   emits: {
-    update: (_detail: CheckboxChangeDetail) => null,
+    update: (_detail: CheckboxUpdateDetail) => null,
   },
   setup(props, { emit }) {
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
     const { updateVModel } = useVModelCompatible();
     const checkboxContext = CheckboxCollector.child();
-    if (__DEV__ && checkboxContext && props.value == null)
-      warn(
-        `Please assign the 'value' prop with a defined value to the radio component that it's under the radio-group`
-      );
+    if (__DEV__) {
+      if (checkboxContext && props.value == null)
+        warn(
+          `Please assign the 'value' prop with a defined value to the radio component that it's under the radio-group, or it will be ignored`
+        );
+      if (props.checkForAll && !checkboxContext)
+        warn(`radio with 'checkForAll' only works under radio-group, unless you want to manipulate it manually`);
+    }
+
     const intermediate = computed(() => {
-      if (!checkboxContext) return props.intermediate;
+      if (!checkboxContext || props.excludeFromGroup) return props.intermediate;
       return props.checkForAll && checkboxContext.radioState.value.intermediate;
     });
     const checked = computed(() => {
-      if (!checkboxContext) return props.checked;
+      if (!checkboxContext || props.excludeFromGroup) return props.checked;
       const { radioState } = checkboxContext;
       const { allChecked, parentValueSet } = radioState.value;
-      return allChecked || parentValueSet.has(props.value);
+      return allChecked || (!props.checkForAll && parentValueSet.has(props.value));
     });
     const handler = {
       onChange(e: Event) {
         const target = e.target as HTMLInputElement;
-        emit('update', { value: props.value, isCheckForAll: props.checkForAll, checked: target.checked });
+        emit('update', {
+          value: props.value,
+          isCheckForAll: props.checkForAll,
+          checked: target.checked,
+          onlyFor: props.onlyFor,
+          excludeFromGroup: props.excludeFromGroup,
+        });
         updateVModel(props.value);
       },
     };

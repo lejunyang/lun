@@ -5,7 +5,7 @@ import { setDefaultsForPropOptions } from 'utils';
 import { editStateProps } from 'common';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
-import { CheckboxChangeDetail } from './Checkbox';
+import { CheckboxUpdateDetail } from './Checkbox';
 import { PropType, computed, h } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
 
@@ -20,16 +20,27 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         value: { type: Array },
         looseEqual: { type: Boolean },
         options: { type: Array as PropType<CheckboxOptions> },
+        onlyFor: { type: String },
       },
       GlobalStaticConfig.defaultProps['checkbox-group']
     ),
   },
   styles: GlobalStaticConfig.computedStyles['checkbox-group'],
   emits: ['update'],
-  setup(props) {
-    const valueModel = useValueModel(props, { passive: true });
+  setup(props, { emit }) {
+    const valueModel = useValueModel(props, {
+      passive: true,
+      emit: (name, value) => {
+        emit(name as any, {
+          value,
+          allChecked: radioState.value.allChecked,
+          intermediate: radioState.value.intermediate,
+        });
+      },
+    });
     useSetupContextEvent({
-      update({ isCheckForAll, checked, value }: CheckboxChangeDetail) {
+      update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
+        if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
         const current = toArrayIfNotNil(valueModel.value);
         if (isCheckForAll) {
           if (checked) {
@@ -67,16 +78,22 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         parentValueSet,
       };
     });
-    const children = CheckboxCollector.parent({ radioState });
+    const children = CheckboxCollector.parent({ extraProvide: { radioState } });
     const childValueSet = computed(
       () =>
-        new Set(children.value.flatMap((i) => (i.props.value != null && !i.props.checkForAll ? [i.props.value] : [])))
+        new Set(
+          children.value.flatMap((i) =>
+            i.props.value != null && !i.props.checkForAll && !i.props.excludeFromGroup ? [i.props.value] : []
+          )
+        )
     );
     const childName = GlobalStaticConfig.actualNameMap.checkbox.values().next().value;
     return () => (
       <>
         {Array.isArray(props.options) &&
-          props.options.map((i, index) => h(childName, { value: i.value, key: i.value + index }, i.label))}
+          props.options.map((i, index) =>
+            h(childName, { value: i.value, key: i.value + index, onlyFor: props.onlyFor }, i.label)
+          )}
         <slot></slot>
       </>
     );
