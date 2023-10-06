@@ -6,7 +6,17 @@ import type {
   UnwrapRef,
   VueElementConstructor,
 } from 'vue';
-import { getCurrentInstance, provide, inject, onMounted, onBeforeUnmount, markRaw, ref, onUnmounted } from 'vue';
+import {
+  getCurrentInstance,
+  provide,
+  inject,
+  onMounted,
+  onBeforeUnmount,
+  markRaw,
+  ref,
+  onUnmounted,
+  shallowReactive,
+} from 'vue';
 import { getPreviousMatchElInTree } from '@lun/utils';
 
 type Data = Record<string, unknown>;
@@ -23,7 +33,11 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 /**
  * create a collector used for collecting component instance between Parent Component and Children Components
  * @param name collector name
- * @param options used for inferring props type of `parent` and `child`. `parent` and `child` can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props
+ * @param options `name` `parent` `child` and `parentExtra` are used for dev experience.
+ * `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
+ * `parentExtra` is used to infer type of parent extra provide data
+ * @param options.sort when it's true, children collected in parent will be sorted according to their dom tree order, otherwise they are just in mount order
+ * @param options.onlyForProp parent collects all children by default, use this to collect those only with same prop and propValue with parent. If it's a truthy value but not string, it will be considered as `onlyFor`
  * @returns
  */
 export function createCollector<
@@ -40,18 +54,28 @@ export function createCollector<
     ? ExtractPropTypes<P>
     : C,
   PE extends Data = Data
->(options?: { name?: string; parent?: P; child?: C; sort?: boolean; parentExtra?: PE }) {
-  const { sort, name } = options || {};
-  const items = ref<InstanceWithProps<ChildProps>[]>([]);
-  const elIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
+>(options?: {
+  name?: string;
+  parent?: P;
+  child?: C;
+  parentExtra?: PE;
+  sort?: boolean;
+  onlyForProp?: boolean | string;
+}) {
+  const { sort, name, onlyForProp } = options || {};
+  const finalOnlyFor = onlyForProp && typeof onlyForProp !== 'string' ? 'onlyFor' : onlyForProp;
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
-  const state = {
-    parentMounted: false,
-    parentEl: null as Element | null,
-    parentElTagName: '',
-    childElTagName: '',
-  };
-  const parent = (extraProvide?: PE) => {
+
+  const parent = (params?: { extraProvide?: PE; lazyChildren?: boolean }) => {
+    const items = ref<InstanceWithProps<ChildProps>[]>([]);
+    const elIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
+    const state = shallowReactive({
+      parentMounted: false,
+      parentEl: null as Element | null,
+      parentElTagName: '',
+      childElTagName: '',
+    });
+    const { extraProvide, lazyChildren = true } = params || {};
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) instance = markRaw(instance);
     if (instance) {
@@ -74,6 +98,13 @@ export function createCollector<
       items,
       addItem(child) {
         if (child && child.vnode.el) {
+          // if 'onlyFor' is defined, accepts child only with the same value
+          if (
+            finalOnlyFor &&
+            instance?.props[finalOnlyFor] &&
+            child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
+          )
+            return;
           const el = child.vnode.el as Element;
           if (!state.childElTagName) state.childElTagName = el.tagName;
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
@@ -107,7 +138,12 @@ export function createCollector<
         }
       },
     });
-    return items as Ref<InstanceWithProps<ChildProps>[]>; // if don't add this, ts will report an error(ts(4058)) on createCollector, don't know why
+    return {
+      get value() {
+        if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
+        else return [];
+      },
+    };
   };
   const child = () => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
