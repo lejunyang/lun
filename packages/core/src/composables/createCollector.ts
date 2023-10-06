@@ -32,7 +32,6 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 
 /**
  * create a collector used for collecting component instance between Parent Component and Children Components
- * @param name collector name
  * @param options `name` `parent` `child` and `parentExtra` are used for dev experience.
  * `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
  * `parentExtra` is used to infer type of parent extra provide data
@@ -40,6 +39,7 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
  * @param options.onlyForProp parent collects all children by default, use this to collect those only with same prop and propValue with parent. If it's a truthy value but not string, it will be considered as `onlyFor`
  * @returns
  */
+/*! #__NO_SIDE_EFFECTS__ */
 export function createCollector<
   P extends any = Data,
   C extends any = Data,

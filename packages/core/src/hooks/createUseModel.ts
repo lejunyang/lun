@@ -14,6 +14,7 @@ interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false,
 	key?: K,
 }
 
+/*! #__NO_SIDE_EFFECTS__ */
 export function createUseModel<DK extends string>({ defaultKey, defaultEvent }: { defaultKey: DK; defaultEvent: string }) {
 	return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
 		props: P,
