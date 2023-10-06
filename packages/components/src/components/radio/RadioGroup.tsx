@@ -24,7 +24,7 @@ export const RadioGroup = defineSSRCustomFormElement({
   },
   styles: GlobalStaticConfig.computedStyles['radio-group'],
   emits: ['update'],
-  setup(props, { emit }) {
+  setup(props) {
     const valueModel = useValueModel(props, { passive: true });
     useSetupContextEvent({
       update(value) {
@@ -34,7 +34,7 @@ export const RadioGroup = defineSSRCustomFormElement({
     });
     useSetupEdit();
     const { updateVModel } = useVModelCompatible();
-    RadioCollector.parent({ valueModel });
+    RadioCollector.parent({ extraProvide: { valueModel } });
     const childName = GlobalStaticConfig.actualNameMap.radio.values().next().value;
     return () => (
       <>

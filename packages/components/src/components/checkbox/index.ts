@@ -9,6 +9,7 @@ export const CheckboxCollector = createCollector({
   name: 'checkbox',
   parent: CheckboxGroup,
   child: Checkbox,
+  onlyForProp: true,
   parentExtra: {
     radioState: null as unknown as ComputedRef<{
       allChecked: boolean;
