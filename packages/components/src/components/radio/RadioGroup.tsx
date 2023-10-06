@@ -33,7 +33,7 @@ export const RadioGroup = defineSSRCustomFormElement({
       },
     });
     useSetupEdit();
-    const { updateVModel } = useVModelCompatible();
+    const [updateVModel] = useVModelCompatible();
     RadioCollector.parent({ extraProvide: { valueModel } });
     const childName = GlobalStaticConfig.actualNameMap.radio.values().next().value;
     return () => (

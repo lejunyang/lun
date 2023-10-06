@@ -40,7 +40,7 @@ export const Checkbox = defineSSRCustomFormElement({
   setup(props, { emit }) {
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
-    const { updateVModel } = useVModelCompatible();
+    const [updateVModel] = useVModelCompatible();
     const checkboxContext = CheckboxCollector.child();
     if (__DEV__) {
       if (checkboxContext && props.value == null)

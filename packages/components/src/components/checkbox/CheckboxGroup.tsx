@@ -59,7 +59,7 @@ export const CheckboxGroup = defineSSRCustomFormElement({
       },
     });
     useSetupEdit();
-    const { updateVModel } = useVModelCompatible();
+    const [updateVModel] = useVModelCompatible();
     const radioState = computed(() => {
       let allChecked: boolean | null = null,
         intermediate = false;

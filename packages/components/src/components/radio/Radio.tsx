@@ -26,7 +26,7 @@ export const Radio = defineSSRCustomFormElement({
   setup(props, { emit }) {
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
-    const { updateVModel } = useVModelCompatible();
+    const [updateVModel] = useVModelCompatible();
     const radioContext = RadioCollector.child();
     const checked = computed(() => {
       if (!radioContext?.parent) return props.checked;

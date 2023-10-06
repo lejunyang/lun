@@ -22,7 +22,7 @@ export const Input = defineSSRCustomFormElement({
 	emits: ['update', 'enterDown'],
 	setup(props, { emit, attrs }) {
 		const valueModel = useValueModel(props);
-		const { updateVModel } = useVModelCompatible();
+		const [updateVModel] = useVModelCompatible();
 		const [editComputed] = useSetupEdit();
 
 		const inputSizeClass = useComputedBreakpoints(() => props.size, 'l-input-size');
