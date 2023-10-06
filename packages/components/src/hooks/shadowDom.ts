@@ -26,7 +26,7 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootEl extend
 /**
  * expose something to Custom Element
  */
-export function useCEExpose(expose: Record<string | symbol, any>) {
+export function useCEExpose(expose: Record<string | symbol, any>, descriptors?: PropertyDescriptorMap) {
   const instance = getCurrentInstance();
   onMounted(() => {
     const rootEl = instance?.vnode.el as HTMLElement;
@@ -34,11 +34,19 @@ export function useCEExpose(expose: Record<string | symbol, any>) {
     if (CE) {
       if (__DEV__) {
         const existKeys = Object.keys(expose).filter(
-          (k) => Object.prototype.hasOwnProperty.call(expose, k) && (CE as any)[k]
+          (k) => Object.prototype.hasOwnProperty.call(expose, k) && (CE as any)[k] != null
         );
-        if (existKeys.length) warn(`keys '${existKeys}' are existed on`, CE, 'their values will be override');
+        const existDescriptors =
+          descriptors && Object.keys(descriptors).filter((d) => Object.getOwnPropertyDescriptor(CE, d));
+        if (existKeys.length || existDescriptors?.length)
+          warn(
+            `keys '${existKeys.concat(existDescriptors || [])}' have already existed on`,
+            CE,
+            'their values will be override'
+          );
       }
       Object.assign(CE, expose);
+      if (descriptors) Object.defineProperties(CE, descriptors);
     }
   });
 }

@@ -17,7 +17,7 @@ export const BaseInput = defineSSRCustomFormElement({
 	setup(props, { emit, attrs }) {
 		useSetupContextEvent();
 		const [editComputed] = useSetupEdit();
-		const { updateVModel } = useVModelCompatible();
+		const [updateVModel] = useVModelCompatible();
 
 		const [inputHandlers] = useInput(() => ({
 			...attrs,
