@@ -1,0 +1,1 @@
+type LogicalPosition = 'start' | 'end';

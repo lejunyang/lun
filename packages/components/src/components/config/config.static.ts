@@ -52,6 +52,17 @@ export const GlobalStaticConfig = new Proxy(
       return result;
     }, {} as Record<ComponentKey, Set<string>>),
     defaultProps: {
+      button: {
+        size: '1',
+        showLoading: true,
+        iconPosition: 'start',
+      } as const,
+      checkbox: {
+        labelPosition: 'end',
+      } as const,
+      'checkbox-group': {
+        looseEqual: false,
+      } as const,
       icon: {
         library: 'default',
       },
@@ -64,12 +75,6 @@ export const GlobalStaticConfig = new Proxy(
         transformWhen: 'notComposing',
         emitEnterDownWhenComposing: false,
       } as const,
-      checkbox: {
-        labelPosition: 'right',
-      } as const,
-      'checkbox-group': {
-        looseEqual: false,
-      } as const,
       input: {
         changeWhen: 'notComposing',
         waitType: 'debounce',
@@ -80,7 +85,7 @@ export const GlobalStaticConfig = new Proxy(
         emitEnterDownWhenComposing: false,
       } as const,
       radio: {
-        labelPosition: 'right',
+        labelPosition: 'end',
       } as const,
       'radio-group': {
         looseEqual: false,

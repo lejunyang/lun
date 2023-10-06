@@ -23,7 +23,7 @@ export const Checkbox = defineSSRCustomFormElement({
       {
         value: {},
         label: { type: String },
-        labelPosition: { type: String as PropType<'left' | 'right'> },
+        labelPosition: { type: String as PropType<LogicalPosition> },
         checked: { type: Boolean },
         intermediate: { type: Boolean },
         checkForAll: { type: Boolean },
@@ -77,7 +77,7 @@ export const Checkbox = defineSSRCustomFormElement({
     return () => (
       <>
         <label part="label">
-          {props.labelPosition === 'left' && (
+          {props.labelPosition === 'start' && (
             <span part="label">
               <slot>{props.label}</slot>
             </span>
@@ -94,7 +94,7 @@ export const Checkbox = defineSSRCustomFormElement({
               onChange={handler.onChange}
             />
           </span>
-          {props.labelPosition === 'right' && (
+          {props.labelPosition === 'end' && (
             <span part="label">
               <slot>{props.label}</slot>
             </span>
