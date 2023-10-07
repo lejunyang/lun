@@ -1,29 +1,13 @@
-import type { PropType } from 'vue';
-import { h } from 'vue';
 import { defineSSRCustomElement } from 'custom';
-import { editStateProps } from 'common';
-import { Responsive, useComputedBreakpoints, useSetupEdit } from '@lun/core';
+import { useComputedBreakpoints, useSetupEdit } from '@lun/core';
 import { GlobalStaticConfig } from 'config';
 import { defineSpin } from '../spin';
-import { setDefaultsForPropOptions } from 'utils';
+import { createDefineComp, getCommonCompOptions, renderComp, setDefaultsForPropOptions } from 'utils';
+import { buttonProps } from './type';
 
 export const Button = defineSSRCustomElement({
-  name: GlobalStaticConfig.nameMap.button,
-  props: {
-    ...editStateProps,
-    label: { type: String },
-    asyncHandler: { type: Function as PropType<(e: MouseEvent) => void> },
-    spinProps: { type: Object },
-    ...setDefaultsForPropOptions(
-      {
-        size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
-        showLoading: { type: Boolean },
-        iconPosition: { type: String as PropType<LogicalPosition> },
-      },
-      GlobalStaticConfig.defaultProps.button
-    ),
-  },
-  styles: GlobalStaticConfig.computedStyles.button,
+  ...getCommonCompOptions('button'),
+  props: setDefaultsForPropOptions(buttonProps, GlobalStaticConfig.defaultProps.button),
   setup(props) {
     const [editComputed, editState] = useSetupEdit();
     const handler = {
@@ -36,12 +20,12 @@ export const Button = defineSSRCustomElement({
       },
     };
     const buttonSizeClass = useComputedBreakpoints(() => props.size, 'l-button-size');
-    const actualSpinName = GlobalStaticConfig.actualNameMap.spin.values().next().value;
 
     return () => {
       const { disabled, loading } = editComputed.value;
       const finalDisabled = !!(disabled || loading);
       const spinProps = { size: props.size, ...props.spinProps };
+      const loadingPart = loading && props.showLoading ? renderComp('spin', spinProps) : <slot name="icon"></slot>;
       return (
         <button
           class={[buttonSizeClass.value]}
@@ -50,17 +34,9 @@ export const Button = defineSSRCustomElement({
           onClick={handler.onClick}
           part="button"
         >
-          {props.iconPosition === 'start' && props.showLoading && loading ? (
-            h(actualSpinName, spinProps)
-          ) : (
-            <slot name="icon"></slot>
-          )}
+          {props.iconPosition === 'start' && loadingPart}
           <slot>{props.label}</slot>
-          {props.iconPosition === 'end' && props.showLoading && loading ? (
-            h(actualSpinName, spinProps)
-          ) : (
-            <slot name="icon"></slot>
-          )}
+          {props.iconPosition === 'end' && loadingPart}
         </button>
       );
     };
@@ -79,11 +55,7 @@ declare global {
   }
 }
 
-export function defineButton(buttonName?: string, spinName?: string) {
+export const defineButton = (buttonName?: string, spinName?: string) => {
   defineSpin(spinName);
-  buttonName ||= GlobalStaticConfig.nameMap.button;
-  if (!customElements.get(buttonName)) {
-    GlobalStaticConfig.actualNameMap['button'].add(buttonName);
-    customElements.define(buttonName, Button);
-  }
-}
+  createDefineComp('button', Button)(buttonName);
+};
