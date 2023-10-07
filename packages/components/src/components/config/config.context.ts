@@ -1,16 +1,16 @@
 import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
-import { ComponentKey, components } from './config.static';
+import { ShadowComponentKey, shadowComponents } from './config.static';
 
 export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
 export const GlobalContextConfig = reactive({
   iconRegistryMap,
   dynamicStyles: (() => {
-    const original = components.reduce((result, name) => {
+    const original = shadowComponents.reduce((result, name) => {
       result[name] = [];
       return result;
-    }, {} as Record<'common' | ComponentKey, ((vm: ComponentInternalInstance) => string)[]>);
+    }, {} as Record<'common' | ShadowComponentKey, ((vm: ComponentInternalInstance) => string)[]>);
     const commonStyles = [] as ((vm: ComponentInternalInstance) => string)[];
     return new Proxy(original, {
       get(target, p, receiver) {

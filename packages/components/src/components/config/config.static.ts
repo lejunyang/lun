@@ -6,26 +6,31 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 
-export const components = Object.freeze([
+export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
+export const shadowComponents = Object.freeze([
   'button',
-  'base-input',
   'checkbox',
   'checkbox-group',
-  'custom-renderer',
   'icon',
+  'base-input',
   'input',
   'radio',
   'radio-group',
   'spin',
 ] as const);
+export const components = Object.freeze([
+  ...shadowComponents,
+  ...noShadowComponents,
+] as const);
 export type ComponentKey = (typeof components)[number];
+export type ShadowComponentKey = (typeof shadowComponents)[number];
 
-type ComponentStyles = Record<'common' | ComponentKey, (string | CSSStyleSheet)[]>;
+type ComponentStyles = Record<'common' | ShadowComponentKey, (string | CSSStyleSheet)[]>;
 
 let inited = false;
 let isInInitFunc = false;
 
-const styles = components.reduce(
+const styles = shadowComponents.reduce(
   (result, name) => {
     result[name] = [];
     return result;
@@ -40,61 +45,58 @@ const styles = components.reduce(
  */
 export const GlobalStaticConfig = new Proxy(
   {
-    prefix: 'l',
-    get nameMap() {
-      return components.reduce((result, name) => {
-        result[name] = `${this.prefix}-${name}`;
-        return result;
-      }, {} as Record<ComponentKey, string>);
-    },
+    namespace: 'l',
+    nameMap: (() => {
+      const result = {} as { readonly [k in ComponentKey]: string };
+      components.forEach((name) => {
+        Object.defineProperty(result, name, {
+          get: () => {
+            return `${GlobalStaticConfig.namespace}-${name}`;
+          },
+          configurable: false,
+        });
+      });
+      return result;
+    })(),
     actualNameMap: components.reduce((result, name) => {
       result[name] = new Set();
       return result;
     }, {} as Record<ComponentKey, Set<string>>),
     defaultProps: {
       button: {
-        size: '1',
+        size: '1' as const,
         showLoading: true,
-        iconPosition: 'start',
-      } as const,
+        iconPosition: 'start' as const,
+      },
       checkbox: {
-        labelPosition: 'end',
-      } as const,
+        labelPosition: 'end' as const,
+      },
       'checkbox-group': {
         looseEqual: false,
-      } as const,
+      },
+      'custom-renderer': {},
       icon: {
-        library: 'default',
+        library: 'default' as const,
       },
       'base-input': {
-        changeWhen: 'notComposing',
-        waitType: 'debounce',
+        waitType: 'debounce' as const,
         trim: true,
-        restrictWhen: 'notComposing',
-        toNullWhenEmpty: true,
-        transformWhen: 'notComposing',
-        emitEnterDownWhenComposing: false,
-      } as const,
+      },
       input: {
-        changeWhen: 'notComposing',
-        waitType: 'debounce',
+        waitType: 'debounce' as const,
         trim: true,
-        restrictWhen: 'notComposing',
-        toNullWhenEmpty: true,
-        transformWhen: 'notComposing',
-        emitEnterDownWhenComposing: false,
-      } as const,
+      },
       radio: {
-        labelPosition: 'end',
-      } as const,
+        labelPosition: 'end' as const,
+      },
       'radio-group': {
         looseEqual: false,
-      } as const,
+      },
       spin: {
-        type: 'circle',
+        type: 'circle' as const,
         strokeWidth: 4,
-        size: '1',
-      } as const,
+        size: '1' as const,
+      },
     },
     preferCSSStyleSheet: supportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */
@@ -127,9 +129,8 @@ export const GlobalStaticConfig = new Proxy(
     },
     set(target: any, p, newValue, receiver) {
       const oldVal = target[p];
-      if (Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) {
-        if (__DEV__)
-          error(`Invalid static config was set on ${String(p)}`, 'old config:', target[p], 'new config:', newValue);
+      if (__DEV__ && Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) {
+        error(`Invalid static config was set on ${String(p)}`, 'old config:', target[p], 'new config:', newValue);
         return false;
       } else return Reflect.set(target, p, newValue, receiver);
     },
