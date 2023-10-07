@@ -1,39 +1,15 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
-import { PropType, computed } from 'vue';
+import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { setDefaultsForPropOptions, warn } from 'utils';
-import { editStateProps } from 'common';
+import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions, warn } from 'utils';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
-
-export type CheckboxUpdateDetail = {
-  value: any;
-  isCheckForAll: boolean;
-  checked: boolean;
-  onlyFor?: string;
-  excludeFromGroup?: boolean;
-};
+import { CheckboxUpdateDetail, checkboxProps } from './type';
 
 export const Checkbox = defineSSRCustomFormElement({
-  name: GlobalStaticConfig.nameMap.checkbox,
-  props: {
-    ...editStateProps,
-    ...setDefaultsForPropOptions(
-      {
-        value: {},
-        label: { type: String },
-        labelPosition: { type: String as PropType<LogicalPosition> },
-        checked: { type: Boolean },
-        intermediate: { type: Boolean },
-        checkForAll: { type: Boolean },
-        onlyFor: { type: String },
-        excludeFromGroup: { type: Boolean },
-      },
-      GlobalStaticConfig.defaultProps.checkbox
-    ),
-  },
-  styles: GlobalStaticConfig.computedStyles.checkbox,
+  ...getCommonCompOptions('checkbox'),
+  props: setDefaultsForPropOptions(checkboxProps, GlobalStaticConfig.defaultProps.checkbox),
   emits: {
     update: (_detail: CheckboxUpdateDetail) => null,
   },
@@ -74,34 +50,33 @@ export const Checkbox = defineSSRCustomFormElement({
         updateVModel(props.value);
       },
     };
-    return () => (
-      <>
-        <label part="label">
-          {props.labelPosition === 'start' && (
-            <span part="label">
-              <slot>{props.label}</slot>
+    return () => {
+      const labelPart = (
+        <span part="label">
+          <slot>{props.label}</slot>
+        </span>
+      );
+      return (
+        <>
+          <label part="wrapper">
+            {props.labelPosition === 'start' && labelPart}
+            <span>
+              <input
+                part="checkbox"
+                type="checkbox"
+                checked={checked.value}
+                indeterminate={intermediate.value}
+                value={props.value}
+                readonly={editComputed.value.readonly}
+                disabled={editComputed.value.disabled}
+                onChange={handler.onChange}
+              />
             </span>
-          )}
-          <span>
-            <input
-              part="checkbox"
-              type="checkbox"
-              checked={checked.value}
-              indeterminate={intermediate.value}
-              value={props.value}
-              readonly={editComputed.value.readonly}
-              disabled={editComputed.value.disabled}
-              onChange={handler.onChange}
-            />
-          </span>
-          {props.labelPosition === 'end' && (
-            <span part="label">
-              <slot>{props.label}</slot>
-            </span>
-          )}
-        </label>
-      </>
-    );
+            {props.labelPosition === 'end' && labelPart}
+          </label>
+        </>
+      );
+    };
   },
 });
 
@@ -117,10 +92,4 @@ declare global {
   }
 }
 
-export function defineCheckbox(name?: string) {
-  name ||= GlobalStaticConfig.nameMap.checkbox;
-  if (!customElements.get(name)) {
-    GlobalStaticConfig.actualNameMap['checkbox'].add(name);
-    customElements.define(name, Checkbox);
-  }
-}
+export const defineCheckbox = createDefineComp('checkbox', Checkbox);
