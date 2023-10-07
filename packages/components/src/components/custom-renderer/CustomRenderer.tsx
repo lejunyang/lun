@@ -2,15 +2,14 @@ import { defineSSRCustomElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
+import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { customRendererProps } from './type';
 
 export const CustomRenderer = defineSSRCustomElement({
-  name: GlobalStaticConfig.nameMap['custom-renderer'],
+  ...getCommonCompOptions('custom-renderer'),
+  props: setDefaultsForPropOptions(customRendererProps, GlobalStaticConfig.defaultProps['custom-renderer']),
   noShadow: true,
   inheritAttrs: false,
-  props: {
-    type: { type: String },
-    content: { required: true },
-  },
   onCE(_instance, ce) {
     ce.style.display = 'contents';
   },
@@ -18,6 +17,7 @@ export const CustomRenderer = defineSSRCustomElement({
     const div = shallowRef<HTMLDivElement>();
     const vnode = shallowRef();
     let mounted = false;
+    let lastRenderer: CustomRendererRegistry | undefined;
     let renderer: CustomRendererRegistry | undefined;
     let lastType: 'html' | 'vnode';
 
@@ -39,6 +39,10 @@ export const CustomRenderer = defineSSRCustomElement({
       }
       let nextType: 'html' | 'vnode' = 'html',
         updateHtml = () => undefined;
+      // renderer changed, should trigger onBeforeUnmount of the last one
+      if (lastRenderer !== renderer && lastRenderer?.onBeforeUnmount && mounted) {
+        lastRenderer.onBeforeUnmount(content, div.value!);
+      }
       // no valid renderer, check the content if it is string, number or vnode, render it if yes
       if (!renderer) {
         if (content instanceof Function) content = content(); // if it's a function, consider it as a getter
@@ -54,8 +58,8 @@ export const CustomRenderer = defineSSRCustomElement({
               div.value.append(content as Node);
             }
           };
-				}
-				
+        }
+
         if (nextType === lastType || !lastType) {
           if (nextType === 'html') updateHtml();
           else if (nextType === 'vnode') vnode.value = content;
@@ -72,6 +76,7 @@ export const CustomRenderer = defineSSRCustomElement({
         }
       }
 
+      lastRenderer = renderer;
       if (mounted && renderer?.onUpdated) {
         if (lastType === 'vnode') {
           // unmount vnode and then do the update
@@ -102,7 +107,6 @@ export const CustomRenderer = defineSSRCustomElement({
   },
 });
 
-
 declare module 'vue' {
   export interface GlobalComponents {
     LCustomRenderer: typeof CustomRenderer;
@@ -115,10 +119,4 @@ declare global {
   }
 }
 
-export function defineCustomRenderer(name?: string) {
-  name ||= GlobalStaticConfig.nameMap['custom-renderer'];
-	if (!customElements.get(name)) {
-		GlobalStaticConfig.actualNameMap['custom-renderer'].add(name);
-    customElements.define(name, CustomRenderer);
-  }
-}
+export const defineCustomRenderer = createDefineComp('custom-renderer', CustomRenderer);
