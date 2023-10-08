@@ -1,9 +1,10 @@
-import { defineCustomElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { registryAnimation, useAnimation } from '../animation';
 import { GlobalStaticConfig } from 'config';
-import { PropType, onMounted } from 'vue';
-import { Responsive, useComputedBreakpoints } from '@lun/core';
-import { setDefaultsForPropOptions } from 'utils';
+import { onMounted } from 'vue';
+import { useComputedBreakpoints } from '@lun/core';
+import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { spinProps } from './type';
 
 registryAnimation('spin.rotate', {
   keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(1turn)' }],
@@ -27,19 +28,12 @@ registryAnimation('spin.circle.stroke', {
   },
 });
 
-export const Spin = defineCustomElement({
-  name: GlobalStaticConfig.nameMap.spin,
-  props: {
-    ...setDefaultsForPropOptions(
-      {
-        type: { type: String as PropType<'circle'> },
-        strokeWidth: { type: [Number, String] },
-        size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
-      },
-      GlobalStaticConfig.defaultProps.spin
-    ),
-  },
-  styles: GlobalStaticConfig.computedStyles.spin,
+export const Spin = defineSSRCustomElement({
+  ...getCommonCompOptions('spin'),
+  props: setDefaultsForPropOptions(
+    spinProps,
+    GlobalStaticConfig.defaultProps.spin
+  ),
   setup(props) {
     const [svgRef, svgAnimate] = useAnimation('spin.rotate');
     const [circleRef, circleAnimate] = useAnimation('spin.circle.stroke');
@@ -93,10 +87,4 @@ declare global {
   }
 }
 
-export function defineSpin(name?: string) {
-  name ||= GlobalStaticConfig.nameMap.spin;
-  if (!customElements.get(name)) {
-    GlobalStaticConfig.actualNameMap['spin'].add(name);
-    customElements.define(name, Spin);
-  }
-}
+export const defineSpin = createDefineComp('spin', Spin);

@@ -3,6 +3,7 @@ import { Radio } from './Radio';
 import { RadioGroup } from './RadioGroup';
 export * from './Radio';
 export * from './RadioGroup';
+export type { RadioProps, RadioGroupProps, RadioOptions } from './type';
 
 export const RadioCollector = createCollector({
   name: 'radio',
