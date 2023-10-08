@@ -1,28 +1,15 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { useSetupEdit } from '@lun/core';
-import { setDefaultsForPropOptions } from 'utils';
-import { editStateProps } from 'common';
+import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { RadioCollector } from '.';
-import { PropType, h } from 'vue';
-
-export type RadioOptions = { label: string; value: any }[];
+import { h } from 'vue';
+import { radioGroupProps } from './type';
 
 export const RadioGroup = defineSSRCustomFormElement({
-  name: GlobalStaticConfig.nameMap['radio-group'],
-  props: {
-    ...editStateProps,
-    ...setDefaultsForPropOptions(
-      {
-        value: {},
-        looseEqual: { type: Boolean },
-        options: { type: Array as PropType<RadioOptions> },
-      },
-      GlobalStaticConfig.defaultProps['radio-group']
-    ),
-  },
-  styles: GlobalStaticConfig.computedStyles['radio-group'],
+  ...getCommonCompOptions('radio-group'),
+  props: setDefaultsForPropOptions(radioGroupProps, GlobalStaticConfig.defaultProps['radio-group']),
   emits: ['update'],
   setup(props) {
     const valueModel = useValueModel(props, { passive: true });
@@ -58,10 +45,4 @@ declare global {
   }
 }
 
-export function defineRadioGroup(name?: string) {
-  name ||= GlobalStaticConfig.nameMap['radio-group'];
-  if (!customElements.get(name)) {
-    GlobalStaticConfig.actualNameMap['radio-group'].add(name);
-    customElements.define(name, RadioGroup);
-  }
-}
+export const defineRadioGroup = createDefineComp('radio-group', RadioGroup);

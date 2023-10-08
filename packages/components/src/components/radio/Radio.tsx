@@ -1,27 +1,15 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
-import { PropType, computed } from 'vue';
+import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { setDefaultsForPropOptions } from 'utils';
-import { editStateProps } from 'common';
+import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { RadioCollector } from '.';
+import { radioProps } from './type';
 
 export const Radio = defineSSRCustomFormElement({
-  name: GlobalStaticConfig.nameMap.radio,
-  props: {
-    ...editStateProps,
-    ...setDefaultsForPropOptions(
-      {
-        value: {},
-        label: { type: String },
-        labelPosition: { type: String as PropType<LogicalPosition> },
-        checked: { type: Boolean },
-      },
-      GlobalStaticConfig.defaultProps.radio
-    ),
-  },
-  styles: GlobalStaticConfig.computedStyles.radio,
+  ...getCommonCompOptions('radio'),
+  props: setDefaultsForPropOptions(radioProps, GlobalStaticConfig.defaultProps.radio),
   emits: ['update'],
   setup(props, { emit }) {
     useSetupContextEvent();
@@ -40,33 +28,32 @@ export const Radio = defineSSRCustomFormElement({
         updateVModel(props.value);
       },
     };
-    return () => (
-      <>
-        <label part="label">
-        {props.labelPosition === 'start' && (
-            <span part="label">
-              <slot>{props.label}</slot>
+    return () => {
+      const labelPart = (
+        <span part="label">
+          <slot>{props.label}</slot>
+        </span>
+      );
+      return (
+        <>
+          <label part="wrapper">
+            {props.labelPosition === 'start' && labelPart}
+            <span>
+              <input
+                part="radio"
+                type="radio"
+                checked={checked.value}
+                value={props.value}
+                readonly={editComputed.value.readonly}
+                disabled={editComputed.value.disabled}
+                onChange={handler.onChange}
+              />
             </span>
-          )}
-          <span>
-            <input
-              part="radio"
-              type="radio"
-              checked={checked.value}
-              value={props.value}
-              readonly={editComputed.value.readonly}
-              disabled={editComputed.value.disabled}
-              onChange={handler.onChange}
-            />
-          </span>
-          {props.labelPosition === 'end' && (
-            <span part="label">
-              <slot>{props.label}</slot>
-            </span>
-          )}
-        </label>
-      </>
-    );
+            {props.labelPosition === 'end' && labelPart}
+          </label>
+        </>
+      );
+    };
   },
 });
 
@@ -82,10 +69,4 @@ declare global {
   }
 }
 
-export function defineRadio(name?: string) {
-  name ||= GlobalStaticConfig.nameMap.radio;
-  if (!customElements.get(name)) {
-    GlobalStaticConfig.actualNameMap['radio'].add(name);
-    customElements.define(name, Radio);
-  }
-}
+export const defineRadio = createDefineComp('radio', Radio);
