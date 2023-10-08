@@ -1,4 +1,4 @@
-import { ComponentKey, GlobalStaticConfig } from 'config';
+import { ComponentKey, GlobalStaticConfig, ShadowComponentKey } from 'config';
 import { h } from 'vue';
 
 export function getCompFirstName(comp: ComponentKey) {
@@ -24,6 +24,9 @@ export function createDefineComp(compKey: ComponentKey, Component: CustomElement
 export function getCommonCompOptions(compKey: ComponentKey) {
   return {
     name: GlobalStaticConfig.nameMap[compKey],
-    styles: GlobalStaticConfig.computedStyles[compKey],
+    styles:
+      compKey in GlobalStaticConfig.computedStyles
+        ? GlobalStaticConfig.computedStyles[compKey as ShadowComponentKey]
+        : undefined,
   };
 }
