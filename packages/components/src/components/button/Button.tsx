@@ -2,11 +2,11 @@ import { defineSSRCustomElement } from 'custom';
 import { useComputedBreakpoints, useSetupEdit } from '@lun/core';
 import { GlobalStaticConfig } from 'config';
 import { defineSpin } from '../spin';
-import { createDefineComp, getCommonCompOptions, renderComp, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, getCommonElementOptions, renderElement, setDefaultsForPropOptions } from 'utils';
 import { buttonProps } from './type';
 
 export const Button = defineSSRCustomElement({
-  ...getCommonCompOptions('button'),
+  ...getCommonElementOptions('button'),
   props: setDefaultsForPropOptions(buttonProps, GlobalStaticConfig.defaultProps.button),
   setup(props) {
     const [editComputed, editState] = useSetupEdit();
@@ -25,7 +25,7 @@ export const Button = defineSSRCustomElement({
       const { disabled, loading } = editComputed.value;
       const finalDisabled = !!(disabled || loading);
       const spinProps = { size: props.size, ...props.spinProps };
-      const loadingPart = loading && props.showLoading ? renderComp('spin', spinProps) : <slot name="icon"></slot>;
+      const loadingPart = loading && props.showLoading ? renderElement('spin', spinProps) : <slot name="icon"></slot>;
       return (
         <button
           class={[buttonSizeClass.value]}
@@ -57,5 +57,5 @@ declare global {
 
 export const defineButton = (buttonName?: string, spinName?: string) => {
   defineSpin(spinName);
-  createDefineComp('button', Button)(buttonName);
+  createDefineElement('button', Button)(buttonName);
 };

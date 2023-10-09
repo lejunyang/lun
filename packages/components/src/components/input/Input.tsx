@@ -1,13 +1,13 @@
 import { onBeforeUnmount, onUnmounted } from 'vue';
 import { useInput, useSetupEdit, useComputedBreakpoints } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
-import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
 import { useVModelCompatible, useValueModel } from 'hooks';
 import { GlobalStaticConfig } from 'config';
 import { inputProps } from './type';
 
 export const Input = defineSSRCustomFormElement({
-  ...getCommonCompOptions('input'),
+  ...getCommonElementOptions('input'),
   props: setDefaultsForPropOptions(inputProps, GlobalStaticConfig.defaultProps.input),
   inheritAttrs: false,
   emits: ['update', 'enterDown'],
@@ -114,4 +114,4 @@ declare global {
   }
 }
 
-export const defineInput = createDefineComp('input', Input);
+export const defineInput = createDefineElement('input', Input);

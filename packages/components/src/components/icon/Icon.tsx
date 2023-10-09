@@ -1,14 +1,14 @@
 import { defineSSRCustomElement } from 'custom';
 import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
-import { createDefineComp, error, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, error, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
 import { iconProps } from './type';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
 
 export const Icon = defineSSRCustomElement({
-  ...getCommonCompOptions('icon'),
+  ...getCommonElementOptions('icon'),
   props: setDefaultsForPropOptions(iconProps, GlobalStaticConfig.defaultProps.icon),
   setup(props) {
     const config = useContextConfig();
@@ -127,4 +127,4 @@ declare global {
   }
 }
 
-export const defineIcon = createDefineComp('icon', Icon);
+export const defineIcon = createDefineElement('icon', Icon);

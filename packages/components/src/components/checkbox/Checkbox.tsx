@@ -2,13 +2,13 @@ import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions, warn } from 'utils';
+import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions, warn } from 'utils';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
 import { CheckboxUpdateDetail, checkboxProps } from './type';
 
 export const Checkbox = defineSSRCustomFormElement({
-  ...getCommonCompOptions('checkbox'),
+  ...getCommonElementOptions('checkbox'),
   props: setDefaultsForPropOptions(checkboxProps, GlobalStaticConfig.defaultProps.checkbox),
   emits: {
     update: (_detail: CheckboxUpdateDetail) => null,
@@ -92,4 +92,4 @@ declare global {
   }
 }
 
-export const defineCheckbox = createDefineComp('checkbox', Checkbox);
+export const defineCheckbox = createDefineElement('checkbox', Checkbox);
