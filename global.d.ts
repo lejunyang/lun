@@ -6,3 +6,6 @@ declare module '*.scss?inline' {
   const content: string;
   export default content;
 }
+
+type Fn = () => void;
+type AnyFn = (...args: any[]) => any;
