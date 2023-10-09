@@ -1,5 +1,4 @@
-import { GlobalStaticConfig } from '@lun/components';
-import { processStringStyle } from './utils';
+import { GlobalStaticConfig, processStringStyle } from '@lun/components';
 import element from './scss/common/index.scss?inline';
 
 export * from './scss/components';
