@@ -12,3 +12,14 @@
   <l-checkbox :value="3">选项3</l-checkbox>
   <l-checkbox>无value</l-checkbox>
 </l-checkbox-group>
+
+## 选项组无选项
+
+<l-checkbox-group @update="console.log('no children', $event.detail)">
+  <l-checkbox checkForAll>全选</l-checkbox>
+</l-checkbox-group>
+
+<l-checkbox-group @update="console.log('no value', $event.detail)">
+  <l-checkbox checkForAll>全选</l-checkbox>
+  <l-checkbox>无value</l-checkbox>
+</l-checkbox-group>

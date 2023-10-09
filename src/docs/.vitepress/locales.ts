@@ -17,6 +17,10 @@ export default {
         radio: 'Radio 单选框',
         checkbox: 'Checkbox 复选框',
       },
+      pop: {
+        menu: '弹出组件',
+        popover: 'Popover 弹出',
+      },
       feedback: {
         menu: '消息反馈',
         spin: 'Spin 加载中',
@@ -40,6 +44,10 @@ export default {
         input: 'Input',
         radio: 'Radio',
         checkbox: 'Checkbox',
+      },
+      pop: {
+        menu: 'Pop',
+        popover: 'Popover',
       },
       feedback: {
         menu: 'Feedback',

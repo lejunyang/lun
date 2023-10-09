@@ -36,6 +36,11 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           ],
         },
         {
+          text: locales[lang].sidebar.pop.menu,
+          collapsed: false,
+          items: [{ text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/') }],
+        },
+        {
           text: locales[lang].sidebar.feedback.menu,
           collapsed: false,
           items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/') }],
