@@ -1,4 +1,4 @@
-import { supportCSSStyleSheet } from '@lun/utils';
+import { isSupportCSSStyleSheet } from '@lun/utils';
 import { error } from '../../utils';
 import {
   getInitialDefaultAnimationRegistry,
@@ -14,6 +14,7 @@ export const shadowComponents = Object.freeze([
   'icon',
   'base-input',
   'input',
+  'popover',
   'radio',
   'radio-group',
   'spin',
@@ -86,6 +87,7 @@ export const GlobalStaticConfig = new Proxy(
         waitType: 'debounce' as const,
         trim: true,
       },
+      popover: {},
       radio: {
         labelPosition: 'end' as const,
       },
@@ -98,7 +100,7 @@ export const GlobalStaticConfig = new Proxy(
         size: '1' as const,
       },
     },
-    preferCSSStyleSheet: supportCSSStyleSheet(),
+    preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
     computedStyles: new Proxy(styles, {

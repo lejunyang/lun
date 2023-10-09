@@ -1,11 +1,11 @@
-import { isFunction, supportCSSStyleSheet } from '@lun/utils';
-import type { ComponentKey } from 'config';
+import { isFunction, isSupportCSSStyleSheet } from '@lun/utils';
+import type { ShadowComponentKey } from 'config';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import type { ComputedRef } from 'vue';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
 import { useShadowDom } from './shadowDom';
 
-export function useContextStyles(name: ComponentKey) {
+export function useContextStyles(name: ShadowComponentKey) {
   const vm = getCurrentInstance();
   // TODO add __DEV__
   if (!vm) {
@@ -16,7 +16,7 @@ export function useContextStyles(name: ComponentKey) {
   if (!Array.isArray(styles)) return;
   const sheets: CSSStyleSheet[] = [];
   const textStyles: ComputedRef<string>[] = [];
-  const support = supportCSSStyleSheet();
+  const support = isSupportCSSStyleSheet();
   styles.forEach((css) => {
     if (!isFunction(css)) return;
     if (support && GlobalStaticConfig.preferCSSStyleSheet) {
