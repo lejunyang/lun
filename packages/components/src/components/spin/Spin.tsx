@@ -3,7 +3,7 @@ import { registryAnimation, useAnimation } from '../animation';
 import { GlobalStaticConfig } from 'config';
 import { onMounted } from 'vue';
 import { useComputedBreakpoints } from '@lun/core';
-import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
 import { spinProps } from './type';
 
 registryAnimation('spin.rotate', {
@@ -29,7 +29,7 @@ registryAnimation('spin.circle.stroke', {
 });
 
 export const Spin = defineSSRCustomElement({
-  ...getCommonCompOptions('spin'),
+  ...getCommonElementOptions('spin'),
   props: setDefaultsForPropOptions(
     spinProps,
     GlobalStaticConfig.defaultProps.spin
@@ -87,4 +87,4 @@ declare global {
   }
 }
 
-export const defineSpin = createDefineComp('spin', Spin);
+export const defineSpin = createDefineElement('spin', Spin);

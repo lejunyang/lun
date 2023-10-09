@@ -1,12 +1,12 @@
 import { useInput, useSetupEdit } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
-import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
 import { GlobalStaticConfig } from 'config';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { baseInputProps } from './type';
 
 export const BaseInput = defineSSRCustomFormElement({
-  ...getCommonCompOptions('base-input'),
+  ...getCommonElementOptions('base-input'),
   props: setDefaultsForPropOptions(baseInputProps, GlobalStaticConfig.defaultProps['base-input']),
   inheritAttrs: false,
   emits: ['update', 'enterDown'],
@@ -55,4 +55,4 @@ declare global {
   }
 }
 
-export const defineBaseInput = createDefineComp('base-input', BaseInput);
+export const defineBaseInput = createDefineElement('base-input', BaseInput);

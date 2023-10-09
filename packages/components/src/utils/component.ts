@@ -1,17 +1,17 @@
 import { ComponentKey, GlobalStaticConfig, ShadowComponentKey } from 'config';
 import { h } from 'vue';
 
-export function getCompFirstName(comp: ComponentKey) {
+export function getElementFirstName(comp: ComponentKey) {
   return GlobalStaticConfig.actualNameMap[comp]?.values().next().value;
 }
 
-export function renderComp(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
-  const name = getCompFirstName(comp);
+export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
+  const name = getElementFirstName(comp);
   if (name) return h(name, props, children);
 }
 
 /*! #__NO_SIDE_EFFECTS__ */
-export function createDefineComp(compKey: ComponentKey, Component: CustomElementConstructor) {
+export function createDefineElement(compKey: ComponentKey, Component: CustomElementConstructor) {
   return (name?: string) => {
     name ||= GlobalStaticConfig.nameMap[compKey];
     if (!customElements.get(name)) {
@@ -21,7 +21,7 @@ export function createDefineComp(compKey: ComponentKey, Component: CustomElement
   };
 }
 
-export function getCommonCompOptions(compKey: ComponentKey) {
+export function getCommonElementOptions(compKey: ComponentKey) {
   return {
     name: GlobalStaticConfig.nameMap[compKey],
     styles:

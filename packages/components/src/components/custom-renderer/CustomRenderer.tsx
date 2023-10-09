@@ -2,11 +2,11 @@ import { defineSSRCustomElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
-import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
 import { customRendererProps } from './type';
 
 export const CustomRenderer = defineSSRCustomElement({
-  ...getCommonCompOptions('custom-renderer'),
+  ...getCommonElementOptions('custom-renderer'),
   props: setDefaultsForPropOptions(customRendererProps, GlobalStaticConfig.defaultProps['custom-renderer']),
   noShadow: true,
   inheritAttrs: false,
@@ -119,4 +119,4 @@ declare global {
   }
 }
 
-export const defineCustomRenderer = createDefineComp('custom-renderer', CustomRenderer);
+export const defineCustomRenderer = createDefineElement('custom-renderer', CustomRenderer);

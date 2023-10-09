@@ -1,7 +1,7 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { useSetupEdit } from '@lun/core';
-import { createDefineComp, getCommonCompOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
 import { computed, h } from 'vue';
@@ -9,7 +9,7 @@ import { toArrayIfNotNil } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupProps } from './type';
 
 export const CheckboxGroup = defineSSRCustomFormElement({
-  ...getCommonCompOptions('checkbox'),
+  ...getCommonElementOptions('checkbox'),
   props: setDefaultsForPropOptions(checkboxGroupProps, GlobalStaticConfig.defaultProps['checkbox-group']),
   emits: ['update'],
   setup(props, { emit }) {
@@ -97,4 +97,4 @@ declare global {
   }
 }
 
-export const defineCheckboxGroup = createDefineComp('checkbox-group', CheckboxGroup);
+export const defineCheckboxGroup = createDefineElement('checkbox-group', CheckboxGroup);
