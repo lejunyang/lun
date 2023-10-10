@@ -5,6 +5,7 @@ import { useClickOutside } from '../../hooks';
 export type PopoverTrigger = 'hover' | 'focus' | 'click' | 'contextmenu';
 
 export type UsePopoverOptions = {
+  manual?: boolean;
   show: () => void;
   hide: () => void;
   targetGetter: () => Element | undefined | null;
@@ -60,8 +61,8 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   });
   const createTrigger =
     (trigger: PopoverTrigger, method: 'show' | 'hide', extraHandle?: (e: Event) => void) => (e: Event) => {
-      const { triggers } = options.value;
-      if (triggers.has(trigger)) {
+      const { triggers, manual } = options.value;
+      if (triggers.has(trigger) && manual !== undefined) {
         if (extraHandle) extraHandle(e);
         options.value[method]();
       }
