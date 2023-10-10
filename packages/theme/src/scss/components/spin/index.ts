@@ -1,5 +1,4 @@
-import { GlobalStaticConfig } from "@lun/components";
-import { processStringStyle } from "../../../utils";
+import { GlobalStaticConfig, processStringStyle } from "@lun/components";
 import style from './index.scss?inline';
 
 export function importSpinStyle() {

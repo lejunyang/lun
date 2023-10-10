@@ -19,14 +19,11 @@ export const shadowComponents = Object.freeze([
   'radio-group',
   'spin',
 ] as const);
-export const components = Object.freeze([
-  ...shadowComponents,
-  ...noShadowComponents,
-] as const);
+export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
 export type ShadowComponentKey = (typeof shadowComponents)[number];
 
-type ComponentStyles = Record<'common' | ShadowComponentKey, (string | CSSStyleSheet)[]>;
+export type ComponentStyles = Record<'common' | ShadowComponentKey, (string | CSSStyleSheet)[]>;
 
 let inited = false;
 let isInInitFunc = false;
@@ -106,7 +103,7 @@ export const GlobalStaticConfig = new Proxy(
     computedStyles: new Proxy(styles, {
       get(target, p, receiver) {
         if (p === 'common') return [...Reflect.get(target, 'common', receiver)];
-        return [...Reflect.get(target, 'common', receiver), ...Reflect.get(target, p, receiver)].filter(Boolean);
+        return Reflect.get(target, 'common', receiver).concat(Reflect.get(target, p, receiver)).filter(Boolean);
       },
     }),
     /** function used to request icon url, should return html string */
