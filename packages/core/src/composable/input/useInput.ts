@@ -130,7 +130,7 @@ export function useInput<
 	});
 	const utils = {
 		transformValue(actionNow: InputPeriod, value: string) {
-			const { transform, transformWhen = 'input', toNullWhenEmpty = true } = options.value;
+			const { transform, transformWhen = 'notComposing', toNullWhenEmpty = true } = options.value;
 			if (actionNow !== transformWhen) return value as ValueType;
 			let newValue: ValueType | null = value as ValueType;
 			if (transform instanceof Function) newValue = transform(newValue);
@@ -138,12 +138,12 @@ export function useInput<
 		},
 		handleEvent(actionNow: InputPeriod, e: Event) {
 			const {
-				changeWhen = 'input',
+				changeWhen = 'notComposing',
 				restrict,
 				optimizeChPeriodSymbolForNum = true,
 				trim,
 				maxLength,
-				restrictWhen = 'input',
+				restrictWhen = 'notComposing',
 				onChange,
 				type = 'text',
 			} = options.value;
@@ -213,7 +213,7 @@ export function useInput<
 			if (!state.composing) utils.handleEvent('notComposing', e);
 		},
 		onChange(e: Event) {
-			const { changeWhen = 'input' } = options.value;
+			const { changeWhen = 'notComposing' } = options.value;
 			utils.handleEvent('change', e);
 			// inspired by vue3 v-model
 			// Safari < 10.2 & UIWebView doesn't fire compositionend when switching focus before confirming composition choice
@@ -233,7 +233,7 @@ export function useInput<
 		},
 		onKeydown(e: KeyboardEvent) {
 			console.log('e.key', e.key);
-			const { onEnterDown, emitEnterDownWhenComposing } = options.value;
+			const { onEnterDown, emitEnterDownWhenComposing = false } = options.value;
 			if (onEnterDown instanceof Function && isEnterDown(e)) {
 				if (!state.composing || emitEnterDownWhenComposing) onEnterDown(e);
 			}
