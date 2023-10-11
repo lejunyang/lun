@@ -1,15 +1,15 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement } from 'utils';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { RadioCollector } from '.';
 import { h } from 'vue';
 import { radioGroupProps } from './type';
 
 export const RadioGroup = defineSSRCustomFormElement({
-  ...getCommonElementOptions('radio-group'),
-  props: setDefaultsForPropOptions(radioGroupProps, GlobalStaticConfig.defaultProps['radio-group']),
+  name: 'radio-group',
+  props: radioGroupProps,
   emits: ['update'],
   setup(props) {
     const valueModel = useValueModel(props, { passive: true });

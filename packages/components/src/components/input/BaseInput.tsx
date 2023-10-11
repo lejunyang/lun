@@ -1,13 +1,12 @@
 import { useInput, useSetupEdit } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
-import { GlobalStaticConfig } from 'config';
+import { createDefineElement } from 'utils';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { baseInputProps } from './type';
 
 export const BaseInput = defineSSRCustomFormElement({
-  ...getCommonElementOptions('base-input'),
-  props: setDefaultsForPropOptions(baseInputProps, GlobalStaticConfig.defaultProps['base-input']),
+  name: 'base-input',
+  props: baseInputProps,
   inheritAttrs: false,
   emits: ['update', 'enterDown'],
   setup(props, { emit, attrs }) {

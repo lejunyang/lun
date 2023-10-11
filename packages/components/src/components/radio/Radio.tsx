@@ -1,15 +1,14 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { GlobalStaticConfig } from 'config';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement } from 'utils';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { RadioCollector } from '.';
 import { radioProps } from './type';
 
 export const Radio = defineSSRCustomFormElement({
-  ...getCommonElementOptions('radio'),
-  props: setDefaultsForPropOptions(radioProps, GlobalStaticConfig.defaultProps.radio),
+  name: 'radio',
+  props: radioProps,
   emits: ['update'],
   setup(props, { emit }) {
     useSetupContextEvent();
