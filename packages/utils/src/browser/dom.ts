@@ -1,3 +1,4 @@
+/*! #__NO_SIDE_EFFECTS__ */
 function createGetNodeInTree<T extends Node | Element>({
   getNext,
   getParent,
@@ -34,24 +35,24 @@ function createGetNodeInTree<T extends Node | Element>({
 
 export const getPreviousMatchElInTree = createGetNodeInTree<Element>({
   getNext: (e) => e.previousElementSibling,
-  getParent: (e) => e.parentElement || (e.parentNode as ShadowRoot)?.host,
+  getParent: (e) => e.assignedSlot || e.parentElement || (e.parentNode as ShadowRoot)?.host,
   getNextFromParent: (p) => p.previousElementSibling?.lastElementChild,
 });
 
 export const getPreviousMatchNodeInTree = createGetNodeInTree<Node>({
   getNext: (e) => e.previousSibling,
-  getParent: (e) => e.parentNode || (e as ShadowRoot)?.host,
+  getParent: (e) => (e as Element).assignedSlot || e.parentNode || (e as ShadowRoot)?.host,
   getNextFromParent: (p) => p.previousSibling?.lastChild,
 });
 
 export const getNextMatchElInTree = createGetNodeInTree<Element>({
   getNext: (e) => e.nextElementSibling,
-  getParent: (e) => e.parentElement || (e.parentNode as ShadowRoot)?.host,
+  getParent: (e) => e.assignedSlot || e.parentElement || (e.parentNode as ShadowRoot)?.host,
   getNextFromParent: (p) => p.nextElementSibling?.firstElementChild,
 });
 
 export const getNextMatchNodeInTree = createGetNodeInTree<Node>({
   getNext: (e) => e.nextSibling,
-  getParent: (e) => e.parentNode || (e as ShadowRoot)?.host,
+  getParent: (e) => (e as Element).assignedSlot || e.parentNode || (e as ShadowRoot)?.host,
   getNextFromParent: (p) => p.nextSibling?.firstChild,
 });
