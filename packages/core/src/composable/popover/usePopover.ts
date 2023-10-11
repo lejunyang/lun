@@ -1,6 +1,7 @@
 import { debounce, toArrayIfNotNil } from '@lun/utils';
 import { computed } from 'vue';
 import { useClickOutside } from '../../hooks';
+import { MaybeRefLikeOrGetter } from '../../utils';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'click' | 'contextmenu';
 
@@ -8,21 +9,8 @@ export type UsePopoverOptions = {
   manual?: boolean;
   show: () => void;
   hide: () => void;
-  targetGetter: () => Element | undefined | null;
-  popGetter: () => Element | undefined | null;
-  placement?:
-    | 'top'
-    | 'left'
-    | 'right'
-    | 'bottom'
-    | 'topLeft'
-    | 'topRight'
-    | 'bottomLeft'
-    | 'bottomRight'
-    | 'leftTop'
-    | 'leftBottom'
-    | 'rightTop'
-    | 'rightBottom';
+  target: MaybeRefLikeOrGetter<Element>;
+  pop: MaybeRefLikeOrGetter<Element>;
   triggers?: PopoverTrigger | PopoverTrigger[];
   showDelay?: number;
   hideDelay?: number;
@@ -62,7 +50,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const createTrigger =
     (trigger: PopoverTrigger, method: 'show' | 'hide', extraHandle?: (e: Event) => void) => (e: Event) => {
       const { triggers, manual } = options.value;
-      if (triggers.has(trigger) && manual !== undefined) {
+      if (triggers.has(trigger) && manual === undefined) {
         if (extraHandle) extraHandle(e);
         options.value[method]();
       }
@@ -87,7 +75,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     onFocusin,
     onFocusout,
   };
-  const cleanup = useClickOutside([options.value.targetGetter, options.value.popGetter], () => {
+  const cleanup = useClickOutside([options.value.target, options.value.pop], () => {
     options.value.hide();
   });
   return {
