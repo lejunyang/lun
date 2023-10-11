@@ -1,14 +1,13 @@
 import { onBeforeUnmount, onUnmounted } from 'vue';
 import { useInput, useSetupEdit, useComputedBreakpoints } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement } from 'utils';
 import { useVModelCompatible, useValueModel } from 'hooks';
-import { GlobalStaticConfig } from 'config';
 import { inputProps } from './type';
 
 export const Input = defineSSRCustomFormElement({
-  ...getCommonElementOptions('input'),
-  props: setDefaultsForPropOptions(inputProps, GlobalStaticConfig.defaultProps.input),
+  name: 'input',
+  props: inputProps,
   inheritAttrs: false,
   emits: ['update', 'enterDown'],
   setup(props, { emit, attrs }) {
