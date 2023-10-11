@@ -1,13 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { useComputedBreakpoints, useSetupEdit } from '@lun/core';
-import { GlobalStaticConfig } from 'config';
 import { defineSpin } from '../spin';
-import { createDefineElement, getCommonElementOptions, renderElement, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { buttonProps } from './type';
 
 export const Button = defineSSRCustomElement({
-  ...getCommonElementOptions('button'),
-  props: setDefaultsForPropOptions(buttonProps, GlobalStaticConfig.defaultProps.button),
+  name: 'button',
+  props: buttonProps,
   setup(props) {
     const [editComputed, editState] = useSetupEdit();
     const handler = {

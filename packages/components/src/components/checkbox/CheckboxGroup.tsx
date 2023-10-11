@@ -1,7 +1,7 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement } from 'utils';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
 import { computed, h } from 'vue';
@@ -9,8 +9,8 @@ import { toArrayIfNotNil } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupProps } from './type';
 
 export const CheckboxGroup = defineSSRCustomFormElement({
-  ...getCommonElementOptions('checkbox'),
-  props: setDefaultsForPropOptions(checkboxGroupProps, GlobalStaticConfig.defaultProps['checkbox-group']),
+  name: 'checkbox-group',
+  props: checkboxGroupProps,
   emits: ['update'],
   setup(props, { emit }) {
     const valueModel = useValueModel(props, {
