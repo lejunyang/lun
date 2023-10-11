@@ -1,5 +1,7 @@
 import { ComponentKey, GlobalStaticConfig, ShadowComponentKey } from 'config';
-import { h } from 'vue';
+import { ComponentOptions, h } from 'vue';
+import { processStringStyle } from './style';
+import { setDefaultsForPropOptions } from './vueUtils';
 
 export function getElementFirstName(comp: ComponentKey) {
   return GlobalStaticConfig.actualNameMap[comp]?.values().next().value;
@@ -21,12 +23,30 @@ export function createDefineElement(compKey: ComponentKey, Component: CustomElem
   };
 }
 
-export function getCommonElementOptions(compKey: ComponentKey) {
-  return {
-    name: GlobalStaticConfig.nameMap[compKey],
-    styles:
-      compKey in GlobalStaticConfig.computedStyles
-        ? GlobalStaticConfig.computedStyles[compKey as ShadowComponentKey]
-        : undefined,
+/*! #__NO_SIDE_EFFECTS__ */
+export function createImportStyle(compKey: ShadowComponentKey, style: string) {
+  return () => {
+    GlobalStaticConfig.styles[compKey].push(processStringStyle(style));
   };
+}
+
+export function preprocessComponentOptions(options: ComponentOptions) {
+  const compKey = options.name as ComponentKey;
+  if (compKey && compKey in GlobalStaticConfig.defaultProps) {
+    Object.defineProperties(options, {
+      name: {
+        get() {
+          return GlobalStaticConfig.nameMap[compKey];
+        },
+      },
+      styles: {
+        get() {
+          return compKey in GlobalStaticConfig.computedStyles
+            ? GlobalStaticConfig.computedStyles[compKey as ShadowComponentKey]
+            : undefined;
+        },
+      },
+    });
+    options.props = setDefaultsForPropOptions(options.props, GlobalStaticConfig.defaultProps[compKey]);
+  }
 }
