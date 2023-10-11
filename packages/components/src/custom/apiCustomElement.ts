@@ -28,7 +28,7 @@ import {
   ObjectEmitsOptions,
   VueElementConstructor,
 } from 'vue';
-import { hyphenate } from '../utils';
+import { hyphenate, preprocessComponentOptions } from '../utils';
 import { toNumberIfValid } from '@lun/utils';
 import { NotBindEvents, createPlainEvent, delegateEvent } from '../utils/event';
 
@@ -132,6 +132,8 @@ export function defineCustomElement(options: { new (...args: any[]): ComponentPu
 
 /*! #__NO_SIDE_EFFECTS__ */
 export function defineCustomElement(options: any, hydrate?: RootHydrateFunction): VueElementConstructor {
+  // extra process for options
+  preprocessComponentOptions(options);
   const Comp = defineComponent(options) as any;
   class VueCustomElement extends VueElement {
     static def = Comp;
