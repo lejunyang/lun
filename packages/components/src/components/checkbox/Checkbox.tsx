@@ -1,15 +1,14 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { GlobalStaticConfig } from 'config';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions, warn } from 'utils';
+import { createDefineElement, warn } from 'utils';
 import { useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
 import { CheckboxUpdateDetail, checkboxProps } from './type';
 
 export const Checkbox = defineSSRCustomFormElement({
-  ...getCommonElementOptions('checkbox'),
-  props: setDefaultsForPropOptions(checkboxProps, GlobalStaticConfig.defaultProps.checkbox),
+  name: 'checkbox',
+  props: checkboxProps,
   emits: {
     update: (_detail: CheckboxUpdateDetail) => null,
   },

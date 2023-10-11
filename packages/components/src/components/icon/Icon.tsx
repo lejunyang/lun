@@ -1,15 +1,15 @@
 import { defineSSRCustomElement } from 'custom';
 import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
-import { createDefineElement, error, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
 
 export const Icon = defineSSRCustomElement({
-  ...getCommonElementOptions('icon'),
-  props: setDefaultsForPropOptions(iconProps, GlobalStaticConfig.defaultProps.icon),
+  name: 'icon',
+  props: iconProps,
   setup(props) {
     const config = useContextConfig();
     const state = shallowReactive({
@@ -19,7 +19,7 @@ export const Icon = defineSSRCustomElement({
     let prevName: string, prevLibrary: string;
     watchEffect(async () => {
       const { library, name } = props;
-      const libraryOption = config.iconRegistryMap[props.library];
+      const libraryOption = config.iconRegistryMap[props.library!];
       if (!library || !name || !libraryOption) return;
       const cache = iconResolveCache.get(`${library}.${name}`);
       if (cache) {
