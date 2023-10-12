@@ -1,10 +1,8 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { GlobalStaticConfig } from 'config';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { RadioCollector } from '.';
-import { h } from 'vue';
 import { radioGroupProps } from './type';
 
 export const RadioGroup = defineSSRCustomFormElement({
@@ -22,11 +20,10 @@ export const RadioGroup = defineSSRCustomFormElement({
     useSetupEdit();
     const [updateVModel] = useVModelCompatible();
     RadioCollector.parent({ extraProvide: { valueModel } });
-    const childName = GlobalStaticConfig.actualNameMap.radio.values().next().value;
     return () => (
       <>
         {Array.isArray(props.options) &&
-          props.options.map((i, index) => h(childName, { value: i.value, key: i.value + index }, i.label))}
+          props.options.map((i, index) => renderElement('radio', { value: i.value, key: i.value + index }, i.label))}
         <slot></slot>
       </>
     );
