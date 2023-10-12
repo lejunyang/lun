@@ -58,19 +58,19 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       }
     };
 
+  let popFocusIn = false;
   const targetHandler = {
     onMouseenter: createTrigger('hover', 'show'),
-    onMouseleave: createTrigger('hover', 'hide'),
+    onMouseleave: createTrigger('hover', 'hide', () => !popFocusIn), // if focusing on pop, don't hide when mouse leave
     onClick: createTrigger('click', 'show'),
     onContextmenu: createTrigger('contextmenu', 'show', (e) => e.preventDefault()),
     onFocusin: createTrigger('focus', 'show'),
     onFocusout: createTrigger('focus', 'hide'),
   };
   const handlePopShow = createTrigger(null, 'show');
-  let popFocusIn = false;
   const popContentHandler = {
     onMouseenter: handlePopShow,
-    onMouseleave: createTrigger(null, 'hide', () => !popFocusIn), // if there is a focus in pop, don't hide when mouse leave
+    onMouseleave: createTrigger(null, 'hide', () => !popFocusIn),
     // focusin bubbles, while focus doesn't
     onFocusin: createTrigger(null, 'show', () => {
       popFocusIn = true;
