@@ -7,6 +7,7 @@ export type PopoverTrigger = 'hover' | 'focus' | 'click' | 'contextmenu';
 
 export type UsePopoverOptions = {
   manual?: boolean;
+  isShow: MaybeRefLikeOrGetter<boolean>;
   show: () => void;
   hide: () => void;
   target: MaybeRefLikeOrGetter<Element>;
@@ -48,36 +49,45 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     };
   });
   const createTrigger =
-    (trigger: PopoverTrigger, method: 'show' | 'hide', extraHandle?: (e: Event) => void) => (e: Event) => {
+    (trigger: PopoverTrigger | null, method: 'show' | 'hide', extraHandle?: (e: Event) => void | boolean) =>
+    (e: Event) => {
       const { triggers, manual } = options.value;
-      if (triggers.has(trigger) && manual === undefined) {
-        if (extraHandle) extraHandle(e);
+      if ((!trigger || triggers.has(trigger)) && manual === undefined) {
+        if (extraHandle && extraHandle(e) === false) return;
         options.value[method]();
       }
     };
-  const onMouseenter = createTrigger('hover', 'show');
-  const onMouseleave = createTrigger('hover', 'hide');
-  const onClick = createTrigger('click', 'show');
-  const onContextmenu = createTrigger('contextmenu', 'show', (e) => e.preventDefault());
-  const onFocusin = createTrigger('focus', 'show');
-  const onFocusout = createTrigger('focus', 'hide');
+
   const targetHandler = {
-    onMouseenter,
-    onMouseleave,
-    onClick,
-    onContextmenu,
-    onFocusin,
-    onFocusout,
+    onMouseenter: createTrigger('hover', 'show'),
+    onMouseleave: createTrigger('hover', 'hide'),
+    onClick: createTrigger('click', 'show'),
+    onContextmenu: createTrigger('contextmenu', 'show', (e) => e.preventDefault()),
+    onFocusin: createTrigger('focus', 'show'),
+    onFocusout: createTrigger('focus', 'hide'),
   };
+  const handlePopShow = createTrigger(null, 'show');
+  let popFocusIn = false;
   const popContentHandler = {
-    onMouseenter,
-    onMouseleave,
-    onFocusin,
-    onFocusout,
+    onMouseenter: handlePopShow,
+    onMouseleave: createTrigger(null, 'hide', () => !popFocusIn), // if there is a focus in pop, don't hide when mouse leave
+    // focusin bubbles, while focus doesn't
+    onFocusin: createTrigger(null, 'show', () => {
+      popFocusIn = true;
+    }),
+    onFocusout: createTrigger(null, 'hide', () => {
+      popFocusIn = false;
+    }),
+    // no idea why click dialog after called dialog.show() will trigger focusin and focusout and then dialog disappears. so add onClick to prevent hide
+    onClick: handlePopShow,
   };
-  const cleanup = useClickOutside([options.value.target, options.value.pop], () => {
-    options.value.hide();
-  });
+  const cleanup = useClickOutside(
+    [options.value.target, options.value.pop],
+    () => {
+      options.value.hide();
+    },
+    options.value.isShow
+  );
   return {
     targetHandler,
     popContentHandler,
