@@ -1,5 +1,5 @@
-import { isFunction } from '@lun/utils';
-import { computed, ref, shallowRef, watchEffect, WatchOptionsBase } from 'vue';
+import { isFunction, runIfFn } from '@lun/utils';
+import { computed, ref, shallowRef, unref, watchEffect, WatchOptionsBase } from 'vue';
 
 /**
  * create a temporary ref，which means ref value is initialized with getter and you can change it as you want, but it will reset the value when getter updates
@@ -16,18 +16,20 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
 }
 
 /**
- * return a writable computed which is compatible with promise, if you set the value with promise, the value will not change until the promise resolve or reject
+ * return a writable computed which is compatible with promise, if you set the value with promise, the value will not change until the promise resolve or reject\
+ * Note that multiple change with promise in a short time could result conflict update
  * @param maybeGetter
  * @param fallbackWhenReject
  * @returns
  */
-export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ? R : never>(
+export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ? R : any>(
   maybeGetter: MT,
   options?: { fallbackWhenReject?: (err: any) => T }
 ) {
   const { fallbackWhenReject } = options || {};
   const local = ref<T>();
   const handlePromise = (maybePromise: any) => {
+    maybePromise = unref(maybePromise);
     if (maybePromise instanceof Promise) {
       Promise.resolve(maybePromise)
         .then((val) => {
@@ -45,7 +47,7 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
     set: handlePromise,
   });
   watchEffect(() => {
-    handlePromise(isFunction(maybeGetter) ? maybeGetter() : maybeGetter);
+    handlePromise(runIfFn(maybeGetter));
   });
   return result;
 }
