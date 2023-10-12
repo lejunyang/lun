@@ -1,3 +1,5 @@
+import { isFunction } from './is';
+
 export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null);
   return ((str: string) => {
@@ -13,3 +15,10 @@ export const cacheFunctionResult = <T extends (...args: any[]) => any>(fn: T) =>
     else return (cache = fn(...args));
   };
 };
+
+export function runIfFn<T, Args extends unknown[] = EnsureParameters<T>>(
+  target?: T,
+  ...args: Args
+): T extends AnyFn ? ReturnType<T> : T {
+  return isFunction(target) ? target(...args) : target;
+}

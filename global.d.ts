@@ -9,3 +9,5 @@ declare module '*.scss?inline' {
 
 type Fn = () => void;
 type AnyFn = (...args: any[]) => any;
+
+type EnsureParameters<T> = T extends (...args: infer P) => any ? P : never[];
