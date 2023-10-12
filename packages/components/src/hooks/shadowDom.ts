@@ -18,6 +18,9 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootEl extend
     state.rootEl = instance?.vnode.el as RootEl;
     state.shadowRoot = state.rootEl?.parentNode as ShadowRoot;
     state.CE = state.shadowRoot?.host as CE;
+    if (__DEV__ && !(state.CE instanceof Element)) {
+      warn(`No custom element found in the current component instance`, instance);
+    }
     if (state.CE && isFunction(onMountCB)) onMountCB(state as any);
   });
   return state;

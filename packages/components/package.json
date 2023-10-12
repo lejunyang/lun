@@ -20,6 +20,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@floating-ui/utils": "^0.1.6",
+    "@floating-ui/vue": "^1.0.2",
     "@lun/core": "workspace:^",
     "@lun/utils": "workspace:^"
   },
@@ -28,10 +30,10 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
+    "rimraf": "^5.0.5",
     "typescript": "^5.0.2",
     "vite": "^4.4.9",
     "vue": "^3.2.0",
-    "vue-tsc": "^1.8.5",
-    "rimraf": "^5.0.5"
+    "vue-tsc": "^1.8.5"
   }
 }

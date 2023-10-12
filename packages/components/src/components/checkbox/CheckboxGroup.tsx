@@ -1,10 +1,9 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { GlobalStaticConfig } from 'config';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
-import { computed, h } from 'vue';
+import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupProps } from './type';
 
@@ -72,12 +71,11 @@ export const CheckboxGroup = defineSSRCustomFormElement({
           )
         )
     );
-    const childName = GlobalStaticConfig.actualNameMap.checkbox.values().next().value;
     return () => (
       <>
         {Array.isArray(props.options) &&
           props.options.map((i, index) =>
-            h(childName, { value: i.value, key: i.value + index, onlyFor: props.onlyFor }, i.label)
+            renderElement('checkbox', { value: i.value, key: i.value + index, onlyFor: props.onlyFor }, i.label)
           )}
         <slot></slot>
       </>
