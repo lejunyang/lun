@@ -69,6 +69,10 @@ export default defineConfig({
   },
   vite: {
     plugins: [vueJsx()],
+    server: {
+      host: '0.0.0.0',
+      port: 7000,
+    },
     define: {
       // __DEV__: "!!(process.env.NODE_ENV !== 'production')",
       __DEV__: 'true',

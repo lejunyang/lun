@@ -2,7 +2,7 @@
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
 import { importCommonStyle } from '@lun/theme';
-import { GlobalStaticConfig, defineAllComponents } from '@lun/components';
+import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles } from '@lun/components';
 import '@lun/theme/scss/common/index.scss';
 import './style.css';
 
@@ -14,6 +14,7 @@ export default {
     });
   },
   enhanceApp({ app, router, siteData }) {
+    importAllBasicStyles();
     importCommonStyle();
     console.log('GlobalStaticConfig', GlobalStaticConfig);
     defineAllComponents();
