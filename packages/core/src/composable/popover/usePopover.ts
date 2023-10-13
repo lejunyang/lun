@@ -70,16 +70,29 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const handlePopShow = createTrigger(null, 'show');
   const popContentHandler = {
     onMouseenter: handlePopShow,
-    onMouseleave: createTrigger(null, 'hide', () => !popFocusIn),
-    // focusin bubbles, while focus doesn't
-    onFocusin: createTrigger(null, 'show', () => {
-      popFocusIn = true;
+    onMouseleave: createTrigger(null, 'hide', () => {
+      return !popFocusIn;
     }),
-    onFocusout: createTrigger(null, 'hide', () => {
-      popFocusIn = false;
+    // focusin bubbles, while focus doesn't
+    onFocusin: createTrigger(null, 'show', (e) => {
+      // found that if dialog shows and is clicked, close it, and then move mouse over the target, would also trigger dialog focusin
+      // need exclude if it's dialog
+      if ((e.target as Element).tagName !== 'DIALOG') popFocusIn = true;
+    }),
+    onFocusout: createTrigger(null, 'hide', (e) => {
+      if ((e.target as Element).tagName !== 'DIALOG') popFocusIn = false;
     }),
     // no idea why click dialog after called dialog.show() will trigger focusin and focusout and then dialog disappears. so add onClick to prevent hide
     onClick: handlePopShow,
+  };
+  // used for dialog, if dialog is close by other ways, we need emit hide instantly
+  const dialogHandler = {
+    onCancel() {
+      options.value.hideNow();
+    },
+    onClose() {
+      options.value.hideNow();
+    },
   };
   const cleanup = useClickOutside(
     [options.value.target, options.value.pop],
@@ -91,6 +104,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   return {
     targetHandler,
     popContentHandler,
+    dialogHandler,
     options,
     cleanup,
   };
