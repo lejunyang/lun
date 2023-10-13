@@ -1,78 +1,149 @@
 import { defineSSRCustomElement } from 'custom';
-import { GlobalStaticConfig } from 'config';
-import { computed, ref, shallowReactive } from 'vue';
+import { Teleport, computed, ref, toRef, watchEffect } from 'vue';
 import { usePopover } from '@lun/core';
-import { createDefineElement, getCommonElementOptions, setDefaultsForPropOptions } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { popoverProps } from './type';
-import { isSupportPopover, isSupportDialog } from '@lun/utils';
-import { useCEExpose } from 'hooks';
+import { isSupportPopover, isSupportDialog, pick } from '@lun/utils';
+import { useCEExpose, useShadowDom } from 'hooks';
+import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { autoUpdate, useFloating } from '@floating-ui/vue';
+import { topLayerOverTransforms } from './floating-ui-top-layer-fix';
 
 export const Popover = defineSSRCustomElement({
-  ...getCommonElementOptions('popover'),
-  props: setDefaultsForPropOptions(popoverProps, GlobalStaticConfig.defaultProps.popover),
-  emit: ['show', 'hide'],
-  setup(props,) {
+  name: 'popover',
+  props: popoverProps,
+  inheritAttrs: false,
+  emits: ['show', 'hide'],
+  setup(props, { emit }) {
     const support = {
       popover: isSupportPopover(),
       dialog: isSupportDialog(),
-      teleportFixed: true,
+      'body-fixed': true,
       fixed: true,
     };
     const popRef = ref<HTMLDivElement>();
+    const dialogRef = ref<HTMLDialogElement>();
+    // TODO fixed el ref
     const slotRef = ref<HTMLSlotElement>();
+    const isShow = ref(false);
     const type = computed(() => {
-      if (['popover', 'dialog', 'fixed', 'teleportFixed'].includes(props.type!) && support[props.type!])
-        return props.type;
+      if (['popover', 'dialog', 'fixed', 'body-fixed'].includes(props.type!) && support[props.type!]) return props.type;
       else return Object.keys(support).find((i) => support[i as keyof typeof support]);
     });
-    const state = shallowReactive({
-      show: false,
-    });
     const show = () => {
-      const { value } = popRef;
-      if (value) {
-        state.show = true;
-        value.showPopover();
+      const popover = popRef.value;
+      const dialog = dialogRef.value;
+      if (popover) {
+        popover.showPopover();
+      } else if (dialog) {
+        dialog.show();
       }
-      console.log('actual show');
+      if (popover || dialog) {
+        isShow.value = true;
+        emit('show');
+      }
     };
     const hide = () => {
-      const { value } = popRef;
-      if (value) {
-        state.show = false;
-        value.hidePopover();
+      const popover = popRef.value;
+      const dialog = dialogRef.value;
+      if (popover) {
+        popover.hidePopover();
+      } else if (dialog) {
+        dialog.close();
       }
-      console.log('actual hide');
+      if (popover || dialog) {
+        isShow.value = false;
+        emit('hide');
+      }
     };
     const toggle = (force?: boolean) => {
       const { value } = popRef;
       if (value) value.togglePopover(force);
+      else if (dialogRef.value) {
+        if (force !== undefined) {
+          if (force) show();
+          else hide();
+        } else if (isShow.value) hide();
+        else show();
+      }
     };
 
-    const { targetHandler, popContentHandler } = usePopover(() => ({
-      ...props,
+    // Already exist a prop `show`, so rename the methods, these will override native popover methods
+    useCEExpose({ showPopover: show, hidePopover: hide, togglePopover: toggle });
+
+    // handle manually control visibility by outside
+    watchEffect(() => {
+      if (props.show !== undefined) {
+        if (props.show) show();
+        else hide();
+      }
+    });
+
+    const actualPopRef = computed(() => popRef.value || dialogRef.value);
+
+    const { targetHandler, popContentHandler, dialogHandler } = usePopover(() => ({
+      ...pick(props, ['showDelay', 'hideDelay', 'triggers']),
+      manual: props.show,
+      isShow,
       show,
       hide,
-      targetGetter: () => slotRef.value,
-      popGetter: () => popRef.value,
+      target: slotRef,
+      pop: actualPopRef,
     }));
 
-    useCEExpose({ show, hide, toggle });
+    const shadow = useShadowDom();
+    const ceRef = computed(() => (isShow.value ? shadow.CE : null)); // avoid update float position when not show
+    const placement = toRef(props, 'placement');
+    const { floatingStyles } = useFloating(ceRef, actualPopRef, {
+      whileElementsMounted: autoUpdate,
+      strategy: 'fixed',
+      placement,
+      open: isShow,
+      middleware: [topLayerOverTransforms()],
+    });
 
+    // TODO Transition v-show={isShow.value}
     return () => {
       const { value } = type;
+      const contentSlot = (
+        <slot name="pop-content">{props.content && renderElement('custom-renderer', { content: props.content })}</slot>
+      );
+      const fixed = (
+        <div
+          {...popContentHandler}
+          part={(value === 'body-fixed' ? 'teleport-fixed' : 'fixed') + ' pop-content'}
+          style={floatingStyles.value}
+          hidden={isShow.value}
+        >
+          {contentSlot}
+        </div>
+      );
       return (
         <>
           {value === 'popover' && (
-            <div {...popContentHandler} popover="manual" ref={popRef}>
-              <slot name="content"></slot>
+            <div
+              {...popContentHandler}
+              style={floatingStyles.value}
+              part="popover pop-content"
+              popover="manual"
+              ref={popRef}
+            >
+              {contentSlot}
             </div>
           )}
           {value === 'dialog' && (
-            <dialog>
-              <slot name="content"></slot>
+            <dialog
+              {...popContentHandler}
+              {...dialogHandler}
+              style={floatingStyles.value}
+              part="dialog pop-content"
+              ref={dialogRef}
+            >
+              {contentSlot}
             </dialog>
           )}
+          {value === 'fixed' && fixed}
+          {value === 'body-fixed' && <Teleport to="body">{fixed}</Teleport>}
           <slot {...targetHandler} ref={slotRef}></slot>
         </>
       );
@@ -92,4 +163,7 @@ declare global {
   }
 }
 
-export const definePopover = createDefineElement('popover', Popover);
+export const definePopover = (popoverName?: string, customRendererName?: string) => {
+  defineCustomRenderer(customRendererName);
+  createDefineElement('popover', Popover)(popoverName);
+};
