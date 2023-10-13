@@ -1,5 +1,5 @@
-export function isEnterDown(e: KeyboardEvent) {
-	return e.type === 'keydown' && e.key === 'Enter';
+export function isEnterDown(e: Event) {
+	return e.type === 'keydown' && (e as KeyboardEvent).key === 'Enter';
 }
 
 export function isNoBasicModifierKey(e: KeyboardEvent) {

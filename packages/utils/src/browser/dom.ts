@@ -1,5 +1,5 @@
 /*! #__NO_SIDE_EFFECTS__ */
-function createGetNodeInTree<T extends Node | Element>({
+export function createGetNodeInTree<T extends Node | Element>({
   getNext,
   getParent,
   getNextFromParent,
