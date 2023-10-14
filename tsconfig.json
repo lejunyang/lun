@@ -3,6 +3,9 @@
   "references": [
     {
       "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
     }
   ],
   "include": [
@@ -14,6 +17,6 @@
     "./src/docs/.vitepress/config.ts"
   ],
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
   }
 }

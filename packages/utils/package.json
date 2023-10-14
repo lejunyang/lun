@@ -20,8 +20,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "rimraf": "^5.0.5",
     "typescript": "^5.0.2",
     "vite": "^4.4.9",
-    "rimraf": "^5.0.5"
+    "vitest": "^0.34.6"
   }
 }
