@@ -1,5 +1,11 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
-import { getDeepestActiveElement, getNextMatchElInTree, getPreviousMatchElInTree, isEnterDown, toArrayIfNotNil } from '@lun/utils';
+import {
+  getDeepestActiveElement,
+  getNextMatchElInTree,
+  getPreviousMatchElInTree,
+  isEnterDown,
+  toArrayIfNotNil,
+} from '@lun/utils';
 import { InputType, UseInputOptions, useInput } from './useInput';
 
 export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInputOptions<T>, 'onChange'> & {
@@ -71,12 +77,13 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   };
   const [inputHandlers, state] = useInput<IType>(options as any, {
     transform,
-    onKeydown(e) {
-      const { onChange, multiple } = unrefOrGet(options)!;
+    onKeydown(e, _state, utils) {
+      const { multiple, updateWhen } = unrefOrGet(options)!;
       if (multiple && isEnterDown(e as any)) {
         const target = e.target as HTMLInputElement;
-        // enter down can not handle transform, restrict...
-        if (target.value) onChange(transform(target.value, e));
+        if (target.value) {
+          utils.handleEvent(updateWhen || 'not-composing', e);
+        }
       }
     },
   });

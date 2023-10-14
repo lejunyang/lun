@@ -17,6 +17,7 @@ export const shadowComponents = Object.freeze([
   'popover',
   'radio',
   'radio-group',
+  'select',
   'spin',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
@@ -83,6 +84,10 @@ export const GlobalStaticConfig = new Proxy(
       input: {
         waitType: 'debounce' as const,
         trim: true,
+        updateWhen: (props: any) => { 
+          console.log('props', props);
+          return (props.multiple ? 'change' : 'not-composing');
+        },
       },
       popover: {},
       radio: {
@@ -91,6 +96,7 @@ export const GlobalStaticConfig = new Proxy(
       'radio-group': {
         looseEqual: false,
       },
+      select: {},
       spin: {
         type: 'circle' as const,
         strokeWidth: 4,
