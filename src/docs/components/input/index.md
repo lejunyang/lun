@@ -4,7 +4,7 @@
 
 ## 多值
 
-<l-input multiple :value="state.multi" @update="state.multi = $event.detail" />
+<l-input multiple :value="state.multi" @update="state.multi = $event.detail" updateWhen="change" />
 
 <script setup>
   import {reactive, watch} from 'vue';
