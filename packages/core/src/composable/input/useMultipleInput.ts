@@ -4,9 +4,11 @@ import {
   getNextMatchElInTree,
   getPreviousMatchElInTree,
   isEnterDown,
+  isNilOrEmptyStr,
   toArrayIfNotNil,
 } from '@lun/utils';
 import { InputType, UseInputOptions, useInput } from './useInput';
+import { nextTick } from 'vue';
 
 export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInputOptions<T>, 'onChange'> & {
   multiple?: boolean;
@@ -36,7 +38,14 @@ export function useMultipleInput<IType extends InputType = 'text'>(
       // after delete, focus on next tag or input
       if (values.length !== newValue.length) {
         const nextTarget = getNextMatchElInTree(target, iterateOptions) as HTMLElement;
-        nextTarget?.focus();
+        nextTick(() => {
+          if (nextTarget.isConnected) nextTarget.focus();
+          else {
+            // rely on dom, if use value+index as tag key, following tags will update after every change, nextTarget is tangling
+            // TODO
+
+          }
+        })
       }
     }
   };
@@ -66,20 +75,25 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   };
 
   const transform = (val: any, e: Event) => {
-    const { splitter = ',', unique, reserveInput, multiple } = unrefOrGet(options)!;
-    if (!multiple || val == null) return val;
-    const values = val.split(splitter);
-    if (!values.length) return val;
-    const { value } = unrefOrGet(options)!;
-    const result = toArrayIfNotNil(value).concat(values);
-    if (!reserveInput) (e.target as HTMLInputElement).value = '';
+    const { splitter = ',', unique, reserveInput, multiple, value } = unrefOrGet(options)!;
+    const valuesBefore = toArrayIfNotNil(value);
+    if (!multiple || isNilOrEmptyStr(val)) return valuesBefore;
+    const valuesNow = val.split(splitter);
+    if (!valuesNow.length) return val;
+    const result = valuesBefore.concat(valuesNow).filter((i) => !isNilOrEmptyStr(i));
+    const needChange = e.type === 'change' || valuesNow.length > 1 || isEnterDown(e);
+    if (!needChange) return valuesBefore;
+    // TODO reserveInput is conflict with ‘change' event
+    if (!reserveInput) {
+      (e.target as HTMLInputElement).value = '';
+    }
     return unique ? Array.from(new Set(result)) : result;
   };
   const [inputHandlers, state] = useInput<IType>(options as any, {
     transform,
-    onKeydown(e, _state, utils) {
+    onKeydown(e, state, utils) {
       const { multiple, updateWhen } = unrefOrGet(options)!;
-      if (multiple && isEnterDown(e as any)) {
+      if (multiple && isEnterDown(e) && !state.composing) {
         const target = e.target as HTMLInputElement;
         if (target.value) {
           utils.handleEvent(updateWhen || 'not-composing', e);

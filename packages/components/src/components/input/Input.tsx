@@ -80,7 +80,7 @@ export const Input = defineSSRCustomFormElement({
                 <span {...wrapperHandlers}>
                   {Array.isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => (
-                      <span tabindex={-1} data-tag-index={index} key={String(v) + index}>
+                      <span tabindex={-1} data-tag-index={index} key={String(v)}>
                         {v}
                       </span>
                     ))}
