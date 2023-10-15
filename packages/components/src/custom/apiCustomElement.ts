@@ -221,7 +221,7 @@ export class VueElement extends BaseClass {
         warn(`styles option in the custom components will not be ignored when noShadow is true`);
       }
     }
-    if (!this._def.noShadow && this.shadowRoot && hydrate) {
+    if (this.shadowRoot && hydrate) {
       hydrate(this._createVNode(), this.shadowRoot);
     } else {
       if (__DEV__ && this.shadowRoot) {

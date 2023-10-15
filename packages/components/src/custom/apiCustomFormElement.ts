@@ -1,11 +1,14 @@
 import { RootHydrateFunction, defineComponent, hydrate, VueElementConstructor } from 'vue';
 import { VueElement, defineCustomElement } from './apiCustomElement';
+import { preprocessComponentOptions } from '../utils/component';
 
 /*! #__NO_SIDE_EFFECTS__ */
 export const defineCustomFormElement: typeof defineCustomElement = function (
   options: any,
   hydrate?: RootHydrateFunction
 ): VueElementConstructor {
+  // extra process for options
+  preprocessComponentOptions(options);
   const Comp = defineComponent(options) as any;
   class VueCustomElement extends VueElement {
     static formAssociated: true;
