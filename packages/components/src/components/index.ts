@@ -3,9 +3,14 @@ import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
 import { defineIcon } from './icon';
 import { defineBaseInput, defineInput } from './input';
-import { definePopover } from './popover';
+import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
+import { defineSelect } from './select';
 import { defineSpin } from './spin';
+
+export function importAllBasicStyles() {
+  importPopoverStyle();
+}
 
 export function defineAllComponents() {
   if (typeof customElements === 'undefined') return;
@@ -19,6 +24,7 @@ export function defineAllComponents() {
   definePopover();
   defineRadio();
   defineRadioGroup();
+  defineSelect();
   defineSpin();
 }
 
@@ -27,8 +33,9 @@ export * from './button';
 export * from './config';
 export * from './checkbox';
 export * from './custom-renderer';
+export * from './icon';
 export * from './input';
 export * from './popover';
 export * from './radio';
-export * from './icon';
+export * from './select';
 export * from './spin';
