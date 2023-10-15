@@ -22,6 +22,11 @@ export function isPlainString(target: unknown): target is string {
 export function isString(target: unknown): target is string | String {
   return typeof target === 'string' || target instanceof String;
 }
+
+export function isNilOrEmptyStr(target: unknown): target is null | undefined | '' {
+  return isNil(target) || target === '';
+}
+
 export function isFunction(target: unknown): target is Function {
   return typeof target === 'function';
 }
