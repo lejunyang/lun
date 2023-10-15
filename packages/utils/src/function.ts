@@ -1,4 +1,5 @@
 import { isFunction } from './is';
+import { AnyFn, EnsureParameters } from './type';
 
 export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null);
