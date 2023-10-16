@@ -45,6 +45,10 @@ const styles = shadowComponents.reduce(
 export const GlobalStaticConfig = new Proxy(
   {
     namespace: 'l',
+    commonSeparator: '-',
+    elementSeparator: '__',
+    modifierSeparator: '--',
+    statePrefix: 'is-',
     nameMap: (() => {
       const result = {} as { readonly [k in ComponentKey]: string };
       components.forEach((name) => {

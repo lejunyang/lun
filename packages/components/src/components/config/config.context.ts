@@ -5,6 +5,7 @@ import { ShadowComponentKey, shadowComponents } from './config.static';
 export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
 export const GlobalContextConfig = reactive({
+  namespace: 'l',
   iconRegistryMap,
   dynamicStyles: (() => {
     const original = shadowComponents.reduce((result, name) => {
