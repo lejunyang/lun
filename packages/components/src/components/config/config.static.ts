@@ -18,6 +18,8 @@ export const shadowComponents = Object.freeze([
   'radio',
   'radio-group',
   'select',
+  'select-option',
+  'select-optgroup',
   'spin',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);

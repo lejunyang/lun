@@ -7,19 +7,32 @@ import { SelectOptions, selectProps } from './type';
 import { definePopover } from '../popover/Popover';
 import { usePromiseRef, MaybePromise } from '@lun/core';
 import { runIfFn } from '@lun/utils';
+import { defineInput } from '../input/Input';
+import { defineSelectOption } from './SelectOption';
+import { SelectCollector } from '.';
+import { defineSelectOptGroup } from './SelectOptGroup';
 
 // Mui AutoComplete Multiple 左右方向键可以切换chip聚焦，上下方向键可以弹出面板
 
 export const Select = defineSSRCustomFormElement({
   name: 'select',
   props: selectProps,
+  inheritAttrs: false,
   setup(props) {
+    const children = SelectCollector.parent();
+
     const options = usePromiseRef(() => runIfFn(props.options), {
       fallbackWhenReject: (err) => {
         error(err);
         return [];
       },
     });
+    const renderOption = (i: any, index: number) =>
+      renderElement(
+        'select-option',
+        { slot: 'content', value: i.value, class: i.class, style: i.style, key: i.value + index },
+        i.label
+      );
     return () => {
       return (
         <>
@@ -28,12 +41,19 @@ export const Select = defineSSRCustomFormElement({
             {},
             <>
               {/* select input element */}
-              <input />
+              {renderElement('input')}
               {/* options from props, they should be with slot="pop-content" prop so that assigned to popover content */}
               {Array.isArray(options.value) &&
-                options.value.map((i: any, index) =>
-                  renderElement('select', { slot: 'content', value: i.value, key: i.value + index }, i.label)
-                )}
+                options.value.map((i: any, index) => {
+                  if (Array.isArray(i.children)) {
+                    return renderElement(
+                      'select-optgroup',
+                      { slot: 'content', key: index, class: i.class, style: i.style },
+                      i.children.map(renderOption)
+                    );
+                  }
+                  return renderOption(i, index);
+                })}
               {/* slot for select children, also assigned to popover content slot */}
               <slot slot="pop-content">content</slot>
             </>
@@ -56,7 +76,17 @@ declare global {
   }
 }
 
-export const defineSelect = (selectName?: string, popoverName?: string) => {
+export const defineSelect = (names?: {
+  selectName?: string;
+  selectOptionName?: string;
+  selectOptGroupName?: string;
+  inputName?: string;
+  popoverName?: string;
+}) => {
+  const { selectName, selectOptionName, selectOptGroupName, popoverName, inputName } = names || {};
+  defineSelectOption(selectOptionName);
+  defineSelectOptGroup(selectOptGroupName);
+  defineInput(inputName);
   definePopover(popoverName);
   createDefineElement('select', Select)(selectName);
 };
