@@ -5,7 +5,7 @@ import { defineIcon } from './icon';
 import { defineBaseInput, defineInput } from './input';
 import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
-import { defineSelect } from './select';
+import { defineSelect, defineSelectOption, defineSelectOptGroup } from './select';
 import { defineSpin } from './spin';
 
 export function importAllBasicStyles() {
@@ -25,6 +25,8 @@ export function defineAllComponents() {
   defineRadio();
   defineRadioGroup();
   defineSelect();
+  defineSelectOption();
+  defineSelectOptGroup();
   defineSpin();
 }
 
