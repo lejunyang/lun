@@ -15,7 +15,7 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootEl extend
   });
   /** el of vnode is not null only after onMounted */
   onMounted(() => {
-    state.rootEl = instance?.vnode.el as RootEl;
+    state.rootEl = instance?.proxy?.$el as RootEl;
     state.shadowRoot = state.rootEl?.parentNode as ShadowRoot;
     state.CE = state.shadowRoot?.host as CE;
     if (__DEV__ && !(state.CE instanceof Element)) {
@@ -32,7 +32,7 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootEl extend
 export function useCEExpose(expose: Record<string | symbol, any>, descriptors?: PropertyDescriptorMap) {
   const instance = getCurrentInstance();
   onMounted(() => {
-    const rootEl = instance?.vnode.el as HTMLElement;
+    const rootEl = instance?.proxy?.$el as HTMLElement;
     const CE = (rootEl?.parentNode as ShadowRoot)?.host;
     if (CE) {
       if (__DEV__) {
