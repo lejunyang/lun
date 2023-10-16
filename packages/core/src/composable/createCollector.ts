@@ -81,10 +81,10 @@ export function createCollector<
     if (instance) {
       onMounted(() => {
         state.parentMounted = true;
-        state.parentEl = instance!.vnode.el as Element;
+        state.parentEl = instance!.proxy?.$el as Element;
         state.parentElTagName = state.parentEl.tagName;
         items.value.forEach((child, index) => {
-          if (child.vnode.el) elIndexMap.set(child.vnode.el as Element, index);
+          if (child.proxy?.$el) elIndexMap.set(child.proxy?.$el as Element, index);
         });
       });
       onUnmounted(() => {
@@ -97,7 +97,7 @@ export function createCollector<
       parent: instance,
       items,
       addItem(child) {
-        if (child && child.vnode.el) {
+        if (child && child.proxy?.$el) {
           // if 'onlyFor' is defined, accepts child only with the same value
           if (
             finalOnlyFor &&
@@ -105,7 +105,7 @@ export function createCollector<
             child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
           )
             return;
-          const el = child.vnode.el as Element;
+          const el = child.proxy?.$el as Element;
           if (!state.childElTagName) state.childElTagName = el.tagName;
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
           // otherwise, we find previous child in dom order to insert the index
@@ -129,7 +129,7 @@ export function createCollector<
       },
       removeItem(child) {
         if (child) {
-          const el = child.vnode.el as Element;
+          const el = child.proxy?.$el as Element;
           const index = elIndexMap.get(el);
           if (index != null) {
             items.value.splice(index, 1);
