@@ -30,3 +30,10 @@ export function isNilOrEmptyStr(target: unknown): target is null | undefined | '
 export function isFunction(target: unknown): target is Function {
   return typeof target === 'function';
 }
+
+export function isEmpty(target: unknown) {
+  if (isNilOrEmptyStr(target)) return true;
+  if (Array.isArray(target)) return target.length === 0;
+  if (isObject(target)) return Object.keys(target).length === 0;
+  return false;
+}

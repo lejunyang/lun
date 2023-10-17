@@ -10,4 +10,5 @@ export function pick<T extends Record<string | symbol, any>, K extends keyof T =
   }, {} as Pick<T, K>)
 }
 
+// @ts-ignore
 export const hasOwn = Object.hasOwn || Object.prototype.hasOwnProperty.call;

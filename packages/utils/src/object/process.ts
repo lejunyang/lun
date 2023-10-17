@@ -1,4 +1,4 @@
-import { isObject } from "../is";
+import { isObject } from '../is';
 
 function internalFlatten(currentObj: Record<string, unknown>, topObj: Record<string, unknown>, prefix = '') {
   return Object.entries(currentObj).forEach(([key, value]) => {
