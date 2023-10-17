@@ -16,6 +16,7 @@
   @return var(#{getVarName($args)}, #{$default});
 }
 
+
 // bem('block', 'element', 'modifier') => 'l-block__element--modifier'
 @function bem($block, $element: '', $modifier: '') {
   $name: config.$namespace + config.$common-separator + $block;
@@ -26,4 +27,48 @@
     $name: $name + config.$modifier-separator + $modifier;
   }
   @return $name;
+}
+
+@function selectorToString($selector) {
+  $selector: inspect(
+    $selector
+  ); // inspect(...) 表达式中的内容如果是正常会返回对应的内容，如果发生错误则会弹出一个错误提示。
+  $selector: str-slice($selector, 2, -2); // str-slice
+  @return $selector;
+}
+// if contains '--'
+@function containsModifier($selector) {
+  $selector: selectorToString($selector);
+
+  // str-index find the first index of the second argument in the first argument
+  @if str-index($selector, config.$modifier-separator) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+// if contains '.is-'
+@function containWhenFlag($selector) {
+  $selector: selectorToString($selector);
+
+  @if str-index($selector, '.' + config.$state-prefix) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+// if contains ':'
+@function containPseudoClass($selector) {
+  $selector: selectorToString($selector);
+
+  @if str-index($selector, ':') {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+// if contains `--` `.is-` or `:`
+@function hitAllSpecialNestRule($selector) {
+  @return containsModifier($selector) or containWhenFlag($selector) or
+    containPseudoClass($selector);
 }
