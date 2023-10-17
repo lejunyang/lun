@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { Teleport, computed, ref, toRef, watchEffect } from 'vue';
 import { usePopover } from '@lun/core';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement, renderElement, toGetterDescriptors } from 'utils';
 import { popoverProps } from './type';
 import { isSupportPopover, isSupportDialog, pick } from '@lun/utils';
 import { useCEExpose, useShadowDom } from 'hooks';
@@ -68,9 +68,6 @@ export const Popover = defineSSRCustomElement({
       }
     };
 
-    // Already exist a prop `show`, so rename the methods, these will override native popover methods
-    useCEExpose({ showPopover: show, hidePopover: hide, togglePopover: toggle });
-
     // handle manually control visibility by outside
     watchEffect(() => {
       if (props.show !== undefined) {
@@ -81,7 +78,7 @@ export const Popover = defineSSRCustomElement({
 
     const actualPopRef = computed(() => popRef.value || dialogRef.value);
 
-    const { targetHandler, popContentHandler, dialogHandler } = usePopover(() => ({
+    const { targetHandler, popContentHandler, dialogHandler, options } = usePopover(() => ({
       ...pick(props, ['showDelay', 'hideDelay', 'triggers']),
       manual: props.show,
       isShow,
@@ -101,6 +98,12 @@ export const Popover = defineSSRCustomElement({
       open: isShow,
       middleware: [topLayerOverTransforms()],
     });
+
+    // Already exist a prop `show`, so rename the methods, these will override native popover methods
+    useCEExpose(
+      { showPopover: show, hidePopover: hide, togglePopover: toggle },
+      toGetterDescriptors(options, { show: 'delayShowPopover', hide: 'delayHidePopover' })
+    );
 
     // TODO Transition v-show={isShow.value}
     return () => {
