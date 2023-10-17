@@ -3,6 +3,10 @@ import element from './scss/common/index.scss?inline';
 
 export * from './scss/components';
 
-export function importCommonStyle() {
-  GlobalStaticConfig.styles.common.push(processStringStyle(element));
-}
+const createCommonImport = (style: string) => {
+  return () => {
+    GlobalStaticConfig.styles.common.push(processStringStyle(style));
+  };
+};
+
+export const importCommonStyle = createCommonImport(element);
