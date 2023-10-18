@@ -9,6 +9,7 @@ export default {
         menu: '基础组件',
         button: 'Button 按钮',
         icon: 'Icon 图标',
+        renderer: 'CustomRenderer 自定义渲染',
       },
       dataInput: {
         menu: '输入组件',
@@ -37,6 +38,7 @@ export default {
         menu: 'Basic',
         button: 'Button',
         icon: 'Icon',
+        renderer: 'CustomRenderer 自定义渲染',
       },
       dataInput: {
         menu: 'DataInput',

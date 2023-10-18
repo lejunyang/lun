@@ -23,6 +23,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           items: [
             { text: locales[lang].sidebar.basic.button, link: wrapLink('/components/button/') },
             { text: locales[lang].sidebar.basic.icon, link: wrapLink('/components/icon/') },
+            { text: locales[lang].sidebar.basic.renderer, link: wrapLink('/components/custom-renderer/') },
           ],
         },
         {
