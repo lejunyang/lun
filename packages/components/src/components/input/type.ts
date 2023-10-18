@@ -27,6 +27,8 @@ export const inputProps = {
   ...baseInputProps,
   value: { type: [Array, String] as PropType<string | string[]> },
   multiple: { type: Boolean },
+  tagRenderer: { type: Function as PropType<(value: string, index: number) => any> },
+  tagRendererType: { type: String },
   label: { type: String },
   labelType: { type: String as PropType<'float'> },
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>>, default: '1' },

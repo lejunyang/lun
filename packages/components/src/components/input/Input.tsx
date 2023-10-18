@@ -1,21 +1,34 @@
-import { computed, onBeforeUnmount, onUnmounted } from 'vue';
+import { computed } from 'vue';
 import { useSetupEdit, useComputedBreakpoints, useMultipleInput } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
-import { createDefineElement } from 'utils';
-import { useVModelCompatible, useValueModel } from 'hooks';
+import { createDefineElement, renderElement } from 'utils';
+import { useNamespace, useVModelCompatible, useValueModel } from 'hooks';
 import { inputProps } from './type';
+import { isEmpty } from '@lun/utils';
+import { defineCustomRenderer } from "../custom-renderer/CustomRenderer";
 
+const name = 'input';
 export const Input = defineSSRCustomFormElement({
-  name: 'input',
+  name,
   props: inputProps,
   inheritAttrs: false,
   emits: ['update', 'enterDown'],
   setup(props, { emit, attrs }) {
+    const ns = useNamespace(name);
+
     const valueModel = useValueModel(props);
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
 
-    const inputSizeClass = useComputedBreakpoints(() => props.size, 'l-input-size');
+    const classed = {
+      root: computed(() => [
+        ns.b('root'),
+        // 'l-input-variant-surface',
+        ns.m('surface'),
+        ns.bp(props.size, ns.m('size')),
+        ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
+      ]),
+    };
 
     const { inputHandlers, wrapperHandlers } = useMultipleInput(
       computed(() => ({
@@ -38,7 +51,7 @@ export const Input = defineSSRCustomFormElement({
           type={props.type}
           id="input"
           part="input"
-          class={['l-input']}
+          class={[ns.b()]}
           value={!props.multiple ? valueModel.value : undefined}
           placeholder={props.placeholder}
           disabled={editComputed.value.disabled}
@@ -47,66 +60,65 @@ export const Input = defineSSRCustomFormElement({
         />
       );
       return (
-        <span
-          part="root"
-          class={[
-            'l-input-root',
-            'l-input-variant-surface',
-            inputSizeClass.value,
-            valueModel.value ? 'l-input-not-empty' : 'l-input-empty',
-          ]}
-        >
-          <div class="l-input-slot l-input-addon-before" part="addon-before">
+        <span part="root" class={classed.root.value}>
+          <div class={[ns.b('slot'), ns.b('addon-before')]} part="addon-before">
             <slot name="addon-before"></slot>
           </div>
-          <label class="l-input-label" part="label">
-            <div class="l-input-slot l-input-prefix" part="prefix">
+          <label class={ns.b('label')} part="label">
+            <div class={[ns.b('slot'), ns.b('prefix')]} part="prefix">
               <slot name="prefix"></slot>
               {props.labelType === 'float' && (
-                <div class="l-input-label l-input-float-label" part="float-label">
+                <div class={[ns.b('label'), ns.is('float-label')]} part="float-label">
                   {props.label}
-                  <div class="l-input-float-label-back">{props.label}</div>
+                  <div class={ns.bem('label', 'back', 'float')}>{props.label}</div>
                 </div>
               )}
             </div>
             <span style="position: relative">
               {/* render when value is defined，in case it covers float label and placeholder */}
-              {valueModel.value && (
-                <div class="l-input l-input-custom-renderer">
+              {!isEmpty(valueModel.value) && (
+                <div class={[ns.b(), ns.b('custom-renderer')]}>
                   <slot name="renderer"></slot>
                 </div>
               )}
               {props.multiple ? (
                 <span {...wrapperHandlers}>
                   {Array.isArray(valueModel.value) &&
-                    valueModel.value.map((v, index) => (
-                      <span tabindex={-1} data-tag-index={index} key={String(v)}>
-                        {v}
-                      </span>
-                    ))}
+                    valueModel.value.map((v, index) => {
+                      const tagProps = {
+                        tabindex: -1,
+                        'data-tag-index': index,
+                        'data-tag-value': v,
+                        key: String(v),
+                      };
+                      if (props.tagRenderer)
+                        return renderElement('custom-renderer', {
+                          ...tagProps,
+                          type: props.tagRendererType,
+                          content: props.tagRenderer(v, index),
+                        });
+                      return <span {...tagProps}>{v}</span>;
+                    })}
                   {input}
                 </span>
               ) : (
                 input
               )}
             </span>
-            <span class="l-input-back" />
-            <span
-              class={['l-input-slot l-input-suffix', props.showClearIcon && 'l-input-suffix-with-clear']}
-              part="suffix"
-            >
-              {props.showClearIcon && <span class="l-input-clear-icon">x</span>}
+            <span class={ns.e('back')} />
+            <span class={[ns.b('slot'), ns.b('suffix'), props.showClearIcon && ns.is('with-clear')]} part="suffix">
+              {props.showClearIcon && <span class={[ns.be('suffix', 'clear-icon')]}>x</span>}
               <slot name="suffix">
-                <span class="l-input-clear-icon">x</span>
+                <span class={[ns.be('suffix', 'clear-icon')]}>x</span>
               </slot>
             </span>
             {props.maxLength! >= 0 && (
-              <div class="l-input-length-info">
+              <div class={ns.e('length-info')}>
                 {valueModel.value?.length || '0'}/{props.maxLength}
               </div>
             )}
           </label>
-          <div class="l-input-slot l-input-addonAfter" part="addon-after">
+          <div class={[ns.b('slot'), ns.b('addon-after')]} part="addon-after">
             <slot name="addon-after"></slot>
           </div>
         </span>
@@ -127,4 +139,4 @@ declare global {
   }
 }
 
-export const defineInput = createDefineElement('input', Input);
+export const defineInput = createDefineElement(name, Input, { 'custom-renderer': defineCustomRenderer });
