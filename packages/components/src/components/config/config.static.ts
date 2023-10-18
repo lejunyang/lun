@@ -103,6 +103,8 @@ export const GlobalStaticConfig = new Proxy(
         looseEqual: false,
       },
       select: {},
+      'select-option': {},
+      'select-optgroup': {},
       spin: {
         type: 'circle' as const,
         strokeWidth: 4,
