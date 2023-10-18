@@ -12,9 +12,33 @@ export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1
   if (name) return h(name, props, children);
 }
 
+export type ComponentDependencyDefineMap = {
+  [key: string]: (name?: string, dn?: Record<string, string>) => void;
+};
+
+export function createDefineElement(
+  compKey: ComponentKey,
+  Component: CustomElementConstructor
+): (name?: string) => void;
+
+export function createDefineElement<T extends ComponentDependencyDefineMap>(
+  compKey: ComponentKey,
+  Component: CustomElementConstructor,
+  dependencies: T
+): (name?: string, dependencyNames?: Record<keyof T, string>) => void;
+
 /*! #__NO_SIDE_EFFECTS__ */
-export function createDefineElement(compKey: ComponentKey, Component: CustomElementConstructor) {
-  return (name?: string) => {
+export function createDefineElement(
+  compKey: ComponentKey,
+  Component: CustomElementConstructor,
+  dependencies?: ComponentDependencyDefineMap
+) {
+  return (name?: string, dependencyNameMap?: Record<string, string>) => {
+    if (dependencies) {
+      for (const [k, v] of Object.entries(dependencies)) {
+        v(dependencyNameMap?.[k]);
+      }
+    }
     name ||= GlobalStaticConfig.nameMap[compKey];
     if (!customElements.get(name)) {
       GlobalStaticConfig.actualNameMap[compKey].add(name);
