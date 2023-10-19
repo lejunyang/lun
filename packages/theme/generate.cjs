@@ -8,7 +8,13 @@ fs.readdir(colorsDir, (err, files) => {
     console.error(err);
     return;
   }
-  const cssFiles = files.filter((file) => path.extname(file) === '.css');
-  const importRules = cssFiles.map((file) => `@import "${path.join('@radix-ui/colors', file)}";`);
-  console.log(importRules.join('\n'));
+  const output = files.map((file) => {
+    if (path.extname(file) !== '.css') return;
+    const filePath = path.join(colorsDir, file);
+    const content = fs.readFileSync(filePath, { encoding: 'utf-8' });
+    const isLight = content.includes('light');
+    return content.replace(/.+{/, `.#{$namespace}-${isLight ? 'light' : 'dark'}-theme {`);
+  });
+  output.unshift('@use "../mixins/config" as *;');
+  console.log(output.join('\n'));
 });
