@@ -16,12 +16,14 @@
       "types": "./dist/index.d.ts"
     },
     "./scss/common/*.scss": "./src/scss/common/*.scss",
+    "./scss/mixins/*.scss": "./src/scss/mixins/*.scss",
+    "./scss/public/*.scss": "./src/scss/public/*.scss",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "rimraf ./dist & vite build -w & tsc -w -p ./tsconfig.build.json",
-    "gen": "node ./generate.cjs > ./src/scss/common/colors.scss",
+    "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",
     "build": "rimraf ./dist && vite build && tsc -p ./tsconfig.build.json",
     "preview": "vite preview"
   },
