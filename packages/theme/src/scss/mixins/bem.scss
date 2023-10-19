@@ -1,28 +1,40 @@
-@use "config";
+@use 'config';
+
+@mixin where {
+  $WHERE: true !global;
+  @content;
+  $WHERE: false !global;
+}
+
+@mixin root($name) {
+  $CE: config.$namespace + config.$common-separator + $name !global;
+  @at-root {
+    @content;
+  }
+}
 
 // block
-@mixin b($block) {
-  $B: config.$namespace + '-' + $block !global;
+@mixin b($block: '') {
+  @if $block == '' {
+    $B: $CE !global;
+  } @else {
+    $B: $CE + config.$common-separator + $block !global;
+  }
   .#{$B} {
     @content;
   }
 }
 
 // element
-@mixin e($element) {
+@mixin e($element, $parent: true) {
   $E: $element !global;
   $selector: &;
   $currentSelector: '';
   @each $unit in $element {
-    $currentSelector: #{$currentSelector +
-      '.' +
-      $B +
-      config.$element-separator +
-      $unit +
-      ','};
+    $currentSelector: #{$currentSelector + '.' + $B + config.$element-separator + $unit + ','};
   }
 
-  @if hitAllSpecialNestRule($selector) {
+  @if $parent and hitAllSpecialNestRule($selector) {
     @at-root {
       #{$selector} {
         #{$currentSelector} {
@@ -43,13 +55,12 @@
   $selector: &;
   $currentSelector: '';
   @each $unit in $modifier {
-    $currentSelector: #{$currentSelector +
-      $selector +
-      config.$modifier-separator +
-      $unit +
-      ','};
+    $currentSelector: #{$currentSelector + $selector + config.$modifier-separator + $unit};
+    @if $WHERE {
+      $currentSelector: #{':where(' + $currentSelector + ')'};
+    }
+    $currentSelector: #{$currentSelector + ','};
   }
-
   @at-root {
     #{$currentSelector} {
       @content;
@@ -62,5 +73,13 @@
     &.#{config.$state-prefix + $state} {
       @content;
     }
+  }
+}
+
+@function blockInRoot($block: '') {
+  @if $block == '' {
+    @return $CE;
+  } @else {
+    @return $CE + config.$common-separator + $block;
   }
 }
