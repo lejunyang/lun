@@ -1,23 +1,21 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
-import { importCommonStyle } from '@lun/theme';
 import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, registerCustomRenderer } from '@lun/components';
-import '@lun/theme/scss/common/index.scss';
+import '@lun/theme/scss/public/index.scss';
+import '@lun/theme/scss/public/colors.scss';
 import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
+import { importSurfaceTheme } from '@lun/theme';
+import Layout from './Layout.vue';
 import './style.css';
 
 export default {
   extends: Theme,
-  Layout: () => {
-    return h(Theme.Layout, null, {
-      // https://vitepress.dev/guide/extending-default-theme#layout-slots
-    });
-  },
+  Layout: () => h(Layout),
   enhanceApp({ app, router, siteData }) {
     importAllBasicStyles();
-    importCommonStyle();
+    importSurfaceTheme();
 
     const reactRootMap = new WeakMap();
     registerCustomRenderer('react', {
