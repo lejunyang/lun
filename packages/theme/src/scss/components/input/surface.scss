@@ -1,0 +1,133 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/function' as *;
+
+@include root(input) {
+  @include b(root) {
+    display: flex;
+    position: relative;
+
+    $root: & !global;
+
+    &:hover {
+      @include b(suffix) {
+        @include is(with-clear) {
+          // hide suffix slot content when hover
+          slot::slotted(*) {
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
+          }
+          // make clearIcon show when hover
+          @include e(clear-icon) {
+            opacity: 1;
+            z-index: 2;
+            pointer-events: all;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  @include b(label) {
+    display: flex;
+    position: relative;
+    cursor: text;
+    box-sizing: border-box;
+  }
+
+  @include b() {
+    appearance: none;
+    border-width: 0;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    font-family: inherit;
+    text-overflow: ellipsis;
+    background-color: transparent;
+    position: relative;
+    z-index: 1;
+    display: block;
+    box-sizing: border-box;
+    padding: 0;
+    width: 100%;
+
+    // placeholder and selection
+    &::placeholder {
+      color: var(--gray-a10);
+      // Firefox
+      opacity: 1;
+    }
+    &:autofill {
+      -webkit-text-fill-color: var(--gray-12);
+      caret-color: var(--gray-12);
+      box-shadow: inset 0 0 0 100px white;
+      border: 1px solid var(--gray-7);
+      border-left: none;
+      border-right: none;
+    }
+    &:read-only {
+      &::placeholder {
+        color: var(--gray-a7);
+      }
+      &::selection {
+        background-color: var(--gray-a5);
+      }
+    }
+
+    /* variant surface */
+    @include where {
+      @include m(variant-surface) {
+        #{$CE} {
+          color: var(--gray-12);
+          &:autofill {
+            box-shadow: inset 0 0 0 100px var(--color-surface);
+          }
+          :where(#{$root}:focus-within) & {
+            #{blockInRoot('back')} {
+              box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @include e(length-info, false) {
+    color: var(--gray-10);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  @include b(back) {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: border-color 0.3s ease;
+  }
+
+  @include b(slot) {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: var(--accent-a11, --gray-a11);
+  }
+
+  @include b(suffix) {
+    @include e(clear-icon) {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+    }
+  }
+}
