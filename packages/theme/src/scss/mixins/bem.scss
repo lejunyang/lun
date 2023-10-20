@@ -18,7 +18,7 @@
   @if $block == '' {
     $B: $CE !global;
   } @else {
-    $B: $CE + config.$common-separator + $block !global;
+    $B: config.$namespace + config.$common-separator + $block !global;
   }
   .#{$B} {
     @content;
@@ -51,6 +51,20 @@
   }
 }
 
+@mixin em($element, $modifier, $atRoot: false) {
+  @if $atRoot {
+    @at-root {
+      .#{$B + config.$element-separator + $element + config.$modifier-separator + $modifier} {
+        @content;
+      }
+    }
+  } @else {
+    .#{$B + config.$element-separator + $element + config.$modifier-separator + $modifier} {
+      @content;
+    }
+  }
+}
+
 @mixin m($modifier) {
   $selector: &;
   $currentSelector: '';
@@ -68,10 +82,32 @@
   }
 }
 
-@mixin is($state) {
-  @at-root {
-    &.#{config.$state-prefix + $state} {
-      @content;
+@function getM($modifier) {
+  @return #{'.' + $B + config.$modifier-separator + $modifier};
+}
+
+@mixin is($state, $withParent: false, $atRoot: false) {
+  @if $atRoot {
+    @at-root {
+      @if $withParent {
+        &.#{config.$state-prefix + $state} {
+          @content;
+        }
+      } @else {
+        .#{config.$state-prefix + $state} {
+          @content;
+        }
+      }
+    }
+  } @else {
+    @if $withParent {
+      &.#{config.$state-prefix + $state} {
+        @content;
+      }
+    } @else {
+      .#{config.$state-prefix + $state} {
+        @content;
+      }
     }
   }
 }
@@ -81,5 +117,24 @@
     @return $CE;
   } @else {
     @return $CE + config.$common-separator + $block;
+  }
+}
+
+@function getE($element) {
+  @return #{'.' + $B + config.$element-separator + $element};
+}
+
+@mixin size($size) {
+}
+
+@mixin variant($variant, $withParent: true) {
+  $P: '';
+  @if $withParent {
+    $P: &;
+  }
+  @at-root {
+    #{$P}:where(#{getM('variant-' + $variant)}) {
+      @content;
+    }
   }
 }

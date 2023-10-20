@@ -1,42 +1,35 @@
 @use '@/scss/mixins/bem' as *;
 @use '@/scss/mixins/function' as *;
 
-@include root(input) {
-  @include b(root) {
-    display: flex;
-    position: relative;
-
-    $root: & !global;
-
-    &:hover {
-      @include b(suffix) {
-        @include is(with-clear) {
-          // hide suffix slot content when hover
-          slot::slotted(*) {
-            opacity: 0;
-            pointer-events: none;
-            z-index: -1;
-          }
-          // make clearIcon show when hover
-          @include e(clear-icon) {
-            opacity: 1;
-            z-index: 2;
-            pointer-events: all;
-            cursor: pointer;
-          }
-        }
+@include b(input) {
+  display: flex;
+  position: relative;
+  &:hover {
+    @include is(with-clear) {
+      // hide suffix slot content when hover
+      slot::slotted(*) {
+        opacity: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+      // make clearIcon show when hover
+      @include em(suffix, clear-icon) {
+        opacity: 1;
+        z-index: 2;
+        pointer-events: all;
+        cursor: pointer;
       }
     }
   }
 
-  @include b(label) {
+  @include e(label, false) {
     display: flex;
     position: relative;
     cursor: text;
     box-sizing: border-box;
   }
 
-  @include b() {
+  @include e(inner-input, false) {
     appearance: none;
     border-width: 0;
     -webkit-tap-highlight-color: transparent;
@@ -73,23 +66,6 @@
         background-color: var(--gray-a5);
       }
     }
-
-    /* variant surface */
-    @include where {
-      @include m(variant-surface) {
-        #{$CE} {
-          color: var(--gray-12);
-          &:autofill {
-            box-shadow: inset 0 0 0 100px var(--color-surface);
-          }
-          :where(#{$root}:focus-within) & {
-            #{blockInRoot('back')} {
-              box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8);
-            }
-          }
-        }
-      }
-    }
   }
 
   @include e(length-info, false) {
@@ -99,7 +75,7 @@
     align-items: center;
   }
 
-  @include b(back) {
+  @include e('background', false) {
     position: absolute;
     inset: 0;
     z-index: 0;
@@ -107,7 +83,7 @@
     transition: border-color 0.3s ease;
   }
 
-  @include b(slot) {
+  @include e(slot, false) {
     position: relative;
     z-index: 1;
     flex-shrink: 0;
@@ -116,8 +92,8 @@
     color: var(--accent-a11, --gray-a11);
   }
 
-  @include b(suffix) {
-    @include e(clear-icon) {
+  @include e(suffix) {
+    @include m(clear-icon) {
       position: absolute;
       inset: 0;
       opacity: 0;
@@ -128,6 +104,19 @@
       align-items: center;
       justify-content: center;
       min-width: 32px;
+    }
+  }
+
+  /* variant surface */
+  @include variant(surface) {
+    color: var(--gray-12);
+    .#{$B}:autofill {
+      box-shadow: inset 0 0 0 100px var(--color-surface);
+    }
+    &:focus-within {
+      #{getE(back)} {
+        box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8);
+      }
     }
   }
 }

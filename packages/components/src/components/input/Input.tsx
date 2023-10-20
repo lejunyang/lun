@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { useSetupEdit, useComputedBreakpoints, useMultipleInput } from '@lun/core';
+import { useSetupEdit, useMultipleInput } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useVModelCompatible, useValueModel } from 'hooks';
@@ -20,10 +20,10 @@ export const Input = defineSSRCustomFormElement({
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
 
-    const classed = {
+    const classes = {
       root: computed(() => [
-        ns.b('root'),
-        // 'l-input-variant-surface',
+        ns.b(),
+        ns.e('root'),
         ns.m('surface'),
         ns.bp(props.size, ns.m('size')),
         ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
@@ -51,7 +51,7 @@ export const Input = defineSSRCustomFormElement({
           type={props.type}
           id="input"
           part="input"
-          class={[ns.b()]}
+          class={[ns.e('inner-input')]}
           value={!props.multiple ? valueModel.value : undefined}
           placeholder={props.placeholder}
           disabled={editComputed.value.disabled}
@@ -60,15 +60,15 @@ export const Input = defineSSRCustomFormElement({
         />
       );
       return (
-        <span part="root" class={classed.root.value}>
-          <div class={[ns.b('slot'), ns.b('addon-before')]} part="addon-before">
+        <span part="root" class={classes.root.value}>
+          <div class={[ns.e('slot'), ns.b('addon-before')]} part="addon-before">
             <slot name="addon-before"></slot>
           </div>
-          <label class={ns.b('label')} part="label">
-            <div class={[ns.b('slot'), ns.b('prefix')]} part="prefix">
+          <label class={ns.e('label')} part="label">
+            <div class={[ns.e('slot'), ns.b('prefix')]} part="prefix">
               <slot name="prefix"></slot>
               {props.labelType === 'float' && (
-                <div class={[ns.b('label'), ns.is('float-label')]} part="float-label">
+                <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
                   {props.label}
                   <div class={ns.bem('label', 'back', 'float')}>{props.label}</div>
                 </div>
@@ -105,20 +105,21 @@ export const Input = defineSSRCustomFormElement({
                 input
               )}
             </span>
-            <span class={ns.e('back')} />
-            <span class={[ns.b('slot'), ns.b('suffix'), props.showClearIcon && ns.is('with-clear')]} part="suffix">
-              {props.showClearIcon && <span class={[ns.be('suffix', 'clear-icon')]}>x</span>}
+            <span class={ns.e('background')} />
+            <span class={[ns.e('slot'), ns.e('suffix'), props.showClearIcon && ns.is('with-clear')]} part="suffix">
+              {props.showClearIcon && <span class={[ns.em('suffix', 'clear-icon')]}>x</span>}
               <slot name="suffix">
-                <span class={[ns.be('suffix', 'clear-icon')]}>x</span>
+                {/* <span class={[ns.be('suffix', 'clear-icon')]}>x</span> */}
               </slot>
             </span>
+            {/* TODO if no maxLength, show current char count? */}
             {props.maxLength! >= 0 && (
-              <div class={ns.e('length-info')}>
+              <span class={ns.e('length-info')}>
                 {valueModel.value?.length || '0'}/{props.maxLength}
-              </div>
+              </span>
             )}
           </label>
-          <div class={[ns.b('slot'), ns.b('addon-after')]} part="addon-after">
+          <div class={[ns.e('slot'), ns.b('addon-after')]} part="addon-after">
             <slot name="addon-after"></slot>
           </div>
         </span>
