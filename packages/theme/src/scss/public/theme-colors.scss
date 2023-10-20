@@ -1,0 +1,20 @@
+@use '../mixins/config';
+@use '../mixins/function' as *;
+
+$colors: (
+  gray gold bronze brown yellow amber orange tomato red ruby crimson pink plum purple violet iris indigo blue cyan teal
+    jade green grass lime mint sky
+);
+
+@mixin generateThemeColor($color) {
+  [#{config.$accent-color-name}='#{$color}'] {
+    @for $num from 1 through 12 {
+      #{getVarName((config.$accent-name, $num))}: var(getVarName(($color, $num)));
+      #{getVarName((config.$accent-name, 'a' + $num))}: var(getVarName(($color, 'a' + $num)));
+    }
+  }
+}
+
+@each $color in $colors {
+  @include generateThemeColor($color);
+}
