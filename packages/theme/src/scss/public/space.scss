@@ -1,0 +1,7 @@
+@use '../mixins/config' as *;
+
+.#{$namespace}-theme {
+  @for $num from 1 through 4 {
+    --space-#{$num}: calc(#{4 * $num}px * var(--scaling));
+  }
+}
