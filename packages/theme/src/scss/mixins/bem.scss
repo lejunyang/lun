@@ -26,15 +26,13 @@
 }
 
 // element
-@mixin e($element, $parent: true) {
-  $E: $element !global;
+@mixin e($element, $underParent: false) {
+  // $E: $element !global;
   $selector: &;
-  $currentSelector: '';
-  @each $unit in $element {
-    $currentSelector: #{$currentSelector + '.' + $B + config.$element-separator + $unit + ','};
-  }
+  $E: #{$B + config.$element-separator + $element} !global;
+  $currentSelector: #{'.' + $E};
 
-  @if $parent and hitAllSpecialNestRule($selector) {
+  @if $underParent and hitAllSpecialNestRule($selector) {
     @at-root {
       #{$selector} {
         #{$currentSelector} {
@@ -112,6 +110,10 @@
   }
 }
 
+@function getIs($state, $pre: '') {
+  @return #{$pre + '.' + config.$state-prefix + $state};
+}
+
 @function blockInRoot($block: '') {
   @if $block == '' {
     @return $CE;
@@ -125,6 +127,11 @@
 }
 
 @mixin size($size) {
+  @at-root {
+    :where(.#{$B + config.$modifier-separator + 'size-' + $size}) {
+      @content;
+    }
+  }
 }
 
 @mixin variant($variant, $withParent: true) {
