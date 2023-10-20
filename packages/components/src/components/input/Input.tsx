@@ -5,7 +5,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useVModelCompatible, useValueModel } from 'hooks';
 import { inputProps } from './type';
 import { isEmpty } from '@lun/utils';
-import { defineCustomRenderer } from "../custom-renderer/CustomRenderer";
+import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
 
 const name = 'input';
 export const Input = defineSSRCustomFormElement({
@@ -24,7 +24,7 @@ export const Input = defineSSRCustomFormElement({
       root: computed(() => [
         ns.b(),
         ns.e('root'),
-        ns.m('surface'),
+        ns.m('variant-surface'),
         ns.bp(props.size, ns.m('size')),
         ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
       ]),
@@ -70,14 +70,14 @@ export const Input = defineSSRCustomFormElement({
               {props.labelType === 'float' && (
                 <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
                   {props.label}
-                  <div class={ns.bem('label', 'back', 'float')}>{props.label}</div>
+                  <div class={ns.em('label', 'float-background')}>{props.label}</div>
                 </div>
               )}
             </div>
             <span style="position: relative">
               {/* render when value is defined，in case it covers float label and placeholder */}
               {!isEmpty(valueModel.value) && (
-                <div class={[ns.b(), ns.b('custom-renderer')]}>
+                <div class={[ns.e('inner-input'), ns.e('custom-renderer')]}>
                   <slot name="renderer"></slot>
                 </div>
               )}
@@ -108,9 +108,7 @@ export const Input = defineSSRCustomFormElement({
             <span class={ns.e('background')} />
             <span class={[ns.e('slot'), ns.e('suffix'), props.showClearIcon && ns.is('with-clear')]} part="suffix">
               {props.showClearIcon && <span class={[ns.em('suffix', 'clear-icon')]}>x</span>}
-              <slot name="suffix">
-                {/* <span class={[ns.be('suffix', 'clear-icon')]}>x</span> */}
-              </slot>
+              <slot name="suffix">{/* <span class={[ns.be('suffix', 'clear-icon')]}>x</span> */}</slot>
             </span>
             {/* TODO if no maxLength, show current char count? */}
             {props.maxLength! >= 0 && (
