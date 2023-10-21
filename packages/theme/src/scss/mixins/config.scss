@@ -3,3 +3,9 @@ $common-separator: '-' !default;
 $element-separator: '__' !default;
 $modifier-separator: '--' !default;
 $state-prefix: 'is-' !default;
+
+$accent-name: 'accent' !default;
+$accent-color-name: #{$accent-name + '-color'} !default;
+$scale-name: 'scale' !default;
+$scale-set: (0.9, 0.95, 1, 1.05, 1.1);
+$space-name: 'space' !default;
