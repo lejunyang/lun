@@ -22,6 +22,7 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         });
       },
     });
+    // TODO expose methods to check all, uncheck all, check value, uncheck value, reverse
     useSetupContextEvent({
       update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
         if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
@@ -49,8 +50,12 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         intermediate = false;
       const parentValueArray = toArrayIfNotNil(valueModel.value);
       const parentValueSet = new Set(parentValueArray);
+      const isChecked = (value: any) => {
+        if (value == null) return false;
+        return props.looseEqual ? !!parentValueArray.find((p) => p == value) : parentValueSet.has(value);
+      };
       childValueSet.value.forEach((v) => {
-        if (props.looseEqual ? parentValueArray.find((p) => p == v) : parentValueSet.has(v)) {
+        if (isChecked(v)) {
           if (allChecked === null) allChecked = true;
           intermediate = true;
         } else allChecked = false;
@@ -60,6 +65,7 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         allChecked: !!allChecked,
         intermediate,
         parentValueSet,
+        isChecked,
       };
     });
     const children = CheckboxCollector.parent({ extraProvide: { radioState } });

@@ -17,6 +17,7 @@ export const CheckboxCollector = createCollector({
       allChecked: boolean;
       intermediate: boolean;
       parentValueSet: Set<unknown>;
+      isChecked: (value: unknown) => boolean;
     }>,
   },
 });

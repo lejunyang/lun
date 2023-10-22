@@ -33,8 +33,8 @@ export const Checkbox = defineSSRCustomFormElement({
     const checked = computed(() => {
       if (!checkboxContext || props.excludeFromGroup) return props.checked;
       const { radioState } = checkboxContext;
-      const { allChecked, parentValueSet } = radioState.value;
-      return allChecked || (!props.checkForAll && parentValueSet.has(props.value));
+      const { allChecked, isChecked } = radioState.value;
+      return allChecked || (!props.checkForAll && isChecked(props.value));
     });
     const handler = {
       onChange(e: Event) {
