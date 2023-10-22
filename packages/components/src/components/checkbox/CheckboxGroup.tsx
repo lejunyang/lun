@@ -1,10 +1,10 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
+import { useCEExpose, useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
 import { computed } from 'vue';
-import { toArrayIfNotNil } from '@lun/utils';
+import { toArrayIfNotNil, toNoneNilSet } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupProps } from './type';
 
 export const CheckboxGroup = defineSSRCustomFormElement({
@@ -22,15 +22,47 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         });
       },
     });
-    // TODO expose methods to check all, uncheck all, check value, uncheck value, reverse
+    const checkedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
+
+    const methods = {
+      isChecked: (value: any) =>
+        props.looseEqual
+          ? !!toArrayIfNotNil(props.value).find((i: any) => i == value)
+          : checkedValueSet.value.has(value),
+      checkAll() {
+        valueModel.value = Array.from(childValueSet.value);
+      },
+      uncheckAll() {
+        valueModel.value = [];
+      },
+      check(...values: any[]) {
+        const valueSet = toNoneNilSet(valueModel.value, values);
+        valueModel.value = Array.from(valueSet);
+      },
+      uncheck(...values: any[]) {
+        const valueSet = new Set(checkedValueSet.value);
+        values.forEach((i) => valueSet.delete(i));
+        valueModel.value = Array.from(valueSet);
+      },
+      reverse() {
+        const valueSet = new Set(checkedValueSet.value);
+        childValueSet.value.forEach((i) => {
+          if (valueSet.has(i)) valueSet.delete(i);
+          else valueSet.add(i);
+        });
+        valueModel.value = Array.from(valueSet);
+      },
+    };
+
+    useCEExpose(methods);
+
     useSetupContextEvent({
       update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
         if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
         const current = toArrayIfNotNil(valueModel.value);
         if (isCheckForAll) {
-          if (checked) {
-            valueModel.value = Array.from(childValueSet.value);
-          } else valueModel.value = [];
+          if (checked) methods.checkAll();
+          else methods.uncheckAll();
         } else {
           if (value == null) return;
           if (checked) {
@@ -48,14 +80,8 @@ export const CheckboxGroup = defineSSRCustomFormElement({
     const radioState = computed(() => {
       let allChecked: boolean | null = null,
         intermediate = false;
-      const parentValueArray = toArrayIfNotNil(valueModel.value);
-      const parentValueSet = new Set(parentValueArray);
-      const isChecked = (value: any) => {
-        if (value == null) return false;
-        return props.looseEqual ? !!parentValueArray.find((p) => p == value) : parentValueSet.has(value);
-      };
       childValueSet.value.forEach((v) => {
-        if (isChecked(v)) {
+        if (methods.isChecked(v)) {
           if (allChecked === null) allChecked = true;
           intermediate = true;
         } else allChecked = false;
@@ -64,8 +90,8 @@ export const CheckboxGroup = defineSSRCustomFormElement({
       return {
         allChecked: !!allChecked,
         intermediate,
-        parentValueSet,
-        isChecked,
+        parentValueSet: checkedValueSet.value,
+        isChecked: methods.isChecked,
       };
     });
     const children = CheckboxCollector.parent({ extraProvide: { radioState } });
