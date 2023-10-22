@@ -10,6 +10,7 @@ import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptGroup } from './SelectOptGroup';
 import { useCEExpose, useValueModel } from 'hooks';
+import { defineCustomRenderer } from '../custom-renderer';
 
 // Mui AutoComplete Multiple 左右方向键可以切换chip聚焦，上下方向键可以弹出面板
 
@@ -124,17 +125,10 @@ declare global {
   }
 }
 
-export const defineSelect = (names?: {
-  selectName?: string;
-  selectOptionName?: string;
-  selectOptGroupName?: string;
-  inputName?: string;
-  popoverName?: string;
-}) => {
-  const { selectName, selectOptionName, selectOptGroupName, popoverName, inputName } = names || {};
-  defineSelectOption(selectOptionName);
-  defineSelectOptGroup(selectOptGroupName);
-  defineInput(inputName);
-  definePopover(popoverName);
-  createDefineElement('select', Select)(selectName);
-};
+export const defineSelect = createDefineElement('select', Select, {
+  'select-option': defineSelectOption,
+  'select-optgroup': defineSelectOptGroup,
+  'custom-renderer': defineCustomRenderer,
+  popover: definePopover as any,
+  input: defineInput,
+});
