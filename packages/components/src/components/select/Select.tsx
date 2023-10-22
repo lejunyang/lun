@@ -1,16 +1,15 @@
-import { defineSSRCustomElement, defineSSRCustomFormElement } from 'custom';
-import { registryAnimation, useAnimation } from '../animation';
-import { onMounted } from 'vue';
-import { useComputedBreakpoints } from '@lun/core';
+import { defineSSRCustomFormElement } from 'custom';
+import { computed } from 'vue';
 import { createDefineElement, error, renderElement } from 'utils';
-import { SelectOptions, selectProps } from './type';
+import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
-import { usePromiseRef, MaybePromise } from '@lun/core';
-import { runIfFn } from '@lun/utils';
+import { usePromiseRef } from '@lun/core';
+import { runIfFn, toArrayIfNotNil, toNoneNilSet } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptGroup } from './SelectOptGroup';
+import { useCEExpose, useValueModel } from 'hooks';
 
 // Mui AutoComplete Multiple 左右方向键可以切换chip聚焦，上下方向键可以弹出面板
 
@@ -19,7 +18,56 @@ export const Select = defineSSRCustomFormElement({
   props: selectProps,
   inheritAttrs: false,
   setup(props) {
-    const children = SelectCollector.parent();
+    const valueModel = useValueModel(props, {
+      passive: true,
+    });
+    const selectedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
+
+    const methods = {
+      isSelected: (value: any) =>
+        props.looseEqual
+          ? !!toArrayIfNotNil(props.value).find((i: any) => i == value)
+          : selectedValueSet.value.has(value),
+      selectAll() {
+        if (props.multiple) valueModel.value = Array.from(childValueSet.value);
+      },
+      deselectAll() {
+        if (props.multiple) valueModel.value = [];
+      },
+      select(...values: any[]) {
+        if (props.multiple) {
+          const valueSet = toNoneNilSet(valueModel.value, values);
+          valueModel.value = Array.from(valueSet);
+        } else valueModel.value = values[0];
+      },
+      deselect(...values: any[]) {
+        if (props.multiple) {
+          const valueSet = new Set(selectedValueSet.value);
+          values.forEach((i) => valueSet.delete(i));
+          valueModel.value = Array.from(valueSet);
+        } else {
+          if (valueModel.value === values[0] || values[0] === undefined) valueModel.value = null;
+        }
+      },
+      reverse() {
+        if (props.multiple) {
+          const valueSet = new Set(new Set(selectedValueSet.value));
+          childValueSet.value.forEach((i) => {
+            if (valueSet.has(i)) valueSet.delete(i);
+            else valueSet.add(i);
+          });
+          valueModel.value = Array.from(valueSet);
+        }
+      },
+    };
+    const children = SelectCollector.parent({
+      extraProvide: { ...methods },
+    });
+    const childValueSet = computed<Set<any>>(
+      () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : [])))
+    );
+
+    useCEExpose(methods);
 
     const options = usePromiseRef(() => runIfFn(props.options), {
       fallbackWhenReject: (err) => {
