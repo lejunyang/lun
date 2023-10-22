@@ -24,6 +24,7 @@ export const Select = defineSSRCustomFormElement({
     });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
 
+    // TODO move it to core, also need to consider looseEqual in check uncheck reverse
     const methods = {
       isSelected: (value: any) =>
         props.looseEqual
@@ -32,7 +33,7 @@ export const Select = defineSSRCustomFormElement({
       selectAll() {
         if (props.multiple) valueModel.value = Array.from(childValueSet.value);
       },
-      deselectAll() {
+      unselectAll() {
         if (props.multiple) valueModel.value = [];
       },
       select(...values: any[]) {
@@ -41,7 +42,7 @@ export const Select = defineSSRCustomFormElement({
           valueModel.value = Array.from(valueSet);
         } else valueModel.value = values[0];
       },
-      deselect(...values: any[]) {
+      unselect(...values: any[]) {
         if (props.multiple) {
           const valueSet = new Set(selectedValueSet.value);
           values.forEach((i) => valueSet.delete(i));
@@ -52,7 +53,7 @@ export const Select = defineSSRCustomFormElement({
       },
       reverse() {
         if (props.multiple) {
-          const valueSet = new Set(new Set(selectedValueSet.value));
+          const valueSet = new Set(selectedValueSet.value);
           childValueSet.value.forEach((i) => {
             if (valueSet.has(i)) valueSet.delete(i);
             else valueSet.add(i);

@@ -18,9 +18,9 @@ export type {
 export type SelectExtraProvide = {
   isSelected: (value: any) => boolean;
   selectAll: () => void;
-  deselectAll: () => void;
+  unselectAll: () => void;
   select: (...args: any[]) => void;
-  deselect: (...args: any[]) => void;
+  unselect: (...args: any[]) => void;
   reverse: () => void;
 };
 
