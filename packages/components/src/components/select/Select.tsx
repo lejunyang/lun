@@ -1,18 +1,16 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 import { createDefineElement, error, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
-import { usePromiseRef } from '@lun/core';
-import { runIfFn, toArrayIfNotNil, toNoneNilSet } from '@lun/utils';
+import { usePromiseRef, useSelect } from '@lun/core';
+import { runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptGroup } from './SelectOptGroup';
 import { useCEExpose, useValueModel } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer';
-
-// Mui AutoComplete Multiple 左右方向键可以切换chip聚焦，上下方向键可以弹出面板
 
 export const Select = defineSSRCustomFormElement({
   name: 'select',
@@ -24,50 +22,21 @@ export const Select = defineSSRCustomFormElement({
     });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
 
-    // TODO move it to core, also need to consider looseEqual in check uncheck reverse
-    const methods = {
-      isSelected: (value: any) =>
-        props.looseEqual
-          ? !!toArrayIfNotNil(props.value).find((i: any) => i == value)
-          : selectedValueSet.value.has(value),
-      selectAll() {
-        if (props.multiple) valueModel.value = Array.from(childValueSet.value);
-      },
-      unselectAll() {
-        if (props.multiple) valueModel.value = [];
-      },
-      select(...values: any[]) {
-        if (props.multiple) {
-          const valueSet = toNoneNilSet(valueModel.value, values);
-          valueModel.value = Array.from(valueSet);
-        } else valueModel.value = values[0];
-      },
-      unselect(...values: any[]) {
-        if (props.multiple) {
-          const valueSet = new Set(selectedValueSet.value);
-          values.forEach((i) => valueSet.delete(i));
-          valueModel.value = Array.from(valueSet);
-        } else {
-          if (valueModel.value === values[0] || values[0] === undefined) valueModel.value = null;
-        }
-      },
-      reverse() {
-        if (props.multiple) {
-          const valueSet = new Set(selectedValueSet.value);
-          childValueSet.value.forEach((i) => {
-            if (valueSet.has(i)) valueSet.delete(i);
-            else valueSet.add(i);
-          });
-          valueModel.value = Array.from(valueSet);
-        }
-      },
-    };
-    const children = SelectCollector.parent({
-      extraProvide: { ...methods },
-    });
     const childValueSet = computed<Set<any>>(
       () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : [])))
     );
+    const methods = useSelect({
+      multiple: toRef(props, 'multiple'),
+      value: valueModel,
+      valueSet: selectedValueSet,
+      onChange(value) {
+        valueModel.value = value;
+      },
+      allValues: childValueSet,
+    });
+    const children = SelectCollector.parent({
+      extraProvide: methods,
+    });
 
     useCEExpose(methods);
 
@@ -83,6 +52,7 @@ export const Select = defineSSRCustomFormElement({
         { slot: 'content', value: i.value, class: i.class, style: i.style, key: i.value + index },
         i.label
       );
+    // TODO ArrowUp down popup
     return () => {
       return (
         <>

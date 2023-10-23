@@ -11,7 +11,6 @@ export type SelectOptions = (SelectOption | SelectOptGroup)[];
 export const selectProps = {
   ...editStateProps,
   value: { type: [String, Array] as PropType<any | any[]> },
-  looseEqual: { type: Boolean },
   multiple: { type: Boolean },
   // TODO MaybePromiseOrGetter CheckboxGroup RadioGroup
   options: { type: [Array, Function] as PropType<MaybePromiseOrGetter<SelectOptions>> },
