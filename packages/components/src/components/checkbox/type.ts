@@ -26,7 +26,6 @@ export type CheckboxUpdateDetail = {
 export const checkboxGroupProps = {
   ...editStateProps,
   value: { type: Array },
-  looseEqual: { type: Boolean },
   options: { type: Array as PropType<CheckboxOptions> },
   onlyFor: { type: String },
 };

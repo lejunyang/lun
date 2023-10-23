@@ -53,7 +53,7 @@ export function useSelect(options: UseSelectOptions) {
 }
 
 export const useCheckbox = (options: UseSelectOptions) => {
-  const result = useSelect(options);
+  const result = useSelect({ ...options, multiple: true });
   return {
     isChecked: result.isSelected,
     checkAll: result.selectAll,
