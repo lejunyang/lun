@@ -13,4 +13,8 @@ export function unrefOrGet<Target, T = Target extends MaybeRefLikeOrGetter<infer
     else if ('current' in target) return target.current as T;
   } else if (isFunction(target)) return target();
   if (defaultValue !== undefined) return defaultValue;
+  return target as any;
 }
+
+export type ToRefLike<T extends {}> = { [k in keyof T]: MaybeRefLikeOrGetter<T[k]> };
+export type ToMaybeRefLike<T extends {}> = { [k in keyof T]: T[k] | MaybeRefLikeOrGetter<T[k]> };
