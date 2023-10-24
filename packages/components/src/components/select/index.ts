@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector, useSelect } from '@lun/core';
 import { Select } from './Select';
 import { SelectOption } from './SelectOption';
 
@@ -15,18 +15,9 @@ export type {
   SelectOptGroup,
 } from './type';
 
-export type SelectExtraProvide = {
-  isSelected: (value: any) => boolean;
-  selectAll: () => void;
-  unselectAll: () => void;
-  select: (...args: any[]) => void;
-  unselect: (...args: any[]) => void;
-  reverse: () => void;
-};
-
 export const SelectCollector = createCollector({
   name: 'select',
   parent: Select,
   child: SelectOption,
-  parentExtra: null as any as SelectExtraProvide,
+  parentExtra: null as any as ReturnType<typeof useSelect>,
 });

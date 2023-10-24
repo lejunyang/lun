@@ -18,7 +18,6 @@ export const selectProps = {
 
 export const selectOptionProps = {
   ...editStateProps,
-  selected: { type: Boolean },
   value: { required: true },
   label: { type: String },
 };
