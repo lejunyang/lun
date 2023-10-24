@@ -1,8 +1,8 @@
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useSetupEdit, useMultipleInput } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useNamespace, useVModelCompatible, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, useVModelCompatible, useValueModel } from 'hooks';
 import { inputProps } from './type';
 import { isEmpty } from '@lun/utils';
 import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -19,6 +19,7 @@ export const Input = defineSSRCustomFormElement({
     const valueModel = useValueModel(props);
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
+    const inputRef = ref<HTMLInputElement>();
 
     const classes = {
       root: computed(() => [
@@ -43,12 +44,35 @@ export const Input = defineSSRCustomFormElement({
         },
       }))
     );
+
+    useCEExpose({
+      focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => {
+        if (!inputRef.value) return;
+        const input = inputRef.value;
+        input.focus(options);
+        const len = input.value.length;
+        switch (options?.cursor) {
+          case 'start':
+            input.setSelectionRange(0, 0);
+            break;
+          case 'end':
+            input.setSelectionRange(len, len);
+            break;
+          case 'all':
+            input.select();
+            break;
+        }
+      },
+      blur: () => inputRef.value?.blur(),
+    });
+
     // TODO mouse enter add class to show the clear button.  animation, hide suffix slot(render both, z-index?)
     return () => {
       const input = (
         <input
           {...attrs}
           type={props.type}
+          ref={inputRef}
           id="input"
           part="input"
           class={[ns.e('inner-input')]}
