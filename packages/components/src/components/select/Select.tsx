@@ -1,5 +1,5 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { computed, toRef } from 'vue';
+import { computed, ref, toRef } from 'vue';
 import { createDefineElement, error, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
@@ -16,11 +16,18 @@ export const Select = defineSSRCustomFormElement({
   name: 'select',
   props: selectProps,
   inheritAttrs: false,
-  setup(props) {
+  emits: ['update'],
+  setup(props, { emit }) {
     const valueModel = useValueModel(props, {
       passive: true,
+      emit: (name, value) => {
+        emit(name as any, value);
+        // if it's multiple, keep focus after change
+        if (props.multiple && inputRef.value) inputRef.value.focus();
+      },
     });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
+    const inputRef = ref();
 
     const childValueSet = computed<Set<any>>(
       () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : [])))
@@ -38,7 +45,12 @@ export const Select = defineSSRCustomFormElement({
       extraProvide: methods,
     });
 
-    useCEExpose(methods);
+    useCEExpose({
+      ...methods,
+      focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) =>
+        inputRef.value?.focus(options),
+      blur: () => inputRef.value?.blur(),
+    });
 
     const options = usePromiseRef(() => runIfFn(props.options), {
       fallbackWhenReject: (err) => {
@@ -49,7 +61,7 @@ export const Select = defineSSRCustomFormElement({
     const renderOption = (i: any, index: number) =>
       renderElement(
         'select-option',
-        { slot: 'content', value: i.value, class: i.class, style: i.style, key: i.value + index },
+        { slot: 'pop-content', value: i.value, class: i.class, style: i.style, key: i.value + index },
         i.label
       );
     // TODO ArrowUp down popup
@@ -58,10 +70,17 @@ export const Select = defineSSRCustomFormElement({
         <>
           {renderElement(
             'popover',
-            {},
+            {
+              triggers: ['click', 'focus'],
+            },
             <>
               {/* select input element */}
-              {renderElement('input')}
+              {renderElement('input', {
+                ref: inputRef,
+                multiple: props.multiple,
+                readonly: true,
+                value: valueModel.value,
+              })}
               {/* options from props, they should be with slot="pop-content" prop so that assigned to popover content */}
               {Array.isArray(options.value) &&
                 options.value.map((i: any, index) => {
@@ -75,7 +94,9 @@ export const Select = defineSSRCustomFormElement({
                   return renderOption(i, index);
                 })}
               {/* slot for select children, also assigned to popover content slot */}
-              <slot slot="pop-content">content</slot>
+              <slot slot="pop-content">
+                <slot name="no-content">{!children.value.length && 'No content'}</slot>
+              </slot>
             </>
           )}
         </>
