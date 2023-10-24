@@ -1,41 +1,42 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, warn } from 'utils';
-import { useSetupContextEvent, useVModelCompatible } from 'hooks';
-import { SelectOptions, selectOptionProps } from './type';
+import { createDefineElement } from 'utils';
+import { useNamespace, useSetupContextEvent } from 'hooks';
+import { selectOptionProps } from './type';
 import { SelectCollector } from '.';
 
 export const SelectOption = defineSSRCustomElement({
   name: 'select-option',
   props: selectOptionProps,
-  setup(props, { emit }) {
+  setup(props) {
+    const selectContext = SelectCollector.child();
+    if (!selectContext) {
+      throw new Error('select-option must be used under select');
+    }
+    const ns = useNamespace('select-option');
+
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
-    const [updateVModel] = useVModelCompatible();
-    const checkboxContext = SelectCollector.child();
 
     const selected = computed(() => {
-      if (!checkboxContext) return props.selected;
-      // const { radioState } = checkboxContext;
-      // const { allChecked, parentValueSet } = radioState.value;
-      // return allChecked || (!props.checkForAll && parentValueSet.has(props.value));
+      return selectContext.isSelected(props.value);
     });
     const handler = {
-      onChange(e: Event) {
-        const target = e.target as HTMLInputElement;
-        // emit('update', {
-        //   value: props.value,
-        //   isCheckForAll: props.checkForAll,
-        //   checked: target.checked,
-        //   onlyFor: props.onlyFor,
-        //   excludeFromGroup: props.excludeFromGroup,
-        // });
-        updateVModel(props.value);
+      onClick() {
+        if (editComputed.value.disabled) return;
+        selectContext.toggle(props.value);
       },
     };
     return () => {
-      return props.label;
+      return (
+        <div
+          class={[ns.is('selected', selected.value), ns.is('disabled', editComputed.value.disabled)]}
+          onClick={handler.onClick}
+        >
+          <slot>{props.label}</slot>
+        </div>
+      );
     };
   },
 });

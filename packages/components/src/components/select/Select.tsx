@@ -59,11 +59,7 @@ export const Select = defineSSRCustomFormElement({
       },
     });
     const renderOption = (i: any, index: number) =>
-      renderElement(
-        'select-option',
-        { slot: 'pop-content', value: i.value, class: i.class, style: i.style, key: i.value + index },
-        i.label
-      );
+      renderElement('select-option', { ...i, slot: 'pop-content', key: i.value + index }, i.label);
     // TODO ArrowUp down popup
     return () => {
       return (
