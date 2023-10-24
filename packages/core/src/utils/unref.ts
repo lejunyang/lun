@@ -17,4 +17,6 @@ export function unrefOrGet<Target, T = Target extends MaybeRefLikeOrGetter<infer
 }
 
 export type ToRefLike<T extends {}> = { [k in keyof T]: MaybeRefLikeOrGetter<T[k]> };
-export type ToMaybeRefLike<T extends {}> = { [k in keyof T]: T[k] | MaybeRefLikeOrGetter<T[k]> };
+export type ToMaybeRefLike<T extends {}, EX extends keyof T = never, M extends keyof T = Exclude<keyof T, EX>> = {
+  [k in M]: T[k] | MaybeRefLikeOrGetter<T[k]>;
+} & { [k in EX]: T[k] };
