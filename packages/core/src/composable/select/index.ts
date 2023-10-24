@@ -7,12 +7,11 @@ export type UseSelectOptions<T = any> = ToMaybeRefLike<{
   valueSet?: Set<T>;
   onChange: (value: T | T[]) => void;
   allValues?: T[] | Set<T>;
-}>;
+}, 'onChange'>;
 
 export function useSelect(options: UseSelectOptions) {
-  const { multiple, value, valueSet, onChange: change, allValues } = options;
+  const { multiple, value, valueSet, onChange, allValues } = options;
   const isMultiple = () => !!unrefOrGet(multiple);
-  const onChange = unrefOrGet(change)!;
   const methods = {
     isSelected: (value: any) => !!unrefOrGet(valueSet)?.has(value),
     selectAll() {
@@ -23,9 +22,9 @@ export function useSelect(options: UseSelectOptions) {
     },
     select(...values: any[]) {
       if (isMultiple()) {
-        const valueSet = toNoneNilSet(unrefOrGet(allValues), values);
-        onChange(Array.from(valueSet));
-      } else onChange(values[0]);
+        const v = toNoneNilSet(unrefOrGet(valueSet), values);
+        onChange(Array.from(v));
+      } else if (values[0] != null) onChange(values[0]);
     },
     unselect(...values: any[]) {
       const v = unrefOrGet(valueSet);
@@ -48,6 +47,10 @@ export function useSelect(options: UseSelectOptions) {
         onChange(Array.from(result));
       } else onChange(unrefOrGet(value) == null ? Array.from(all)[0] : null);
     },
+    toggle(value: any) {
+      if (methods.isSelected(value)) methods.unselect(value);
+      else methods.select(value);
+    },
   };
   return methods;
 }
@@ -61,5 +64,6 @@ export const useCheckbox = (options: UseSelectOptions) => {
     check: result.select,
     uncheck: result.unselect,
     reverse: result.reverse,
+    toggle: result.toggle,
   };
 };
