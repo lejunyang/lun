@@ -6,7 +6,7 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 
-export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
+export const noShadowComponents = Object.freeze(['custom-renderer', 'theme-provider'] as const);
 export const shadowComponents = Object.freeze([
   'button',
   'checkbox',
@@ -90,10 +90,11 @@ export const GlobalStaticConfig = new Proxy(
       input: {
         waitType: 'debounce' as const,
         trim: true,
-        updateWhen: (props: any) => { 
-          console.log('props', props);
-          return (props.multiple ? 'change' : 'not-composing');
+        updateWhen: (props: any) => {
+          // console.log('props', props);
+          return props.multiple ? 'change' : 'not-composing';
         },
+        showClearIcon: true,
       },
       popover: {},
       radio: {
@@ -110,6 +111,7 @@ export const GlobalStaticConfig = new Proxy(
         strokeWidth: 4,
         size: '1' as const,
       },
+      'theme-provider': {},
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */
