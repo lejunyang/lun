@@ -11,11 +11,13 @@
   @return $name;
 }
 
-// getCssVarWithDefault(('button', 'text-color'), red) => var(--l-button-text-color, red)
-@function getVarValueWithDefault($args, $default) {
+// getCssVar(('button', 'text-color'), red) => var(--l-button-text-color, red)
+@function getVarValue($args, $default: '') {
+  @if $default == '' {
+    @return var(#{getVarName($args)});
+  }
   @return var(#{getVarName($args)}, #{$default});
 }
-
 
 // bem('block', 'element', 'modifier') => 'l-block__element--modifier'
 @function bem($block, $element: '', $modifier: '') {
@@ -69,6 +71,5 @@
 }
 // if contains `--` `.is-` or `:`
 @function hitAllSpecialNestRule($selector) {
-  @return containsModifier($selector) or containWhenFlag($selector) or
-    containPseudoClass($selector);
+  @return containsModifier($selector) or containWhenFlag($selector) or containPseudoClass($selector);
 }

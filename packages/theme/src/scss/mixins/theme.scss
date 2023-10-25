@@ -1,0 +1,18 @@
+@use 'config' as *;
+@use 'function' as *;
+
+@mixin semanticColor($name, $value) {
+  --#{$namespace}-color-#{$name}: #{$value};
+}
+
+@function getSemanticColor($name) {
+  @return var(--#{$namespace}-color-#{$name});
+}
+
+@function getColor($color, $level, $default: '') {
+  @return getVarValue(($color, $level), $default);
+}
+
+@function getAccentColor($level: 1) {
+  @return getVarValue(($accent-name, $level), $default-accent-color);
+}
