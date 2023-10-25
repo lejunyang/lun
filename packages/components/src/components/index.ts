@@ -7,6 +7,7 @@ import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptGroup } from './select';
 import { defineSpin } from './spin';
+import { defineThemeProvider } from './theme-provider';
 
 export function importAllBasicStyles() {
   importPopoverStyle();
@@ -28,6 +29,7 @@ export function defineAllComponents() {
   defineSelectOption();
   defineSelectOptGroup();
   defineSpin();
+  defineThemeProvider();
 }
 
 export * from './animation';
