@@ -12,8 +12,8 @@ fs.readdir(colorsDir, (err, files) => {
     if (path.extname(file) !== '.css') return;
     const filePath = path.join(colorsDir, file);
     const content = fs.readFileSync(filePath, { encoding: 'utf-8' });
-    const isLight = content.includes('light');
-    return content.replace(/.+{/, `.#{$namespace}-${isLight ? 'light' : 'dark'}-theme {`);
+    const isDark = content.includes('dark');
+    return content.replace(/.+{/, `#{$theme-provider-el-name}${isDark ? '[dark]' : ''} {`).replace(/--/g, `--#{$namespace}-`);
   });
   output.unshift('@use "../mixins/config" as *;');
   console.log(output.join('\n'));
