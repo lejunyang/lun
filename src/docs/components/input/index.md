@@ -6,6 +6,14 @@
 
 <l-input multiple :value="state.multi" @update="state.multi = $event.detail"  />
 
+## 展示长度
+
+<l-input showLengthInfo maxLength="10" />
+
+## 浮动标签
+
+<l-input label="label" labelType="float" />
+
 <script setup>
   import {reactive, watch} from 'vue';
   const state = reactive({
