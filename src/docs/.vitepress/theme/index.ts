@@ -3,7 +3,6 @@ import { h } from 'vue';
 import Theme from 'vitepress/theme';
 import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, registerCustomRenderer } from '@lun/components';
 import '@lun/theme/scss/public/index.scss';
-import '@lun/theme/scss/public/colors.scss';
 import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { importSurfaceTheme } from '@lun/theme';

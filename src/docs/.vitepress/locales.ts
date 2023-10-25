@@ -14,9 +14,10 @@ export default {
       dataInput: {
         menu: '输入组件',
         baseInput: 'BaseInput 基础输入',
+        checkbox: 'Checkbox 复选框',
         input: 'Input 输入',
         radio: 'Radio 单选框',
-        checkbox: 'Checkbox 复选框',
+        select: 'Select 下拉列表'
       },
       pop: {
         menu: '弹出组件',
@@ -43,9 +44,10 @@ export default {
       dataInput: {
         menu: 'DataInput',
         baseInput: 'BaseInput',
+        checkbox: 'Checkbox',
         input: 'Input',
         radio: 'Radio',
-        checkbox: 'Checkbox',
+        select: 'Select'
       },
       pop: {
         menu: 'Pop',
