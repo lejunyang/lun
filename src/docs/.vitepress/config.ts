@@ -1,6 +1,7 @@
 import { defineConfig, DefaultTheme } from 'vitepress';
 import { fileURLToPath, URL } from 'node:url';
 import vueJsx from '@vitejs/plugin-vue-jsx';
+import postcssLogical from 'postcss-logical';
 import locales from './locales';
 
 const wrapLink = (link: string, lang: string = 'zh') => {
@@ -31,9 +32,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.dataInput.baseInput, link: wrapLink('/components/base-input/') },
+            { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/') },
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/') },
             { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/') },
-            { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/') },
+            { text: locales[lang].sidebar.dataInput.select, link: wrapLink('/components/select/') },
           ],
         },
         {
@@ -99,6 +101,11 @@ export default defineConfig({
             }
           : {},
     },
+    css: {
+      postcss: {
+        plugins: [postcssLogical()]
+      }
+    }
   },
   themeConfig: {
     search: {
