@@ -13,8 +13,21 @@ fs.readdir(colorsDir, (err, files) => {
     const filePath = path.join(colorsDir, file);
     const content = fs.readFileSync(filePath, { encoding: 'utf-8' });
     const isDark = content.includes('dark');
-    return content.replace(/.+{/, `#{$theme-provider-el-name}${isDark ? '[dark]' : ''} {`).replace(/--/g, `--#{$namespace}-`);
+    return content
+      .replace(/.+{\n([^}]*)\n}/, (_, $1) => {
+        $1 = $1
+          .split('\n')
+          .map((line) => `    ${line.trim()}`)
+          .join('\n');
+        return `#{$theme-provider-el-name} {
+  @include appearance(${String(isDark)}) {
+${$1}
+  }
+}`;
+      })
+      .replace(/--/g, `--#{$namespace}-`);
   });
   output.unshift('@use "../mixins/config" as *;');
+  output.unshift('@use "../mixins/theme" as *;');
   console.log(output.join('\n'));
 });
