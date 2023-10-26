@@ -2,22 +2,22 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { themeProviderProps } from './type';
 import { GlobalStaticConfig } from '..';
+import { provide } from 'vue';
 
+export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
+
+const name = 'theme-provider';
 export const ThemeProvider = defineSSRCustomElement({
-  name: 'theme-provider',
+  name,
   props: themeProviderProps,
   noShadow: true,
   inheritAttrs: false,
-  // onPropUpdate(key, val, el) {
-  //   if (key === 'dark') {
-  //     el.classList.toggle(`${GlobalStaticConfig.namespace}-dark-theme`, val);
-  //     el.classList.toggle(`${GlobalStaticConfig.namespace}-light-theme`, !val);
-  //   }
-  // },
-  // onCE(_, el) {
-  //   el.classList.add(`${GlobalStaticConfig.namespace}-theme`);
-  // },
+  onCE(_, el, parent) {
+    const isRoot = !parent || !parent._instance?.provides[ThemeProviderKey];
+    el.toggleAttribute('root', isRoot);
+  },
   setup(props) {
+    provide(ThemeProviderKey, props);
     return () => null;
   },
 });
@@ -34,4 +34,4 @@ declare global {
   }
 }
 
-export const defineThemeProvider = createDefineElement('theme-provider', ThemeProvider);
+export const defineThemeProvider = createDefineElement(name, ThemeProvider);
