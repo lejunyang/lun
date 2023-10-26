@@ -1,9 +1,12 @@
-@use '../mixins/config';
+@use '../mixins/config' as *;
 
-.#{config.$namespace}-theme {
-  @each $scale in config.$scale-set {
-    &:where([#{config.$scale-name}='#{$scale}']) {
-      --#{config.$scale-name}: $scale;
+#{$theme-provider-el-name} {
+  &:where([root]:not([#{$scale-name}])) {
+    #{getScaleVarName()}: 1;
+  }
+  @each $scale in $scale-list {
+    &:where([#{$scale-name}='#{$scale}']) {
+      #{getScaleVarName()}: $scale;
     }
   }
 }

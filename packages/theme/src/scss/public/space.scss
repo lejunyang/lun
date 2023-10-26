@@ -1,12 +1,14 @@
-@use '../mixins/config';
+@use '../mixins/config' as *;
+@use '../mixins/function' as *;
 
-.#{config.$namespace}-theme {
-  $v: --#{config.$space-name};
+#{$theme-provider-el-name}:where([root]:not([scale])) {
+  $v: var(#{getScaleVarName()});
   @for $num from 1 through 4 {
-    #{getVarName(config.$space-name, $num)}: calc(#{4 * $num}px * $v);
+    // need concat empty string to convert, or sass would throw error...
+    #{getVarName(($space-name, '' + $num))}: calc(#{4 * $num}px * #{$v});
   }
-  @for $num from 4 through 8 {
-    #{getVarName(config.$space-name, $num)}: calc(#{8 * $num - 16}px * $v);
+  @for $num from 5 through 8 {
+    #{getVarName(($space-name, '' + $num))}: calc(#{8 * $num - 16}px * #{$v});
   }
-  #{getVarName(config.$space-name, 9)}: calc(64px * $v);
+  #{getVarName(($space-name, '9'))}: calc(64px * #{$v});
 }
