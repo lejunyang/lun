@@ -1,18 +1,48 @@
 @use '../mixins/config';
+@use '../mixins/theme' as *;
 @use '../mixins/function' as *;
 
 $colors: (
-  gray gold bronze brown yellow amber orange tomato red ruby crimson pink plum purple violet iris indigo blue cyan teal
-    jade green grass lime mint sky
+  'gray' 'gold' 'bronze' 'brown' 'yellow' 'amber' 'orange' 'tomato' 'red' 'ruby' 'crimson' 'pink' 'plum' 'purple'
+    'violet' 'iris' 'indigo' 'blue' 'cyan' 'teal' 'jade' 'green' 'grass' 'lime' 'mint' 'sky'
 );
 
 @mixin generateThemeColor($color) {
-  [#{config.$accent-color-name}='#{$color}'] {
+  [#{config.$accent-color-name + '=' + $color}] {
     @for $num from 1 through 12 {
-      #{getVarName((config.$accent-name, $num))}: var(getVarName(($color, $num)));
-      #{getVarName((config.$accent-name, 'a' + $num))}: var(getVarName(($color, 'a' + $num)));
+      #{getVarName((config.$accent-name, $num))}: var(#{getVarName(($color, $num))});
+      #{getVarName((config.$accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
     }
   }
+}
+
+#{config.$theme-provider-el-name} {
+  $color: config.$default-accent-color;
+  &:not([#{config.$accent-color-name}]) {
+    @for $num from 1 through 12 {
+      #{getVarName((config.$accent-name, $num))}: var(#{getVarName(($color, $num))});
+      #{getVarName((config.$accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
+    }
+  }
+
+  // semantic colors
+  @include appearance(true) {
+    color-scheme: light;
+    @include semanticColor('background', white);
+    @include semanticColor('overlay', getColor('black', 'a6'));
+    @include semanticColor('panel-solid', white);
+    @include semanticColor('panel-translucent', rgba(255, 255, 255, 0.8));
+    @include semanticColor('surface', rgba(255, 255, 255, 0.9));
+  }
+  @include appearance(false) {
+    color-scheme: dark;
+    @include semanticColor('background', getColor('gray', 1));
+    @include semanticColor('overlay', getColor('black', 'a8'));
+    @include semanticColor('panel-solid', getColor('gray', 2));
+    // @include semanticColor('panel-translucent', rgba(255, 255, 255, 0.8));
+    @include semanticColor('surface', rgba(0, 0, 0, 0.25));
+  }
+
 }
 
 @each $color in $colors {

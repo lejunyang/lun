@@ -1,9 +1,7 @@
-:not(:defined),
-:not(:defined) * {
-  opacity: 0;
-}
-
-:defined {
-  opacity: 1;
-  transition: 0.1s opacity;
-}
+@import "./basic.scss";
+@import "./colors.scss";
+@import "./radius.scss";
+@import "./scale.scss";
+@import "./space.scss";
+@import "./theme-colors.scss";
+@import "./typography.scss";

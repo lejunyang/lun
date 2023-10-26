@@ -1,0 +1,15 @@
+@use '../mixins/config' as *;
+
+#{$theme-provider-el-name} {
+  // font size
+  @for $i from 1 through length($font-size-list) {
+    $size: nth($font-size-list, $i);
+    #{getFontSizeVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
+  }
+
+  // letter spacing
+  @for $i from 1 through length($letter-spacing-list) {
+    $size: nth($letter-spacing-list, $i);
+    #{getLetterSpacingVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
+  }
+}
