@@ -18,6 +18,10 @@ $space-name: 'space' !default;
 $theme-provider-el-name: #{$namespace + '-theme-provider'} !default;
 $default-accent-color: 'blue' !default;
 
+// radius
+$radius-name: 'radius' !default;
+$radius-list: (3px 4px 6px 8px 12px 16px) !default;
+
 // typography
 $font-size-name: 'font-size' !default;
 $font-size-list: 12px 14px 16px 18px 20px 24px 28px 35px 60px !default;
