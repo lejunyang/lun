@@ -16,3 +16,25 @@
 @function getAccentColor($level: 1) {
   @return getVarValue(($accent-name, $level), $default-accent-color);
 }
+
+@mixin appearance($isLight: true) {
+  @if $isLight {
+    &[appearance='light'] {
+      @content;
+    }
+    @media (prefers-color-scheme: light) {
+      &:where([root]:not([appearance='light'], [appearance='dark'])) {
+        @content;
+      }
+    }
+  } @else {
+    &[appearance='dark'] {
+      @content;
+    }
+    @media (prefers-color-scheme: dark) {
+      &:where([root]:not([appearance='light'], [appearance='dark'])) {
+        @content;
+      }
+    }
+  }
+}
