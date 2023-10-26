@@ -1,13 +1,14 @@
 import { defineSSRCustomElement } from 'custom';
-import { Teleport, computed, ref, toRef, watchEffect } from 'vue';
+import { CSSProperties, Teleport, computed, ref, toRef, watchEffect } from 'vue';
 import { usePopover } from '@lun/core';
 import { createDefineElement, renderElement, toGetterDescriptors } from 'utils';
 import { popoverProps } from './type';
 import { isSupportPopover, isSupportDialog, pick } from '@lun/utils';
 import { useCEExpose, useShadowDom } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
-import { autoUpdate, useFloating } from '@floating-ui/vue';
-import { topLayerOverTransforms } from './floating-ui-top-layer-fix';
+import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
+import { topLayerOverTransforms } from './floating.top-layer-fix';
+import { referenceRect } from './floating.store-rects';
 
 export const Popover = defineSSRCustomElement({
   name: 'popover',
@@ -25,6 +26,7 @@ export const Popover = defineSSRCustomElement({
     const dialogRef = ref<HTMLDialogElement>();
     // TODO fixed el ref
     const slotRef = ref<HTMLSlotElement>();
+    const arrowRef = ref();
     const isShow = ref(false);
     const type = computed(() => {
       if (['popover', 'dialog', 'fixed', 'body-fixed'].includes(props.type!) && support[props.type!]) return props.type;
@@ -91,12 +93,57 @@ export const Popover = defineSSRCustomElement({
     const shadow = useShadowDom();
     const ceRef = computed(() => (isShow.value ? shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
-    const { floatingStyles } = useFloating(ceRef, actualPopRef, {
+    const middleware = computed(() => {
+      if (isShow.value) {
+        // read isShow, so that trigger update when show change
+      }
+      const arrowLen = arrowRef.value?.offsetWidth || 0;
+      // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
+      // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
+      const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
+      return [
+        topLayerOverTransforms(),
+        offset(floatingOffset + (props.offset || 0)),
+        props.showArrow &&
+          arrow({
+            element: arrowRef.value,
+          }),
+        referenceRect(),
+      ].filter(Boolean) as any;
+    });
+    const { floatingStyles, middlewareData } = useFloating(ceRef, actualPopRef, {
       whileElementsMounted: autoUpdate,
       strategy: 'fixed',
       placement,
       open: isShow,
-      middleware: [topLayerOverTransforms()],
+      middleware,
+    });
+    const arrowStyles = computed(() => {
+      const { x, y } = middlewareData.value.arrow || {};
+      const side = placement.value?.split('-')[0] || 'bottom';
+      const staticSide =
+        {
+          top: 'bottom',
+          right: 'left',
+          bottom: 'top',
+          left: 'right',
+        }[side] || 'top';
+      return {
+        position: 'absolute' as const,
+        left: x != null ? `${x}px` : '',
+        top: y != null ? `${y}px` : '',
+        right: '',
+        bottom: '',
+        [staticSide]: `${-arrowRef.value?.offsetWidth / 2}px`,
+        transform: 'rotate(45deg)',
+      };
+    });
+    const finalFloatingStyles = computed(() => {
+      let result: CSSProperties = { ...floatingStyles.value };
+      const width = middlewareData.value.rects?.reference.width;
+      if (width && props.fullPopWidth) result.width = `${width}px`;
+      if (props.adjustPopStyle) result = props.adjustPopStyle(result, middlewareData.value) || result;
+      return result;
     });
 
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
@@ -109,13 +156,18 @@ export const Popover = defineSSRCustomElement({
     return () => {
       const { value } = type;
       const contentSlot = (
-        <slot name="pop-content">{props.content && renderElement('custom-renderer', { content: props.content })}</slot>
+        <>
+          {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value}></div>}
+          <slot name="pop-content">
+            {props.content && renderElement('custom-renderer', { content: props.content })}
+          </slot>
+        </>
       );
       const fixed = (
         <div
           {...popContentHandler}
           part={(value === 'body-fixed' ? 'teleport-fixed' : 'fixed') + ' pop-content'}
-          style={floatingStyles.value}
+          style={finalFloatingStyles.value}
           hidden={isShow.value}
         >
           {contentSlot}
@@ -126,7 +178,7 @@ export const Popover = defineSSRCustomElement({
           {value === 'popover' && (
             <div
               {...popContentHandler}
-              style={floatingStyles.value}
+              style={finalFloatingStyles.value}
               part="popover pop-content"
               popover="manual"
               ref={popRef}
@@ -138,7 +190,7 @@ export const Popover = defineSSRCustomElement({
             <dialog
               {...popContentHandler}
               {...dialogHandler}
-              style={floatingStyles.value}
+              style={finalFloatingStyles.value}
               part="dialog pop-content"
               ref={dialogRef}
             >
