@@ -1,0 +1,38 @@
+@use '../mixins/config' as *;
+@use '../mixins/function' as *;
+
+#{$theme-provider-el-name} {
+  $factor: getVarName(($radius-name, factor));
+  #{$factor}: 0;
+
+  &[#{$radius-name}='small'] {
+    #{$factor}: 0.75;
+    --radius-full: 0px;
+    --radius-thumb: 0.5px;
+  }
+
+  &[#{$radius-name}='medium'] {
+    #{$factor}: 1;
+    --radius-full: 0px;
+    --radius-thumb: 9999px;
+  }
+
+  &[#{$radius-name}='large'] {
+    #{$factor}: 1.5;
+    --radius-full: 0px;
+    --radius-thumb: 9999px;
+  }
+
+  &[#{$radius-name}='full'] {
+    #{$factor}: 1.5;
+    --radius-full: 9999px;
+    --radius-thumb: 9999px;
+  }
+
+  &[#{$radius-name}] {
+    @for $i from 1 through length($radius-list) {
+      $size: nth($radius-list, $i);
+      #{getVarName(($radius-name, $i))}: calc(#{$size} * var(#{getScaleVarName()}) * var(#{$factor}));
+    }
+  }
+}
