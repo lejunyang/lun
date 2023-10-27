@@ -12,7 +12,7 @@ fs.readdir(colorsDir, (err, files) => {
     if (path.extname(file) !== '.css') return;
     const filePath = path.join(colorsDir, file);
     const content = fs.readFileSync(filePath, { encoding: 'utf-8' });
-    const isDark = content.includes('dark');
+    const isLight = content.includes('light');
     return content
       .replace(/.+{\n([^}]*)\n}/, (_, $1) => {
         $1 = $1
@@ -20,7 +20,7 @@ fs.readdir(colorsDir, (err, files) => {
           .map((line) => `    ${line.trim()}`)
           .join('\n');
         return `#{$theme-provider-el-name} {
-  @include appearance(${String(isDark)}) {
+  @include appearance(${String(isLight)}) {
 ${$1}
   }
 }`;
