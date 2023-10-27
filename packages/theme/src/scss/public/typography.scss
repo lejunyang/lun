@@ -1,4 +1,5 @@
 @use '../mixins/config' as *;
+@use '../mixins/theme' as *;
 
 #{$theme-provider-el-name} {
   // font size

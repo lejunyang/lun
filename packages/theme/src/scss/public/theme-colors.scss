@@ -1,27 +1,44 @@
-@use '../mixins/config';
+@use '../mixins/config' as *;
 @use '../mixins/theme' as *;
 @use '../mixins/function' as *;
 
-$colors: (
-  'gray' 'gold' 'bronze' 'brown' 'yellow' 'amber' 'orange' 'tomato' 'red' 'ruby' 'crimson' 'pink' 'plum' 'purple'
-    'violet' 'iris' 'indigo' 'blue' 'cyan' 'teal' 'jade' 'green' 'grass' 'lime' 'mint' 'sky'
-);
-
 @mixin generateThemeColor($color) {
-  [#{config.$accent-color-name + '=' + $color}] {
+  [#{$accent-color-name + '=' + $color}] {
     @for $num from 1 through 12 {
-      #{getVarName((config.$accent-name, $num))}: var(#{getVarName(($color, $num))});
-      #{getVarName((config.$accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
+      #{getVarName(($accent-name, $num))}: var(#{getVarName(($color, $num))});
+      #{getVarName(($accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
     }
   }
 }
 
-#{config.$theme-provider-el-name} {
-  $color: config.$default-accent-color;
-  &:not([#{config.$accent-color-name}]) {
+@mixin mapGrayColor($target) {
+  &:where([#{$gray-color-name + '=' + $target}]) {
     @for $num from 1 through 12 {
-      #{getVarName((config.$accent-name, $num))}: var(#{getVarName(($color, $num))});
-      #{getVarName((config.$accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
+      #{getVarName(($gray-name, $num))}: var(#{getVarName(($target, $num))});
+      #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($target, 'a' + $num))});
+    }
+  }
+}
+
+#{$theme-provider-el-name} {
+  // default accent color
+  $color: $default-accent-color;
+  &:not([#{$accent-color-name}]) {
+    @for $num from 1 through 12 {
+      #{getVarName(($accent-name, $num))}: var(#{getVarName(($color, $num))});
+      #{getVarName(($accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
+    }
+  }
+
+  // map gray colors
+  @each $color in $gray-color-list {
+    @include mapGrayColor($color);
+  }
+  // default gray color
+  &:not([#{$gray-color-name}]) {
+    @for $num from 1 through 12 {
+      #{getVarName(($gray-name, $num))}: var(#{getVarName(($default-gray-color, $num))});
+      #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($default-gray-color, 'a' + $num))});
     }
   }
 
@@ -45,6 +62,6 @@ $colors: (
 
 }
 
-@each $color in $colors {
+@each $color in $color-list {
   @include generateThemeColor($color);
 }
