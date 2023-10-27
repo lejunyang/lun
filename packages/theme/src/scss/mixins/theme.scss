@@ -19,7 +19,7 @@
 
 @mixin appearance($isLight: true) {
   @if $isLight {
-    &[appearance='light'] {
+    &:where([appearance='light']) {
       @content;
     }
     @media (prefers-color-scheme: light) {
@@ -28,7 +28,7 @@
       }
     }
   } @else {
-    &[appearance='dark'] {
+    &:where([appearance='dark']) {
       @content;
     }
     @media (prefers-color-scheme: dark) {
@@ -37,4 +37,28 @@
       }
     }
   }
+}
+
+@function getScaleVarName() {
+  @return #{'--' + $namespace + '-' + $scale-name};
+}
+
+@function getSpaceValue($level) {
+  @return getVarValue(($space-name, $level));
+}
+
+@function getFontSizeVarName() {
+  @return #{'--' + $namespace + '-' + $font-size-name};
+}
+
+@function getFontSizeValue($level) {
+  @return getVarValue(($font-size-name, $level));
+}
+
+@function getLetterSpacingVarName() {
+  @return #{'--' + $namespace + '-' + $letter-spacing-name};
+}
+
+@function getLetterSpacingValue($level) {
+  @return getVarValue(($letter-spacing-name, $level));
 }
