@@ -13,7 +13,7 @@ export const SelectOptGroup = defineSSRCustomElement({
     const [editComputed] = useSetupEdit(); // TODO disabled class
 
     return () => (
-      <div class={ns.b()}>
+      <div part="root" class={ns.b()}>
         <div class={ns.e('label')}>{props.label}</div>
         <div class={ns.e('content')}>
           <slot></slot>
