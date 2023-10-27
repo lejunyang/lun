@@ -48,6 +48,53 @@
   <l-button>悬浮触发</l-button>
 </l-popover>
 
+## 弹出位置
+
+<div style="text-align: center">
+  <l-popover content="content" placement="top-start">
+    <l-button>TL</l-button>
+  </l-popover>
+  <l-popover content="content" placement="top">
+    <l-button>Top</l-button>
+  </l-popover>
+  <l-popover content="content" placement="top-end">
+    <l-button>TR</l-button>
+  </l-popover>
+</div>
+<div style="float: left; display: flex; flex-direction: column;">
+  <l-popover content="content" placement="left-top">
+    <l-button>LT</l-button>
+  </l-popover>
+  <l-popover content="content" placement="left">
+    <l-button>Left</l-button>
+  </l-popover>
+  <l-popover content="content" placement="left-end">
+    <l-button>LB</l-button>
+  </l-popover>
+</div>
+<div style="float: right; display: flex; flex-direction: column">
+  <l-popover content="content" placement="right-start">
+    <l-button>RT</l-button>
+  </l-popover>
+  <l-popover content="content" placement="right">
+    <l-button>Right</l-button>
+  </l-popover>
+  <l-popover content="content" placement="right-end">
+    <l-button>RB</l-button>
+  </l-popover>
+</div>
+<div style="clear: both; text-align: center; gap: 5px">
+  <l-popover content="content" placement="bottom-start">
+    <l-button>BL</l-button>
+  </l-popover>
+  <l-popover content="content" placement="bottom">
+    <l-button>Bottom</l-button>
+  </l-popover>
+  <l-popover content="content" placement="bottom-end">
+    <l-button>BR</l-button>
+  </l-popover>
+</div>
+
 ## dialog 实现
 
 默认情况下会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现，若浏览器不支持，则会转为使用原生 [`dialog`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) 来实现，若均不支持，则会改为使用定位

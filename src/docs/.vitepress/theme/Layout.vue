@@ -1,5 +1,5 @@
 <template>
-  <l-theme-provider :dark="isDark">
+  <l-theme-provider :appearance="isDark ? 'dark' : 'light'">
     <Layout> </Layout>
   </l-theme-provider>
 </template>
