@@ -1,5 +1,6 @@
 @use '../mixins/config' as *;
 @use '../mixins/function' as *;
+@use '../mixins/theme' as *;
 
 #{$theme-provider-el-name}:where([root]:not([scale])) {
   $v: var(#{getScaleVarName()});

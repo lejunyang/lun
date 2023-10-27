@@ -4,6 +4,7 @@ export const themeProviderProps = {
   theme: { type: String },
   appearance: { type: String as PropType<'light' | 'dark'> },
   accentColor: { type: String },
+  grayColor: { type: String },
   scale: { type: String },
 };
 
