@@ -22,6 +22,10 @@ export type PopoverProps = ExtractPropTypes<typeof popoverProps>;
 
 declare module 'vue' {
   export interface IntrinsicElementAttributes {
-    'l-popover': PopoverProps & HTMLAttributes;
+    'l-popover': PopoverProps & HTMLAttributes & {
+      isShow: () => boolean;
+      delayShowPopover: () => void;
+      delayHidePopover: () => void;
+    };
   }
 }

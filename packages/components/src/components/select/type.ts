@@ -2,6 +2,8 @@ import { MaybePromiseOrGetter } from '@lun/core';
 import { ExtractPropTypes, PropType, StyleValue } from 'vue';
 import { EditStateProps } from '../../common';
 import { editStateProps } from '../../common/editStateProps';
+import { popoverProps } from '../popover/type';
+import { omit } from '@lun/utils';
 
 type Style = { class?: any; style?: StyleValue };
 export type SelectOption = { label?: string; value: any } & Style & EditStateProps;
@@ -14,6 +16,7 @@ export const selectProps = {
   multiple: { type: Boolean },
   // TODO MaybePromiseOrGetter CheckboxGroup RadioGroup
   options: { type: [Array, Function] as PropType<MaybePromiseOrGetter<SelectOptions>> },
+  ...omit(popoverProps, ['show', 'content', 'fullPopWidth', 'type', 'triggers']),
 };
 
 export const selectOptionProps = {

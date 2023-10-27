@@ -31,6 +31,7 @@ export const SelectOption = defineSSRCustomElement({
     return () => {
       return (
         <div
+          part="root"
           class={[ns.is('selected', selected.value), ns.is('disabled', editComputed.value.disabled)]}
           onClick={handler.onClick}
         >

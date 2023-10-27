@@ -148,7 +148,12 @@ export const Popover = defineSSRCustomElement({
 
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
     useCEExpose(
-      { showPopover: show, hidePopover: hide, togglePopover: toggle },
+      {
+        showPopover: show,
+        hidePopover: hide,
+        togglePopover: toggle,
+        isShow: () => (props.show !== undefined ? !!props.show : isShow.value),
+      },
       toGetterDescriptors(options, { show: 'delayShowPopover', hide: 'delayHidePopover' })
     );
 

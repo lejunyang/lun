@@ -1,5 +1,5 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { computed, ref, toRef } from 'vue';
+import { computed, ref, toRef, IntrinsicElementAttributes } from 'vue';
 import { createDefineElement, error, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
@@ -28,6 +28,7 @@ export const Select = defineSSRCustomFormElement({
     });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
     const inputRef = ref();
+    const popoverRef = ref<IntrinsicElementAttributes['l-popover']>();
 
     const childValueSet = computed<Set<any>>(
       () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : [])))
@@ -59,7 +60,7 @@ export const Select = defineSSRCustomFormElement({
       },
     });
     const renderOption = (i: any, index: number) =>
-      renderElement('select-option', { ...i, slot: 'pop-content', key: i.value + index }, i.label);
+      renderElement('select-option', { ...i, key: i.value + index }, i.label);
     // TODO ArrowUp down popup
     return () => {
       return (
@@ -68,6 +69,10 @@ export const Select = defineSSRCustomFormElement({
             'popover',
             {
               triggers: ['click', 'focus'],
+              fullPopWidth: true,
+              showArrow: true,
+              ref: popoverRef,
+              // TODO pick props
             },
             <>
               {/* select input element */}
@@ -77,22 +82,23 @@ export const Select = defineSSRCustomFormElement({
                 readonly: true,
                 value: valueModel.value,
               })}
-              {/* options from props, they should be with slot="pop-content" prop so that assigned to popover content */}
-              {Array.isArray(options.value) &&
-                options.value.map((i: any, index) => {
-                  if (Array.isArray(i.children)) {
-                    return renderElement(
-                      'select-optgroup',
-                      { slot: 'content', key: index, class: i.class, style: i.style },
-                      i.children.map(renderOption)
-                    );
-                  }
-                  return renderOption(i, index);
-                })}
-              {/* slot for select children, also assigned to popover content slot */}
-              <slot slot="pop-content">
-                <slot name="no-content">{!children.value.length && 'No content'}</slot>
-              </slot>
+              <div part="pop-content" slot="pop-content">
+                {/* options from props, they should be with slot="pop-content" prop so that assigned to popover content */}
+                {Array.isArray(options.value) &&
+                  options.value.map((i: any, index) => {
+                    if (Array.isArray(i.children)) {
+                      return renderElement(
+                        'select-optgroup',
+                        { slot: 'content', key: index, class: i.class, style: i.style },
+                        i.children.map(renderOption)
+                      );
+                    }
+                    return renderOption(i, index);
+                  })}
+                {/* slot for select children, also assigned to popover content slot */}
+                <slot></slot>
+                {!children.value.length && <slot name="no-content">No content</slot>}
+              </div>
             </>
           )}
         </>
