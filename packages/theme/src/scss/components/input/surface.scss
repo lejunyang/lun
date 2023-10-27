@@ -1,5 +1,7 @@
 @use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
 @use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
 
 @include b(input) {
   display: flex;
@@ -42,34 +44,33 @@
     display: block;
     box-sizing: border-box;
     padding: 0;
-    width: 100%;
+    inline-size: 100%;
 
     // placeholder and selection
     &::placeholder {
-      color: var(--gray-a10);
+      color: getColor('gray', a10);
       // Firefox
       opacity: 1;
     }
     &:autofill {
-      -webkit-text-fill-color: var(--gray-12);
-      caret-color: var(--gray-12);
+      -webkit-text-fill-color: getColor('gray', 12);
+      caret-color: getColor('gray', 12);
       box-shadow: inset 0 0 0 100px white;
-      border: 1px solid var(--gray-7);
-      border-left: none;
-      border-right: none;
+      border: 1px solid getColor('gray', 7);
+      border-inline: none;
     }
     &:read-only {
       &::placeholder {
-        color: var(--gray-a7);
+        color: getColor('gray', a7);
       }
       &::selection {
-        background-color: var(--gray-a5);
+        background-color: getColor('gray', a5);
       }
     }
   }
 
   @include e(length-info, false) {
-    color: var(--gray-10);
+    color: getColor('gray', 10);
     z-index: 1;
     display: flex;
     align-items: center;
@@ -83,8 +84,8 @@
     transition: border-color 0.3s ease;
     .#{$B}:focus-within & {
       /* box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8), inset 0 0 0 100px var(--accent-3); */
-      box-shadow: inset 0 0 0 100px var(--accent-3);
-      border: 2px solid var(--accent-8);
+      box-shadow: inset 0 0 0 100px getAccentColor(3);
+      border: 1px solid getAccentColor(8);
     }
   }
 
@@ -99,8 +100,7 @@
       .#{$E} {
         gap: var(--space-2);
         ::slotted(*) {
-          padding-left: var(--space-1);
-          padding-right: var(--space-1);
+          padding-inline: var(--space-1);
         }
       }
     }
@@ -117,7 +117,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 32px;
+      min-inline-size: 32px;
 
       .#{$B}:hover &:not(:empty) {
         opacity: 1;
@@ -125,17 +125,17 @@
         pointer-events: all;
         cursor: pointer;
       }
-      slot & {
-        // suffix slot default content clear-icon
-        position: relative;
-      }
     }
+  }
+  // suffix slot default content clear-icon
+  slot .#{bem(input, suffix, clear-icon)} {
+    position: relative;
   }
 
   @include e(custom-renderer) {
     position: absolute;
     /* inset: 0; width should be decided by content, otherwise empty renderer would cover the input */
-    width: auto;
+    inline-size: auto;
     z-index: 2;
     background-color: white; /** TODO theme color */
     text-align: start;
@@ -184,19 +184,55 @@
 
   /* variant surface */
   @include variant(surface) {
-    color: var(--gray-12);
+    color: getColor('gray', 12);
     .#{$B}:autofill {
-      box-shadow: inset 0 0 0 100px var(--color-surface);
+      box-shadow: inset 0 0 0 100px getSemanticColor('surface');
     }
     &:focus-within {
       #{getE('background')} {
-        box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8);
+        box-shadow: inset 0 0 0 1px getAccentColor(8), 0 0 0 1px getAccentColor(a8);
       }
     }
     #{getE('background')} {
-      background-color: var(--color-surface);
-			/* box-shadow: inset 0 0 0 1px var(--gray-a7); */
-			border: 1px solid var(--gray-a7);
+      background-color: getSemanticColor('surface');
+      /* box-shadow: inset 0 0 0 1px var(--gray-a7); */
+      border: 1px solid getColor('gray', a7);
+    }
+  }
+
+  // size
+  @include size(1) {
+    @include e(slot, true) {
+      gap: getSpaceValue(2);
+      ::slotted(*) {
+        padding-inline: getSpaceValue(1);
+      }
+    }
+    @include e(length-info, true) {
+      padding-inline: getSpaceValue(1);
+    }
+    @include e(inner-input, true) {
+      height: getSpaceValue(5);
+      padding-top: 0.5px;
+      padding-bottom: 1px;
+      padding-inline-start: getSpaceValue(1);
+      font-size: getFontSizeValue(1);
+      letter-spacing: getLetterSpacingValue(1);
+    }
+    @include e('background') {
+      border-radius: getRadiusValue(2);
+    }
+    @include is(float-label) {
+      left: calc(100% + getSpaceValue(1));
+      height: getSpaceValue(5);
+      line-height: getSpaceValue(5);
+    }
+    $empty: getIs(not-empty, $B);
+    $float: getIs(float-label);
+    &.#{$B}:focus-within #{$float},
+    &.#{getIs(not-empty, $B)} #{$float} {
+      top: -50%;
+      left: getSpaceValue(1);
     }
   }
 }

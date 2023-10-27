@@ -83,13 +83,14 @@ export const Input = defineSSRCustomFormElement({
           {...inputHandlers}
         />
       );
+      const getClearIcon = () => props.showClearIcon && <span class={[ns.em('suffix', 'clear-icon')]}>x</span>;
       return (
         <span part="root" class={classes.root.value}>
           <div class={[ns.e('slot'), ns.b('addon-before')]} part="addon-before">
             <slot name="addon-before"></slot>
           </div>
           <label class={ns.e('label')} part="label">
-            <div class={[ns.e('slot'), ns.b('prefix')]} part="prefix">
+            <div class={[ns.e('slot'), ns.e('prefix')]} part="prefix">
               <slot name="prefix"></slot>
               {props.labelType === 'float' && (
                 <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
@@ -131,13 +132,18 @@ export const Input = defineSSRCustomFormElement({
             </span>
             <span class={ns.e('background')} />
             <span class={[ns.e('slot'), ns.e('suffix'), props.showClearIcon && ns.is('with-clear')]} part="suffix">
-              {props.showClearIcon && <span class={[ns.em('suffix', 'clear-icon')]}>x</span>}
-              <slot name="suffix">{/* <span class={[ns.be('suffix', 'clear-icon')]}>x</span> */}</slot>
+              {getClearIcon()}
+              <slot name="suffix">
+                {/* this is static position clear icon, used to occupy place */}
+                {getClearIcon()}
+              </slot>
             </span>
-            {/* TODO if no maxLength, show current char count? */}
-            {props.maxLength! >= 0 && (
+            {props.showLengthInfo && props.multiple && (
               <span class={ns.e('length-info')}>
-                {valueModel.value?.length || '0'}/{props.maxLength}
+                {/* if no maxLength, show current char count */}
+                {props.maxLength! >= 0
+                  ? valueModel.value?.length || '0' + '/' + props.maxLength
+                  : valueModel.value?.length}
               </span>
             )}
           </label>

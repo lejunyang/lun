@@ -62,3 +62,7 @@
 @function getLetterSpacingValue($level) {
   @return getVarValue(($letter-spacing-name, $level));
 }
+
+@function getRadiusValue($level) {
+  @return getVarValue(($radius-name, $level));
+}
