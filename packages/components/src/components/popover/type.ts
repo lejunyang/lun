@@ -1,4 +1,4 @@
-import { Placement } from "@floating-ui/vue";
+import { Placement } from '@floating-ui/vue';
 import type { PopoverTrigger } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
 
@@ -11,6 +11,8 @@ export const popoverProps = {
   showDelay: { type: Number },
   hideDelay: { type: Number },
   triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },
+  // whether to toggle when retrigger, useful for select(TODO select also need input to trigger)
+  toggleWhenRetrigger: { type: Boolean },
   fullPopWidth: { type: Boolean },
   adjustPopStyle: {
     type: Function as PropType<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>,
@@ -22,10 +24,11 @@ export type PopoverProps = ExtractPropTypes<typeof popoverProps>;
 
 declare module 'vue' {
   export interface IntrinsicElementAttributes {
-    'l-popover': PopoverProps & HTMLAttributes & {
-      isShow: () => boolean;
-      delayShowPopover: () => void;
-      delayHidePopover: () => void;
-    };
+    'l-popover': PopoverProps &
+      HTMLAttributes & {
+        isShow: () => boolean;
+        delayShowPopover: () => void;
+        delayHidePopover: () => void;
+      };
   }
 }
