@@ -1,7 +1,6 @@
 import { isFunction, isSupportCSSStyleSheet } from '@lun/utils';
 import type { ShadowComponentKey } from 'config';
 import { GlobalStaticConfig, useContextConfig } from 'config';
-import type { ComputedRef } from 'vue';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
 import { useShadowDom } from './shadowDom';
 
@@ -15,10 +14,11 @@ export function useContextStyles(name: ShadowComponentKey) {
   const styles = dynamicStyles[name];
   if (!Array.isArray(styles)) return;
   const sheets: CSSStyleSheet[] = [];
-  const textStyles: ComputedRef<string>[] = [];
+  const textStyles: (() => string)[] = [];
   const support = isSupportCSSStyleSheet();
-  styles.forEach((css) => {
-    if (!isFunction(css)) return;
+  styles.forEach((s) => {
+    if (!s) return;
+    const css = !isFunction(s) ? () => String(s) : s;
     if (support && GlobalStaticConfig.preferCSSStyleSheet) {
       const sheet = new CSSStyleSheet();
       watchEffect(() => {
@@ -27,11 +27,11 @@ export function useContextStyles(name: ShadowComponentKey) {
       });
       sheets.push(sheet);
     } else {
-      textStyles.push(computed(() => css(vm)));
+      textStyles.push(() => css(vm));
     }
   });
   useShadowDom(({ shadowRoot }) => {
     shadowRoot.adoptedStyleSheets = shadowRoot.adoptedStyleSheets.concat(sheets);
   });
-  return () => textStyles.map((i) => h('style', { type: 'text/css' }, i.value));
+  return computed(() => textStyles.map((i) => h('style', { type: 'text/css' }, i())));
 }
