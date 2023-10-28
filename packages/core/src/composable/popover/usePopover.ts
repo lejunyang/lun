@@ -1,7 +1,7 @@
 import { debounce, toArrayIfNotNil } from '@lun/utils';
 import { computed } from 'vue';
 import { useClickOutside } from '../../hooks';
-import { MaybeRefLikeOrGetter } from '../../utils';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'click' | 'contextmenu';
 
@@ -15,6 +15,7 @@ export type UsePopoverOptions = {
   triggers?: PopoverTrigger | PopoverTrigger[];
   showDelay?: number;
   hideDelay?: number;
+  toggleWhenRetrigger?: boolean;
 };
 
 export function usePopover(optionsGetter: () => UsePopoverOptions) {
@@ -49,12 +50,15 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     };
   });
   const createTrigger =
-    (trigger: PopoverTrigger | null, method: 'show' | 'hide', extraHandle?: (e: Event) => void | boolean) =>
+    (trigger: PopoverTrigger | null, method: 'show' | 'hide' | 'toggle', extraHandle?: (e: Event) => void | boolean) =>
     (e: Event) => {
-      const { triggers, manual } = options.value;
+      const { triggers, manual, toggleWhenRetrigger, isShow } = options.value;
       if ((!trigger || triggers.has(trigger)) && manual === undefined) {
         if (extraHandle && extraHandle(e) === false) return;
-        options.value[method]();
+        if (method === 'toggle' && toggleWhenRetrigger) {
+          if (unrefOrGet(isShow)) options.value.hide();
+          else options.value.show();
+        } else options.value[method as 'show' | 'hide']();
       }
     };
 
@@ -62,8 +66,8 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const targetHandler = {
     onMouseenter: createTrigger('hover', 'show'),
     onMouseleave: createTrigger('hover', 'hide', () => !popFocusIn), // if focusing on pop, don't hide when mouse leave
-    onClick: createTrigger('click', 'show'),
-    onContextmenu: createTrigger('contextmenu', 'show', (e) => e.preventDefault()),
+    onClick: createTrigger('click', 'toggle'),
+    onContextmenu: createTrigger('contextmenu', 'toggle', (e) => e.preventDefault()),
     onFocusin: createTrigger('focus', 'show'),
     onFocusout: createTrigger('focus', 'hide'),
   };
