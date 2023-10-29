@@ -1,6 +1,7 @@
 import { defineButton } from './button';
 import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
+import { defineDialog } from './dialog';
 import { defineIcon } from './icon';
 import { defineBaseInput, defineInput } from './input';
 import { definePopover, importPopoverStyle } from './popover';
@@ -19,6 +20,7 @@ export function defineAllComponents() {
   defineCheckbox();
   defineCheckboxGroup();
   defineCustomRenderer();
+  defineDialog();
   defineIcon();
   defineBaseInput();
   defineInput();
@@ -37,9 +39,11 @@ export * from './button';
 export * from './config';
 export * from './checkbox';
 export * from './custom-renderer';
+export * from './dialog';
 export * from './icon';
 export * from './input';
 export * from './popover';
 export * from './radio';
 export * from './select';
 export * from './spin';
+export * from './theme-provider';
