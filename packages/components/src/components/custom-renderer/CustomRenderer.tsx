@@ -48,8 +48,11 @@ export const CustomRenderer = defineSSRCustomElement({
         if (content instanceof Function) content = content(); // if it's a function, consider it as a getter
         nextType = isVNode(content) ? 'vnode' : 'html';
         if (['string', 'number'].includes(typeof content) || !content) {
-          content = GlobalStaticConfig.vHtmlPreprocessor(String(content || ''));
-          updateHtml = () => div.value && (div.value.innerHTML = content);
+          updateHtml = () => {
+            if(!div.value) return;
+            if (props.preferHtml) div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content || ''));
+            else div.value.innerText = String(content || '');
+          };
         } else if (content instanceof Node) {
           updateHtml = () => {
             if (div.value) {
