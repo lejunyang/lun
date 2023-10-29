@@ -54,7 +54,6 @@ declare global {
   }
 }
 
-export const defineButton = (buttonName?: string, spinName?: string) => {
-  defineSpin(spinName);
-  createDefineElement('button', Button)(buttonName);
-};
+export const defineButton = createDefineElement('button', Button, {
+  spin: defineSpin,
+});
