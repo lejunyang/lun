@@ -11,6 +11,7 @@ export const shadowComponents = Object.freeze([
   'button',
   'checkbox',
   'checkbox-group',
+  'dialog',
   'icon',
   'base-input',
   'input',
@@ -80,6 +81,7 @@ export const GlobalStaticConfig = new Proxy(
         looseEqual: false,
       },
       'custom-renderer': {},
+      dialog: {},
       icon: {
         library: 'default' as const,
       },
