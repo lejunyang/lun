@@ -14,7 +14,15 @@
 }
 
 @function getAccentColor($level: 1) {
-  @return getVarValue(($accent-name, $level), $default-accent-color);
+  @if $level == 'surface' {
+    @return getVarValue(('color', surface, $accent-name));
+  } @else {
+    @return getVarValue(($accent-name, $level), $default-accent-color);
+  }
+}
+
+@function getGrayColor($level: 1) {
+  @return getVarValue(($gray-name, $level), $default-gray-color);
 }
 
 @mixin appearance($isLight: true) {
@@ -65,4 +73,8 @@
 
 @function getRadiusValue($level) {
   @return getVarValue(($radius-name, $level));
+}
+
+@function getDisabledCursor() {
+  @return var(--#{$namespace}-cursor-disabled, not-allowed);
 }
