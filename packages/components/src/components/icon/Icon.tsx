@@ -1,14 +1,16 @@
 import { defineSSRCustomElement } from 'custom';
 import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
-import { createDefineElement, error } from 'utils';
+import { createDefineElement, createImportStyle, error } from 'utils';
 import { iconProps } from './type';
+import styles from './basic.scss?inline';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
 
+const name = 'icon';
 export const Icon = defineSSRCustomElement({
-  name: 'icon',
+  name,
   props: iconProps,
   setup(props) {
     const config = useContextConfig();
@@ -127,4 +129,5 @@ declare global {
   }
 }
 
-export const defineIcon = createDefineElement('icon', Icon);
+export const defineIcon = createDefineElement(name, Icon);
+export const importIconStyle = createImportStyle(name, styles);

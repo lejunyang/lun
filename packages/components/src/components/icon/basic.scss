@@ -1,0 +1,5 @@
+:host(:where(:not([library]), [library="default"])) {
+  svg {
+    vertical-align: -0.125em;
+  }
+}
