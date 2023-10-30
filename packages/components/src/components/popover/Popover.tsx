@@ -81,7 +81,7 @@ export const Popover = defineSSRCustomElement({
     const actualPopRef = computed(() => popRef.value || dialogRef.value);
 
     const { targetHandler, popContentHandler, dialogHandler, options } = usePopover(() => ({
-      ...pick(props, ['showDelay', 'hideDelay', 'triggers', 'toggleWhenRetrigger']),
+      ...pick(props, ['showDelay', 'hideDelay', 'triggers', 'toggleMode']),
       manual: props.show,
       isShow,
       show,

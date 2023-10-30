@@ -15,7 +15,7 @@ export type UsePopoverOptions = {
   triggers?: PopoverTrigger | PopoverTrigger[];
   showDelay?: number;
   hideDelay?: number;
-  toggleWhenRetrigger?: boolean;
+  toggleMode?: boolean;
 };
 
 export function usePopover(optionsGetter: () => UsePopoverOptions) {
@@ -52,24 +52,31 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const createTrigger =
     (trigger: PopoverTrigger | null, method: 'show' | 'hide' | 'toggle', extraHandle?: (e: Event) => void | boolean) =>
     (e: Event) => {
-      const { triggers, manual, toggleWhenRetrigger, isShow } = options.value;
+      const { triggers, manual, toggleMode, isShow } = options.value;
       if ((!trigger || triggers.has(trigger)) && manual === undefined) {
         if (extraHandle && extraHandle(e) === false) return;
-        if (method === 'toggle' && toggleWhenRetrigger) {
-          if (unrefOrGet(isShow)) options.value.hide();
-          else options.value.show();
+        if (method === 'toggle') {
+          if (
+            toggleMode &&
+            // do hide only when triggers don't have hover or focus, or have focus and target is focused
+            !(triggers.has('hover') || (triggers.has('focus') && !targetFocusIn)) &&
+            unrefOrGet(isShow)
+          ) {
+            options.value.hide();
+          } else options.value.show();
         } else options.value[method as 'show' | 'hide']();
       }
     };
 
-  let popFocusIn = false;
+  let popFocusIn = false,
+    targetFocusIn = false;
   const targetHandler = {
     onMouseenter: createTrigger('hover', 'show'),
     onMouseleave: createTrigger('hover', 'hide', () => !popFocusIn), // if focusing on pop, don't hide when mouse leave
     onClick: createTrigger('click', 'toggle'),
     onContextmenu: createTrigger('contextmenu', 'toggle', (e) => e.preventDefault()),
-    onFocusin: createTrigger('focus', 'show'),
-    onFocusout: createTrigger('focus', 'hide'),
+    onFocusin: createTrigger('focus', 'show', () => (targetFocusIn = true)),
+    onFocusout: createTrigger('focus', 'hide', () => (targetFocusIn = false)),
   };
   const handlePopShow = createTrigger(null, 'show');
   const popContentHandler = {

@@ -12,7 +12,7 @@ export const popoverProps = {
   hideDelay: { type: Number },
   triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },
   // whether to toggle when retrigger, useful for select(TODO select also need input to trigger)
-  toggleWhenRetrigger: { type: Boolean },
+  toggleMode: { type: Boolean },
   fullPopWidth: { type: Boolean },
   adjustPopStyle: {
     type: Function as PropType<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>,
