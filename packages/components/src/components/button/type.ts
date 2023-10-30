@@ -10,6 +10,7 @@ export const buttonProps = {
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
   showLoading: { type: Boolean },
   iconPosition: { type: String as PropType<LogicalPosition> },
+  variant: { type: String },
 };
 
 export type ButtonProps = ExtractPropTypes<typeof buttonProps>;
