@@ -134,13 +134,17 @@
   }
 }
 
+@function getVariant($variant) {
+  @return getM('variant-' + $variant);
+}
+
 @mixin variant($variant, $withParent: true) {
   $P: '';
   @if $withParent {
     $P: &;
   }
   @at-root {
-    #{$P}:where(#{getM('variant-' + $variant)}) {
+    #{$P}:where(#{getVariant($variant)}) {
       @content;
     }
   }
