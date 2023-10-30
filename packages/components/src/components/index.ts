@@ -2,16 +2,18 @@ import { defineButton } from './button';
 import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
 import { defineDialog } from './dialog';
-import { defineIcon } from './icon';
+import { defineIcon, importIconStyle } from './icon';
 import { defineBaseInput, defineInput } from './input';
 import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptGroup } from './select';
-import { defineSpin } from './spin';
+import { defineSpin, importSpinStyle } from './spin';
 import { defineThemeProvider } from './theme-provider';
 
 export function importAllBasicStyles() {
+  importIconStyle();
   importPopoverStyle();
+  importSpinStyle()
 }
 
 export function defineAllComponents() {
