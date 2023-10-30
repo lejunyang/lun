@@ -72,7 +72,7 @@ export const Select = defineSSRCustomFormElement({
               fullPopWidth: true,
               showArrow: true,
               ref: popoverRef,
-              toggleWhenRetrigger: true,
+              toggleMode: true,
               // TODO pick props
             },
             <>
