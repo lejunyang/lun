@@ -1,13 +1,16 @@
 import { defineSSRCustomElement } from 'custom';
-import { useComputedBreakpoints, useSetupEdit } from '@lun/core';
+import { useSetupEdit } from '@lun/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
 import { buttonProps } from './type';
+import { useNamespace } from 'hooks';
 
+const name = 'button';
 export const Button = defineSSRCustomElement({
-  name: 'button',
+  name,
   props: buttonProps,
   setup(props) {
+    const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
     const handler = {
       async onClick(e: MouseEvent) {
@@ -18,7 +21,6 @@ export const Button = defineSSRCustomElement({
         }
       },
     };
-    const buttonSizeClass = useComputedBreakpoints(() => props.size, 'l-button-size');
 
     return () => {
       const { disabled, loading } = editComputed.value;
@@ -27,7 +29,12 @@ export const Button = defineSSRCustomElement({
       const loadingPart = loading && props.showLoading ? renderElement('spin', spinProps) : <slot name="icon"></slot>;
       return (
         <button
-          class={[buttonSizeClass.value]}
+          class={[
+            ns.b(),
+            props.variant && ns.m(`variant-${props.variant}`),
+            ns.bp(props.size),
+            ns.is('disabled', finalDisabled),
+          ]}
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handler.onClick}
@@ -54,6 +61,6 @@ declare global {
   }
 }
 
-export const defineButton = createDefineElement('button', Button, {
+export const defineButton = createDefineElement(name, Button, {
   spin: defineSpin,
 });

@@ -1,0 +1,55 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+:host {
+  display: inline-block;
+}
+
+@include b(button) {
+  // reset
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  outline: none;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  text-align: initial;
+  -webkit-tap-highlight-color: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  user-select: none;
+  vertical-align: top;
+  cursor: pointer;
+
+  @include is(disabled, true) {
+    cursor: getDisabledCursor();
+    & * {
+      pointer-events: none;
+    }
+  }
+
+  &:where(:not(#{getVariant(ghost)})) {
+    height: getVarValue((button, 'height'));
+  }
+
+  @include size(1) {
+    #{getVarName((button, 'height'))}: getSpaceValue(5);
+    border-radius: getRadiusValue(1);
+    gap: getSpaceValue(1);
+    font-size: getFontSizeValue(1);
+    // line-height
+    letter-spacing: getLetterSpacingValue(1);
+    padding-inline: getSpaceValue(2);
+  }
+}
