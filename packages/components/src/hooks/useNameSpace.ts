@@ -95,7 +95,9 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
     cssVarBlock,
     cssVarBlockName,
     /** withBreakpoints */
-    bp: withBreakpoints,
+    bp: (...args: Parameters<typeof withBreakpoints>) => {
+      return withBreakpoints(args[0] || '1', args[1] || m('size'), args[2]);
+    },
   };
 };
 
