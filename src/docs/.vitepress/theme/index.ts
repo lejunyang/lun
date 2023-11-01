@@ -5,7 +5,7 @@ import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, register
 import '@lun/theme/scss/public/index.scss';
 import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { importSurfaceTheme } from '@lun/theme';
+import { importBasicTheme, importSurfaceTheme } from '@lun/theme';
 import Layout from './Layout.vue';
 import './style.css';
 
@@ -14,6 +14,7 @@ export default {
   Layout: () => h(Layout),
   enhanceApp({ app, router, siteData }) {
     importAllBasicStyles();
+    importBasicTheme();
     importSurfaceTheme();
 
     const reactRootMap = new WeakMap();

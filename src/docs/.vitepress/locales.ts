@@ -21,6 +21,7 @@ export default {
       },
       pop: {
         menu: '弹出组件',
+        dialog: 'Dialog 弹窗',
         popover: 'Popover 弹出',
       },
       feedback: {
@@ -51,6 +52,7 @@ export default {
       },
       pop: {
         menu: 'Pop',
+        dialog: 'Dialog',
         popover: 'Popover',
       },
       feedback: {

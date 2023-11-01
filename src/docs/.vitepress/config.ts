@@ -41,7 +41,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
         {
           text: locales[lang].sidebar.pop.menu,
           collapsed: false,
-          items: [{ text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/') }],
+          items: [
+            { text: locales[lang].sidebar.pop.dialog, link: wrapLink('/components/dialog/') },
+            { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/') },
+          ],
         },
         {
           text: locales[lang].sidebar.feedback.menu,
@@ -103,9 +106,9 @@ export default defineConfig({
     },
     css: {
       postcss: {
-        plugins: [postcssLogical()]
-      }
-    }
+        plugins: [postcssLogical()],
+      },
+    },
   },
   themeConfig: {
     search: {
