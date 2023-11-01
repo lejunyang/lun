@@ -32,7 +32,7 @@ export function useDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOptions, 
         return;
       }
       if (onPending) onPending(true);
-      Promise.resolve(beforeClose())
+      return Promise.resolve(beforeClose())
         .then((res) => {
           if (res !== false) {
             close();
