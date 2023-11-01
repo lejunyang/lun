@@ -5,6 +5,7 @@ import {
   getInitialElementAnimationRegistry,
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
+import { ref } from 'vue';
 
 export const noShadowComponents = Object.freeze(['custom-renderer', 'theme-provider'] as const);
 export const shadowComponents = Object.freeze([
@@ -40,6 +41,8 @@ const styles = shadowComponents.reduce(
   { common: [] } as unknown as ComponentStyles
 );
 
+const langRef = ref('zh_CN');
+
 /**
  * use `initStaticConfig` to set up your personal config\
  * Please make sure you do it before you import the component or read the config\
@@ -47,6 +50,7 @@ const styles = shadowComponents.reduce(
  */
 export const GlobalStaticConfig = new Proxy(
   {
+    lang: langRef.value,
     namespace: 'l',
     commonSeparator: '-',
     elementSeparator: '__',
@@ -73,6 +77,7 @@ export const GlobalStaticConfig = new Proxy(
         size: '1' as const,
         showLoading: true,
         iconPosition: 'start' as const,
+        variant: 'surface',
       },
       checkbox: {
         labelPosition: 'end' as const,
@@ -81,7 +86,11 @@ export const GlobalStaticConfig = new Proxy(
         looseEqual: false,
       },
       'custom-renderer': {},
-      dialog: {},
+      dialog: {
+        closeBtn: true,
+        escapeClosable: true,
+        modal: 'native',
+      },
       icon: {
         library: 'default' as const,
       },
@@ -141,6 +150,7 @@ export const GlobalStaticConfig = new Proxy(
   },
   {
     get(target, p, receiver) {
+      if (p === 'lang') return langRef.value;
       // deep get, or remove components key
       return Reflect.get(target, p, receiver);
     },
@@ -149,7 +159,10 @@ export const GlobalStaticConfig = new Proxy(
       if (__DEV__ && Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) {
         error(`Invalid static config was set on ${String(p)}`, 'old config:', target[p], 'new config:', newValue);
         return false;
-      } else return Reflect.set(target, p, newValue, receiver);
+      } else {
+        if (p === 'lang') langRef.value = newValue;
+        return Reflect.set(target, p, newValue, receiver);
+      }
     },
   }
 );
