@@ -13,17 +13,17 @@ export type UsePopoverOptions = {
   target: MaybeRefLikeOrGetter<Element>;
   pop: MaybeRefLikeOrGetter<Element>;
   triggers?: PopoverTrigger | PopoverTrigger[];
-  showDelay?: number;
-  hideDelay?: number;
+  openDelay?: number;
+  closeDelay?: number;
   toggleMode?: boolean;
 };
 
 export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const options = computed(() => {
     const _options = optionsGetter();
-    let { showDelay = 0, hideDelay = 120, show, hide, triggers } = _options;
-    const tShow = debounce(show, showDelay),
-      tHide = debounce(hide, hideDelay);
+    let { openDelay = 0, closeDelay = 120, show, hide, triggers } = _options;
+    const tShow = debounce(show, openDelay),
+      tHide = debounce(hide, closeDelay);
     triggers = toArrayIfNotNil(triggers!);
     if (!triggers.length) triggers = ['hover', 'click', 'focus'];
     return {
@@ -73,10 +73,17 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const targetHandler = {
     onMouseenter: createTrigger('hover', 'show'),
     onMouseleave: createTrigger('hover', 'hide', () => !popFocusIn), // if focusing on pop, don't hide when mouse leave
-    onClick: createTrigger('click', 'toggle'),
-    onContextmenu: createTrigger('contextmenu', 'toggle', (e) => e.preventDefault()),
-    onFocusin: createTrigger('focus', 'show', () => (targetFocusIn = true)),
-    onFocusout: createTrigger('focus', 'hide', () => (targetFocusIn = false)),
+    // need use pointer down to trigger it before focusin
+    onPointerdown: createTrigger('click', 'toggle'),
+    onContextmenu: createTrigger('contextmenu', 'show', (e) => {
+      e.preventDefault();
+    }),
+    onFocusin: createTrigger('focus', 'show', () => {
+      targetFocusIn = true;
+    }),
+    onFocusout: createTrigger('focus', 'hide', () => {
+      targetFocusIn = false;
+    }),
   };
   const handlePopShow = createTrigger(null, 'show');
   const popContentHandler = {

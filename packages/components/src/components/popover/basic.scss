@@ -15,7 +15,44 @@ dialog {
 
 // TODO put it in theme
 [part='arrow'] {
-  width: var(--popover-arrow-size, 5px); 
+  width: var(--popover-arrow-size, 5px);
   height: 5px;
   background-color: blue;
+}
+
+@keyframes slideDownIn {
+  0% {
+    transform: scaleY(0.8);
+    transform-origin: top center;
+    opacity: 0;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: top center;
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownOut {
+  0% {
+    transform: scaleY(1);
+    transform-origin: top center;
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0.8);
+    transform-origin: top center;
+    opacity: 0;
+  }
+}
+
+.popover-enter-active {
+  animation: var(--popover-enter-from-animation, slideDownIn) 0.2s;
+  animation-timing-function: var(--popover-ani-time-func, cubic-bezier(0.755, 0.05, 0.855, 0.06));
+}
+
+.popover-leave-active {
+  animation-name: var(--popover-enter-from-animation, slideDownOut);
+  animation-duration: 0.2s;
+  animation-timing-function: var(--popover-ani-time-func, cubic-bezier(0.755, 0.05, 0.855, 0.06));
 }

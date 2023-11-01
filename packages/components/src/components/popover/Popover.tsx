@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { CSSProperties, Teleport, computed, ref, toRef, watchEffect } from 'vue';
+import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition, nextTick } from 'vue';
 import { usePopover } from '@lun/core';
 import { createDefineElement, renderElement, toGetterDescriptors } from 'utils';
 import { popoverProps } from './type';
@@ -14,7 +14,7 @@ export const Popover = defineSSRCustomElement({
   name: 'popover',
   props: popoverProps,
   inheritAttrs: false,
-  emits: ['show', 'hide'],
+  emits: ['open', 'afterOpen', 'close', 'afterClose'],
   setup(props, { emit }) {
     const support = {
       popover: isSupportPopover(),
@@ -42,20 +42,18 @@ export const Popover = defineSSRCustomElement({
       }
       if (popover || dialog) {
         isShow.value = true;
-        emit('show');
       }
     };
     const hide = () => {
       const popover = popRef.value;
       const dialog = dialogRef.value;
       if (popover) {
-        popover.hidePopover();
+        // popover.hidePopover();
       } else if (dialog) {
         dialog.close();
       }
       if (popover || dialog) {
         isShow.value = false;
-        emit('hide');
       }
     };
     const toggle = (force?: boolean) => {
@@ -81,7 +79,7 @@ export const Popover = defineSSRCustomElement({
     const actualPopRef = computed(() => popRef.value || dialogRef.value);
 
     const { targetHandler, popContentHandler, dialogHandler, options } = usePopover(() => ({
-      ...pick(props, ['showDelay', 'hideDelay', 'triggers', 'toggleMode']),
+      ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
       manual: props.show,
       isShow,
       show,
@@ -117,6 +115,7 @@ export const Popover = defineSSRCustomElement({
       placement,
       open: isShow,
       middleware,
+      transform: toRef(props, 'useTransform'),
     });
     const arrowStyles = computed(() => {
       const { x, y } = middlewareData.value.arrow || {};
@@ -149,15 +148,14 @@ export const Popover = defineSSRCustomElement({
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
     useCEExpose(
       {
-        showPopover: show,
-        hidePopover: hide,
+        openPopover: show,
+        closePopover: hide,
         togglePopover: toggle,
         isShow: () => (props.show !== undefined ? !!props.show : isShow.value),
       },
-      toGetterDescriptors(options, { show: 'delayShowPopover', hide: 'delayHidePopover' })
+      toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' })
     );
 
-    // TODO Transition v-show={isShow.value}
     return () => {
       const { value } = type;
       const contentSlot = (
@@ -181,15 +179,33 @@ export const Popover = defineSSRCustomElement({
       return (
         <>
           {value === 'popover' && (
-            <div
-              {...popContentHandler}
-              style={finalFloatingStyles.value}
-              part="popover pop-content"
-              popover="manual"
-              ref={popRef}
+            <Transition
+              name="popover"
+              onEnter={() => {
+                emit('open');
+              }}
+              onAfterEnter={() => {
+                emit('afterOpen');
+              }}
+              onLeave={() => {
+                emit('close');
+              }}
+              onAfterLeave={() => {
+                popRef.value?.hidePopover();
+                emit('afterClose');
+              }}
             >
-              {contentSlot}
-            </div>
+              <div
+                {...popContentHandler}
+                v-show={isShow.value}
+                style={finalFloatingStyles.value}
+                part="popover pop-content"
+                popover="manual"
+                ref={popRef}
+              >
+                {contentSlot}
+              </div>
+            </Transition>
           )}
           {value === 'dialog' && (
             <dialog
