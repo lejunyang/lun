@@ -23,10 +23,13 @@ registerIconLibrary({
 </script>
 
 ## 内置默认图标
-
-<l-icon name="clear" />
-<l-icon name="up" />
-<l-icon name="down" />
+<div>
+  Default Icon Library
+  <l-icon name="clear" />
+  <l-icon name="up" />
+  <l-icon name="down" />
+  <l-icon name="x" />
+</div>
 
 ```html
 <l-icon name="clear" />
@@ -37,9 +40,12 @@ registerIconLibrary({
 ## 注册 SVG 图标库
 下面为注册font-awesome图标库的例子
 
-<l-icon library="font-awesome" name="far-bell" />
-<l-icon library="font-awesome" name="fas-archive" />
-<l-icon library="font-awesome" name="fab-apple" />
+<div>
+  Font Awesome
+  <l-icon library="font-awesome" name="far-bell" />
+  <l-icon library="font-awesome" name="fas-archive" />
+  <l-icon library="font-awesome" name="fab-apple" />
+</div>
 
 ```js
 import { registerIconLibrary, svgFillAndSizeDefaultMutator } from '@lun/components';
@@ -59,3 +65,9 @@ registerIconLibrary({
   },
 });
 ```
+
+<style>
+  l-icon::part(svg) {
+    vertical-align: -0.125em;
+  }
+</style>
