@@ -8,8 +8,9 @@ export const popoverProps = {
   content: {},
   placement: { type: String as PropType<Placement> },
   offset: { type: Number },
-  showDelay: { type: Number },
-  hideDelay: { type: Number },
+  // TODO rename
+  openDelay: { type: Number },
+  closeDelay: { type: Number },
   triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },
   // whether to toggle when retrigger, useful for select(TODO select also need input to trigger)
   toggleMode: { type: Boolean },
@@ -18,6 +19,8 @@ export const popoverProps = {
     type: Function as PropType<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>,
   },
   showArrow: { type: Boolean },
+  // whether use transform to position, useful when has animation conflict
+  useTransform: { type: Boolean, default: false, },
 };
 
 export type PopoverProps = ExtractPropTypes<typeof popoverProps>;
