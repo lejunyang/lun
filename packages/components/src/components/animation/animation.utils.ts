@@ -17,12 +17,12 @@ export function registryElementAnimation(el: Element, animationName: string, ani
 }
 
 export function getAnimation(
-  animationName: string,
+  animationName?: string,
   options?: { dir?: 'rtl' | 'ltr'; element?: Element }
 ): Pick<ElementAnimation, 'keyframes' | 'options'> {
   const { dir, element } = options || {};
   const elRegistry = element && GlobalStaticConfig.elAnimationRegistry.get(element);
-  const animation = elRegistry?.[animationName] || GlobalStaticConfig.animationRegistry[animationName];
+  const animation = elRegistry?.[animationName!] || GlobalStaticConfig.animationRegistry[animationName!];
   if (animation) {
     if (String(dir).toLowerCase() === 'rtl') {
       return {
@@ -38,12 +38,12 @@ export function getAnimation(
     };
 }
 
-export function useAnimation(animationName: string, options?: { dir?: 'rtl' | 'ltr' }) {
-  const elRef = ref<Element>();
+export function useAnimation<E extends Element = Element>(animationName?: string, options?: { dir?: 'rtl' | 'ltr' }) {
+  const elRef = ref<E>();
   return [
     elRef,
-    () => {
-      const animation = getAnimation(animationName, { ...options, element: elRef.value });
+    (name?: string) => {
+      const animation = getAnimation(name || animationName, { ...options, element: elRef.value });
       if (!elRef.value || !animation) return;
       return elRef.value.animate(animation.keyframes, animation.options);
     },
