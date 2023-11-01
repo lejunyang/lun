@@ -7,7 +7,24 @@ import { defineSpin } from '../spin/Spin';
 import { defineCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import { useNativeDialog, useSetupEdit } from '@lun/core';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, watch } from 'vue';
+import { registryAnimation, useAnimation } from '../animation/animation.utils';
+
+registryAnimation('dialog.open', {
+  keyframes: [
+    { opacity: 0, scale: 0.8 },
+    { opacity: 1, scale: 1 },
+  ],
+  options: { duration: 250, easing: 'ease' },
+});
+
+registryAnimation('dialog.close', {
+  keyframes: [
+    { opacity: 1, scale: 1 },
+    { opacity: 0, scale: 0.8 },
+  ],
+  options: { duration: 250, easing: 'ease' },
+});
 
 const name = 'dialog';
 export const Dialog = defineSSRCustomElement({
@@ -17,7 +34,7 @@ export const Dialog = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const openModel = useOpenModel(props, { passive: true });
-    const dialogRef = ref<HTMLDialogElement>();
+    const [dialogRef, dialogAnimate] = useAnimation<HTMLDialogElement>();
     const [editComputed, editState] = useSetupEdit({
       noInherit: true,
     });
@@ -30,12 +47,14 @@ export const Dialog = defineSSRCustomElement({
           if (dialogRef.value) {
             openModel.value = true;
             dialogRef.value.showModal();
+            dialogAnimate('dialog.open');
           }
         },
         close() {
           if (dialogRef.value) {
             openModel.value = false;
             dialogRef.value.close();
+            dialogAnimate('dialog.close');
           }
         },
         isPending: !editComputed.value.editable,
@@ -44,9 +63,10 @@ export const Dialog = defineSSRCustomElement({
         },
       }))
     );
-    watchEffect(() => {
-      if (dialogRef.value) {
-        if (openModel.value) methods.open();
+
+    watch([openModel, dialogRef], ([open, dialog]) => {
+      if (dialog) {
+        if (open) methods.open();
         else methods.close();
       }
     });
