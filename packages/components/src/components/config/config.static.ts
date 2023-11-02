@@ -13,6 +13,8 @@ export const shadowComponents = Object.freeze([
   'checkbox',
   'checkbox-group',
   'dialog',
+  'form',
+  'form-item',
   'icon',
   'base-input',
   'input',
@@ -91,6 +93,8 @@ export const GlobalStaticConfig = new Proxy(
         escapeClosable: true,
         modal: 'native',
       },
+      form: {},
+      'form-item': {},
       icon: {
         library: 'default' as const,
       },
