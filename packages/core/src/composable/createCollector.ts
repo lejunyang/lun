@@ -72,7 +72,7 @@ export function createCollector<
   const parent = (params?: { extraProvide?: PE; lazyChildren?: boolean }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
     const childrenElIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
-    const childrenVmElMap = new WeakMap<UnwrapRef<InstanceWithProps<ChildProps>>, Element>();
+    const childrenVmElMap = new WeakMap<any, Element>(); // use `UnwrapRef<InstanceWithProps<ChildProps>>` as key will make FormItemCollector's type error...
     const state = shallowReactive({
       parentMounted: false,
       parentEl: null as Element | null,
