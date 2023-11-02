@@ -61,19 +61,21 @@ export function createCollector<
   parentExtra?: PE;
   sort?: boolean;
   onlyForProp?: boolean | string;
+  getParentEl?: (node: Node) => Element;
+  getChildEl?: (node: Node) => Element;
 }) {
-  const { sort, name, onlyForProp } = options || {};
+  const { sort, name, onlyForProp, getParentEl, getChildEl } = options || {};
   const finalOnlyFor = onlyForProp && typeof onlyForProp !== 'string' ? 'onlyFor' : onlyForProp;
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
+  const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name || Date.now()}` : '');
 
   const parent = (params?: { extraProvide?: PE; lazyChildren?: boolean }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
-    const elIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
+    const childrenElIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
+    const childrenVmElMap = new WeakMap<UnwrapRef<InstanceWithProps<ChildProps>>, Element>();
     const state = shallowReactive({
       parentMounted: false,
       parentEl: null as Element | null,
-      parentElTagName: '',
-      childElTagName: '',
     });
     const { extraProvide, lazyChildren = true } = params || {};
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
@@ -82,13 +84,13 @@ export function createCollector<
       onMounted(() => {
         state.parentMounted = true;
         state.parentEl = instance!.proxy?.$el as Element;
-        state.parentElTagName = state.parentEl.tagName;
+        if (getParentEl) state.parentEl = getParentEl(state.parentEl);
         items.value.forEach((child, index) => {
-          if (child.proxy?.$el) elIndexMap.set(child.proxy?.$el as Element, index);
+          if (child.proxy?.$el) childrenElIndexMap.set(child.proxy?.$el as Element, index);
         });
       });
       onUnmounted(() => {
-        elIndexMap.clear();
+        childrenElIndexMap.clear();
         items.value = [];
       });
     }
@@ -105,35 +107,37 @@ export function createCollector<
             child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
           )
             return;
-          const el = child.proxy?.$el as Element;
-          if (!state.childElTagName) state.childElTagName = el.tagName;
+          let el = child.proxy.$el as Element;
+          if (getChildEl) el = getChildEl(el);
+          Object.assign(el, { [CHILD_KEY]: true });
+          childrenVmElMap.set(child, el);
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
           // otherwise, we find previous child in dom order to insert the index
           if (state.parentMounted && sort) {
             const prev = getPreviousMatchElInTree(el, {
-              isMatch: (el) => el.tagName === state.childElTagName,
+              isMatch: (el) => (el as any)[CHILD_KEY],
               shouldStop: (el) => el === state.parentEl,
             });
-            const prevIndex = elIndexMap.get(prev!);
+            const prevIndex = childrenElIndexMap.get(prev!);
             if (prevIndex != null) {
               items.value.splice(prevIndex + 1, 0, child);
             } else {
               items.value.unshift(child);
             }
             // update other elements' index
-            for (const [el, index] of elIndexMap.entries()) {
-              if (index >= (prevIndex || 0)) elIndexMap.set(el, index + 1);
+            for (const [el, index] of childrenElIndexMap.entries()) {
+              if (index >= (prevIndex || 0)) childrenElIndexMap.set(el, index + 1);
             }
           } else items.value.push(child);
         }
       },
       removeItem(child) {
         if (child) {
-          const el = child.proxy?.$el as Element;
-          const index = elIndexMap.get(el);
+          const el = childrenVmElMap.get(child)!;
+          const index = childrenElIndexMap.get(el);
           if (index != null) {
             items.value.splice(index, 1);
-            elIndexMap.delete(el);
+            childrenElIndexMap.delete(el);
           }
         }
       },
@@ -143,17 +147,19 @@ export function createCollector<
         if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
         else return [];
       },
+      childrenElIndexMap,
+      childrenVmElMap,
     };
   };
-  const child = () => {
+  const child = (collect = true) => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
     if (instance) instance = markRaw(instance);
     const context = inject<CollectorContext<ParentProps, ChildProps, PE>>(COLLECTOR_KEY);
-    if (context) {
+    if (context && collect) {
       onMounted(() => context.addItem(instance));
       onBeforeUnmount(() => context.removeItem(instance));
     }
     return context;
   };
-  return { parent, child, COLLECTOR_KEY };
+  return { parent, child, COLLECTOR_KEY, CHILD_KEY };
 }
