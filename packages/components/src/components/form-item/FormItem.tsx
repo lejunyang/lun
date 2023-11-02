@@ -1,8 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement } from 'utils';
 import { formItemProps } from './type';
 import { useNamespace } from 'hooks';
+import { FormItemCollector } from '../form';
+import { ComponentInternalInstance } from 'vue';
+import { FormInputCollector } from '.';
 
 const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
@@ -11,6 +14,25 @@ export const FormItem = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     useSetupEdit();
+    const formContext = FormItemCollector.child();
+
+    const getIndex = (vm?: ComponentInternalInstance) => {
+      if (!vm) return;
+      const el = inputContext.childrenVmElMap.get(vm);
+      return inputContext.childrenElIndexMap.get(el!);
+    };
+    const getValue = (vm?: ComponentInternalInstance) => {
+      const { name, array } = props;
+      if (!name || !formContext) return;
+      const { getValue: getFormValue } = formContext;
+      if (!array) return getFormValue(name);
+      const index = getIndex(vm);
+      if (index === undefined) return;
+      return getFormValue(`${name}.${index}`);
+    };
+    const inputContext = FormInputCollector.parent({
+      extraProvide: { getValue },
+    });
 
     return () => {
       return (
