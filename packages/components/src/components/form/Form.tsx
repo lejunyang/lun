@@ -5,6 +5,7 @@ import { formProps } from './type';
 import { useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
 import { computed, reactive, ref } from 'vue';
+import { objectGet, objectSet } from '@lun/utils';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -23,13 +24,13 @@ export const Form = defineSSRCustomElement({
       extraProvide: {
         formProps: props,
         formData,
-        getValue(name) {
-          if (Array.isArray(name)) {
-          } else return formData.value[name];
+        getValue(path) {
+          if (Array.isArray(path)) objectGet(formData.value, path);
+          else return formData.value[path];
         },
-        setValue(name, value) {
-          if (Array.isArray(name)) {
-          } else localFormData.value[name] = value;
+        setValue(path, value) {
+          if (Array.isArray(path)) objectSet(formData.value, path, value);
+          else localFormData.value[path] = value;
         },
         formState,
       },
