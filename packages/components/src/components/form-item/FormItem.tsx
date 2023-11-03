@@ -4,7 +4,7 @@ import { createDefineElement } from 'utils';
 import { formItemProps } from './type';
 import { useNamespace } from 'hooks';
 import { FormItemCollector } from '../form';
-import { ComponentInternalInstance } from 'vue';
+import { ComponentInternalInstance, computed } from 'vue';
 import { FormInputCollector } from '.';
 
 const name = 'form-item';
@@ -16,22 +16,25 @@ export const FormItem = defineSSRCustomElement({
     useSetupEdit();
     const formContext = FormItemCollector.child();
 
+    const isPlainName = computed(() => {
+      return props.plainName ?? formContext?.formProps.plainName ?? false;
+    });
     const getIndex = (vm?: ComponentInternalInstance) => {
       if (!vm) return;
       const el = inputContext.childrenVmElMap.get(vm);
       return inputContext.childrenElIndexMap.get(el!);
     };
-    const getValue = (vm?: ComponentInternalInstance) => {
+    const getValue = (vm?: ComponentInternalInstance, value?: any) => {
       const { name, array } = props;
       if (!name || !formContext) return;
-      const { getValue: getFormValue } = formContext;
-      if (!array) return getFormValue(name);
+      const getOrSet = value !== undefined ? formContext.setValue : formContext.getValue;
+      if (!array) return getOrSet(name, value);
       const index = getIndex(vm);
       if (index === undefined) return;
-      return getFormValue(`${name}.${index}`);
+      return getOrSet(`${name}.${index}`, value);
     };
     const inputContext = FormInputCollector.parent({
-      extraProvide: { getValue },
+      extraProvide: { getValue, setValue: getValue },
     });
 
     return () => {

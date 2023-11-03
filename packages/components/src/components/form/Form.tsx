@@ -13,17 +13,23 @@ export const Form = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
-    const localFormData = ref({});
-    const formData = computed(() => props.formData || localFormData.value);
+    const localFormData = ref<Record<string, any>>({});
+    const formData = computed(() => (props.formData ? reactive(props.formData) : localFormData.value));
     const formState = reactive({
       errors: {},
       isChanged: false,
     });
     const formItems = FormItemCollector.parent({
       extraProvide: {
+        formProps: props,
         formData,
         getValue(name) {
-          return formData.value[name];
+          if (Array.isArray(name)) {
+          } else return formData.value[name];
+        },
+        setValue(name, value) {
+          if (Array.isArray(name)) {
+          } else localFormData.value[name] = value;
         },
         formState,
       },
