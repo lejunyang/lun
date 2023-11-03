@@ -7,7 +7,7 @@ export type { FormItemProps } from './type';
 
 export type FormItemProvideExtra = {
   getValue(vm?: ComponentInternalInstance | null): any;
-  // TODO setValue
+  setValue(vm?: ComponentInternalInstance | null, value?: any): void;
 };
 
 export const FormInputCollector = createCollector({

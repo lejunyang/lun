@@ -1,8 +1,29 @@
 import type { UseModel } from '@lun/core';
 import { createUseModel } from '@lun/core';
 import { useShadowDom } from './shadowDom';
+import { FormInputCollector } from '../components/form-item';
+import { getCurrentInstance } from 'vue';
 
-export const useValueModel = createUseModel({ defaultKey: 'value', defaultEvent: 'update' }) as UseModel<'value'>;
+export const useValueModel = createUseModel({
+  defaultKey: 'value',
+  defaultEvent: 'update',
+  extra() {
+    const vm = getCurrentInstance();
+    const context = FormInputCollector.child();
+    if (!context) return;
+    return [context, vm] as const;
+  },
+  getFromExtra(extra) {
+    if (!extra) return;
+    const [context, vm] = extra;
+    return context.getValue(vm);
+  },
+  setByExtra(extra, value) {
+    if (!extra) return;
+    const [context, vm] = extra;
+    context.setValue(vm, value);
+  },
+}) as UseModel<'value'>;
 
 export const useOpenModel = createUseModel({
   defaultKey: 'open',
