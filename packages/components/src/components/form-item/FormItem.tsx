@@ -6,6 +6,7 @@ import { useNamespace } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed } from 'vue';
 import { FormInputCollector } from '.';
+import { stringToPath, toArrayIfNotNil } from '@lun/utils';
 
 const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
@@ -28,10 +29,11 @@ export const FormItem = defineSSRCustomElement({
       const { name, array } = props;
       if (!name || !formContext) return;
       const getOrSet = value !== undefined ? formContext.setValue : formContext.getValue;
-      if (!array) return getOrSet(name, value);
+      const path = isPlainName.value ? name : stringToPath(name);
+      if (!array) return getOrSet(path, value);
       const index = getIndex(vm);
       if (index === undefined) return;
-      return getOrSet(`${name}.${index}`, value);
+      return getOrSet(toArrayIfNotNil(path).concat(String(index)), value);
     };
     const inputContext = FormInputCollector.parent({
       extraProvide: { getValue, setValue: getValue },
