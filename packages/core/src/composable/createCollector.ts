@@ -149,6 +149,7 @@ export function createCollector<
       },
       childrenElIndexMap,
       childrenVmElMap,
+      vm: instance,
     };
   };
   const child = (collect = true) => {
