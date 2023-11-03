@@ -22,7 +22,7 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         });
       },
     });
-    const checkedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
+    const checkedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
 
     const childValueSet = computed(
       () =>

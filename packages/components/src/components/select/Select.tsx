@@ -26,7 +26,7 @@ export const Select = defineSSRCustomFormElement({
         if (props.multiple && inputRef.value) inputRef.value.focus();
       },
     });
-    const selectedValueSet = computed(() => new Set(toArrayIfNotNil(props.value)));
+    const selectedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
     const inputRef = ref();
     const popoverRef = ref<IntrinsicElementAttributes['l-popover']>();
 
