@@ -37,7 +37,7 @@ export const Input = defineSSRCustomFormElement({
         value: valueModel.value,
         onChange: (val) => {
           updateVModel(val);
-          emit('update', val);
+          valueModel.value = val;
         },
         onEnterDown(e) {
           emit('enterDown', e);

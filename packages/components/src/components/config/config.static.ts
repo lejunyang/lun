@@ -93,8 +93,12 @@ export const GlobalStaticConfig = new Proxy(
         escapeClosable: true,
         modal: 'native',
       },
-      form: {},
-      'form-item': {},
+      form: {
+        plainName: undefined,
+      },
+      'form-item': {
+        plainName: undefined,
+      },
       icon: {
         library: 'default' as const,
       },

@@ -77,7 +77,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   const transform = (val: any, e: Event) => {
     const { splitter = ',', unique, reserveInput, multiple, value } = unrefOrGet(options)!;
     const valuesBefore = toArrayIfNotNil(value);
-    if (!multiple || isNilOrEmptyStr(val)) return valuesBefore;
+    if (!multiple || isNilOrEmptyStr(val)) return val;
     const valuesNow = val.split(splitter);
     if (!valuesNow.length) return val;
     const result = valuesBefore.concat(valuesNow).filter((i) => !isNilOrEmptyStr(i));
