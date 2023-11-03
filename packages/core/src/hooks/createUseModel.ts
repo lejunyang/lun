@@ -15,19 +15,26 @@ interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false,
 }
 
 /*! #__NO_SIDE_EFFECTS__ */
-export function createUseModel<DK extends string>({
+export function createUseModel<DK extends string, E extends () => any>({
   defaultKey,
   defaultEvent,
   handleDefaultEmit,
+  extra,
+  getFromExtra,
+  setByExtra,
 }: {
   defaultKey: DK;
   defaultEvent: string;
   handleDefaultEmit?: (fn: AnyFn) => AnyFn;
+  extra?: E;
+  getFromExtra?: (extra: ReturnType<E>) => any;
+  setByExtra?: (extra: ReturnType<E>, value: any) => void;
 }) {
   return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
     props: P,
     options?: UseModelOptions<P, K, Passive>
   ) {
+    const extraData = extra && extra();
     let { passive, eventName, deep, extraSource, shouldEmit, clone, emit, key } = options || {};
     key = key || (defaultKey as unknown as K);
     const event = eventName || defaultEvent;
@@ -38,8 +45,15 @@ export function createUseModel<DK extends string>({
     }
     const cloneFn = (val: P[K]) =>
       !clone ? val : clone instanceof Function ? clone(val) : JSON.parse(JSON.stringify(val));
-    const getter = () =>
-      props[key!] !== undefined ? cloneFn(props[key!]) : extraSource instanceof Function ? extraSource() : undefined;
+    const getter = () => {
+      const value = extraData && getFromExtra && getFromExtra(extraData);
+      if (value !== undefined) return value;
+      return props[key!] !== undefined
+        ? cloneFn(props[key!])
+        : extraSource instanceof Function
+        ? extraSource()
+        : undefined;
+    };
     const triggerEmit = (value: P[K]) => {
       if (!shouldEmit || shouldEmit(value)) {
         emit!(event, value);
@@ -50,11 +64,11 @@ export function createUseModel<DK extends string>({
       const proxy = ref<P[K]>(initialValue!);
       let isUpdating = false;
       watch(
-        () => props[key!],
+        () => (extraData ? getter() : props[key!]),
         (v) => {
           if (!isUpdating) {
             isUpdating = true;
-            (proxy as any).value = cloneFn(v);
+            (proxy as any).value = v;
             nextTick(() => (isUpdating = false));
           }
         }
@@ -62,7 +76,10 @@ export function createUseModel<DK extends string>({
       watch(
         proxy,
         (v) => {
-          if (!isUpdating && (v !== props[key!] || deep)) triggerEmit(v as P[K]);
+          if (!isUpdating && (v !== props[key!] || deep)) {
+            if (extraData && setByExtra) setByExtra(extraData, v);
+            triggerEmit(v as P[K]);
+          }
         },
         { deep }
       );
@@ -74,6 +91,7 @@ export function createUseModel<DK extends string>({
           return getter()!;
         },
         set(value) {
+          if (extraData && setByExtra) setByExtra(extraData, value);
           triggerEmit(value);
         },
       });
