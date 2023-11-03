@@ -23,6 +23,10 @@ export function isString(target: unknown): target is string | String {
   return typeof target === 'string' || target instanceof String;
 }
 
+export function isArray(target: unknown): target is Array<unknown> {
+  return Array.isArray(target);
+}
+
 export function isNilOrEmptyStr(target: unknown): target is null | undefined | '' {
   return isNil(target) || target === '';
 }
@@ -33,7 +37,7 @@ export function isFunction(target: unknown): target is Function {
 
 export function isEmpty(target: unknown) {
   if (isNilOrEmptyStr(target)) return true;
-  if (Array.isArray(target)) return target.length === 0;
+  if (isArray(target)) return target.length === 0;
   if (isObject(target)) return Object.keys(target).length === 0;
   return false;
 }

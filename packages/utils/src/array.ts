@@ -1,7 +1,7 @@
-import { isFunction } from './is';
+import { isArray, isFunction } from './is';
 
 export function toArrayIfNotNil<T>(target: T): T extends any[] ? T : T extends null | undefined ? unknown[] : T[] {
-  return (Array.isArray(target) ? target : target == null ? [] : [target]) as any;
+  return (isArray(target) ? target : target == null ? [] : [target]) as any;
 }
 
 export function isIterable<T>(target: any): target is Iterable<T> {

@@ -1,3 +1,5 @@
+import { isArray } from "../is";
+
 export function isEnterDown(e: Event) {
 	return e.type === 'keydown' && (e as KeyboardEvent).key === 'Enter';
 }
@@ -16,7 +18,7 @@ export function isNoBasicModifierKey(e: KeyboardEvent) {
  */
 export function isKeyCompositionDown(e: KeyboardEvent, keyPattern: string | string[]) {
 	if (e.type !== 'keydown') return;
-	const keySplits = Array.isArray(keyPattern) ? keyPattern : keyPattern.split('+');
+	const keySplits = isArray(keyPattern) ? keyPattern : keyPattern.split('+');
 	let result = true;
 	for (let i = 0; i < keySplits.length; i++) {
 		const k = keySplits[i];
