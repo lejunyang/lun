@@ -2,11 +2,12 @@ import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { formItemProps } from './type';
-import { useNamespace } from 'hooks';
+import { useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed } from 'vue';
 import { FormInputCollector } from '.';
-import { stringToPath, toArrayIfNotNil } from '@lun/utils';
+import { isObject, stringToPath, toArrayIfNotNil } from '@lun/utils';
+import { defineIcon } from '../icon/Icon';
 
 const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
@@ -29,6 +30,7 @@ export const FormItem = defineSSRCustomElement({
       const { name, array } = props;
       if (!name || !formContext) return;
       const getOrSet = value !== undefined ? formContext.setValue : formContext.getValue;
+      if (isObject(value) && 'value' in value) value = value.value;
       const path = isPlainName.value ? name : stringToPath(name);
       if (!array) return getOrSet(path, value);
       const index = getIndex(vm);
@@ -41,14 +43,18 @@ export const FormItem = defineSSRCustomElement({
 
     return () => {
       return (
-        <>
-          {props.label && (
-            <div part="label" class={[ns.e('label')]}>
-              {props.label}
-            </div>
+        <div class={[ns.b(), ns.is('required', props.required)]}>
+          {!props.noLabel && (
+            <span part="label" class={[ns.e('label')]}>
+              {/*  */}
+              <slot name="label-start"></slot>
+              <slot name="label">{props.label}</slot>
+              {/* help icon */}
+              <slot name="label-end"></slot>
+            </span>
           )}
           <slot></slot>
-        </>
+        </div>
       );
     };
   },
@@ -66,4 +72,6 @@ declare global {
   }
 }
 
-export const defineFormItem = createDefineElement(name, FormItem);
+export const defineFormItem = createDefineElement(name, FormItem, {
+  icon: defineIcon,
+});

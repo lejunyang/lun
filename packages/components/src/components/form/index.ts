@@ -1,8 +1,7 @@
 import { createCollector } from '@lun/core';
-import { FormItem } from '../form-item/FormItem';
-import { Form } from './Form';
 import { ComputedRef } from 'vue';
 import { FormProps } from './type';
+import { FormItemProps } from '../form-item';
 
 export * from './Form';
 export type { FormProps } from './type';
@@ -20,8 +19,8 @@ export type FormProvideExtra = {
 
 export const FormItemCollector = createCollector({
   name: 'FormItem',
-  parent: Form,
-  child: FormItem,
+  parent: null as any as FormProps,
+  child: null as any as FormItemProps,
   sort: true,
   parentExtra: null as any as FormProvideExtra,
   // TODO getChildEl
