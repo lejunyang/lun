@@ -1,9 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement } from 'utils';
 import { formProps } from './type';
-import { useNamespace } from 'hooks';
-import { FormItemCollector } from '.';
+import { useCEExpose, useNamespace } from 'hooks';
+import { FormItemCollector, FormProvideExtra } from '.';
 import { computed, reactive, ref } from 'vue';
 import { objectGet, objectSet } from '@lun/utils';
 
@@ -11,7 +11,8 @@ const name = 'form';
 export const Form = defineSSRCustomElement({
   name,
   props: formProps,
-  setup(props) {
+  emits: ['update'],
+  setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
     const localFormData = ref<Record<string, any>>({});
@@ -20,21 +21,31 @@ export const Form = defineSSRCustomElement({
       errors: {},
       isChanged: false,
     });
+    const methods: Pick<FormProvideExtra, 'getValue' | 'setValue'> = {
+      getValue(path) {
+        if (Array.isArray(path)) return objectGet(formData.value, path);
+        else return formData.value[path];
+      },
+      setValue(path, value) {
+        if (Array.isArray(path)) objectSet(formData.value, path, value);
+        else localFormData.value[path] = value;
+        emit('update', {
+          formData: formData.value,
+          path,
+          value,
+        });
+      },
+    };
     const formItems = FormItemCollector.parent({
       extraProvide: {
         formProps: props,
         formData,
-        getValue(path) {
-          if (Array.isArray(path)) objectGet(formData.value, path);
-          else return formData.value[path];
-        },
-        setValue(path, value) {
-          if (Array.isArray(path)) objectSet(formData.value, path, value);
-          else localFormData.value[path] = value;
-        },
+        ...methods,
         formState,
       },
     });
+
+    useCEExpose(methods);
 
     return () => {
       return (
