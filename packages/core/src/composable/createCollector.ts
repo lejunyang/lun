@@ -69,6 +69,12 @@ export function createCollector<
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name || Date.now()}` : '');
 
+  const finalGetChildEl = (vm: UnwrapRef<InstanceWithProps<ChildProps>>) => {
+    let el = vm.proxy?.$el;
+    if (getChildEl) el = getChildEl(el);
+    return el as Element | undefined;
+  };
+
   const parent = (params?: { extraProvide?: PE; lazyChildren?: boolean }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
     const childrenElIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
@@ -86,7 +92,8 @@ export function createCollector<
         state.parentEl = instance!.proxy?.$el as Element;
         if (getParentEl) state.parentEl = getParentEl(state.parentEl);
         items.value.forEach((child, index) => {
-          if (child.proxy?.$el) childrenElIndexMap.set(child.proxy?.$el as Element, index);
+          const el = finalGetChildEl(child);
+          if (el) childrenElIndexMap.set(el, index);
         });
       });
       onUnmounted(() => {
@@ -107,8 +114,7 @@ export function createCollector<
             child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
           )
             return;
-          let el = child.proxy.$el as Element;
-          if (getChildEl) el = getChildEl(el);
+          const el = finalGetChildEl(child)!;
           Object.assign(el, { [CHILD_KEY]: true });
           childrenVmElMap.set(child, el);
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
@@ -121,14 +127,20 @@ export function createCollector<
             const prevIndex = childrenElIndexMap.get(prev!);
             if (prevIndex != null) {
               items.value.splice(prevIndex + 1, 0, child);
+              childrenElIndexMap.set(el, prevIndex + 1);
             } else {
               items.value.unshift(child);
+              childrenElIndexMap.set(el, 0);
             }
-            // update other elements' index
-            for (const [el, index] of childrenElIndexMap.entries()) {
-              if (index >= (prevIndex || 0)) childrenElIndexMap.set(el, index + 1);
+            if (prevIndex! + 2 < items.value.length) {
+              // update other elements' index
+              for (const [otherEl, index] of childrenElIndexMap.entries()) {
+                if (index >= (prevIndex || 0) && otherEl !== el) childrenElIndexMap.set(otherEl, index + 1);
+              }
             }
-          } else items.value.push(child);
+          } else {
+            items.value.push(child);
+          }
         }
       },
       removeItem(child) {
