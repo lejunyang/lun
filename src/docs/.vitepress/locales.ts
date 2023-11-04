@@ -19,6 +19,11 @@ export default {
         radio: 'Radio 单选框',
         select: 'Select 下拉列表'
       },
+      ft: {
+        menu: '表单与表格',
+        form: 'Form 表单',
+        table: 'Table 表格',
+      },
       pop: {
         menu: '弹出组件',
         dialog: 'Dialog 弹窗',
@@ -49,6 +54,11 @@ export default {
         input: 'Input',
         radio: 'Radio',
         select: 'Select'
+      },
+      ft: {
+        menu: 'Form & Table',
+        form: 'Form',
+        table: 'Table',
       },
       pop: {
         menu: 'Pop',
