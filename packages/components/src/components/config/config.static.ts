@@ -1,4 +1,4 @@
-import { isSupportCSSStyleSheet } from '@lun/utils';
+import { isSupportCSSStyleSheet, isNumber } from '@lun/utils';
 import { error } from '../../utils';
 import {
   getInitialDefaultAnimationRegistry,
@@ -6,6 +6,7 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { ref } from 'vue';
+import { createMath } from '../../common/math';
 
 export const noShadowComponents = Object.freeze(['custom-renderer', 'theme-provider'] as const);
 export const shadowComponents = Object.freeze([
@@ -155,6 +156,17 @@ export const GlobalStaticConfig = new Proxy(
     customRendererMap: getInitialCustomRendererMap(),
     animationRegistry: getInitialDefaultAnimationRegistry(),
     elAnimationRegistry: getInitialElementAnimationRegistry(),
+    math: createMath<number | Number>({
+      isNumber,
+      isNaN: Number.isNaN,
+      toNumber: (target) => Number(target),
+      // @ts-ignore
+      plus: (target, delta) => target + delta,
+      // @ts-ignore
+      minus: (target, delta) => target - delta,
+      max: Math.max,
+      min: Math.min,
+    })
   },
   {
     get(target, p, receiver) {
