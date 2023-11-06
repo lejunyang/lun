@@ -36,23 +36,44 @@ export function createGetNodeInTree<T extends Node | Element>({
 export const getPreviousMatchElInTree = createGetNodeInTree<Element>({
   getNext: (e) => e.previousElementSibling,
   getParent: (e) => e.assignedSlot || e.parentElement || (e.parentNode as ShadowRoot)?.host,
-  getNextFromParent: (p) => p.previousElementSibling?.lastElementChild,
+  getNextFromParent: (p) => {
+    const prevEl = p.previousElementSibling;
+    if (!prevEl) return;
+    // will try to access shadowRoot, but not deeply iterate, useful for root element in shadow dom
+    if (prevEl.shadowRoot) return prevEl.shadowRoot.lastElementChild;
+    return prevEl.lastElementChild;
+  },
 });
 
 export const getPreviousMatchNodeInTree = createGetNodeInTree<Node>({
   getNext: (e) => e.previousSibling,
   getParent: (e) => (e as Element).assignedSlot || e.parentNode || (e as ShadowRoot)?.host,
-  getNextFromParent: (p) => p.previousSibling?.lastChild,
+  getNextFromParent: (p) => {
+    const prevEl = p.previousSibling;
+    if (!prevEl) return;
+    if ((prevEl as Element).shadowRoot) return (prevEl as Element).shadowRoot.lastChild;
+    return prevEl.lastChild;
+  },
 });
 
 export const getNextMatchElInTree = createGetNodeInTree<Element>({
   getNext: (e) => e.nextElementSibling,
   getParent: (e) => e.assignedSlot || e.parentElement || (e.parentNode as ShadowRoot)?.host,
-  getNextFromParent: (p) => p.nextElementSibling?.firstElementChild,
+  getNextFromParent: (p) => {
+    const nextEl = p.nextElementSibling;
+    if (!nextEl) return;
+    if (nextEl.shadowRoot) return nextEl.shadowRoot.firstElementChild;
+    return nextEl.firstElementChild;
+  },
 });
 
 export const getNextMatchNodeInTree = createGetNodeInTree<Node>({
   getNext: (e) => e.nextSibling,
   getParent: (e) => (e as Element).assignedSlot || e.parentNode || (e as ShadowRoot)?.host,
-  getNextFromParent: (p) => p.nextSibling?.firstChild,
+  getNextFromParent: (p) => {
+    const nextEl = p.nextSibling;
+    if (!nextEl) return;
+    if ((nextEl as Element).shadowRoot) return (nextEl as Element).shadowRoot.firstChild;
+    return nextEl.firstChild;
+  },
 });
