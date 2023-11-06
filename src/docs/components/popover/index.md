@@ -95,13 +95,20 @@
   </l-popover>
 </div>
 
-## dialog 实现
+## fixed 实现
 
-默认情况下会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现，若浏览器不支持，则会转为使用原生 [`dialog`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) 来实现，若均不支持，则会改为使用定位
+默认情况下会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现，若浏览器不支持，则会改为使用 fixed 定位
 
-当然，也可以通过`type`属性取指定实现方式。需要注意的是，若浏览器不支持，手动指定的 `type` 会被无视，将采用备选方案实现
+检测到浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
 
-<l-popover type="dialog">
-  <div slot="pop-content" >由原生dialog实现</div>
+当然，也可以通过`type`属性指定实现方式(`popover`, `teleport`, `fixed`)。需要注意的是，若浏览器不支持，手动指定的 `type` 会被无视，将采用备选方案实现
+
+<l-popover type="fixed">
+  <div slot="pop-content">由fixed实现</div>
   <l-button>悬浮触发</l-button>
 </l-popover>
+
+<script setup>
+  import { isSupportPopover } from '@lun/utils';
+  const supportPopover = isSupportPopover();
+</script>

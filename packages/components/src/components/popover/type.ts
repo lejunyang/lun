@@ -4,11 +4,13 @@ import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
 
 export const popoverProps = {
   show: { type: Boolean, default: undefined },
-  type: { type: String as PropType<'popover' | 'dialog' | 'fixed' | 'body-fixed'> },
+  target: { type: Object as PropType<Element> },
+  type: { type: String as PropType<'popover' | 'fixed' | 'teleport'> },
+  to: { type: String },
   content: {},
+  preferHtml: { type: Boolean },
   placement: { type: String as PropType<Placement> },
   offset: { type: Number },
-  // TODO rename
   openDelay: { type: Number },
   closeDelay: { type: Number },
   triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },

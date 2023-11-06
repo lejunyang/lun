@@ -1,71 +1,49 @@
 import { defineSSRCustomElement } from 'custom';
-import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition, nextTick } from 'vue';
+import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition } from 'vue';
 import { usePopover } from '@lun/core';
 import { createDefineElement, renderElement, toGetterDescriptors } from 'utils';
 import { popoverProps } from './type';
-import { isSupportPopover, isSupportDialog, pick } from '@lun/utils';
+import { isSupportPopover, pick } from '@lun/utils';
 import { useCEExpose, useShadowDom } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
 import { topLayerOverTransforms } from './floating.top-layer-fix';
 import { referenceRect } from './floating.store-rects';
 
+const name = 'popover';
 export const Popover = defineSSRCustomElement({
-  name: 'popover',
+  name,
   props: popoverProps,
   inheritAttrs: false,
   emits: ['open', 'afterOpen', 'close', 'afterClose'],
   setup(props, { emit }) {
     const support = {
       popover: isSupportPopover(),
-      dialog: isSupportDialog(),
-      'body-fixed': true,
+      teleport: true,
       fixed: true,
     };
     const popRef = ref<HTMLDivElement>();
-    const dialogRef = ref<HTMLDialogElement>();
-    // TODO fixed el ref
     const slotRef = ref<HTMLSlotElement>();
+    const fixedRef = ref<HTMLDivElement>();
     const arrowRef = ref();
     const isShow = ref(false);
     const type = computed(() => {
-      if (['popover', 'dialog', 'fixed', 'body-fixed'].includes(props.type!) && support[props.type!]) return props.type;
+      if (['popover', 'fixed', 'teleport'].includes(props.type!) && support[props.type!]) return props.type;
       else return Object.keys(support).find((i) => support[i as keyof typeof support]);
     });
     const show = () => {
       const popover = popRef.value;
-      const dialog = dialogRef.value;
-      if (popover) {
-        popover.showPopover();
-      } else if (dialog) {
-        dialog.show();
-      }
-      if (popover || dialog) {
-        isShow.value = true;
-      }
+      const fixed = fixedRef.value;
+      if (popover) popover.showPopover();
+      isShow.value = !!(popover || fixed);
     };
     const hide = () => {
-      const popover = popRef.value;
-      const dialog = dialogRef.value;
-      if (popover) {
-        // popover.hidePopover();
-      } else if (dialog) {
-        dialog.close();
-      }
-      if (popover || dialog) {
-        isShow.value = false;
-      }
+      isShow.value = false;
     };
     const toggle = (force?: boolean) => {
       const { value } = popRef;
       if (value) value.togglePopover(force);
-      else if (dialogRef.value) {
-        if (force !== undefined) {
-          if (force) show();
-          else hide();
-        } else if (isShow.value) hide();
-        else show();
-      }
+      isShow.value = force !== undefined ? force : !isShow.value;
     };
 
     // handle manually control visibility by outside
@@ -76,9 +54,9 @@ export const Popover = defineSSRCustomElement({
       }
     });
 
-    const actualPopRef = computed(() => popRef.value || dialogRef.value);
+    const actualPopRef = computed(() => popRef.value || fixedRef.value);
 
-    const { targetHandler, popContentHandler, dialogHandler, options } = usePopover(() => ({
+    const { targetHandler, popContentHandler, options } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
       manual: props.show,
       isShow,
@@ -156,70 +134,71 @@ export const Popover = defineSSRCustomElement({
       toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' })
     );
 
-    return () => {
-      const { value } = type;
-      const contentSlot = (
+    const contentSlot = computed(() => {
+      return (
         <>
           {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value}></div>}
           <slot name="pop-content">
-            {props.content && renderElement('custom-renderer', { content: props.content })}
+            {props.content && renderElement('custom-renderer', pick(props, ['content', 'preferHtml']))}
           </slot>
         </>
       );
-      const fixed = (
+    });
+
+    const fixed = computed(() => {
+      const { value } = type;
+      const result = (
         <div
           {...popContentHandler}
-          part={(value === 'body-fixed' ? 'teleport-fixed' : 'fixed') + ' pop-content'}
+          part={(value === 'teleport' ? 'teleport-fixed' : 'fixed') + ' pop-content'}
           style={finalFloatingStyles.value}
-          hidden={isShow.value}
+          v-show={isShow.value}
+          ref={fixedRef}
         >
-          {contentSlot}
+          {contentSlot.value}
         </div>
       );
+      return value === 'teleport' ? <Teleport to={props.to || 'body'}>{result}</Teleport> : result;
+    });
+
+    const popover = computed(() => {
+      return (
+        <div
+          {...popContentHandler}
+          v-show={isShow.value}
+          style={finalFloatingStyles.value}
+          part="popover pop-content"
+          popover="manual"
+          ref={popRef}
+        >
+          {contentSlot.value}
+        </div>
+      );
+    });
+
+    const transitionHandler = {
+      onEnter() {
+        emit('open');
+      },
+      onAfterEnter() {
+        emit('afterOpen');
+      },
+      onLeave() {
+        emit('close');
+      },
+      onAfterLeave() {
+        popRef.value?.hidePopover();
+        emit('afterClose');
+      },
+    };
+
+    return () => {
+      const { value } = type;
       return (
         <>
-          {value === 'popover' && (
-            <Transition
-              name="popover"
-              onEnter={() => {
-                emit('open');
-              }}
-              onAfterEnter={() => {
-                emit('afterOpen');
-              }}
-              onLeave={() => {
-                emit('close');
-              }}
-              onAfterLeave={() => {
-                popRef.value?.hidePopover();
-                emit('afterClose');
-              }}
-            >
-              <div
-                {...popContentHandler}
-                v-show={isShow.value}
-                style={finalFloatingStyles.value}
-                part="popover pop-content"
-                popover="manual"
-                ref={popRef}
-              >
-                {contentSlot}
-              </div>
-            </Transition>
-          )}
-          {value === 'dialog' && (
-            <dialog
-              {...popContentHandler}
-              {...dialogHandler}
-              style={finalFloatingStyles.value}
-              part="dialog pop-content"
-              ref={dialogRef}
-            >
-              {contentSlot}
-            </dialog>
-          )}
-          {value === 'fixed' && fixed}
-          {value === 'body-fixed' && <Teleport to="body">{fixed}</Teleport>}
+          <Transition name="popover" {...transitionHandler}>
+            {value === 'popover' ? popover.value : fixed.value}
+          </Transition>
           <slot {...targetHandler} ref={slotRef}></slot>
         </>
       );
@@ -239,7 +218,6 @@ declare global {
   }
 }
 
-export const definePopover = (popoverName?: string, customRendererName?: string) => {
-  defineCustomRenderer(customRendererName);
-  createDefineElement('popover', Popover)(popoverName);
-};
+export const definePopover = createDefineElement(name, Popover, {
+  'custom-renderer': defineCustomRenderer,
+});
