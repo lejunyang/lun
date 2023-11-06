@@ -11,6 +11,9 @@ export const buttonProps = {
   showLoading: { type: Boolean },
   iconPosition: { type: String as PropType<LogicalPosition> },
   variant: { type: String },
+  debounce: { type: Number },
+  throttle: { type: Number },
+  holdOn: { type: Number },
 };
 
 export type ButtonProps = ExtractPropTypes<typeof buttonProps>;
