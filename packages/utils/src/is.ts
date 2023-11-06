@@ -1,6 +1,5 @@
-
 export function getTypeTag(variable: unknown) {
-  return Object.prototype.toString.call(variable).slice(8, -1)
+  return Object.prototype.toString.call(variable).slice(8, -1);
 }
 
 export function isPromiseByTag(promise: unknown): promise is Promise<unknown> {
@@ -20,7 +19,7 @@ export function isPlainString(target: unknown): target is string {
 }
 
 export function isString(target: unknown): target is string | String {
-  return typeof target === 'string' || target instanceof String;
+  return isPlainString(target) || target instanceof String;
 }
 
 export function isArray(target: unknown): target is Array<unknown> {
@@ -40,4 +39,12 @@ export function isEmpty(target: unknown) {
   if (isArray(target)) return target.length === 0;
   if (isObject(target)) return Object.keys(target).length === 0;
   return false;
+}
+
+export function isPlainNumber(target: unknown): target is number {
+  return typeof target === 'number';
+}
+
+export function isNumber(target: unknown): target is number | Number {
+  return isPlainNumber(target) || target instanceof Number;
 }
