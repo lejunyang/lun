@@ -1,4 +1,4 @@
-import { defineButton } from './button';
+import { defineButton, importButtonStyle } from './button';
 import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
 import { defineDialog } from './dialog';
@@ -13,6 +13,7 @@ import { defineSpin, importSpinStyle } from './spin';
 import { defineThemeProvider } from './theme-provider';
 
 export function importAllBasicStyles() {
+  importButtonStyle();
   importIconStyle();
   importPopoverStyle();
   importSpinStyle()
