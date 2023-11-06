@@ -107,15 +107,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       setTimeout(() => handlePopShow(e));
     },
   };
-  // used for dialog, if dialog is close by other ways, we need emit hide instantly
-  const dialogHandler = {
-    onCancel() {
-      options.value.hideNow();
-    },
-    onClose() {
-      options.value.hideNow();
-    },
-  };
+
   const cleanup = useClickOutside(
     [options.value.target, options.value.pop],
     () => {
@@ -126,7 +118,6 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   return {
     targetHandler,
     popContentHandler,
-    dialogHandler,
     options,
     cleanup,
   };
