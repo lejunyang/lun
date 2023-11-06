@@ -49,28 +49,17 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   // for css var
   // --el-xxx: value;
-  const cssVar = (object: Record<string, string>) => {
+  const v = (object: Record<string, string>, addBlock = true) => {
     const styles: Record<string, string> = {};
     for (const key in object) {
       if (object[key]) {
-        styles[`--${namespace.value}-${key}`] = object[key];
-      }
-    }
-    return styles;
-  };
-  // with block
-  const cssVarBlock = (object: Record<string, string>) => {
-    const styles: Record<string, string> = {};
-    for (const key in object) {
-      if (object[key]) {
-        styles[`--${namespace.value}-${block}-${key}`] = object[key];
+        styles[vn(key, addBlock)] = object[key];
       }
     }
     return styles;
   };
 
-  const cssVarName = (name: string) => `--${namespace.value}-${name}`;
-  const cssVarBlockName = (name: string) => `--${namespace.value}-${block}-${name}`;
+  const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
   return {
     namespace,
@@ -90,10 +79,10 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
     bem,
     is,
     // css
-    cssVar,
-    cssVarName,
-    cssVarBlock,
-    cssVarBlockName,
+    /** css var */
+    v,
+    /** css var name */
+    vn,
     /** withBreakpoints */
     bp: (...args: Parameters<typeof withBreakpoints>) => {
       return withBreakpoints(args[0] || '1', args[1] || m('size'), args[2]);
