@@ -8,6 +8,7 @@ export type EditState = {
   forceInheritDisabled?: boolean;
   forceInheritReadonly?: boolean;
   forceInheritLoading?: boolean;
+  readonly interactive: boolean;
   readonly editable: boolean;
 };
 
@@ -53,8 +54,11 @@ export function useSetupEdit(options?: {
       forceInheritDisabled,
       forceInheritLoading,
       forceInheritReadonly,
+      get interactive() {
+        return !this.disabled && !this.loading;
+      },
       get editable() {
-        return !this.disabled && !this.readonly && !this.loading;
+        return this.interactive && !this.readonly;
       },
     };
     if (adjust instanceof Function) finalState = adjust(finalState) || finalState;
