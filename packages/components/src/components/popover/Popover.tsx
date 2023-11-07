@@ -1,9 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition } from 'vue';
-import { usePopover } from '@lun/core';
+import { unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, renderElement, toGetterDescriptors } from 'utils';
 import { popoverProps } from './type';
-import { isSupportPopover, pick } from '@lun/utils';
+import { isFunction, isSupportPopover, pick } from '@lun/utils';
 import { useCEExpose, useShadowDom } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
@@ -55,19 +55,26 @@ export const Popover = defineSSRCustomElement({
     });
 
     const actualPopRef = computed(() => popRef.value || fixedRef.value);
+    const virtualTarget = computed(() => {
+      const target = unrefOrGet(props.target);
+      return isFunction(target?.getBoundingClientRect) ? target : null;
+    });
+    const actualTargetRef = computed(() => {
+      return virtualTarget.value || slotRef.value;
+    });
 
     const { targetHandler, popContentHandler, options } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
-      manual: props.show,
+      manual: props.show !== undefined,
       isShow,
       show,
       hide,
-      target: slotRef,
+      target: actualTargetRef,
       pop: actualPopRef,
     }));
 
     const shadow = useShadowDom();
-    const ceRef = computed(() => (isShow.value ? shadow.CE : null)); // avoid update float position when not show
+    const ceRef = computed(() => (isShow.value ? virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
       if (isShow.value) {
@@ -87,7 +94,7 @@ export const Popover = defineSSRCustomElement({
         referenceRect(),
       ].filter(Boolean) as any;
     });
-    const { floatingStyles, middlewareData } = useFloating(ceRef, actualPopRef, {
+    const { floatingStyles, middlewareData, update } = useFloating(ceRef, actualPopRef as any, {
       whileElementsMounted: autoUpdate,
       strategy: 'fixed',
       placement,
@@ -130,6 +137,7 @@ export const Popover = defineSSRCustomElement({
         closePopover: hide,
         togglePopover: toggle,
         isShow: () => (props.show !== undefined ? !!props.show : isShow.value),
+        updatePosition: update,
       },
       toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' })
     );

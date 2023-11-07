@@ -1,6 +1,6 @@
 import { debounce, toArrayIfNotNil } from '@lun/utils';
 import { computed } from 'vue';
-import { useClickOutside } from '../../hooks';
+import { VirtualElement, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'click' | 'contextmenu';
@@ -10,7 +10,7 @@ export type UsePopoverOptions = {
   isShow: MaybeRefLikeOrGetter<boolean>;
   show: () => void;
   hide: () => void;
-  target: MaybeRefLikeOrGetter<Element>;
+  target: MaybeRefLikeOrGetter<Element | VirtualElement>;
   pop: MaybeRefLikeOrGetter<Element>;
   triggers?: PopoverTrigger | PopoverTrigger[];
   openDelay?: number;
@@ -53,7 +53,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     (trigger: PopoverTrigger | null, method: 'show' | 'hide' | 'toggle', extraHandle?: (e: Event) => void | boolean) =>
     (e: Event) => {
       const { triggers, manual, toggleMode, isShow } = options.value;
-      if ((!trigger || triggers.has(trigger)) && manual === undefined) {
+      if ((!trigger || triggers.has(trigger)) && !manual) {
         if (extraHandle && extraHandle(e) === false) return;
         if (method === 'toggle') {
           if (
@@ -113,7 +113,10 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     () => {
       options.value.hide();
     },
-    options.value.isShow
+    () => {
+      const { isShow, manual } = options.value;
+      return unrefOrGet(isShow) && !manual;
+    }
   );
   return {
     targetHandler,
