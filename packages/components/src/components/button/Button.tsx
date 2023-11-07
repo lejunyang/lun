@@ -68,7 +68,7 @@ export const Button = defineSSRCustomElement({
           onPointerleave={handler.hideHoldOn}
           onPointercancel={handler.hideHoldOn}
           part="button"
-          style={ns.v({ 'hold-on': `${props.holdOn}ms` })}
+          style={ns.v({ 'hold-on': props.holdOn && `${props.holdOn}ms` })}
         >
           <Transition name="hold" onAfterEnter={handler.onAfterEnter}>
             {holdOnShow.value && <div part="hold"></div>}

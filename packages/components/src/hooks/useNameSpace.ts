@@ -49,11 +49,11 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   // for css var
   // --el-xxx: value;
-  const v = (object: Record<string, string>, addBlock = true) => {
+  const v = (object: Record<string, string | false | 0 | null | undefined>, addBlock = true) => {
     const styles: Record<string, string> = {};
     for (const key in object) {
       if (object[key]) {
-        styles[vn(key, addBlock)] = object[key];
+        styles[vn(key, addBlock)] = object[key] as string;
       }
     }
     return styles;
