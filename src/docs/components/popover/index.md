@@ -108,7 +108,71 @@
   <l-button>悬浮触发</l-button>
 </l-popover>
 
+## 虚拟元素
+
+<l-checkbox :checked="isOn" @update="isOn = $event.detail.checked">{{ isOn ? '关闭' : '开启'}}</l-checkbox>
+<l-popover class="popover-virtual" ref="virtualPop" :target="virtualEl" :show="isOn" >
+  <div slot="pop-content" class="circle"></div>
+</l-popover>
+
 <script setup>
-  import { isSupportPopover } from '@lun/utils';
+  import { isSupportPopover, throttle } from '@lun/utils';
+  import { ref, reactive, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue';
   const supportPopover = isSupportPopover();
+  const mouseState = reactive({
+    x: 0,
+    y: 0,
+  })
+  const virtualPop = ref();
+  const isOn = ref(false);
+  const virtualEl = computed(() => {
+    if(mouseState.x || mouseState.y) {
+    }
+    return {
+      getBoundingClientRect() {
+        return {
+          width: 0,
+          height: 0,
+          x: mouseState.x,
+          y: mouseState.y,
+          top: mouseState.y,
+          left: mouseState.x,
+          right: mouseState.x,
+          bottom: mouseState.y
+        };
+      }
+    }
+  })
+  const handleMouseMove = throttle((e) => {
+    mouseState.x = e.clientX;
+    mouseState.y = e.clientY;
+  }, 50, { trailing: true });
+  onMounted(() => {
+    document.addEventListener('mousemove', handleMouseMove)
+  })
+  onBeforeUnmount(() => {
+    document.removeEventListener('mousemove', handleMouseMove)
+  })
 </script>
+
+<style>
+.popover-virtual::part(pop-content) {
+  background-color: transparent;
+  z-index: 999;
+  pointer-events: none;
+}
+.circle {
+  width: 100px;
+  height: 100px;
+  border: solid 4px blue;
+  border-radius: 50%;
+  translate: 0px -50px;
+  animation: 1s virtual-cursor infinite;
+  /* transition: all 0.1s linear; */
+}
+@keyframes virtual-cursor {
+  0% { scale: 1; }
+  50% { scale: 1.1; }
+}
+
+</style>
