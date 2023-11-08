@@ -26,13 +26,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v4.0.0
         with:
           # Set always-auth in npmrc.
           # always-auth: # optional, default is false
           # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
-          # node-version: # optional
+          node-version: 16 # optional
           # File containing the version Spec of the version to use.  Examples: .nvmrc, .node-version, .tool-versions.
           # node-version-file: # optional
           # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
@@ -46,11 +48,9 @@ jobs:
           # Used to pull node distributions from node-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
           # token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
           # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.
-          cache: pnpm # optional
+          cache: 'pnpm' # optional
           # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
           # cache-dependency-path: # optional
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Install And Build
         run: pnpm install && pnpm build && pnpm docs:build
       - name: Setup Pages
