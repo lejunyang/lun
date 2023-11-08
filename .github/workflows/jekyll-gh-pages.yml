@@ -55,9 +55,8 @@ jobs:
           cache: 'pnpm' # optional
           # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
           # cache-dependency-path: # optional
-      - run: pnpm install
-      - run: pnpm build
-      - run: pnpm docs:build
+      - name: Install and Build
+        run: pnpm install && pnpm build && pnpm docs:build
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Build with Jekyll
