@@ -75,7 +75,11 @@ export function createCollector<
     return el as Element | undefined;
   };
 
-  const parent = (params?: { extraProvide?: PE; lazyChildren?: boolean }) => {
+  const parent = (params?: {
+    extraProvide?: PE;
+    lazyChildren?: boolean;
+    onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number) => void;
+  }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
     const childrenElIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
     const childrenVmElMap = new WeakMap<any, Element>(); // use `UnwrapRef<InstanceWithProps<ChildProps>>` as key will make FormItemCollector's type error...
@@ -83,7 +87,7 @@ export function createCollector<
       parentMounted: false,
       parentEl: null as Element | null,
     });
-    const { extraProvide, lazyChildren = true } = params || {};
+    const { extraProvide, lazyChildren = true, onChildRemoved } = params || {};
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) instance = markRaw(instance);
     if (instance) {
@@ -150,6 +154,13 @@ export function createCollector<
           if (index != null) {
             items.value.splice(index, 1);
             childrenElIndexMap.delete(el);
+            // update index
+            for (let i = index; i < items.value.length; i++) {
+              const vm = items.value[i];
+              const el = childrenVmElMap.get(vm);
+              el && childrenElIndexMap.set(el, i);
+            }
+            if (onChildRemoved) onChildRemoved(child as any, index);
           }
         }
       },
