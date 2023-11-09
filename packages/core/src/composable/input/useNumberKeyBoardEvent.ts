@@ -4,7 +4,7 @@ export function useNumberKeyBoardEvent(nextStepCallback: () => void, lastStepCal
       if (e.key === 'ArrowDown') nextStepCallback();
       if (e.key === 'ArrowUp') lastStepCallback();
     },
-    onKeyup(e: KeyboardEvent) {
+    onKeyup(_e: KeyboardEvent) {
     }
   }
 }

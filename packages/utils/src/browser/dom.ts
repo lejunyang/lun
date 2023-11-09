@@ -51,7 +51,8 @@ export const getPreviousMatchNodeInTree = createGetNodeInTree<Node>({
   getNextFromParent: (p) => {
     const prevEl = p.previousSibling;
     if (!prevEl) return;
-    if ((prevEl as Element).shadowRoot) return (prevEl as Element).shadowRoot.lastChild;
+    const { shadowRoot } = prevEl as Element;
+    if (shadowRoot) return shadowRoot.lastChild;
     return prevEl.lastChild;
   },
 });
@@ -73,7 +74,8 @@ export const getNextMatchNodeInTree = createGetNodeInTree<Node>({
   getNextFromParent: (p) => {
     const nextEl = p.nextSibling;
     if (!nextEl) return;
-    if ((nextEl as Element).shadowRoot) return (nextEl as Element).shadowRoot.firstChild;
+    const { shadowRoot } = nextEl as Element;
+    if (shadowRoot) return shadowRoot.firstChild;
     return nextEl.firstChild;
   },
 });

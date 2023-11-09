@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "./index.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "../../global.d.ts"
+  ],
+  "exclude": [
+    "src/__test__/**/*"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declarationDir": "./dist",
+  },
+}

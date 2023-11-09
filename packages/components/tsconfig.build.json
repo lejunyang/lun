@@ -1,5 +1,16 @@
 {
   "extends": "./tsconfig.json",
+  "include": [
+    "./index.ts",
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.tsx",
+    "../../global.d.ts"
+  ],
+  "exclude": [
+    "src/__test__/**/*",
+    "src/main.ts"
+  ],
   "compilerOptions": {
     "paths": {
       "@/*": [
