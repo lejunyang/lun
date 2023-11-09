@@ -5,8 +5,8 @@ import { UseNativeDialogOptions, useDialog } from './useDialog';
 
 export function useNativeDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOptions & { native: boolean }, true>) {
   const documentHandlers = {
-    click(e: MouseEvent) {},
-    dblclick(e: MouseEvent) {},
+    click(_e: MouseEvent) {},
+    dblclick(_e: MouseEvent) {},
     keydown(e: KeyboardEvent) {
       const { isOpen, native, escapeClosable } = unrefOrGet(options)!;
       if (e.key === 'Escape' && isOpen && native) {

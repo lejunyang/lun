@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@lun/components": "workspace:^",
+    "@lun/utils": "workspace:^",
     "@lun/theme": "workspace:^",
     "esbuild-wasm": "^0.19.4",
     "react": "^18.2.0",

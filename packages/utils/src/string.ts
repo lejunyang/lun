@@ -19,7 +19,7 @@ export function uncapitalize(str: string) {
 export function stringToPath(path?: string): string[] {
   if (!isString(path)) return [];
   return path
-    .replace(/\[(['"`]?)(.*?)(['"`]?)]/g, (match: string, $1: string, $2: string, $3: string) => {
+    .replace(/\[(['"`]?)(.*?)(['"`]?)]/g, (_match: string, $1: string, $2: string, $3: string) => {
       if ($1 === $3) return '.' + $2;
       else return '.' + $1 + $2 + $3;
     })

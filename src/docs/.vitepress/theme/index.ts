@@ -36,7 +36,7 @@ export default {
       },
     });
 
-    console.log('GlobalStaticConfig', GlobalStaticConfig);
+    if (typeof document !== 'undefined') console.log('GlobalStaticConfig', GlobalStaticConfig);
     defineAllComponents();
     // ...
   },

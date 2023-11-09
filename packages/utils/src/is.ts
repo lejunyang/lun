@@ -6,11 +6,11 @@ export function isPromiseByTag(promise: unknown): promise is Promise<unknown> {
   return getTypeTag(promise) === 'Promise';
 }
 
-export function isObject(target: unknown): target is object {
+export function isObject(target: unknown): target is Object {
   return typeof target === 'object' && target !== null;
 }
 
-export function isObjectByTag(target: unknown): target is object {
+export function isObjectByTag(target: unknown): target is Object {
   return getTypeTag(target) === 'Object';
 }
 

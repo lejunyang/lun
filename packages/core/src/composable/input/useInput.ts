@@ -1,7 +1,6 @@
-import { ensureNumber, isEnterDown, isFunction, toNumberIfValid, toNumberOrNull } from '@lun/utils';
+import { ensureNumber, isEnterDown, isFunction, toNumberOrNull } from '@lun/utils';
 import { computed, reactive } from 'vue';
-import { MaybeRefLikeOrGetter } from '../../../dist/src/utils/unref';
-import { unrefOrGet } from '../../utils';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputType = 'text' | 'number' | 'number-text';
 
@@ -236,7 +235,7 @@ export function useInput<
         utils.handleEvent(updateWhen || 'input', e);
       }
     },
-    onCompositionstart(e: Event) {
+    onCompositionstart() {
       state.composing = true;
     },
     onCompositionend(e: Event) {

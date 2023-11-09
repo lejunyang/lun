@@ -4,7 +4,7 @@ function baseDeepCopy(obj: any, map: Map<Object, any>) {
   if (!isObject(obj)) return obj;
   if (map.has(obj)) return map.get(obj); // already been copied
   const type = getTypeTag(obj);
-  let result = obj;
+  let result: any = obj;
   switch (type) {
     case 'BigInt':
     case 'Boolean':

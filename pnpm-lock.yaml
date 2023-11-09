@@ -18,6 +18,9 @@ importers:
       '@lun/theme':
         specifier: workspace:^
         version: link:packages/theme
+      '@lun/utils':
+        specifier: workspace:^
+        version: link:packages/utils
       esbuild-wasm:
         specifier: ^0.19.4
         version: 0.19.4
