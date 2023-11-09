@@ -3,28 +3,28 @@ import { capitalize, uncapitalize } from '../string';
 import { deepCopy } from './copy';
 import { objectGet } from './value';
 
-/**
- * property of `source` will overwrite target only when related property of `target` is null or undefined\
- * Array and function value will be merged according to the array merge strategy\
- * ignore circular refer
- * @param target
- * @param source
- */
-export function simpleDeepMerge<
-	OTarget extends Record<string | symbol | number, unknown>,
-	OSource extends Record<string | symbol | number, unknown>
->(
-	target: OTarget,
-	source: OSource,
-	strategy?: {
-		// two array merge, merging each item of array is not considered
-		// strict means both sides need to an array, soft means one side can be not array type(target: 1, source: [2, 3] => [1, 2, 3])
-		array: 'strictPush' | 'strictUnshift' | 'softPush' | 'softUnshift' | 'keep' | 'overwrite';
-		func: 'merge' | 'keep' | 'overwrite';
-	}
-) {
-	// const { array = 'softPush', func = 'merge' } = (strategy || {});
-}
+// /**
+//  * property of `source` will overwrite target only when related property of `target` is null or undefined\
+//  * Array and function value will be merged according to the array merge strategy\
+//  * ignore circular refer
+//  * @param target
+//  * @param source
+//  */
+// export function simpleDeepMerge<
+// 	OTarget extends Record<string | symbol | number, unknown>,
+// 	OSource extends Record<string | symbol | number, unknown>
+// >(
+// 	target: OTarget,
+// 	source: OSource,
+// 	strategy?: {
+// 		// two array merge, merging each item of array is not considered
+// 		// strict means both sides need to an array, soft means one side can be not array type(target: 1, source: [2, 3] => [1, 2, 3])
+// 		array: 'strictPush' | 'strictUnshift' | 'softPush' | 'softUnshift' | 'keep' | 'overwrite';
+// 		func: 'merge' | 'keep' | 'overwrite';
+// 	}
+// ) {
+// 	// const { array = 'softPush', func = 'merge' } = (strategy || {});
+// }
 
 /** Except for Any and Nil，other types are derived from Object.prototype.toString.call(target).slice(8, -1). Not all types */
 type NativeType =
