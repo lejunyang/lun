@@ -3,41 +3,51 @@ import { h } from 'vue';
 import Theme from 'vitepress/theme';
 import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, registerCustomRenderer } from '@lun/components';
 import '@lun/theme/scss/public/index.scss';
-import { isValidElement } from 'react';
-import { createRoot } from 'react-dom/client';
 import { importBasicTheme, importSurfaceTheme } from '@lun/theme';
 import Layout from './Layout.vue';
 import './style.css';
+
+let once = false;
 
 export default {
   extends: Theme,
   Layout: () => h(Layout),
   enhanceApp({ app, router, siteData }) {
+    if (once) return false;
+    once = true;
     importAllBasicStyles();
     importBasicTheme();
     importSurfaceTheme();
 
-    const reactRootMap = new WeakMap();
-    registerCustomRenderer('react', {
-      isValidContent(content) {
-        return isValidElement(content);
-      },
-      onMounted(content, target) {
-        if (reactRootMap.has(target)) return;
-        const root = createRoot(target);
-        reactRootMap.set(target, root);
-        root.render(content);
-      },
-      onUpdated(content, target) {
-        reactRootMap.get(target)?.render(content);
-      },
-      onBeforeUnmount(target) {
-        reactRootMap.get(target)?.unmount();
-      },
-    });
+    // lazy import react
+    (async () => {
+      const {
+        default: { isValidElement },
+      } = await import('react');
+      const {
+        default: { createRoot },
+      } = await import('react-dom/client');
+      const reactRootMap = new WeakMap();
+      registerCustomRenderer('react', {
+        isValidContent(content) {
+          return isValidElement(content);
+        },
+        onMounted(content, target) {
+          if (reactRootMap.has(target)) return;
+          const root = createRoot(target);
+          reactRootMap.set(target, root);
+          root.render(content);
+        },
+        onUpdated(content, target) {
+          reactRootMap.get(target)?.render(content);
+        },
+        onBeforeUnmount(target) {
+          reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
+        },
+      });
+    })();
 
     if (typeof document !== 'undefined') console.log('GlobalStaticConfig', GlobalStaticConfig);
     defineAllComponents();
-    // ...
   },
 };

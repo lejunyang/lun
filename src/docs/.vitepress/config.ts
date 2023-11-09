@@ -67,6 +67,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: '/lun/',
   title: 'Lun',
   description: 'Web components',
   vue: {
