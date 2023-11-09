@@ -36,13 +36,13 @@ export interface CreateSyncHook {
   ): {
     use(handler: InnerHandler, params?: HookUseParams): () => void;
     eject(handler: InnerHandler): void;
-    exec(arg: Arg): Arg;
+    exec(arg: Arg, stopWhen?: () => boolean): Arg;
     getListeners(): InnerHandler[];
     state: { innerHandlers: InnerHandler[] };
   };
 }
 
-export const createSyncHooks: CreateSyncHook = function createSyncHooks<
+export const createSyncHook: CreateSyncHook = function createSyncHooks<
   Handler extends (arg: Arg, context?: HookUseContext<SyncInnerHandler<Handler>>) => Arg | void = () => void,
   Arg extends unknown = Parameters<Handler>[0],
   InnerHandler extends Function = SyncInnerHandler<Handler>
@@ -64,14 +64,14 @@ export const createSyncHooks: CreateSyncHook = function createSyncHooks<
     if (index > -1) state.innerHandlers.splice(index, 1);
   };
 
-  const exec = (arg: Arg): Arg => {
+  const exec = (arg: Arg, stopWhen?: () => boolean): Arg => {
     if (state.innerHandlers.length === 0) return arg;
     const innerHandlers = [...state.innerHandlers];
     let index = 0;
     let innerHandler = innerHandlers[index];
     let isStopped = false;
     let hasOnce = false;
-    while (innerHandler) {
+    while (innerHandler && (!stopWhen || !stopWhen())) {
       hasOnce ||= onceSet.has(innerHandler);
       const context = {
         currentIndex: index,
@@ -113,12 +113,12 @@ export interface CreateAsyncHook {
   >(): {
     use(handler: InnerHandler, params?: HookUseParams): () => void;
     eject(handler: InnerHandler): void;
-    exec(arg: Arg): Promise<Arg>;
+    exec(arg: Arg, stopWhen?: () => boolean): Promise<Arg>;
     getListeners(): InnerHandler[];
   };
 }
 
-export const createHooks: CreateAsyncHook = function createHooks<
+export const createAsyncHook: CreateAsyncHook = function createHooks<
   Handler extends (
     arg: Arg,
     context?: HookUseContext<AsyncInnerHandler<Handler>>
@@ -143,14 +143,14 @@ export const createHooks: CreateAsyncHook = function createHooks<
     if (index > -1) innerHandlers.splice(index, 1);
   };
 
-  const exec = async (arg: Arg): Promise<Arg> => {
+  const exec = async (arg: Arg, stopWhen?: () => boolean): Promise<Arg> => {
     if (innerHandlers.length === 0) return arg;
     let index = 0;
     const handlers = [...innerHandlers];
     let innerHandler = handlers[index];
     let isStopped = false;
     let hasOnce = false;
-    while (!!innerHandler) {
+    while (!!innerHandler && (!stopWhen || !stopWhen())) {
       hasOnce ||= onceSet.has(innerHandler);
       const context = {
         currentIndex: index,
