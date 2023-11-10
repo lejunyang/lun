@@ -1,4 +1,4 @@
-import { isSupportCSSStyleSheet, isNumber } from '@lun/utils';
+import { isSupportCSSStyleSheet, isNumber, numbersEqual, greaterThan, lessThan } from '@lun/utils';
 import { error } from '../../utils';
 import {
   getInitialDefaultAnimationRegistry,
@@ -159,6 +159,7 @@ export const GlobalStaticConfig = new Proxy(
     math: createMath<number | Number>({
       isNumber,
       isNaN: Number.isNaN,
+      isZero: (target) => target === 0,
       toNumber: (target) => Number(target),
       // @ts-ignore
       plus: (target, delta) => target + delta,
@@ -166,6 +167,9 @@ export const GlobalStaticConfig = new Proxy(
       minus: (target, delta) => target - delta,
       max: Math.max,
       min: Math.min,
+      equals: numbersEqual,
+      greaterThan,
+      lessThan,
     })
   },
   {
