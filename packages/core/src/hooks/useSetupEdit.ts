@@ -1,4 +1,4 @@
-import type { ComputedRef } from 'vue';
+import type { ComputedRef, MaybeRef, Ref } from 'vue';
 import { inject, getCurrentInstance, computed, provide, reactive } from 'vue';
 
 export type EditState = {
@@ -11,12 +11,12 @@ export type EditState = {
   readonly interactive: boolean;
   readonly editable: boolean;
 };
-
+export type LocalEditState = Pick<EditState, 'disabled' | 'readonly' | 'loading'>;
 export const EDIT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-edit-provider-key' : '');
 
 export function useSetupEdit(options?: {
   adjust?: (state: EditState) => EditState | null | void;
-  initialLocalState?: Pick<EditState, 'disabled' | 'readonly' | 'loading'>;
+  initialLocalState?: LocalEditState;
   noInherit?: boolean;
 }) {
   const { adjust, initialLocalState, noInherit } = options || {};
@@ -25,12 +25,7 @@ export function useSetupEdit(options?: {
     if (__DEV__) throw new Error('Do not use `useSetupEdit` outside the setup function scope');
   }
   const parentEditComputed = noInherit ? undefined : inject<ComputedRef<EditState> | undefined>(EDIT_PROVIDER_KEY);
-  const localState = reactive({
-    disabled: false,
-    readonly: false,
-    loading: false,
-    ...initialLocalState,
-  });
+  const localState = reactive({ disabled: false, readonly: false, loading: false, ...initialLocalState });
   const currentEditComputed = computed(() => {
     let finalState: EditState;
     let { disabled, readonly, loading, forceInheritDisabled, forceInheritLoading, forceInheritReadonly } =
