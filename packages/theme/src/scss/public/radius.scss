@@ -12,7 +12,7 @@
     --radius-thumb: 0.5px;
   }
 
-  &[#{$radius-name}='medium'] {
+  &[#{$radius-name}='medium'], &:not([#{$radius-name}]) {
     #{$factor}: 1;
     --radius-full: 0px;
     --radius-thumb: 9999px;
@@ -30,10 +30,8 @@
     --radius-thumb: 9999px;
   }
 
-  &[#{$radius-name}] {
-    @for $i from 1 through length($radius-list) {
-      $size: nth($radius-list, $i);
-      #{getVarName(($radius-name, $i))}: calc(#{$size} * var(#{getScaleVarName()}) * var(#{$factor}));
-    }
+  @for $i from 1 through length($radius-list) {
+    $size: nth($radius-list, $i);
+    #{getVarName(($radius-name, $i))}: calc(#{$size} * var(#{getScaleVarName()}) * var(#{$factor}));
   }
 }
