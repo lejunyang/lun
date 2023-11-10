@@ -10,6 +10,8 @@ export type FormProvideExtra = {
   formData: ComputedRef<Record<string, any>>;
   getValue: (name: string | string[]) => any;
   setValue: (name: string | string[], value: any) => void;
+  deletePath: (name: string | string[]) => void;
+  isPlainName: (name?: string) => boolean;
   formState: {
     errors: any;
     isChanged: boolean;
