@@ -8,6 +8,10 @@ type UpdateValueParam = {
   value: any;
 };
 export const getHooks = () => ({
+  // form lifecycle
+  onFormSetup: createSyncHook<() => void>(),
+  onFormMount: createSyncHook<() => void>(),
+  onFormUnmount: createSyncHook<() => void>(),
   // value updated
   onUpdateValue: createSyncHook<(param: UpdateValueParam) => UpdateValueParam | undefined>(),
   onFormReset: createSyncHook<() => void>(),
