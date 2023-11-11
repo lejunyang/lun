@@ -38,6 +38,10 @@ export const Button = defineSSRCustomElement({
         holdAnimationDone = true;
         handleClick.value();
       },
+      onContextmenu(e: MouseEvent) {
+        // In some mobile browsers, contextmenu and text selection will be triggered when long press, need to prevent it when holdOn is true
+        if (holdOnShow.value) e.preventDefault();
+      },
     };
     const handleClick = computed(() => {
       if (props.debounce! > 0) return debounce(handler.onClick, props.debounce);
@@ -67,6 +71,7 @@ export const Button = defineSSRCustomElement({
           // find that pointerout will be triggered when hold-on element grows to the pointer position, use pointerleave instead
           onPointerleave={handler.hideHoldOn}
           onPointercancel={handler.hideHoldOn}
+          onContextmenu={handler.onContextmenu}
           part="button"
           style={ns.v({ 'hold-on': props.holdOn && `${props.holdOn}ms` })}
         >
