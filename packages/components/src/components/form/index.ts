@@ -1,5 +1,4 @@
-import { createCollector } from '@lun/core';
-import { ComputedRef } from 'vue';
+import { UseFormReturn, createCollector } from '@lun/core';
 import { FormProps } from './type';
 import { FormItemProps } from '../form-item';
 
@@ -7,15 +6,11 @@ export * from './Form';
 export type { FormProps } from './type';
 
 export type FormProvideExtra = {
-  formData: ComputedRef<Record<string, any>>;
+  form: UseFormReturn;
   getValue: (name: string | string[]) => any;
   setValue: (name: string | string[], value: any) => void;
   deletePath: (name: string | string[]) => void;
   isPlainName: (name?: string) => boolean;
-  formState: {
-    errors: any;
-    isChanged: boolean;
-  };
   formProps: FormProps;
 };
 

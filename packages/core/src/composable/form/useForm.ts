@@ -10,22 +10,24 @@ export type FormState = {
   dirtyFields: Set<string>;
 } & LocalEditState;
 
-export type UseFormOptions<Data extends object = Record<string, any>> = {
+export type CommonObject = Record<string | number | symbol, any>;
+
+export type UseFormOptions<Data extends CommonObject = CommonObject> = {
   defaultFormData?: Partial<Data>;
   defaultFormState?: Partial<FormState>;
   hooks?: FormHooksOptions;
 };
 
-export type UseFormReturnOptions<Data extends object = Record<string, any>> = UnwrapNestedRefs<UseFormOptions<Data>>;
+export type UseFormReturnOptions<Data extends CommonObject = CommonObject> = UnwrapNestedRefs<UseFormOptions<Data>>;
 
-export type ProcessedFormParams<Data extends object = Record<string, any>> = {
+export type ProcessedFormParams<Data extends CommonObject = CommonObject> = {
   formData: Ref<Data>;
   formState: Ref<FormState>;
   hooks: FormHooks;
   getDefaultFormState(): FormState;
 };
 
-export function useForm<Data extends object = Record<string, any>>(_options: UseFormOptions<Data>) {
+export function useForm<Data extends CommonObject = CommonObject>(_options: UseFormOptions<Data>) {
   const options = reactive(_options) as UseFormOptions;
   const formData = ref(deepCopy(options.defaultFormData || {})) as Ref<Data>;
   const getDefaultFormState = () =>
@@ -73,3 +75,5 @@ export function useForm<Data extends object = Record<string, any>>(_options: Use
     hooks,
   };
 }
+
+export type UseFormReturn = ReturnType<typeof useForm>;

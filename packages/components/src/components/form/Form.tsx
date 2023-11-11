@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit } from '@lun/core';
-import { createDefineElement } from 'utils';
+import { useForm, useSetupEdit } from '@lun/core';
+import { createDefineElement, warn } from 'utils';
 import { formProps } from './type';
 import { useCEExpose, useNamespace } from 'hooks';
 import { FormItemCollector, FormProvideExtra } from '.';
-import { computed, reactive, ref } from 'vue';
-import { isArray, isObject, objectGet, objectSet, stringToPath } from '@lun/utils';
+import { computed, reactive, ref, watch } from 'vue';
+import { isArray, isObject, objectGet, objectSet, pick, stringToPath } from '@lun/utils';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -14,25 +14,28 @@ export const Form = defineSSRCustomElement({
   emits: ['update'],
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const [editComputed, editState] = useSetupEdit();
-    const localFormData = ref<Record<string, any>>({});
-    const formData = computed(() => (props.formData ? reactive(props.formData) : localFormData.value));
-    const formState = reactive({
-      errors: {},
-      isChanged: false,
-    });
+    const form = isObject(props.form) ? props.form : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
+    __DEV__ &&
+      watch(
+        () => props.form,
+        () => {
+          warn(`Prop 'form' cannot be dynamically changed, should be set before form mount`);
+        }
+      );
+    form.setup();
+
     const methods: Pick<FormProvideExtra, 'getValue' | 'setValue' | 'deletePath' | 'isPlainName'> = {
       getValue(path) {
         if (!path) return;
-        if (isArray(path) || !methods.isPlainName(path)) return objectGet(formData.value, path);
-        else return formData.value[path];
+        if (isArray(path) || !methods.isPlainName(path)) return objectGet(form.formData, path);
+        else return form.formData[path];
       },
       setValue(path, value) {
         if (!path) return;
-        if (isArray(path) || !methods.isPlainName(path)) objectSet(formData.value, path, value);
-        else localFormData.value[path] = value;
+        if (isArray(path) || !methods.isPlainName(path)) objectSet(form.formData, path, value);
+        else form.formData[path] = value;
         emit('update', {
-          formData: formData.value,
+          formData: form.formData,
           path,
           value,
         });
@@ -42,9 +45,9 @@ export const Form = defineSSRCustomElement({
         if (methods.isPlainName(path as any)) path = stringToPath(path as string);
         if (isArray(path)) {
           const last = path.pop();
-          const obj = objectGet(formData.value, path);
+          const obj = objectGet(form.formData, path);
           if (isObject(obj)) delete obj[last!];
-        } else delete localFormData.value[path];
+        } else delete form.formData[path];
       },
       isPlainName(name) {
         return props.plainName || plainNameSet.value.has(name);
@@ -55,10 +58,9 @@ export const Form = defineSSRCustomElement({
     });
     const formItems = FormItemCollector.parent({
       extraProvide: {
+        form,
         formProps: props,
-        formData,
         ...methods,
-        formState,
       },
     });
 
