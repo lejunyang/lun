@@ -1,6 +1,6 @@
 ## 所有表单组件
 
-<l-form :formData="state.formData">
+<l-form :form="form">
   <l-form-item name="input" label="输入">
     <l-input />
   </l-form-item>
@@ -32,6 +32,8 @@
 
 <script setup>
   import { reactive } from 'vue';
+  import { useForm } from '@lun/components';
+  const form = useForm();
   const state = reactive({
     formData: {},
     options: Array(2).fill(0).map((_, index) => ({ value: `option${index}`, label: `option${index}` }))
