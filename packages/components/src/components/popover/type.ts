@@ -3,8 +3,7 @@ import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
 
 export const popoverProps = {
-  // TODO rename
-  show: { type: Boolean, default: undefined },
+  open: { type: Boolean, default: undefined },
   target: { type: Object as PropType<MaybeRefLikeOrGetter<Element | VirtualElement>> },
   type: { type: String as PropType<'popover' | 'fixed' | 'teleport'> },
   to: { type: String },
@@ -24,6 +23,7 @@ export const popoverProps = {
   showArrow: { type: Boolean },
   // whether use transform to position, useful when has animation conflict
   useTransform: { type: Boolean, default: false },
+  beforeOpen: { type: Function as PropType<() => boolean | void> },
 };
 
 export type PopoverProps = ExtractPropTypes<typeof popoverProps>;

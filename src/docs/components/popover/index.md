@@ -111,7 +111,7 @@
 ## 虚拟元素
 
 <l-checkbox :checked="isOn" @update="isOn = $event.detail.checked">{{ isOn ? '关闭' : '开启'}}</l-checkbox>
-<l-popover class="popover-virtual" ref="virtualPop" :target="virtualEl" :show="isOn" >
+<l-popover class="popover-virtual" ref="virtualPop" :target="virtualEl" :open="isOn" >
   <div slot="pop-content" class="circle"></div>
 </l-popover>
 
