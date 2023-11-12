@@ -26,6 +26,7 @@ export const shadowComponents = Object.freeze([
   'select-option',
   'select-optgroup',
   'spin',
+  'tooltip',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
@@ -132,6 +133,7 @@ export const GlobalStaticConfig = new Proxy(
         size: '1' as const,
       },
       'theme-provider': {},
+      tooltip: {}
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */

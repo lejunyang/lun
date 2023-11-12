@@ -56,3 +56,4 @@ export * from './radio';
 export * from './select';
 export * from './spin';
 export * from './theme-provider';
+export * from './tooltip';
