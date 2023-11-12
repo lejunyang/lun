@@ -1,5 +1,3 @@
-import { CSSProperties } from 'vue';
-
 let _context: CanvasRenderingContext2D;
 const FONT_KEYS = [
 	'fontWeight',
@@ -25,7 +23,7 @@ function getCanvasContext() {
 	return _context;
 }
 
-function getCanvasTextStyle(style: CSSProperties | CSSStyleDeclaration = getComputedStyle(document.body)) {
+function getCanvasTextStyle(style: CSSStyleDeclaration = getComputedStyle(document.body)) {
 	let font = '';
 	const textStyle: Partial<{ [key in (typeof TEXT_STYLE_KEYS)[number]]: string | number }> = {};
 	FONT_KEYS.forEach((k) => {
@@ -37,7 +35,7 @@ function getCanvasTextStyle(style: CSSProperties | CSSStyleDeclaration = getComp
 	return { ...textStyle, font: font.trim() };
 }
 
-export default function measureTextWidth(text: string, style?: CSSProperties | CSSStyleDeclaration) {
+export default function measureTextWidth(text: string, style?: CSSStyleDeclaration) {
 	let width = 0;
 	if (typeof window !== undefined) {
 		const { tabSize = 8 } = style || getComputedStyle(document.body);
