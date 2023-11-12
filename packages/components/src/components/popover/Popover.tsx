@@ -32,6 +32,8 @@ export const Popover = defineSSRCustomElement({
       else return Object.keys(support).find((i) => support[i as keyof typeof support]);
     });
     const show = () => {
+      const { beforeOpen } = props;
+      if (isFunction(beforeOpen) && beforeOpen() === false) return;
       const popover = popRef.value;
       const fixed = fixedRef.value;
       if (popover) popover.showPopover();
@@ -48,8 +50,8 @@ export const Popover = defineSSRCustomElement({
 
     // handle manually control visibility by outside
     watchEffect(() => {
-      if (props.show !== undefined) {
-        if (props.show) show();
+      if (props.open !== undefined) {
+        if (props.open) show();
         else hide();
       }
     });
@@ -65,7 +67,7 @@ export const Popover = defineSSRCustomElement({
 
     const { targetHandler, popContentHandler, options } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
-      manual: props.show !== undefined,
+      manual: props.open !== undefined,
       isShow,
       show,
       hide,
@@ -136,7 +138,7 @@ export const Popover = defineSSRCustomElement({
         openPopover: show,
         closePopover: hide,
         togglePopover: toggle,
-        isShow: () => (props.show !== undefined ? !!props.show : isShow.value),
+        isOpen: () => (props.open !== undefined ? !!props.open : isShow.value),
         updatePosition: update,
       },
       toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' })
