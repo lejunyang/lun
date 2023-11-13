@@ -1,9 +1,9 @@
-import { ExtractPropTypes } from 'vue';
+import { ExtractPropTypes, PropType } from 'vue';
 import { popoverProps } from '../popover/type';
 
 export const tooltipProps = {
   ...popoverProps,
-  overflowOnly: { type: Boolean },
+  overflow: { type: String as PropType<'enable' | 'open'> },
 };
 
 export type TooltipProps = ExtractPropTypes<typeof tooltipProps>;
