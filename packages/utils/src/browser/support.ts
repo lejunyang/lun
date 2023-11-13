@@ -13,3 +13,5 @@ export const isSupportPopover = cacheFunctionResult(() => isClient() && 'popover
 export const isSupportDialog = cacheFunctionResult(
   () => isClient() && typeof HTMLDialogElement !== 'undefined' && 'open' in HTMLDialogElement.prototype
 );
+
+export const isSupportResizeObserver = cacheFunctionResult(() => typeof ResizeObserver === 'function');
