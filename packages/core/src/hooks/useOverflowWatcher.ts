@@ -8,10 +8,11 @@ export type UseOverflowWatcherOptions = {
   elGetter: () => HTMLElement | undefined | null;
   onOverflowChange?: (isOverflow: boolean) => void;
   box?: ResizeObserverBoxOptions;
+  getText?: (el: HTMLElement) => string;
 };
 
 export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
-  const { elGetter, onOverflowChange, box, disable } = options;
+  const { elGetter, onOverflowChange, box, disable, getText } = options;
   const overflow = ref(false);
 
   let observer: ResizeObserver | null = null;
@@ -19,7 +20,7 @@ export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
   const updateOverflow = () => {
     const el = elGetter();
     if (!el) return;
-    const temp = isOverflow(el);
+    const temp = isOverflow(el, { getText });
     if (temp !== overflow.value) {
       overflow.value = temp;
       onOverflowChange && onOverflowChange(temp);
