@@ -14,17 +14,21 @@ export function getContentWidth(element: HTMLElement, computedStyle: CSSStyleDec
   return contentWidth - pl - pr - bl - br;
 }
 
-export function isOverflow(element: HTMLElement, getText?: (el: HTMLElement) => string) {
+export function isOverflow(
+  element: HTMLElement,
+  options?: { getText?: (el: HTMLElement) => string; trim?: boolean; measure?: boolean }
+) {
+  const { getText, trim = true, measure = true } = options || {};
   const { innerText, ownerDocument } = element; // use innerText, textContent will get all text including hidden text(display: none, popover, etc.)
-  const text = getText ? getText(element) : innerText;
+  // but sometimes we need to specify text, i.e. popover, when it's show, text of pop content will be included in innerText
+  let text = getText ? getText(element) : innerText;
+  if (trim) text = text.trim();
   const { value } = element as HTMLInputElement;
   if ((value || text) && ownerDocument) {
     const { clientWidth, scrollWidth } = element;
-    if (scrollWidth > clientWidth) {
-      return true;
-    }
+    if (scrollWidth > clientWidth) return true;
     const { defaultView } = ownerDocument;
-    if (defaultView) {
+    if (measure && defaultView) {
       const computedStyle = defaultView.getComputedStyle(element);
       const contentWidth = Math.round(getContentWidth(element, computedStyle));
       const textWidth = Math.round(measureTextWidth(text || value, computedStyle));
