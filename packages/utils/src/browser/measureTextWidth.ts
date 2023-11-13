@@ -35,7 +35,7 @@ function getCanvasTextStyle(style: CSSStyleDeclaration = getComputedStyle(docume
 	return { ...textStyle, font: font.trim() };
 }
 
-export default function measureTextWidth(text: string, style?: CSSStyleDeclaration) {
+export function measureTextWidth(text: string, style?: CSSStyleDeclaration) {
 	let width = 0;
 	if (typeof window !== undefined) {
 		const { tabSize = 8 } = style || getComputedStyle(document.body);
