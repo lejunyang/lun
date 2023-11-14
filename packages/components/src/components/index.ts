@@ -11,6 +11,7 @@ import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptGroup } from './select';
 import { defineSpin, importSpinStyle } from './spin';
 import { defineThemeProvider } from './theme-provider';
+import { defineTooltip } from './tooltip/Tooltip';
 
 export function importAllBasicStyles() {
   importButtonStyle();
@@ -39,6 +40,7 @@ export function defineAllComponents() {
   defineSelectOptGroup();
   defineSpin();
   defineThemeProvider();
+  defineTooltip();
 }
 
 export * from './animation';
