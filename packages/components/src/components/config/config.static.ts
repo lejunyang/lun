@@ -45,7 +45,7 @@ const styles = shadowComponents.reduce(
   { common: [] } as unknown as ComponentStyles
 );
 
-const langRef = ref('zh_CN');
+const langRef = ref('zh-CN');
 
 /**
  * use `initStaticConfig` to set up your personal config\
@@ -172,7 +172,7 @@ export const GlobalStaticConfig = new Proxy(
       equals: numbersEqual,
       greaterThan,
       lessThan,
-    })
+    }),
   },
   {
     get(target, p, receiver) {
