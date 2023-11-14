@@ -6,3 +6,5 @@ export * from './src/is';
 export * from './src/number';
 export * from './src/string';
 export * from './src/time';
+
+export * from './src/type';

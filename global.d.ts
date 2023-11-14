@@ -7,8 +7,3 @@ declare module '*.scss?inline' {
   const content: string;
   export default content;
 }
-
-type Fn = () => void;
-type AnyFn = (...args: any[]) => any;
-
-type EnsureParameters<T> = T extends (...args: infer P) => any ? P : never[];
