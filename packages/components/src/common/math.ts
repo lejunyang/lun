@@ -7,9 +7,9 @@ export type MathMethods<T = number> = {
   minus(target: T, delta: T): T;
   max(...args: T[]): T;
   min(...args: T[]): T;
-  equals(target: T, other: T): boolean;
-  greaterThan(target: T, other: T): boolean;
-  lessThan(target: T, other: T): boolean;
+  equals(left: T, right: T): boolean;
+  greaterThan(left: T, right: T): boolean;
+  lessThan(left: T, right: T): boolean;
 };
 
 export function createMath<T = number>(methods: MathMethods<T>) {
