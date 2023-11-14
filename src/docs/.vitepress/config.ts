@@ -14,7 +14,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: locales[lang].nav.home, link: wrapLink('/') },
-      { text: locales[lang].nav.components, link: wrapLink('/components/') },
+      { text: locales[lang].nav.components, link: wrapLink('/components/button/') },
     ],
     sidebar: {
       '/components/': [
@@ -52,6 +52,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           items: [
             { text: locales[lang].sidebar.pop.dialog, link: wrapLink('/components/dialog/') },
             { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/') },
+            { text: locales[lang].sidebar.pop.tooltip, link: wrapLink('/components/tooltip/') },
           ],
         },
         {
