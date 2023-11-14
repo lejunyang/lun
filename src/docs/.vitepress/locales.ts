@@ -28,6 +28,7 @@ export default {
         menu: '弹出组件',
         dialog: 'Dialog 弹窗',
         popover: 'Popover 弹出',
+        tooltip: 'Tooltip 提示',
       },
       feedback: {
         menu: '消息反馈',
@@ -64,6 +65,7 @@ export default {
         menu: 'Pop',
         dialog: 'Dialog',
         popover: 'Popover',
+        tooltip: 'Tooltip',
       },
       feedback: {
         menu: 'Feedback',
