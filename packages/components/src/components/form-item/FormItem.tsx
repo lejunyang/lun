@@ -70,8 +70,8 @@ export const FormItem = defineSSRCustomElement({
     });
     const validateProps = computed(() => {
       // TODO plainNameSet in form, depsMatch(deps: string[], match: (values: any[]) => boolean)
-      // transform min, max, lessThan, moreThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
-      const { min, max, lessThan, moreThan, len, step, precision, type, required, requireWhenDepRequired } = props;
+      // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
+      const { min, max, lessThan, greaterThan, len, step, precision, type, required, requireWhenDepRequired } = props;
       // TODO type === 'date'
       return {
         type,
@@ -79,7 +79,7 @@ export const FormItem = defineSSRCustomElement({
         min: transform(min),
         max: transform(max),
         lessThan: transform(lessThan),
-        moreThan: transform(moreThan),
+        greaterThan: transform(greaterThan),
         len: transform(len),
         step: transform(step),
         precision: transform(precision),

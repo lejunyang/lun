@@ -1,8 +1,8 @@
-import { PropType, ExtractPropTypes, Prop } from 'vue';
+import { PropType, ExtractPropTypes } from 'vue';
 import { editStateProps } from 'common';
 import { MaybePromise } from '@lun/core';
 
-export type Validator = (rule: any, value: any, data: any) => MaybePromise<string | string[] | void>;
+export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
 
 export const formItemProps = {
   ...editStateProps,
@@ -32,7 +32,7 @@ export const formItemProps = {
   requireWhenDepRequired: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
   min: { type: [Number, String] },
   max: { type: [Number, String] },
-  moreThan: { type: [Number, String] },
+  greaterThan: { type: [Number, String] },
   lessThan: { type: [Number, String] },
   pattern: { type: [RegExp, String] },
   len: { type: [Number, String] },
@@ -45,3 +45,15 @@ export const formItemProps = {
 };
 
 export type FormItemProps = ExtractPropTypes<typeof formItemProps>;
+export type Rule = {
+  type?: string;
+  min?: number;
+  max?: number;
+  required?: boolean;
+  greaterThan?: number;
+  lessThan?: number;
+  label?: string;
+}
+// export type ErrorMessageFactory = string | ((args: Record<string, any>) => string);
+export type RuleName = 'required' | 'min' | 'max' | 'greaterThan' | 'lessThan';
+// export type RuleMessageFactory = Record<RuleName, ErrorMessageFactory>;
