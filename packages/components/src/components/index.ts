@@ -10,6 +10,7 @@ import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptGroup } from './select';
 import { defineSpin, importSpinStyle } from './spin';
+import { defineSwitch } from './switch';
 import { defineThemeProvider } from './theme-provider';
 import { defineTooltip } from './tooltip/Tooltip';
 
@@ -39,6 +40,7 @@ export function defineAllComponents() {
   defineSelectOption();
   defineSelectOptGroup();
   defineSpin();
+  defineSwitch();
   defineThemeProvider();
   defineTooltip();
 }
@@ -57,5 +59,6 @@ export * from './popover';
 export * from './radio';
 export * from './select';
 export * from './spin';
+export * from './switch';
 export * from './theme-provider';
 export * from './tooltip';
