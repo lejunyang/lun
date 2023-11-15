@@ -26,6 +26,7 @@ export const shadowComponents = Object.freeze([
   'select-option',
   'select-optgroup',
   'spin',
+  'switch',
   'tooltip',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
