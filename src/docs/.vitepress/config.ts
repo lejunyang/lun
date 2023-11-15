@@ -36,6 +36,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/', lang) },
             { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/', lang) },
             { text: locales[lang].sidebar.dataInput.select, link: wrapLink('/components/select/', lang) },
+            { text: locales[lang].sidebar.dataInput.switch, link: wrapLink('/components/switch/', lang) },
           ],
         },
         {
@@ -159,15 +160,15 @@ export default defineConfig({
         docFooter: {
           prev: '上一页',
           next: '下一页',
-        }
-      }
+        },
+      },
     },
     en: {
       label: 'English',
       lang: 'en',
       themeConfig: {
         ...getThemeConfig('en'),
-      }
+      },
     },
   },
 });

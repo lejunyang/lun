@@ -17,7 +17,8 @@ export default {
         checkbox: 'Checkbox 复选框',
         input: 'Input 输入',
         radio: 'Radio 单选框',
-        select: 'Select 下拉列表'
+        select: 'Select 下拉列表',
+        switch: 'Switch 开关',
       },
       ft: {
         menu: '表单与表格',
@@ -46,7 +47,7 @@ export default {
         menu: 'Basic',
         button: 'Button',
         icon: 'Icon',
-        renderer: 'CustomRenderer 自定义渲染',
+        renderer: 'CustomRenderer',
       },
       dataInput: {
         menu: 'DataInput',
@@ -54,7 +55,8 @@ export default {
         checkbox: 'Checkbox',
         input: 'Input',
         radio: 'Radio',
-        select: 'Select'
+        select: 'Select',
+        switch: 'Switch',
       },
       ft: {
         menu: 'Form & Table',
