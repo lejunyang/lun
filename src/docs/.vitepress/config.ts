@@ -4,17 +4,17 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import postcssLogical from 'postcss-logical';
 import locales from './locales';
 
-const wrapLink = (link: string, lang: string = 'zh') => {
-  if (lang === 'zh') return link;
-  else return `/${lang}${link}`;
+const wrapLink = (link: string, lang: string) => {
+  if (lang === 'zh-CN') return link;
+  return `/${lang}${link}`;
 };
 
-const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
+const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
   return {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: locales[lang].nav.home, link: wrapLink('/') },
-      { text: locales[lang].nav.components, link: wrapLink('/components/button/') },
+      { text: locales[lang].nav.home, link: wrapLink('/', lang) },
+      { text: locales[lang].nav.components, link: wrapLink('/components/button/', lang) },
     ],
     sidebar: {
       '/components/': [
@@ -22,27 +22,27 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           text: locales[lang].sidebar.basic.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.basic.button, link: wrapLink('/components/button/') },
-            { text: locales[lang].sidebar.basic.icon, link: wrapLink('/components/icon/') },
-            { text: locales[lang].sidebar.basic.renderer, link: wrapLink('/components/custom-renderer/') },
+            { text: locales[lang].sidebar.basic.button, link: wrapLink('/components/button/', lang) },
+            { text: locales[lang].sidebar.basic.icon, link: wrapLink('/components/icon/', lang) },
+            { text: locales[lang].sidebar.basic.renderer, link: wrapLink('/components/custom-renderer/', lang) },
           ],
         },
         {
           text: locales[lang].sidebar.dataInput.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.dataInput.baseInput, link: wrapLink('/components/base-input/') },
-            { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/') },
-            { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/') },
-            { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/') },
-            { text: locales[lang].sidebar.dataInput.select, link: wrapLink('/components/select/') },
+            { text: locales[lang].sidebar.dataInput.baseInput, link: wrapLink('/components/base-input/', lang) },
+            { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/', lang) },
+            { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/', lang) },
+            { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/', lang) },
+            { text: locales[lang].sidebar.dataInput.select, link: wrapLink('/components/select/', lang) },
           ],
         },
         {
           text: locales[lang].sidebar.ft.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.ft.form, link: wrapLink('/components/form/') },
+            { text: locales[lang].sidebar.ft.form, link: wrapLink('/components/form/', lang) },
             // { text: locales[lang].sidebar.ft.table, link: wrapLink('/components/table/') },
           ],
         },
@@ -50,15 +50,15 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh') => {
           text: locales[lang].sidebar.pop.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.pop.dialog, link: wrapLink('/components/dialog/') },
-            { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/') },
-            { text: locales[lang].sidebar.pop.tooltip, link: wrapLink('/components/tooltip/') },
+            { text: locales[lang].sidebar.pop.dialog, link: wrapLink('/components/dialog/', lang) },
+            { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/', lang) },
+            { text: locales[lang].sidebar.pop.tooltip, link: wrapLink('/components/tooltip/', lang) },
           ],
         },
         {
           text: locales[lang].sidebar.feedback.menu,
           collapsed: false,
-          items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/') }],
+          items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) }],
         },
       ],
     },
@@ -138,6 +138,7 @@ export default defineConfig({
                 footer: {
                   selectText: '选择',
                   navigateText: '切换',
+                  closeText: '关闭',
                 },
               },
             },
@@ -149,13 +150,24 @@ export default defineConfig({
   locales: {
     root: {
       label: '中文',
-      lang: 'zh',
-      themeConfig: getThemeConfig('zh'),
+      lang: 'zh-CN',
+      themeConfig: {
+        ...getThemeConfig('zh-CN'),
+        outline: {
+          label: '大纲',
+        },
+        docFooter: {
+          prev: '上一页',
+          next: '下一页',
+        }
+      }
     },
     en: {
       label: 'English',
       lang: 'en',
-      themeConfig: getThemeConfig('en'),
+      themeConfig: {
+        ...getThemeConfig('en'),
+      }
     },
   },
 });

@@ -3,17 +3,17 @@ layout: home
 
 hero:
   name: Lun
-  text: 基于Vue3的跨框架Web组件库
-  tagline: 个人学习，勿用于生产环境
+  text: Web Components base on Vue3
+  tagline: Lorem ipsum...
   image:
     src: /logo.png
     alt: VitePress
   actions:
     - theme: brand
-      text: 开始
+      text: Get Started
       link: /components/button/
     - theme: alt
-      text: 查看源码
+      text: View on GitHub
       link: https://github.com/lejunyang/lun
 features:
   - icon: 🛠️
