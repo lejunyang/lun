@@ -1,5 +1,5 @@
 export default {
-  zh: {
+  'zh-CN': {
     nav: {
       home: '主页',
       components: '组件',
