@@ -1,4 +1,5 @@
-import type { WritableComputedRef, UnwrapRef, Ref } from 'vue';
+import { AnyFn } from '@lun/utils';
+import type { WritableComputedRef, UnwrapRef, Ref, ComponentInternalInstance } from 'vue';
 import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 
 // inspired by @vue/use useVModel
@@ -25,10 +26,10 @@ export function createUseModel<DK extends string, E extends () => any>({
 }: {
   defaultKey: DK;
   defaultEvent: string;
-  handleDefaultEmit?: (fn: AnyFn) => AnyFn;
+  handleDefaultEmit?: (fn: AnyFn, vm: ComponentInternalInstance) => AnyFn;
   extra?: E;
-  getFromExtra?: (extra: ReturnType<E>) => any;
-  setByExtra?: (extra: ReturnType<E>, value: any) => void;
+  getFromExtra?: (extra: ReturnType<E> & {}) => any;
+  setByExtra?: (extra: ReturnType<E> & {}, value: any) => void;
 }) {
   return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
     props: P,
@@ -41,7 +42,7 @@ export function createUseModel<DK extends string, E extends () => any>({
     const vm = getCurrentInstance();
     if (!emit && vm) {
       emit = vm.emit || vm.proxy?.$emit?.bind(vm.proxy);
-      if (handleDefaultEmit) emit = handleDefaultEmit(emit);
+      if (handleDefaultEmit) emit = handleDefaultEmit(emit, vm);
     }
     const cloneFn = (val: P[K]) =>
       !clone ? val : clone instanceof Function ? clone(val) : JSON.parse(JSON.stringify(val));
