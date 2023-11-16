@@ -1,49 +1,57 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement } from 'utils';
-import { useNamespace, useSetupContextEvent, useVModelCompatible } from 'hooks';
+import { createDefineElement, renderElement } from 'utils';
+import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
 import { switchProps } from './type';
+import { defineSpin } from '../spin/Spin';
 
 const name = 'switch';
 export const Switch = defineSSRCustomFormElement({
   name,
   props: switchProps,
   emits: ['update'],
-  setup(props, { emit }) {
+  setup(props) {
     const ns = useNamespace(name);
     useSetupContextEvent();
+    const checkedModel = useCheckedModel(props, {
+      passive: true,
+    });
     const [editComputed] = useSetupEdit();
-    const [updateVModel] = useVModelCompatible();
 
     const inputHandlers = {
       onChange(e: Event) {
         const { checked } = e.target as HTMLInputElement;
-        const value = checked ? props.trueValue : props.falseValue;
-        emit('update', {
-          value,
-          checked,
-        });
-        updateVModel(value);
+        checkedModel.value = checked;
       },
     };
 
     return () => {
+      const checked = checkedModel.value;
+      const { spinProps, trueText, falseText } = props;
+      const { readonly, disabled, loading } = editComputed.value;
       return (
         <>
-          <label part="root">
+          <label
+            part="root"
+            class={[ns.b(), ns.is('checked', checked), ns.is('loading', loading), ns.is('disabled', disabled)]}
+          >
             <input
               part="input"
               type="checkbox"
               role="switch"
-              checked={props.checked}
-              aria-checked={props.checked}
-              readonly={editComputed.value.readonly}
-              disabled={editComputed.value.disabled}
+              checked={checked}
+              aria-checked={checked}
+              readonly={readonly}
+              disabled={disabled}
               hidden
               {...inputHandlers}
             />
-            <span part="wrapper">
-              <span part="thumb"></span>
+            <span part="wrapper" class={ns.e('wrapper')}>
+              {checked && <slot name="checked">{trueText}</slot>}
+              <span part="thumb" class={[ns.e('thumb')]}>
+                {loading && <slot name="loading">{renderElement('spin', spinProps)}</slot>}
+              </span>
+              {!checked && <slot name="unchecked">{falseText}</slot>}
             </span>
           </label>
         </>
@@ -64,4 +72,6 @@ declare global {
   }
 }
 
-export const defineSwitch = createDefineElement(name, Switch);
+export const defineSwitch = createDefineElement(name, Switch, {
+  spin: defineSpin,
+});
