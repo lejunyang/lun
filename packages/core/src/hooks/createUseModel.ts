@@ -10,7 +10,7 @@ interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false,
   deep?: boolean;
   extraSource?: () => T;
   clone?: boolean | ((val: T) => T);
-  shouldEmit?: (v: T) => boolean;
+  shouldEmit?: false | ((v: T) => boolean);
   emit?: (name: string, ...args: any[]) => void;
   key?: K;
 }
@@ -56,6 +56,7 @@ export function createUseModel<DK extends string, E extends () => any>({
         : undefined;
     };
     const triggerEmit = (value: P[K]) => {
+      if (shouldEmit === false) return;
       if (!shouldEmit || shouldEmit(value)) {
         emit!(event, value);
       }

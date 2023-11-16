@@ -2,28 +2,37 @@ import { defineSSRCustomFormElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, warn } from 'utils';
-import { useSetupContextEvent, useVModelCompatible } from 'hooks';
+import { useCheckedModel, useNamespace, useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
 import { CheckboxUpdateDetail, checkboxProps } from './type';
 
+const name = 'checkbox';
 export const Checkbox = defineSSRCustomFormElement({
-  name: 'checkbox',
+  name,
   props: checkboxProps,
   emits: {
     update: (_detail: CheckboxUpdateDetail) => null,
   },
   setup(props, { emit }) {
+    const ns = useNamespace(name);
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
-    const [updateVModel] = useVModelCompatible();
     const checkboxContext = CheckboxCollector.child();
+    // if it's under CheckboxGroup, it will not be considered as a model
+    const checkedModal = checkboxContext
+      ? undefined
+      : useCheckedModel(props, {
+          passive: true,
+          shouldEmit: false,
+        });
+    const [updateVModel] = useVModelCompatible();
     if (__DEV__) {
       if (checkboxContext && props.value == null)
         warn(
-          `Please assign the 'value' prop with a defined value to the radio component that it's under the radio-group, or it will be ignored`
+          `Please assign the 'value' prop with a defined value to the checkbox that it's under a checkbox-group, or it will be ignored`
         );
       if (props.checkForAll && !checkboxContext)
-        warn(`radio with 'checkForAll' only works under radio-group, unless you want to manipulate it manually`);
+        warn(`checkbox with 'checkForAll' only works under checkbox-group, unless you want to manipulate it manually`);
     }
 
     const intermediate = computed(() => {
@@ -31,22 +40,25 @@ export const Checkbox = defineSSRCustomFormElement({
       return props.checkForAll && checkboxContext.radioState.value.intermediate;
     });
     const checked = computed(() => {
-      if (!checkboxContext || props.excludeFromGroup) return props.checked;
+      if (!checkboxContext || props.excludeFromGroup) return checkedModal?.value ?? props.checked;
       const { radioState } = checkboxContext;
       const { allChecked, isChecked } = radioState.value;
       return allChecked || (!props.checkForAll && isChecked(props.value));
     });
     const handler = {
       onChange(e: Event) {
-        const target = e.target as HTMLInputElement;
+        const { checked } = e.target as HTMLInputElement;
+        // if it's under CheckboxGroup, use value prop as checked value
+        const value = checkboxContext ? props.value : checked ? props.trueValue : props.falseValue;
+        if (checkedModal) checkedModal.value = checked;
         emit('update', {
-          value: props.value,
+          value,
           isCheckForAll: props.checkForAll,
-          checked: target.checked,
+          checked,
           onlyFor: props.onlyFor,
           excludeFromGroup: props.excludeFromGroup,
         });
-        updateVModel(props.value);
+        updateVModel(value);
       },
     };
     return () => {
@@ -57,12 +69,12 @@ export const Checkbox = defineSSRCustomFormElement({
       );
       return (
         <>
-          <label part="wrapper">
+          <label part="root">
             {props.labelPosition === 'start' && labelPart}
-            <span>
+            <span part="wrapper">
               <input
-                part="checkbox"
-                type="checkbox"
+                part="input"
+                type={name}
                 checked={checked.value}
                 indeterminate={intermediate.value}
                 value={props.value}
@@ -91,4 +103,4 @@ declare global {
   }
 }
 
-export const defineCheckbox = createDefineElement('checkbox', Checkbox);
+export const defineCheckbox = createDefineElement(name, Checkbox);
