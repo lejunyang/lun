@@ -4,6 +4,12 @@ import { ExtractPropTypes, PropType } from 'vue';
 export const checkboxProps = {
   ...editStateProps,
   value: {},
+  /**
+   * It's not recommended to use trueValue and falseValue in Checkbox, you may want to use Switch instead.
+   * They are only used for single Checkbox that's not under CheckboxGroup.
+   */
+  trueValue: {},
+  falseValue: {},
   label: { type: String },
   labelPosition: { type: String as PropType<LogicalPosition> },
   checked: { type: Boolean },
