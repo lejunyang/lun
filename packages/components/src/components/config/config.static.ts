@@ -28,6 +28,7 @@ export const shadowComponents = Object.freeze([
   'spin',
   'switch',
   'tooltip',
+  'upload',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
@@ -88,7 +89,6 @@ export const GlobalStaticConfig = new Proxy(
         labelPosition: 'end' as const,
       },
       'checkbox-group': {
-        looseEqual: false,
       },
       'custom-renderer': {},
       dialog: {
@@ -123,7 +123,6 @@ export const GlobalStaticConfig = new Proxy(
         labelPosition: 'end' as const,
       },
       'radio-group': {
-        looseEqual: false,
       },
       select: {},
       'select-option': {},
@@ -133,8 +132,13 @@ export const GlobalStaticConfig = new Proxy(
         strokeWidth: 4,
         size: '1' as const,
       },
+      switch: {
+        trueValue: true,
+        falseValue: false,
+      },
       'theme-provider': {},
-      tooltip: {}
+      tooltip: {},
+      upload: {},
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */
