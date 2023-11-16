@@ -17,9 +17,8 @@ export const Radio = defineSSRCustomFormElement({
     const radioContext = RadioCollector.child();
     const checked = computed(() => {
       if (!radioContext?.parent) return props.checked;
-      const { looseEqual } = radioContext.parent.props;
       const { value } = radioContext.valueModel;
-      return looseEqual ? value == props.value : value === props.value;
+      return value === props.value;
     });
     const handler = {
       onChange() {

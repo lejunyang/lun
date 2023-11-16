@@ -16,7 +16,6 @@ export type RadioOptions = { label: string; value: any }[];
 export const radioGroupProps = {
   ...editStateProps,
   value: {},
-  looseEqual: { type: Boolean },
   options: { type: Array as PropType<RadioOptions> },
 };
 
