@@ -3,7 +3,7 @@
 
 
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-amber-a1: hsla(40, 94.9%, 38.7%, 0.016);
     --#{$namespace}-amber-a2: hsla(40, 100%, 50.3%, 0.071);
     --#{$namespace}-amber-a3: hsla(45, 100%, 50.2%, 0.185);
@@ -19,7 +19,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-amber-a1: hsla(0, 100%, 49.0%, 0.031);
     --#{$namespace}-amber-a2: hsla(6, 100%, 49.4%, 0.057);
     --#{$namespace}-amber-a3: hsla(24, 100%, 50.0%, 0.104);
@@ -35,7 +35,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-amber-1: hsl(36, 100%, 6.1%);
     --#{$namespace}-amber-2: hsl(36, 80.5%, 8.0%);
     --#{$namespace}-amber-3: hsl(35, 63.4%, 11.4%);
@@ -51,7 +51,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-amber-1: hsl(39, 70.0%, 99.0%);
     --#{$namespace}-amber-2: hsl(40, 100%, 96.5%);
     --#{$namespace}-amber-3: hsl(45, 100%, 90.8%);
@@ -67,7 +67,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-black-a1: hsla(0, 0%, 0%, 0.012);
     --#{$namespace}-black-a2: hsla(0, 0%, 0%, 0.024);
     --#{$namespace}-black-a3: hsla(0, 0%, 0%, 0.055);
@@ -83,7 +83,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-blue-a1: hsla(210, 100%, 51.0%, 0.016);
     --#{$namespace}-blue-a2: hsla(210, 100%, 51.0%, 0.040);
     --#{$namespace}-blue-a3: hsla(210, 100%, 50.3%, 0.071);
@@ -99,7 +99,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-blue-a1: hsla(240, 100%, 49.5%, 0.035);
     --#{$namespace}-blue-a2: hsla(227, 100%, 50.0%, 0.091);
     --#{$namespace}-blue-a3: hsla(216, 100%, 50.0%, 0.169);
@@ -115,7 +115,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-blue-1: hsl(212, 35.0%, 9.2%);
     --#{$namespace}-blue-2: hsl(216, 50.0%, 11.8%);
     --#{$namespace}-blue-3: hsl(214, 57.6%, 15.6%);
@@ -131,7 +131,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-blue-1: hsl(206, 100%, 99.2%);
     --#{$namespace}-blue-2: hsl(210, 100%, 98.0%);
     --#{$namespace}-blue-3: hsl(209, 100%, 96.5%);
@@ -147,7 +147,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-bronze-a1: hsla(0, 89.3%, 18.3%, 0.012);
     --#{$namespace}-bronze-a2: hsla(17, 95.1%, 40.1%, 0.036);
     --#{$namespace}-bronze-a3: hsla(18, 98.3%, 29.8%, 0.067);
@@ -163,7 +163,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-bronze-a1: hsla(0, 100%, 43.9%, 0.005);
     --#{$namespace}-bronze-a2: hsla(15, 92.7%, 53.0%, 0.018);
     --#{$namespace}-bronze-a3: hsla(17, 99.6%, 78.8%, 0.065);
@@ -179,7 +179,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-bronze-1: hsl(17, 10.0%, 8.8%);
     --#{$namespace}-bronze-2: hsl(15, 7.7%, 10.2%);
     --#{$namespace}-bronze-3: hsl(15, 10.2%, 13.9%);
@@ -195,7 +195,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-bronze-1: hsl(15, 30.0%, 99.1%);
     --#{$namespace}-bronze-2: hsl(17, 63.6%, 97.8%);
     --#{$namespace}-bronze-3: hsl(17, 42.1%, 95.2%);
@@ -211,7 +211,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-brown-a1: hsla(30, 94.3%, 34.6%, 0.012);
     --#{$namespace}-brown-a2: hsla(30, 94.3%, 34.6%, 0.036);
     --#{$namespace}-brown-a3: hsla(30, 97.7%, 33.9%, 0.083);
@@ -227,7 +227,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-brown-a1: hsla(0, 100%, 48.3%, 0.009);
     --#{$namespace}-brown-a2: hsla(24, 100%, 50.0%, 0.026);
     --#{$namespace}-brown-a3: hsla(25, 98.5%, 67.7%, 0.074);
@@ -243,7 +243,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-brown-1: hsl(22, 15.0%, 8.7%);
     --#{$namespace}-brown-2: hsl(26, 13.2%, 10.4%);
     --#{$namespace}-brown-3: hsl(26, 17.4%, 13.6%);
@@ -259,7 +259,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-brown-1: hsl(30, 40.0%, 99.1%);
     --#{$namespace}-brown-2: hsl(30, 50.0%, 97.6%);
     --#{$namespace}-brown-3: hsl(30, 52.5%, 94.6%);
@@ -276,7 +276,7 @@
 }
 
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-crimson-a1: hsla(340, 100%, 51.0%, 0.012);
     --#{$namespace}-crimson-a2: hsla(330, 100%, 51.0%, 0.032);
     --#{$namespace}-crimson-a3: hsla(332, 99.1%, 47.1%, 0.063);
@@ -292,7 +292,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-crimson-a1: hsla(354, 100%, 49.3%, 0.022);
     --#{$namespace}-crimson-a2: hsla(338, 100%, 49.8%, 0.074);
     --#{$namespace}-crimson-a3: hsla(335, 99.8%, 54.7%, 0.143);
@@ -308,7 +308,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-crimson-1: hsl(335, 20.0%, 9.6%);
     --#{$namespace}-crimson-2: hsl(336, 32.3%, 12.2%);
     --#{$namespace}-crimson-3: hsl(336, 40.2%, 16.0%);
@@ -324,7 +324,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-crimson-1: hsl(332, 100%, 99.4%);
     --#{$namespace}-crimson-2: hsl(330, 100%, 98.4%);
     --#{$namespace}-crimson-3: hsl(331, 85.6%, 96.6%);
@@ -340,7 +340,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-cyan-a1: hsla(195, 95.2%, 41.2%, 0.020);
     --#{$namespace}-cyan-a2: hsla(185, 99.9%, 42.3%, 0.051);
     --#{$namespace}-cyan-a3: hsla(186, 97.8%, 42.2%, 0.095);
@@ -356,7 +356,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-cyan-a1: hsla(223, 100%, 49.3%, 0.022);
     --#{$namespace}-cyan-a2: hsla(207, 100%, 49.3%, 0.044);
     --#{$namespace}-cyan-a3: hsla(197, 100%, 49.6%, 0.096);
@@ -372,7 +372,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-cyan-1: hsl(192, 60.0%, 7.2%);
     --#{$namespace}-cyan-2: hsl(193, 51.1%, 8.8%);
     --#{$namespace}-cyan-3: hsl(193, 51.9%, 11.9%);
@@ -388,7 +388,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-cyan-1: hsl(185, 60.0%, 98.7%);
     --#{$namespace}-cyan-2: hsl(185, 73.3%, 97.1%);
     --#{$namespace}-cyan-3: hsl(186, 70.2%, 94.4%);
@@ -404,7 +404,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-gold-a1: hsla(60, 89.3%, 18.3%, 0.012);
     --#{$namespace}-gold-a2: hsla(47, 99.9%, 34.6%, 0.051);
     --#{$namespace}-gold-a3: hsla(45, 97.0%, 27.9%, 0.087);
@@ -420,7 +420,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-gold-a1: hsla(45, 99.2%, 3.8%, 0.209);
     --#{$namespace}-gold-a2: hsla(42, 100%, 50.0%, 0.013);
     --#{$namespace}-gold-a3: hsla(50, 99.6%, 77.3%, 0.052);
@@ -436,7 +436,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-gold-1: hsl(44, 9.0%, 8.3%);
     --#{$namespace}-gold-2: hsl(45, 8.0%, 9.8%);
     --#{$namespace}-gold-3: hsl(44, 9.5%, 13.0%);
@@ -452,7 +452,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-gold-1: hsl(50, 20.0%, 99.1%);
     --#{$namespace}-gold-2: hsl(47, 52.9%, 96.7%);
     --#{$namespace}-gold-3: hsl(46, 38.2%, 93.7%);
@@ -468,7 +468,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-grass-a1: hsla(120, 94.9%, 38.7%, 0.016);
     --#{$namespace}-grass-a2: hsla(120, 94.9%, 38.7%, 0.048);
     --#{$namespace}-grass-a3: hsla(120, 98.0%, 35.5%, 0.079);
@@ -484,7 +484,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-grass-a1: hsla(120, 100%, 43.9%, 0.005);
     --#{$namespace}-grass-a2: hsla(120, 100%, 49.3%, 0.022);
     --#{$namespace}-grass-a3: hsla(139, 97.9%, 54.2%, 0.070);
@@ -500,7 +500,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-grass-1: hsl(146, 30.0%, 7.4%);
     --#{$namespace}-grass-2: hsl(138, 20.8%, 9.4%);
     --#{$namespace}-grass-3: hsl(138, 25.8%, 12.5%);
@@ -516,7 +516,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-grass-1: hsl(116, 50.0%, 98.9%);
     --#{$namespace}-grass-2: hsl(120, 60.0%, 97.1%);
     --#{$namespace}-grass-3: hsl(120, 53.6%, 94.8%);
@@ -532,7 +532,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-gray-a1: hsla(0, 0%, 0%, 0.012);
     --#{$namespace}-gray-a2: hsla(0, 0%, 0%, 0.024);
     --#{$namespace}-gray-a3: hsla(0, 0%, 0%, 0.055);
@@ -548,7 +548,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-gray-a1: hsla(0, 0%, 100%, 0);
     --#{$namespace}-gray-a2: hsla(0, 0%, 100%, 0.013);
     --#{$namespace}-gray-a3: hsla(0, 0%, 100%, 0.069);
@@ -564,7 +564,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-gray-1: hsl(0, 0%, 9.5%);
     --#{$namespace}-gray-2: hsl(0, 0%, 10.5%);
     --#{$namespace}-gray-3: hsl(0, 0%, 15.8%);
@@ -580,7 +580,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-gray-1: hsl(0, 0%, 99.0%);
     --#{$namespace}-gray-2: hsl(0, 0%, 97.5%);
     --#{$namespace}-gray-3: hsl(0, 0%, 94.6%);
@@ -596,7 +596,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-green-a1: hsla(140, 94.9%, 38.7%, 0.016);
     --#{$namespace}-green-a2: hsla(138, 99.9%, 38.5%, 0.051);
     --#{$namespace}-green-a3: hsla(139, 97.7%, 36.9%, 0.087);
@@ -612,7 +612,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-green-a1: hsla(120, 100%, 43.9%, 0.005);
     --#{$namespace}-green-a2: hsla(120, 100%, 49.3%, 0.022);
     --#{$namespace}-green-a3: hsla(149, 100%, 49.5%, 0.070);
@@ -628,7 +628,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-green-1: hsl(146, 30.0%, 7.4%);
     --#{$namespace}-green-2: hsl(154, 31.8%, 8.6%);
     --#{$namespace}-green-3: hsl(154, 37.6%, 11.5%);
@@ -644,7 +644,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-green-1: hsl(136, 50.0%, 98.9%);
     --#{$namespace}-green-2: hsl(138, 62.5%, 96.9%);
     --#{$namespace}-green-3: hsl(139, 55.2%, 94.5%);
@@ -662,7 +662,7 @@
 
 
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-indigo-a1: hsla(240, 92.6%, 26.5%, 0.008);
     --#{$namespace}-indigo-a2: hsla(223, 100%, 51.0%, 0.028);
     --#{$namespace}-indigo-a3: hsla(224, 100%, 50.1%, 0.059);
@@ -678,7 +678,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-indigo-a1: hsla(240, 100%, 49.5%, 0.035);
     --#{$namespace}-indigo-a2: hsla(232, 100%, 50.0%, 0.091);
     --#{$namespace}-indigo-a3: hsla(228, 99.8%, 56.8%, 0.182);
@@ -694,7 +694,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-indigo-1: hsl(229, 24.0%, 10.0%);
     --#{$namespace}-indigo-2: hsl(230, 36.4%, 12.9%);
     --#{$namespace}-indigo-3: hsl(228, 42.7%, 18.1%);
@@ -710,7 +710,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-indigo-1: hsl(225, 60.0%, 99.4%);
     --#{$namespace}-indigo-2: hsl(223, 100%, 98.6%);
     --#{$namespace}-indigo-3: hsl(223, 98.4%, 97.1%);
@@ -726,7 +726,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-iris-a1: hsla(240, 100%, 51.0%, 0.008);
     --#{$namespace}-iris-a2: hsla(240, 100%, 51.0%, 0.020);
     --#{$namespace}-iris-a3: hsla(240, 100%, 51.0%, 0.048);
@@ -742,7 +742,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-iris-a1: hsla(240, 100%, 50.0%, 0.039);
     --#{$namespace}-iris-a2: hsla(243, 99.8%, 54.7%, 0.091);
     --#{$namespace}-iris-a3: hsla(244, 98.8%, 63.5%, 0.174);
@@ -758,7 +758,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-iris-1: hsl(240, 22.0%, 10.5%);
     --#{$namespace}-iris-2: hsl(243, 30.4%, 13.5%);
     --#{$namespace}-iris-3: hsl(242, 32.6%, 18.9%);
@@ -774,7 +774,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-iris-1: hsl(243, 65.0%, 99.5%);
     --#{$namespace}-iris-2: hsl(240, 100%, 99.0%);
     --#{$namespace}-iris-3: hsl(240, 99.9%, 97.7%);
@@ -790,7 +790,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-jade-a1: hsla(160, 94.9%, 38.7%, 0.016);
     --#{$namespace}-jade-a2: hsla(150, 99.1%, 44.0%, 0.063);
     --#{$namespace}-jade-a3: hsla(150, 99.7%, 40.8%, 0.106);
@@ -806,7 +806,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-jade-a1: hsla(120, 100%, 43.9%, 0.005);
     --#{$namespace}-jade-a2: hsla(120, 100%, 49.0%, 0.031);
     --#{$namespace}-jade-a3: hsla(145, 100%, 49.8%, 0.074);
@@ -822,7 +822,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-jade-1: hsl(152, 53.0%, 6.5%);
     --#{$namespace}-jade-2: hsl(153, 47.6%, 8.2%);
     --#{$namespace}-jade-3: hsl(154, 46.7%, 11.0%);
@@ -838,7 +838,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-jade-1: hsl(151, 60.0%, 99.0%);
     --#{$namespace}-jade-2: hsl(150, 77.8%, 96.5%);
     --#{$namespace}-jade-3: hsl(151, 65.9%, 93.7%);
@@ -854,7 +854,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-lime-a1: hsla(80, 93.8%, 31.4%, 0.020);
     --#{$namespace}-lime-a2: hsla(85, 99.3%, 40.2%, 0.059);
     --#{$namespace}-lime-a3: hsla(84, 98.6%, 43.6%, 0.146);
@@ -870,7 +870,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-lime-a1: hsla(74, 99.8%, 4.7%, 0.709);
     --#{$namespace}-lime-a2: hsla(114, 100%, 49.3%, 0.022);
     --#{$namespace}-lime-a3: hsla(89, 100%, 50.0%, 0.065);
@@ -886,7 +886,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-lime-1: hsl(75, 55.0%, 6.0%);
     --#{$namespace}-lime-2: hsl(78, 41.5%, 8.0%);
     --#{$namespace}-lime-3: hsl(81, 38.1%, 11.0%);
@@ -902,7 +902,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-lime-1: hsl(85, 50.0%, 98.7%);
     --#{$namespace}-lime-2: hsl(85, 66.7%, 96.5%);
     --#{$namespace}-lime-3: hsl(85, 76.8%, 91.7%);
@@ -918,7 +918,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-mauve-a1: hsla(300, 89.3%, 18.3%, 0.012);
     --#{$namespace}-mauve-a2: hsla(270, 89.3%, 18.3%, 0.024);
     --#{$namespace}-mauve-a3: hsla(270, 98.8%, 14.4%, 0.055);
@@ -934,7 +934,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-mauve-a1: hsla(300, 100%, 43.9%, 0.005);
     --#{$namespace}-mauve-a2: hsla(300, 99.7%, 69.7%, 0.026);
     --#{$namespace}-mauve-a3: hsla(288, 96.3%, 88.3%, 0.087);
@@ -950,7 +950,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-mauve-1: hsl(300, 5.0%, 9.5%);
     --#{$namespace}-mauve-2: hsl(300, 7.1%, 11.0%);
     --#{$namespace}-mauve-3: hsl(290, 6.2%, 16.2%);
@@ -966,7 +966,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-mauve-1: hsl(300, 26.0%, 99.0%);
     --#{$namespace}-mauve-2: hsl(270, 20.0%, 98.0%);
     --#{$namespace}-mauve-3: hsl(267, 13.8%, 95.3%);
@@ -982,7 +982,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-mint-a1: hsla(168, 95.4%, 42.8%, 0.024);
     --#{$namespace}-mint-a2: hsla(164, 99.1%, 47.1%, 0.063);
     --#{$namespace}-mint-a3: hsla(164, 98.9%, 44.4%, 0.134);
@@ -998,7 +998,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-mint-a1: hsla(120, 100%, 43.9%, 0.005);
     --#{$namespace}-mint-a2: hsla(165, 100%, 49.0%, 0.031);
     --#{$namespace}-mint-a3: hsla(174, 100%, 49.8%, 0.074);
@@ -1014,7 +1014,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-mint-1: hsl(173, 50.0%, 6.6%);
     --#{$namespace}-mint-2: hsl(174, 51.2%, 8.0%);
     --#{$namespace}-mint-3: hsl(174, 53.5%, 10.6%);
@@ -1030,7 +1030,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-mint-1: hsl(165, 80.0%, 98.8%);
     --#{$namespace}-mint-2: hsl(164, 88.2%, 96.7%);
     --#{$namespace}-mint-3: hsl(164, 80.4%, 92.6%);
@@ -1046,7 +1046,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-olive-a1: hsla(120, 89.3%, 18.3%, 0.012);
     --#{$namespace}-olive-a2: hsla(120, 87.7%, 16.0%, 0.028);
     --#{$namespace}-olive-a3: hsla(120, 97.6%, 7.3%, 0.055);
@@ -1062,7 +1062,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-olive-a1: hsla(120, 100%, 43.9%, 0.005);
     --#{$namespace}-olive-a2: hsla(120, 90.5%, 63.9%, 0.018);
     --#{$namespace}-olive-a3: hsla(120, 94.1%, 91.6%, 0.074);
@@ -1078,7 +1078,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-olive-1: hsl(110, 5.0%, 9.2%);
     --#{$namespace}-olive-2: hsl(120, 5.7%, 10.4%);
     --#{$namespace}-olive-3: hsl(120, 4.3%, 15.4%);
@@ -1094,7 +1094,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-olive-1: hsl(110, 20.0%, 99.0%);
     --#{$namespace}-olive-2: hsl(120, 16.7%, 97.6%);
     --#{$namespace}-olive-3: hsl(118, 8.4%, 94.8%);
@@ -1110,7 +1110,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-orange-a1: hsla(20, 94.9%, 38.7%, 0.016);
     --#{$namespace}-orange-a2: hsla(22, 100%, 51.0%, 0.044);
     --#{$namespace}-orange-a3: hsla(34, 100%, 50.1%, 0.165);
@@ -1126,7 +1126,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-orange-a1: hsla(0, 100%, 49.0%, 0.031);
     --#{$namespace}-orange-a2: hsla(0, 100%, 50.0%, 0.065);
     --#{$namespace}-orange-a3: hsla(13, 100%, 49.7%, 0.122);
@@ -1142,7 +1142,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-orange-1: hsl(30, 70.0%, 7.2%);
     --#{$namespace}-orange-2: hsl(29, 81.4%, 8.4%);
     --#{$namespace}-orange-3: hsl(26, 68.4%, 12.0%);
@@ -1158,7 +1158,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-orange-1: hsl(24, 70.0%, 99.0%);
     --#{$namespace}-orange-2: hsl(22, 100%, 97.8%);
     --#{$namespace}-orange-3: hsl(34, 100%, 91.7%);
@@ -1175,7 +1175,7 @@
 }
 
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-pink-a1: hsla(320, 100%, 51.0%, 0.012);
     --#{$namespace}-pink-a2: hsla(323, 100%, 51.0%, 0.032);
     --#{$namespace}-pink-a3: hsla(323, 98.9%, 47.3%, 0.067);
@@ -1191,7 +1191,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-pink-a1: hsla(331, 100%, 49.0%, 0.031);
     --#{$namespace}-pink-a2: hsla(319, 100%, 49.8%, 0.074);
     --#{$namespace}-pink-a3: hsla(318, 98.8%, 55.9%, 0.135);
@@ -1207,7 +1207,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-pink-1: hsl(318, 25.0%, 9.6%);
     --#{$namespace}-pink-2: hsl(318, 32.3%, 12.2%);
     --#{$namespace}-pink-3: hsl(318, 37.1%, 15.7%);
@@ -1223,7 +1223,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-pink-1: hsl(322, 100%, 99.4%);
     --#{$namespace}-pink-2: hsl(323, 100%, 98.4%);
     --#{$namespace}-pink-3: hsl(323, 86.3%, 96.5%);
@@ -1239,7 +1239,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-plum-a1: hsla(280, 100%, 51.0%, 0.012);
     --#{$namespace}-plum-a2: hsla(300, 100%, 51.0%, 0.028);
     --#{$namespace}-plum-a3: hsla(300, 99.0%, 40.9%, 0.063);
@@ -1255,7 +1255,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-plum-a1: hsla(300, 100%, 49.3%, 0.022);
     --#{$namespace}-plum-a2: hsla(300, 100%, 49.7%, 0.061);
     --#{$namespace}-plum-a3: hsla(300, 98.6%, 59.2%, 0.122);
@@ -1271,7 +1271,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-plum-1: hsl(301, 20.0%, 9.4%);
     --#{$namespace}-plum-2: hsl(300, 28.8%, 11.6%);
     --#{$namespace}-plum-3: hsl(299, 31.8%, 15.5%);
@@ -1287,7 +1287,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-plum-1: hsl(292, 90.0%, 99.4%);
     --#{$namespace}-plum-2: hsl(300, 100%, 98.6%);
     --#{$namespace}-plum-3: hsl(299, 71.2%, 96.4%);
@@ -1303,7 +1303,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-purple-a1: hsla(300, 94.3%, 34.6%, 0.012);
     --#{$namespace}-purple-a2: hsla(276, 100%, 51.0%, 0.020);
     --#{$namespace}-purple-a3: hsla(277, 99.6%, 46.5%, 0.055);
@@ -1319,7 +1319,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-purple-a1: hsla(278, 100%, 49.3%, 0.022);
     --#{$namespace}-purple-a2: hsla(283, 100%, 49.5%, 0.070);
     --#{$namespace}-purple-a3: hsla(282, 98.8%, 59.8%, 0.148);
@@ -1335,7 +1335,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-purple-1: hsl(284, 20.0%, 9.6%);
     --#{$namespace}-purple-2: hsl(284, 31.1%, 12.0%);
     --#{$namespace}-purple-3: hsl(282, 35.1%, 16.8%);
@@ -1351,7 +1351,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-purple-1: hsl(280, 65.0%, 99.4%);
     --#{$namespace}-purple-2: hsl(276, 100%, 99.0%);
     --#{$namespace}-purple-3: hsl(276, 83.1%, 97.0%);
@@ -1367,7 +1367,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-red-a1: hsla(0, 100%, 51.0%, 0.012);
     --#{$namespace}-red-a2: hsla(0, 100%, 51.0%, 0.032);
     --#{$namespace}-red-a3: hsla(0, 100%, 50.2%, 0.063);
@@ -1383,7 +1383,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-red-a1: hsla(0, 100%, 49.0%, 0.031);
     --#{$namespace}-red-a2: hsla(354, 100%, 49.8%, 0.074);
     --#{$namespace}-red-a3: hsla(353, 99.3%, 55.9%, 0.152);
@@ -1399,7 +1399,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-red-1: hsl(353, 23.0%, 9.8%);
     --#{$namespace}-red-2: hsl(354, 30.2%, 12.4%);
     --#{$namespace}-red-3: hsl(353, 40.8%, 16.4%);
@@ -1415,7 +1415,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-red-1: hsl(359, 100%, 99.4%);
     --#{$namespace}-red-2: hsl(0, 100%, 98.4%);
     --#{$namespace}-red-3: hsl(360, 100%, 96.8%);
@@ -1431,7 +1431,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-ruby-a1: hsla(340, 100%, 51.0%, 0.012);
     --#{$namespace}-ruby-a2: hsla(345, 100%, 51.0%, 0.032);
     --#{$namespace}-ruby-a3: hsla(344, 99.1%, 47.1%, 0.063);
@@ -1447,7 +1447,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-ruby-a1: hsla(0, 100%, 49.0%, 0.031);
     --#{$namespace}-ruby-a2: hsla(351, 100%, 50.0%, 0.078);
     --#{$namespace}-ruby-a3: hsla(348, 99.4%, 54.6%, 0.152);
@@ -1463,7 +1463,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-ruby-1: hsl(343, 23.0%, 10.0%);
     --#{$namespace}-ruby-2: hsl(349, 33.3%, 12.4%);
     --#{$namespace}-ruby-3: hsl(348, 42.2%, 16.4%);
@@ -1479,7 +1479,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-ruby-1: hsl(348, 100%, 99.5%);
     --#{$namespace}-ruby-2: hsl(345, 100%, 98.4%);
     --#{$namespace}-ruby-3: hsl(345, 89.9%, 96.7%);
@@ -1495,7 +1495,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-sage-a1: hsla(150, 92.6%, 26.5%, 0.016);
     --#{$namespace}-sage-a2: hsla(150, 86.2%, 14.2%, 0.032);
     --#{$namespace}-sage-a3: hsla(150, 95.7%, 6.9%, 0.059);
@@ -1511,7 +1511,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-sage-a1: hsla(126, 100%, 43.9%, 0.005);
     --#{$namespace}-sage-a2: hsla(150, 92.7%, 53.0%, 0.018);
     --#{$namespace}-sage-a3: hsla(150, 95.5%, 88.9%, 0.074);
@@ -1527,7 +1527,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-sage-1: hsl(155, 7.0%, 9.2%);
     --#{$namespace}-sage-2: hsl(150, 7.7%, 10.2%);
     --#{$namespace}-sage-3: hsl(151, 5.5%, 15.2%);
@@ -1543,7 +1543,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-sage-1: hsl(155, 30.0%, 98.8%);
     --#{$namespace}-sage-2: hsl(150, 14.3%, 97.3%);
     --#{$namespace}-sage-3: hsl(150, 8.0%, 94.5%);
@@ -1559,7 +1559,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-sand-a1: hsla(60, 89.3%, 18.3%, 0.012);
     --#{$namespace}-sand-a2: hsla(60, 78.1%, 9.0%, 0.028);
     --#{$namespace}-sand-a3: hsla(60, 95.7%, 6.9%, 0.059);
@@ -1575,7 +1575,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-sand-a1: hsla(60, 98.4%, 4.7%, 0.084);
     --#{$namespace}-sand-a2: hsla(60, 99.4%, 84.8%, 0.013);
     --#{$namespace}-sand-a3: hsla(60, 85.5%, 93.4%, 0.070);
@@ -1591,7 +1591,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-sand-1: hsl(60, 6.0%, 9.0%);
     --#{$namespace}-sand-2: hsl(60, 1.9%, 10.4%);
     --#{$namespace}-sand-3: hsl(56, 2.4%, 15.4%);
@@ -1607,7 +1607,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-sand-1: hsl(50, 20.0%, 99.0%);
     --#{$namespace}-sand-2: hsl(60, 7.7%, 97.5%);
     --#{$namespace}-sand-3: hsl(59, 5.8%, 94.5%);
@@ -1623,7 +1623,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-sky-a1: hsla(190, 100%, 51.0%, 0.024);
     --#{$namespace}-sky-a2: hsla(193, 100%, 50.1%, 0.055);
     --#{$namespace}-sky-a3: hsla(192, 100%, 50.1%, 0.114);
@@ -1639,7 +1639,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-sky-a1: hsla(234, 100%, 49.5%, 0.035);
     --#{$namespace}-sky-a2: hsla(215, 100%, 49.7%, 0.061);
     --#{$namespace}-sky-a3: hsla(204, 100%, 50.0%, 0.117);
@@ -1655,7 +1655,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-sky-1: hsl(205, 45.0%, 8.6%);
     --#{$namespace}-sky-2: hsl(202, 49.0%, 10.0%);
     --#{$namespace}-sky-3: hsl(201, 50.8%, 13.2%);
@@ -1671,7 +1671,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-sky-1: hsl(193, 100%, 98.8%);
     --#{$namespace}-sky-2: hsl(193, 100%, 97.3%);
     --#{$namespace}-sky-3: hsl(192, 100%, 94.3%);
@@ -1687,7 +1687,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-slate-a1: hsla(240, 89.3%, 18.3%, 0.012);
     --#{$namespace}-slate-a2: hsla(240, 89.3%, 18.3%, 0.024);
     --#{$namespace}-slate-a3: hsla(240, 99.7%, 11.6%, 0.051);
@@ -1703,7 +1703,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-slate-a1: hsla(240, 92.7%, 53.0%, 0.009);
     --#{$namespace}-slate-a2: hsla(240, 92.5%, 72.7%, 0.031);
     --#{$namespace}-slate-a3: hsla(230, 99.3%, 87.0%, 0.091);
@@ -1719,7 +1719,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-slate-1: hsl(240, 5.0%, 9.8%);
     --#{$namespace}-slate-2: hsl(240, 6.9%, 11.4%);
     --#{$namespace}-slate-3: hsl(227, 6.7%, 16.4%);
@@ -1735,7 +1735,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-slate-1: hsl(240, 22.0%, 99.0%);
     --#{$namespace}-slate-2: hsl(240, 20.0%, 98.0%);
     --#{$namespace}-slate-3: hsl(239, 13.4%, 95.4%);
@@ -1751,7 +1751,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-teal-a1: hsla(165, 95.2%, 41.2%, 0.020);
     --#{$namespace}-teal-a2: hsla(169, 99.5%, 39.4%, 0.055);
     --#{$namespace}-teal-a3: hsla(167, 97.6%, 38.1%, 0.095);
@@ -1767,7 +1767,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-teal-a1: hsla(120, 100%, 48.3%, 0.009);
     --#{$namespace}-teal-a2: hsla(141, 100%, 49.0%, 0.031);
     --#{$namespace}-teal-a3: hsla(161, 100%, 49.8%, 0.074);
@@ -1783,7 +1783,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-teal-1: hsl(167, 50.0%, 6.7%);
     --#{$namespace}-teal-2: hsl(166, 55.0%, 7.8%);
     --#{$namespace}-teal-3: hsl(167, 52.9%, 10.6%);
@@ -1799,7 +1799,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-teal-1: hsl(165, 60.0%, 98.8%);
     --#{$namespace}-teal-2: hsl(169, 64.7%, 96.7%);
     --#{$namespace}-teal-3: hsl(169, 59.8%, 94.0%);
@@ -1815,7 +1815,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-tomato-a1: hsla(0, 100%, 51.0%, 0.012);
     --#{$namespace}-tomato-a2: hsla(8, 100%, 51.0%, 0.032);
     --#{$namespace}-tomato-a3: hsla(7, 100%, 50.2%, 0.067);
@@ -1831,7 +1831,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-tomato-a1: hsla(0, 100%, 49.3%, 0.022);
     --#{$namespace}-tomato-a2: hsla(0, 100%, 49.8%, 0.074);
     --#{$namespace}-tomato-a3: hsla(9, 100%, 49.9%, 0.152);
@@ -1847,7 +1847,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-tomato-1: hsl(10, 23.0%, 9.4%);
     --#{$namespace}-tomato-2: hsl(10, 39.0%, 11.6%);
     --#{$namespace}-tomato-3: hsl(9, 48.3%, 15.5%);
@@ -1863,7 +1863,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-tomato-1: hsl(10, 100%, 99.4%);
     --#{$namespace}-tomato-2: hsl(8, 100%, 98.4%);
     --#{$namespace}-tomato-3: hsl(8, 100%, 96.6%);
@@ -1880,7 +1880,7 @@
 }
 
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-violet-a1: hsla(270, 94.3%, 34.6%, 0.012);
     --#{$namespace}-violet-a2: hsla(252, 100%, 51.0%, 0.020);
     --#{$namespace}-violet-a3: hsla(254, 100%, 50.0%, 0.051);
@@ -1896,7 +1896,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-violet-a1: hsla(240, 100%, 49.0%, 0.031);
     --#{$namespace}-violet-a2: hsla(255, 98.3%, 51.9%, 0.083);
     --#{$namespace}-violet-a3: hsla(255, 99.8%, 62.8%, 0.169);
@@ -1912,7 +1912,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-violet-1: hsl(250, 20.0%, 10.2%);
     --#{$namespace}-violet-2: hsl(255, 30.3%, 12.9%);
     --#{$namespace}-violet-3: hsl(254, 33.3%, 18.4%);
@@ -1928,7 +1928,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-violet-1: hsl(255, 65.0%, 99.4%);
     --#{$namespace}-violet-2: hsl(252, 100%, 99.0%);
     --#{$namespace}-violet-3: hsl(252, 96.9%, 97.4%);
@@ -1944,7 +1944,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-white-a1: hsla(0, 0%, 0%, 0);
     --#{$namespace}-white-a2: hsla(0, 0%, 100%, 0.013);
     --#{$namespace}-white-a3: hsla(0, 0%, 100%, 0.069);
@@ -1960,7 +1960,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-yellow-a1: hsla(60, 94.3%, 34.6%, 0.024);
     --#{$namespace}-yellow-a2: hsla(52, 100%, 50.2%, 0.122);
     --#{$namespace}-yellow-a3: hsla(53, 100%, 50.1%, 0.224);
@@ -1976,7 +1976,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-yellow-a1: hsla(0, 100%, 48.3%, 0.018);
     --#{$namespace}-yellow-a2: hsla(17, 100%, 49.3%, 0.044);
     --#{$namespace}-yellow-a3: hsla(36, 100%, 49.8%, 0.087);
@@ -1992,7 +1992,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(false) {
+  @include lightTheme(false) {
     --#{$namespace}-yellow-1: hsl(45, 100%, 5.5%);
     --#{$namespace}-yellow-2: hsl(44, 78.9%, 7.5%);
     --#{$namespace}-yellow-3: hsl(44, 61.9%, 10.6%);
@@ -2008,7 +2008,7 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include appearance(true) {
+  @include lightTheme(true) {
     --#{$namespace}-yellow-1: hsl(60, 54.0%, 98.5%);
     --#{$namespace}-yellow-2: hsl(52, 100%, 93.9%);
     --#{$namespace}-yellow-3: hsl(53, 100%, 88.9%);
