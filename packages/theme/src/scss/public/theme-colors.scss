@@ -53,7 +53,7 @@
   }
 
   // semantic colors
-  @include appearance(true) {
+  @include lightTheme(true) {
     color-scheme: light;
     @include semanticColor('background', white);
     @include semanticColor('overlay', getColor('black', 'a6'));
@@ -92,7 +92,7 @@
     --#{$namespace}-amber-surface: #fefae4cc;
     --#{$namespace}-orange-surface: #fff5e9cc;
   }
-  @include appearance(false) {
+  @include lightTheme(false) {
     color-scheme: dark;
     @include semanticColor('background', getColor('gray', 1));
     @include semanticColor('overlay', getColor('black', 'a8'));

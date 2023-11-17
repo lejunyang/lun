@@ -25,7 +25,7 @@
   @return getVarValue(($gray-name, $level), $default-gray-color);
 }
 
-@mixin appearance($isLight: true) {
+@mixin lightTheme($isLight: true) {
   @if $isLight {
     &:where([appearance='light']) {
       @content;

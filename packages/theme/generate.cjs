@@ -20,7 +20,7 @@ fs.readdir(colorsDir, (err, files) => {
           .map((line) => `    ${line.trim()}`)
           .join('\n');
         return `#{$theme-provider-el-name} {
-  @include appearance(${String(isLight)}) {
+  @include lightTheme(${String(isLight)}) {
 ${$1}
   }
 }`;
