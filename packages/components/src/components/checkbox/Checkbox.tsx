@@ -22,7 +22,6 @@ export const Checkbox = defineSSRCustomFormElement({
     const checkedModal = checkboxContext
       ? undefined
       : useCheckedModel(props, {
-          passive: true,
           shouldEmit: false,
         });
     const [updateVModel] = useVModelCompatible();

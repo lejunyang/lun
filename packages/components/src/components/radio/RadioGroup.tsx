@@ -10,7 +10,7 @@ export const RadioGroup = defineSSRCustomFormElement({
   props: radioGroupProps,
   emits: ['update'],
   setup(props) {
-    const valueModel = useValueModel(props, { passive: true });
+    const valueModel = useValueModel(props);
     useSetupContextEvent({
       update(value) {
         valueModel.value = value;

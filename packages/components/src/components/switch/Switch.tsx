@@ -13,9 +13,7 @@ export const Switch = defineSSRCustomFormElement({
   setup(props) {
     const ns = useNamespace(name);
     useSetupContextEvent();
-    const checkedModel = useCheckedModel(props, {
-      passive: true,
-    });
+    const checkedModel = useCheckedModel(props);
     const [editComputed] = useSetupEdit();
 
     const inputHandlers = {
