@@ -131,6 +131,11 @@
     --#{$namespace}-amber-surface: #271f1380;
     --#{$namespace}-orange-surface: #271d1380;
   }
+
+  // focus selection autofill color
+  #{getFocusColorName()}: getAccentColor(8);
+  #{getSelectionColorName()}: getAccentColor(a5);
+  #{getAutofillColorName()}: getAccentColor(a3);
 }
 
 @each $color in $color-list {
