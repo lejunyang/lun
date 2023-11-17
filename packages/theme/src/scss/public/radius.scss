@@ -4,30 +4,33 @@
 
 #{$theme-provider-el-name} {
   $factor: getVarName(($radius-name, factor));
+  $full: getVarName($radius-full-name);
+  $thumb: getVarName($radius-thumb-name);
+
   #{$factor}: 0;
 
   &[#{$radius-name}='small'] {
     #{$factor}: 0.75;
-    --radius-full: 0px;
-    --radius-thumb: 0.5px;
+    #{$full}: 0px;
+    #{$thumb}: 0.5px;
   }
 
   &[#{$radius-name}='medium'], &:not([#{$radius-name}]) {
     #{$factor}: 1;
-    --radius-full: 0px;
-    --radius-thumb: 9999px;
+    #{$full}: 0px;
+    #{$thumb}: 9999px;
   }
 
   &[#{$radius-name}='large'] {
     #{$factor}: 1.5;
-    --radius-full: 0px;
-    --radius-thumb: 9999px;
+    #{$full}: 0px;
+    #{$thumb}: 9999px;
   }
 
   &[#{$radius-name}='full'] {
     #{$factor}: 1.5;
-    --radius-full: 9999px;
-    --radius-thumb: 9999px;
+    #{$full}: 9999px;
+    #{$thumb}: 9999px;
   }
 
   @for $i from 1 through length($radius-list) {
