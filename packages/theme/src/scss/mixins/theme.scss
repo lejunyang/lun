@@ -71,10 +71,36 @@
   @return getVarValue(($letter-spacing-name, $level));
 }
 
+// radius
 @function getRadiusValue($level) {
-  @return getVarValue(($radius-name, $level));
+  @return max(getVarValue(($radius-name, $level)), getVarValue(($radius-full-name)));
 }
 
 @function getDisabledCursor() {
   @return var(--#{$namespace}-cursor-disabled, not-allowed);
+}
+
+// focus selection autofill color
+@function getFocusColorName() {
+  @return #{'--' + $namespace + '-' + $focus-color-name};
+}
+
+@function getSelectionColorName() {
+  @return #{'--' + $namespace + '-' + $selection-color-name};
+}
+
+@function getAutofillColorName() {
+  @return #{'--' + $namespace + '-' + $autofill-color-name};
+}
+
+@function getFocusColor() {
+  @return var(getFocusColorName());
+}
+
+@function getSelectionColor() {
+  @return var(getSelectionColorName());
+}
+
+@function getAutofillColor() {
+  @return var(getAutofillColorName());
 }
