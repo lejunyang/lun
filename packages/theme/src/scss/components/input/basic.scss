@@ -1,0 +1,295 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+:host {
+  display: inline-block;
+}
+
+@include b(input) {
+  display: inline-flex;
+  position: relative;
+  &:hover#{getIs(not-empty)} {
+    @include is(with-clear) {
+      // hide suffix slot content when hover
+      slot::slotted(*) {
+        opacity: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+      // make clearIcon show when hover
+      @include em(suffix, clear-icon) {
+        opacity: 1;
+        z-index: 2;
+        pointer-events: all;
+        cursor: pointer;
+      }
+    }
+  }
+
+  @include e(label, false) {
+    display: flex;
+    position: relative;
+    cursor: text;
+    box-sizing: border-box;
+  }
+
+  @include e(inner-input, false) {
+    appearance: none;
+    border-width: 0;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    font-family: inherit;
+    text-overflow: ellipsis;
+    background-color: transparent;
+    position: relative;
+    z-index: 1;
+    display: block;
+    box-sizing: border-box;
+    padding: 0;
+    inline-size: 100%;
+
+    // placeholder and selection
+    &::placeholder {
+      color: getColor('gray', a10);
+      // Firefox
+      opacity: 1;
+    }
+    &:autofill {
+      -webkit-text-fill-color: getColor('gray', 12);
+      caret-color: getColor('gray', 12);
+      box-shadow: inset 0 0 0 100px white;
+      border: 1px solid getColor('gray', 7);
+      border-inline: none;
+    }
+    &:read-only {
+      &::placeholder {
+        color: getColor('gray', a7);
+      }
+      &::selection {
+        background-color: getColor('gray', a5);
+      }
+    }
+  }
+
+  @include e(length-info, false) {
+    color: getColor('gray', 10);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  @include e('background', false) {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: border-color 0.3s ease;
+    .#{$B}:focus-within & {
+      /* box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8), inset 0 0 0 100px var(--accent-3); */
+      // box-shadow: inset 0 0 0 100px getAccentColor(3);
+      // border: 1px solid getAccentColor(8);
+      outline: 2px solid getFocusColor();
+      outline-offset: -1px;
+    }
+  }
+
+  @include e(slot, false) {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: var(--accent-a11, --gray-a11);
+    @include size(1) {
+      .#{$E} {
+        gap: var(--space-2);
+        ::slotted(*) {
+          padding-inline: var(--space-1);
+        }
+      }
+    }
+  }
+
+  @include e(suffix, true) {
+    @include m(clear-icon) {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-inline-size: 32px;
+
+      .#{$B}:hover &:not(:empty) {
+        opacity: 1;
+        z-index: 2;
+        pointer-events: all;
+        cursor: pointer;
+      }
+    }
+  }
+  // suffix slot default content clear-icon
+  slot .#{bem(input, suffix, clear-icon)} {
+    position: relative;
+  }
+
+  @include e(custom-renderer) {
+    position: absolute;
+    /* inset: 0; width should be decided by content, otherwise empty renderer would cover the input */
+    inline-size: auto;
+    z-index: 2;
+    background-color: white; /** TODO theme color */
+    text-align: start;
+    transition: opacity 0.3s linear;
+    /* border-top: 1px solid var(--gray-a7); */
+    /* border-bottom: 1px solid var(--gray-a7); */
+    /* in case of covering input-back's border */
+    border: 1px solid transparent;
+    background-clip: content-box;
+    .#{$B} & {
+      /* display: none; */
+      opacity: 0 !important;
+      pointer-events: none;
+      z-index: -1;
+    }
+  }
+
+  // float label
+  @include is(float-label, false, true) {
+    position: absolute;
+    top: 0;
+    z-index: 0;
+    transition: all 0.3s ease-out;
+    .#{$B}:focus-within &,
+    .#{getIs(not-empty, $B)} & {
+      z-index: 1;
+      transform: scale(0.8);
+    }
+
+    @include em(label, float-background) {
+      height: 3px;
+      position: absolute;
+      overflow: hidden;
+      top: 50%;
+      color: white;
+      background: white;
+      z-index: -1;
+      /* extra white length */
+      left: -5px;
+      right: -5px;
+      &:empty {
+        display: none;
+      }
+    }
+  }
+
+  // size
+  @include size(1) {
+    @include e(slot, true) {
+      gap: getSpaceValue(2);
+      ::slotted(*) {
+        padding-inline: getSpaceValue(1);
+      }
+    }
+    @include e(length-info, true) {
+      padding-inline: getSpaceValue(1);
+    }
+    @include e(inner-input, true) {
+      height: getSpaceValue(5);
+      // TODO padding? size?
+      padding-block-start: 0.5px;
+      padding-block-end: 1px;
+      padding-inline-start: getSpaceValue(1);
+      font-size: getFontSizeValue(1);
+      letter-spacing: getLetterSpacingValue(1);
+    }
+    @include e('background', true) {
+      border-radius: getRadiusValue(2);
+    }
+    @include is(float-label) {
+      left: calc(100% + getSpaceValue(1));
+      height: getSpaceValue(5);
+      line-height: getSpaceValue(5);
+    }
+    $empty: getIs(not-empty, $B);
+    $float: getIs(float-label);
+    &.#{$B}:focus-within #{$float},
+    &.#{getIs(not-empty, $B)} #{$float} {
+      top: -50%;
+      left: getSpaceValue(1);
+    }
+  }
+  @include size(2) {
+    @include e(slot, true) {
+      gap: getSpaceValue(2);
+      ::slotted(*) {
+        padding-inline: getSpaceValue(2);
+      }
+    }
+    @include e(length-info, true) {
+      padding-inline: getSpaceValue(2);
+    }
+    @include e(inner-input, true) {
+      height: getSpaceValue(6);
+      padding-block-start: 0.5px;
+      padding-block-end: 1px;
+      padding-inline-start: getSpaceValue(2);
+      font-size: getFontSizeValue(2);
+      letter-spacing: getLetterSpacingValue(2);
+    }
+    @include e('background', true) {
+      border-radius: getRadiusValue(2);
+    }
+    @include is(float-label) {
+      left: calc(100% + getSpaceValue(2));
+      height: getSpaceValue(6);
+      line-height: getSpaceValue(6);
+    }
+    $empty: getIs(not-empty, $B);
+    $float: getIs(float-label);
+    &.#{$B}:focus-within #{$float},
+    &.#{getIs(not-empty, $B)} #{$float} {
+      top: -50%;
+      left: getSpaceValue(2);
+    }
+  }
+  @include size(3) {
+    @include e(slot, true) {
+      gap: getSpaceValue(3);
+      ::slotted(*) {
+        padding-inline: getSpaceValue(3);
+      }
+    }
+    @include e(length-info, true) {
+      padding-inline: getSpaceValue(3);
+    }
+    @include e(inner-input, true) {
+      height: getSpaceValue(7);
+      padding-block-start: 0.5px;
+      padding-block-end: 1px;
+      padding-inline-start: getSpaceValue(3);
+      font-size: getFontSizeValue(3);
+      letter-spacing: getLetterSpacingValue(3);
+    }
+    @include e('background', true) {
+      border-radius: getRadiusValue(3);
+    }
+    @include is(float-label) {
+      left: calc(100% + getSpaceValue(3));
+      height: getSpaceValue(7);
+      line-height: getSpaceValue(7);
+    }
+    $empty: getIs(not-empty, $B);
+    $float: getIs(float-label);
+    &.#{$B}:focus-within #{$float},
+    &.#{getIs(not-empty, $B)} #{$float} {
+      top: -50%;
+      left: getSpaceValue(3);
+    }
+  }
+}
