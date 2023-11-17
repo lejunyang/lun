@@ -36,7 +36,7 @@ export function createUseModel<DK extends string, E extends () => any>({
     options?: UseModelOptions<P, K, Passive>
   ) {
     const extraData = extra && extra();
-    let { passive, eventName, deep, extraSource, shouldEmit, clone, emit, key } = options || {};
+    let { passive = true, eventName, deep, extraSource, shouldEmit, clone, emit, key } = options || {};
     key = key || (defaultKey as unknown as K);
     const event = eventName || defaultEvent;
     const vm = getCurrentInstance();

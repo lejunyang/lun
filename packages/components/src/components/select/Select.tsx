@@ -19,7 +19,6 @@ export const Select = defineSSRCustomFormElement({
   emits: ['update'],
   setup(props, { emit }) {
     const valueModel = useValueModel(props, {
-      passive: true,
       emit: (name, value) => {
         emit(name as any, value);
         // if it's multiple, keep focus after change

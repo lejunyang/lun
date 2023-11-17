@@ -13,6 +13,7 @@ import { defineSpin, importSpinStyle } from './spin';
 import { defineSwitch } from './switch';
 import { defineThemeProvider } from './theme-provider';
 import { defineTooltip } from './tooltip/Tooltip';
+import { defineUpload } from './upload';
 
 export function importAllBasicStyles() {
   importButtonStyle();
@@ -43,6 +44,7 @@ export function defineAllComponents() {
   defineSwitch();
   defineThemeProvider();
   defineTooltip();
+  defineUpload();
 }
 
 export * from './animation';
@@ -62,3 +64,4 @@ export * from './spin';
 export * from './switch';
 export * from './theme-provider';
 export * from './tooltip';
+export * from './upload';
