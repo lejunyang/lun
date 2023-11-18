@@ -128,8 +128,16 @@
 
 @mixin size($size) {
   @at-root {
-    .#{$B + config.$modifier-separator + 'size-' + $size} {
+    $selector: $B + config.$modifier-separator + 'size-' + $size;
+    .#{$selector} {
       @content;
+    }
+    @each $breakpoint, $width in config.$breakpoints-map {
+      @media (min-width: $width) {
+        .#{$breakpoint + '-' + $selector} {
+          @content;
+        }
+      }
     }
   }
 }

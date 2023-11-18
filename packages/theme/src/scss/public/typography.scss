@@ -13,4 +13,10 @@
     $size: nth($letter-spacing-list, $i);
     #{getLetterSpacingVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
   }
+
+  // line height
+  @for $i from 1 through length($line-height-list) {
+    $size: nth($line-height-list, $i);
+    #{getLineHeightVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
+  }
 }
