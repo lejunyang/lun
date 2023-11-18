@@ -61,6 +61,20 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
+  const theme = useContextConfig()?.theme;
+  const vm = getCurrentInstance();
+  const themeClass = computed(() => {
+    const variant = vm?.props.variant || theme?.variant;
+    const size = vm?.props.size || theme?.size;
+    const highContrast = (vm?.props.highContrast as boolean) ?? theme?.highContrast;
+    return [
+      b(),
+      variant && m(`variant-${variant}`),
+      withBreakpoints(size || '1', m('size')),
+      is('high-contrast', highContrast),
+    ];
+  });
+
   return {
     namespace,
     /** block */
@@ -86,6 +100,10 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
     /** withBreakpoints */
     bp: (...args: Parameters<typeof withBreakpoints>) => {
       return withBreakpoints(args[0] || '1', args[1] || m('size'), args[2]);
+    },
+    theme,
+    get themeClass() {
+      return themeClass.value;
     },
   };
 };

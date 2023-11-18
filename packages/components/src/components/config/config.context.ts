@@ -1,6 +1,7 @@
 import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { ShadowComponentKey, shadowComponents } from './config.static';
+import { ThemeProps } from 'common';
 
 export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
@@ -20,6 +21,9 @@ export const GlobalContextConfig = reactive({
       },
     });
   })(),
+  theme: {
+    variant: 'surface',
+  } as ThemeProps,
 });
 
 export type TGlobalContextConfig = typeof GlobalContextConfig;
