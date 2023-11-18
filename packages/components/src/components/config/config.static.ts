@@ -27,6 +27,7 @@ export const shadowComponents = Object.freeze([
   'select-optgroup',
   'spin',
   'switch',
+  'tag',
   'tooltip',
   'upload',
 ] as const);
@@ -88,8 +89,7 @@ export const GlobalStaticConfig = new Proxy(
       checkbox: {
         labelPosition: 'end' as const,
       },
-      'checkbox-group': {
-      },
+      'checkbox-group': {},
       'custom-renderer': {},
       dialog: {
         closeBtn: true,
@@ -122,8 +122,7 @@ export const GlobalStaticConfig = new Proxy(
       radio: {
         labelPosition: 'end' as const,
       },
-      'radio-group': {
-      },
+      'radio-group': {},
       select: {},
       'select-option': {},
       'select-optgroup': {},
@@ -136,6 +135,7 @@ export const GlobalStaticConfig = new Proxy(
         trueValue: true,
         falseValue: false,
       },
+      tag: {},
       'theme-provider': {},
       tooltip: {},
       upload: {},
