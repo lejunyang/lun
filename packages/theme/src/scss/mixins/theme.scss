@@ -55,6 +55,7 @@
   @return getVarValue(($space-name, $level));
 }
 
+// typography
 @function getFontSizeVarName() {
   @return #{'--' + $namespace + '-' + $font-size-name};
 }
@@ -69,6 +70,14 @@
 
 @function getLetterSpacingValue($level) {
   @return getVarValue(($letter-spacing-name, $level));
+}
+
+@function getLineHeightVarName() {
+  @return #{'--' + $namespace + '-' + $line-height-name};
+}
+
+@function getLineHeightValue($level) {
+  @return getVarValue(($line-height-name, $level));
 }
 
 // radius
