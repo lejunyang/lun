@@ -1,0 +1,38 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+:host {
+  display: contents;
+}
+
+@include b(tag) {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+  font-weight: var(--font-weight-medium);
+  flex-shrink: 0;
+  line-height: 1;
+  user-select: none;
+  cursor: default;
+
+  @include size(1) {
+    font-size: getFontSizeValue(1);
+    line-height: getLineHeightValue(1);
+    letter-spacing: getLetterSpacingValue(1);
+    padding: calc(getSpaceValue(1) / 2) getSpaceValue(2);
+    gap: getSpaceValue(1);
+    border-radius: getRadiusValue(1);
+  }
+
+  @include size(3) {
+    font-size: getFontSizeValue(2);
+    line-height: getLineHeightValue(2);
+    letter-spacing: getLetterSpacingValue(2);
+    padding: calc(getSpaceValue(1) * 1.5) getSpaceValue(4);
+    gap: getSpaceValue(2);
+    border-radius: getRadiusValue(2);
+  }
+}
