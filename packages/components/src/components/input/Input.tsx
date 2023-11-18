@@ -4,8 +4,9 @@ import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useNamespace, useVModelCompatible, useValueModel } from 'hooks';
 import { inputProps } from './type';
-import { isEmpty } from '@lun/utils';
+import { isEmpty, isArray } from '@lun/utils';
 import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { defineIcon } from '../icon/Icon';
 
 const name = 'input';
 export const Input = defineSSRCustomFormElement({
@@ -15,7 +16,6 @@ export const Input = defineSSRCustomFormElement({
   emits: ['update', 'enterDown'],
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
-
     const valueModel = useValueModel(props);
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
@@ -28,6 +28,7 @@ export const Input = defineSSRCustomFormElement({
         ns.m('variant-surface'),
         ns.bp(props.size, ns.m('size')),
         ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
+        ns.is('multiple', props.multiple),
       ]),
     };
 
@@ -44,6 +45,7 @@ export const Input = defineSSRCustomFormElement({
         },
       }))
     );
+    const clearValue = () => (props.multiple ? (valueModel.value = []) : (valueModel.value = null));
 
     useCEExpose({
       focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => {
@@ -66,6 +68,10 @@ export const Input = defineSSRCustomFormElement({
       blur: () => inputRef.value?.blur(),
     });
 
+    const getClearIcon = () =>
+      props.showClearIcon &&
+      renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue });
+
     // TODO mouse enter add class to show the clear button.  animation, hide suffix slot(render both, z-index?)
     return () => {
       const input = (
@@ -83,7 +89,6 @@ export const Input = defineSSRCustomFormElement({
           {...inputHandlers}
         />
       );
-      const getClearIcon = () => props.showClearIcon && <span class={[ns.em('suffix', 'clear-icon')]}>x</span>;
       return (
         <span part="root" class={classes.root.value}>
           <div class={[ns.e('slot'), ns.b('addon-before')]} part="addon-before">
@@ -107,14 +112,15 @@ export const Input = defineSSRCustomFormElement({
                 </div>
               )}
               {props.multiple ? (
-                <span {...wrapperHandlers}>
-                  {Array.isArray(valueModel.value) &&
+                <span {...wrapperHandlers} class={[ns.e('tag-container')]}>
+                  {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
                       const tagProps = {
                         tabindex: -1,
                         'data-tag-index': index,
                         'data-tag-value': v,
                         key: String(v),
+                        class: [ns.e('tag')],
                       };
                       if (props.tagRenderer)
                         return renderElement('custom-renderer', {
@@ -122,7 +128,16 @@ export const Input = defineSSRCustomFormElement({
                           type: props.tagRendererType,
                           content: props.tagRenderer(v, index),
                         });
-                      return <span {...tagProps}>{v}</span>;
+                      return (
+                        <span {...tagProps}>
+                          <span>{v}</span>
+                          {renderElement('icon', {
+                            name: 'x',
+                            class: [ns.em('tag', 'delete-icon')],
+                            onClick: () => (valueModel.value as string[]).splice(index, 1),
+                          })}
+                        </span>
+                      );
                     })}
                   {input}
                 </span>
@@ -168,4 +183,7 @@ declare global {
   }
 }
 
-export const defineInput = createDefineElement(name, Input, { 'custom-renderer': defineCustomRenderer });
+export const defineInput = createDefineElement(name, Input, {
+  'custom-renderer': defineCustomRenderer,
+  icon: defineIcon,
+});
