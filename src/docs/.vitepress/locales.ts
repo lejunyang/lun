@@ -10,6 +10,7 @@ export default {
         button: 'Button 按钮',
         icon: 'Icon 图标',
         renderer: 'CustomRenderer 自定义渲染',
+        tag: 'Tag 标签',
       },
       dataInput: {
         menu: '输入组件',
@@ -48,6 +49,7 @@ export default {
         button: 'Button',
         icon: 'Icon',
         renderer: 'CustomRenderer',
+        tag: 'Tag',
       },
       dataInput: {
         menu: 'DataInput',

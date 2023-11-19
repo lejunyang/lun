@@ -25,6 +25,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.basic.button, link: wrapLink('/components/button/', lang) },
             { text: locales[lang].sidebar.basic.icon, link: wrapLink('/components/icon/', lang) },
             { text: locales[lang].sidebar.basic.renderer, link: wrapLink('/components/custom-renderer/', lang) },
+            { text: locales[lang].sidebar.basic.tag, link: wrapLink('/components/tag/', lang) },
           ],
         },
         {
