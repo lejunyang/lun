@@ -3,8 +3,9 @@ import { ExtractPropTypes } from 'vue';
 
 export const tagProps = {
   ...themeProps,
-  closable: { type: Boolean },
-  closeIconProps: { type: Object },
+  
+  removable: { type: Boolean },
+  removeIconProps: { type: Object },
 };
 
 export type TagProps = ExtractPropTypes<typeof tagProps>;

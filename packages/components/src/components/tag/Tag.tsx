@@ -2,27 +2,38 @@ import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { ref } from 'vue';
+import { Transition, ref } from 'vue';
 import { useNamespace } from 'hooks';
 
 const name = 'tag';
 export const Tag = defineSSRCustomFormElement({
   name,
   props: tagProps,
-  setup(props) {
+  emits: ['remove', 'afterRemove'],
+  setup(props, { emit }) {
     const ns = useNamespace(name);
-    const closed = ref(false);
-    const close = () => (closed.value = true);
+    const removed = ref(false);
+    const remove = () => (removed.value = true);
+    const handlers = {
+      onLeave() {
+        emit('remove');
+      },
+      onAfterLeave() {
+        emit('afterRemove');
+      },
+    };
 
     return () => {
       return (
-        !closed.value && (
-          <span class={ns.themeClass} part="root">
-            <slot></slot>
-            {props.closable &&
-              renderElement('icon', { name: 'x', ...props.closeIconProps, onClick: close, part: 'close' })}
-          </span>
-        )
+        <Transition name={name} {...handlers}>
+          {!removed.value && (
+            <span class={ns.themeClass} part="root">
+              <slot></slot>
+              {props.removable &&
+                renderElement('icon', { name: 'x', ...props.removeIconProps, onClick: remove, part: 'icon' })}
+            </span>
+          )}
+        </Transition>
       );
     };
   },
