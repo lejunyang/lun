@@ -36,3 +36,16 @@
     border-radius: getRadiusValue(2);
   }
 }
+
+[part='icon'] {
+  cursor: pointer;
+}
+
+.tag-leave-active {
+  transition: all 0.5s;
+}
+
+.tag-leave-to {
+  opacity: 0;
+  transform: scale(0);
+}
