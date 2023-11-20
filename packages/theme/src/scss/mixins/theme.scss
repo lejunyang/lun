@@ -13,12 +13,18 @@
   @return getVarValue(($color, $level), $default);
 }
 
-@function getAccentColor($level: 1) {
+@function getAccentColor($level: 1, $contrastLevel: 9) {
   @if $level == 'surface' {
     @return getVarValue(('color', surface, $accent-name));
+  } @else if $level == 'contrast' {
+    @return getVarValue(($accent-name, $contrastLevel, contrast));
   } @else {
     @return getVarValue(($accent-name, $level), $default-accent-color);
   }
+}
+
+@function getContrastColor($color, $level: 9) {
+  @return getVarValue(($color, $level, contrast));
 }
 
 @function getGrayColor($level: 1) {
