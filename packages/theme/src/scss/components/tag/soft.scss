@@ -1,0 +1,15 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+@include b(tag) {
+  @include variant(soft) {
+    background-color: getAccentColor(a3);
+    color: getAccentColor(a11);
+
+    @include is(high-contrast, true) {
+      color: getAccentColor(12);
+    }
+  }
+}
