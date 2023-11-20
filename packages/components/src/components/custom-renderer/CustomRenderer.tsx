@@ -1,19 +1,17 @@
 import { defineSSRCustomElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
-import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick } from 'vue';
+import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick, defineComponent } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
-import { customRendererProps } from './type';
+import { customRendererProps, CustomRendererProps } from './type';
 
-export const CustomRenderer = defineSSRCustomElement({
-  name: 'custom-renderer',
+const name = 'custom-renderer';
+
+const options = {
+  name,
   props: customRendererProps,
-  noShadow: true,
   inheritAttrs: false,
-  onCE(_instance, ce) {
-    ce.style.display = 'contents';
-  },
-  setup(props, { attrs }) {
+  setup(props: CustomRendererProps, { attrs }: { attrs: Record<string, any> }) {
     const div = shallowRef<HTMLDivElement>();
     const vnode = shallowRef();
     let mounted = false;
@@ -49,7 +47,7 @@ export const CustomRenderer = defineSSRCustomElement({
         nextType = isVNode(content) ? 'vnode' : 'html';
         if (['string', 'number'].includes(typeof content) || !content) {
           updateHtml = () => {
-            if(!div.value) return;
+            if (!div.value) return;
             if (props.preferHtml) div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content || ''));
             else div.value.innerText = String(content || '');
           };
@@ -102,11 +100,17 @@ export const CustomRenderer = defineSSRCustomElement({
         renderer.onBeforeUnmount(props.content, div.value!);
       }
     });
-    return () => (
-      <div ref={div} style="display: contents">
-        {vnode.value}
-      </div>
-    );
+    return () => vnode.value || <div ref={div} style="display: contents"></div>;
+  },
+};
+
+export const VCustomRenderer = defineComponent(options);
+
+export const CustomRenderer = defineSSRCustomElement({
+  ...options,
+  noShadow: true,
+  onCE(_instance, ce) {
+    ce.style.display = 'contents';
   },
 });
 
@@ -122,4 +126,4 @@ declare global {
   }
 }
 
-export const defineCustomRenderer = createDefineElement('custom-renderer', CustomRenderer);
+export const defineCustomRenderer = createDefineElement(name, CustomRenderer);
