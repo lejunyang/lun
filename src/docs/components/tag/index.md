@@ -1,7 +1,61 @@
 ## 基础使用
 
-<l-tag variant="surface">标签</l-tag>
+<l-tag>标签</l-tag>
 
 ## 可删除标签
 
-<l-tag variant="surface" removable @remove="console.log('start remove')" @after-remove="console.log('removed')">标签</l-tag>
+<l-tag removable @remove="console.log('start remove')" @after-remove="console.log('removed')">标签</l-tag>
+
+## 不同变体
+
+<div class="container">
+  <l-tag variant="solid">solid</l-tag>
+  <l-tag variant="soft">soft</l-tag>
+  <l-tag variant="outline">outline</l-tag>
+  <l-tag variant="surface">surface</l-tag>
+</div>
+<div class="container">
+  <l-tag variant="solid" removable>solid</l-tag>
+  <l-tag variant="soft" removable>soft</l-tag>
+  <l-tag variant="outline" removable>outline</l-tag>
+  <l-tag variant="surface" removable>surface</l-tag>
+</div>
+
+## 不同颜色
+
+<div class="container">
+  <l-tag color="indigo">solid</l-tag>
+  <l-tag color="cyan">soft</l-tag>
+  <l-tag color="orange">outline</l-tag>
+  <l-tag color="crimson">surface</l-tag>
+</div>
+
+## 不同大小
+
+<div class="container">
+  <l-tag variant="surface" size="1">标签</l-tag>
+  <l-tag variant="surface" size="2">标签</l-tag>
+  <l-tag variant="surface" size="3">标签</l-tag>
+</div>
+<div class="container">
+  <l-tag variant="surface" size="1" removable>标签</l-tag>
+  <l-tag variant="surface" size="2" removable>标签</l-tag>
+  <l-tag variant="surface" size="3" removable>标签</l-tag>
+</div>
+
+## 高对比度
+
+使用`highContrast`来增加文字与背景的对比度
+
+<div class="container">
+  <l-tag variant="solid">solid</l-tag>
+  <l-tag variant="soft">soft</l-tag>
+  <l-tag variant="outline">outline</l-tag>
+  <l-tag variant="surface">surface</l-tag>
+</div>
+<div class="container">
+  <l-tag variant="solid" highContrast>solid</l-tag>
+  <l-tag variant="soft" highContrast>soft</l-tag>
+  <l-tag variant="outline" highContrast>outline</l-tag>
+  <l-tag variant="surface" highContrast>surface</l-tag>
+</div>

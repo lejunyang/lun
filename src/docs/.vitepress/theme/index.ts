@@ -3,7 +3,13 @@ import { h } from 'vue';
 import Theme from 'vitepress/theme';
 import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, registerCustomRenderer } from '@lun/components';
 import '@lun/theme/scss/public/index.scss';
-import { importBasicTheme, importSurfaceTheme } from '@lun/theme';
+import {
+  importBasicTheme,
+  importSurfaceTheme,
+  importOutlineTheme,
+  importSoftTheme,
+  importSolidTheme,
+} from '@lun/theme';
 import Layout from './Layout.vue';
 import './style.css';
 
@@ -17,6 +23,9 @@ export default {
     once = true;
     importAllBasicStyles();
     importBasicTheme();
+    importOutlineTheme();
+    importSoftTheme();
+    importSolidTheme();
     importSurfaceTheme();
 
     // lazy import react
