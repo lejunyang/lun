@@ -1,3 +1,7 @@
+<script setup>
+  import { themeColors } from '@lun/components';
+</script>
+
 ## 基础使用
 
 <l-tag>标签</l-tag>
@@ -24,10 +28,7 @@
 ## 不同颜色
 
 <div class="container">
-  <l-tag color="indigo">solid</l-tag>
-  <l-tag color="cyan">soft</l-tag>
-  <l-tag color="orange">outline</l-tag>
-  <l-tag color="crimson">surface</l-tag>
+  <l-tag v-for="color in themeColors" :color="color">{{ color }}</l-tag>
 </div>
 
 ## 不同大小
