@@ -63,10 +63,11 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   const theme = useContextConfig()?.theme;
   const vm = getCurrentInstance();
+  const getActualThemeValue = <T>(key: keyof typeof theme) => (vm?.props[key] || theme?.[key]) as T;
   const themeClass = computed(() => {
-    const variant = vm?.props.variant || theme?.variant;
-    const size = vm?.props.size || theme?.size;
-    const highContrast = (vm?.props.highContrast as boolean) ?? theme?.highContrast;
+    const variant = getActualThemeValue('variant');
+    const size = getActualThemeValue('size');
+    const highContrast = getActualThemeValue<boolean>('highContrast');
     return [
       b(),
       variant && m(`variant-${variant}`),
@@ -74,6 +75,8 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
       is('high-contrast', highContrast),
     ];
   });
+
+  const p = (part: string) => `${block ? block + '-' : ''}${part}`;
 
   return {
     namespace,
@@ -105,6 +108,8 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
     get themeClass() {
       return themeClass.value;
     },
+    /** used to generate html part value */
+    p,
   };
 };
 

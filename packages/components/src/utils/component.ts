@@ -2,6 +2,7 @@ import { ComponentKey, GlobalStaticConfig, ShadowComponentKey } from 'config';
 import { ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
+import { exportParts } from '../common/exportParts';
 
 export function getElementFirstName(comp: ComponentKey) {
   return GlobalStaticConfig.actualNameMap[comp]?.values().next().value;
@@ -9,7 +10,9 @@ export function getElementFirstName(comp: ComponentKey) {
 
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
   const name = getElementFirstName(comp);
-  if (name) return h(name, props, children);
+  const { commonSeparator } = GlobalStaticConfig;
+  const exportparts = (exportParts[comp as ShadowComponentKey] || []).map((i) => comp + commonSeparator + i).join(',');
+  if (name) return h(name, { ...props, exportparts: exportparts || undefined }, children);
 }
 
 export type ComponentDependencyDefineMap = {
