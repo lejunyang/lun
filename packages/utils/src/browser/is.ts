@@ -1,15 +1,23 @@
-function is(node: Node, type: 'Element' | 'HTMLElement' | 'HTMLTemplateElement') {
-  return node instanceof globalThis[type] || node instanceof node.ownerDocument.defaultView[type];
+function is(node: unknown, type: 'Node' | 'Element' | 'HTMLElement' | 'HTMLTemplateElement') {
+  return (
+    globalThis[type] &&
+    (node instanceof globalThis[type] ||
+      node instanceof ((node as Node)?.ownerDocument?.defaultView || globalThis)[type])
+  );
 }
 
-export function isElement(node: Node): node is Element {
+export function isNode(node: unknown): node is Node {
+  return is(node, 'Node');
+}
+
+export function isElement(node: unknown): node is Element {
   return is(node, 'Element');
 }
 
-export function isHTMLElement(node: Node): node is HTMLElement {
+export function isHTMLElement(node: unknown): node is HTMLElement {
   return is(node, 'HTMLElement');
 }
 
-export function isHTMLTemplateElement(node: Node): node is HTMLTemplateElement {
+export function isHTMLTemplateElement(node: unknown): node is HTMLTemplateElement {
   return is(node, 'HTMLTemplateElement');
 }
