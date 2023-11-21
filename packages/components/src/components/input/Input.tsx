@@ -5,8 +5,9 @@ import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useNamespace, useVModelCompatible, useValueModel } from 'hooks';
 import { inputProps } from './type';
 import { isEmpty, isArray } from '@lun/utils';
-import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
+import { defineTag } from '../tag/Tag';
 
 const name = 'input';
 export const Input = defineSSRCustomFormElement({
@@ -123,20 +124,21 @@ export const Input = defineSSRCustomFormElement({
                         class: [ns.e('tag')],
                       };
                       if (props.tagRenderer)
-                        return renderElement('custom-renderer', {
+                        return (
+                          <VCustomRenderer
+                            {...tagProps}
+                            type={props.tagRendererType}
+                            content={props.tagRenderer(v, index)}
+                          />
+                        );
+                      return renderElement(
+                        'tag',
+                        {
                           ...tagProps,
-                          type: props.tagRendererType,
-                          content: props.tagRenderer(v, index),
-                        });
-                      return (
-                        <span {...tagProps}>
-                          <span>{v}</span>
-                          {renderElement('icon', {
-                            name: 'x',
-                            class: [ns.em('tag', 'delete-icon')],
-                            onClick: () => (valueModel.value as string[]).splice(index, 1),
-                          })}
-                        </span>
+                          removable: true,
+                          onAfterRemove: () => (valueModel.value as string[]).splice(index, 1),
+                        },
+                        v
                       );
                     })}
                   {input}
@@ -184,6 +186,6 @@ declare global {
 }
 
 export const defineInput = createDefineElement(name, Input, {
-  'custom-renderer': defineCustomRenderer,
   icon: defineIcon,
+  tag: defineTag,
 });
