@@ -4,6 +4,7 @@ import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick,
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
 import { customRendererProps, CustomRendererProps } from './type';
+import { isFunction, isHTMLTemplateElement, isNode } from '@lun/utils';
 
 const name = 'custom-renderer';
 
@@ -42,22 +43,24 @@ const options = {
       }
       // no valid renderer, check the content if it is string, number or vnode, render it if yes
       if (!renderer) {
-        if (content instanceof Function) content = content(); // if it's a function, consider it as a getter
-        nextType = isVNode(content) ? 'vnode' : 'html';
-        if (['string', 'number'].includes(typeof content) || !content) {
-          updateHtml = () => {
-            if (!div.value) return;
-            if (props.preferHtml) div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content || ''));
-            else div.value.innerText = String(content || '');
-          };
-        } else if (content instanceof Node) {
-          updateHtml = () => {
-            if (div.value) {
-              div.value.innerHTML = '';
-              if (content instanceof HTMLTemplateElement) content = document.importNode(content.content, true);
-              div.value.append(content as Node);
-            }
-          };
+        if (isFunction(content)) content = content(); // if it's a function, consider it as a getter
+        const isRawType = ['string', 'number', 'boolean'].includes(typeof content);
+        nextType = isVNode(content) || (isRawType && !props.preferHtml) ? 'vnode' : 'html';
+        if (nextType === 'html') {
+          if (isNode(content)) {
+            updateHtml = () => {
+              if (div.value) {
+                div.value.innerHTML = '';
+                if (isHTMLTemplateElement(content)) content = document.importNode(content.content, true);
+                div.value.append(content);
+              }
+            };
+          } else {
+            updateHtml = () => {
+              if (!div.value) return;
+              div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content ?? ''));
+            };
+          }
         }
 
         if (nextType === lastType || !lastType) {
@@ -99,7 +102,7 @@ const options = {
         renderer.onBeforeUnmount(props.content, div.value!);
       }
     });
-    return () => vnode.value || <div ref={div} style="display: contents"></div>;
+    return () => vnode.value ?? <div ref={div} style="display: contents"></div>;
   },
 };
 
