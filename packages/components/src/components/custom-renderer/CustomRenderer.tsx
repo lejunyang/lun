@@ -10,7 +10,6 @@ const name = 'custom-renderer';
 const options = {
   name,
   props: customRendererProps,
-  inheritAttrs: false,
   setup(props: CustomRendererProps, { attrs }: { attrs: Record<string, any> }) {
     const div = shallowRef<HTMLDivElement>();
     const vnode = shallowRef();
@@ -108,6 +107,7 @@ export const VCustomRenderer = defineComponent(options);
 
 export const CustomRenderer = defineSSRCustomElement({
   ...options,
+  inheritAttrs: false,
   noShadow: true,
   onCE(_instance, ce) {
     ce.style.display = 'contents';
