@@ -15,6 +15,7 @@ $contrast-color-map: (
   yellow: #21201c,
   amber: #21201c,
 ) !default;
+$color-name: 'color' !default;
 $accent-name: 'accent' !default;
 $accent-color-name: #{$accent-name + '-color'} !default;
 $default-accent-color: 'indigo' !default;
