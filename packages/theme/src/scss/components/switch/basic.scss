@@ -1,0 +1,73 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+@include b(switch) {
+  $height: getVarName((switch, 'height'));
+  $borderRadius: getVarName((switch, 'border-radius'));
+  $minWidth: getVarName((switch, 'min-width'));
+  $padding: getVarName((switch, 'padding'));
+  $thumbSize: getVarName((switch, 'thumb-size'));
+
+  #{$minWidth}: calc(var(#{$height}) * 1.75);
+  #{$padding}: 1px;
+  #{$thumbSize}: calc(var(#{$height}) - var(#{$padding}) * 2);
+
+  display: inline-flex;
+  align-items: center;
+  background-color: green;
+  min-width: var(#{$minWidth});
+  height: var(#{$height});
+  border-radius: var(#{$borderRadius});
+  overflow: hidden;
+
+  @include e(thumb) {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    width: var(#{$thumbSize});
+    height: var(#{$thumbSize});
+    background-color: white;
+    border-radius: calc(var(#{$borderRadius}) - var(#{$padding}));
+    position: relative;
+    inset-inline-start: var(#{$padding});
+    transition: all 0.3s;
+  }
+  @include e(checked) {
+    position: relative;
+    inset-inline-start: calc(0px - var(#{$thumbSize}));
+  }
+  @include e(unchecked) {
+    position: relative;
+    inset-inline-start: var(#{$padding});
+  }
+
+  @include is(checked, false, true) {
+    #{getE(thumb)} {
+      inset-inline-start: calc(100% - var(#{$thumbSize}) - var(#{$padding}));
+    }
+  }
+
+  @include size(1) {
+    #{$height}: getSpaceValue(4);
+    #{$borderRadius}: getRadiusValue(1, false);
+    #{getE(children)} {
+      font-size: getFontSizeValue(1);
+    }
+  }
+  @include size(2) {
+    #{$height}: calc(getSpaceValue(5) * 5 / 6);
+    #{$borderRadius}: getRadiusValue(2, false);
+    #{getE(children)} {
+      font-size: getFontSizeValue(2);
+    }
+  }
+  @include size(3) {
+    #{$height}: getSpaceValue(5);
+    #{$borderRadius}: getRadiusValue(2, false);
+    #{getE(children)} {
+      font-size: getFontSizeValue(3);
+    }
+  }
+}
