@@ -12,7 +12,7 @@
   align-items: center;
   box-sizing: border-box;
   white-space: nowrap;
-  font-weight: var(--font-weight-medium);
+  font-weight: getFontWeightValue(medium);
   flex-shrink: 0;
   line-height: 1;
 
@@ -42,10 +42,10 @@
     gap: calc(getSpaceValue(2) * 0.75);
     border-radius: getRadiusValue(2);
   }
-}
 
-[part='icon'] {
-  cursor: pointer;
+  @include e(icon) {
+    cursor: pointer;
+  }
 }
 
 .tag-leave-active {
