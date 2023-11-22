@@ -29,15 +29,7 @@ export const Switch = defineSSRCustomFormElement({
       const { readonly, disabled, loading } = editComputed.value;
       return (
         <>
-          <label
-            part={ns.p('root')}
-            class={[
-              ...ns.themeClass,
-              ns.is('checked', checked),
-              ns.is('loading', loading),
-              ns.is('disabled', disabled),
-            ]}
-          >
+          <label part={ns.p('root')} class={[...ns.s(editComputed), ns.is('checked', checked)]}>
             <input
               part={ns.p('input')}
               type="checkbox"
