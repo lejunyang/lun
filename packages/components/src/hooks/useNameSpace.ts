@@ -1,6 +1,6 @@
 // derived from element-plus
-import { MaybeRefLikeOrGetter, unrefOrGet, withBreakpoints } from '@lun/core';
-import { computed, getCurrentInstance } from 'vue';
+import { EditState, MaybeRefLikeOrGetter, unrefOrGet, withBreakpoints } from '@lun/core';
+import { ComputedRef, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
@@ -61,9 +61,9 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
-  const theme = useContextConfig()?.theme;
+  const contextConfig = useContextConfig();
   const vm = getCurrentInstance();
-  const getActualThemeValue = <T>(key: keyof typeof theme) => (vm?.props[key] || theme?.[key]) as T;
+  const getActualThemeValue = <T>(key: keyof typeof contextConfig['theme']) => (vm?.props[key] || contextConfig?.theme[key]) as T;
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
     const size = getActualThemeValue('size');
@@ -77,6 +77,16 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
   });
 
   const p = (part: string) => `${block ? block + '-' : ''}${part}`;
+
+  const stateClass = (editComputed: ComputedRef<EditState>) => {
+    const { disabled, readonly, loading } = editComputed.value;
+    return [
+      ...themeClass.value,
+      is('disabled', disabled),
+      is('readonly', readonly),
+      is('loading', loading),
+    ]
+  }
 
   return {
     namespace,
@@ -104,12 +114,17 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
     bp: (...args: Parameters<typeof withBreakpoints>) => {
       return withBreakpoints(args[0] || '1', args[1] || m('size'), args[2]);
     },
-    theme,
-    get themeClass() {
+    /** context config */
+    config: contextConfig,
+    vm,
+    /** get theme class */
+    get t() {
       return themeClass.value;
     },
     /** used to generate html part value */
     p,
+    /** get editState class from editComputed, also return themeClass */
+    s: stateClass,
   };
 };
 
