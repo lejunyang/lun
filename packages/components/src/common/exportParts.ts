@@ -1,5 +1,7 @@
 import { ShadowComponentKey } from '../components/config/config.static';
 
+const root = 'root';
 export const exportParts = {
-  tag: ['root', 'icon'],
+  switch: [root, 'input', 'children', 'thumb'],
+  tag: [root, 'icon'],
 } as Record<ShadowComponentKey, string[]>;
