@@ -66,6 +66,14 @@
   @return #{'--' + $namespace + '-' + $font-size-name};
 }
 
+@function getFontWeightVarName() {
+  @return #{'--' + $namespace + '-' + $font-weight-name};
+}
+
+@function getFontWeightValue($name) {
+  @return getVarValue(($font-weight-name, $name));
+}
+
 @function getFontSizeValue($level) {
   @return getVarValue(($font-size-name, $level));
 }
@@ -87,8 +95,12 @@
 }
 
 // radius
-@function getRadiusValue($level) {
-  @return max(getVarValue(($radius-name, $level)), getVarValue(($radius-full-name)));
+@function getRadiusValue($level, $isFull: true) {
+  $name: $radius-full-name;
+  @if not $isFull {
+    $name: $radius-thumb-name;
+  }
+  @return max(getVarValue(($radius-name, $level)), getVarValue(($name)));
 }
 
 @function getDisabledCursor() {

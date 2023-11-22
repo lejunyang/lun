@@ -8,6 +8,11 @@
     #{getFontSizeVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
   }
 
+  // font-weight
+  @each $name, $weight in $font-weight-map {
+    #{getFontWeightVarName()}-#{$name}: $weight;
+  }
+
   // letter spacing
   @for $i from 1 through length($letter-spacing-list) {
     $size: nth($letter-spacing-list, $i);

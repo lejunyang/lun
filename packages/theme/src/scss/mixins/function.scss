@@ -11,7 +11,7 @@
   @return $name;
 }
 
-// getCssVar(('button', 'text-color'), red) => var(--l-button-text-color, red)
+// getVarValue(('button', 'text-color'), red) => var(--l-button-text-color, red)
 @function getVarValue($args, $default: '') {
   @if $default == '' {
     @return var(#{getVarName($args)});
