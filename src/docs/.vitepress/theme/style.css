@@ -138,3 +138,6 @@ main .container {
 .container + .container {
   margin-top: 5px;
 }
+.container.align-end {
+  align-items: end;
+}
