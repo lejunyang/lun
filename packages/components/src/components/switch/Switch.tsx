@@ -30,11 +30,16 @@ export const Switch = defineSSRCustomFormElement({
       return (
         <>
           <label
-            part="root"
-            class={[ns.b(), ns.is('checked', checked), ns.is('loading', loading), ns.is('disabled', disabled)]}
+            part={ns.p('root')}
+            class={[
+              ...ns.themeClass,
+              ns.is('checked', checked),
+              ns.is('loading', loading),
+              ns.is('disabled', disabled),
+            ]}
           >
             <input
-              part="input"
+              part={ns.p('input')}
               type="checkbox"
               role="switch"
               checked={checked}
@@ -44,12 +49,16 @@ export const Switch = defineSSRCustomFormElement({
               hidden
               {...inputHandlers}
             />
-            <span part="wrapper" class={ns.e('wrapper')}>
-              {checked && <slot name="checked">{trueText}</slot>}
-              <span part="thumb" class={[ns.e('thumb')]}>
-                {loading && <slot name="loading">{renderElement('spin', spinProps)}</slot>}
+            <span part={ns.p('thumb')} class={[ns.e('thumb')]}>
+              <slot name={loading ? 'loading' : 'thumb'}>{loading && renderElement('spin', spinProps)}</slot>
+            </span>
+            <span part={ns.p('children')} class={ns.e('children')}>
+              <span v-show={checked} class={ns.e('checked')}>
+                <slot name="checked">{trueText}</slot>
               </span>
-              {!checked && <slot name="unchecked">{falseText}</slot>}
+              <span v-show={!checked} class={ns.e('unchecked')}>
+                <slot name="unchecked">{falseText}</slot>
+              </span>
             </span>
           </label>
         </>
