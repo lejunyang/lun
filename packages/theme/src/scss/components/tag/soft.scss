@@ -11,5 +11,9 @@
     @include is(high-contrast, true) {
       color: getAccentColor(12);
     }
+
+    :host(:focus) & {
+      outline: getAccentColor(a8) 2px solid;
+    }
   }
 }
