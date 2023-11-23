@@ -16,8 +16,7 @@
 
   display: inline-flex;
   align-items: center;
-  background-color: green;
-  min-width: var(#{$minWidth});
+  min-inline-size: var(#{$minWidth});
   height: var(#{$height});
   border-radius: var(#{$borderRadius});
   overflow: hidden;
@@ -26,8 +25,8 @@
     align-items: center;
     display: inline-flex;
     justify-content: center;
-    width: var(#{$thumbSize});
-    height: var(#{$thumbSize});
+    inline-size: var(#{$thumbSize});
+    block-size: var(#{$thumbSize});
     background-color: white;
     border-radius: calc(var(#{$borderRadius}) - var(#{$padding}));
     position: relative;
@@ -46,6 +45,13 @@
   @include is(checked, false, true) {
     #{getE(thumb)} {
       inset-inline-start: calc(100% - var(#{$thumbSize}) - var(#{$padding}));
+    }
+  }
+
+  @include is(disabled, false, true) {
+    cursor: getDisabledCursor();
+    .#{$B}:not(&) {
+      cursor: pointer;
     }
   }
 

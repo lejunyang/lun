@@ -1,0 +1,14 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+@include b(switch) {
+  @include variant(surface) {
+    background-color: getGrayColor(a3);
+    box-shadow: 0 0 0 1px getGrayColor(a5);
+    @include is(checked, true, true) {
+      background-color: getAccentColor(9);
+    }
+  }
+}
