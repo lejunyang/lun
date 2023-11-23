@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { themeProviderProps } from './type';
-import { GlobalStaticConfig } from '..';
+import { provideContextConfig } from '../config';
 import { provide } from 'vue';
 
 export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
@@ -17,7 +17,10 @@ export const ThemeProvider = defineSSRCustomElement({
     el.toggleAttribute('root', isRoot);
   },
   setup(props) {
-    provide(ThemeProviderKey, props);
+    provide(ThemeProviderKey, true);
+    provideContextConfig({
+      theme: props,
+    });
     return () => null;
   },
 });

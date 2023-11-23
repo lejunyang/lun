@@ -2,6 +2,7 @@
 import { EditState, MaybeRefLikeOrGetter, unrefOrGet, withBreakpoints } from '@lun/core';
 import { ComputedRef, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
+import { isPreferDark } from '@lun/utils';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -63,16 +64,19 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   const contextConfig = useContextConfig();
   const vm = getCurrentInstance();
-  const getActualThemeValue = <T>(key: keyof typeof contextConfig['theme']) => (vm?.props[key] || contextConfig?.theme[key]) as T;
+  const getActualThemeValue = <T>(key: keyof (typeof contextConfig)['theme']) =>
+    (vm?.props[key] || contextConfig?.theme[key]) as T;
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
     const size = getActualThemeValue('size');
     const highContrast = getActualThemeValue<boolean>('highContrast');
+    const appearance = getActualThemeValue('appearance');
     return [
       b(),
       variant && m(`variant-${variant}`),
       withBreakpoints(size || '1', m('size')),
       is('high-contrast', highContrast),
+      is('dark', appearance === 'dark' || isPreferDark()),
     ];
   });
 
@@ -80,13 +84,8 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
 
   const stateClass = (editComputed: ComputedRef<EditState>) => {
     const { disabled, readonly, loading } = editComputed.value;
-    return [
-      ...themeClass.value,
-      is('disabled', disabled),
-      is('readonly', readonly),
-      is('loading', loading),
-    ]
-  }
+    return [...themeClass.value, is('disabled', disabled), is('readonly', readonly), is('loading', loading)];
+  };
 
   return {
     namespace,

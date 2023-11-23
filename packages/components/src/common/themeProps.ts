@@ -36,6 +36,7 @@ export const themeProps = {
   variant: { type: String as PropType<'solid' | 'soft' | 'surface' | 'outline'> },
   radius: { type: String as PropType<'none' | 'small' | 'medium' | 'large' | 'full'> },
   highContrast: { type: Boolean, default: undefined },
+  appearance: { type: String as PropType<'light' | 'dark'> },
 };
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;

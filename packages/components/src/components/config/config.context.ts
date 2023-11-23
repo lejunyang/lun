@@ -2,6 +2,7 @@ import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { ShadowComponentKey, shadowComponents } from './config.static';
 import { ThemeProps } from 'common';
+import { deepMerge } from '@lun/utils';
 
 export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
@@ -29,8 +30,9 @@ export const GlobalContextConfig = reactive({
 export type TGlobalContextConfig = typeof GlobalContextConfig;
 export type kTGlobalContextConfig = keyof TGlobalContextConfig;
 
-export function provideContextConfig(config: TGlobalContextConfig) {
-  provide(CONTEXT_CONFIG_KEY, config);
+export function provideContextConfig(config: Partial<TGlobalContextConfig>) {
+  const parentConfig = useContextConfig();
+  provide(CONTEXT_CONFIG_KEY, deepMerge(parentConfig || {}, config));
 }
 
 export function useContextConfig(): TGlobalContextConfig;
