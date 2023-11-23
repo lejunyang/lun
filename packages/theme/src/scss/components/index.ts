@@ -1,6 +1,6 @@
 import { importButtonBasicTheme, importButtonSurfaceTheme } from './button/index.ts';
 import { importInputBasicTheme, importInputSurfaceTheme } from './input/index.ts';
-import { importSwitchBasicTheme } from './switch/index.ts';
+import { importSwitchBasicTheme, importSwitchSurfaceTheme } from './switch/index.ts';
 import {
   importTagBasicTheme,
   importTagOutlineTheme,
@@ -33,5 +33,6 @@ export function importSolidTheme() {
 export function importSurfaceTheme() {
   importButtonSurfaceTheme();
   importInputSurfaceTheme();
+  importSwitchSurfaceTheme();
   importTagSurfaceTheme();
 }
