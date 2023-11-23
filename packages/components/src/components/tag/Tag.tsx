@@ -30,7 +30,13 @@ export const Tag = defineSSRCustomFormElement({
             <span class={ns.t} part={ns.p('root')}>
               <slot></slot>
               {props.removable &&
-                renderElement('icon', { name: 'x', ...props.removeIconProps, onClick: remove, part: ns.p('icon') })}
+                renderElement('icon', {
+                  name: 'x',
+                  ...props.removeIconProps,
+                  onClick: remove,
+                  part: ns.p('icon'),
+                  class: ns.e('icon'),
+                })}
             </span>
           )}
         </Transition>
