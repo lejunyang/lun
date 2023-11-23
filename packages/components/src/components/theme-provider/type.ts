@@ -1,9 +1,8 @@
-import { ExtractPropTypes, PropType } from 'vue';
+import { ExtractPropTypes } from 'vue';
+import { themeProps } from 'common';
 
 export const themeProviderProps = {
-  theme: { type: String },
-  appearance: { type: String as PropType<'light' | 'dark'> },
-  accentColor: { type: String },
+  ...themeProps,
   grayColor: { type: String },
   scale: { type: String },
 };
