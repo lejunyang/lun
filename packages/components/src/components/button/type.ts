@@ -1,16 +1,14 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps } from 'common';
-import { Responsive } from '@lun/core';
+import { editStateProps, themeProps } from 'common';
 
 export const buttonProps = {
   ...editStateProps,
+  ...themeProps,
   label: { type: String },
   asyncHandler: { type: Function as PropType<(e?: MouseEvent) => void> },
   spinProps: { type: Object },
-  size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
   showLoading: { type: Boolean },
   iconPosition: { type: String as PropType<LogicalPosition> },
-  variant: { type: String },
   debounce: { type: Number },
   throttle: { type: Number },
   holdOn: { type: Number },

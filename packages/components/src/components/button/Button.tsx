@@ -57,12 +57,7 @@ export const Button = defineSSRCustomElement({
       const loadingPart = loading && props.showLoading ? renderElement('spin', spinProps) : <slot name="icon"></slot>;
       return (
         <button
-          class={[
-            ns.b(),
-            props.variant && ns.m(`variant-${props.variant}`),
-            ns.bp(props.size),
-            ns.is('disabled', finalDisabled),
-          ]}
+          class={[...ns.s(editComputed)]}
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handleClick.value}
