@@ -1,3 +1,4 @@
+export * from './detect';
 export * from './dom';
 export * from './is';
 export * from './isOverflow';
