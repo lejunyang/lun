@@ -1,8 +1,8 @@
 import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { ShadowComponentKey, shadowComponents } from './config.static';
-import { ThemeProps } from 'common';
-import { deepMerge } from '@lun/utils';
+import { ThemeConfig } from 'common';
+import { virtualGetMerge } from '@lun/utils';
 
 export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
@@ -18,13 +18,17 @@ export const GlobalContextConfig = reactive({
     return new Proxy(original, {
       get(target, p, receiver) {
         if (p === 'common') return commonStyles;
+        if (!(p in original)) {
+          // vue will access this, _v_raw _v_skip...
+          return Reflect.get(target, p, receiver);
+        }
         return [...commonStyles, ...Reflect.get(target, p, receiver)].filter(Boolean);
       },
     });
   })(),
   theme: {
     variant: 'surface',
-  } as ThemeProps,
+  } as ThemeConfig,
 });
 
 export type TGlobalContextConfig = typeof GlobalContextConfig;
@@ -32,7 +36,12 @@ export type kTGlobalContextConfig = keyof TGlobalContextConfig;
 
 export function provideContextConfig(config: Partial<TGlobalContextConfig>) {
   const parentConfig = useContextConfig();
-  provide(CONTEXT_CONFIG_KEY, deepMerge(parentConfig || {}, config));
+  provide(CONTEXT_CONFIG_KEY, {
+    ...parentConfig,
+    ...config,
+    // theme-provider provides props as theme, actual merge will make it lose reactivity
+    theme: config.theme ? virtualGetMerge(parentConfig.theme, config.theme) : parentConfig.theme,
+  });
 }
 
 export function useContextConfig(): TGlobalContextConfig;

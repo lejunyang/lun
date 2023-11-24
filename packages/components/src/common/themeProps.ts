@@ -1,5 +1,6 @@
 import { Responsive } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
+import { ShadowComponentKey } from '../components';
 
 export const themeColors = Object.freeze([
   'gray',
@@ -30,7 +31,7 @@ export const themeColors = Object.freeze([
   'sky',
 ] as const);
 
-export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline'] as const);
+export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline', 'classic'] as const);
 
 export const themeProps = {
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
@@ -42,5 +43,8 @@ export const themeProps = {
 };
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
-export type ThemeColors = typeof themeColors[number];
-export type ThemeVariants = typeof themeVariants[number];
+export type ThemeConfig = {
+  [key in keyof ThemeProps]: ThemeProps[key] | Record<ShadowComponentKey | 'common', ThemeProps[key]>;
+};
+export type ThemeColors = (typeof themeColors)[number];
+export type ThemeVariants = (typeof themeVariants)[number];
