@@ -31,14 +31,10 @@ export default defineConfig({
   },
   css: {
     postcss: {
-			plugins: [postcssLogical()],
-		},
+      plugins: [postcssLogical()],
+    },
     preprocessorOptions: {
-      scss: {
-        additionalData: `
-				@use "@/scss/mixins/index" as *;
-				`,
-      },
+      scss: {},
     },
   },
 });
