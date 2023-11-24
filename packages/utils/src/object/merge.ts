@@ -81,8 +81,7 @@ export type DeepMergePathOptions = {
 };
 export type DeepMergeOptions = {
   [key in DeepMergeOptionKey]?: DeepMergeStrategy;
-} &
-  DeepMergePathOptions;
+} & DeepMergePathOptions;
 
 const getTypeConfigPath = (sourceType: string, targetType: string) => `${sourceType}To${targetType}`;
 const isMergeStrategy = (s: any): s is DeepMergeStrategy => {
@@ -195,4 +194,43 @@ export function deepMerge<TargetType extends object = any, SourceType extends ob
   const result = internalMerge(target, source, []);
   map.clear();
   return result;
+}
+
+export type MergeObjects<T extends unknown[]> = T extends [infer First, ...infer Rest]
+  ? First extends object
+    ? MergeObjects<Rest> extends infer MergedRest
+      ? First & MergedRest
+      : never
+    : never
+  : {};
+
+export function virtualMerge<T extends Record<string | symbol, any>[]>(...targets: T) {
+  return new Proxy(
+    {},
+    {
+      get(_target, key) {
+        return targets.find((i) => i[key] !== undefined)?.[key];
+      },
+      set(_, key, value) {
+        const target = targets.find((i) => key in i);
+        if (target === undefined) return false;
+        target[key] = value;
+        return true;
+      },
+    }
+  ) as MergeObjects<T>;
+}
+
+export function virtualGetMerge<T extends Record<string | symbol, any>[]>(...targets: T) {
+  return new Proxy(
+    {},
+    {
+      get(_target, key) {
+        return targets.find((i) => i[key] !== undefined)?.[key];
+      },
+      set() {
+        return false;
+      },
+    }
+  ) as Readonly<MergeObjects<T>>;
 }
