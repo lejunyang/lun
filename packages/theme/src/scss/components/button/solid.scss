@@ -1,7 +1,7 @@
-@use '@/scss/mixins/bem' as *;
-@use '@/scss/mixins/theme' as *;
-@use '@/scss/mixins/function' as *;
-@use '@/scss/mixins/config' as *;
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
 
 @include b(button) {
   @include variant(solid) {
