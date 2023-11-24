@@ -1,0 +1,55 @@
+@use '@/scss/mixins/bem' as *;
+@use '@/scss/mixins/theme' as *;
+@use '@/scss/mixins/function' as *;
+@use '@/scss/mixins/config' as *;
+
+@include b(button) {
+  @include variant(soft) {
+    color: getAccentColor(a11);
+    background-color: getAccentColor(a3);
+
+    &:hover {
+      background-color: getAccentColor(a4);
+    }
+    &:active {
+      background-color: getAccentColor(a5);
+    }
+    &:focus-visible {
+      outline: 2px solid getAccentColor(8);
+      outline-offset: -1px;
+    }
+
+    @include is(high-contrast, true) {
+      color: getAccentColor(12);
+    }
+
+    @include is(disabled, true) {
+      color: getGrayColor(a8);
+      background-color: getGrayColor(a3);
+    }
+  }
+
+  @include variant(ghost) {
+    color: getAccentColor(a11);
+
+    &:hover {
+      background-color: getAccentColor(a3);
+    }
+    &:active {
+      background-color: getAccentColor(a4);
+    }
+    &:focus-visible {
+      outline: 2px solid getFocusColor();
+      outline-offset: -1px;
+    }
+
+    @include is(high-contrast, true) {
+      color: getAccentColor(12);
+    }
+
+    @include is(disabled, true) {
+      color: getGrayColor(a8);
+      background-color: getGrayColor(a3);
+    }
+  }
+}
