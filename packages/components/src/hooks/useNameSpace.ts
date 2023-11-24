@@ -1,6 +1,6 @@
-// derived from element-plus
-import { EditState, MaybeRefLikeOrGetter, unrefOrGet, withBreakpoints } from '@lun/core';
-import { ComputedRef, computed, getCurrentInstance } from 'vue';
+// inspired by element-plus
+import { EditState, withBreakpoints } from '@lun/core';
+import { ComponentInternalInstance, ComputedRef, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isPreferDark } from '@lun/utils';
 
@@ -19,16 +19,13 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
   return cls;
 };
 
-export const useGetDerivedNamespace = (namespaceOverrides?: MaybeRefLikeOrGetter<string>) => {
-  const config = getCurrentInstance() && useContextConfig();
+export const useNamespace = (block: string, other?: { parent?: ComponentInternalInstance | null }) => {
+  const { parent } = other || {};
+  const vm = getCurrentInstance();
+  const config = vm && useContextConfig();
   const namespace = computed(() => {
-    return unrefOrGet(namespaceOverrides) || config?.namespace || GlobalStaticConfig.namespace;
+    return config?.namespace || GlobalStaticConfig.namespace;
   });
-  return namespace;
-};
-
-export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrGetter<string>) => {
-  const namespace = useGetDerivedNamespace(namespaceOverrides);
   const b = (blockSuffix = '') => _bem(namespace.value, block, blockSuffix, '', '');
   const e = (element?: string) => (element ? _bem(namespace.value, block, '', element, '') : '');
   const m = (modifier?: string) => (modifier ? _bem(namespace.value, block, '', '', modifier) : '');
@@ -63,9 +60,10 @@ export const useNamespace = (block: string, namespaceOverrides?: MaybeRefLikeOrG
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
   const contextConfig = useContextConfig();
-  const vm = getCurrentInstance();
-  const getActualThemeValue = <T>(key: keyof (typeof contextConfig)['theme']) =>
-    (vm?.props[key] || contextConfig?.theme[key]) as T;
+  const getActualThemeValue = <T>(key: keyof (typeof contextConfig)['theme']) => {
+    const theme = contextConfig?.theme[key];
+    return (vm?.props[key] || parent?.props[key] || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
+  };
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
     const size = getActualThemeValue('size');
