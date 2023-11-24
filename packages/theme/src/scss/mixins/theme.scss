@@ -19,7 +19,7 @@
   } @else if $level == 'contrast' {
     @return getVarValue(($accent-name, $contrastLevel, contrast));
   } @else {
-    @return getVarValue(($accent-name, $level), $default-accent-color);
+    @return getVarValue(($accent-name, $level));
   }
 }
 
@@ -28,7 +28,7 @@
 }
 
 @function getGrayColor($level: 1) {
-  @return getVarValue(($gray-name, $level), $default-gray-color);
+  @return getVarValue(($gray-name, $level));
 }
 
 @mixin lightTheme($isLight: true) {
@@ -103,8 +103,14 @@
   @return max(getVarValue(($radius-name, $level)), getVarValue(($name)));
 }
 
+// cursor
+
 @function getDisabledCursor() {
   @return var(--#{$namespace}-cursor-disabled, not-allowed);
+}
+
+@function getLoadingCursor() {
+  @return var(--#{$namespace}-cursor-loading, progress);
 }
 
 // focus selection autofill color
