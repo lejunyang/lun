@@ -30,13 +30,17 @@ export const themeColors = Object.freeze([
   'sky',
 ] as const);
 
+export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline'] as const);
+
 export const themeProps = {
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
-  color: { type: String as PropType<(typeof themeColors)[number]> },
-  variant: { type: String as PropType<'solid' | 'soft' | 'surface' | 'outline'> },
+  color: { type: String as PropType<ThemeColors> },
+  variant: { type: String as PropType<ThemeVariants> },
   radius: { type: String as PropType<'none' | 'small' | 'medium' | 'large' | 'full'> },
   highContrast: { type: Boolean, default: undefined },
   appearance: { type: String as PropType<'light' | 'dark'> },
 };
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
+export type ThemeColors = typeof themeColors[number];
+export type ThemeVariants = typeof themeVariants[number];

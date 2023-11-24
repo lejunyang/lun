@@ -1,9 +1,10 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps, themeProps } from 'common';
+import { ThemeVariants, editStateProps, themeProps } from 'common';
 
 export const buttonProps = {
   ...editStateProps,
   ...themeProps,
+  variant: { type: String as PropType<ThemeVariants | 'ghost'> },
   label: { type: String },
   asyncHandler: { type: Function as PropType<(e?: MouseEvent) => void> },
   spinProps: { type: Object },
