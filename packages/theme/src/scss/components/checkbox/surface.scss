@@ -1,0 +1,33 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(checkbox) {
+  @include variant(surface) {
+    @include e(indicator) {
+      background-color: getSemanticColor(surface);
+      box-shadow: inset 0 0 0 1px getGrayColor(a7);
+    }
+    @include is(on) {
+      @include e(indicator) {
+        background-color: getAccentColor(9);
+        color: getAccentColor(contrast);
+      }
+      @include is(high-contrast) {
+        @include e(indicator) {
+          background-color: getAccentColor(12);
+          color: getAccentColor(1);
+        }
+      }
+    }
+
+    @include is(disabled) {
+      @include e(indicator) {
+        color: getGrayColor(a8);
+        box-shadow: inset 0 0 0 1px getGrayColor(a6);
+        background-color: getGrayColor(a3);
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+@include b(checkbox) {
+  display: inline-flex;
+  align-items: center;
+
+  @include e(indicator) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    &:focus-visible {
+      outline: 2px solid getFocusColor();
+      outline-offset: 2px;
+    }
+  }
+
+  @include size(1) {
+    font-size: getFontSizeValue(1);
+    line-height: getLineHeightValue(1);
+    gap: calc(getSpaceValue(1) * 0.75);
+    border-radius: calc(#{getRadiusValue(1)} / 1,25);
+    @include e(indicator, true) {
+      $size: calc(#{getSpaceValue(4)} * 0.875);
+      width: $size;
+      height: $size;
+      padding-inline: calc(#{getSpaceValue(1)} * 0.75);
+    }
+  }
+  @include size(2) {
+    font-size: getFontSizeValue(2);
+    line-height: getLineHeightValue(2);
+    gap: getSpaceValue(1);
+    border-radius: getRadiusValue(1);
+    @include e(indicator, true) {
+      $size: getSpaceValue(4);
+      width: $size;
+      height: $size;
+      padding-inline: calc(#{getSpaceValue(1)} * 0.75);
+    }
+  }
+  @include size(3) {
+    font-size: getFontSizeValue(3);
+    line-height: getLineHeightValue(3);
+    gap: calc(getSpaceValue(2) * 0.75);
+    border-radius: calc(#{getRadiusValue(1)} * 1.25);
+    @include e(indicator, true) {
+      $size: calc(#{getSpaceValue(4)} * 1.25);
+      width: $size;
+      height: $size;
+      padding-inline: getSpaceValue(1);
+    }
+  }
+}
