@@ -4,6 +4,8 @@ $element-separator: '__' !default;
 $modifier-separator: '--' !default;
 $state-prefix: 'is-' !default;
 
+$with-where-map: ('is': true) !default;
+
 $color-list: (
   'gray' 'gold' 'bronze' 'brown' 'yellow' 'amber' 'orange' 'tomato' 'red' 'ruby' 'crimson' 'pink' 'plum' 'purple'
     'violet' 'iris' 'indigo' 'blue' 'cyan' 'teal' 'jade' 'green' 'grass' 'lime' 'mint' 'sky'

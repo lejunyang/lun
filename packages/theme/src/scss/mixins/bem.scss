@@ -1,4 +1,5 @@
 @use 'config';
+@use 'sass:map';
 
 @mixin where {
   $WHERE: true !global;
@@ -32,7 +33,7 @@
   $E: #{$B + config.$element-separator + $element} !global;
   $currentSelector: #{'.' + $E};
 
-  @if $underParent and hitAllSpecialNestRule($selector) {
+  @if $underParent or hitAllSpecialNestRule($selector) {
     @at-root {
       #{$selector} {
         #{$currentSelector} {
@@ -84,26 +85,31 @@
   @return #{'.' + $B + config.$modifier-separator + $modifier};
 }
 
-@mixin is($state, $withParent: false, $atRoot: false) {
+// withParent: false => selector will be under parent; true => selector will be connected after parent
+@mixin is($state, $withParent: true, $atRoot: false) {
+  $selector: '.' + config.$state-prefix + $state;
+  @if map.get(config.$with-where-map, 'is') {
+    $selector: ':where(' + $selector + ')';
+  }
   @if $atRoot {
     @at-root {
       @if $withParent {
-        &.#{config.$state-prefix + $state} {
+        &#{$selector} {
           @content;
         }
       } @else {
-        .#{config.$state-prefix + $state} {
+        #{$selector} {
           @content;
         }
       }
     }
   } @else {
     @if $withParent {
-      &.#{config.$state-prefix + $state} {
+      &#{$selector} {
         @content;
       }
     } @else {
-      .#{config.$state-prefix + $state} {
+      #{$selector} {
         @content;
       }
     }
@@ -111,7 +117,11 @@
 }
 
 @function getIs($state, $pre: '') {
-  @return #{$pre + '.' + config.$state-prefix + $state};
+  $selector: '.' + config.$state-prefix + $state;
+  @if map.get(config.$with-where-map, 'is') {
+    $selector: ':where(' + $selector + ')';
+  }
+  @return #{$pre + $selector};
 }
 
 @function blockInRoot($block: '') {
