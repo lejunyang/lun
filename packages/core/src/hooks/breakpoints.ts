@@ -19,57 +19,58 @@ export type Responsive<T> = T | Partial<Record<Breakpoints, T>>;
  * ```
  */
 export function withBreakpoints(
-	value: Responsive<string | boolean> | undefined, // Value to check
-	classPrefix = '', // CSS class prefix, e.g. "px" in "px-1" class
-	valueMap?: Record<string, string> // Optionally, an object to map prop values to a different CSS suffix
+  value: Responsive<string | boolean> | undefined, // Value to check
+  classPrefix = '', // CSS class prefix, e.g. "px" in "px-1" class
+  valueMap?: Record<string, string> // Optionally, an object to map prop values to a different CSS suffix
 ) {
-	const classes: string[] = [];
+  const classes: string[] = [];
 
-	if (typeof value === 'object') {
-		for (const bp of Object.keys(value) as Breakpoints[]) {
-			if (bp in value) {
-				const str = value[bp]?.toString();
-				const isNegative = str?.startsWith('-');
-				const delimiter = classPrefix === '' ? '' : '-';
-				const prefix = isNegative ? `-${classPrefix}` : classPrefix;
-				const matchedValue = isNegative ? str?.substring(1) : str;
+  if (typeof value === 'object') {
+    for (const bp of Object.keys(value) as Breakpoints[]) {
+      if (bp in value) {
+        const str = value[bp]?.toString();
+        const isNegative = str?.startsWith('-');
+        const delimiter = classPrefix === '' ? '' : '-';
+        const prefix = isNegative ? `-${classPrefix}` : classPrefix;
+        const matchedValue = isNegative ? str?.substring(1) : str;
 
-				if (matchedValue === undefined) {
-					continue;
-				}
+        if (matchedValue === undefined) {
+          continue;
+        }
 
-				const suffix = valueMap?.[matchedValue] ?? matchedValue;
+        const suffix = valueMap?.[matchedValue] ?? matchedValue;
 
-				const className = bp === 'initial' ? `${prefix}${delimiter}${suffix}` : `${bp}-${prefix}${delimiter}${suffix}`;
+        const className = bp === 'initial' ? `${prefix}${delimiter}${suffix}` : `${bp}-${prefix}${delimiter}${suffix}`;
 
-				classes.push(className);
-			}
-		}
-	}
+        classes.push(className);
+      }
+    }
+  }
 
-	if (typeof value === 'string') {
-		const isNegative = value.startsWith('-');
-		const delimiter = classPrefix === '' ? '' : '-';
-		const prefix = isNegative ? `-${classPrefix}` : classPrefix;
-		const matchedValue = isNegative ? value.substring(1) : value;
-		const suffix = valueMap?.[matchedValue] ?? matchedValue;
-		classes.push(`${prefix}${delimiter}${suffix}`);
-	}
+  if (typeof value === 'number') value = String(value);
+  if (typeof value === 'string') {
+    const isNegative = value.startsWith('-');
+    const delimiter = classPrefix === '' ? '' : '-';
+    const prefix = isNegative ? `-${classPrefix}` : classPrefix;
+    const matchedValue = isNegative ? value.substring(1) : value;
+    const suffix = valueMap?.[matchedValue] ?? matchedValue;
+    classes.push(`${prefix}${delimiter}${suffix}`);
+  }
 
-	if (typeof value === 'boolean') {
-		const delimiter = classPrefix === '' ? '' : '-';
-		const matchedValue = value.toString();
-		const suffix = valueMap?.[matchedValue] ?? matchedValue;
-		classes.push(`${classPrefix}${delimiter}${suffix}`);
-	}
+  if (typeof value === 'boolean') {
+    const delimiter = classPrefix === '' ? '' : '-';
+    const matchedValue = value.toString();
+    const suffix = valueMap?.[matchedValue] ?? matchedValue;
+    classes.push(`${classPrefix}${delimiter}${suffix}`);
+  }
 
-	return classes.join(' ');
+  return classes.join(' ');
 }
 
 export function useComputedBreakpoints(
-	getter: () => Responsive<string | boolean> | undefined, // Value to check
-	classPrefix = '', // CSS class prefix, e.g. "px" in "px-1" class
-	valueMap?: Record<string, string> // Optionally, an object to map prop values to a different CSS suffix
+  getter: () => Responsive<string | boolean> | undefined, // Value to check
+  classPrefix = '', // CSS class prefix, e.g. "px" in "px-1" class
+  valueMap?: Record<string, string> // Optionally, an object to map prop values to a different CSS suffix
 ) {
-	return computed(() => withBreakpoints(getter(), classPrefix, valueMap));
+  return computed(() => withBreakpoints(getter(), classPrefix, valueMap));
 }
