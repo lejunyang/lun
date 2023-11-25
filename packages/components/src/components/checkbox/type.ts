@@ -1,8 +1,9 @@
-import { editStateProps } from 'common';
+import { editStateProps, themeProps } from 'common';
 import { ExtractPropTypes, PropType } from 'vue';
 
 export const checkboxProps = {
   ...editStateProps,
+  ...themeProps,
   value: {},
   /**
    * It's not recommended to use trueValue and falseValue in Checkbox, you may want to use Switch instead.
@@ -31,6 +32,7 @@ export type CheckboxUpdateDetail = {
 
 export const checkboxGroupProps = {
   ...editStateProps,
+  ...themeProps,
   value: { type: Array },
   options: { type: Array as PropType<CheckboxOptions> },
   onlyFor: { type: String },
