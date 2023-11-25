@@ -57,6 +57,10 @@
   @return #{'--' + $namespace + '-' + $scale-name};
 }
 
+@function getScaleValue() {
+  @return var(#{getScaleVarName()});
+}
+
 @function getSpaceValue($level) {
   @return getVarValue(($space-name, $level));
 }

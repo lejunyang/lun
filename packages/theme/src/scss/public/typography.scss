@@ -5,7 +5,7 @@
   // font size
   @for $i from 1 through length($font-size-list) {
     $size: nth($font-size-list, $i);
-    #{getFontSizeVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
+    #{getFontSizeVarName()}-#{$i}: calc(#{$size} * #{getScaleValue()});
   }
 
   // font-weight
@@ -16,12 +16,12 @@
   // letter spacing
   @for $i from 1 through length($letter-spacing-list) {
     $size: nth($letter-spacing-list, $i);
-    #{getLetterSpacingVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
+    #{getLetterSpacingVarName()}-#{$i}: calc(#{$size} * #{getScaleValue()});
   }
 
   // line height
   @for $i from 1 through length($line-height-list) {
     $size: nth($line-height-list, $i);
-    #{getLineHeightVarName()}-#{$i}: calc(#{$size} * var(#{getScaleVarName()}));
+    #{getLineHeightVarName()}-#{$i}: calc(#{$size} * #{getScaleValue()});
   }
 }

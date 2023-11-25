@@ -3,13 +3,12 @@
 @use '../mixins/theme' as *;
 
 #{$theme-provider-el-name}:where([root]:not([scale])) {
-  $v: var(#{getScaleVarName()});
   @for $num from 1 through 4 {
     // need concat empty string to convert, or sass would throw error...
-    #{getVarName(($space-name, '' + $num))}: calc(#{4 * $num}px * #{$v});
+    #{getVarName(($space-name, '' + $num))}: calc(#{4 * $num}px * #{getScaleValue()});
   }
   @for $num from 5 through 8 {
-    #{getVarName(($space-name, '' + $num))}: calc(#{8 * $num - 16}px * #{$v});
+    #{getVarName(($space-name, '' + $num))}: calc(#{8 * $num - 16}px * #{getScaleValue()});
   }
-  #{getVarName(($space-name, '9'))}: calc(64px * #{$v});
+  #{getVarName(($space-name, '9'))}: calc(64px * #{getScaleValue()});
 }

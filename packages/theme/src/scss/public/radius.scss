@@ -44,6 +44,6 @@
 
   @for $i from 1 through length($radius-list) {
     $size: nth($radius-list, $i);
-    #{getVarName(($radius-name, $i))}: calc(#{$size} * var(#{getScaleVarName()}) * var(#{$factor}));
+    #{getVarName(($radius-name, $i))}: calc(#{$size} * #{getScaleValue()} * var(#{$factor}));
   }
 }
