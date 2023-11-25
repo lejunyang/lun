@@ -1,10 +1,12 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, warn } from 'utils';
+import { createDefineElement, renderElement, warn } from 'utils';
 import { useCheckedModel, useNamespace, useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
 import { CheckboxUpdateDetail, checkboxProps } from './type';
+import { defineIcon } from '../icon/Icon';
+import { isEnterDown } from '@lun/utils';
 
 const name = 'checkbox';
 export const Checkbox = defineSSRCustomFormElement({
@@ -14,10 +16,10 @@ export const Checkbox = defineSSRCustomFormElement({
     update: (_detail: CheckboxUpdateDetail) => null,
   },
   setup(props, { emit }) {
-    const ns = useNamespace(name);
+    const checkboxContext = CheckboxCollector.child();
+    const ns = useNamespace(name, { parent: checkboxContext?.parent });
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
-    const checkboxContext = CheckboxCollector.child();
     // if it's under CheckboxGroup, it will not be considered as a model
     const checkedModal = checkboxContext
       ? undefined
@@ -44,42 +46,75 @@ export const Checkbox = defineSSRCustomFormElement({
       const { allChecked, isChecked } = radioState.value;
       return allChecked || (!props.checkForAll && isChecked(props.value));
     });
+
+    const updateChecked = (checked: boolean) => {
+      // if it's under CheckboxGroup, use value prop as checked value
+      const value = checkboxContext ? props.value : checked ? props.trueValue : props.falseValue;
+      if (checkedModal) checkedModal.value = checked;
+      emit('update', {
+        value,
+        isCheckForAll: props.checkForAll,
+        checked,
+        onlyFor: props.onlyFor,
+        excludeFromGroup: props.excludeFromGroup,
+      });
+      updateVModel(value);
+    };
     const handler = {
       onChange(e: Event) {
         const { checked } = e.target as HTMLInputElement;
-        // if it's under CheckboxGroup, use value prop as checked value
-        const value = checkboxContext ? props.value : checked ? props.trueValue : props.falseValue;
-        if (checkedModal) checkedModal.value = checked;
-        emit('update', {
-          value,
-          isCheckForAll: props.checkForAll,
-          checked,
-          onlyFor: props.onlyFor,
-          excludeFromGroup: props.excludeFromGroup,
-        });
-        updateVModel(value);
+        updateChecked(checked);
+      },
+      onKeydown(e: KeyboardEvent) {
+        if (isEnterDown(e) && editComputed.value.editable) {
+          updateChecked(!checked.value);
+        }
       },
     };
     return () => {
+      const isChecked = checked.value,
+        isIntermediate = intermediate.value;
+      const { disabled, readonly, editable } = editComputed.value;
       const labelPart = (
-        <span part="label">
+        <span part={ns.p('label')} class={ns.e('label')}>
           <slot>{props.label}</slot>
         </span>
       );
       return (
         <>
-          <label part="root">
+          <label
+            part={ns.p('root')}
+            class={[
+              ns.s(editComputed),
+              ns.is('checked', isChecked),
+              ns.is('indeterminate', isIntermediate),
+              ns.is('on', isChecked || isIntermediate),
+            ]}
+          >
             {props.labelPosition === 'start' && labelPart}
-            <span part="wrapper">
+            <span
+              part={ns.p('indicator')}
+              class={ns.e('indicator')}
+              tabindex={editable ? 0 : undefined}
+              onKeydown={handler.onKeydown}
+            >
+              <slot name="checked" v-show={isChecked}>
+                {renderElement('icon', { name: 'check' })}
+              </slot>
+              <slot name="intermediate" v-show={isIntermediate}>
+                {renderElement('icon', { name: 'dash' })}
+              </slot>
               <input
-                part="input"
+                class={[ns.e('input')]}
+                part={ns.p('input')}
                 type={name}
-                checked={checked.value}
-                indeterminate={intermediate.value}
+                checked={isChecked}
+                indeterminate={isIntermediate}
                 value={props.value}
-                readonly={editComputed.value.readonly}
-                disabled={editComputed.value.disabled}
+                readonly={readonly}
+                disabled={disabled}
                 onChange={handler.onChange}
+                hidden
               />
             </span>
             {props.labelPosition === 'end' && labelPart}
@@ -102,4 +137,6 @@ declare global {
   }
 }
 
-export const defineCheckbox = createDefineElement(name, Checkbox);
+export const defineCheckbox = createDefineElement(name, Checkbox, {
+  icon: defineIcon,
+});
