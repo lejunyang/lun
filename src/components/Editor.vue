@@ -11,6 +11,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import * as monaco from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useData } from 'vitepress';
 
 const editorRef = ref<HTMLElement>();
 const height = ref('24px');
@@ -19,8 +20,21 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  lang: {
+    type: String,
+    default: 'typescript',
+  },
 });
+const { isDark } = useData();
 const emits = defineEmits(['update:modelValue']);
+
+monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+  skipLibCheck: true,
+})
+monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+  noSemanticValidation: true,
+  noSyntaxValidation: true,
+});
 
 // @ts-ignore
 self.MonacoEnvironment = {
@@ -41,14 +55,15 @@ onMounted(() => {
   editor = monaco.editor.create(editorRef.value!, {
     value: props.modelValue,
     automaticLayout: true,
-    language: 'javascript',
-    theme: 'vs-dark',
-    foldingStrategy: 'indentation',
-    renderLineHighlight: 'all',
+    language: props.lang,
+    theme: isDark.value ? 'vs-dark' : 'vs',
     readOnly: false,
     fontSize: 16,
-    scrollBeyondLastLine: false,
     overviewRulerBorder: false,
+    lineNumbers: 'off',
+    minimap: {
+      enabled: false,
+    },
   });
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
@@ -67,19 +82,34 @@ watch(
   }
 );
 
+watch(isDark, (val) => {
+  if (editor)
+    editor.updateOptions({
+      theme: val ? 'vs-dark' : 'vs',
+    });
+});
+
+watch(() => props.lang, (val) => {
+  if (editor) {
+    monaco.editor.setModelLanguage(editor.getModel(), props.lang);
+    // editor.updateOptions({
+    //   language: val as any,
+    // });
+  }
+})
+
 onBeforeUnmount(() => {
   editor.dispose();
 });
-
-const changeLanguage = () => {
-  //  monaco.editor.setModelLanguage(editor.getModel(), language.value)
-  //  editor.updateOptions({
-  //           language: "objective-c"
-  //       });
-};
 </script>
 
 <style scoped>
+.wrap {
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+  border: 1px solid var(--vp-c-divider);
+  border-top: none;
+}
 .wrap:focus-within button.copy {
   display: none;
 }
