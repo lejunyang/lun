@@ -24,6 +24,7 @@
   "scripts": {
     "dev": "rimraf ./dist & vite build -w & tsc -w -p ./tsconfig.build.json",
     "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",
+    "build:noType": "rimraf ./dist && vite build",
     "build": "rimraf ./dist && vite build && tsc -p ./tsconfig.build.json",
     "preview": "vite preview"
   },

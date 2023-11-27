@@ -70,6 +70,9 @@ importers:
       typescript:
         specifier: ^5.2.0
         version: 5.2.2
+      v-lazy-show:
+        specifier: ^0.2.4
+        version: 0.2.4(@vue/compiler-core@3.3.6)
       vite:
         specifier: ^4.5.0
         version: 4.5.0(@types/node@20.6.0)(sass@1.66.1)
@@ -2191,6 +2194,14 @@ packages:
       browserslist: 4.21.10
       escalade: 3.1.1
       picocolors: 1.0.0
+    dev: true
+
+  /v-lazy-show@0.2.4(@vue/compiler-core@3.3.6):
+    resolution: {integrity: sha512-Lx9Str2i+HTh+zGzs9O3YyhGAZOAAfU+6MUUPcQPPiPxQO1sHBEv9sH3MO9bPc4T09gsjsS2+sbaCWQ1MdhpJQ==}
+    peerDependencies:
+      '@vue/compiler-core': ^3.3
+    dependencies:
+      '@vue/compiler-core': 3.3.6
     dev: true
 
   /vite-node@0.34.6(@types/node@20.6.0)(sass@1.66.1):
