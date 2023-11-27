@@ -11,6 +11,7 @@ import {
   importSolidTheme,
 } from '@lun/theme';
 import Layout from './Layout.vue';
+import Code from '../../../components/Code.vue';
 import './style.css';
 
 let once = false;
@@ -21,6 +22,9 @@ export default {
   enhanceApp({ app, router, siteData }) {
     if (once) return false;
     once = true;
+
+    app.component('Code', Code);
+
     importAllBasicStyles();
     importBasicTheme();
     importOutlineTheme();
