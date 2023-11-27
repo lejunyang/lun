@@ -1,0 +1,32 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(checkbox) {
+  @include variant(soft) {
+    @include e(indicator) {
+      background-color: getAccentColor(a5);
+      &:focus-visible {
+        outline-color: getAccentColor(a8);
+      }
+    }
+    @include is(on) {
+      @include e(indicator) {
+        color: getAccentColor(11);
+      }
+      @include is(high-contrast) {
+        @include e(indicator) {
+          color: getAccentColor(12);
+        }
+      }
+    }
+
+    @include is(disabled) {
+      @include e(indicator) {
+        color: getGrayColor(a8);
+        background-color: getGrayColor(a3);
+      }
+    }
+  }
+}
