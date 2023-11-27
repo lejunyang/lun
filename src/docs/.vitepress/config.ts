@@ -2,6 +2,7 @@ import { defineConfig, DefaultTheme } from 'vitepress';
 import { fileURLToPath, URL } from 'node:url';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import postcssLogical from 'postcss-logical';
+import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
 
 const wrapLink = (link: string, lang: string) => {
@@ -77,6 +78,7 @@ export default defineConfig({
     template: {
       compilerOptions: {
         isCustomElement: (tag) => tag.startsWith('l-'),
+        nodeTransforms: [transformLazyShow],
       },
     },
   },

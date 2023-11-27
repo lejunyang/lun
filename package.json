@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=./packages/theme run dev & vitepress dev src/docs",
+    "build:noType": "pnpm --filter \"./packages/**\" run build:noType",
     "build": "pnpm --filter \"./packages/**\" run build",
     "docs:build": "vitepress build src/docs",
     "docs:preview": "vitepress preview src/docs",
@@ -32,6 +33,7 @@
     "rimraf": "^5.0.5",
     "sass": "^1.66.1",
     "typescript": "^5.2.0",
+    "v-lazy-show": "^0.2.4",
     "vite": "^4.5.0",
     "vitepress": "^1.0.0-rc.24",
     "vitest": "^0.34.6",

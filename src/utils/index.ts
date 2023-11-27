@@ -52,8 +52,8 @@ export async function runVueJSXCode(code: string) {
   });
   const requireDep = await buildDepRequire(res.code);
   if (!res.code.includes('var result')) throw new Error('Must export a default component');
-  const func = new Function('require', 'h', res.code + ';return result;');
-  const result = func(requireDep, vue.h);
+  const func = new Function('require', 'h', 'Fragment', res.code + ';return result;');
+  const result = func(requireDep, vue.h, vue.Fragment);
   if (!utils.isFunction(result?.default)) throw new Error('Must export a default component');
   return result.default();
 }
