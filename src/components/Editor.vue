@@ -1,15 +1,19 @@
 <template>
-  <div class="editor" ref="editorRef"></div>
+  <div class="wrap language-html">
+    <div class="editor" ref="editorRef"></div>
+    <button title="Copy" class="copy"></button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
-import htmlWorker from 'monaco-editor/esm/vs/language/typescript/html.worker?worker';
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import * as monaco from 'monaco-editor';
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 const editorRef = ref<HTMLElement>();
+const height = ref('24px');
 const props = defineProps({
   modelValue: {
     type: String,
@@ -36,6 +40,7 @@ let editor: monaco.editor.IStandaloneCodeEditor;
 onMounted(() => {
   editor = monaco.editor.create(editorRef.value!, {
     value: props.modelValue,
+    automaticLayout: true,
     language: 'javascript',
     theme: 'vs-dark',
     foldingStrategy: 'indentation',
@@ -48,7 +53,19 @@ onMounted(() => {
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
   });
+  const contentHeight = editor.getContentHeight();
+  height.value = `${contentHeight}px`;
+  editor.layout();
 });
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (editor && val !== editor.getValue()) {
+      editor.setValue(val);
+    }
+  }
+);
 
 onBeforeUnmount(() => {
   editor.dispose();
@@ -61,3 +78,19 @@ const changeLanguage = () => {
   //       });
 };
 </script>
+
+<style scoped>
+.wrap:focus-within button.copy {
+  display: none;
+}
+.editor {
+  min-height: v-bind('height');
+  resize: vertical;
+  overflow: auto;
+}
+button.copy {
+  width: 30px !important;
+  height: 30px !important;
+  z-index: 5 !important;
+}
+</style>

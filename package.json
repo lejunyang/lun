@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@lun/components": "workspace:^",
-    "@lun/utils": "workspace:^",
+    "@lun/core": "workspace:^",
     "@lun/theme": "workspace:^",
-    "esbuild-wasm": "^0.19.4",
+    "@lun/utils": "workspace:^",
+    "esbuild-wasm": "^0.19.8",
+    "monaco-editor": "^0.44.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vue": "^3.2.0"
