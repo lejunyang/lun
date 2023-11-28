@@ -19,6 +19,7 @@ const dependencies = {
 };
 
 const initResult = (async () => {
+  if (!utils.isClient()) return;
   return initialize({
     wasmURL: url,
   });
@@ -42,6 +43,7 @@ export async function buildDepRequire(code: string) {
 
 export async function runVueJSXCode(code: string) {
   await initResult;
+  const errorMsg = 'Must export a default vnode or a default function that returns a vnode';
   const res = await transform(code, {
     loader: 'tsx',
     format: 'iife',
@@ -51,9 +53,9 @@ export async function runVueJSXCode(code: string) {
     globalName: 'result', // `var result = (() => {})();`
   });
   const requireDep = await buildDepRequire(res.code);
-  if (!res.code.includes('var result')) throw new Error('Must export a default component');
+  if (!res.code.includes('var result')) throw new Error(errorMsg);
   const func = new Function('require', 'h', 'Fragment', res.code + ';return result;');
   const result = func(requireDep, vue.h, vue.Fragment);
-  if (!utils.isFunction(result?.default)) throw new Error('Must export a default component');
-  return result.default();
+  if (!result?.default) throw new Error(errorMsg);
+  return result.default;
 }

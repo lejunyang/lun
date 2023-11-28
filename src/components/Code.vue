@@ -23,11 +23,13 @@
 </template>
 
 <script setup lang="ts">
-import Editor from './Editor.vue';
-import { ref, reactive, watchEffect } from 'vue';
+import { ref, reactive, watchEffect, defineAsyncComponent } from 'vue';
 import { debounce, isClient } from '@lun/utils';
 import { VCustomRenderer } from '@lun/components';
 import { runVueJSXCode } from '../utils';
+import { inBrowser } from 'vitepress';
+
+const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : () => null;
 
 const props = defineProps({
   vue: {

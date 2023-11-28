@@ -100,6 +100,10 @@ export default defineConfig({
     optimizeDeps: {
       exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils'],
     },
+    ssr: {
+      // fix monaco-editor bundle error, see in https://github.com/vuejs/vitepress/issues/2832
+      noExternal: ['monaco-editor']
+    },
     resolve: {
       alias:
         process.env.NODE_ENV !== 'production'
