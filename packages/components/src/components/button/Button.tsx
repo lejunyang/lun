@@ -11,7 +11,7 @@ const name = 'button';
 export const Button = defineSSRCustomElement({
   name,
   props: buttonProps,
-  emits: ['lClick'],
+  emits: ['validClick'],
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
@@ -21,7 +21,7 @@ export const Button = defineSSRCustomElement({
         if (!editComputed.value.interactive) return;
         if (props.holdOn && !holdAnimationDone) return;
         holdAnimationDone = false;
-        emit('lClick');
+        emit('validClick');
         if (isFunction(props.asyncHandler)) {
           editState.loading = true;
           Promise.resolve(props.asyncHandler(e)).finally(() => (editState.loading = false));

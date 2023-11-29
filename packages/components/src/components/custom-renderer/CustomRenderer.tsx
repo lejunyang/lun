@@ -4,7 +4,7 @@ import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick,
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
 import { customRendererProps, CustomRendererProps } from './type';
-import { isFunction, isHTMLTemplateElement, isNode } from '@lun/utils';
+import { isArray, isFunction, isHTMLTemplateElement, isNode } from '@lun/utils';
 
 const name = 'custom-renderer';
 
@@ -18,6 +18,8 @@ const options = {
     let lastRenderer: CustomRendererRegistry | undefined;
     let renderer: CustomRendererRegistry | undefined;
     let lastType: 'html' | 'vnode';
+
+    const isRawType = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
 
     watchEffect(() => {
       let { type } = props;
@@ -44,8 +46,8 @@ const options = {
       // no valid renderer, check the content if it is string, number or vnode, render it if yes
       if (!renderer) {
         if (isFunction(content)) content = content(); // if it's a function, consider it as a getter
-        const isRawType = ['string', 'number', 'boolean'].includes(typeof content);
-        nextType = isVNode(content) || (isRawType && !props.preferHtml) ? 'vnode' : 'html';
+        const isValidArray = isArray(content) && (isRawType(content[0]) || isVNode(content[0])); // if it's an array and the first item is valid as a vnode, render it
+        nextType = isVNode(content) || (isRawType(content) && !props.preferHtml) || isValidArray ? 'vnode' : 'html';
         if (nextType === 'html') {
           if (isNode(content)) {
             updateHtml = () => {
