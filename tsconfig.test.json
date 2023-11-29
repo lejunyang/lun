@@ -9,11 +9,6 @@
       "vitest/globals"
     ],
     "baseUrl": ".",
+    "jsx": "preserve", // no idea why some files reference this tsconfig...
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "packages/*/src/**/*.ts",
-    "packages/*/src/**/*.tsx"
-  ]
 }

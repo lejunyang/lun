@@ -110,12 +110,12 @@ main .code-container {
   gap: 5px;
   align-items: center;
   flex-wrap: wrap;
-}
-.code-container + .code-container {
-  margin-top: 5px;
-}
-.code-container.align-end {
-  align-items: end;
+  .container {
+    flex-basis: 100%;
+  }
+  .align-end {
+    align-items: end;
+  }
 }
 .code-block-actions {
   display: flex;
