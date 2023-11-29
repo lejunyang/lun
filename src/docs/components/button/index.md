@@ -1,12 +1,8 @@
 ## 基本使用
 
-<div class="container">
-  <l-button label="按钮" />
-  <l-button label="禁用" disabled />
-  <l-button label="加载中" loading />
-</div>
+<!-- @Code:basicUsage -->
 
-## 异步函数自动loading
+## 异步函数自动 loading
 
 <l-button :asyncHandler="countdown3s">异步处理 3s</l-button>
 

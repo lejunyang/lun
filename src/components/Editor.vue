@@ -9,7 +9,7 @@
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
-import * as monaco from 'monaco-editor';
+import { editor as monacoEditor, languages } from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useData } from 'vitepress';
 
@@ -28,10 +28,10 @@ const props = defineProps({
 const { isDark } = useData();
 const emits = defineEmits(['update:modelValue']);
 
-monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+languages.typescript.typescriptDefaults.setCompilerOptions({
   skipLibCheck: true,
-})
-monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+});
+languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
   noSyntaxValidation: true,
 });
@@ -49,10 +49,10 @@ self.MonacoEnvironment = {
   },
 };
 
-let editor: monaco.editor.IStandaloneCodeEditor;
+let editor: monacoEditor.IStandaloneCodeEditor;
 
 onMounted(() => {
-  editor = monaco.editor.create(editorRef.value!, {
+  editor = monacoEditor.create(editorRef.value!, {
     value: props.modelValue,
     automaticLayout: true,
     language: props.lang,
@@ -89,14 +89,15 @@ watch(isDark, (val) => {
     });
 });
 
-watch(() => props.lang, (val) => {
-  if (editor) {
-    monaco.editor.setModelLanguage(editor.getModel(), props.lang);
-    // editor.updateOptions({
-    //   language: val as any,
-    // });
+watch(
+  () => props.lang,
+  () => {
+    if (editor) {
+      const model = editor.getModel();
+      model && monacoEditor.setModelLanguage(model, props.lang);
+    }
   }
-})
+);
 
 onBeforeUnmount(() => {
   editor.dispose();

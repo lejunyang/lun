@@ -172,6 +172,7 @@ export default defineConfig({
         outline: {
           label: '大纲',
         },
+        sidebarMenuLabel: '目录',
         docFooter: {
           prev: '上一页',
           next: '下一页',
