@@ -9,7 +9,7 @@
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
-import { editor as monacoEditor, languages } from 'monaco-editor';
+import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useData } from 'vitepress';
 
@@ -30,6 +30,8 @@ const emits = defineEmits(['update:modelValue']);
 
 languages.typescript.typescriptDefaults.setCompilerOptions({
   skipLibCheck: true,
+  allowNonTsExtensions: true,
+  allowJs: true,
 });
 languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
@@ -53,7 +55,12 @@ let editor: monacoEditor.IStandaloneCodeEditor;
 
 onMounted(() => {
   editor = monacoEditor.create(editorRef.value!, {
-    value: props.modelValue,
+    model: monacoEditor.createModel(
+      props.modelValue,
+      props.lang,
+      // when it's typescript, we need to specify the uri so that editor can know it's tsx
+      props.lang === 'typescript' ? Uri.file('foo.tsx') : undefined
+    ),
     automaticLayout: true,
     language: props.lang,
     theme: isDark.value ? 'vs-dark' : 'vs',

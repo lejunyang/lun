@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData } from 'vitepress';
-import { watchEffect } from 'vue';
+import { watchEffect, onMounted } from 'vue';
 import { isClient } from '@lun/utils';
 
 const Layout = Theme.Layout;
@@ -17,5 +17,13 @@ watchEffect(() => {
   if (isClient()) {
     document.cookie = `nf_lang=${lang.value}; path=/`;
   }
+});
+
+onMounted(() => {
+  if (requestIdleCallback)
+    requestIdleCallback(() => {
+      import('../../../components/Editor.vue');
+    });
+  else setTimeout(() => import('../../../components/Editor.vue'), 5000);
 });
 </script>
