@@ -4,6 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import postcssLogical from 'postcss-logical';
 import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
+import { replaceCodeTags } from "./replaceCodeTags";
 
 const wrapLink = (link: string, lang: string) => {
   if (lang === 'zh-CN') return link;
@@ -86,6 +87,13 @@ export default defineConfig({
     // options for @mdit-vue/plugin-toc
     // https://github.com/mdit-vue/mdit-vue/tree/main/packages/plugin-toc#options
     // toc: { level: [1, 2] }, // default: [2, 3]
+    preConfig(md) {
+      const oldRender = md.render.bind(md);
+      md.render = (src, env) => {
+        const newSrc = replaceCodeTags(env.path, src);
+        return oldRender(newSrc, env);
+      }
+    },
   },
   vite: {
     plugins: [vueJsx()],
