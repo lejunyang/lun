@@ -19,7 +19,9 @@ const dependencies = {
 };
 
 const initResult = (async () => {
-  if (!utils.isClient()) return;
+  if (!utils.isClient()) {
+    return;
+  }
   return initialize({
     wasmURL: url,
   });
@@ -33,7 +35,7 @@ export async function buildDepRequire(code: string) {
     names.push(match[1]);
     match = regexp.exec(code);
   }
-  return (name: string) => {
+  return (name: keyof typeof dependencies) => {
     if (!allowedImport.has(name)) {
       throw new Error(`import "${name}" is not allowed, can be only one of ${Array.from(allowedImport).join(', ')}`);
     }

@@ -46,39 +46,25 @@ const props = defineProps({
   },
 });
 const rendererProps = reactive({
-  content: undefined,
-  type: undefined,
+  content: undefined as any,
+  type: undefined as any,
 });
 
-const lang = ref('vue');
+const lang = ref('vueJSX');
 const show = ref(false);
 const loading = ref(true);
 
 const codesMap = reactive({
-  vue: props.vueJSX,
+  vueJSX: props.vueJSX,
   html: '',
   react: '',
-});
-
-// html in slot markdown will be transformed to vue component...
-// const slots = useSlots();
-// const slotText = slots.default?.()[0].children;
-// console.log('slotText', slotText, slots.default?.());
-// if (!code && isString(slotText)) {
-//   code = slotText.trim();
-// }
-
-// const regex = /:::\s*(\w+)((.|\n)*?):::/g;
-// let match;
-// while ((match = regex.exec(code)) !== null) {
-//   codesMap[match[1]] = match[2].trim();
-// }
+} as Record<string, string>);
 
 const handleCodeChange = debounce(async () => {
   loading.value = true;
   try {
     switch (lang.value) {
-      case 'vue':
+      case 'vueJSX':
         rendererProps.type = undefined;
         rendererProps.content = await runVueJSXCode(codesMap[lang.value]);
         break;
@@ -87,7 +73,7 @@ const handleCodeChange = debounce(async () => {
       case 'react':
         break;
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     rendererProps.type = undefined;
     rendererProps.content = `Error: ${e.message}`;
