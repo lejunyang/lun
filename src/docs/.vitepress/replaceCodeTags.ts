@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { capitalize } from '@lun/utils';
 
 const suffixMap: Record<string, string> = {
   '.vue.tsx': 'vueJSX',
@@ -19,7 +20,9 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
       const name = fileName.slice(0, -suffixKey.length);
       if (!fileCodeTypeMap[name]) fileCodeTypeMap[name] = {};
       const type = suffixMap[suffixKey];
-      fileCodeTypeMap[name][type] = `import ${name + type} from './${fileName}?raw';`;
+      // suppose we always have a vue code case, we import it as a component rather than raw string, then we use it as Code's default slot to reduce white screen time
+      const vueSSRImport = type.startsWith('vue') ? `import ${capitalize(name)}ForSSR from './${fileName}';\n` : '';
+      fileCodeTypeMap[name][type] = `${vueSSRImport}import ${name + type} from './${fileName}?raw';`;
     }
   });
   const codeTagRegex = /<!--\s*@Code:(\w+)\s*-->/g;
@@ -32,9 +35,10 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
       propResult += ` :${type}="${name + type}"`;
       imports.push(source);
     });
-    return `<Code${propResult} />`;
+    return `<Code${propResult}><${capitalize(name)}ForSSR /></Code>`;
   });
   if (!imports.length) return newContent;
+  imports.unshift("import { inBrowser } from 'vitepress';");
   let hasScriptSetup = false;
   const scriptSetupRegex = /<script\s+setup>([\s\S]*?)<\/script>/;
   newContent = newContent.replace(scriptSetupRegex, (_, scriptContent) => {
