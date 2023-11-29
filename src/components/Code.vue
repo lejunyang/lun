@@ -32,7 +32,7 @@ import { inBrowser } from 'vitepress';
 const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : () => null;
 
 const props = defineProps({
-  vue: {
+  vueJSX: {
     type: String,
     default: '',
   },
@@ -55,7 +55,7 @@ const show = ref(false);
 const loading = ref(true);
 
 const codesMap = reactive({
-  vue: props.vue,
+  vue: props.vueJSX,
   html: '',
   react: '',
 });
