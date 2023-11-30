@@ -1,14 +1,16 @@
 import { MaybePromise } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps } from "../../common/editStateProps";
+import { editStateProps, themeProps } from "common";
 
 export const dialogProps = {
   ...editStateProps,
+  ...themeProps,
   open: { type: Boolean, default: undefined },
   modal: { type: [Boolean, String] as PropType<boolean | 'native' | string> },
   maskClosable: { type: [Boolean, String] as PropType<boolean | 'click' | 'dblclick'> },
   escapeClosable: { type: Boolean },
   movable: { type: Boolean },
+  width: { type: String },
   // title is global HTMLAttributes, will make the dialog show tooltip, so use headerTitle instead
   headerTitle: { type: String },
   noHeader: { type: Boolean },
