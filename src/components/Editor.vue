@@ -32,6 +32,7 @@ languages.typescript.typescriptDefaults.setCompilerOptions({
   skipLibCheck: true,
   allowNonTsExtensions: true,
   allowJs: true,
+  strict: false,
 });
 languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
