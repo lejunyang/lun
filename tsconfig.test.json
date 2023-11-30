@@ -9,6 +9,5 @@
       "vitest/globals"
     ],
     "baseUrl": ".",
-    "jsx": "preserve", // no idea why some files reference this tsconfig...
   },
 }

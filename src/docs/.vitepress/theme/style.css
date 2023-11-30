@@ -128,16 +128,3 @@
 .DocSearch {
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
-
-main .container {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.container + .container {
-  margin-top: 5px;
-}
-.container.align-end {
-  align-items: end;
-}

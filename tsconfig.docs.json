@@ -1,0 +1,23 @@
+{
+  "references": [
+    {
+      "path": "./tsconfig.docs.vue.json",
+    },
+    {
+      "path": "./tsconfig.docs.react.json",
+    },
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    // disable strict for doc code cases
+    "strict": false,
+  },
+  "exclude": [
+    "src/docs/.vitepress",
+  ]
+}
