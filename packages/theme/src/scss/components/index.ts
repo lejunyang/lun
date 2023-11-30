@@ -1,5 +1,6 @@
 import { importButtonBasicTheme, importButtonOutlineTheme, importButtonSoftTheme, importButtonSolidTheme, importButtonSurfaceTheme } from './button/index.ts';
 import { importCheckboxBasicTheme, importCheckboxSoftTheme, importCheckboxSurfaceTheme } from './checkbox/index.ts';
+import { importDialogBasicTheme } from './dialog/index.ts';
 import { importInputBasicTheme, importInputSurfaceTheme } from './input/index.ts';
 import { importSwitchBasicTheme, importSwitchSurfaceTheme } from './switch/index.ts';
 import {
@@ -15,6 +16,7 @@ export * from './input/index.ts';
 export function importBasicTheme() {
   importButtonBasicTheme();
   importCheckboxBasicTheme();
+  importDialogBasicTheme();
   importInputBasicTheme();
   importSwitchBasicTheme();
   importTagBasicTheme();

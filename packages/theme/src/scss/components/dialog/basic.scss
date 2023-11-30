@@ -1,0 +1,104 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(dialog) {
+  border: none;
+  padding: 0;
+
+  &::backdrop {
+    // backdrop doesn't inherit any css variables, no possible way to inherit parent theme var https://github.com/whatwg/fullscreen/issues/124
+    // SPEC updated backdrop inheritance, but browsers haven't fixed them https://wpt.fyi/results/html/semantics/interactive-elements/the-dialog-element/backdrop-inherits.html?label=experimental&label=master&aligned
+    // https://stackoverflow.com/questions/58818299/css-variables-not-working-in-dialogbackdrop
+    // background-color: getSemanticColor('overlay');
+    background-color: transparent;
+  }
+  // so don't use backdrop, add another element as overlay
+  @include e(overlay) {
+    position: fixed;
+    background-color: getSemanticColor('overlay');
+    transition: background-color 0.25s;
+    inset: 0px;
+  }
+
+
+  @include e(panel) {
+    position: relative;
+    z-index: 2;
+    background-color: getSemanticColor('panel-solid');
+  }
+
+  @include e(close) {
+    position: absolute;
+  }
+
+  @include e(header) {
+    display: flex;
+  }
+  @include e(content) {
+  }
+  @include e(footer) {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @include size(1) {
+    @include e(panel) {
+      padding: getSpaceValue(3);
+      border-radius: getRadiusValue(4);
+    }
+    @include e(footer) {
+      gap: getSpaceValue(3);
+    }
+    @include e(close) {
+      inset-block-start: getSpaceValue(3);
+      inset-inline-end: getSpaceValue(3);
+    }
+  }
+  @include size(2) {
+    @include e(panel) {
+      padding: getSpaceValue(4);
+      border-radius: getRadiusValue(4);
+    }
+    @include e(footer) {
+      gap: getSpaceValue(4);
+    }
+    @include e(close) {
+      inset-block-start: getSpaceValue(4);
+      inset-inline-end: getSpaceValue(4);
+    }
+  }
+  @include size(3) {
+    @include e(panel) {
+      padding: getSpaceValue(5);
+      border-radius: getRadiusValue(5);
+    }
+    @include e(footer) {
+      gap: getSpaceValue(5);
+    }
+    @include e(close) {
+      inset-block-start: getSpaceValue(5);
+      inset-inline-end: getSpaceValue(5);
+    }
+  }
+}
+
+.dialog-panel-enter-active, .dialog-panel-leave-active {
+  transition: all 0.25s;
+}
+.dialog-panel-enter-from, .dialog-panel-leave-to {
+  scale: 0.8;
+  opacity: 0;
+}
+.dialog-panel-enter-to, .dialog-panel-leave-from {
+  scale: 1;
+  opacity: 1;
+}
+
+.dialog-overlay-enter-active, .dialog-overlay-leave-active {
+  transition: all 0.25s;
+}
+.dialog-overlay-enter-from, .dialog-overlay-leave-to {
+  background-color: transparent;
+}
