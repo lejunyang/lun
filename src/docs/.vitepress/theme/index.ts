@@ -19,7 +19,7 @@ let once = false;
 export default {
   extends: Theme,
   Layout: () => h(Layout),
-  enhanceApp({ app, router, siteData }) {
+  enhanceApp: (({ app }) => {
     if (once) return false;
     once = true;
 
@@ -62,5 +62,5 @@ export default {
 
     if (typeof document !== 'undefined') console.log('GlobalStaticConfig', GlobalStaticConfig);
     defineAllComponents();
-  },
+  }) as (typeof Theme)['enhanceApp'],
 };

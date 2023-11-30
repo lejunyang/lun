@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+  },
+  "include": [
+    "src/docs/**/*.vue.tsx",
+  ],
+}

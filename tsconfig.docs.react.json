@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "preserve",
+    "jsxImportSource": "react",
+  },
+  "include": [
+    "src/docs/**/*.react.tsx",
+  ],
+}

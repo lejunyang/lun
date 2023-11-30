@@ -2,16 +2,22 @@
   "extends": "./tsconfig.base.json",
   "references": [
     {
-      "path": "./tsconfig.test.json"
+      "path": "./tsconfig.docs.json",
     }
   ],
+  "exclude": [
+    "src/docs/.vitepress/cache",
+    "src/docs/.vitepress/dist",
+    "src/docs/.vitepress/temp",
+  ],
   "include": [
-    "./src/**/*.ts",
-    "./src/**/*.d.ts",
-    "./src/**/*.tsx",
-    "./src/**/*.vue",
-    "./global.d.ts",
-    "./src/docs/.vitepress/config.ts"
+    "src/docs/.vitepress/**/*.ts",
+    "src/docs/.vitepress/**/*.vue",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "global.d.ts",
   ],
   "compilerOptions": {
     "baseUrl": ".",
