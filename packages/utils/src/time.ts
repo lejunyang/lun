@@ -121,3 +121,8 @@ export const throttle = function <T extends (...args: any[]) => any>(
 		trailing: options?.trailing,
 	});
 };
+
+
+export function delay(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}

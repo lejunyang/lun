@@ -1,4 +1,4 @@
-import { isClient } from '@lun/utils';
+import { AnyFn, isClient } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks/lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { UseNativeDialogOptions, useDialog } from './useDialog';
