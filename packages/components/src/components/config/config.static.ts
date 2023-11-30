@@ -95,6 +95,7 @@ export const GlobalStaticConfig = new Proxy(
         closeBtn: true,
         escapeClosable: true,
         modal: 'native',
+        width: '450px',
       },
       form: {
         plainName: undefined,

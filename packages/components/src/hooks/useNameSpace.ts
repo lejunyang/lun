@@ -60,7 +60,7 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
   const contextConfig = useContextConfig();
-  const getActualThemeValue = <T>(key: keyof (typeof contextConfig)['theme']) => {
+  const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme']) => {
     const theme = contextConfig?.theme[key];
     return (vm?.props[key] || parent?.props[key] || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
   };
