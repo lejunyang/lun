@@ -1,4 +1,5 @@
 @use 'config';
+@use 'function' as *;
 @use 'sass:map';
 
 @mixin where {
@@ -27,13 +28,16 @@
 }
 
 // element
-@mixin e($element, $underParent: false) {
+@mixin e($element, $underParent: null) {
   // $E: $element !global;
   $selector: &;
   $E: #{$B + config.$element-separator + $element} !global;
   $currentSelector: #{'.' + $E};
 
-  @if $underParent or hitAllSpecialNestRule($selector) {
+  @if $underParent == null {
+    $underParent: hitAllSpecialNestRule($selector);
+  }
+  @if $underParent {
     @at-root {
       #{$selector} {
         #{$currentSelector} {

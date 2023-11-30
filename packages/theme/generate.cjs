@@ -3,6 +3,8 @@ const path = require('path');
 
 const colorsDir = path.join(__dirname, './node_modules/@radix-ui/colors');
 
+const existInLightAndDark = ['black-alpha.css'];
+
 fs.readdir(colorsDir, (err, files) => {
   if (err) {
     console.error(err);
@@ -19,6 +21,11 @@ fs.readdir(colorsDir, (err, files) => {
           .split('\n')
           .map((line) => `    ${line.trim()}`)
           .join('\n');
+        if (existInLightAndDark.includes(file)) {
+          return `#{$theme-provider-el-name} {
+${$1}
+}`;
+        }
         return `#{$theme-provider-el-name} {
   @include lightTheme(${String(isLight)}) {
 ${$1}
