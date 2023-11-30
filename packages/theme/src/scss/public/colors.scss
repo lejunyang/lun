@@ -67,7 +67,6 @@
   }
 }
 #{$theme-provider-el-name} {
-  @include lightTheme(false) {
     --#{$namespace}-black-a1: hsla(0, 0%, 0%, 0.012);
     --#{$namespace}-black-a2: hsla(0, 0%, 0%, 0.024);
     --#{$namespace}-black-a3: hsla(0, 0%, 0%, 0.055);
@@ -80,7 +79,6 @@
     --#{$namespace}-black-a10: hsla(0, 0%, 0%, 0.498);
     --#{$namespace}-black-a11: hsla(0, 0%, 0%, 0.608);
     --#{$namespace}-black-a12: hsla(0, 0%, 0%, 0.875);
-  }
 }
 #{$theme-provider-el-name} {
   @include lightTheme(true) {
