@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter=./packages/theme run dev & vitepress dev src/docs",
+    "dev": "vitepress dev src/docs",
     "build:noType": "pnpm --filter \"./packages/**\" run build:noType",
     "build": "pnpm --filter \"./packages/**\" run build",
     "docs:build": "vitepress build src/docs",

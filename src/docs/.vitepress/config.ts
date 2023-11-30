@@ -4,7 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import postcssLogical from 'postcss-logical';
 import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
-import { replaceCodeTags } from "./replaceCodeTags";
+import { replaceCodeTags } from './replaceCodeTags';
 
 const wrapLink = (link: string, lang: string) => {
   if (lang === 'zh-CN') return link;
@@ -92,7 +92,7 @@ export default defineConfig({
       md.render = (src, env) => {
         const newSrc = replaceCodeTags(env.path, src);
         return oldRender(newSrc, env);
-      }
+      };
     },
   },
   vite: {
@@ -110,13 +110,12 @@ export default defineConfig({
     },
     ssr: {
       // fix monaco-editor bundle error, see in https://github.com/vuejs/vitepress/issues/2832
-      noExternal: ['monaco-editor']
+      noExternal: ['monaco-editor'],
     },
     resolve: {
       alias:
         process.env.NODE_ENV !== 'production'
           ? {
-              // resolve to source code except for @lun/theme
               common: fileURLToPath(new URL('../../../packages/components/src/common/index', import.meta.url)),
               config: fileURLToPath(
                 new URL('../../../packages/components/src/components/config/index', import.meta.url)
@@ -127,6 +126,7 @@ export default defineConfig({
               '@lun/components': fileURLToPath(new URL('../../../packages/components/index', import.meta.url)),
               '@lun/core': fileURLToPath(new URL('../../../packages/core/index', import.meta.url)),
               '@lun/utils': fileURLToPath(new URL('../../../packages/utils/index', import.meta.url)),
+              '@lun/theme': fileURLToPath(new URL('../../../packages/theme/src', import.meta.url)),
             }
           : {},
     },

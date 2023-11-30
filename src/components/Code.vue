@@ -1,6 +1,6 @@
 <template>
-  <div class="code-wrapper">
-    <div class="code-container" v-show="!initialized">
+  <div class="code-wrapper" v-if="!devHide">
+    <div class="code-container" v-if="!initialized">
       <!-- this is to preventing long time white screen before initialized -->
       <slot></slot>
     </div>
@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watchEffect, defineAsyncComponent } from 'vue';
+import { ref, reactive, watchEffect, defineAsyncComponent, computed } from 'vue';
 import { debounce } from '@lun/utils';
 import { VCustomRenderer } from '@lun/components';
 import { runVueJSXCode } from '../utils';
@@ -36,6 +36,7 @@ import { inBrowser } from 'vitepress';
 const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : () => null;
 
 const props = defineProps({
+  dev: { type: Boolean },
   vueJSX: {
     type: String,
     default: '',
@@ -49,6 +50,8 @@ const props = defineProps({
     default: '',
   },
 });
+
+const devHide = computed(() => props.dev && inBrowser && !location.search.includes('dev'));
 
 const lang = ref('vueJSX');
 const showEditor = ref(false);
@@ -112,6 +115,8 @@ main .code-container {
   flex-wrap: wrap;
   .container {
     flex-basis: 100%;
+    display: flex;
+    gap: 5px;
   }
   .align-end {
     align-items: end;
