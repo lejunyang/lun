@@ -99,10 +99,10 @@ export const Checkbox = defineSSRCustomFormElement({
               onKeydown={handler.onKeydown}
             >
               <slot name="checked" v-show={isChecked}>
-                {renderElement('icon', { name: 'check' })}
+                {renderElement('icon', { name: 'check', style: 'width: 100%; height: 100%' })}
               </slot>
               <slot name="intermediate" v-show={isIntermediate}>
-                {renderElement('icon', { name: 'dash' })}
+                {renderElement('icon', { name: 'dash', style: 'width: 100%; height: 100%' })}
               </slot>
               <input
                 class={[ns.e('input')]}
