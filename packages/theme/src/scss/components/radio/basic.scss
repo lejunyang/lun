@@ -1,0 +1,64 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(radio) {
+  $size: getVarName((switch, 'size'));
+  $borderWidth: getVarName((switch, 'border-width'));
+
+  display: inline-flex;
+  align-items: center;
+
+  @include e(indicator) {
+    display: inline-block;
+    box-sizing: border-box;
+    width: var(#{$size});
+    height: var(#{$size});
+    box-shadow: inset 0 0 0 1px getGrayColor(a7);
+    transition: box-shadow 0.2s, background-color 0.1s; // need background-color transition when dark
+  }
+
+  @include is(checked) {
+    @include e(indicator) {
+      // border-width will be rounded if it's decimal, so use box-shadow
+      box-shadow: inset 0 0 0 calc(var(#{$size}) * 0.3) getAccentColor(9);
+      background-color: getAccentColor(contrast);
+    }
+  }
+
+  $disabledBorder: inset 0 0 0 1px getGrayColor(a6);
+  @include is(disabled) {
+    cursor: getDisabledCursor();
+    @include e(indicator) {
+      background-color: getGrayColor(3);
+      box-shadow: $disabledBorder;
+    }
+  }
+
+  @include is((checked, disabled)) {
+    @include e(indicator) {
+      background-color: getGrayColor(a8);
+      box-shadow: $disabledBorder, inset 0 0 0 calc(var(#{$size}) * 0.3) getGrayColor(3);
+    }
+  }
+
+  @include size(1) {
+    #{$size}: calc(#{getSpaceValue(4)} * 0.875);
+    @include e(indicator) {
+      border-radius: getRadiusValue(1, false);
+    }
+  }
+  @include size(2) {
+    #{$size}: getSpaceValue(4);
+    @include e(indicator) {
+      border-radius: getRadiusValue(2, false);
+    }
+  }
+  @include size(3) {
+    #{$size}: calc(#{getSpaceValue(4)} * 1.25);
+    @include e(indicator) {
+      border-radius: getRadiusValue(2, false);
+    }
+  }
+}
