@@ -6,6 +6,7 @@
 @include b(dialog) {
   border: none;
   padding: 0;
+  background-color: transparent;
 
   &::backdrop {
     // backdrop doesn't inherit any css variables, no possible way to inherit parent theme var https://github.com/whatwg/fullscreen/issues/124
@@ -35,6 +36,9 @@
 
   @include e(header) {
     display: flex;
+    margin-block-end: getSpaceValue(1);
+    // font-weight: getFontWeightValue(medium);
+    // font-size: getFontSizeValue(2);
   }
   @include e(content) {
   }
@@ -46,7 +50,7 @@
   @include size(1) {
     @include e(panel) {
       padding: getSpaceValue(3);
-      border-radius: getRadiusValue(4);
+      border-radius: getRadiusValue(1);
     }
     @include e(footer) {
       gap: getSpaceValue(3);
@@ -59,7 +63,7 @@
   @include size(2) {
     @include e(panel) {
       padding: getSpaceValue(4);
-      border-radius: getRadiusValue(4);
+      border-radius: getRadiusValue(2);
     }
     @include e(footer) {
       gap: getSpaceValue(4);
@@ -72,7 +76,7 @@
   @include size(3) {
     @include e(panel) {
       padding: getSpaceValue(5);
-      border-radius: getRadiusValue(5);
+      border-radius: getRadiusValue(3);
     }
     @include e(footer) {
       gap: getSpaceValue(5);
