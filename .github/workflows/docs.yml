@@ -62,13 +62,10 @@ jobs:
         run: pnpm install && pnpm build:noType && pnpm docs:build
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./src/docs/.vitepress/dist
-          destination: ./_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./src/docs/.vitepress/dist
 
   # Deployment job
   deploy:
