@@ -1,8 +1,9 @@
-import { editStateProps } from 'common';
+import { editStateProps, themeProps } from 'common';
 import { ExtractPropTypes, PropType } from 'vue';
 
 export const radioProps = {
   ...editStateProps,
+  ...themeProps,
   value: {},
   label: { type: String },
   labelPosition: { type: String as PropType<LogicalPosition> },
