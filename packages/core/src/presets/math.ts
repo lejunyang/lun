@@ -23,7 +23,7 @@ export function createMath<T = number>(methods: MathMethods<T>) {
   if (!methods.greaterThanOrEqual)
     methods.greaterThanOrEqual = (left, right) => greaterThan(left, right) || equals(left, right);
   if (!methods.lessThanOrEqual) methods.lessThanOrEqual = (left, right) => lessThan(left, right) || equals(left, right);
-  return methods;
+  return methods as Required<MathMethods<T>>;
 }
 
 export const createDefaultMath = () =>
