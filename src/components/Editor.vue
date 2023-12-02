@@ -1,7 +1,7 @@
 <template>
   <div class="wrap language-html">
     <div class="editor" ref="editorRef"></div>
-    <button title="Copy" class="copy"></button>
+    <button title="Copy" class="copy" @click="copy"></button>
   </div>
 </template>
 
@@ -12,6 +12,7 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useData } from 'vitepress';
+import { copyText } from '@lun/utils';
 
 const editorRef = ref<HTMLElement>();
 const height = ref('24px');
@@ -27,6 +28,8 @@ const props = defineProps({
 });
 const { isDark } = useData();
 const emits = defineEmits(['update:modelValue']);
+
+const copy = () => copyText(props.modelValue);
 
 languages.typescript.typescriptDefaults.setCompilerOptions({
   skipLibCheck: true,
