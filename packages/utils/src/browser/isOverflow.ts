@@ -1,4 +1,4 @@
-import { measureTextWidth } from './measureTextWidth';
+import { measureTextWidth } from './text';
 
 export function getContentWidth(element: HTMLElement, computedStyle: CSSStyleDeclaration): number {
   const { width, boxSizing } = computedStyle;
