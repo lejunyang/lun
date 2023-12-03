@@ -10,20 +10,24 @@
 @include b(input) {
   display: inline-flex;
   position: relative;
-  :is(&:hover, &:focus-within)#{getIs(not-empty)} {
-    @include is(with-clear) {
-      // hide suffix slot content when hover
-      slot::slotted(*) {
-        opacity: 0;
-        pointer-events: none;
-        z-index: -1;
-      }
-      // make clearIcon show when hover
-      @include em(suffix, clear-icon) {
-        opacity: 1;
-        z-index: 2;
-        pointer-events: all;
-        cursor: pointer;
+  vertical-align: bottom;
+
+  :is(&:hover, &:focus-within) {
+    @include is(not-empty) {
+      @include is(with-clear, false) {
+        // hide suffix slot content when hover
+        slot::slotted(*) {
+          opacity: 0;
+          pointer-events: none;
+          z-index: -1;
+        }
+        // make clearIcon show when hover
+        @include em(suffix, clear-icon) {
+          opacity: 1;
+          z-index: 2;
+          pointer-events: all;
+          cursor: pointer;
+        }
       }
     }
   }
@@ -33,6 +37,15 @@
     position: relative;
     cursor: text;
     box-sizing: border-box;
+  }
+
+  @include is(disabled) {
+    @include e(label) {
+      cursor: getDisabledCursor();
+    }
+    @include e(inner-input) {
+      cursor: getDisabledCursor();
+    }
   }
 
   @include e(inner-input, false) {
@@ -190,17 +203,17 @@
 
   // multiple
   @include is(multiple, false, true) {
-		@include e(inner-input, true) {
-			box-sizing: content-box;
-			inline-size: 5px;
-			max-inline-size: 100%;
-			display: inline-block;
-		}
+    @include e(inner-input, true) {
+      box-sizing: content-box;
+      inline-size: 5px;
+      max-inline-size: 100%;
+      display: inline-block;
+    }
   }
-	@include e(tag-container) {
-		position: relative;
-		z-index: 1;
-	}
+  @include e(tag-container) {
+    position: relative;
+    z-index: 1;
+  }
 
   // size
   @include size(1) {
@@ -222,9 +235,9 @@
       font-size: getFontSizeValue(1);
       letter-spacing: getLetterSpacingValue(1);
     }
-		@include e(tag-container, true) {
-			padding-inline-start: getSpaceValue(1);
-		}
+    @include e(tag-container, true) {
+      padding-inline-start: getSpaceValue(1);
+    }
     @include e('background', true) {
       border-radius: getRadiusValue(2);
     }
@@ -259,9 +272,9 @@
       font-size: getFontSizeValue(2);
       letter-spacing: getLetterSpacingValue(2);
     }
-		@include e(tag-container, true) {
-			padding-inline-start: getSpaceValue(2);
-		}
+    @include e(tag-container, true) {
+      padding-inline-start: getSpaceValue(2);
+    }
     @include e('background', true) {
       border-radius: getRadiusValue(2);
     }
@@ -296,9 +309,9 @@
       font-size: getFontSizeValue(3);
       letter-spacing: getLetterSpacingValue(3);
     }
-		@include e(tag-container, true) {
-			padding-inline-start: getSpaceValue(3);
-		}
+    @include e(tag-container, true) {
+      padding-inline-start: getSpaceValue(3);
+    }
     @include e('background', true) {
       border-radius: getRadiusValue(3);
     }
