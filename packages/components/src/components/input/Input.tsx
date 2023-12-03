@@ -22,17 +22,6 @@ export const Input = defineSSRCustomFormElement({
     const [editComputed] = useSetupEdit();
     const inputRef = ref<HTMLInputElement>();
 
-    const classes = {
-      root: computed(() => [
-        ns.b(),
-        ns.e('root'),
-        ns.m('variant-surface'),
-        ns.bp(props.size, ns.m('size')),
-        ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
-        ns.is('multiple', props.multiple),
-      ]),
-    };
-
     const { inputHandlers, wrapperHandlers } = useMultipleInput(
       computed(() => ({
         ...props,
@@ -80,8 +69,7 @@ export const Input = defineSSRCustomFormElement({
           {...attrs}
           type={props.type}
           ref={inputRef}
-          id="input"
-          part="input"
+          part={ns.p('input')}
           class={[ns.e('inner-input')]}
           value={!props.multiple ? valueModel.value : undefined}
           placeholder={props.placeholder}
@@ -91,15 +79,22 @@ export const Input = defineSSRCustomFormElement({
         />
       );
       return (
-        <span part="root" class={classes.root.value}>
-          <div class={[ns.e('slot'), ns.b('addon-before')]} part="addon-before">
+        <span
+          part={ns.p('root')}
+          class={[
+            ns.s(editComputed),
+            ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
+            ns.is('multiple', props.multiple),
+          ]}
+        >
+          <div class={[ns.e('slot'), ns.b('addon-before')]} part={ns.p('addon-before')}>
             <slot name="addon-before"></slot>
           </div>
-          <label class={ns.e('label')} part="label">
-            <div class={[ns.e('slot'), ns.e('prefix')]} part="prefix">
+          <label class={ns.e('label')} part={ns.p('label')}>
+            <div class={[ns.e('slot'), ns.e('prefix')]} part={ns.p('prefix')}>
               <slot name="prefix"></slot>
               {props.labelType === 'float' && (
-                <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
+                <div class={[ns.e('label'), ns.is('float-label')]} part={ns.p('float-label')}>
                   {props.label}
                   <div class={ns.em('label', 'float-background')}>{props.label}</div>
                 </div>
@@ -147,8 +142,11 @@ export const Input = defineSSRCustomFormElement({
                 input
               )}
             </span>
-            <span class={ns.e('background')} />
-            <span class={[ns.e('slot'), ns.e('suffix'), props.showClearIcon && ns.is('with-clear')]} part="suffix">
+            <span class={ns.e('background')} part={ns.p('background')} />
+            <span
+              class={[ns.e('slot'), ns.e('suffix'), props.showClearIcon && ns.is('with-clear')]}
+              part={ns.p('suffix')}
+            >
               {getClearIcon()}
               <slot name="suffix">
                 {/* this is static position clear icon, used to occupy place */}
@@ -164,7 +162,7 @@ export const Input = defineSSRCustomFormElement({
               </span>
             )}
           </label>
-          <div class={[ns.e('slot'), ns.b('addon-after')]} part="addon-after">
+          <div class={[ns.e('slot'), ns.b('addon-after')]} part={ns.p('addon-after')}>
             <slot name="addon-after"></slot>
           </div>
         </span>
