@@ -1,8 +1,8 @@
 export default function () {
   return (
     <>
-      <l-input variant="surface" />
-      <l-input variant="soft" />
+      <l-input variant="surface" value="surface" />
+      <l-input variant="soft" value="soft" />
     </>
   );
 }
