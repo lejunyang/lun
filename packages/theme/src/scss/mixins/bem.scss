@@ -154,6 +154,10 @@
   @return #{'.' + $B + config.$element-separator + $element};
 }
 
+@function getEM($element, $modifier) {
+  @return #{'.' + $B + config.$element-separator + $element + config.$modifier-separator + $modifier};
+}
+
 @mixin size($size) {
   @at-root {
     $selector: $B + config.$modifier-separator + 'size-' + $size;
