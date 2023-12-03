@@ -37,6 +37,9 @@
     position: relative;
     cursor: text;
     box-sizing: border-box;
+    @include is(float-label) {
+      position: absolute;
+    }
   }
 
   @include is(disabled) {
@@ -65,29 +68,29 @@
 
     // placeholder and selection
     &::placeholder {
-      color: getColor('gray', a10);
+      color: getGrayColor(a10);
       // Firefox
       opacity: 1;
     }
     &:autofill {
-      -webkit-text-fill-color: getColor('gray', 12);
-      caret-color: getColor('gray', 12);
+      -webkit-text-fill-color: getGrayColor(12);
+      caret-color: getGrayColor(12);
       box-shadow: inset 0 0 0 100px white;
-      border: 1px solid getColor('gray', 7);
+      border: 1px solid getGrayColor(7);
       border-inline: none;
     }
     &:read-only {
       &::placeholder {
-        color: getColor('gray', a7);
+        color: getGrayColor(a7);
       }
       &::selection {
-        background-color: getColor('gray', a5);
+        background-color: getGrayColor(a5);
       }
     }
   }
 
   @include e(length-info, false) {
-    color: getColor('gray', 10);
+    color: getGrayColor(10);
     z-index: 1;
     display: flex;
     align-items: center;
@@ -174,27 +177,35 @@
 
   // float label
   @include is(float-label, false, true) {
-    position: absolute;
     top: 0;
     z-index: 0;
     transition: all 0.3s ease-out;
+    color: getGrayColor(a10);
     .#{$B}:focus-within &,
     .#{getIs(not-empty, $B)} & {
+      color: fieldtext;
       z-index: 1;
       transform: scale(0.8);
+      #{getEM(label, float-background)} {
+        opacity: 1;
+        background: white;
+        /* extra white length */
+        left: -3px;
+        right: -3px;
+      }
     }
 
     @include em(label, float-background) {
+      opacity: 0;
       height: 3px;
       position: absolute;
       overflow: hidden;
-      top: 50%;
+      top: calc(50% - 1px);
       color: white;
-      background: white;
       z-index: -1;
-      /* extra white length */
-      left: -5px;
-      right: -5px;
+      left: 0;
+      right: 0;
+      transition: left 0.1s ease-out 0.25s, right 0.1s ease-out 0.25s, background-color 0.1s ease-out 0.25s; // delay for label positioned
       &:empty {
         display: none;
       }
@@ -215,6 +226,8 @@
     z-index: 1;
   }
 
+  $empty: getIs(not-empty, $B);
+  $float: getIs(float-label);
   // size
   @include size(1) {
     @include e(slot, true) {
@@ -225,6 +238,7 @@
     }
     @include e(length-info, true) {
       padding-inline: getSpaceValue(1);
+      font-size: getFontSizeValue(1);
     }
     @include e(inner-input, true) {
       height: getSpaceValue(5);
@@ -241,15 +255,14 @@
     @include e('background', true) {
       border-radius: getRadiusValue(2);
     }
-    @include is(float-label) {
+    @include is(float-label, false) {
       left: calc(100% + getSpaceValue(1));
       height: getSpaceValue(5);
       line-height: getSpaceValue(5);
+      font-size: getFontSizeValue(1);
     }
-    $empty: getIs(not-empty, $B);
-    $float: getIs(float-label);
     &.#{$B}:focus-within #{$float},
-    &.#{getIs(not-empty, $B)} #{$float} {
+    &.#{$empty} #{$float} {
       top: -50%;
       left: getSpaceValue(1);
     }
@@ -263,6 +276,7 @@
     }
     @include e(length-info, true) {
       padding-inline: getSpaceValue(2);
+      font-size: getFontSizeValue(2);
     }
     @include e(inner-input, true) {
       height: getSpaceValue(6);
@@ -278,15 +292,14 @@
     @include e('background', true) {
       border-radius: getRadiusValue(2);
     }
-    @include is(float-label) {
+    @include is(float-label, false) {
       left: calc(100% + getSpaceValue(2));
       height: getSpaceValue(6);
       line-height: getSpaceValue(6);
+      font-size: getFontSizeValue(2);
     }
-    $empty: getIs(not-empty, $B);
-    $float: getIs(float-label);
     &.#{$B}:focus-within #{$float},
-    &.#{getIs(not-empty, $B)} #{$float} {
+    &.#{$empty} #{$float} {
       top: -50%;
       left: getSpaceValue(2);
     }
@@ -300,6 +313,7 @@
     }
     @include e(length-info, true) {
       padding-inline: getSpaceValue(3);
+      font-size: getFontSizeValue(3);
     }
     @include e(inner-input, true) {
       height: getSpaceValue(7);
@@ -315,15 +329,14 @@
     @include e('background', true) {
       border-radius: getRadiusValue(3);
     }
-    @include is(float-label) {
+    @include is(float-label, false) {
       left: calc(100% + getSpaceValue(3));
       height: getSpaceValue(7);
       line-height: getSpaceValue(7);
+      font-size: getFontSizeValue(3);
     }
-    $empty: getIs(not-empty, $B);
-    $float: getIs(float-label);
     &.#{$B}:focus-within #{$float},
-    &.#{getIs(not-empty, $B)} #{$float} {
+    &.#{$empty} #{$float} {
       top: -50%;
       left: getSpaceValue(3);
     }

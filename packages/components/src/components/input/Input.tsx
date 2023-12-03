@@ -153,11 +153,11 @@ export const Input = defineSSRCustomFormElement({
                 {getClearIcon()}
               </slot>
             </span>
-            {props.showLengthInfo && props.multiple && (
+            {props.showLengthInfo && (
               <span class={ns.e('length-info')}>
                 {/* if no maxLength, show current char count */}
                 {props.maxLength! >= 0
-                  ? valueModel.value?.length || '0' + '/' + props.maxLength
+                  ? (valueModel.value?.length || '0') + '/' + props.maxLength
                   : valueModel.value?.length}
               </span>
             )}
