@@ -2,22 +2,22 @@
 
 <!-- @Code:basicUsage -->
 
+## placeholder
+
+<!-- @Code:placeholder -->
+
 ## 多值
 
 <!-- @Code:multiple -->
 
 ## 展示长度
 
-<l-input showLengthInfo maxLength="10" />
-
-## 浮动标签
-
-<l-input label="label" labelType="float" />
+<!-- @Code:showLengthInfo -->
 
 ## 不同变体
 
 <!-- @Code:differentVariants -->
 
-<script setup>
-  
-</script>
+## 浮动标签
+
+<!-- @Code:floatLabel -->
