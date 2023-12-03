@@ -1,6 +1,6 @@
 import { InputPeriod, InputType, Responsive } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps } from 'common';
+import { editStateProps, themeProps } from 'common';
 
 export const baseInputProps = {
   ...editStateProps,
@@ -25,13 +25,13 @@ export type BaseInputProps = ExtractPropTypes<typeof baseInputProps>;
 
 export const inputProps = {
   ...baseInputProps,
+  ...themeProps,
   value: { type: [Array, String] as PropType<string | string[] | null> },
   multiple: { type: Boolean },
   tagRenderer: { type: Function as PropType<(value: string, index: number) => any> },
   tagRendererType: { type: String },
   label: { type: String },
   labelType: { type: String as PropType<'float'> },
-  size: { type: [Object, String] as PropType<Responsive<'1' | '2' | '3'>>, default: '1' },
   showLengthInfo: { type: Boolean },
   showClearIcon: { type: Boolean },
 };
