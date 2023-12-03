@@ -1,7 +1,7 @@
 import { importButtonBasicTheme, importButtonOutlineTheme, importButtonSoftTheme, importButtonSolidTheme, importButtonSurfaceTheme } from './button/index.ts';
 import { importCheckboxBasicTheme, importCheckboxSoftTheme, importCheckboxSurfaceTheme } from './checkbox/index.ts';
 import { importDialogBasicTheme } from './dialog/index.ts';
-import { importInputBasicTheme, importInputSurfaceTheme } from './input/index.ts';
+import { importInputBasicTheme, importInputSoftTheme, importInputSurfaceTheme } from './input/index.ts';
 import { importRadioBasicTheme } from './radio/index.ts';
 import { importSwitchBasicTheme, importSwitchSurfaceTheme } from './switch/index.ts';
 import {
@@ -32,6 +32,7 @@ export function importOutlineTheme() {
 export function importSoftTheme() {
   importButtonSoftTheme();
   importCheckboxSoftTheme();
+  importInputSoftTheme();
   importTagSoftTheme();
 }
 

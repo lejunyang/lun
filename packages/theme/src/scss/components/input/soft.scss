@@ -4,18 +4,17 @@
 @use '../../mixins/config' as *;
 
 @include b(input) {
-  @include variant(surface) {
-    color: getGrayColor(12);
+  @include variant(soft) {
+    color: getAccentColor(12);
     @include e(background) {
-      background-color: getSemanticColor('surface');
-      box-shadow: inset 0 0 0 1px getGrayColor(a7);
+      background-color: getAccentColor(a3);
       padding: 1px;
       background-clip: content-box;
     }
 
     @include is(disabled) {
       @include e(background) {
-        background-image: linear-gradient(getGrayColor(a3), getGrayColor(a3));
+        background-color: getGrayColor(a4);
       }
     }
   }
