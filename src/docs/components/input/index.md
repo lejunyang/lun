@@ -1,10 +1,10 @@
 ## 基础使用
 
-<l-input />
+<!-- @Code:basicUsage -->
 
 ## 多值
 
-<l-input multiple :value="state.multi" @update="state.multi = $event.detail"  />
+<!-- @Code:multiple -->
 
 ## 展示长度
 
@@ -14,13 +14,10 @@
 
 <l-input label="label" labelType="float" />
 
+## 不同变体
+
+<!-- @Code:differentVariants -->
+
 <script setup>
-  import {reactive, watch} from 'vue';
-  const state = reactive({
-    value: 'input',
-    multi: ['1', '2', '3']
-  })
-  watch(() => state.value, (val) => {
-    console.log('val', val);
-  })
+  
 </script>
