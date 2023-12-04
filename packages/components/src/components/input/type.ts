@@ -1,4 +1,4 @@
-import { InputPeriod, InputType, Responsive } from '@lun/core';
+import { InputPeriod, InputType } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
 import { editStateProps, themeProps } from 'common';
 
@@ -9,10 +9,12 @@ export const baseInputProps = {
   required: { type: String },
   type: { type: String as PropType<InputType> },
   updateWhen: { type: String as PropType<InputPeriod> },
-  wait: { type: Number },
-  waitType: { type: String as PropType<'throttle' | 'debounce'>, default: 'debounce' },
+  debounce: { type: Number },
+  throttle: { type: Number },
+  waitOptions: { type: Object },
   trim: { type: Boolean, default: true },
   maxLength: { type: Number },
+  maxTags: { type: Number },
   restrict: { type: [String, RegExp] },
   restrictWhen: { type: String as PropType<InputPeriod>, default: 'not-composing' },
   toNullWhenEmpty: { type: Boolean, default: true },

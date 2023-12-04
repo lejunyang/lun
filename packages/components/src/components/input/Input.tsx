@@ -21,7 +21,7 @@ export const Input = defineSSRCustomFormElement({
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
     const inputRef = ref<HTMLInputElement>();
-    const valueForMultiple = ref(''); // used to store the value when it's multiple
+    const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
     const { inputHandlers, wrapperHandlers } = useMultipleInput(
       computed(() => ({
@@ -65,6 +65,12 @@ export const Input = defineSSRCustomFormElement({
     const getClearIcon = () =>
       props.showClearIcon &&
       renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue });
+
+    const lengthInfo = computed(() => {
+      const valueLength = props.multiple ? valueForMultiple.value.length : valueModel.value?.length;
+      // if no maxLength, show current char count as length info
+      return props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
+    });
 
     return () => {
       const input = (
@@ -157,14 +163,7 @@ export const Input = defineSSRCustomFormElement({
                 {getClearIcon()}
               </slot>
             </span>
-            {props.showLengthInfo && (
-              <span class={ns.e('length-info')}>
-                {/* if no maxLength, show current char count */}
-                {props.maxLength! >= 0
-                  ? (valueModel.value?.length || '0') + '/' + props.maxLength
-                  : valueModel.value?.length}
-              </span>
-            )}
+            {props.showLengthInfo && <span class={ns.e('length-info')}>{lengthInfo.value}</span>}
           </label>
           <div class={[ns.e('slot'), ns.b('addon-after')]} part={ns.p('addon-after')}>
             <slot name="addon-after"></slot>

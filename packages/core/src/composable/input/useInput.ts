@@ -1,4 +1,11 @@
-import { ensureNumber, isEnterDown, isFunction, toNumberOrNull } from '@lun/utils';
+import {
+  ensureNumber,
+  isEnterDown,
+  isFunction,
+  toNumberOrNull,
+  debounce as toDebounce,
+  throttle as toThrottle,
+} from '@lun/utils';
 import { computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 export type InputPeriod = 'change' | 'input' | 'not-composing';
@@ -11,8 +18,8 @@ export type UseInputOptions<
   type?: IType;
   onChange: (val: T | null) => void;
   updateWhen?: InputPeriod; // TODO for multiple, need two options, input and change
-  wait?: number;
-  waitType?: 'throttle' | 'debounce';
+  debounce?: number;
+  throttle?: number;
   waitOptions?: any;
   trim?: boolean;
   maxLength?: number;
@@ -128,12 +135,18 @@ export function useInput<
 ) {
   const options = computed(() => {
     const result = unrefOrGet(optionsGetter)!;
+    const { onChange, debounce, throttle, waitOptions } = result;
     return {
       ...result,
       min: ensureNumber(result.min, -Infinity),
       max: ensureNumber(result.max, Infinity),
       precision: toNumberOrNull(result.precision),
       step: toNumberOrNull(result.step),
+      onChange: debounce
+        ? toDebounce(onChange, debounce, waitOptions)
+        : throttle
+        ? toThrottle(onChange, throttle, waitOptions)
+        : onChange,
     };
   });
   const state = reactive({
