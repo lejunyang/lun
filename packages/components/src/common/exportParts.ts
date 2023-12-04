@@ -7,7 +7,7 @@ export const exportParts = {
   checkbox: [root, 'indicator', input, label],
   dialog: [root, 'overlay', 'panel', 'header', 'close', 'content', 'footer'],
   icon: ['svg'],
-  input: [root, input, label, 'addon-before', 'prefix', 'background', 'suffix', 'addon-after', 'tag-container'],
+  input: [root, 'inner-input', label, 'addon-before', 'prefix', 'background', 'suffix', 'addon-after', 'tag-container'],
   radio: [root, label, 'indicator'],
   switch: [root, input, 'children', 'thumb'],
   tag: [root, 'icon'],
