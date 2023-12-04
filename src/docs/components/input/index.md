@@ -10,7 +10,7 @@
 
 <!-- @Code:multiple -->
 
-## 展示长度
+## 展示字数
 
 <!-- @Code:showLengthInfo -->
 

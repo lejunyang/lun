@@ -21,6 +21,7 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
   unique?: boolean;
   reserveInput?: boolean;
   value?: string[] | string | null;
+  maxTags?: number;
   onChange: (value: string[]) => void;
   onInputUpdate?: (value: string) => void;
   iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
@@ -95,6 +96,11 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   };
   const [inputHandlers, state] = useInput<IType>(options as any, {
     transform,
+    onBeforeinput(e) {
+      const { value, maxTags } = unrefOrGet(options)!;
+      const values = toArrayIfNotNil(value);
+      if (maxTags && values.length >= maxTags) e.preventDefault();
+    },
     onKeydown(e, state, utils) {
       const { multiple, updateWhen } = unrefOrGet(options)!;
       if (multiple && isEnterDown(e) && !state.composing) {

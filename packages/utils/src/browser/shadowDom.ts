@@ -24,3 +24,14 @@ export function getInnerTextOfSlot(slotEl?: HTMLSlotElement) {
     return acc + (nodeType === Node.TEXT_NODE ? textContent : '');
   }, '');
 }
+
+/**
+ * judge if an element contains target, or if its shadow dom contains target
+ */
+export function shadowContains(el?: Element | null, target?: Element | null) {
+  if (!el || !target) return false;
+  if (el.contains(target)) return true;
+  const { shadowRoot } = el;
+  if (shadowRoot) return shadowRoot.contains(target);
+  return false;
+}
