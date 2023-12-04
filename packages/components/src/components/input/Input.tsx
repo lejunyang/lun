@@ -64,6 +64,7 @@ export const Input = defineSSRCustomFormElement({
 
     const getClearIcon = () =>
       props.showClearIcon &&
+      editComputed.value.editable &&
       renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue });
 
     const lengthInfo = computed(() => {
@@ -73,18 +74,20 @@ export const Input = defineSSRCustomFormElement({
     });
 
     return () => {
+      const { disabled, readonly, editable } = editComputed.value;
+      const { multiple } = props;
       const input = (
         <input
           {...attrs}
           type={props.type}
           ref={inputRef}
-          part={ns.p('input')}
+          part={ns.p('inner-input')}
           class={[ns.e('inner-input')]}
-          value={props.multiple ? valueForMultiple.value : valueModel.value}
+          value={multiple ? valueForMultiple.value : valueModel.value}
           placeholder={props.placeholder}
-          disabled={editComputed.value.disabled}
-          readonly={editComputed.value.readonly}
-          size={props.multiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
+          disabled={disabled}
+          readonly={readonly}
+          size={multiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
           {...inputHandlers}
         />
       );
@@ -94,7 +97,8 @@ export const Input = defineSSRCustomFormElement({
           class={[
             ns.s(editComputed),
             ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
-            ns.is('multiple', props.multiple),
+            ns.is(editable ? 'editable' : 'not-editable'),
+            ns.is('multiple', multiple),
           ]}
         >
           <div class={[ns.e('slot'), ns.b('addon-before')]} part={ns.p('addon-before')}>
@@ -117,12 +121,12 @@ export const Input = defineSSRCustomFormElement({
                   <slot name="renderer"></slot>
                 </div>
               )}
-              {props.multiple ? (
+              {multiple ? (
                 <span {...wrapperHandlers} class={[ns.e('tag-container')]} part={ns.p('tag-container')}>
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
                       const tagProps = {
-                        tabindex: -1,
+                        tabindex: editable ? -1 : undefined,
                         'data-tag-index': index,
                         'data-tag-value': v,
                         key: String(v),
@@ -140,7 +144,7 @@ export const Input = defineSSRCustomFormElement({
                         'tag',
                         {
                           ...tagProps,
-                          removable: true,
+                          removable: editable,
                           onAfterRemove: () => (valueModel.value as string[]).splice(index, 1),
                         },
                         v
