@@ -224,6 +224,8 @@
   @include e(tag-container) {
     position: relative;
     z-index: 1;
+    display: inline-flex;
+    align-items: center;
   }
 
   $empty: getIs(not-empty, $B);
@@ -251,6 +253,7 @@
     }
     @include e(tag-container, true) {
       padding-inline-start: getSpaceValue(1);
+      gap: getSpaceValue(1);
     }
     @include e('background', true) {
       border-radius: getRadiusValue(2);
@@ -288,6 +291,7 @@
     }
     @include e(tag-container, true) {
       padding-inline-start: getSpaceValue(2);
+      gap: getSpaceValue(2);
     }
     @include e('background', true) {
       border-radius: getRadiusValue(2);
@@ -325,6 +329,7 @@
     }
     @include e(tag-container, true) {
       padding-inline-start: getSpaceValue(3);
+      gap: getSpaceValue(3);
     }
     @include e('background', true) {
       border-radius: getRadiusValue(3);

@@ -5,6 +5,7 @@ import {
   getPreviousMatchElInTree,
   isEnterDown,
   isNilOrEmptyStr,
+  shadowContains,
   toArrayIfNotNil,
 } from '@lun/utils';
 import { InputType, UseInputOptions, useInput } from './useInput';
@@ -43,9 +44,8 @@ export function useMultipleInput<IType extends InputType = 'text'>(
           else {
             // rely on dom, if use value+index as tag key, following tags will update after every change, nextTarget is tangling
             // TODO
-
           }
-        })
+        });
       }
     }
   };
@@ -64,8 +64,8 @@ export function useMultipleInput<IType extends InputType = 'text'>(
       }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
-        if (!active || active !== target) return;
-        const { isMatch, shouldStop = () => true } = iterateOptions || {};
+        if (!active || (active !== target && !shadowContains(target, active))) return;
+        const { isMatch, shouldStop } = iterateOptions || {};
         let targetEl = null as Element | null;
         if (e.key === 'ArrowLeft') targetEl = getPreviousMatchElInTree(target, { isMatch, shouldStop });
         else if (e.key === 'ArrowRight') targetEl = getNextMatchElInTree(target, { isMatch, shouldStop });

@@ -108,7 +108,7 @@ export const Input = defineSSRCustomFormElement({
                 </div>
               )}
               {props.multiple ? (
-                <span {...wrapperHandlers} class={[ns.e('tag-container')]}>
+                <span {...wrapperHandlers} class={[ns.e('tag-container')]} part={ns.p('tag-container')}>
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
                       const tagProps = {

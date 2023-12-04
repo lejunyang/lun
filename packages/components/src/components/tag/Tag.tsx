@@ -3,7 +3,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
-import { useNamespace } from 'hooks';
+import { useCEExpose, useNamespace } from 'hooks';
 
 const name = 'tag';
 export const Tag = defineSSRCustomFormElement({
@@ -13,6 +13,7 @@ export const Tag = defineSSRCustomFormElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const removed = ref(false);
+    const rootRef = ref<HTMLElement>();
     const remove = () => (removed.value = true);
     const handlers = {
       onLeave() {
@@ -23,11 +24,15 @@ export const Tag = defineSSRCustomFormElement({
       },
     };
 
+    // calling focus on tag doesn't work because of display: contents, so expose span's focus
+    const focus = () => rootRef.value?.focus();
+    useCEExpose({ focus });
+
     return () => {
       return (
         <Transition name={name} {...handlers}>
           {!removed.value && (
-            <span class={ns.t} part={ns.p('root')}>
+            <span class={ns.t} part={ns.p('root')} ref={rootRef}>
               <slot></slot>
               {props.removable &&
                 renderElement('icon', {
