@@ -21,6 +21,7 @@ export const Input = defineSSRCustomFormElement({
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
     const inputRef = ref<HTMLInputElement>();
+    const valueForMultiple = ref(''); // used to store the value when it's multiple
 
     const { inputHandlers, wrapperHandlers } = useMultipleInput(
       computed(() => ({
@@ -29,6 +30,9 @@ export const Input = defineSSRCustomFormElement({
         onChange: (val) => {
           updateVModel(val);
           valueModel.value = val;
+        },
+        onInputUpdate(val) {
+          valueForMultiple.value = val;
         },
         onEnterDown(e) {
           emit('enterDown', e);
@@ -62,7 +66,6 @@ export const Input = defineSSRCustomFormElement({
       props.showClearIcon &&
       renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue });
 
-    // TODO mouse enter add class to show the clear button.  animation, hide suffix slot(render both, z-index?)
     return () => {
       const input = (
         <input
@@ -71,10 +74,11 @@ export const Input = defineSSRCustomFormElement({
           ref={inputRef}
           part={ns.p('input')}
           class={[ns.e('inner-input')]}
-          value={!props.multiple ? valueModel.value : undefined}
+          value={props.multiple ? valueForMultiple.value : valueModel.value}
           placeholder={props.placeholder}
           disabled={editComputed.value.disabled}
           readonly={editComputed.value.readonly}
+          size={props.multiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
           {...inputHandlers}
         />
       );

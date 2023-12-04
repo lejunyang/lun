@@ -22,6 +22,7 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
   reserveInput?: boolean;
   value?: string[] | string | null;
   onChange: (value: string[]) => void;
+  onInputUpdate?: (value: string) => void;
   iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
 };
 
@@ -62,6 +63,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
         // different from Backspace/Delete behavior in text, delete current focused tag whatever
         handleDeleteTag(target);
       }
+      // arrow left/right to focus on previous/next tag
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
         if (!active || (active !== target && !shadowContains(target, active))) return;
@@ -75,7 +77,8 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   };
 
   const transform = (val: any, e: Event) => {
-    const { splitter = ',', unique, reserveInput, multiple, value } = unrefOrGet(options)!;
+    const { splitter = ',', unique, reserveInput, multiple, value, onInputUpdate } = unrefOrGet(options)!;
+    onInputUpdate && onInputUpdate(val);
     const valuesBefore = toArrayIfNotNil(value);
     if (!multiple || isNilOrEmptyStr(val)) return val;
     const valuesNow = val.split(splitter);
@@ -86,6 +89,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     // TODO reserveInput is conflict with ‘change' event
     if (!reserveInput) {
       (e.target as HTMLInputElement).value = '';
+      onInputUpdate && onInputUpdate('');
     }
     return unique ? Array.from(new Set(result)) : result;
   };
