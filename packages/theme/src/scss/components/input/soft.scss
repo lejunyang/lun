@@ -12,6 +12,13 @@
       background-clip: content-box;
     }
 
+    @include e(inner-input) {
+      &::placeholder {
+        color: getAccentColor(12);
+        opacity: 0.6;
+      }
+    }
+
     @include is(disabled) {
       @include e(background) {
         background-color: getGrayColor(a4);

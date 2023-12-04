@@ -212,15 +212,6 @@
     }
   }
 
-  // multiple
-  @include is(multiple, false, true) {
-    @include e(inner-input, true) {
-      box-sizing: content-box;
-      inline-size: 5px;
-      max-inline-size: 100%;
-      display: inline-block;
-    }
-  }
   @include e(tag-container) {
     position: relative;
     z-index: 1;
@@ -344,6 +335,22 @@
     &.#{$empty} #{$float} {
       top: -50%;
       left: getSpaceValue(3);
+    }
+  }
+
+  // multiple
+  @include is(multiple, false, true) {
+    @include e(inner-input) {
+      box-sizing: content-box;
+      // inline-size: 5px;
+      max-inline-size: 100%;
+      display: inline-block;
+    }
+    &#{getIs(not-editable, '', true)} {
+      @include e(inner-input) {
+        inline-size: 0;
+        padding-inline-start: 0;
+      }
     }
   }
 }

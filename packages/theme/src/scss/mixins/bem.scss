@@ -127,7 +127,7 @@
   }
 }
 
-@function getIs($state, $pre: '') {
+@function getIs($state, $pre: '', $noWhere: false) {
   $selector: '';
   @if type-of($state) == 'list' {
     @each $s in $state {
@@ -136,7 +136,7 @@
   } @else {
     $selector: '.' + config.$state-prefix + $state;
   }
-  @if map.get(config.$with-where-map, 'is') {
+  @if map.get(config.$with-where-map, 'is') and not $noWhere {
     $selector: ':where(' + $selector + ')';
   }
   @return #{$pre + $selector};
