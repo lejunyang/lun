@@ -265,7 +265,9 @@
     &.#{$B}:focus-within #{$float},
     &.#{$empty} #{$float} {
       inset-block-start: -50%;
-      max-inline-size: calc(125% - 2 * #{getSpaceValue(1)}); // suppose to be 100%, but scale(0.8) when active, 100 / 0.8
+      max-inline-size: calc(
+        125% - 2 * #{getSpaceValue(1)}
+      ); // suppose to be 100%, but scale(0.8) when active, 100 / 0.8
     }
   }
   @include size(2) {
@@ -348,18 +350,13 @@
   }
 
   // multiple
-  @include is(multiple, false, true) {
+  @include is(multiple) {
     @include e(inner-input) {
       box-sizing: content-box;
       // inline-size: 5px;
       max-inline-size: 100%;
       display: inline-block;
-    }
-    &#{getIs(not-editable, '', true)} {
-      @include e(inner-input) {
-        inline-size: 0;
-        padding-inline-start: 0;
-      }
+      padding-inline-start: 0;
     }
   }
 }
