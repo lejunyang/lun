@@ -75,7 +75,11 @@ export const Input = defineSSRCustomFormElement({
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
-      const { multiple } = props;
+      const { multiple, placeholder, labelType, label } = props;
+      const floatLabel = label || placeholder;
+      const hasFloatLabel = labelType === 'float' && floatLabel;
+      const empty = isEmpty(valueModel.value);
+      const hidePlaceholderForMultiple = multiple && !empty;
       const input = (
         <input
           {...attrs}
@@ -84,10 +88,10 @@ export const Input = defineSSRCustomFormElement({
           part={ns.p('inner-input')}
           class={[ns.e('inner-input')]}
           value={multiple ? valueForMultiple.value : valueModel.value}
-          placeholder={props.placeholder}
+          placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
           disabled={disabled}
           readonly={readonly}
-          size={multiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
+          size={hidePlaceholderForMultiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
           {...inputHandlers}
         />
       );
@@ -96,7 +100,7 @@ export const Input = defineSSRCustomFormElement({
           part={ns.p('root')}
           class={[
             ns.s(editComputed),
-            ns.is(isEmpty(valueModel.value) ? 'empty' : 'not-empty'),
+            ns.is(empty ? 'empty' : 'not-empty'),
             ns.is(editable ? 'editable' : 'not-editable'),
             ns.is('multiple', multiple),
           ]}
@@ -107,16 +111,16 @@ export const Input = defineSSRCustomFormElement({
           <label class={ns.e('label')} part={ns.p('label')}>
             <div class={[ns.e('slot'), ns.e('prefix')]} part={ns.p('prefix')}>
               <slot name="prefix"></slot>
-              {props.labelType === 'float' && (
+              {hasFloatLabel && (
                 <div class={[ns.e('label'), ns.is('float-label')]} part={ns.p('float-label')}>
-                  {props.label}
-                  <div class={ns.em('label', 'float-background')}>{props.label}</div>
+                  {floatLabel}
+                  <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
                 </div>
               )}
             </div>
             <span style="position: relative">
               {/* render when value is defined，in case it covers float label and placeholder */}
-              {!isEmpty(valueModel.value) && (
+              {!empty && (
                 <div class={[ns.e('inner-input'), ns.e('custom-renderer')]}>
                   <slot name="renderer"></slot>
                 </div>
@@ -126,7 +130,7 @@ export const Input = defineSSRCustomFormElement({
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
                       const tagProps = {
-                        tabindex: editable ? -1 : undefined,
+                        tabindex: editable ? 0 : undefined,
                         'data-tag-index': index,
                         'data-tag-value': v,
                         key: String(v),
