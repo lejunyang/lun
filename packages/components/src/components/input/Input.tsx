@@ -39,7 +39,12 @@ export const Input = defineSSRCustomFormElement({
         },
       }))
     );
-    const clearValue = () => (props.multiple ? (valueModel.value = []) : (valueModel.value = null));
+    const clearValue = () => {
+      if (props.multiple) {
+        valueModel.value = [];
+        valueForMultiple.value = '';
+      } else valueModel.value = null;
+    };
 
     useCEExpose({
       focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => {
@@ -78,7 +83,7 @@ export const Input = defineSSRCustomFormElement({
       const { multiple, placeholder, labelType, label } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
-      const empty = isEmpty(valueModel.value);
+      const empty = isEmpty(valueModel.value) && !valueForMultiple.value;
       const hidePlaceholderForMultiple = multiple && !empty;
       const input = (
         <input
@@ -109,14 +114,14 @@ export const Input = defineSSRCustomFormElement({
             <slot name="addon-before"></slot>
           </div>
           <label class={ns.e('label')} part={ns.p('label')}>
+            {hasFloatLabel && (
+              <div class={[ns.e('label'), ns.is('float-label')]} part={ns.p('float-label')}>
+                {floatLabel}
+                <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
+              </div>
+            )}
             <div class={[ns.e('slot'), ns.e('prefix')]} part={ns.p('prefix')}>
               <slot name="prefix"></slot>
-              {hasFloatLabel && (
-                <div class={[ns.e('label'), ns.is('float-label')]} part={ns.p('float-label')}>
-                  {floatLabel}
-                  <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
-                </div>
-              )}
             </div>
             <span style="position: relative">
               {/* render when value is defined，in case it covers float label and placeholder */}
