@@ -39,6 +39,7 @@
     box-sizing: border-box;
     @include is(float-label) {
       position: absolute;
+      display: inline-block;
     }
   }
 
@@ -181,14 +182,18 @@
     z-index: 0;
     transition: all 0.3s ease-out;
     color: getGrayColor(a10);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     .#{$B}:focus-within &,
-    .#{getIs(not-empty, $B)} & {
+    .#{getIs(not-empty, $B, true)} & {
       color: fieldtext;
       z-index: 1;
       transform: scale(0.8);
+      transform-origin: 0 50%; // horizontal needs to be 0, or it will be away from the left edge when label is too long
       #{getEM(label, float-background)} {
         opacity: 1;
-        background: white;
+        background: getSemanticColor('background');
         /* extra white length */
         left: -3px;
         right: -3px;
@@ -205,7 +210,7 @@
       z-index: -1;
       left: 0;
       right: 0;
-      transition: left 0.1s ease-out 0.25s, right 0.1s ease-out 0.25s, background-color 0.1s ease-out 0.25s; // delay for label positioned
+      transition: left 0 0.25s, right 0 0.25s, background-color 0 0.25s; // delay for label positioned
       &:empty {
         display: none;
       }
@@ -251,15 +256,16 @@
       border-radius: getRadiusValue(2);
     }
     @include is(float-label, false) {
-      left: calc(100% + getSpaceValue(1));
+      inset-inline-start: getSpaceValue(1);
       height: getSpaceValue(5);
       line-height: getSpaceValue(5);
       font-size: getFontSizeValue(1);
+      max-inline-size: calc(100% - 2 * #{getSpaceValue(1)});
     }
     &.#{$B}:focus-within #{$float},
     &.#{$empty} #{$float} {
-      top: -50%;
-      left: getSpaceValue(1);
+      inset-block-start: -50%;
+      max-inline-size: calc(125% - 2 * #{getSpaceValue(1)}); // suppose to be 100%, but scale(0.8) when active, 100 / 0.8
     }
   }
   @include size(2) {
@@ -289,15 +295,16 @@
       border-radius: getRadiusValue(2);
     }
     @include is(float-label, false) {
-      left: calc(100% + getSpaceValue(2));
+      inset-inline-start: getSpaceValue(2);
       height: getSpaceValue(6);
       line-height: getSpaceValue(6);
       font-size: getFontSizeValue(2);
+      max-inline-size: calc(100% - 2 * #{getSpaceValue(2)});
     }
     &.#{$B}:focus-within #{$float},
     &.#{$empty} #{$float} {
-      top: -50%;
-      left: getSpaceValue(2);
+      inset-block-start: -50%;
+      max-inline-size: calc(125% - 2 * #{getSpaceValue(2)});
     }
   }
   @include size(3) {
@@ -327,15 +334,16 @@
       border-radius: getRadiusValue(3);
     }
     @include is(float-label, false) {
-      left: calc(100% + getSpaceValue(3));
+      inset-inline-start: getSpaceValue(3);
       height: getSpaceValue(7);
       line-height: getSpaceValue(7);
       font-size: getFontSizeValue(3);
+      max-inline-size: calc(100% - 2 * #{getSpaceValue(3)});
     }
     &.#{$B}:focus-within #{$float},
     &.#{$empty} #{$float} {
-      top: -50%;
-      left: getSpaceValue(3);
+      inset-block-start: -50%;
+      max-inline-size: calc(125% - 2 * #{getSpaceValue(3)});
     }
   }
 
