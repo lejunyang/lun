@@ -1,6 +1,6 @@
 ---
 title: Icon 图标
-lang: zh
+lang: zh-CN
 ---
 
 <script setup>
@@ -26,15 +26,14 @@ registerIconLibrary({
 <div>
   Default Icon Library
   <l-icon name="clear" />
-  <l-icon name="up" />
   <l-icon name="down" />
   <l-icon name="x" />
 </div>
 
 ```html
 <l-icon name="clear" />
-<l-icon name="up" />
 <l-icon name="down" />
+<l-icon name="x" />
 ```
 
 ## 注册 SVG 图标库

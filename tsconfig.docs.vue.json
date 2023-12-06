@@ -6,5 +6,7 @@
   },
   "include": [
     "src/docs/**/*.vue.tsx",
+    "src/components/*.vue",
+    "src/docs/**/*.vue",
   ],
 }
