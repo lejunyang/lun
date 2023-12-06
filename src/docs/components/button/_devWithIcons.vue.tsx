@@ -9,9 +9,6 @@ export default function () {
         文字x
       </l-button>
       <l-button>
-        <l-icon name="up" />
-      </l-button>
-      <l-button>
         <l-icon name="down" />
       </l-button>
       <l-button>

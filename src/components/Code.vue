@@ -26,9 +26,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { ref, reactive, watchEffect, defineAsyncComponent, computed } from 'vue';
-import { debounce } from '@lun/utils';
+import { debounce, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '@lun/components';
 import { runVueTSXCode, runReactTSXCode } from '../utils';
 import { inBrowser } from 'vitepress';
@@ -88,10 +88,16 @@ const handleCodeChange = debounce(async () => {
         rendererProps.type = 'react';
         break;
     }
+    rendererProps.content = runIfFn(rendererProps.content); // run it in advance in case of error
   } catch (e: any) {
     console.error(e);
-    rendererProps.type = undefined;
-    rendererProps.content = `Error: ${e.message}`;
+    rendererProps.type = 'vnode';
+    rendererProps.content = (
+      <div style="width: 100%; text-align: center">
+        <l-icon name="error" style="color: red; font-size: 36px;" />
+        <pre>{e.message}</pre>
+      </div>
+    );
   } finally {
     loading.value = false;
     initialized.value = true;
