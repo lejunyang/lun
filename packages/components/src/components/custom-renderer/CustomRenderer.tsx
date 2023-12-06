@@ -4,7 +4,7 @@ import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick,
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
 import { customRendererProps, CustomRendererProps } from './type';
-import { isArray, isFunction, isHTMLTemplateElement, isNode } from '@lun/utils';
+import { isArray, isHTMLTemplateElement, isNode, runIfFn } from '@lun/utils';
 
 const name = 'custom-renderer';
 
@@ -22,18 +22,21 @@ const options = {
     const isRawType = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
 
     watchEffect(() => {
+      // TODO onCleanup
       let { type } = props;
-      let content = props.content as any;
+      let content = runIfFn(props.content) as any; // if it's a function, consider it as a getter
       renderer = undefined; // clear before and get new renderer
-      if (type) {
-        const temp = GlobalStaticConfig.customRendererMap[type];
-        if (temp?.isValidContent(content)) renderer = temp;
-      }
-      if (!renderer) {
-        for (const registry of Object.values(GlobalStaticConfig.customRendererMap)) {
-          if (registry.isValidContent(content)) {
-            renderer = registry;
-            break;
+      if (type !== 'html' && type !== 'vnode') {
+        if (type) {
+          const temp = GlobalStaticConfig.customRendererMap[type];
+          if (temp?.isValidContent(content)) renderer = temp;
+        }
+        if (!renderer) {
+          for (const registry of Object.values(GlobalStaticConfig.customRendererMap)) {
+            if (registry.isValidContent(content)) {
+              renderer = registry;
+              break;
+            }
           }
         }
       }
@@ -45,9 +48,11 @@ const options = {
       }
       // no valid renderer, check the content if it is string, number or vnode, render it if yes
       if (!renderer) {
-        if (isFunction(content)) content = content(); // if it's a function, consider it as a getter
-        const isValidArray = isArray(content) && (isRawType(content[0]) || isVNode(content[0])); // if it's an array and the first item is valid as a vnode, render it
-        nextType = isVNode(content) || (isRawType(content) && !props.preferHtml) || isValidArray ? 'vnode' : 'html';
+        if (type === 'html') nextType = 'html';
+        else {
+          const isValidArray = isArray(content) && (isRawType(content[0]) || isVNode(content[0])); // if it's an array and the first item is valid as a vnode, render it
+          nextType = isValidArray || (isRawType(content) && !props.preferHtml) || isVNode(content) ? 'vnode' : 'html';
+        }
         if (nextType === 'html') {
           if (isNode(content)) {
             updateHtml = () => {
@@ -81,27 +86,33 @@ const options = {
         }
       }
 
-      lastRenderer = renderer;
-      if (mounted && renderer?.onUpdated) {
+      if (mounted && renderer) {
+        const updateOrMount = () => {
+          if (!renderer || !div.value) return;
+          // if renderer changed, should mount a new one
+          const func = lastRenderer === renderer ? renderer?.onUpdated : renderer.onMounted;
+          func && func(content, div.value, attrs);
+          lastRenderer = renderer;
+        };
         if (lastType === 'vnode') {
           // unmount vnode and then do the update
           vnode.value = null;
-          nextTick(() => renderer?.onUpdated && renderer.onUpdated(content, div.value!, attrs));
-        } else renderer.onUpdated(content, div.value!, attrs);
-      }
+          nextTick(updateOrMount);
+        } else updateOrMount();
+      } else if (renderer) lastRenderer = renderer; // if not mounted, just update the lastRenderer
       lastType = nextType;
     });
 
     onMounted(() => {
       mounted = true;
-      if (renderer) {
-        renderer.onMounted(props.content, div.value!, attrs);
+      if (renderer && div.value) {
+        renderer.onMounted(runIfFn(props.content), div.value, attrs);
       }
     });
     onBeforeUnmount(() => {
       mounted = false;
-      if (renderer?.onBeforeUnmount) {
-        renderer.onBeforeUnmount(props.content, div.value!);
+      if (renderer?.onBeforeUnmount && div.value) {
+        renderer.onBeforeUnmount(props.content, div.value);
       }
     });
     return () => vnode.value ?? <div ref={div} style="display: contents"></div>;
