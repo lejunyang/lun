@@ -71,10 +71,10 @@ export async function buildDepRequire(code: string) {
   };
 }
 
-export async function runVueJSXCode(code: string) {
+export async function runVueTSXCode(code: string) {
   await initPromise;
   const { transform } = await import('esbuild-wasm');
-  const errorMsg = 'Must export a default vnode or a default function that returns a vnode';
+  const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
   const res = await transform(code, {
     loader: 'tsx',
     format: 'iife',
@@ -87,6 +87,28 @@ export async function runVueJSXCode(code: string) {
   if (!res.code.includes('var result')) throw new Error(errorMsg);
   const func = new Function('require', 'h', 'Fragment', res.code + ';return result;');
   const result = func(requireDep, dependencies.vue.h, dependencies.vue.Fragment);
+  if (!result?.default) throw new Error(errorMsg);
+  return result.default;
+}
+
+export async function runReactTSXCode(code: string) {
+  await initPromise;
+  const { transform } = await import('esbuild-wasm');
+  const errorMsg = 'Must export a default ReactNode or a default function that returns a ReactNode';
+  const res = await transform(code, {
+    loader: 'tsx',
+    format: 'iife',
+    jsxFactory: 'createElement',
+    jsxFragment: 'Fragment',
+    jsxImportSource: 'react',
+    globalName: 'result',
+  });
+  const requireDep = buildDepRequire(res.code);
+  if (!res.code.includes('var result')) throw new Error(errorMsg);
+  const func = new Function('require', 'createElement', 'Fragment', res.code + ';return result;');
+  if (isFunction(dependencies.react)) dependencies.react = await dependencies.react();
+  const { createElement, Fragment } = dependencies.react;
+  const result = func(requireDep, createElement, Fragment);
   if (!result?.default) throw new Error(errorMsg);
   return result.default;
 }

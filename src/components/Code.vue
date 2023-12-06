@@ -30,7 +30,7 @@
 import { ref, reactive, watchEffect, defineAsyncComponent, computed } from 'vue';
 import { debounce } from '@lun/utils';
 import { VCustomRenderer } from '@lun/components';
-import { runVueJSXCode } from '../utils';
+import { runVueTSXCode, runReactTSXCode } from '../utils';
 import { inBrowser } from 'vitepress';
 
 const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : () => null;
@@ -60,26 +60,32 @@ const initialized = ref(false);
 
 const codesMap = reactive({
   vueJSX: props.vueJSX,
-  html: '',
-  react: '',
+  html: props.html,
+  react: props.react,
 } as Record<string, string>);
 
 const rendererProps = reactive({
   content: undefined as any,
   type: undefined as any,
+  preferHtml: true,
 });
 
 const handleCodeChange = debounce(async () => {
   loading.value = true;
   try {
+    const code = codesMap[lang.value];
     switch (lang.value) {
       case 'vueJSX':
-        rendererProps.type = undefined;
-        rendererProps.content = await runVueJSXCode(codesMap[lang.value]);
+        rendererProps.content = await runVueTSXCode(code);
+        rendererProps.type = 'vnode';
         break;
       case 'html':
+        rendererProps.type = 'html';
+        rendererProps.content = code;
         break;
       case 'react':
+        rendererProps.content = await runReactTSXCode(code);
+        rendererProps.type = 'react';
         break;
     }
   } catch (e: any) {
