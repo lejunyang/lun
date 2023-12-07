@@ -28,11 +28,19 @@
       &:active {
         background-color: getAccentColor(12);
       }
+      .hold-enter-active {
+        background-color: getAccentColor(11);
+      }
     }
 
     @include is(disabled, true) {
       color: getGrayColor(a8);
       background-color: getGrayColor(a3);
+    }
+
+    .hold-enter-active {
+      background-color: getAccentColor(8);
+      mix-blend-mode: overlay;
     }
   }
 }
