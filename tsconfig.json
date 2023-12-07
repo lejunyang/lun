@@ -17,9 +17,11 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "utils/**/*.ts",
     "global.d.ts",
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "types": ["@types/dom-view-transitions"],
   }
 }

@@ -3,12 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/lun-utils.umd.cjs",
-  "module": "./dist/lun-utils.js",
+  "main": "./dist/lun-utils.production.umd.cjs",
+  "module": "./dist/lun-utils.production.js",
   "exports": {
     ".": {
-      "require": "./dist/lun-utils.umd.cjs",
-      "import": "./dist/lun-utils.js",
+      "require": "./dist/lun-utils.production.umd.cjs",
+      "import": "./dist/lun-utils.production.js",
       "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json"
@@ -16,14 +16,18 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "build:noType": "rimraf ./dist && vite build",
-    "build": "rimraf ./dist && vite build && tsc -p ./tsconfig.build.json",
+    "build:dev": "cross-env NODE_ENV=development vite build",
+    "build:prod": "cross-env NODE_ENV=production vite build",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "rimraf": "^5.0.5",
     "typescript": "^5.2.0",
     "vite": "^4.5.0",
+    "vite-plugin-dts": "^3.6.4",
     "vitest": "^0.34.6"
   }
 }
