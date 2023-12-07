@@ -13,7 +13,7 @@
 <!-- @Code:holdOnMode -->
 
 :::warning 注
-使用按住模式，防抖或节流时，你可能需要通过监听`valid-click`事件或者设置`asyncHandler`属性来触发回调，而不是监听`click`事件
+使用按住模式，防抖或节流时，你需要通过监听`valid-click`事件或者设置`asyncHandler`属性来触发回调，而不是监听`click`事件
 :::
 
 ## 防抖和节流
@@ -31,5 +31,9 @@
 ## 不同颜色
 
 <!-- @Code:differentColors -->
+
+## 不同大小
+
+<!-- @Code:differentSizes -->
 
 <!-- @Code:_devWithIcons -->
