@@ -1,4 +1,8 @@
 {
   "extends": "../../tsconfig.node.json",
-  "include": ["vite.config.ts"]
+  "compilerOptions": {
+    "rootDir": "../..",
+    "baseUrl": ".",
+  },
+  "include": ["vite.config.ts", "../../utils/getViteConfig.ts"]
 }
