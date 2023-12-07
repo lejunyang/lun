@@ -36,6 +36,7 @@ $button-loading-opacity: 0.7 !default;
   box-sizing: border-box;
   flex-shrink: 0;
   user-select: none;
+  touch-action: manipulation;
   // vertical-align: top; // remove this to make ghost button with only icon as its child align normally
   cursor: pointer;
 
@@ -63,8 +64,47 @@ $button-loading-opacity: 0.7 !default;
     border-radius: getRadiusValue(1);
     gap: getSpaceValue(1);
     font-size: getFontSizeValue(1);
-    // line-height
+    line-height: getLineHeightValue(1);
     letter-spacing: getLetterSpacingValue(1);
     padding-inline: getSpaceValue(2);
+    .hold-enter-active {
+      border-radius: getRadiusValue(1);
+    }
+  }
+  @include size(2) {
+    #{getVarName((button, 'height'))}: getSpaceValue(6);
+    border-radius: getRadiusValue(2);
+    gap: getSpaceValue(1);
+    font-size: getFontSizeValue(1);
+    line-height: getLineHeightValue(2);
+    letter-spacing: getLetterSpacingValue(2);
+    padding-inline: getSpaceValue(3);
+    .hold-enter-active {
+      border-radius: getRadiusValue(2);
+    }
+  }
+  @include size(3) {
+    #{getVarName((button, 'height'))}: getSpaceValue(7);
+    border-radius: getRadiusValue(3);
+    gap: getSpaceValue(3);
+    font-size: getFontSizeValue(3);
+    line-height: getLineHeightValue(3);
+    letter-spacing: getLetterSpacingValue(3);
+    padding-inline: getSpaceValue(4);
+    .hold-enter-active {
+      border-radius: getRadiusValue(3);
+    }
+  }
+  @include size(4) {
+    #{getVarName((button, 'height'))}: getSpaceValue(8);
+    border-radius: getRadiusValue(4);
+    gap: getSpaceValue(3);
+    font-size: getFontSizeValue(4);
+    line-height: getLineHeightValue(4);
+    letter-spacing: getLetterSpacingValue(4);
+    padding-inline: getSpaceValue(5);
+    .hold-enter-active {
+      border-radius: getRadiusValue(4);
+    }
   }
 }

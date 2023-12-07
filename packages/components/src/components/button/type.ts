@@ -1,9 +1,11 @@
 import { ExtractPropTypes, PropType } from 'vue';
 import { ThemeVariants, editStateProps, themeProps } from 'common';
+import { Responsive } from '@lun/core';
 
 export const buttonProps = {
   ...editStateProps,
   ...themeProps,
+  size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3' | '4'>> },
   variant: { type: String as PropType<ThemeVariants | 'ghost'> },
   label: { type: String },
   asyncHandler: { type: Function as PropType<(e?: MouseEvent) => void> },
@@ -16,3 +18,17 @@ export const buttonProps = {
 };
 
 export type ButtonProps = ExtractPropTypes<typeof buttonProps>;
+
+declare module 'vue' {
+  interface IntrinsicElementAttributes {
+    'l-tag': ButtonProps & HTMLAttributes;
+  }
+}
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'l-button': ButtonProps;
+    }
+  }
+}
