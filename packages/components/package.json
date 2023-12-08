@@ -11,14 +11,17 @@
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./vue-types": "./vue-elements.d.ts",
+    "./html-types": "./html-elements.d.ts",
+    "./react-types": "./react-elements.d.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
-    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && node ./generateModuleTypes.js",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview"
   },
