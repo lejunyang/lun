@@ -33,6 +33,15 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       emptyOutDir: dev,
       rollupOptions: {
         external: ['vue', /@lun\/.+/],
+        output: {
+          globals: {
+            vue: 'Vue',
+            '@lun/components': 'LunComponents',
+            '@lun/core': 'LunCore',
+            '@lun/theme': 'LunTheme',
+            '@lun/utils': 'LunUtils',
+          },
+        },
       },
     },
     resolve: {
