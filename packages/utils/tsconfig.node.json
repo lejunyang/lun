@@ -4,5 +4,8 @@
     "rootDir": "../..",
     "baseUrl": ".",
   },
-  "include": ["vite.config.ts", "../../utils/getViteConfig.ts"]
+  "include": [
+    "vite.config.ts",
+    "../../utils/getViteConfig.ts"
+  ]
 }
