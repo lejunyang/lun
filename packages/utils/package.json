@@ -3,12 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/lun-utils.production.umd.cjs",
-  "module": "./dist/lun-utils.production.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
-      "require": "./dist/lun-utils.production.umd.cjs",
-      "import": "./dist/lun-utils.production.js",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json"

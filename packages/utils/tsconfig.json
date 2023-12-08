@@ -15,7 +15,6 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "../../global.d.ts",
-    "../../utils/getViteConfig.ts",
   ],
   "compilerOptions": {
     "baseUrl": ".",
