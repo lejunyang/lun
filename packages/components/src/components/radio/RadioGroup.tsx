@@ -30,16 +30,4 @@ export const RadioGroup = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LRadioGroup: typeof RadioGroup;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-radio-group': typeof RadioGroup;
-  }
-}
-
 export const defineRadioGroup = createDefineElement('radio-group', RadioGroup);

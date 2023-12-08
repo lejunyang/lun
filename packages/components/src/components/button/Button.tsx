@@ -82,18 +82,6 @@ export const Button = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LButton: typeof Button;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-button': typeof Button;
-  }
-}
-
 export const defineButton = createDefineElement(name, Button, {
   spin: defineSpin,
 });

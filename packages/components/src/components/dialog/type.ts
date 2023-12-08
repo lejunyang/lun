@@ -33,9 +33,3 @@ export const dialogProps = {
 };
 
 export type DialogProps = ExtractPropTypes<typeof dialogProps>;
-
-declare module 'vue' {
-  export interface IntrinsicElementAttributes {
-    'l-dialog': DialogProps & HTMLAttributes;
-  }
-}

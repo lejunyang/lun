@@ -59,18 +59,6 @@ export const Switch = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LSwitch: typeof Switch;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-switch': typeof Switch;
-  }
-}
-
 export const defineSwitch = createDefineElement(name, Switch, {
   spin: defineSpin,
 });

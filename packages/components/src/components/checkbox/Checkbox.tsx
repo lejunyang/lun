@@ -125,18 +125,6 @@ export const Checkbox = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LCheckbox: typeof Checkbox;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-checkbox': typeof Checkbox;
-  }
-}
-
 export const defineCheckbox = createDefineElement(name, Checkbox, {
   icon: defineIcon,
 });

@@ -25,16 +25,4 @@ export const ThemeProvider = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LThemeProvider: typeof ThemeProvider;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-theme-provider': typeof ThemeProvider;
-  }
-}
-
 export const defineThemeProvider = createDefineElement(name, ThemeProvider);

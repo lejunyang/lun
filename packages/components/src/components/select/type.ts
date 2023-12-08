@@ -16,7 +16,7 @@ export const selectProps = {
   multiple: { type: Boolean },
   // TODO MaybePromiseOrGetter CheckboxGroup RadioGroup
   options: { type: [Array, Function] as PropType<MaybePromiseOrGetter<SelectOptions>> },
-  ...omit(popoverProps, ['show', 'content', 'fullPopWidth', 'type', 'triggers']),
+  ...omit(popoverProps, ['open', 'content', 'fullPopWidth', 'type', 'triggers']),
 };
 
 export const selectOptionProps = {
@@ -33,11 +33,3 @@ export const selectOptGroupProps = {
 export type SelectProps = ExtractPropTypes<typeof selectProps>;
 export type SelectOptionProps = ExtractPropTypes<typeof selectOptionProps>;
 export type SelectOptGroupProps = ExtractPropTypes<typeof selectOptGroupProps>;
-
-declare module 'vue' {
-  export interface IntrinsicElementAttributes {
-    'l-select': SelectProps & HTMLAttributes;
-    'l-select-option': SelectOptionProps & HTMLAttributes;
-    'l-select-optgroup': SelectOptGroupProps & HTMLAttributes;
-  }
-}

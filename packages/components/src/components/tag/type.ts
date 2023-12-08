@@ -9,9 +9,3 @@ export const tagProps = {
 };
 
 export type TagProps = ExtractPropTypes<typeof tagProps>;
-
-declare module 'vue' {
-  export interface IntrinsicElementAttributes {
-    'l-tag': TagProps & HTMLAttributes;
-  }
-}

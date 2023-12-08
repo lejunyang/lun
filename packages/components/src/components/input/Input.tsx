@@ -187,18 +187,6 @@ export const Input = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LInput: typeof Input;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-input': typeof Input;
-  }
-}
-
 export const defineInput = createDefineElement(name, Input, {
   icon: defineIcon,
   tag: defineTag,

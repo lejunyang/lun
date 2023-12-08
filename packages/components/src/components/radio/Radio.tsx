@@ -56,16 +56,4 @@ export const Radio = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LRadio: typeof Radio;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-radio': typeof Radio;
-  }
-}
-
 export const defineRadio = createDefineElement(name, Radio);

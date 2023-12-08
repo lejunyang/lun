@@ -76,16 +76,4 @@ export const Form = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LForm: typeof Form;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-form': typeof Form;
-  }
-}
-
 export const defineForm = createDefineElement(name, Form);

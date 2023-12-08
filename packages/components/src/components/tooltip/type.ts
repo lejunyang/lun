@@ -7,9 +7,3 @@ export const tooltipProps = {
 };
 
 export type TooltipProps = ExtractPropTypes<typeof tooltipProps>;
-
-declare module 'vue' {
-  export interface IntrinsicElementAttributes {
-    'l-tooltip': TooltipProps & HTMLAttributes;
-  }
-}
