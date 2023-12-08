@@ -15,6 +15,12 @@ if (process.env.NODE_ENV === 'production') {
   module.exports = require('./${fileName}.development.js');
 }`,
       });
+      this.emitFile({
+        type: 'asset',
+        fileName: 'index.mjs',
+        needsCodeReference: false,
+        source: `export * from './${fileName}.development.js'`,
+      });
     },
   } as Plugin;
 }
