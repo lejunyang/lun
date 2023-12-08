@@ -3,6 +3,7 @@
     "composite": true,
     "jsx": "preserve",
     "jsxImportSource": "vue",
+    "types": ["./packages/components/dist/vue-elements.d.ts"]
   },
   "include": [
     "src/docs/**/*.vue.tsx",

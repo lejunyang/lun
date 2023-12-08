@@ -1,9 +1,12 @@
 import { Plugin } from 'vite';
 
 export function addIndexEntry({ fileName }: { fileName: string }) {
+  let done = false;
   return {
     name: 'vite-plugin-add-index-entry',
     generateBundle(_, bundle) {
+      if (done) return;
+      done = true;
       this.emitFile({
         type: 'asset',
         fileName: 'index.js',
