@@ -117,17 +117,5 @@ export const Icon = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LIcon: typeof Icon;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-icon': typeof Icon;
-  }
-}
-
 export const defineIcon = createDefineElement(name, Icon);
 export const importIconStyle = createImportStyle(name, styles);

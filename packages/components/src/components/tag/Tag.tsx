@@ -50,18 +50,6 @@ export const Tag = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LTag: typeof Tag;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-tag': typeof Tag;
-  }
-}
-
 export const defineTag = createDefineElement(name, Tag, {
   icon: defineIcon,
 });

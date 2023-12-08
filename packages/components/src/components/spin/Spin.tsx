@@ -73,17 +73,5 @@ export const Spin = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LSpin: typeof Spin;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-spin': typeof Spin;
-  }
-}
-
 export const defineSpin = createDefineElement(name, Spin);
 export const importSpinStyle = createImportStyle(name, styles);

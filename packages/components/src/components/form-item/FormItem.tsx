@@ -120,18 +120,6 @@ export const FormItem = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LFormItem: typeof FormItem;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-form-item': typeof FormItem;
-  }
-}
-
 export const defineFormItem = createDefineElement(name, FormItem, {
   icon: defineIcon,
 });

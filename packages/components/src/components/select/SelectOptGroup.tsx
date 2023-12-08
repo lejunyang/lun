@@ -23,16 +23,4 @@ export const SelectOptGroup = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LSelectOptGroup: typeof SelectOptGroup;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-select-optgroup': typeof SelectOptGroup;
-  }
-}
-
 export const defineSelectOptGroup = createDefineElement(name, SelectOptGroup);

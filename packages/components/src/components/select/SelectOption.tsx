@@ -42,16 +42,4 @@ export const SelectOption = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LSelectOption: typeof SelectOption;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-select-option': typeof SelectOption;
-  }
-}
-
 export const defineSelectOption = createDefineElement('select-option', SelectOption);

@@ -216,18 +216,6 @@ export const Popover = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LPopover: typeof Popover;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-popover': typeof Popover;
-  }
-}
-
 export const definePopover = createDefineElement(name, Popover, {
   'custom-renderer': defineCustomRenderer,
 });

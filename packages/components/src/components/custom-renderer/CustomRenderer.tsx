@@ -130,16 +130,4 @@ export const CustomRenderer = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LCustomRenderer: typeof CustomRenderer;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-custom-renderer': typeof CustomRenderer;
-  }
-}
-
 export const defineCustomRenderer = createDefineElement(name, CustomRenderer);

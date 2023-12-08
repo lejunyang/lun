@@ -1,4 +1,4 @@
-import { editStateProps, themeProps } from 'common';
+import { editStateProps, themeProps, LogicalPosition } from 'common';
 import { ExtractPropTypes, PropType } from 'vue';
 
 export const checkboxProps = {

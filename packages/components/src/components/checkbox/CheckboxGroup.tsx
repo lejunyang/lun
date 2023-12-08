@@ -88,16 +88,4 @@ export const CheckboxGroup = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LCheckboxGroup: typeof CheckboxGroup;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-checkbox-group': typeof CheckboxGroup;
-  }
-}
-
 export const defineCheckboxGroup = createDefineElement('checkbox-group', CheckboxGroup);

@@ -1,5 +1,5 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { ThemeVariants, editStateProps, themeProps } from 'common';
+import { ThemeVariants, editStateProps, themeProps, LogicalPosition } from 'common';
 import { Responsive } from '@lun/core';
 
 export const buttonProps = {
@@ -18,17 +18,3 @@ export const buttonProps = {
 };
 
 export type ButtonProps = ExtractPropTypes<typeof buttonProps>;
-
-declare module 'vue' {
-  interface IntrinsicElementAttributes {
-    'l-tag': ButtonProps & HTMLAttributes;
-  }
-}
-
-declare module 'react' {
-  namespace JSX {
-    interface IntrinsicElements {
-      'l-button': ButtonProps;
-    }
-  }
-}

@@ -118,18 +118,6 @@ export const Dialog = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LDialog: typeof Dialog;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-dialog': typeof Dialog;
-  }
-}
-
 export const defineDialog = createDefineElement(name, Dialog, {
   spin: defineSpin,
   icon: defineIcon,

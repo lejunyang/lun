@@ -47,18 +47,6 @@ const Tooltip = defineSSRCustomElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LTooltip: typeof Tooltip;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-tooltip': typeof Tooltip;
-  }
-}
-
 export const defineTooltip = createDefineElement(name, Tooltip, {
   popover: definePopover,
 });

@@ -12,9 +12,3 @@ export const switchProps = {
   spinProps: { type: Object },
 };
 export type SwitchProps = ExtractPropTypes<typeof switchProps>;
-
-declare module 'vue' {
-  export interface IntrinsicElementAttributes {
-    'l-switch': SwitchProps & HTMLAttributes;
-  }
-}

@@ -42,16 +42,4 @@ export const BaseInput = defineSSRCustomFormElement({
   },
 });
 
-declare module 'vue' {
-  export interface GlobalComponents {
-    LBaseInput: typeof BaseInput;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-base-input': typeof BaseInput;
-  }
-}
-
 export const defineBaseInput = createDefineElement('base-input', BaseInput);

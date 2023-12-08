@@ -27,7 +27,7 @@ export const Select = defineSSRCustomFormElement({
     });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
     const inputRef = ref();
-    const popoverRef = ref<IntrinsicElementAttributes['l-popover']>();
+    const popoverRef = ref<any>();
 
     const childValueSet = computed<Set<any>>(
       () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : [])))
@@ -107,18 +107,6 @@ export const Select = defineSSRCustomFormElement({
     };
   },
 });
-
-declare module 'vue' {
-  export interface GlobalComponents {
-    LSelect: typeof Select;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'l-select': typeof Select;
-  }
-}
 
 export const defineSelect = createDefineElement('select', Select, {
   'select-option': defineSelectOption,
