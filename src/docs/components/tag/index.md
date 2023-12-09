@@ -1,3 +1,8 @@
+---
+title: Tag 标签
+lang: zh-CN
+---
+
 <script setup>
   import { themeColors } from '@lun/components';
 </script>

@@ -1,3 +1,8 @@
+---
+title: Form 表单
+lang: zh-CN
+---
+
 ## 所有表单组件
 
 <l-form :form="form">

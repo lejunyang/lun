@@ -1,3 +1,8 @@
+---
+title: Select 下拉列表
+lang: zh-CN
+---
+
 ## 基础使用
 
 <l-select :options="options" :value="state.value" @update="state.value = $event.detail">
