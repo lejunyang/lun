@@ -1,3 +1,8 @@
+---
+title: Input 输入
+lang: zh-CN
+---
+
 ## 基础使用
 
 <!-- @Code:basicUsage -->

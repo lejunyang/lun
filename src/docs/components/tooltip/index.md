@@ -1,3 +1,8 @@
+---
+title: Tooltip 提示
+lang: zh-CN
+---
+
 ## 溢出行为
 通过设置`overflow`属性，Tooltip可配置内容溢出后的表现，可选值有：
 - `open`: 当内容溢出后始终展示tooltip

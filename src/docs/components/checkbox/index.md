@@ -1,3 +1,8 @@
+---
+title: Checkbox 复选框
+lang: zh-CN
+---
+
 <script setup>
 import { themeColors } from '@lun/components';
 </script>
