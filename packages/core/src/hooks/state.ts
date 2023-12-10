@@ -24,19 +24,24 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
  */
 export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ? R : any>(
   maybeGetter: MT,
-  options?: { fallbackWhenReject?: (err: any) => T }
+  options?: { fallbackWhenReject?: (err: any) => T; onCancel?: () => void }
 ) {
-  const { fallbackWhenReject } = options || {};
+  const { fallbackWhenReject, onCancel } = options || {};
   const local = ref<T>();
+  let pending = false;
   const handlePromise = (maybePromise: any) => {
     maybePromise = unref(maybePromise);
     if (maybePromise instanceof Promise) {
+      pending = true;
       Promise.resolve(maybePromise)
         .then((val) => {
           local.value = val;
         })
         .catch((e) => {
           if (isFunction(fallbackWhenReject)) local.value = fallbackWhenReject(e);
+        })
+        .finally(() => {
+          pending = false;
         });
     } else local.value = maybePromise;
   };
@@ -46,7 +51,12 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
     },
     set: handlePromise,
   });
-  watchEffect(() => {
+  watchEffect((onCleanup) => {
+    onCleanup(() => {
+      if (pending && isFunction(onCancel)) {
+        onCancel();
+      }
+    });
     handlePromise(runIfFn(maybeGetter));
   });
   return result;

@@ -1,3 +1,4 @@
+import { Fn } from '@lun/utils';
 import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallowRef } from 'vue';
 
 // from vue/use
