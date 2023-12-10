@@ -5,12 +5,8 @@ export const uploadProps = {
   ...editStateProps,
   value: { type: [Object, Array] as PropType<{} | {}[]> },
   multiple: { type: Boolean },
+  accept: { type: String },
+  strictAccept: { type: Boolean },
 };
 
 export type UploadProps = ExtractPropTypes<typeof uploadProps>;
-
-declare module 'vue' {
-  export interface IntrinsicElementAttributes {
-    'l-upload': UploadProps & HTMLAttributes;
-  }
-}

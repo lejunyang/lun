@@ -38,7 +38,7 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const bem = (blockSuffix?: string, element?: string, modifier?: string) =>
     blockSuffix && element && modifier ? _bem(namespace.value, block, blockSuffix, element, modifier) : '';
   const is: {
-    (name: string, state: boolean | undefined): string;
+    (name: string, state: any): string;
     (name: string): string;
   } = (name: string, ...args: [boolean | undefined] | []) => {
     const state = args.length >= 1 ? args[0]! : true;
@@ -78,7 +78,7 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     ];
   });
 
-  const p = (part: string) => `${block ? block + '-' : ''}${part}`;
+  const p = (part: string) => `${block ? block + '-' : ''}${part} ${part}`;
 
   const stateClass = (editComputed: ComputedRef<EditState>) => {
     const { disabled, readonly, loading } = editComputed.value;
