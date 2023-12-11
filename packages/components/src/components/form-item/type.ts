@@ -1,27 +1,40 @@
 import { PropType, ExtractPropTypes } from 'vue';
-import { editStateProps } from 'common';
+import { LogicalPosition, PropBoolean, PropNumber, PropString, editStateProps, themeProps } from 'common';
 import { MaybePromise } from '@lun/core';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
 
 export const formItemProps = {
   ...editStateProps,
+  ...themeProps,
   name: { type: String },
-  plainName: { type: Boolean },
-  array: { type: Boolean },
+  plainName: PropBoolean(),
+  array: PropBoolean(),
+
+  // props for layout
+  newLine: PropBoolean(),
+  rowSpan: PropNumber(),
+  colSpan: PropNumber(),
+
+  // props for extra info
   label: { type: String },
-  noLabel: { type: Boolean },
-  markPosition: { type: String as PropType<'start' | 'end' | 'none'> },
+  noLabel: PropBoolean(),
+  labelWidth: PropString(),
+  labelAlign: PropString<LogicalPosition>(),
+  requiredMarkAlign: PropString<LogicalPosition>(),
+  colonMark: PropString(),
+  requiredMark: PropString(),
   help: { type: String },
   tip: { type: String },
   tooltip: { type: String },
+
   unmountBehavior: { type: String as PropType<'delete' | 'null' | 'undefined'> },
   deps: { type: [String, Array] as PropType<string | string[]> },
-  clearWhenDepChange: { type: Boolean },
+  clearWhenDepChange: PropBoolean(),
   disableWhenDepFalsy: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
   // validate props
   type: { type: String }, // can it be auto detected?
-  required: { type: Boolean },
+  required: PropBoolean(),
   /**
    * to required when deps are required,
    * 'all' means to required when all the deps are required,
@@ -53,7 +66,7 @@ export type Rule = {
   greaterThan?: number;
   lessThan?: number;
   label?: string;
-}
+};
 // export type ErrorMessageFactory = string | ((args: Record<string, any>) => string);
 export type RuleName = 'required' | 'min' | 'max' | 'greaterThan' | 'lessThan';
 // export type RuleMessageFactory = Record<RuleName, ErrorMessageFactory>;
