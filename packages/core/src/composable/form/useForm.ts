@@ -1,8 +1,8 @@
-import { Ref, getCurrentInstance, reactive, ref, UnwrapNestedRefs } from 'vue';
+import { Ref, reactive, ref, ComponentInternalInstance } from 'vue';
 import { useFormMethods } from './useForm.methods';
 import { FormHooks, FormHooksOptions, createFormHooks } from './useForm.hooks';
-import { deepCopy, isObject } from '@lun/utils';
-import { LocalEditState, useSetupEdit } from '../../hooks/useSetupEdit';
+import { CommonObject, deepCopy, isObject } from '@lun/utils';
+import { LocalEditState } from '../../hooks/useSetupEdit';
 
 export type FormState = {
   errors: Record<string, any>;
@@ -10,49 +10,47 @@ export type FormState = {
   dirtyFields: Set<string>;
 } & LocalEditState;
 
-export type CommonObject = Record<string | number | symbol, any>;
-
 export type UseFormOptions<Data extends CommonObject = CommonObject> = {
+  config?: Record<string, any>;
   defaultFormData?: Partial<Data>;
   defaultFormState?: Partial<FormState>;
   hooks?: FormHooksOptions;
 };
 
-export type UseFormReturnOptions<Data extends CommonObject = CommonObject> = UnwrapNestedRefs<UseFormOptions<Data>>;
-
 export type ProcessedFormParams<Data extends CommonObject = CommonObject> = {
+  options: UseFormOptions<Data>;
   formData: Ref<Data>;
   formState: Ref<FormState>;
   hooks: FormHooks;
   getDefaultFormState(): FormState;
 };
 
-export function useForm<Data extends CommonObject = CommonObject>(_options: UseFormOptions<Data>) {
-  const options = reactive(_options) as UseFormOptions;
+export function useForm<
+  T extends UseFormOptions,
+  Data extends CommonObject = T extends UseFormOptions<infer D> ? D : CommonObject,
+>(_options?: T) {
+  const options = {
+    ..._options,
+    config: reactive(_options?.config || {}),
+  } as UseFormOptions;
   const formData = ref(deepCopy(options.defaultFormData || {})) as Ref<Data>;
   const getDefaultFormState = () =>
     deepCopy({ errors: {}, isDirty: false, dirtyFields: new Set<string>(), ...options.defaultFormState });
   const formState = ref(getDefaultFormState());
   const hooks = createFormHooks(options);
-  const param = { formData, formState, hooks, getDefaultFormState };
+  const param = { options, formData, formState, hooks, getDefaultFormState };
   const methods = useFormMethods(param, options);
-  const forms = [];
+  const forms = new Set<ComponentInternalInstance>();
 
-  const setup = () => {
-    const vm = getCurrentInstance();
-    if (!vm) return;
-    const editState = useSetupEdit({
-      adjust(state) {
-        (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
-          if (formState.value[key] !== undefined) state[key] = formState.value[key];
-        });
-      },
-    });
-    return editState;
-  };
+  hooks.onFormSetup.use((form) => {
+    if (form) forms.add(form);
+  });
+  hooks.onFormUnmount.use((form) => {
+    forms.delete(form);
+  });
 
   return {
-    options: options as UseFormReturnOptions<Data>,
+    config: options.config,
     get formData() {
       return formData.value;
     },
@@ -67,10 +65,6 @@ export function useForm<Data extends CommonObject = CommonObject>(_options: UseF
       if (__DEV__ && !isObject(value)) throw new Error('formState must be an object');
       formState.value = value;
     },
-    /**
-     * @private will be called when Form setup, do not call it manually
-     */
-    setup,
     ...methods,
     hooks,
   };
