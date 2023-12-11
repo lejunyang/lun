@@ -1,0 +1,12 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+:host {
+  display: block;
+}
+
+@include b(form) {
+    
+}
