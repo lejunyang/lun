@@ -1,3 +1,4 @@
+import { ComponentInternalInstance } from 'vue';
 import { createSyncHook, createAsyncHook } from '../createHooks';
 import { ProcessedFormParams, UseFormOptions } from './useForm';
 import { FormMethods } from './useForm.methods';
@@ -9,9 +10,9 @@ type UpdateValueParam = {
 };
 export const getHooks = () => ({
   // form lifecycle
-  onFormSetup: createSyncHook<() => void>(),
+  onFormSetup: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
   onFormMount: createSyncHook<() => void>(),
-  onFormUnmount: createSyncHook<() => void>(),
+  onFormUnmount: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
   // value updated
   onUpdateValue: createSyncHook<(param: UpdateValueParam) => UpdateValueParam | undefined>(),
   onFormReset: createSyncHook<() => void>(),
