@@ -2,6 +2,10 @@ import { components } from '@lun/components';
 import { camelize, capitalize } from 'vue';
 import fs from 'fs';
 
+// declare module is not exported by api-extractor, so we have to generate the file manually
+// https://github.com/microsoft/rushstack/issues/2090
+// https://github.com/qmhc/vite-plugin-dts/issues/240 
+
 const vueCompTypes = [];
 const vueJSXTypes = [];
 const htmlTypes = [];
