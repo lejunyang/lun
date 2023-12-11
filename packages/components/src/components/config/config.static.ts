@@ -45,7 +45,7 @@ const styles = shadowComponents.reduce(
     result[name] = [];
     return result;
   },
-  { common: [] } as unknown as ComponentStyles
+  { common: [] } as unknown as ComponentStyles,
 );
 
 const langRef = ref('zh-CN');
@@ -99,9 +99,15 @@ export const GlobalStaticConfig = new Proxy(
       },
       form: {
         plainName: undefined,
+        layout: 'grid' as const,
+        cols: '1',
+        labelWidth: 'max-content',
       },
       'form-item': {
         plainName: undefined,
+        colonMark: ':',
+        requiredMark: '*',
+        requiredMarkAlign: 'start',
       },
       icon: {
         library: 'default' as const,
@@ -182,7 +188,7 @@ export const GlobalStaticConfig = new Proxy(
         return Reflect.set(target, p, newValue, receiver);
       }
     },
-  }
+  },
 );
 
 // TODO use Proxy to intercept GlobalStaticConfig, if some properties were read, freeze the whole object, make inited true

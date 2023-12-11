@@ -6,6 +6,8 @@ const input = 'input';
 export const exportParts = {
   checkbox: [root, 'indicator', input, label],
   dialog: [root, 'overlay', 'panel', 'header', 'close', 'content', 'footer'],
+  form: [root],
+  'form-item': [root, label, 'content'],
   icon: ['svg'],
   input: [root, 'inner-input', label, 'addon-before', 'prefix', 'background', 'suffix', 'addon-after', 'tag-container'],
   radio: [root, label, 'indicator'],

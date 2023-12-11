@@ -15,9 +15,9 @@ export const FormItem = defineSSRCustomElement({
   name,
   props: formItemProps,
   setup(props) {
-    const ns = useNamespace(name);
-    useSetupEdit();
     const formContext = FormItemCollector.child();
+    const ns = useNamespace(name, { parent: formContext?.parent });
+    const [editComputed] = useSetupEdit();
     const isPlainName = computed(() => {
       return formContext?.isPlainName(props.name);
     });
@@ -102,18 +102,42 @@ export const FormItem = defineSSRCustomElement({
     });
 
     return () => {
+      const { colonMark, requiredMark, requiredMarkAlign, required, colSpan, rowSpan, newLine } = props;
+      const rMark = required && requiredMark && (
+        <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
+          {requiredMark}
+        </span>
+      );
       return (
-        <div class={[ns.b(), ns.is('required', props.required)]}>
+        <div class={[ns.s(editComputed), ns.is('required', props.required)]} part={ns.p('root')}>
           {!props.noLabel && (
-            <span part="label" class={[ns.e('label')]}>
-              {/*  */}
+            <span
+              part={ns.p('label')}
+              class={[ns.e('label')]}
+              style={{ gridColumnStart: newLine ? 1 : undefined, gridRowStart: rowSpan && `span ${rowSpan}` }}
+            >
+              {requiredMarkAlign === 'start' && rMark}
               <slot name="label-start"></slot>
               <slot name="label">{props.label}</slot>
+              {requiredMarkAlign === 'end' && rMark}
               {/* help icon */}
+              {colonMark && (
+                <span class={ns.e('colon')} part={ns.p('colon')}>
+                  {colonMark}
+                </span>
+              )}
               <slot name="label-end"></slot>
             </span>
           )}
-          <slot></slot>
+          <span
+            part={ns.p('content')}
+            style={{
+              gridColumnStart: colSpan && `span ${colSpan * 2 - 1}`,
+              gridRowStart: rowSpan && `span ${rowSpan}`,
+            }}
+          >
+            <slot></slot>
+          </span>
         </div>
       );
     };
