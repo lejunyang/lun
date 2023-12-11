@@ -4,7 +4,7 @@ import { createDefineElement, warn } from 'utils';
 import { formProps } from './type';
 import { useCEExpose, useNamespace } from 'hooks';
 import { FormItemCollector, FormProvideExtra } from '.';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, getCurrentInstance, onBeforeUnmount, watch } from 'vue';
 import { isArray, isObject, objectGet, objectSet, pick, stringToPath } from '@lun/utils';
 
 const name = 'form';
@@ -14,15 +14,28 @@ export const Form = defineSSRCustomElement({
   emits: ['update'],
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const form = isObject(props.form) ? props.form : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
+    const form = isObject(props.formManager)
+      ? props.formManager
+      : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
     __DEV__ &&
       watch(
-        () => props.form,
+        () => props.formManager,
         () => {
-          warn(`Prop 'form' cannot be dynamically changed, should be set before form mount`);
-        }
+          warn(`Prop 'formManager' cannot be dynamically changed, should be set before form mount`);
+        },
       );
-    form.setup();
+    const vm = getCurrentInstance()!;
+    const [editComputed] = useSetupEdit({
+      adjust(state) {
+        (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
+          if (form.formState[key] !== undefined) state[key] = form.formState[key];
+        });
+      },
+    });
+    form.hooks.onFormSetup.exec(vm);
+    onBeforeUnmount(() => {
+      form.hooks.onFormUnmount.exec(vm);
+    });
 
     const methods: Pick<FormProvideExtra, 'getValue' | 'setValue' | 'deletePath' | 'isPlainName'> = {
       getValue(path) {
@@ -67,8 +80,17 @@ export const Form = defineSSRCustomElement({
     useCEExpose(methods);
 
     return () => {
+      const { layout, cols, labelWidth } = props;
+      const isGrid = layout?.includes('grid');
       return (
-        <form>
+        <form
+          class={[ns.s(editComputed), ns.is(`layout-grid`, isGrid)]}
+          part={ns.p('root')}
+          style={{
+            display: layout,
+            gridTemplateColumns: isGrid ? `repeat(${cols}, ${labelWidth} 1fr)` : undefined,
+          }}
+        >
           <slot></slot>
         </form>
       );

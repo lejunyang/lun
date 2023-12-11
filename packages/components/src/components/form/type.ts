@@ -1,15 +1,21 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps } from 'common';
+import { editStateProps, themeProps } from 'common';
 import { UseFormReturn } from "@lun/core";
 
 export const formProps = {
   ...editStateProps,
-  form: { type: Object as PropType<UseFormReturn>, },
+  ...themeProps,
+  // no idea why prop `form` will be considered as a string attribute, use `formManager` instead
+  formManager: { type: Object as PropType<UseFormReturn>, },
   defaultFormData: { type: Object },
   defaultFormState: { type: Object },
   plainName: { type: Boolean },
   validateAbort: { type: String as PropType<'first' | 'item'> },
   scrollToFirstError: { type: Boolean },
+
+  layout: { type: String as PropType<'flex' | 'grid' | 'inline-flex' | 'inline-grid'> },
+  labelWidth: { type: String },
+  cols: { type: String },
 };
 
 export type FormProps = ExtractPropTypes<typeof formProps>;
