@@ -88,7 +88,7 @@ const handleCodeChange = debounce(async () => {
         rendererProps.type = 'react';
         break;
     }
-    rendererProps.content = runIfFn(rendererProps.content); // run it in advance in case of error
+    runIfFn(rendererProps.content); // run it in advance in case of error, but don't assign the result to render content, because curren func is async, not able to watch and rerender
   } catch (e: any) {
     console.error(e);
     rendererProps.type = 'vnode';
@@ -116,6 +116,9 @@ watchEffect(() => {
 <style lang="scss">
 .code-wrapper {
   transition: all 0.3s;
+  pre {
+    white-space: pre-line;
+  }
 }
 main .code-container {
   border: 1px solid var(--vp-c-divider);
