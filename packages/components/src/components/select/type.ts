@@ -1,21 +1,13 @@
-import { MaybePromiseOrGetter } from '@lun/core';
-import { ExtractPropTypes, PropType, StyleValue } from 'vue';
-import { EditStateProps } from '../../common';
-import { editStateProps } from '../../common/editStateProps';
+import { ExtractPropTypes, PropType } from 'vue';
+import { editStateProps } from 'common';
 import { popoverProps } from '../popover/type';
 import { omit } from '@lun/utils';
-
-type Style = { class?: any; style?: StyleValue };
-export type SelectOption = { label?: string; value: any } & Style & EditStateProps;
-export type SelectOptGroup = { label?: string; children?: SelectOption[] } & Style & EditStateProps;
-export type SelectOptions = (SelectOption | SelectOptGroup)[];
+import { createOptionProps } from 'hooks';
 
 export const selectProps = {
-  ...editStateProps,
+  ...createOptionProps(true),
   value: { type: [String, Array] as PropType<any | any[]> },
   multiple: { type: Boolean },
-  // TODO MaybePromiseOrGetter CheckboxGroup RadioGroup
-  options: { type: [Array, Function] as PropType<MaybePromiseOrGetter<SelectOptions>> },
   ...omit(popoverProps, ['open', 'content', 'fullPopWidth', 'type', 'triggers']),
 };
 
@@ -25,11 +17,11 @@ export const selectOptionProps = {
   label: { type: String },
 };
 
-export const selectOptGroupProps = {
+export const selectOptgroupProps = {
   ...editStateProps,
   label: { type: String },
 };
 
 export type SelectProps = ExtractPropTypes<typeof selectProps>;
 export type SelectOptionProps = ExtractPropTypes<typeof selectOptionProps>;
-export type SelectOptGroupProps = ExtractPropTypes<typeof selectOptGroupProps>;
+export type SelectOptgroupProps = ExtractPropTypes<typeof selectOptgroupProps>;

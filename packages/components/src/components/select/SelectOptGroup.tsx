@@ -1,13 +1,13 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
-import { selectOptGroupProps } from './type';
+import { selectOptgroupProps } from './type';
 import { useNamespace } from 'hooks';
 import { useSetupEdit } from '@lun/core';
 
 const name = 'select-optgroup';
 export const SelectOptGroup = defineSSRCustomElement({
   name,
-  props: selectOptGroupProps,
+  props: selectOptgroupProps,
   setup(props) {
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit(); // TODO disabled class
