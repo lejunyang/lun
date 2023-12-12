@@ -1,15 +1,15 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { computed, ref, toRef, IntrinsicElementAttributes } from 'vue';
-import { createDefineElement, error, renderElement } from 'utils';
+import { computed, ref, toRef } from 'vue';
+import { createDefineElement, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
-import { usePromiseRef, useSelect } from '@lun/core';
-import { runIfFn, toArrayIfNotNil } from '@lun/utils';
+import { useSelect } from '@lun/core';
+import { toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptGroup } from './SelectOptGroup';
-import { useCEExpose, useValueModel } from 'hooks';
+import { useCEExpose, useOptions, useValueModel } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer';
 
 export const Select = defineSSRCustomFormElement({
@@ -30,7 +30,7 @@ export const Select = defineSSRCustomFormElement({
     const popoverRef = ref<any>();
 
     const childValueSet = computed<Set<any>>(
-      () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : [])))
+      () => new Set(children.value.flatMap((i) => (i.props.value != null ? [i.props.value] : []))),
     );
     const methods = useSelect({
       multiple: toRef(props, 'multiple'),
@@ -52,14 +52,8 @@ export const Select = defineSSRCustomFormElement({
       blur: () => inputRef.value?.blur(),
     });
 
-    const options = usePromiseRef(() => runIfFn(props.options), {
-      fallbackWhenReject: (err) => {
-        error(err);
-        return [];
-      },
-    });
-    const renderOption = (i: any, index: number) =>
-      renderElement('select-option', { ...i, key: i.value + index }, i.label);
+    const { render } = useOptions(props, 'select-option', 'select-optgroup');
+
     // TODO ArrowUp down popup
     return () => {
       return (
@@ -84,23 +78,12 @@ export const Select = defineSSRCustomFormElement({
                 value: valueModel.value,
               })}
               <div part="pop-content" slot="pop-content">
-                {/* options from props, they should be with slot="pop-content" prop so that assigned to popover content */}
-                {Array.isArray(options.value) &&
-                  options.value.map((i: any, index) => {
-                    if (Array.isArray(i.children)) {
-                      return renderElement(
-                        'select-optgroup',
-                        { slot: 'content', key: index, class: i.class, style: i.style },
-                        i.children.map(renderOption)
-                      );
-                    }
-                    return renderOption(i, index);
-                  })}
+                {render()}
                 {/* slot for select children, also assigned to popover content slot */}
                 <slot></slot>
                 {!children.value.length && <slot name="no-content">No content</slot>}
               </div>
-            </>
+            </>,
           )}
         </>
       );
