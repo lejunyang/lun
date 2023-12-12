@@ -5,7 +5,7 @@ import { useNamespace } from 'hooks';
 import { useSetupEdit } from '@lun/core';
 
 const name = 'select-optgroup';
-export const SelectOptGroup = defineSSRCustomElement({
+export const SelectOptgroup = defineSSRCustomElement({
   name,
   props: selectOptgroupProps,
   setup(props) {
@@ -23,4 +23,6 @@ export const SelectOptGroup = defineSSRCustomElement({
   },
 });
 
-export const defineSelectOptGroup = createDefineElement(name, SelectOptGroup);
+export type tSelectOptgroup = typeof SelectOptgroup;
+
+export const defineSelectOptgroup = createDefineElement(name, SelectOptgroup);

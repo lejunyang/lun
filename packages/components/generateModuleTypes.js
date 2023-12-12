@@ -4,7 +4,7 @@ import fs from 'fs';
 
 // declare module is not exported by api-extractor, so we have to generate the file manually
 // https://github.com/microsoft/rushstack/issues/2090
-// https://github.com/qmhc/vite-plugin-dts/issues/240 
+// https://github.com/qmhc/vite-plugin-dts/issues/240
 
 const vueCompTypes = [];
 const vueJSXTypes = [];
@@ -13,12 +13,13 @@ const reactTypes = [];
 
 components.forEach((componentTag) => {
   const componentCamelName = camelize(capitalize(componentTag));
-  const compType = `import('./index').${componentCamelName}`;
+  const compType = `import('./index').t${componentCamelName}`;
   const propType = `import('./index').${componentCamelName}Props`;
+  const reactPropType = `React.HTMLAttributes<HTMLElement> & ${propType}`;
   vueCompTypes.push(`    L${componentCamelName}: ${compType};`);
   vueJSXTypes.push(`    'l-${componentTag}': ${propType};`);
   htmlTypes.push(`    'l-${componentTag}': ${compType};`);
-  reactTypes.push(`      'l-${componentTag}': ${propType};`);
+  reactTypes.push(`      'l-${componentTag}': ${reactPropType};`);
 });
 
 fs.writeFileSync(
@@ -31,7 +32,7 @@ ${vueCompTypes.join('\n')}
 ${vueJSXTypes.join('\n')}
   }
 }`,
-  { encoding: 'utf8' }
+  { encoding: 'utf8' },
 );
 
 fs.writeFileSync(
@@ -41,17 +42,17 @@ fs.writeFileSync(
 ${htmlTypes.join('\n')}
   }
 }`,
-  { encoding: 'utf8' }
+  { encoding: 'utf8' },
 );
 
 fs.writeFileSync(
   './dist/react-elements.d.ts',
-  `declare module 'react' {
+  `declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
 ${reactTypes.join('\n')}
     }
   }
 }`,
-  { encoding: 'utf8' }
+  { encoding: 'utf8' },
 );
