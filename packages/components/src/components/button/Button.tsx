@@ -15,9 +15,10 @@ export const Button = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
+
     let holdAnimationDone = false;
-    const handler = {
-      async onClick(e?: MouseEvent) {
+    const handleClick = computed(() => {
+      const onClick = async (e?: MouseEvent) => {
         if (!editComputed.value.interactive) return;
         if (props.holdOn && !holdAnimationDone) return;
         holdAnimationDone = false;
@@ -26,29 +27,41 @@ export const Button = defineSSRCustomElement({
           editState.loading = true;
           Promise.resolve(props.asyncHandler(e)).finally(() => (editState.loading = false));
         }
-      },
+      };
+      if (props.debounce! > 0) return debounce(onClick, props.debounce);
+      else if (props.throttle! > 0) return throttle(onClick, props.throttle);
+      else return onClick;
+    });
+
+    const holdOnShow = ref(false);
+    const hideHoldOn = () => {
+      holdOnShow.value = false;
+    };
+
+    const buttonHandlers = {
       onPointerdown() {
         if (props.holdOn && editComputed.value.interactive) holdOnShow.value = true;
       },
-      hideHoldOn() {
-        holdOnShow.value = false;
+      onPointerup: hideHoldOn,
+      // find that pointerout will be triggered when hold-on element grows to the pointer position, use pointerleave instead
+      onPointerleave: hideHoldOn,
+      onPointercancel: hideHoldOn,
+      // In some mobile browsers, contextmenu and text selection will be triggered when long press, need to prevent it when holdOn is true
+      onContextmenu(e: MouseEvent) {
+        if (holdOnShow.value) e.preventDefault();
       },
+      onTouchstart(e: TouchEvent) {
+        if (props.holdOn && editComputed.value.interactive) e.preventDefault();
+      },
+    };
+
+    const holdTransitionHandlers = {
       onAfterEnter() {
         holdOnShow.value = false;
         holdAnimationDone = true;
         handleClick.value();
       },
-      onContextmenu(e: MouseEvent) {
-        // In some mobile browsers, contextmenu and text selection will be triggered when long press, need to prevent it when holdOn is true
-        if (holdOnShow.value) e.preventDefault();
-      },
     };
-    const handleClick = computed(() => {
-      if (props.debounce! > 0) return debounce(handler.onClick, props.debounce);
-      else if (props.throttle! > 0) return throttle(handler.onClick, props.throttle);
-      else return handler.onClick;
-    });
-    const holdOnShow = ref(false);
 
     return () => {
       const { interactive, loading } = editComputed.value;
@@ -57,20 +70,15 @@ export const Button = defineSSRCustomElement({
       const loadingPart = loading && props.showLoading ? renderElement('spin', spinProps) : <slot name="icon"></slot>;
       return (
         <button
+          {...buttonHandlers}
           class={[...ns.s(editComputed)]}
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handleClick.value}
-          onPointerdown={handler.onPointerdown}
-          onPointerup={handler.hideHoldOn}
-          // find that pointerout will be triggered when hold-on element grows to the pointer position, use pointerleave instead
-          onPointerleave={handler.hideHoldOn}
-          onPointercancel={handler.hideHoldOn}
-          onContextmenu={handler.onContextmenu}
           part="button"
           style={ns.v({ 'hold-on': props.holdOn && `${props.holdOn}ms` })}
         >
-          <Transition name="hold" onAfterEnter={handler.onAfterEnter}>
+          <Transition name="hold" {...holdTransitionHandlers}>
             {holdOnShow.value && <div part="hold"></div>}
           </Transition>
           {props.iconPosition === 'start' && loadingPart}
