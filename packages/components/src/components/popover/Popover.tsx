@@ -216,6 +216,8 @@ export const Popover = defineSSRCustomElement({
   },
 });
 
+export type tPopover = typeof Popover;
+
 export const definePopover = createDefineElement(name, Popover, {
   'custom-renderer': defineCustomRenderer,
 });

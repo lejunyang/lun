@@ -3,7 +3,7 @@ import { Select } from './Select';
 import { SelectOption } from './SelectOption';
 
 export * from './Select';
-export * from './SelectOptGroup';
+export * from './SelectOptgroup';
 export * from './SelectOption';
 
 export * from './type';

@@ -73,5 +73,7 @@ export const Spin = defineSSRCustomElement({
   },
 });
 
+export type tSpin = typeof Spin;
+
 export const defineSpin = createDefineElement(name, Spin);
 export const importSpinStyle = createImportStyle(name, styles);

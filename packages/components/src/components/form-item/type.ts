@@ -57,7 +57,9 @@ export const formItemProps = {
   // TODO extra validate props to input component
 };
 
-export type FormItemProps = ExtractPropTypes<typeof formItemProps>;
+export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;
+export type FormItemProps = Partial<FormItemSetupProps>; 
+
 export type Rule = {
   type?: string;
   min?: number;

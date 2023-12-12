@@ -10,7 +10,8 @@ export const radioProps = {
   checked: { type: Boolean },
 };
 
-export type RadioProps = ExtractPropTypes<typeof radioProps>;
+export type RadioSetupProps = ExtractPropTypes<typeof radioProps>;
+export type RadioProps = Partial<RadioSetupProps>;
 
 export type RadioOptions = { label: string; value: any }[];
 
@@ -20,4 +21,5 @@ export const radioGroupProps = {
   options: { type: Array as PropType<RadioOptions> },
 };
 
-export type RadioGroupProps = ExtractPropTypes<typeof radioGroupProps>;
+export type RadioGroupSetupProps = ExtractPropTypes<typeof radioGroupProps>;
+export type RadioGroupProps = Partial<RadioGroupSetupProps>;

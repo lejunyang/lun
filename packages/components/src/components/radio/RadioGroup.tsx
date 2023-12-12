@@ -30,4 +30,6 @@ export const RadioGroup = defineSSRCustomFormElement({
   },
 });
 
+export type tRadioGroup = typeof RadioGroup;
+
 export const defineRadioGroup = createDefineElement('radio-group', RadioGroup);

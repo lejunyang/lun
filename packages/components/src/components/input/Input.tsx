@@ -187,6 +187,8 @@ export const Input = defineSSRCustomFormElement({
   },
 });
 
+export type tInput = typeof Input;
+
 export const defineInput = createDefineElement(name, Input, {
   icon: defineIcon,
   tag: defineTag,

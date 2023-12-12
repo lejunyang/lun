@@ -38,5 +38,7 @@ export const checkboxGroupProps = {
   onlyFor: { type: String },
 };
 
-export type CheckboxProps = ExtractPropTypes<typeof checkboxProps>;
-export type CheckboxGroupProps = ExtractPropTypes<typeof checkboxGroupProps>;
+export type CheckboxSetupProps = ExtractPropTypes<typeof checkboxProps>;
+export type CheckboxProps = Partial<CheckboxSetupProps>;
+export type CheckboxGroupSetupProps = ExtractPropTypes<typeof checkboxGroupProps>;
+export type CheckboxGroupProps = Partial<CheckboxGroupSetupProps>;

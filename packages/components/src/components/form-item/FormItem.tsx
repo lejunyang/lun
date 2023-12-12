@@ -144,6 +144,8 @@ export const FormItem = defineSSRCustomElement({
   },
 });
 
+export type tFormItem = typeof FormItem;
+
 export const defineFormItem = createDefineElement(name, FormItem, {
   icon: defineIcon,
 });

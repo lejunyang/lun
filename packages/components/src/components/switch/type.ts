@@ -11,4 +11,5 @@ export const switchProps = {
   falseText: { type: String },
   spinProps: { type: Object },
 };
-export type SwitchProps = ExtractPropTypes<typeof switchProps>;
+export type SwitchSetupProps = ExtractPropTypes<typeof switchProps>;
+export type SwitchProps = Partial<SwitchSetupProps>;

@@ -42,4 +42,6 @@ export const SelectOption = defineSSRCustomElement({
   },
 });
 
+export type tSelectOption = typeof SelectOption;
+
 export const defineSelectOption = createDefineElement('select-option', SelectOption);

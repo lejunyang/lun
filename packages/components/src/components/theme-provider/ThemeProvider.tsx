@@ -25,4 +25,6 @@ export const ThemeProvider = defineSSRCustomElement({
   },
 });
 
+export type tThemeProvider = typeof ThemeProvider;
+
 export const defineThemeProvider = createDefineElement(name, ThemeProvider);

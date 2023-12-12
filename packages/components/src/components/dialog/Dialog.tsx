@@ -118,6 +118,8 @@ export const Dialog = defineSSRCustomElement({
   },
 });
 
+export type tDialog = typeof Dialog;
+
 export const defineDialog = createDefineElement(name, Dialog, {
   spin: defineSpin,
   icon: defineIcon,

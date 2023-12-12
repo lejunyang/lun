@@ -23,7 +23,8 @@ export const baseInputProps = {
   emitEnterDownWhenComposing: { type: Boolean },
 };
 
-export type BaseInputProps = ExtractPropTypes<typeof baseInputProps>;
+export type BaseInputSetupProps = ExtractPropTypes<typeof baseInputProps>;
+export type BaseInputProps = Partial<BaseInputSetupProps>;
 
 export const inputProps = {
   ...baseInputProps,
@@ -38,7 +39,8 @@ export const inputProps = {
   showClearIcon: { type: Boolean },
 };
 
-export type InputProps = ExtractPropTypes<typeof inputProps>;
+export type InputSetupProps = ExtractPropTypes<typeof inputProps>;
+export type InputProps = Partial<InputSetupProps>;
 
 export const inputNumberProps = {
   ...inputProps,

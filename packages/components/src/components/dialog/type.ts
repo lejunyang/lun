@@ -32,4 +32,5 @@ export const dialogProps = {
   afterClose: { type: Function as PropType<() => void> },
 };
 
-export type DialogProps = ExtractPropTypes<typeof dialogProps>;
+export type DialogSetupProps = ExtractPropTypes<typeof dialogProps>;
+export type DialogProps = Partial<DialogSetupProps>;

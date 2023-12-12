@@ -8,4 +8,5 @@ export const tagProps = {
   removeIconProps: { type: Object },
 };
 
-export type TagProps = ExtractPropTypes<typeof tagProps>;
+export type TagSetupProps = ExtractPropTypes<typeof tagProps>;
+export type TagProps = Partial<TagSetupProps>;

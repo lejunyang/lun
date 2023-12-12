@@ -50,6 +50,8 @@ export const Tag = defineSSRCustomFormElement({
   },
 });
 
+export type tTag = typeof Tag;
+
 export const defineTag = createDefineElement(name, Tag, {
   icon: defineIcon,
 });
