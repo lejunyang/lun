@@ -1,5 +1,6 @@
 import { editStateProps, themeProps, LogicalPosition } from 'common';
 import { ExtractPropTypes, PropType } from 'vue';
+import { createOptionProps } from '../../hooks/useOptions';
 
 export const radioProps = {
   ...editStateProps,
@@ -13,12 +14,9 @@ export const radioProps = {
 export type RadioSetupProps = ExtractPropTypes<typeof radioProps>;
 export type RadioProps = Partial<RadioSetupProps>;
 
-export type RadioOptions = { label: string; value: any }[];
-
 export const radioGroupProps = {
-  ...editStateProps,
+  ...createOptionProps(false),
   value: {},
-  options: { type: Array as PropType<RadioOptions> },
 };
 
 export type RadioGroupSetupProps = ExtractPropTypes<typeof radioGroupProps>;

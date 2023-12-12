@@ -43,7 +43,7 @@ export const createOptionProps = <
  * @returns An object containing the options and a render function.
  */
 export function useOptions<
-  G extends ComponentKey | undefined,
+  G extends ComponentKey | undefined = undefined,
   HasChildren extends boolean = G extends undefined ? false : true
 >(
   props: { options?: MaybePromiseOrGetter<CommonOptions<HasChildren>>; optionNameMap?: CommonOptionNameMap },

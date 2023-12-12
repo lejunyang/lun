@@ -1,7 +1,7 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement, renderElement } from 'utils';
-import { useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
+import { createDefineElement } from 'utils';
+import { useOptions, useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { RadioCollector } from '.';
 import { radioGroupProps } from './type';
 
@@ -20,10 +20,11 @@ export const RadioGroup = defineSSRCustomFormElement({
     useSetupEdit();
     const [updateVModel] = useVModelCompatible();
     RadioCollector.parent({ extraProvide: { valueModel } });
+
+    const { render } = useOptions(props, 'radio');
     return () => (
       <>
-        {Array.isArray(props.options) &&
-          props.options.map((i, index) => renderElement('radio', { value: i.value, key: i.value + index }, i.label))}
+        {render()}
         <slot></slot>
       </>
     );

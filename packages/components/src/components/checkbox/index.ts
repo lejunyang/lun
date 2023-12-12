@@ -5,7 +5,7 @@ import type { ComputedRef } from 'vue';
 
 export * from './Checkbox';
 export * from './CheckboxGroup';
-export type { CheckboxProps, CheckboxGroupProps, CheckboxOptions, CheckboxUpdateDetail } from './type';
+export * from './type';
 
 export const CheckboxCollector = createCollector({
   name: 'checkbox',
