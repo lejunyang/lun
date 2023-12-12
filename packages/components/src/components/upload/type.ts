@@ -9,4 +9,5 @@ export const uploadProps = {
   strictAccept: { type: Boolean },
 };
 
-export type UploadProps = ExtractPropTypes<typeof uploadProps>;
+export type UploadSetupProps = ExtractPropTypes<typeof uploadProps>;
+export type UploadProps = Partial<UploadSetupProps>;

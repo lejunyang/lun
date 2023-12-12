@@ -8,7 +8,7 @@ import { toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
-import { defineSelectOptGroup } from './SelectOptGroup';
+import { defineSelectOptgroup } from './SelectOptgroup';
 import { useCEExpose, useOptions, useValueModel } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer';
 
@@ -91,9 +91,11 @@ export const Select = defineSSRCustomFormElement({
   },
 });
 
+export type tSelect = typeof Select;
+
 export const defineSelect = createDefineElement('select', Select, {
   'select-option': defineSelectOption,
-  'select-optgroup': defineSelectOptGroup,
+  'select-optgroup': defineSelectOptgroup,
   'custom-renderer': defineCustomRenderer,
   popover: definePopover as any,
   input: defineInput,

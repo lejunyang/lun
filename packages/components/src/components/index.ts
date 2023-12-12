@@ -8,7 +8,7 @@ import { defineIcon, importIconStyle } from './icon';
 import { defineBaseInput, defineInput } from './input';
 import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
-import { defineSelect, defineSelectOption, defineSelectOptGroup } from './select';
+import { defineSelect, defineSelectOption, defineSelectOptgroup } from './select';
 import { defineSpin, importSpinStyle } from './spin';
 import { defineSwitch } from './switch';
 import { defineTag } from './tag';
@@ -40,7 +40,7 @@ export function defineAllComponents() {
   defineRadioGroup();
   defineSelect();
   defineSelectOption();
-  defineSelectOptGroup();
+  defineSelectOptgroup();
   defineSpin();
   defineSwitch();
   defineTag();

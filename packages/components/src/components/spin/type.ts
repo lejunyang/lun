@@ -8,4 +8,5 @@ export const spinProps = {
   delay: { type: Number },
 };
 
-export type SpinProps = ExtractPropTypes<typeof spinProps>;
+export type SpinSetupProps = ExtractPropTypes<typeof spinProps>;
+export type SpinProps = Partial<SpinSetupProps>;

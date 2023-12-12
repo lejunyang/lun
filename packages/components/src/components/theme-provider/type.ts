@@ -17,4 +17,5 @@ export const themeProviderProps = {
   scale: { type: String },
 };
 
-export type ThemeProviderProps = ExtractPropTypes<typeof themeProviderProps>;
+export type ThemeProviderSetupProps = ExtractPropTypes<typeof themeProviderProps>;
+export type ThemeProviderProps = Partial<ThemeProviderSetupProps>;

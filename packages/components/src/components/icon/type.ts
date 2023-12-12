@@ -7,4 +7,5 @@ export const iconProps = {
   autoClearCache: { type: Boolean },
 }
 
-export type IconProps = ExtractPropTypes<typeof iconProps>;
+export type IconSetupProps = ExtractPropTypes<typeof iconProps>;
+export type IconProps = Partial<IconSetupProps>;

@@ -98,4 +98,6 @@ export const Form = defineSSRCustomElement({
   },
 });
 
+export type tForm = typeof Form;
+
 export const defineForm = createDefineElement(name, Form);

@@ -48,6 +48,8 @@ export const Upload = defineSSRCustomFormElement({
   },
 });
 
+export type tUpload = typeof Upload;
+
 export const defineUpload = createDefineElement(name, Upload, {
   spin: defineSpin,
 });

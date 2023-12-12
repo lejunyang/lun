@@ -125,6 +125,8 @@ export const Checkbox = defineSSRCustomFormElement({
   },
 });
 
+export type tCheckbox = typeof Checkbox;
+
 export const defineCheckbox = createDefineElement(name, Checkbox, {
   icon: defineIcon,
 });

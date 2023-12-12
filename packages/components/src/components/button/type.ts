@@ -17,4 +17,5 @@ export const buttonProps = {
   holdOn: { type: Number },
 };
 
-export type ButtonProps = ExtractPropTypes<typeof buttonProps>;
+export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps>;
+export type ButtonProps = Partial<ButtonSetupProps>;

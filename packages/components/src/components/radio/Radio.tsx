@@ -56,4 +56,6 @@ export const Radio = defineSSRCustomFormElement({
   },
 });
 
+export type tRadio = typeof Radio;
+
 export const defineRadio = createDefineElement(name, Radio);

@@ -59,6 +59,8 @@ export const Switch = defineSSRCustomFormElement({
   },
 });
 
+export type tSwitch = typeof Switch;
+
 export const defineSwitch = createDefineElement(name, Switch, {
   spin: defineSpin,
 });

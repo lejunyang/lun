@@ -90,6 +90,8 @@ export const Button = defineSSRCustomElement({
   },
 });
 
+export type tButton = typeof Button;
+
 export const defineButton = createDefineElement(name, Button, {
   spin: defineSpin,
 });

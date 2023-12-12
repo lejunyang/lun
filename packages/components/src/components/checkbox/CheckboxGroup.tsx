@@ -88,4 +88,6 @@ export const CheckboxGroup = defineSSRCustomFormElement({
   },
 });
 
+export type tCheckboxGroup = typeof CheckboxGroup;
+
 export const defineCheckboxGroup = createDefineElement('checkbox-group', CheckboxGroup);

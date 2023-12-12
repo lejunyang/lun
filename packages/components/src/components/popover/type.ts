@@ -26,4 +26,5 @@ export const popoverProps = {
   beforeOpen: { type: Function as PropType<() => boolean | void> },
 };
 
-export type PopoverProps = ExtractPropTypes<typeof popoverProps>;
+export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps>;
+export type PopoverProps = Partial<PopoverSetupProps>;

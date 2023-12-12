@@ -42,4 +42,6 @@ export const BaseInput = defineSSRCustomFormElement({
   },
 });
 
+export type tBaseInput = typeof BaseInput;
+
 export const defineBaseInput = createDefineElement('base-input', BaseInput);

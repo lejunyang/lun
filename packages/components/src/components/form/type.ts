@@ -18,4 +18,5 @@ export const formProps = {
   cols: { type: String },
 };
 
-export type FormProps = ExtractPropTypes<typeof formProps>;
+export type FormSetupProps = ExtractPropTypes<typeof formProps>;
+export type FormProps = Partial<FormSetupProps>;

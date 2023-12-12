@@ -6,4 +6,5 @@ export const tooltipProps = {
   overflow: { type: String as PropType<'enable' | 'open'> },
 };
 
-export type TooltipProps = ExtractPropTypes<typeof tooltipProps>;
+export type TooltipSetupProps = ExtractPropTypes<typeof tooltipProps>;
+export type TooltipProps = Partial<TooltipSetupProps>;

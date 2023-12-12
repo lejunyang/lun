@@ -22,6 +22,9 @@ export const selectOptgroupProps = {
   label: { type: String },
 };
 
-export type SelectProps = ExtractPropTypes<typeof selectProps>;
-export type SelectOptionProps = ExtractPropTypes<typeof selectOptionProps>;
-export type SelectOptgroupProps = ExtractPropTypes<typeof selectOptgroupProps>;
+export type SelectSetupProps = ExtractPropTypes<typeof selectProps>;
+export type SelectProps = Partial<SelectSetupProps>;
+export type SelectOptionSetupProps = ExtractPropTypes<typeof selectOptionProps>;
+export type SelectOptionProps = Partial<SelectOptionSetupProps>;
+export type SelectOptgroupSetupProps = ExtractPropTypes<typeof selectOptgroupProps>;
+export type SelectOptgroupProps = Partial<SelectOptgroupSetupProps>;

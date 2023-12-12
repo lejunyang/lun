@@ -47,6 +47,8 @@ const Tooltip = defineSSRCustomElement({
   },
 });
 
+export type tTooltip = typeof Tooltip;
+
 export const defineTooltip = createDefineElement(name, Tooltip, {
   popover: definePopover,
 });
