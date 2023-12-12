@@ -1,7 +1,7 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { useCheckbox, useSetupEdit } from '@lun/core';
-import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
+import { createDefineElement } from 'utils';
+import { useCEExpose, useOptions, useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
@@ -27,9 +27,9 @@ export const CheckboxGroup = defineSSRCustomFormElement({
       () =>
         new Set(
           children.value.flatMap((i) =>
-            i.props.value != null && !i.props.checkForAll && !i.props.excludeFromGroup ? [i.props.value] : []
-          )
-        )
+            i.props.value != null && !i.props.checkForAll && !i.props.excludeFromGroup ? [i.props.value] : [],
+          ),
+        ),
     );
     const methods = useCheckbox({
       value: valueModel,
@@ -76,12 +76,11 @@ export const CheckboxGroup = defineSSRCustomFormElement({
       };
     });
     const children = CheckboxCollector.parent({ extraProvide: { radioState } });
+
+    const { render } = useOptions(props, 'checkbox');
     return () => (
       <>
-        {Array.isArray(props.options) &&
-          props.options.map((i, index) =>
-            renderElement('checkbox', { value: i.value, key: i.value + index, onlyFor: props.onlyFor }, i.label)
-          )}
+        {render()}
         <slot></slot>
       </>
     );

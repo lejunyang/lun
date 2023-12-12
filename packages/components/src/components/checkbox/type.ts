@@ -1,5 +1,6 @@
 import { editStateProps, themeProps, LogicalPosition } from 'common';
 import { ExtractPropTypes, PropType } from 'vue';
+import { createOptionProps } from '../../hooks/useOptions';
 
 export const checkboxProps = {
   ...editStateProps,
@@ -20,8 +21,6 @@ export const checkboxProps = {
   excludeFromGroup: { type: Boolean },
 };
 
-export type CheckboxOptions = { label: string; value: any }[];
-
 export type CheckboxUpdateDetail = {
   value: any;
   isCheckForAll: boolean;
@@ -31,10 +30,9 @@ export type CheckboxUpdateDetail = {
 };
 
 export const checkboxGroupProps = {
-  ...editStateProps,
+  ...createOptionProps(false),
   ...themeProps,
   value: { type: Array },
-  options: { type: Array as PropType<CheckboxOptions> },
   onlyFor: { type: String },
 };
 
