@@ -1,5 +1,5 @@
 import { UseFormReturn, createCollector } from '@lun/core';
-import { FormProps } from './type';
+import { FormProps, FormSetupProps } from './type';
 import { FormItemProps } from '../form-item';
 
 export * from './Form';
@@ -11,7 +11,7 @@ export type FormProvideExtra = {
   setValue: (name: string | string[], value: any) => void;
   deletePath: (name: string | string[]) => void;
   isPlainName: (name?: string) => boolean;
-  formProps: FormProps;
+  formProps: FormSetupProps;
 };
 
 export const FormItemCollector = createCollector({

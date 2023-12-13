@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { useForm, useSetupEdit } from '@lun/core';
 import { createDefineElement, warn } from 'utils';
-import { formProps } from './type';
+import { formEmits, formProps } from './type';
 import { useCEExpose, useNamespace } from 'hooks';
 import { FormItemCollector, FormProvideExtra } from '.';
 import { computed, getCurrentInstance, onBeforeUnmount, watch } from 'vue';
@@ -11,7 +11,7 @@ const name = 'form';
 export const Form = defineSSRCustomElement({
   name,
   props: formProps,
-  emits: ['update'],
+  emits: formEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const form = isObject(props.formManager)
@@ -76,9 +76,8 @@ export const Form = defineSSRCustomElement({
         ...methods,
       },
     });
-
+    
     useCEExpose(methods);
-
     return () => {
       const { layout, cols, labelWidth } = props;
       const isGrid = layout?.includes('grid');
@@ -88,7 +87,7 @@ export const Form = defineSSRCustomElement({
           part={ns.p('root')}
           style={{
             display: layout,
-            gridTemplateColumns: isGrid ? `repeat(${cols}, ${labelWidth} 1fr)` : undefined,
+            gridTemplateColumns: isGrid ? `repeat(${cols}, [label-start] ${labelWidth} [content-start] 1fr)` : undefined,
           }}
         >
           <slot></slot>

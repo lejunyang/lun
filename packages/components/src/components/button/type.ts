@@ -1,5 +1,5 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { ThemeVariants, editStateProps, themeProps, LogicalPosition } from 'common';
+import { ThemeVariants, editStateProps, themeProps, LogicalPosition, GetEventPropsFromEmits } from 'common';
 import { Responsive } from '@lun/core';
 
 export const buttonProps = {
@@ -17,5 +17,8 @@ export const buttonProps = {
   holdOn: { type: Number },
 };
 
+export const buttonEmits = { validClick: null };
+
 export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps>;
-export type ButtonProps = Partial<ButtonSetupProps>;
+export type ButtonEvents = GetEventPropsFromEmits<typeof buttonEmits>;
+export type ButtonProps = Partial<ButtonSetupProps> & ButtonEvents;

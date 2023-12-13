@@ -1,5 +1,5 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps, themeProps } from 'common';
+import { GetEventPropsFromEmits, editStateProps, themeProps, emitConstructor } from 'common';
 import { UseFormReturn } from "@lun/core";
 
 export const formProps = {
@@ -18,5 +18,10 @@ export const formProps = {
   cols: { type: String },
 };
 
+export const formEmits = {
+  update: emitConstructor<{ formData: Record<string, any>, path: string[] | string, value: any }>(),
+}
+
 export type FormSetupProps = ExtractPropTypes<typeof formProps>;
-export type FormProps = Partial<FormSetupProps>;
+export type FormEvents = GetEventPropsFromEmits<typeof formEmits>;
+export type FormProps = Partial<FormSetupProps> & FormEvents;
