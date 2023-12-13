@@ -3,7 +3,7 @@
     "composite": true,
     "jsx": "preserve",
     "jsxImportSource": "react",
-    "types": ["./packages/components/dist/react-elements.d.ts"]
+    "types": ["@lun/components/dist/elements-types-react"]
   },
   "include": [
     "src/docs/**/*.react.tsx",
