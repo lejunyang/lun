@@ -5,7 +5,9 @@
       <slot></slot>
     </div>
     <div class="code-container" v-show="initialized" :style="{ opacity: loading ? 0.7 : 1 }">
-      <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
+      <ClientOnly>
+        <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
+      </ClientOnly>
     </div>
     <div class="code-block-actions">
       <svg
@@ -22,7 +24,9 @@
         />
       </svg>
     </div>
-    <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
+    <ClientOnly>
+      <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
+    </ClientOnly>
   </div>
 </template>
 
@@ -68,6 +72,7 @@ const rendererProps = reactive({
   content: undefined as any,
   type: undefined as any,
   preferHtml: true,
+  key: 1,
 });
 
 const handleCodeChange = debounce(async () => {
@@ -88,7 +93,8 @@ const handleCodeChange = debounce(async () => {
         rendererProps.type = 'react';
         break;
     }
-    runIfFn(rendererProps.content); // run it in advance in case of error, but don't assign the result to render content, because curren func is async, not able to watch and rerender
+    rendererProps.key = Date.now(); // force to refresh, or vue may reuse old vnode content and cause some issues
+    runIfFn(rendererProps.content); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
   } catch (e: any) {
     console.error(e);
     rendererProps.type = 'vnode';
@@ -116,10 +122,12 @@ watchEffect(() => {
 <style lang="scss">
 .code-wrapper {
   transition: all 0.3s;
+
   pre {
     white-space: pre-line;
   }
 }
+
 main .code-container {
   border: 1px solid var(--vp-c-divider);
   border-bottom: none;
@@ -128,21 +136,25 @@ main .code-container {
   gap: 5px;
   align-items: center;
   flex-wrap: wrap;
+
   .container {
     flex-basis: 100%;
     display: flex;
     gap: 5px;
   }
+
   .align-end {
     align-items: end;
   }
 }
+
 .code-block-actions {
   display: flex;
   justify-content: flex-end;
   padding: 5px;
   border: 1px solid var(--vp-c-divider);
   border-top: 1px dashed var(--vp-c-divider);
+
   svg {
     cursor: pointer;
   }
