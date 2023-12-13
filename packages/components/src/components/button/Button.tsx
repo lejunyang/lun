@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
-import { buttonProps } from './type';
+import { buttonEmits, buttonProps } from './type';
 import { useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce, isFunction, throttle } from '@lun/utils';
@@ -11,7 +11,7 @@ const name = 'button';
 export const Button = defineSSRCustomElement({
   name,
   props: buttonProps,
-  emits: ['validClick'],
+  emits: buttonEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
