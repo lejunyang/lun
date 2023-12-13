@@ -12,9 +12,16 @@
       "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json",
-    "./vue-types": "./vue-elements.d.ts",
-    "./html-types": "./html-elements.d.ts",
-    "./react-types": "./react-elements.d.ts"
+    "./dist/*": "./dist/*",
+    "./elements-types-vue": {
+      "types": "./dist/elements-types-vue.d.ts"
+    },
+    "./elements-types-react": {
+      "types": "./dist/elements-types-react.d.ts"
+    },
+    "./elements-types-html": {
+      "types": "./dist/elements-types-html.d.ts"
+    }
   },
   "types": "./dist/index.d.ts",
   "scripts": {
