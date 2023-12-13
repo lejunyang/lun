@@ -6,7 +6,7 @@ import { useNamespace } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed, onBeforeUnmount } from 'vue';
 import { FormInputCollector } from '.';
-import { isArray, isObject, isPlainString, stringToPath, toArrayIfNotNil } from '@lun/utils';
+import { ensureNumber, isArray, isObject, isPlainString, stringToPath, toArrayIfNotNil } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
 
@@ -102,7 +102,19 @@ export const FormItem = defineSSRCustomElement({
     });
 
     return () => {
-      const { colonMark, requiredMark, requiredMarkAlign, required, colSpan, rowSpan, newLine } = props;
+      let {
+        colonMark,
+        requiredMark,
+        requiredMarkAlign,
+        required,
+        colSpan,
+        rowSpan,
+        newLine,
+        fullLine,
+        labelWrapperStyle,
+        contentWrapperStyle,
+      } = props;
+      if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
       const rMark = required && requiredMark && (
         <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
           {requiredMark}
@@ -114,7 +126,11 @@ export const FormItem = defineSSRCustomElement({
             <span
               part={ns.p('label')}
               class={[ns.e('label')]}
-              style={{ gridColumnStart: newLine ? 1 : undefined, gridRowStart: rowSpan && `span ${rowSpan}` }}
+              style={{
+                gridColumnStart: newLine || fullLine ? 1 : undefined,
+                gridRowStart: rowSpan && `span ${rowSpan}`,
+                ...labelWrapperStyle,
+              }}
             >
               {requiredMarkAlign === 'start' && rMark}
               <slot name="label-start"></slot>
@@ -133,7 +149,9 @@ export const FormItem = defineSSRCustomElement({
             part={ns.p('content')}
             style={{
               gridColumnStart: colSpan && `span ${colSpan * 2 - 1}`,
+              gridColumnEnd: fullLine ? -1 : undefined,
               gridRowStart: rowSpan && `span ${rowSpan}`,
+              ...contentWrapperStyle,
             }}
           >
             <slot></slot>

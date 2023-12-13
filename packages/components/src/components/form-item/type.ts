@@ -1,5 +1,5 @@
 import { PropType, ExtractPropTypes } from 'vue';
-import { LogicalPosition, PropBoolean, PropNumber, PropString, editStateProps, themeProps } from 'common';
+import { LogicalPosition, PropBoolean, PropNumber, PropObject, PropString, editStateProps, themeProps } from 'common';
 import { MaybePromise } from '@lun/core';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
@@ -7,33 +7,36 @@ export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<stri
 export const formItemProps = {
   ...editStateProps,
   ...themeProps,
-  name: { type: String },
+  name: PropString(),
   plainName: PropBoolean(),
   array: PropBoolean(),
 
   // props for layout
-  newLine: PropBoolean(),
   rowSpan: PropNumber(),
   colSpan: PropNumber(),
+  newLine: PropBoolean(),
+  fullLine: PropBoolean(),
+  labelWrapperStyle: PropObject(),
+  contentWrapperStyle: PropObject(),
 
   // props for extra info
-  label: { type: String },
+  label: PropString(),
   noLabel: PropBoolean(),
   labelWidth: PropString(),
   labelAlign: PropString<LogicalPosition>(),
   requiredMarkAlign: PropString<LogicalPosition>(),
   colonMark: PropString(),
   requiredMark: PropString(),
-  help: { type: String },
-  tip: { type: String },
-  tooltip: { type: String },
+  help: PropString(),
+  tip: PropString(),
+  tooltip: PropString(),
 
-  unmountBehavior: { type: String as PropType<'delete' | 'null' | 'undefined'> },
+  unmountBehavior: PropString<'delete' | 'null' | 'undefined'>(),
   deps: { type: [String, Array] as PropType<string | string[]> },
   clearWhenDepChange: PropBoolean(),
   disableWhenDepFalsy: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
   // validate props
-  type: { type: String }, // can it be auto detected?
+  type: PropString(), // can it be auto detected?
   required: PropBoolean(),
   /**
    * to required when deps are required,
