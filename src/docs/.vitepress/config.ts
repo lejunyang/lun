@@ -96,13 +96,16 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [vueJsx()],
+    plugins: [
+      vueJsx({
+        isCustomElement: (tag) => tag.startsWith('l-'),
+      }),
+    ],
     server: {
       host: '0.0.0.0',
       port: 7000,
     },
     define: {
-      // __DEV__: "!!(process.env.NODE_ENV !== 'production')",
       __DEV__: 'true',
     },
     optimizeDeps: {
@@ -118,7 +121,7 @@ export default defineConfig({
           ? {
               common: fileURLToPath(new URL('../../../packages/components/src/common/index', import.meta.url)),
               config: fileURLToPath(
-                new URL('../../../packages/components/src/components/config/index', import.meta.url)
+                new URL('../../../packages/components/src/components/config/index', import.meta.url),
               ),
               custom: fileURLToPath(new URL('../../../packages/components/src/custom/index', import.meta.url)),
               utils: fileURLToPath(new URL('../../../packages/components/src/utils/index', import.meta.url)),

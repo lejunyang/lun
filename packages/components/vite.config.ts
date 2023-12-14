@@ -13,7 +13,9 @@ export default getViteConfig('@lun/components', {
         },
       },
     }),
-    vueJsx(),
+    vueJsx({
+      isCustomElement: (tag) => tag.startsWith('l-'),
+    }),
   ],
   resolve: {
     alias: {

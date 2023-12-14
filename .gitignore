@@ -26,5 +26,7 @@ dist-ssr
 #vitepress
 .vitepress/dist
 .vitepress/cache
+.vitepress/.temp
 src/docs/.vitepress/dist
 src/docs/.vitepress/cache
+src/docs/.vitepress/.temp
