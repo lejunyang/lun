@@ -1,13 +1,11 @@
 <template>
-  <div class="code-wrapper" v-if="!devHide">
-    <div class="code-container" v-if="!initialized">
+  <div class="code-wrapper" v-show="!devHide">
+    <div class="code-container" v-show="!initialized">
       <!-- this is to preventing long time white screen before initialized -->
       <slot></slot>
     </div>
     <div class="code-container" v-show="initialized" :style="{ opacity: loading ? 0.7 : 1 }">
-      <ClientOnly>
-        <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
-      </ClientOnly>
+      <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
     </div>
     <div class="code-block-actions">
       <svg
@@ -24,9 +22,7 @@
         />
       </svg>
     </div>
-    <ClientOnly>
-      <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
-    </ClientOnly>
+    <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
   </div>
 </template>
 
