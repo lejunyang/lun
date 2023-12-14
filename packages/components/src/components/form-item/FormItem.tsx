@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { formItemProps } from './type';
 import { useNamespace } from 'hooks';
 import { FormItemCollector } from '../form';
@@ -113,6 +113,7 @@ export const FormItem = defineSSRCustomElement({
         fullLine,
         labelWrapperStyle,
         contentWrapperStyle,
+        element,
       } = props;
       if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
       const rMark = required && requiredMark && (
@@ -154,7 +155,7 @@ export const FormItem = defineSSRCustomElement({
               ...contentWrapperStyle,
             }}
           >
-            <slot></slot>
+            {element ? renderElement(element, props.elementProps, <slot />) : <slot />}
           </span>
         </div>
       );

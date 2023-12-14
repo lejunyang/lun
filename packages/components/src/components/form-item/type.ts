@@ -1,6 +1,7 @@
 import { PropType, ExtractPropTypes } from 'vue';
 import { LogicalPosition, PropBoolean, PropNumber, PropObject, PropString, editStateProps, themeProps } from 'common';
 import { MaybePromise } from '@lun/core';
+import { ComponentKey } from 'config';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
 
@@ -10,6 +11,9 @@ export const formItemProps = {
   name: PropString(),
   plainName: PropBoolean(),
   array: PropBoolean(),
+
+  element: PropString<ComponentKey>(),
+  elementProps: PropObject(),
 
   // props for layout
   rowSpan: PropNumber(),
