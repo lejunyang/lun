@@ -16,19 +16,19 @@ fs.readdir(colorsDir, (err, files) => {
     const content = fs.readFileSync(filePath, { encoding: 'utf-8' });
     const isLight = content.includes('light');
     return content
-      .replace(/.+{\n([^}]*)\n}/, (_, $1) => {
-        $1 = $1
+      .replace(/(:root|\.dark).+{\n([^}]*)\s+}/g, (_, $1, $2) => {
+        $2 = $2
           .split('\n')
           .map((line) => `    ${line.trim()}`)
           .join('\n');
         if (existInLightAndDark.includes(file)) {
           return `#{$theme-provider-el-name} {
-${$1}
+${$2}
 }`;
         }
         return `#{$theme-provider-el-name} {
   @include lightTheme(${String(isLight)}) {
-${$1}
+${$2}
   }
 }`;
       })

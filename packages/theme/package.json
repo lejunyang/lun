@@ -23,6 +23,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
+    "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
@@ -30,10 +31,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@lun/components": "workspace:^",
-    "@radix-ui/colors": "^2.1.0"
+    "@lun/components": "workspace:^"
   },
   "devDependencies": {
+    "@radix-ui/colors": "^3.0.0",
     "cross-env": "^7.0.3",
     "postcss-logical": "^7.0.0",
     "rimraf": "^5.0.5",
