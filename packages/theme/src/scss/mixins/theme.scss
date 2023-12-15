@@ -141,3 +141,8 @@
 @function getAutofillColor() {
   @return var(getAutofillColorName());
 }
+
+// shadow
+@function getShadow($level) {
+  @return getVarValue((shadow, $level));
+}
