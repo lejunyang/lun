@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
 import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition } from 'vue';
 import { unrefOrGet, usePopover } from '@lun/core';
-import { createDefineElement, renderElement, toGetterDescriptors } from 'utils';
-import { popoverProps } from './type';
+import { createDefineElement, toGetterDescriptors } from 'utils';
+import { popoverEmits, popoverProps } from './type';
 import { isFunction, isSupportPopover, pick } from '@lun/utils';
-import { useCEExpose, useShadowDom } from 'hooks';
-import { defineCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
+import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
 import { topLayerOverTransforms } from './floating.top-layer-fix';
 import { referenceRect } from './floating.store-rects';
@@ -15,8 +15,9 @@ export const Popover = defineSSRCustomElement({
   name,
   props: popoverProps,
   inheritAttrs: false,
-  emits: ['open', 'afterOpen', 'close', 'afterClose'],
+  emits: popoverEmits,
   setup(props, { emit }) {
+    const ns = useNamespace(name);
     const support = {
       popover: isSupportPopover(),
       teleport: true,
@@ -79,31 +80,40 @@ export const Popover = defineSSRCustomElement({
     const ceRef = computed(() => (isShow.value ? virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
-      if (isShow.value) {
-        // read isShow, so that trigger update when show change
-      }
-      const arrowLen = arrowRef.value?.offsetWidth || 0;
-      // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
-      // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
-      const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
       return [
-        topLayerOverTransforms(),
-        offset(floatingOffset + (props.offset || 0)),
+        type.value === 'popover' && topLayerOverTransforms(),
+        offset(() => {
+          const arrowLen = arrowRef.value?.offsetWidth || 0;
+          // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
+          // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
+          const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
+          return floatingOffset + (props.offset || 0);
+        }),
         props.showArrow &&
           arrow({
-            element: arrowRef.value,
+            element: arrowRef,
           }),
         referenceRect(),
       ].filter(Boolean) as any;
     });
-    const { floatingStyles, middlewareData, update } = useFloating(ceRef, actualPopRef as any, {
-      whileElementsMounted: autoUpdate,
+    const {
+      floatingStyles,
+      middlewareData,
+      update,
+      placement: actualPlacement,
+    } = useFloating(ceRef, actualPopRef as any, {
+      whileElementsMounted: (...args) => {
+        return autoUpdate(...args, {
+          elementResize: false,
+        });
+      },
       strategy: 'fixed',
       placement,
       open: isShow,
       middleware,
       transform: toRef(props, 'useTransform'),
     });
+
     const arrowStyles = computed(() => {
       const { x, y } = middlewareData.value.arrow || {};
       const side = placement.value?.split('-')[0] || 'bottom';
@@ -122,8 +132,10 @@ export const Popover = defineSSRCustomElement({
         bottom: '',
         [staticSide]: `${-arrowRef.value?.offsetWidth / 2}px`,
         transform: 'rotate(45deg)',
+        clipPath: 'polygon(0 0, 0% 100%, 100% 0)',
       };
     });
+
     const finalFloatingStyles = computed(() => {
       let result: CSSProperties = { ...floatingStyles.value };
       const width = middlewareData.value.rects?.reference.width;
@@ -141,15 +153,15 @@ export const Popover = defineSSRCustomElement({
         isOpen: () => (props.open !== undefined ? !!props.open : isShow.value),
         updatePosition: update,
       },
-      toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' })
+      toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' }),
     );
 
     const contentSlot = computed(() => {
       return (
         <>
-          {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value}></div>}
+          {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value} class={ns.e('arrow')}></div>}
           <slot name="pop-content">
-            {props.content && renderElement('custom-renderer', pick(props, ['content', 'preferHtml']))}
+            {props.content && <VCustomRenderer {...pick(props, ['content', 'preferHtml'])} type={props.contentType} />}
           </slot>
         </>
       );
@@ -164,6 +176,7 @@ export const Popover = defineSSRCustomElement({
           style={finalFloatingStyles.value}
           v-show={isShow.value}
           ref={fixedRef}
+          class={[ns.t, ns.is('fixed'), ns.is(`placement-${actualPlacement.value}`)]}
         >
           {contentSlot.value}
         </div>
@@ -180,6 +193,7 @@ export const Popover = defineSSRCustomElement({
           part="popover pop-content"
           popover="manual"
           ref={popRef}
+          class={[ns.t, ns.is('popover'), ns.is(`placement-${actualPlacement.value}`)]}
         >
           {contentSlot.value}
         </div>
@@ -218,6 +232,4 @@ export const Popover = defineSSRCustomElement({
 
 export type tPopover = typeof Popover;
 
-export const definePopover = createDefineElement(name, Popover, {
-  'custom-renderer': defineCustomRenderer,
-});
+export const definePopover = createDefineElement(name, Popover);
