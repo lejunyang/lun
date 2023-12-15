@@ -2,7 +2,7 @@
 import { EditState, withBreakpoints } from '@lun/core';
 import { ComponentInternalInstance, ComputedRef, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
-import { isPreferDark } from '@lun/utils';
+import { isArray, isPreferDark } from '@lun/utils';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -78,7 +78,8 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     ];
   });
 
-  const p = (part: string) => `${block ? block + '-' : ''}${part} ${part}`;
+  const p = (part: string | string[]): string =>
+    isArray(part) ? part.map(p).join(' ') : `${block ? block + '-' : ''}${part} ${part}`;
 
   const stateClass = (editComputed: ComputedRef<EditState>) => {
     const { disabled, readonly, loading } = editComputed.value;

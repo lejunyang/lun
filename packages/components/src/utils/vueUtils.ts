@@ -26,7 +26,7 @@ export function setDefaultsForPropOptions<
 ): Omit<PO, keyof Defaults> & { [k in keyof Defaults]: k extends keyof PO ? PO[k] & { default: Defaults[k] } : never } {
   const result: any = { ...props };
   Object.entries(defaults).forEach(([k, v]) => {
-    if (k in result && v !== undefined) {
+    if (k in result) {
       const propOption = result[k];
       if (propOption instanceof Function) {
         // type constructor prop option
