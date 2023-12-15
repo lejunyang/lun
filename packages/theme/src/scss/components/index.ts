@@ -13,6 +13,7 @@ import {
   importTagSolidTheme,
   importTagSurfaceTheme,
 } from './tag/index.ts';
+import { importPopoverBasicTheme } from './popover/index.ts';
 
 export * from './input/index.ts';
 
@@ -23,6 +24,7 @@ export function importBasicTheme() {
   importFormBasicTheme();
   importFormItemBasicTheme();
   importInputBasicTheme();
+  importPopoverBasicTheme();
   importRadioBasicTheme();
   importSwitchBasicTheme();
   importTagBasicTheme();
