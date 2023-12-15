@@ -1,0 +1,50 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(popover) {
+  $contentPadding: getVarName((popover, content, padding));
+  $arrowSize: getVarName((popover, arrow, size));
+
+  background-color: getSemanticColor('panel-solid');
+  box-shadow: getShadow(5);
+
+  @include e(arrow) {
+    background-color: getSemanticColor('panel-solid');
+    box-shadow: getShadow(5);
+  }
+
+  @include size(1) {
+    padding: var(#{$contentPadding}, getSpaceValue(3));
+    border-radius: getRadiusValue(4);
+    @include e(arrow) {
+      width: var(#{$arrowSize}, getSpaceValue(2));
+      height: var(#{$arrowSize}, getSpaceValue(2));
+    }
+  }
+  @include size(2) {
+    padding: var(#{$contentPadding}, getSpaceValue(4));
+    border-radius: getRadiusValue(4);
+    @include e(arrow) {
+      width: var(#{$arrowSize}, getSpaceValue(3));
+      height: var(#{$arrowSize}, getSpaceValue(3));
+    }
+  }
+  @include size(3) {
+    padding: var(#{$contentPadding}, getSpaceValue(5));
+    border-radius: getRadiusValue(5);
+    @include e(arrow) {
+      width: var(#{$arrowSize}, getSpaceValue(4));
+      height: var(#{$arrowSize}, getSpaceValue(4));
+    }
+  }
+  @include size(4) {
+    padding: var(#{$contentPadding}, getSpaceValue(6));
+    border-radius: getRadiusValue(5);
+    @include e(arrow) {
+      width: var(#{$arrowSize}, getSpaceValue(5));
+      height: var(#{$arrowSize}, getSpaceValue(5));
+    }
+  }
+}
