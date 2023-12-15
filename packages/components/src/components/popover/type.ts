@@ -1,30 +1,49 @@
+import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObject, PropString, themeProps } from 'common';
 import { Placement } from '@floating-ui/vue';
-import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
+import type { MaybeRefLikeOrGetter, PopoverTrigger, Responsive, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
+import { omit } from '@lun/utils';
 
 export const popoverProps = {
-  open: { type: Boolean, default: undefined },
-  target: { type: Object as PropType<MaybeRefLikeOrGetter<Element | VirtualElement>> },
-  type: { type: String as PropType<'popover' | 'fixed' | 'teleport'> },
-  to: { type: String },
+  open: PropBoolean(),
+  target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
+  type: PropString<'popover' | 'fixed' | 'teleport'>(),
+  to: PropString(),
+
   content: {},
-  preferHtml: { type: Boolean },
-  placement: { type: String as PropType<Placement> },
-  offset: { type: Number },
-  openDelay: { type: Number },
-  closeDelay: { type: Number },
-  triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },
-  // whether to toggle when retrigger, useful for select(TODO select also need input to trigger)
-  toggleMode: { type: Boolean },
-  fullPopWidth: { type: Boolean },
+  contentType: PropString(),
+  preferHtml: PropBoolean(),
+
+  placement: PropString<Placement>(),
+  offset: PropNumber(),
+  showArrow: PropBoolean(),
+
+  // pop width will be same as target width
+  fullPopWidth: PropBoolean(),
   adjustPopStyle: {
     type: Function as PropType<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>,
   },
-  showArrow: { type: Boolean },
   // whether use transform to position, useful when has animation conflict
-  useTransform: { type: Boolean, default: false },
+  useTransform: PropBoolean(),
+
+  openDelay: PropNumber(),
+  closeDelay: PropNumber(),
+  triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },
+  // whether to toggle when retrigger, useful for select(TODO select also need input to trigger)
+  toggleMode: PropBoolean(),
   beforeOpen: { type: Function as PropType<() => boolean | void> },
+
+  ...omit(themeProps, ['variant']),
+  size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
+};
+
+export const popoverEmits = {
+  open: null,
+  afterOpen: null,
+  close: null,
+  afterClose: null,
 };
 
 export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps>;
+export type PopoverEvents = GetEventPropsFromEmits<typeof popoverEmits>;
 export type PopoverProps = Partial<PopoverSetupProps>;

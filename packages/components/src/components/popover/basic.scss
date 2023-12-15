@@ -1,8 +1,7 @@
 :host {
   display: inline-block;
 }
-[popover],
-dialog {
+[popover] {
   margin: initial;
   padding: initial;
   border: initial;
@@ -11,13 +10,6 @@ dialog {
 [popover] {
   // important!! If don't set overflow unset, the arrow will not show. Maybe it's due to top layer popover, no idea why
   overflow: unset;
-}
-
-// TODO put it in theme
-[part='arrow'] {
-  width: var(--popover-arrow-size, 5px);
-  height: 5px;
-  background-color: blue;
 }
 
 @keyframes slideDownIn {
