@@ -2,7 +2,6 @@ import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObject, PropString
 import { Placement } from '@floating-ui/vue';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, Responsive, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
-import { omit } from '@lun/utils';
 
 export const popoverProps = {
   open: PropBoolean(),
@@ -33,7 +32,8 @@ export const popoverProps = {
   toggleMode: PropBoolean(),
   beforeOpen: { type: Function as PropType<() => boolean | void> },
 
-  ...omit(themeProps, ['variant']),
+  ...themeProps,
+  variant: PropString<'styleless' | string>(),
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
 };
 
