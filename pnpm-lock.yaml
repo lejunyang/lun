@@ -180,10 +180,10 @@ importers:
       '@lun/components':
         specifier: workspace:^
         version: link:../components
-      '@radix-ui/colors':
-        specifier: ^2.1.0
-        version: 2.1.0
     devDependencies:
+      '@radix-ui/colors':
+        specifier: ^3.0.0
+        version: 3.0.0
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1039,9 +1039,9 @@ packages:
     dev: true
     optional: true
 
-  /@radix-ui/colors@2.1.0:
-    resolution: {integrity: sha512-gcBnxjS2u2c6thQz/9K1+Pt2ZYcm5WKU4SLi0emYkRmYbVUw+37rlc5wgLtYOsSsRP9nxVtbJJYj6WVO7UUmZg==}
-    dev: false
+  /@radix-ui/colors@3.0.0:
+    resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
+    dev: true
 
   /@rollup/pluginutils@5.1.0:
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
