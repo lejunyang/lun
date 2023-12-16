@@ -116,9 +116,13 @@ lang: zh-CN
 ## 虚拟元素
 
 <l-checkbox :checked="isOn" @update="isOn = $event.detail.checked">{{ isOn ? '关闭' : '开启'}}</l-checkbox>
-<l-popover class="popover-virtual" ref="virtualPop" :target="virtualEl" :open="isOn" >
+<l-popover class="popover-virtual" ref="virtualPop" :target="virtualEl" :open="isOn" useTransform variant="styleless">
   <div slot="pop-content" class="circle"></div>
 </l-popover>
+
+## 不同大小
+
+<!-- @Code:differentSizes -->
 
 <script setup>
   import { isSupportPopover, throttle } from '@lun/utils';
