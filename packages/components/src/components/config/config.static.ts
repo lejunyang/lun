@@ -125,7 +125,12 @@ export const GlobalStaticConfig = new Proxy(
         },
         showClearIcon: true,
       },
-      popover: {},
+      popover: {
+        offset: 4,
+        open: undefined,
+        showArrow: true,
+        useTransform: false,
+      },
       radio: {
         labelPosition: 'end' as const,
       },

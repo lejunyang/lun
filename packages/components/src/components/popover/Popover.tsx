@@ -27,7 +27,8 @@ export const Popover = defineSSRCustomElement({
     const slotRef = ref<HTMLSlotElement>();
     const fixedRef = ref<HTMLDivElement>();
     const arrowRef = ref();
-    const isShow = ref(false);
+    const isOpen = ref(false);
+    const isShow = ref(false); // after animation ends, it will be false
     const type = computed(() => {
       if (['popover', 'fixed', 'teleport'].includes(props.type!) && support[props.type!]) return props.type;
       else return Object.keys(support).find((i) => support[i as keyof typeof support]);
@@ -38,15 +39,17 @@ export const Popover = defineSSRCustomElement({
       const popover = popRef.value;
       const fixed = fixedRef.value;
       if (popover) popover.showPopover();
-      isShow.value = !!(popover || fixed);
+      isOpen.value = !!(popover || fixed);
+      isShow.value = isOpen.value;
     };
     const hide = () => {
-      isShow.value = false;
+      isOpen.value = false;
     };
     const toggle = (force?: boolean) => {
       const { value } = popRef;
       if (value) value.togglePopover(force);
-      isShow.value = force !== undefined ? force : !isShow.value;
+      isOpen.value = force !== undefined ? force : !isOpen.value;
+      if (isOpen.value) isShow.value = true;
     };
 
     // handle manually control visibility by outside
@@ -77,7 +80,7 @@ export const Popover = defineSSRCustomElement({
     }));
 
     const shadow = useShadowDom();
-    const ceRef = computed(() => (isShow.value ? virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
+    const ceRef = computed(() => (isOpen.value ? virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
       return [
@@ -150,7 +153,7 @@ export const Popover = defineSSRCustomElement({
         openPopover: show,
         closePopover: hide,
         togglePopover: toggle,
-        isOpen: () => (props.open !== undefined ? !!props.open : isShow.value),
+        isOpen: () => (props.open !== undefined ? !!props.open : isOpen.value),
         updatePosition: update,
       },
       toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' }),
@@ -167,6 +170,12 @@ export const Popover = defineSSRCustomElement({
       );
     });
 
+    const getRootClass = (type: string) => [
+      props.variant === 'styleless' ? null : ns.t,
+      ns.is(type),
+      ns.is(`placement-${actualPlacement.value}`),
+    ];
+
     const fixed = computed(() => {
       const { value } = type;
       const result = (
@@ -174,9 +183,9 @@ export const Popover = defineSSRCustomElement({
           {...popContentHandler}
           part={(value === 'teleport' ? 'teleport-fixed' : 'fixed') + ' pop-content'}
           style={finalFloatingStyles.value}
-          v-show={isShow.value}
+          v-show={isOpen.value}
           ref={fixedRef}
-          class={[ns.t, ns.is('fixed'), ns.is(`placement-${actualPlacement.value}`)]}
+          class={getRootClass('fixed')}
         >
           {contentSlot.value}
         </div>
@@ -188,12 +197,12 @@ export const Popover = defineSSRCustomElement({
       return (
         <div
           {...popContentHandler}
-          v-show={isShow.value}
+          v-show={isOpen.value}
           style={finalFloatingStyles.value}
           part="popover pop-content"
           popover="manual"
           ref={popRef}
-          class={[ns.t, ns.is('popover'), ns.is(`placement-${actualPlacement.value}`)]}
+          class={getRootClass('popover')}
         >
           {contentSlot.value}
         </div>
@@ -212,6 +221,7 @@ export const Popover = defineSSRCustomElement({
       },
       onAfterLeave() {
         popRef.value?.hidePopover();
+        isShow.value = false;
         emit('afterClose');
       },
     };
