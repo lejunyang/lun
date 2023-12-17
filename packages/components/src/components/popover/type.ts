@@ -1,9 +1,11 @@
-import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObject, PropString, themeProps } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObject, PropString, createTransitionProps, themeProps } from 'common';
 import { Placement } from '@floating-ui/vue';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, Responsive, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
 
 export const popoverProps = {
+  ...createTransitionProps(),
+
   open: PropBoolean(),
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   type: PropString<'popover' | 'fixed' | 'teleport'>(),
