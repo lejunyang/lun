@@ -9,6 +9,7 @@ import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
 import { topLayerOverTransforms } from './floating.top-layer-fix';
 import { referenceRect } from './floating.store-rects';
+import { getTransitionProps } from 'common';
 
 const name = 'popover';
 export const Popover = defineSSRCustomElement({
@@ -230,7 +231,7 @@ export const Popover = defineSSRCustomElement({
       const { value } = type;
       return (
         <>
-          <Transition name="popover" {...transitionHandler}>
+          <Transition {...getTransitionProps(props)} {...transitionHandler}>
             {value === 'popover' ? popover.value : fixed.value}
           </Transition>
           <slot {...targetHandler} ref={slotRef}></slot>
