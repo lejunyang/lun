@@ -134,9 +134,7 @@ export const Popover = defineSSRCustomElement({
         top: y != null ? `${y}px` : '',
         right: '',
         bottom: '',
-        [staticSide]: `${-arrowRef.value?.offsetWidth / 2}px`,
-        transform: 'rotate(45deg)',
-        clipPath: 'polygon(0 0, 0% 100%, 100% 0)',
+        [staticSide]: `${-arrowRef.value?.offsetWidth}px`,
       };
     });
 
@@ -175,6 +173,7 @@ export const Popover = defineSSRCustomElement({
       props.variant === 'styleless' ? null : ns.t,
       ns.is(type),
       ns.is(`placement-${actualPlacement.value}`),
+      ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
     ];
 
     const fixed = computed(() => {
