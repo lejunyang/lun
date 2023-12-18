@@ -61,7 +61,10 @@
   @return var(#{getScaleVarName()});
 }
 
-@function getSpaceValue($level) {
+@function getSpaceValue($level, $isHypot: false) {
+  @if $isHypot {
+    @return getVarValue(($space-name, 'hypot', $level));
+  }
   @return getVarValue(($space-name, $level));
 }
 
