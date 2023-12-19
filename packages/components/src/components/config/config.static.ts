@@ -127,9 +127,10 @@ export const GlobalStaticConfig = new Proxy(
       },
       popover: {
         offset: 4,
-        open: undefined,
+        open: undefined, // must be undefined, otherwise it will be controlled
         showArrow: true,
         useTransform: false,
+        transition: 'fade',
       },
       radio: {
         labelPosition: 'end' as const,
@@ -149,7 +150,11 @@ export const GlobalStaticConfig = new Proxy(
       },
       tag: {},
       'theme-provider': {},
-      tooltip: {},
+      tooltip: {
+        open: undefined, // must be undefined, otherwise it will be controlled
+        showArrow: true,
+        transition: 'scale',
+      },
       upload: {},
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
