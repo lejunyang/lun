@@ -1,13 +1,14 @@
 import { isFunction, isObjectByTag } from '@lun/utils';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =
+  | T
   | { value: Ensure extends true ? T : T | null | undefined }
   | { current: Ensure extends true ? T : T | null | undefined }
   | (() => Ensure extends true ? T : T | undefined | null);
 export function unrefOrGet<
   Target,
-  T = Target extends MaybeRefLikeOrGetter<infer A, infer E> ? (E extends true ? A : A | undefined | null) : never
-  >(target: Target, defaultValue?: T): T {
+  T = Target extends MaybeRefLikeOrGetter<infer A, infer E> ? (E extends true ? A : A | undefined | null) : never,
+>(target: Target, defaultValue?: T): T {
   // use tag to check if it's an object, in case that target is something like HTMLInputElement
   if (isObjectByTag(target)) {
     if ('value' in target) return target.value as T;
