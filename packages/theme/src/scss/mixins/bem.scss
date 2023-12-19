@@ -158,15 +158,28 @@
   @return #{'.' + $B + config.$element-separator + $element + config.$modifier-separator + $modifier};
 }
 
-@mixin size($size) {
-  @at-root {
-    $selector: $B + config.$modifier-separator + 'size-' + $size;
-    .#{$selector} {
+@mixin size($size, $atRoot: true) {
+  $selector: $B + config.$modifier-separator + 'size-' + $size;
+  @if $atRoot {
+    @at-root {
+      .#{$selector} {
+        @content;
+      }
+      @each $breakpoint, $width in config.$breakpoints-map {
+        @media (min-width: $width) {
+          .#{$breakpoint + '-' + $selector} {
+            @content;
+          }
+        }
+      }
+    }
+  } @else {
+    &.#{$selector} {
       @content;
     }
     @each $breakpoint, $width in config.$breakpoints-map {
       @media (min-width: $width) {
-        .#{$breakpoint + '-' + $selector} {
+        &.#{$breakpoint + '-' + $selector} {
           @content;
         }
       }
