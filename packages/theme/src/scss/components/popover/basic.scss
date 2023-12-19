@@ -11,6 +11,7 @@
 
   background-color: getSemanticColor('panel-solid');
   box-shadow: getShadow(5);
+  box-sizing: border-box;
 
   @include e(arrow) {
     width: var(#{$arrowHypot});

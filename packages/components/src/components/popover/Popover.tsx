@@ -6,7 +6,7 @@ import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, isSupportPopover, pick } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
-import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
+import { autoUpdate, useFloating, arrow, offset, ElementRects } from '@floating-ui/vue';
 import { topLayerOverTransforms } from './floating.top-layer-fix';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps } from 'common';
@@ -150,9 +150,11 @@ export const Popover = defineSSRCustomElement({
 
     const finalFloatingStyles = computed(() => {
       let result: CSSProperties = { ...floatingStyles.value };
-      const width = middlewareData.value.rects?.reference.width;
-      if (width && props.fullPopWidth) result.width = `${width}px`;
-      if (props.adjustPopStyle) result = props.adjustPopStyle(result, middlewareData.value) || result;
+      const { sync, adjustPopStyle } = props;
+      const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
+      if (width && (sync === 'width' || sync === 'both')) result.width = `${width}px`;
+      if (height && (sync === 'height' || sync === 'both')) result.height = `${height}px`;
+      if (adjustPopStyle) result = adjustPopStyle(result, middlewareData.value) || result;
       return result;
     });
 
@@ -191,7 +193,7 @@ export const Popover = defineSSRCustomElement({
       const result = (
         <div
           {...popContentHandler}
-          part={(value === 'teleport' ? 'teleport-fixed' : 'fixed') + ' pop-content'}
+          part={ns.p([value === 'teleport' ? 'teleport-fixed' : 'fixed', 'content'])}
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
           ref={fixedRef}
@@ -209,7 +211,7 @@ export const Popover = defineSSRCustomElement({
           {...popContentHandler}
           v-show={isOpen.value}
           style={finalFloatingStyles.value}
-          part="popover pop-content"
+          part={ns.p(['native', 'content'])}
           popover="manual"
           ref={popRef}
           class={getRootClass('popover')}

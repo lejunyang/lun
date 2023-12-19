@@ -10,6 +10,7 @@ export const exportParts = {
   'form-item': [root, label, 'content'],
   icon: ['svg'],
   input: [root, 'inner-input', label, 'addon-before', 'prefix', 'background', 'suffix', 'addon-after', 'tag-container'],
+  popover: ['content', 'native', 'fixed', 'teleport-fixed'],
   radio: [root, label, 'indicator'],
   switch: [root, input, 'children', 'thumb'],
   tag: [root, 'icon'],
