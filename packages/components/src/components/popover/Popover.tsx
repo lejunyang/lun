@@ -3,7 +3,7 @@ import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition 
 import { unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
-import { isFunction, isSupportPopover, pick } from '@lun/utils';
+import { isElement, isFunction, isSupportPopover, pick } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset } from '@floating-ui/vue';
@@ -53,14 +53,6 @@ export const Popover = defineSSRCustomElement({
       if (isOpen.value) isShow.value = true;
     };
 
-    // handle manually control visibility by outside
-    watchEffect(() => {
-      if (props.open !== undefined) {
-        if (props.open) show();
-        else hide();
-      }
-    });
-
     const actualPopRef = computed(() => popRef.value || fixedRef.value);
     const virtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
@@ -105,6 +97,7 @@ export const Popover = defineSSRCustomElement({
       middlewareData,
       update,
       placement: actualPlacement,
+      isPositioned,
     } = useFloating(ceRef, actualPopRef as any, {
       whileElementsMounted: (...args) => {
         return autoUpdate(...args, {
@@ -116,6 +109,23 @@ export const Popover = defineSSRCustomElement({
       open: isShow,
       middleware,
       transform: toRef(props, 'useTransform'),
+    });
+
+    // handle manually control visibility by outside
+    watchEffect(() => {
+      if (props.open !== undefined) {
+        if (props.open) show();
+        else hide();
+      }
+    });
+
+    watchEffect(() => {
+      const target = unrefOrGet(props.target);
+      // if target is a virtual element, watch it to auto update
+      if (isFunction(target?.getBoundingClientRect) && !isElement(target)) {
+        target?.getBoundingClientRect();
+        if (isPositioned.value) update();
+      }
     });
 
     const arrowStyles = computed(() => {

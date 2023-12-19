@@ -3,12 +3,12 @@ import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
 export type VirtualElement = {
-  getBoundingClientRect: () => DOMRect;
+  getBoundingClientRect: () => Omit<DOMRectReadOnly, 'toJSON'>;
   getClientRects?: () => DOMRectList;
   contextElement?: Element;
 };
 
-function isMouseEventInRect(e: MouseEvent, rect: DOMRect) {
+function isMouseEventInRect(e: MouseEvent, rect: Omit<DOMRectReadOnly, 'toJSON'>) {
   return e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
 }
 
