@@ -4,6 +4,7 @@ import Theme from 'vitepress/theme';
 import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, registerCustomRenderer } from '@lun/components';
 import '@lun/theme/scss/public/index.scss';
 import {
+  importCommonStyle,
   importBasicTheme,
   importSurfaceTheme,
   importOutlineTheme,
@@ -25,6 +26,7 @@ export default {
 
     app.component('Code', Code);
 
+    importCommonStyle();
     importAllBasicStyles();
     importBasicTheme();
     importOutlineTheme();

@@ -3,7 +3,7 @@
     "composite": true,
     "jsx": "preserve",
     "jsxImportSource": "vue",
-    "types": ["@lun/components/dist/elements-types-vue.d.ts", "vite/client"]
+    "types": ["@lun/components/dist/elements-types-vue.d.ts", "vite/client", "./packages/components/src/types/vue-type-fix.d.ts"]
   },
   "include": [
     "src/docs/**/*.vue.tsx",
