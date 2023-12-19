@@ -30,5 +30,5 @@ export function createTransitionProps(name?: string) {
 }
 
 export function getTransitionProps(props: Record<(typeof classes)[number], string | undefined>) {
-  return { ...pick(props, Array.from(classes)), name: props.transition };
+  return { ...pick(props, classes.slice(1)), name: props.transition };
 }

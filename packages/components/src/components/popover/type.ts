@@ -19,8 +19,8 @@ export const popoverProps = {
   offset: PropNumber(),
   showArrow: PropBoolean(),
 
-  // pop width will be same as target width
-  fullPopWidth: PropBoolean(),
+  // make the pop content the same width or height as the target element.
+  sync: PropString<'width' | 'height' | 'both'>(),
   adjustPopStyle: {
     type: Function as PropType<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>,
   },
