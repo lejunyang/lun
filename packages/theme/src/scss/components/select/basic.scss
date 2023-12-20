@@ -1,0 +1,59 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(select) {
+  &::part(popover-content) {
+    padding: 0;
+    @include declareVars(
+      (
+        border-radius: content-border-radius,
+      )
+    );
+  }
+
+  @include e(content) {
+    display: flex;
+    flex-direction: column;
+    gap: getSpaceValue(2);
+    @include declareVars(
+      (
+        padding: content-padding,
+      )
+    );
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        content-padding: getSpaceValue(1),
+        content-border-radius: getRadiusValue(2),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        content-padding: getSpaceValue(2),
+        content-border-radius: getRadiusValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        content-padding: getSpaceValue(3),
+        content-border-radius: getRadiusValue(3),
+      )
+    );
+  }
+  @include size(4) {
+    @include setVars(
+      (
+        content-padding: getSpaceValue(4),
+        content-border-radius: getRadiusValue(4),
+      )
+    );
+  }
+}
