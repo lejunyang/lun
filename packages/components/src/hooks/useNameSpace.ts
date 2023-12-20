@@ -19,9 +19,12 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
   return cls;
 };
 
+const vmParentMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>();
+
 export const useNamespace = (block: string, other?: { parent?: ComponentInternalInstance | null }) => {
   const { parent } = other || {};
   const vm = getCurrentInstance();
+  vmParentMap.set(vm!, parent);
   const config = vm && useContextConfig();
   const namespace = computed(() => {
     return config?.namespace || GlobalStaticConfig.namespace;
@@ -60,9 +63,17 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
   const contextConfig = useContextConfig();
+  const getFromParent = (
+    vm: ComponentInternalInstance | null | undefined,
+    key: keyof (typeof contextConfig)['theme'],
+  ): any => {
+    const result = vm?.props[key];
+    if (result) return result;
+    if (vmParentMap.get(vm!)) return getFromParent(vmParentMap.get(vm!), key);
+  };
   const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme']) => {
     const theme = contextConfig?.theme[key];
-    return (vm?.props[key] || parent?.props[key] || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
+    return (getFromParent(vm, key) || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
   };
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');

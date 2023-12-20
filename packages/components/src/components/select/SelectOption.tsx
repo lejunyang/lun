@@ -4,7 +4,7 @@ import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useSetupContextEvent } from 'hooks';
 import { selectOptionProps } from './type';
-import { SelectCollector } from '.';
+import { SelectCollector, SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
 
 const name = 'select-option';
@@ -13,10 +13,11 @@ export const SelectOption = defineSSRCustomElement({
   props: selectOptionProps,
   setup(props) {
     const selectContext = SelectCollector.child();
+    const optgroup = SelectOptgroupContext.inject();
     if (!selectContext) {
       throw new Error(name + ' must be used under select');
     }
-    const ns = useNamespace(name);
+    const ns = useNamespace(name, { parent: optgroup || selectContext.parent });
 
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
