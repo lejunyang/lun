@@ -1,6 +1,0 @@
-@use 'sass:map';
-@use 'config';
-
-@mixin set-css-var-value($name, $value) {
-  #{getVarName($name)}: #{$value};
-}
