@@ -1,20 +1,22 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { createDefineElement } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useSetupContextEvent } from 'hooks';
 import { selectOptionProps } from './type';
 import { SelectCollector } from '.';
+import { defineIcon } from '../icon/Icon';
 
+const name = 'select-option';
 export const SelectOption = defineSSRCustomElement({
-  name: 'select-option',
+  name,
   props: selectOptionProps,
   setup(props) {
     const selectContext = SelectCollector.child();
     if (!selectContext) {
-      throw new Error('select-option must be used under select');
+      throw new Error(name + ' must be used under select');
     }
-    const ns = useNamespace('select-option');
+    const ns = useNamespace(name);
 
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
@@ -30,13 +32,13 @@ export const SelectOption = defineSSRCustomElement({
     };
     return () => {
       return (
-        <div
-          part="root"
-          class={[ns.is('selected', selected.value), ns.is('disabled', editComputed.value.disabled)]}
-          onClick={handler.onClick}
-        >
-          <slot>{props.label}</slot>
-        </div>
+        <label part="root" class={[ns.s(editComputed), ns.is('selected', selected.value)]} onClick={handler.onClick}>
+          <slot name="start"></slot>
+          <span class={ns.e('label')} part="label">
+            <slot>{props.label}</slot>
+          </span>
+          {selected.value && <slot name="end">{renderElement('icon', { name: 'check' })}</slot>}
+        </label>
       );
     };
   },
@@ -44,4 +46,6 @@ export const SelectOption = defineSSRCustomElement({
 
 export type tSelectOption = typeof SelectOption;
 
-export const defineSelectOption = createDefineElement('select-option', SelectOption);
+export const defineSelectOption = createDefineElement(name, SelectOption, {
+  icon: defineIcon,
+});

@@ -1,14 +1,15 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps } from 'common';
+import { editStateProps, themeProps } from 'common';
 import { popoverProps } from '../popover/type';
 import { omit } from '@lun/utils';
 import { createOptionProps } from 'hooks';
 
 export const selectProps = {
+  ...themeProps,
   ...createOptionProps(true),
   value: { type: [String, Array] as PropType<any | any[]> },
   multiple: { type: Boolean },
-  ...omit(popoverProps, ['open', 'content', 'fullPopWidth', 'type', 'triggers']),
+  ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers']),
 };
 
 export const selectOptionProps = {
