@@ -16,6 +16,9 @@
     "baseUrl": ".",
     // disable strict for doc code cases
     "strict": false,
+    "paths": {
+      "data": ["./src/utils/data.ts"],
+    }
   },
   "exclude": [
     "src/docs/.vitepress",
