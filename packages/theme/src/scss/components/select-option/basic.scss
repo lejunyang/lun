@@ -1,0 +1,79 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(select-option) {
+  display: flex;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+  @include declareVars((height, line-height, font-size, letter-spacing, border-radius, padding-inline));
+
+  @include e(label) {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover:not(#{getIs(disabled)}),
+  &#{getIs(selected)} {
+    background-color: getAccentColor(9);
+    color: getContrastColor(accent);
+  }
+
+  @include is(disabled) {
+    cursor: getDisabledCursor();
+    color: getGrayColor(a8);
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        height: getSpaceValue(5),
+        line-height: getLineHeightValue(1),
+        font-size: getFontSizeValue(1),
+        letter-spacing: getLetterSpacingValue(1),
+        border-radius: getRadiusValue(4),
+        padding-inline: getSpaceValue(2),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        height: getSpaceValue(6),
+        line-height: getLineHeightValue(2),
+        font-size: getFontSizeValue(2),
+        letter-spacing: getLetterSpacingValue(2),
+        border-radius: getRadiusValue(4),
+        padding-inline: getSpaceValue(3),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        height: getSpaceValue(7),
+        line-height: getLineHeightValue(3),
+        font-size: getFontSizeValue(3),
+        letter-spacing: getLetterSpacingValue(3),
+        border-radius: getRadiusValue(4),
+        padding-inline: getSpaceValue(4),
+      )
+    );
+  }
+  @include size(4) {
+    @include setVars(
+      (
+        height: getSpaceValue(8),
+        line-height: getLineHeightValue(4),
+        font-size: getFontSizeValue(4),
+        letter-spacing: getLetterSpacingValue(4),
+        border-radius: getRadiusValue(4),
+        padding-inline: getSpaceValue(5),
+      )
+    );
+  }
+}
