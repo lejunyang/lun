@@ -10,12 +10,14 @@ export const SelectOptgroup = defineSSRCustomElement({
   props: selectOptgroupProps,
   setup(props) {
     const ns = useNamespace(name);
-    const [editComputed] = useSetupEdit(); // TODO disabled class
+    const [editComputed] = useSetupEdit();
 
     return () => (
-      <div part="root" class={ns.b()}>
-        <div class={ns.e('label')}>{props.label}</div>
-        <div class={ns.e('content')}>
+      <div part="root" class={ns.s(editComputed)}>
+        <div class={ns.e('label')} part="label">
+          {props.label}
+        </div>
+        <div class={ns.e('children')} part="children">
           <slot></slot>
         </div>
       </div>

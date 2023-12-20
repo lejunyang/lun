@@ -3,21 +3,24 @@ import { computed, ref, toRef } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
-import { useSelect } from '@lun/core';
+import { useSelect, useSetupEdit } from '@lun/core';
 import { toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptgroup } from './SelectOptgroup';
-import { useCEExpose, useOptions, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, useOptions, useValueModel } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer';
 
+const name = 'select';
 export const Select = defineSSRCustomFormElement({
-  name: 'select',
+  name,
   props: selectProps,
   inheritAttrs: false,
   emits: ['update'],
   setup(props, { emit }) {
+    const ns = useNamespace(name);
+    const [editComputed] = useSetupEdit();
     const valueModel = useValueModel(props, {
       emit: (name, value) => {
         emit(name as any, value);
@@ -61,12 +64,14 @@ export const Select = defineSSRCustomFormElement({
           {renderElement(
             'popover',
             {
+              class: [ns.s(editComputed)],
               triggers: ['click', 'focus'],
-              fullPopWidth: true,
-              showArrow: true,
+              sync: 'width',
+              showArrow: false,
               ref: popoverRef,
               toggleMode: true,
               useTransform: false,
+              placement: 'bottom-start',
               // TODO pick props
             },
             <>
@@ -77,7 +82,7 @@ export const Select = defineSSRCustomFormElement({
                 readonly: true,
                 value: valueModel.value,
               })}
-              <div part="pop-content" slot="pop-content">
+              <div class={ns.e('content')} part="content" slot="pop-content">
                 {render()}
                 {/* slot for select children, also assigned to popover content slot */}
                 <slot></slot>

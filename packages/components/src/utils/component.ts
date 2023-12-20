@@ -11,12 +11,14 @@ export function getElementFirstName(comp: ComponentKey) {
 
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
   const name = getElementFirstName(comp);
-  if(!name) {
-    if(__DEV__) error(`Element "${comp}" is not defined`);
+  if (!name) {
+    if (__DEV__) error(`Element "${comp}" is not defined`);
     return;
   }
   const { commonSeparator } = GlobalStaticConfig;
-  const exportparts = (exportParts[comp as ShadowComponentKey] || []).map((i) => comp + commonSeparator + i).join(',');
+  const exportparts = (exportParts[comp as ShadowComponentKey] || [])
+    .map((i) => i + ':' + comp + commonSeparator + i)
+    .join(',');
   return h(name, { ...props, exportparts: exportparts || undefined }, children);
 }
 
@@ -26,20 +28,20 @@ export type ComponentDependencyDefineMap = {
 
 export function createDefineElement(
   compKey: ComponentKey,
-  Component: CustomElementConstructor
+  Component: CustomElementConstructor,
 ): (name?: string) => void;
 
 export function createDefineElement<T extends ComponentDependencyDefineMap>(
   compKey: ComponentKey,
   Component: CustomElementConstructor,
-  dependencies: T
+  dependencies: T,
 ): (name?: string, dependencyNames?: Record<keyof T, string>) => void;
 
 /*! #__NO_SIDE_EFFECTS__ */
 export function createDefineElement(
   compKey: ComponentKey,
   Component: CustomElementConstructor,
-  dependencies?: ComponentDependencyDefineMap
+  dependencies?: ComponentDependencyDefineMap,
 ) {
   return (name?: string, dependencyNameMap?: Record<string, string>) => {
     if (dependencies) {
