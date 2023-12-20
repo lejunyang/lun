@@ -1,6 +1,7 @@
 @use 'config';
 @use 'function' as *;
 @use 'sass:map';
+@use 'sass:list';
 
 @mixin where {
   $WHERE: true !global;
@@ -8,20 +9,10 @@
   $WHERE: false !global;
 }
 
-@mixin root($name) {
-  $CE: config.$namespace + config.$common-separator + $name !global;
-  @at-root {
-    @content;
-  }
-}
-
 // block
 @mixin b($block: '') {
-  @if $block == '' {
-    $B: $CE !global;
-  } @else {
-    $B: config.$namespace + config.$common-separator + $block !global;
-  }
+  $Root: $block !global;
+  $B: config.$namespace + config.$common-separator + $block !global;
   .#{$B} {
     @content;
   }
@@ -200,5 +191,25 @@
     #{$P}:where(#{getVariant($variant)}) {
       @content;
     }
+  }
+}
+
+@function getRVarName($list) {
+  @return getVarName(list.join($Root, $list));
+}
+
+@function getRVarValue($args, $default: '') {
+  @return getVarValue(list.join($Root, $args), $default);
+}
+
+@mixin declareVars($varList) {
+  @each $name in $varList {
+    #{$name}: #{getRVarValue($name)};
+  }
+}
+
+@mixin setVars($varMap) {
+  @each $name, $value in $varMap {
+    #{getRVarName($name)}: #{$value};
   }
 }
