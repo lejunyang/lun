@@ -1,6 +1,7 @@
 import { Responsive } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
 import { ShadowComponentKey } from '../components';
+import { pick } from '@lun/utils';
 
 export const themeColors = Object.freeze([
   'gray',
@@ -36,11 +37,12 @@ export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline
 export const themeProps = {
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
   color: { type: String as PropType<ThemeColors> },
-  variant: { type: String as PropType<ThemeVariants> },
+  variant: { type: String as PropType<ThemeVariants | string> },
   radius: { type: String as PropType<'none' | 'small' | 'medium' | 'large' | 'full'> },
   highContrast: { type: Boolean, default: undefined },
   appearance: { type: String as PropType<'light' | 'dark'> },
 };
+
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
 export type ThemeConfig = {
@@ -48,3 +50,5 @@ export type ThemeConfig = {
 };
 export type ThemeColors = (typeof themeColors)[number];
 export type ThemeVariants = (typeof themeVariants)[number];
+
+export const pickThemeProps = (props: ThemeProps) => pick(props, Object.keys(themeProps) as (keyof ThemeProps)[]);

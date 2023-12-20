@@ -11,6 +11,7 @@ import { SelectCollector } from '.';
 import { defineSelectOptgroup } from './SelectOptgroup';
 import { useCEExpose, useNamespace, useOptions, useValueModel } from 'hooks';
 import { defineCustomRenderer } from '../custom-renderer';
+import { pickThemeProps } from 'common';
 
 const name = 'select';
 export const Select = defineSSRCustomFormElement({
@@ -18,7 +19,7 @@ export const Select = defineSSRCustomFormElement({
   props: selectProps,
   inheritAttrs: false,
   emits: ['update'],
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
     const valueModel = useValueModel(props, {
@@ -59,11 +60,13 @@ export const Select = defineSSRCustomFormElement({
 
     // TODO ArrowUp down popup
     return () => {
+      const themeProps = pickThemeProps(props);
       return (
         <>
           {renderElement(
             'popover',
             {
+              ...themeProps,
               class: [ns.s(editComputed)],
               triggers: ['click', 'focus'],
               sync: 'width',
@@ -77,6 +80,8 @@ export const Select = defineSSRCustomFormElement({
             <>
               {/* select input element */}
               {renderElement('input', {
+                ...attrs,
+                ...themeProps,
                 ref: inputRef,
                 multiple: props.multiple,
                 readonly: true,

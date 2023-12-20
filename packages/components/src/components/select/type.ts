@@ -13,12 +13,14 @@ export const selectProps = {
 };
 
 export const selectOptionProps = {
+  ...themeProps,
   ...editStateProps,
   value: { required: true },
   label: { type: String },
 };
 
 export const selectOptgroupProps = {
+  ...themeProps,
   ...editStateProps,
   label: { type: String },
 };
