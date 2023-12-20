@@ -70,6 +70,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
   } as DefaultTheme.Config;
 };
 
+const commonAlias = {
+  data: fileURLToPath(new URL('../../utils/data.ts', import.meta.url)),
+};
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: '/lun/',
@@ -130,8 +134,9 @@ export default defineConfig({
               '@lun/core': fileURLToPath(new URL('../../../packages/core/index', import.meta.url)),
               '@lun/utils': fileURLToPath(new URL('../../../packages/utils/index', import.meta.url)),
               '@lun/theme': fileURLToPath(new URL('../../../packages/theme/src', import.meta.url)),
+              ...commonAlias,
             }
-          : {},
+          : { ...commonAlias },
     },
     css: {
       postcss: {

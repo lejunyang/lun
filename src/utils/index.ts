@@ -1,5 +1,6 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
 import { isClient, isFunction } from '@lun/utils';
+import * as data from './data';
 
 const allowedImport = new Set([
   'vue',
@@ -10,6 +11,7 @@ const allowedImport = new Set([
   '@lun/core',
   '@lun/theme',
   '@lun/utils',
+  'data',
 ]);
 
 const dependencies = {
@@ -21,6 +23,7 @@ const dependencies = {
   '@lun/core': () => import('@lun/core'),
   '@lun/theme': () => import('@lun/theme'),
   '@lun/utils': () => import('@lun/utils'),
+  data,
 } as any as {
   vue: typeof import('vue');
   react: typeof import('react');
@@ -30,6 +33,7 @@ const dependencies = {
   '@lun/core': typeof import('@lun/core');
   '@lun/theme': typeof import('@lun/theme');
   '@lun/utils': typeof import('@lun/utils');
+  data: typeof data;
 };
 
 const initPromise = (async () => {

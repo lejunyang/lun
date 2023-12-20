@@ -3,9 +3,10 @@
     "composite": true,
     "jsx": "preserve",
     "jsxImportSource": "react",
-    "types": ["@lun/components/dist/elements-types-react"]
+    "types": ["@lun/components/dist/elements-types-react"],
+    "paths": {
+      "data": ["./src/utils/data.ts"]
+    }
   },
-  "include": [
-    "src/docs/**/*.react.tsx",
-  ],
+  "include": ["src/docs/**/*.react.tsx"]
 }
