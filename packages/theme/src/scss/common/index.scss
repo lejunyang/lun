@@ -1,5 +1,11 @@
 @use './transitions.scss';
+@use '../mixins/config.scss' as *;
+@use '../mixins/theme.scss' as *;
 
 :host([hidden]) {
   display: none;
+}
+
+@each $color in $color-list {
+  @include generateThemeColor($color);
 }
