@@ -33,7 +33,7 @@ export const Tag = defineSSRCustomFormElement({
         <Transition name={name} {...handlers}>
           {!removed.value && (
             <span class={ns.t} part={ns.p('root')} ref={rootRef}>
-              <slot></slot>
+              <slot>{props.label}</slot>
               {props.removable &&
                 renderElement('icon', {
                   name: 'x',

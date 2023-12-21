@@ -1,10 +1,11 @@
-import { GetEventPropsFromEmits, themeProps } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropObject, PropString, themeProps } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const tagProps = {
   ...themeProps,
-  removable: { type: Boolean },
-  removeIconProps: { type: Object },
+  label: PropString(),
+  removable: PropBoolean(),
+  removeIconProps: PropObject(),
 };
 
 export const tagEmits = {

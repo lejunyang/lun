@@ -45,13 +45,6 @@ export const Select = defineSSRCustomFormElement({
       return { childrenValuesSet, valueToChildMap };
     });
 
-    const getLabelFromValue = (value: any) => data.value.valueToChildMap.get(value)?.props.label || value;
-    const labels = computed(() => {
-      return props.multiple
-        ? toArrayIfNotNil(valueModel.value).map(getLabelFromValue)
-        : getLabelFromValue(valueModel.value);
-    });
-
     const methods = useSelect({
       multiple: toRef(props, 'multiple'),
       value: valueModel,
@@ -67,7 +60,12 @@ export const Select = defineSSRCustomFormElement({
 
     const customTagProps = (value: any) => {
       const child = data.value.valueToChildMap.get(value);
-      if (child) return getAllThemeValuesFromInstance(child);
+      if (child)
+        return {
+          ...getAllThemeValuesFromInstance(child),
+          label: child.props.label || value,
+        };
+      else return { label: value };
     };
 
     useCEExpose({
@@ -106,7 +104,7 @@ export const Select = defineSSRCustomFormElement({
                 ref: inputRef,
                 multiple: props.multiple,
                 readonly: true,
-                value: labels.value,
+                value: valueModel.value,
                 tagProps: customTagProps,
               })}
               <div class={ns.e('content')} part="content" slot="pop-content">
