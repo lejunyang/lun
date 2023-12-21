@@ -3,6 +3,7 @@ import { EditState, withBreakpoints } from '@lun/core';
 import { ComponentInternalInstance, ComputedRef, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark } from '@lun/utils';
+import { ThemeProps, themeProps } from 'common';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -20,6 +21,21 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
 };
 
 const vmParentMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>();
+export const getThemeValueFromInstance = (
+  vm: ComponentInternalInstance | null | undefined,
+  key: keyof ThemeProps,
+): any => {
+  const result = vm?.props[key];
+  if (result) return result;
+  if (vmParentMap.get(vm!)) return getThemeValueFromInstance(vmParentMap.get(vm!), key);
+};
+export const getAllThemeValuesFromInstance = (vm: ComponentInternalInstance | null | undefined) => {
+  return Object.keys(themeProps).reduce((result, k) => {
+    const key = k as keyof ThemeProps;
+    result[key] = getThemeValueFromInstance(vm, key);
+    return result;
+  }, {} as Record<keyof ThemeProps, any>);
+};
 
 export const useNamespace = (block: string, other?: { parent?: ComponentInternalInstance | null }) => {
   const { parent } = other || {};
@@ -63,17 +79,9 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
   const contextConfig = useContextConfig();
-  const getFromParent = (
-    vm: ComponentInternalInstance | null | undefined,
-    key: keyof (typeof contextConfig)['theme'],
-  ): any => {
-    const result = vm?.props[key];
-    if (result) return result;
-    if (vmParentMap.get(vm!)) return getFromParent(vmParentMap.get(vm!), key);
-  };
   const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme']) => {
     const theme = contextConfig?.theme[key];
-    return (getFromParent(vm, key) || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
+    return (getThemeValueFromInstance(vm, key) || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
   };
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
