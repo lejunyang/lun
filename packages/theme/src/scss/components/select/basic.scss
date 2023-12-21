@@ -48,12 +48,4 @@
       )
     );
   }
-  @include size(4) {
-    @include setVars(
-      (
-        content-padding: getSpaceValue(4),
-        content-border-radius: getRadiusValue(4),
-      )
-    );
-  }
 }
