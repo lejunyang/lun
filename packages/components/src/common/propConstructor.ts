@@ -24,3 +24,7 @@ export function PropArray<T extends any[]>() {
 export function PropFunction<T extends AnyFn>() {
   return { type: Function as unknown as PropType<T> };
 }
+
+export function PropObjOrFunc<T extends {} | AnyFn>() {
+  return { type: [Object, Function] as unknown as PropType<T> };
+}

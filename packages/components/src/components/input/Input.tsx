@@ -1,13 +1,14 @@
-import { computed, ref } from 'vue';
+import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useNamespace, useVModelCompatible, useValueModel } from 'hooks';
 import { inputProps } from './type';
-import { isEmpty, isArray } from '@lun/utils';
+import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
+import { pickThemeProps } from 'common';
 
 const name = 'input';
 export const Input = defineSSRCustomFormElement({
@@ -37,7 +38,7 @@ export const Input = defineSSRCustomFormElement({
         onEnterDown(e) {
           emit('enterDown', e);
         },
-      }))
+      })),
     );
     const clearValue = () => {
       if (props.multiple) {
@@ -88,6 +89,7 @@ export const Input = defineSSRCustomFormElement({
       const input = (
         <input
           {...attrs}
+          exportparts=""
           type={props.type}
           ref={inputRef}
           part={ns.p('inner-input')}
@@ -134,13 +136,14 @@ export const Input = defineSSRCustomFormElement({
                 <span {...wrapperHandlers} class={[ns.e('tag-container')]} part={ns.p('tag-container')}>
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
-                      const tagProps = {
+                      const tagProps = mergeProps(runIfFn(props.tagProps, v, index), {
                         tabindex: editable ? 0 : undefined,
                         'data-tag-index': index,
                         'data-tag-value': v,
                         key: String(v),
                         class: [ns.e('tag')],
-                      };
+                        onAfterRemove: () => (valueModel.value as string[]).splice(index, 1),
+                      });
                       if (props.tagRenderer)
                         return (
                           <VCustomRenderer
@@ -152,11 +155,11 @@ export const Input = defineSSRCustomFormElement({
                       return renderElement(
                         'tag',
                         {
+                          ...pickThemeProps(props),
                           ...tagProps,
                           removable: editable,
-                          onAfterRemove: () => (valueModel.value as string[]).splice(index, 1),
                         },
-                        v
+                        v,
                       );
                     })}
                   {input}
