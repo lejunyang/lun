@@ -1,5 +1,5 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps, themeProps } from 'common';
+import { PropBoolean, editStateProps, themeProps } from 'common';
 import { popoverProps } from '../popover/type';
 import { omit } from '@lun/utils';
 import { createOptionProps } from 'hooks';
@@ -8,7 +8,8 @@ export const selectProps = {
   ...themeProps,
   ...createOptionProps(true),
   value: { type: [String, Array] as PropType<any | any[]> },
-  multiple: { type: Boolean },
+  multiple: PropBoolean(),
+  hideOptionWhenSelected: PropBoolean(), // only for multiple select
   ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers']),
 };
 
