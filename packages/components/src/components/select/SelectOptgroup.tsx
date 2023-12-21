@@ -18,7 +18,7 @@ export const SelectOptgroup = defineSSRCustomElement({
     return () => (
       <div part="root" class={ns.s(editComputed)}>
         <div class={ns.e('label')} part="label">
-          {props.label}
+          <slot name="group-label">{props.label}</slot>
         </div>
         <div class={ns.e('children')} part="children">
           <slot></slot>

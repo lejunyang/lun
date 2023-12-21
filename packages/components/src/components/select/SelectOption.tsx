@@ -32,8 +32,14 @@ export const SelectOption = defineSSRCustomElement({
       },
     };
     return () => {
+      const { hideOptionWhenSelected, multiple } = selectContext?.parent?.props || {};
       return (
-        <label part="root" class={[ns.s(editComputed), ns.is('selected', selected.value)]} onClick={handler.onClick}>
+        <label
+          part="root"
+          class={[ns.s(editComputed), ns.is('selected', selected.value), ns.is('under-group', optgroup)]}
+          hidden={hideOptionWhenSelected && multiple && selected.value}
+          onClick={handler.onClick}
+        >
           <slot name="start"></slot>
           <span class={ns.e('label')} part="label">
             <slot>{props.label}</slot>
