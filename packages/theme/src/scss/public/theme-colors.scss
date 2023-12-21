@@ -3,56 +3,6 @@
 @use '../mixins/function' as *;
 @use 'sass:map';
 
-// color level 9 contrast color
-@mixin generateContrastColor($level: 9) {
-  @each $color in $color-list {
-    $value: map.get($contrast-color-map, $color);
-    @if not $value {
-      $value: white;
-    }
-    #{getVarName(($color, $level, contrast))}: $value;
-  }
-}
-
-@mixin generateThemeColor($color, $noSelector: false) {
-  @if $noSelector {
-    #{getVarName((color, surface, $accent-name))}: getVarValue(($color, surface)); // generate accent surface color
-    #{getVarName(($accent-name, 9, contrast))}: getContrastColor($color); // generate accent contrast color for level 9
-    @for $num from 1 through 12 {
-      #{getVarName(($accent-name, $num))}: var(#{getVarName(($color, $num))});
-      #{getVarName(($accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
-    }
-  } @else {
-    [#{$accent-color-name + '=' + $color}],
-    [#{$color-name + '=' + $color}] {
-      #{getVarName((color, surface, $accent-name))}: getVarValue(($color, surface));
-      #{getVarName(($accent-name, 9, contrast))}: getContrastColor(
-        $color
-      ); // generate accent contrast color for level 9
-      @for $num from 1 through 12 {
-        #{getVarName(($accent-name, $num))}: var(#{getVarName(($color, $num))});
-        #{getVarName(($accent-name, 'a' + $num))}: var(#{getVarName(($color, 'a' + $num))});
-      }
-    }
-  }
-}
-
-@mixin mapGrayColor($target, $noSelector: false) {
-  @if $noSelector {
-    @for $num from 1 through 12 {
-      #{getVarName(($gray-name, $num))}: var(#{getVarName(($target, $num))});
-      #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($target, 'a' + $num))});
-    }
-  } @else {
-    &:where([#{$gray-color-name + '=' + $target}]) {
-      @for $num from 1 through 12 {
-        #{getVarName(($gray-name, $num))}: var(#{getVarName(($target, $num))});
-        #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($target, 'a' + $num))});
-      }
-    }
-  }
-}
-
 #{$theme-provider-el-name} {
   // default accent color
   $color: $default-accent-color;
@@ -151,11 +101,6 @@
     --#{$namespace}-amber-surface: #271f1380;
     --#{$namespace}-orange-surface: #271d1380;
   }
-
-  // focus selection autofill color
-  #{getFocusColorName()}: getAccentColor(8);
-  #{getSelectionColorName()}: getAccentColor(a5);
-  #{getAutofillColorName()}: getAccentColor(a3);
 }
 
 @each $color in $color-list {
