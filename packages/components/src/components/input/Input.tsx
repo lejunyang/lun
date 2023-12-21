@@ -155,11 +155,11 @@ export const Input = defineSSRCustomFormElement({
                       return renderElement(
                         'tag',
                         {
+                          label: v,
                           ...pickThemeProps(props),
                           ...tagProps,
                           removable: editable,
                         },
-                        v,
                       );
                     })}
                   {input}
