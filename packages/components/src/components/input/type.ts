@@ -1,6 +1,7 @@
 import { InputPeriod, InputType } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps, themeProps } from 'common';
+import { PropObjOrFunc, editStateProps, themeProps } from 'common';
+import { TagProps } from '../tag/type';
 
 export const baseInputProps = {
   ...editStateProps,
@@ -31,6 +32,7 @@ export const inputProps = {
   ...themeProps,
   value: { type: [Array, String] as PropType<string | string[] | null> },
   multiple: { type: Boolean },
+  tagProps: PropObjOrFunc<((value: any, index: number) => TagProps) | TagProps>(),
   tagRenderer: { type: Function as PropType<(value: string, index: number) => any> },
   tagRendererType: { type: String },
   label: { type: String },

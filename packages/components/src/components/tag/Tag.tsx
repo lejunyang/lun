@@ -1,6 +1,6 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { tagProps } from './type';
+import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
@@ -9,7 +9,7 @@ const name = 'tag';
 export const Tag = defineSSRCustomFormElement({
   name,
   props: tagProps,
-  emits: ['remove', 'afterRemove'],
+  emits: tagEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const removed = ref(false);

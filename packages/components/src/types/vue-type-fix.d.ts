@@ -4,6 +4,7 @@ declare module 'vue' {
   // some attributes missed in @vue/runtime-dom(3.3.4)
   interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
     part?: string;
+    exportparts?: string;
     slot?: string;
     popover?: boolean | 'manual' | 'auto';
   }
