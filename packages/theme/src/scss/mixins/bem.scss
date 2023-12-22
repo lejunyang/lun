@@ -64,7 +64,7 @@
   $currentSelector: '';
   @each $unit in $modifier {
     $currentSelector: #{$currentSelector + $selector + config.$modifier-separator + $unit};
-    @if $WHERE {
+    @if map.get(config.$with-where-map, 'modifier') {
       $currentSelector: #{':where(' + $currentSelector + ')'};
     }
     $currentSelector: #{$currentSelector + ','};
