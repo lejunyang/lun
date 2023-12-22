@@ -7,7 +7,7 @@ lang: zh-CN
   import { themeColors } from '@lun/components';
 </script>
 
-## 基础使用
+## 基本使用
 
 <l-tag>标签</l-tag>
 
