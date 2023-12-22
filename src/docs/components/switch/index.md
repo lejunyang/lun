@@ -3,7 +3,7 @@ title: Switch 开关
 lang: zh-CN
 ---
 
-## 基础使用
+## 基本使用
 
 <l-switch checked />
 
