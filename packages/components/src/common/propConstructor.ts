@@ -28,3 +28,7 @@ export function PropFunction<T extends AnyFn>() {
 export function PropObjOrFunc<T extends {} | AnyFn>() {
   return { type: [Object, Function] as unknown as PropType<T> };
 }
+
+export function PropObjOrStr<T extends string | {}>() {
+  return { type: [String, Object] as unknown as PropType<T> };
+}
