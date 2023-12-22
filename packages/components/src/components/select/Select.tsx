@@ -11,6 +11,7 @@ import { SelectCollector } from '.';
 import { defineSelectOptgroup } from './SelectOptgroup';
 import { getAllThemeValuesFromInstance, useCEExpose, useNamespace, useOptions, useValueModel } from 'hooks';
 import { pickThemeProps } from 'common';
+import { defineSpin } from '../spin/Spin';
 
 const name = 'select';
 export const Select = defineSSRCustomFormElement({
@@ -75,7 +76,7 @@ export const Select = defineSSRCustomFormElement({
       blur: () => inputRef.value?.blur(),
     });
 
-    const { render } = useOptions(props, 'select-option', 'select-optgroup');
+    const { render, loading, options } = useOptions(props, 'select-option', 'select-optgroup');
 
     // TODO ArrowUp down popup
     return () => {
@@ -98,20 +99,29 @@ export const Select = defineSSRCustomFormElement({
             },
             <>
               {/* select input element */}
-              {renderElement('input', {
-                ...attrs,
-                ...themeProps,
-                ref: inputRef,
-                multiple: props.multiple,
-                readonly: true,
-                value: valueModel.value,
-                tagProps: customTagProps,
-              })}
+              {renderElement(
+                'input',
+                {
+                  ...attrs,
+                  ...themeProps,
+                  ref: inputRef,
+                  multiple: props.multiple,
+                  readonly: true,
+                  value: valueModel.value,
+                  tagProps: customTagProps,
+                },
+                loading.value && renderElement('spin', { slot: 'suffix' }),
+              )}
               <div class={ns.e('content')} part="content" slot="pop-content">
-                {render()}
-                {/* slot for select children, also assigned to popover content slot */}
-                <slot></slot>
-                {!children.value.length && <slot name="no-content">No content</slot>}
+                {!children.value.length && !options.value?.length ? (
+                  <slot name="no-content">No content</slot>
+                ) : (
+                  <>
+                    {render()}
+                    {/* slot for select children, also assigned to popover content slot */}
+                    <slot></slot>
+                  </>
+                )}
               </div>
             </>,
           )}
@@ -128,4 +138,5 @@ export const defineSelect = createDefineElement('select', Select, {
   'select-optgroup': defineSelectOptgroup,
   popover: definePopover as any,
   input: defineInput,
+  spin: defineSpin,
 });
