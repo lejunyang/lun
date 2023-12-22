@@ -14,6 +14,7 @@ export const shadowComponents = Object.freeze([
   'checkbox',
   'checkbox-group',
   'dialog',
+  'divider',
   'form',
   'form-item',
   'icon',
@@ -97,6 +98,7 @@ export const GlobalStaticConfig = new Proxy(
         modal: 'native',
         width: '450px',
       },
+      divider: {},
       form: {
         plainName: undefined,
         layout: 'grid' as const,
