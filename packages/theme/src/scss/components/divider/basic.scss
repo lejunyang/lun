@@ -1,0 +1,70 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+:host {
+  display: contents;
+}
+
+@mixin pseudoElementStyles {
+  position: relative;
+  content: '';
+  width: 50%;
+  transform: translateY(50%);
+  border-width: 0;
+  border-block-start: getRVarValue(size, 1px) solid getRVarValue('color', getGrayColor(a4));
+  flex-grow: 1;
+}
+
+@include b(divider) {
+  display: flex;
+  width: 100%;
+
+  &::before {
+    @include pseudoElementStyles;
+  }
+  @include e(text) {
+    white-space: nowrap;
+  }
+  &::after {
+    @include pseudoElementStyles;
+  }
+
+  @include m(text-start) {
+    &::before {
+      width: calc(#{getRVarValue((text, indent, ratio), 0.05)} * 100%);
+      flex-grow: 0;
+    }
+    @include is(custom-indent) {
+      &::before {
+        width: getRVarValue((text, indent));
+      }
+    }
+  }
+  @include m(text-end) {
+    &::after {
+      width: calc(#{getRVarValue((text, indent, ratio), 0.05)} * 100%);
+      flex-grow: 0;
+    }
+    @include is(custom-indent) {
+      &::after {
+        width: getRVarValue((text, indent));
+      }
+    }
+  }
+
+  @include is(slotted) {
+    @include e(text) {
+      padding-inline-start: getRVarValue((text, padding, start), getSpaceValue(3));
+      padding-inline-end: getRVarValue((text, padding, end), getSpaceValue(3));
+    }
+  }
+
+  @include is(dashed) {
+    &::before,
+    &::after {
+      border-style: dashed;
+    }
+  }
+}

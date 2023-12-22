@@ -1,4 +1,10 @@
-import { importButtonBasicTheme, importButtonOutlineTheme, importButtonSoftTheme, importButtonSolidTheme, importButtonSurfaceTheme } from './button/index.ts';
+import {
+  importButtonBasicTheme,
+  importButtonOutlineTheme,
+  importButtonSoftTheme,
+  importButtonSolidTheme,
+  importButtonSurfaceTheme,
+} from './button/index.ts';
 import { importCheckboxBasicTheme, importCheckboxSoftTheme, importCheckboxSurfaceTheme } from './checkbox/index.ts';
 import { importDialogBasicTheme } from './dialog/index.ts';
 import { importFormBasicTheme } from './form/index.ts';
@@ -14,6 +20,10 @@ import {
   importTagSurfaceTheme,
 } from './tag/index.ts';
 import { importPopoverBasicTheme } from './popover/index.ts';
+import { importSelectBasicTheme } from './select/index.ts';
+import { importSelectOptionBasicTheme } from './select-option/index.ts';
+import { importSelectOptgroupBasicTheme } from './select-optgroup/index.ts';
+import { importDividerBasicTheme } from './divider/index.ts';
 
 export * from './input/index.ts';
 
@@ -21,11 +31,15 @@ export function importBasicTheme() {
   importButtonBasicTheme();
   importCheckboxBasicTheme();
   importDialogBasicTheme();
+  importDividerBasicTheme();
   importFormBasicTheme();
   importFormItemBasicTheme();
   importInputBasicTheme();
   importPopoverBasicTheme();
   importRadioBasicTheme();
+  importSelectBasicTheme();
+  importSelectOptgroupBasicTheme();
+  importSelectOptionBasicTheme();
   importSwitchBasicTheme();
   importTagBasicTheme();
 }
