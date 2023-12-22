@@ -2,7 +2,7 @@
 import { EditState, withBreakpoints } from '@lun/core';
 import { ComponentInternalInstance, ComputedRef, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
-import { isArray, isPreferDark } from '@lun/utils';
+import { isArray, isPreferDark, isString } from '@lun/utils';
 import { ThemeProps, themeProps } from 'common';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
@@ -59,9 +59,18 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const is: {
     (name: string, state: any): string;
     (name: string): string;
-  } = (name: string, ...args: [boolean | undefined] | []) => {
-    const state = args.length >= 1 ? args[0]! : true;
-    return name && state ? `${GlobalStaticConfig.statePrefix}${name}` : '';
+    (nameMap: Record<string, any>): string;
+  } = (name: string | Record<string, any>, ...args: [boolean | undefined] | []) => {
+    if (isString(name)) {
+      const state = args.length >= 1 ? args[0]! : true;
+      return name && state ? `${GlobalStaticConfig.statePrefix}${name}` : '';
+    } else {
+      let cls = '';
+      for (const key in name) {
+        if (name[key]) cls += `${GlobalStaticConfig.statePrefix}${key} `;
+      }
+      return cls;
+    }
   };
 
   // for css var
