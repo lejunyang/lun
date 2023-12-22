@@ -1,5 +1,6 @@
 import { isFunction, runIfFn } from '@lun/utils';
-import { computed, ref, shallowRef, unref, watchEffect, WatchOptionsBase } from 'vue';
+import { computed, ref, shallowRef, watchEffect, WatchOptionsBase } from 'vue';
+import { unrefOrGet } from '../utils/ref';
 
 /**
  * create a temporary ref，which means ref value is initialized with getter and you can change it as you want, but it will reset the value when getter updates
@@ -24,15 +25,14 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
  */
 export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ? R : any>(
   maybeGetter: MT,
-  options?: { fallbackWhenReject?: (err: any) => T; onCancel?: () => void }
+  options?: { fallbackWhenReject?: (err: any) => T; onCancel?: () => void },
 ) {
   const { fallbackWhenReject, onCancel } = options || {};
   const local = ref<T>();
-  let pending = false;
+  const pending = ref(false);
   const handlePromise = (maybePromise: any) => {
-    maybePromise = unref(maybePromise);
     if (maybePromise instanceof Promise) {
-      pending = true;
+      pending.value = true;
       Promise.resolve(maybePromise)
         .then((val) => {
           local.value = val;
@@ -41,7 +41,7 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
           if (isFunction(fallbackWhenReject)) local.value = fallbackWhenReject(e);
         })
         .finally(() => {
-          pending = false;
+          pending.value = false;
         });
     } else local.value = maybePromise;
   };
@@ -53,13 +53,13 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
   });
   watchEffect((onCleanup) => {
     onCleanup(() => {
-      if (pending && isFunction(onCancel)) {
+      if (pending.value && isFunction(onCancel)) {
         onCancel();
       }
     });
-    handlePromise(runIfFn(maybeGetter));
+    handlePromise(runIfFn(unrefOrGet(maybeGetter)));
   });
-  return result;
+  return [result, pending] as const;
 }
 
 export type MaybePromise<T> = T | Promise<T>;

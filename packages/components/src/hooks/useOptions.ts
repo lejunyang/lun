@@ -1,7 +1,7 @@
 import { MaybePromiseOrGetter, usePromiseRef } from '@lun/core';
-import { PropType, StyleValue, WritableComputedRef } from 'vue';
+import { PropType, Ref, StyleValue, WritableComputedRef, toRef } from 'vue';
 import { EditStateProps, editStateProps } from '../common/editStateProps';
-import { isArray, runIfFn } from '@lun/utils';
+import { isArray } from '@lun/utils';
 import { error, renderElement } from '../utils';
 import { ComponentKey } from '../components';
 
@@ -24,9 +24,9 @@ export type CommonOptionNameMap = { label?: string; value?: string; children?: s
  */
 export const createOptionProps = <
   T extends boolean = false,
-  M = T extends true ? CommonOptionNameMap : Omit<CommonOptionNameMap, 'children'>
+  M = T extends true ? CommonOptionNameMap : Omit<CommonOptionNameMap, 'children'>,
 >(
-  _hasChildren?: T
+  _hasChildren?: T,
 ) => {
   return {
     ...editStateProps,
@@ -44,18 +44,18 @@ export const createOptionProps = <
  */
 export function useOptions<
   G extends ComponentKey | undefined = undefined,
-  HasChildren extends boolean = G extends undefined ? false : true
+  HasChildren extends boolean = G extends undefined ? false : true,
 >(
   props: { options?: MaybePromiseOrGetter<CommonOptions<HasChildren>>; optionNameMap?: CommonOptionNameMap },
   optionName: ComponentKey,
-  groupOptionName?: G
+  groupOptionName?: G,
 ) {
-  const options = usePromiseRef(() => runIfFn(props.options), {
+  const [options, loading] = usePromiseRef(toRef(props, 'options'), {
     fallbackWhenReject: (err) => {
       error(err);
       return [];
     },
-  }) as WritableComputedRef<CommonOptions<HasChildren>>;
+  }) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
   const processOption = (option: any, index: number) => {
     const { optionNameMap } = props;
     if (optionNameMap) {
@@ -78,5 +78,5 @@ export function useOptions<
       })
     );
   };
-  return { options, render };
+  return { options, render, loading };
 }
