@@ -1,0 +1,54 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(select-optgroup) {
+  @include e(label) {
+    color: getGrayColor(a10);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    @include declareVars((height, line-height, font-size, letter-spacing, padding-inline));
+  }
+
+  @include e(children) {
+    display: flex;
+    flex-direction: column;
+    gap: getSpaceValue(2);
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        height: getSpaceValue(5),
+        line-height: getLineHeightValue(1),
+        font-size: getFontSizeValue(1),
+        letter-spacing: getLetterSpacingValue(1),
+        padding-inline: getSpaceValue(2),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        height: getSpaceValue(6),
+        line-height: getLineHeightValue(2),
+        font-size: getFontSizeValue(2),
+        letter-spacing: getLetterSpacingValue(2),
+        padding-inline: getSpaceValue(3),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        height: getSpaceValue(7),
+        line-height: getLineHeightValue(3),
+        font-size: getFontSizeValue(3),
+        letter-spacing: getLetterSpacingValue(3),
+        padding-inline: getSpaceValue(4),
+      )
+    );
+  }
+}
