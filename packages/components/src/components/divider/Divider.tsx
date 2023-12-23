@@ -30,7 +30,7 @@ export const Divider = defineSSRCustomElement({
           style={ns.v({ 'text-indent': finalTextIndent })}
         >
           <span part="text" class={ns.e('text')} style={textStyle}>
-            <slot {...slotProps}></slot>
+            {type !== 'vertical' && <slot {...slotProps}></slot>}
           </span>
         </div>
       );
