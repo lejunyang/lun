@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.node.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "baseUrl": ".",
+  },
+  "include": [
+    "vite.config.ts",
+    "../../utils/getViteConfig.ts"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    }
+  ],
+  "include": ["src/**/*.ts", "./index.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declarationDir": "dist"
+  }
+}
