@@ -7,28 +7,22 @@
   display: contents;
 }
 
-@mixin pseudoElementStyles {
-  position: relative;
-  content: '';
-  width: 50%;
-  transform: translateY(50%);
-  border-width: 0;
-  border-block-start: getRVarValue(size, 1px) solid getRVarValue('color', getGrayColor(a4));
-  flex-grow: 1;
-}
-
 @include b(divider) {
   display: flex;
   width: 100%;
 
-  &::before {
-    @include pseudoElementStyles;
+  &::before,
+  &::after {
+    position: relative;
+    content: '';
+    border-width: 0;
+    flex-grow: 1;
+    width: 50%;
+    transform: translateY(50%);
+    border-block-start: getRVarValue(size, 1px) solid getRVarValue('color', getGrayColor(a4));
   }
   @include e(text) {
     white-space: nowrap;
-  }
-  &::after {
-    @include pseudoElementStyles;
   }
 
   @include m(text-start) {
@@ -65,6 +59,26 @@
     &::before,
     &::after {
       border-style: dashed;
+    }
+  }
+
+  @include m(vertical) {
+    display: inline-flex;
+    flex-direction: column;
+    width: unset;
+    height: 1em;
+    vertical-align: super;
+    @include e(text) {
+      padding-inline-start: getRVarValue((text, padding, start), getSpaceValue(3));
+      padding-inline-end: getRVarValue((text, padding, end), getSpaceValue(3));
+    }
+    &::before,
+    &::after {
+      width: unset;
+      height: 50%;
+      transform: translateX(50%);
+      border-block-start: 0;
+      border-inline-start: getRVarValue(size, 1px) solid getRVarValue('color', getGrayColor(a4));
     }
   }
 }
