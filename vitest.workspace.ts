@@ -35,4 +35,12 @@ export default defineWorkspace([
       environment: 'node',
     },
   },
+  {
+    test: {
+      name: '@lun/babel-plugin-jsx',
+      globals: true,
+      root: './packages/babel-plugin-jsx',
+      environment: 'node',
+    },
+  },
 ]);
