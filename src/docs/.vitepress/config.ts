@@ -64,6 +64,11 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) }],
         },
+        {
+          text: locales[lang].sidebar.layout.menu,
+          collapsed: false,
+          items: [{ text: locales[lang].sidebar.layout.divider, link: wrapLink('/components/divider/', lang) }],
+        },
       ],
     },
     socialLinks: [{ icon: 'github', link: 'https://github.com/lejunyang/lun' }],

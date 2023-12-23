@@ -36,6 +36,10 @@ export default {
         menu: '消息反馈',
         spin: 'Spin 加载中',
       },
+      layout: {
+        menu: '布局组件',
+        divider: 'Divider 分割线',
+      }
     },
   },
   en: {
@@ -75,6 +79,10 @@ export default {
         menu: 'Feedback',
         spin: 'Spin',
       },
+      layout: {
+        menu: 'Layout',
+        divider: 'Divider',
+      }
     },
   },
 };
