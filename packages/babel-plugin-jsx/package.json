@@ -1,10 +1,25 @@
 {
-  "name": "babel-plugin-jsx",
+  "name": "@lun/babel-plugin-jsx",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build:dev": "cross-env NODE_ENV=development vite build",
+    "build:prod": "cross-env NODE_ENV=production vite build",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build"
   },
   "keywords": [],
   "author": "",
