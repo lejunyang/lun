@@ -23,6 +23,7 @@
     "vue": "^3.2.0"
   },
   "devDependencies": {
+    "@lun/babel-plugin-jsx": "workspace:^",
     "@types/dom-view-transitions": "^1.0.4",
     "@types/node": "^20.6.0",
     "@types/react": "^18.2.28",
