@@ -8,6 +8,7 @@ import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import { useNativeDialog, useSetupEdit } from '@lun/core';
 import { Transition, computed, ref, watch } from 'vue';
+import { getTransitionProps } from 'common';
 
 const name = 'dialog';
 export const Dialog = defineSSRCustomElement({
@@ -67,10 +68,10 @@ export const Dialog = defineSSRCustomElement({
           {...dialogHandlers}
           style={{ width: props.width }}
         >
-          <Transition name="dialog-overlay">
+          <Transition {...getTransitionProps(props, 'overlay')}>
             <div v-show={openModel.value} class={[ns.e('overlay')]} part={ns.p('overlay')} tabindex={-1}></div>
           </Transition>
-          <Transition name="dialog-panel" onAfterLeave={onAfterLeave}>
+          <Transition {...getTransitionProps(props, 'panel')} onAfterLeave={onAfterLeave}>
             <div v-show={openModel.value} class={ns.e('panel')} part={ns.p('panel')}>
               {props.closeBtn &&
                 renderElement(
@@ -82,7 +83,7 @@ export const Dialog = defineSSRCustomElement({
                     asyncHandler: methods.close,
                     part: ns.p('close'),
                   },
-                  renderElement('icon', { name: 'x', slot: 'icon' })
+                  renderElement('icon', { name: 'x', slot: 'icon' }),
                 )}
               {!props.noHeader && (
                 <header class={[ns.e('header')]} part={ns.p('header')}>

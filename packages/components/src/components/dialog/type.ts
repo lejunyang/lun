@@ -1,10 +1,12 @@
 import { MaybePromise } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps, themeProps } from "common";
+import { createTransitionProps, editStateProps, themeProps } from "common";
 
 export const dialogProps = {
   ...editStateProps,
   ...themeProps,
+  ...createTransitionProps('panel'),
+  ...createTransitionProps('overlay'),
   open: { type: Boolean, default: undefined },
   modal: { type: [Boolean, String] as PropType<boolean | 'native' | string> },
   maskClosable: { type: [Boolean, String] as PropType<boolean | 'click' | 'dblclick'> },

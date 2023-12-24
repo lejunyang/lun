@@ -97,6 +97,8 @@ export const GlobalStaticConfig = new Proxy(
         escapeClosable: true,
         modal: 'native',
         width: '450px',
+        panelTransition: 'scale',
+        overlayTransition: 'bgFade',
       },
       divider: {},
       form: {
