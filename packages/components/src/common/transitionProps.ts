@@ -29,6 +29,18 @@ export function createTransitionProps(name?: string) {
   }, {} as any);
 }
 
-export function getTransitionProps(props: Record<(typeof classes)[number], string | undefined>) {
-  return { ...pick(props, classes.slice(1)), name: props.transition };
+type TransitionProps = Omit<Record<(typeof classes)[number], string | undefined>, 'transition'> & { name?: string };
+
+export function getTransitionProps(props: Record<(typeof classes)[number], string | undefined>): TransitionProps;
+
+export function getTransitionProps<T extends string>(
+  props: Record<`${T}${Capitalize<(typeof classes)[number]>}`, string | undefined>,
+  name: T,
+): TransitionProps;
+
+export function getTransitionProps(props: Record<string, any>, name?: string) {
+  return classes.reduce((res, cur) => {
+    res[cur === 'transition' ? 'name' : cur] = props[name ? name + capitalize(cur) : cur];
+    return res;
+  }, {} as any);
 }
