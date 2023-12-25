@@ -6,10 +6,11 @@ export const options = [
   { label: 'option2', value: 'value2', disabled: true },
   { label: 'option3', value: 'value3' },
   { label: 'option4', value: 'value4' },
+  { label: 'option5', value: 'value5' },
 ];
 export const optionsWithColors = [...options].map((option, index) => ({
   ...option,
-  color: themeColors[themeColors.length - index],
+  color: themeColors[themeColors.length - index - 1],
   disabled: undefined,
 }));
 
@@ -28,12 +29,12 @@ export const groupOptions = [
       { label: 'option4', value: 'value4' },
     ],
   },
-  { label: 'option4', value: 'value5' },
+  { label: 'option5', value: 'value5' },
 ];
 
 export const groupOptionsWithColors = [...groupOptions].map((groupOption, index) => ({
   ...groupOption,
-  color: themeColors[themeColors.length - index],
+  color: themeColors[themeColors.length - index - 1],
 }));
 
 export const optionsGetter = async () => {
