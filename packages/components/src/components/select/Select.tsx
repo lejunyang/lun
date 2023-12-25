@@ -80,6 +80,7 @@ export const Select = defineSSRCustomFormElement({
 
     // TODO ArrowUp down popup
     return () => {
+      const { multiple } = props;
       const themeProps = pickThemeProps(props);
       return (
         <>
@@ -105,12 +106,12 @@ export const Select = defineSSRCustomFormElement({
                   ...attrs,
                   ...themeProps,
                   ref: inputRef,
-                  multiple: props.multiple,
+                  multiple,
                   readonly: true,
-                  value: valueModel.value,
+                  value: multiple ? valueModel.value : customTagProps(valueModel.value).label,
                   tagProps: customTagProps,
                 },
-                loading.value && renderElement('spin', { slot: 'suffix' }),
+                <>{loading.value && renderElement('spin', { slot: 'suffix' })}</>,
               )}
               <div class={ns.e('content')} part="content" slot="pop-content">
                 {!children.value.length && !options.value?.length ? (
@@ -136,7 +137,7 @@ export type tSelect = typeof Select;
 export const defineSelect = createDefineElement('select', Select, {
   'select-option': defineSelectOption,
   'select-optgroup': defineSelectOptgroup,
-  popover: definePopover as any,
+  popover: definePopover,
   input: defineInput,
   spin: defineSpin,
 });
