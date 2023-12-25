@@ -79,7 +79,7 @@ export async function runVueTSXCode(code: string) {
   await initPromise;
   const { transform } = await import('esbuild-wasm');
   const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
-  const res = await transform(code, {
+  const res = await transform(transformVUpdateWithRegex(code), {
     loader: 'tsx',
     format: 'iife',
     jsxFactory: 'h',
@@ -99,7 +99,7 @@ export async function runReactTSXCode(code: string) {
   await initPromise;
   const { transform } = await import('esbuild-wasm');
   const errorMsg = 'Must export a default ReactNode or a default function that returns a ReactNode';
-  const res = await transform(code, {
+  const res = await transform(transformVUpdateWithRegex(code), {
     loader: 'tsx',
     format: 'iife',
     jsxFactory: 'createElement',
@@ -115,4 +115,25 @@ export async function runReactTSXCode(code: string) {
   const result = func(requireDep, createElement, Fragment);
   if (!result?.default) throw new Error(errorMsg);
   return result.default;
+}
+
+export function transformVUpdateWithRegex(code: string) {
+  return code.replace(
+    /v-update(-[a-zA-Z0-9]+)?(:[a-zA-Z0-9]+)?=\{([a-zA-Z0-9.[\]]+)\}/g,
+    (_match, prop1, prop2, expr) => {
+      if (prop2) {
+        // v-update-xxx:xxx
+        const prop = prop1.slice(1);
+        const eventDetailMember = prop2.slice(1);
+        return `${prop}={${expr}} onUpdate={(e) => ${expr} = e.detail.${eventDetailMember}}`;
+      } else if (prop1) {
+        // v-update-xxx
+        const prop = prop1.slice(1);
+        return `${prop}={${expr}} onUpdate={(e) => ${expr} = e.detail}`;
+      } else {
+        // v-update
+        return `value={${expr}} onUpdate={(e) => ${expr} = e.detail}`;
+      }
+    },
+  );
 }
