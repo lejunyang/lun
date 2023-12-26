@@ -6,10 +6,12 @@
 @include b(input) {
   @include variant(soft) {
     color: getAccentColor(12);
-    @include e(background) {
+    @include e('background') {
       background-color: getAccentColor(a3);
-      padding: 1px;
-      background-clip: content-box;
+    }
+
+    @include e(addon) {
+      background-color: getAccentColor(a3);
     }
 
     @include e(inner-input) {
@@ -20,7 +22,7 @@
     }
 
     @include is(disabled) {
-      @include e(background) {
+      @include e('background') {
         background-color: getGrayColor(a4);
       }
     }

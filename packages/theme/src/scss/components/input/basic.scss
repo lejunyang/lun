@@ -12,14 +12,19 @@
   position: relative;
   vertical-align: bottom;
 
+  @include declareVars((font-size));
+
   :is(&:hover, &:focus-within) {
     @include is(not-empty) {
       @include is(with-clear, false) {
         // hide suffix slot content when hover
-        slot::slotted(*) {
-          opacity: 0 !important;
-          pointer-events: none;
-          z-index: -1 !important;
+        slot {
+          &::slotted(*),
+          * {
+            opacity: 0 !important;
+            pointer-events: none;
+            z-index: -1 !important;
+          }
         }
         // make clearIcon show when hover
         @include em(suffix, clear-icon) {
@@ -52,7 +57,7 @@
     }
   }
 
-  @include e(inner-input, false) {
+  @include e(inner-input) {
     appearance: none;
     border-width: 0;
     -webkit-tap-highlight-color: transparent;
@@ -66,6 +71,8 @@
     box-sizing: border-box;
     padding: 0;
     inline-size: 100%;
+
+    @include declareVars((height, font-size));
 
     // placeholder and selection
     &::placeholder {
@@ -97,18 +104,40 @@
     align-items: center;
   }
 
-  @include e('background', false) {
+  @include e('background') {
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
     transition: border-color 0.3s ease;
+    @include declareVars((border-radius));
     .#{$B}:focus-within & {
-      /* box-shadow: inset 0 0 0 1px var(--accent-8), 0 0 0 1px var(--accent-a8), inset 0 0 0 100px var(--accent-3); */
-      // box-shadow: inset 0 0 0 100px getAccentColor(3);
-      // border: 1px solid getAccentColor(8);
       outline: 2px solid getFocusColor();
       outline-offset: -1px;
+    }
+  }
+  @include e(addon) {
+    @include declareVars((border-radius));
+  }
+
+  @include is(with-prepend) {
+    @include e('background') {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+    @include e(prepend) {
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+  }
+  @include is(with-append) {
+    @include e('background') {
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+    @include e(append) {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
     }
   }
 
@@ -118,10 +147,10 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    color: getAccentColor(a11);
     box-sizing: border-box;
     @include declareVars(
       (
+        height: height,
         min-inline-size: slot-min-inline-size,
         padding-inline: slot-padding-inline,
       )
@@ -144,7 +173,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-inline-size: getRVarValue(('input', 'slot-min-inline-size'));
+      @include declareVars(
+        (
+          min-inline-size: slot-min-inline-size,
+        )
+      );
 
       .#{$B}:hover &:not(:empty) {
         opacity: 1;
@@ -236,9 +269,11 @@
   @include size(1) {
     @include setVars(
       (
-        // same as input's height
+        border-radius: getRadiusValue(2),
+        font-size: getFontSizeValue(1),
+        height: getSpaceValue(5),
         slot-min-inline-size: getSpaceValue(5),
-        slot-padding-inline: getSpaceValue(1)
+        slot-padding-inline: getSpaceValue(1),
       )
     );
     @include e(slot) {
@@ -249,19 +284,14 @@
       font-size: getFontSizeValue(1);
     }
     @include e(inner-input) {
-      height: getSpaceValue(5);
       padding-block-start: 0.5px;
       padding-block-end: 1px;
       padding-inline-start: getSpaceValue(1);
-      font-size: getFontSizeValue(1);
       letter-spacing: getLetterSpacingValue(1);
     }
     @include e(tag-container) {
       padding-inline-start: getSpaceValue(1);
       gap: getSpaceValue(1);
-    }
-    @include e('background') {
-      border-radius: getRadiusValue(2);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(1);
@@ -281,6 +311,9 @@
   @include size(2) {
     @include setVars(
       (
+        border-radius: getRadiusValue(2),
+        height: getSpaceValue(6),
+        font-size: getFontSizeValue(2),
         slot-min-inline-size: getSpaceValue(6),
         slot-padding-inline: getSpaceValue(2),
       )
@@ -293,19 +326,14 @@
       font-size: getFontSizeValue(2);
     }
     @include e(inner-input) {
-      height: getSpaceValue(6);
       padding-block-start: 0.5px;
       padding-block-end: 1px;
       padding-inline-start: getSpaceValue(2);
-      font-size: getFontSizeValue(2);
       letter-spacing: getLetterSpacingValue(2);
     }
     @include e(tag-container) {
       padding-inline-start: getSpaceValue(2);
       gap: getSpaceValue(2);
-    }
-    @include e('background') {
-      border-radius: getRadiusValue(2);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(2);
@@ -323,6 +351,9 @@
   @include size(3) {
     @include setVars(
       (
+        border-radius: getRadiusValue(3),
+        height: getSpaceValue(7),
+        font-size: getFontSizeValue(3),
         slot-min-inline-size: getSpaceValue(7),
         slot-padding-inline: getSpaceValue(3),
       )
@@ -335,19 +366,14 @@
       font-size: getFontSizeValue(3);
     }
     @include e(inner-input) {
-      height: getSpaceValue(7);
       padding-block-start: 0.5px;
       padding-block-end: 1px;
       padding-inline-start: getSpaceValue(3);
-      font-size: getFontSizeValue(3);
       letter-spacing: getLetterSpacingValue(3);
     }
     @include e(tag-container) {
       padding-inline-start: getSpaceValue(3);
       gap: getSpaceValue(3);
-    }
-    @include e('background') {
-      border-radius: getRadiusValue(3);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(3);

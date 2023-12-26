@@ -121,7 +121,10 @@ export const Input = defineSSRCustomFormElement({
             }),
           ]}
         >
-          <div class={[ns.e('slot'), ns.e('prepend')]} part="prepend">
+          <div
+            class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isN('empty', prependSlot.empty.value)]}
+            part="prepend"
+          >
             <slot {...prependSlot.slotProps}></slot>
           </div>
           <label class={ns.e('label')} part="label">
@@ -196,7 +199,10 @@ export const Input = defineSSRCustomFormElement({
               </span>
             )}
           </label>
-          <div class={[ns.e('slot'), ns.e('append')]} part="append">
+          <div
+            class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isN('empty', appendSlot.empty.value)]}
+            part="append"
+          >
             <slot {...appendSlot.slotProps}></slot>
           </div>
         </span>
