@@ -19,8 +19,8 @@
   @return var(#{getVarName($args)}, #{$default});
 }
 
-// bem('block', 'element', 'modifier') => 'l-block__element--modifier'
-@function bem($block, $element: '', $modifier: '') {
+// getBEM('block', 'element', 'modifier') => 'l-block__element--modifier'
+@function getBEM($block, $element: '', $modifier: '') {
   $name: config.$namespace + config.$common-separator + $block;
   @if $element != '' {
     $name: $name + config.$element-separator + $element;

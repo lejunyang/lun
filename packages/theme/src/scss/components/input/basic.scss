@@ -17,9 +17,9 @@
       @include is(with-clear, false) {
         // hide suffix slot content when hover
         slot::slotted(*) {
-          opacity: 0;
+          opacity: 0 !important;
           pointer-events: none;
-          z-index: -1;
+          z-index: -1 !important;
         }
         // make clearIcon show when hover
         @include em(suffix, clear-icon) {
@@ -118,14 +118,18 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    color: var(--accent-a11, --gray-a11);
-    @include size(1) {
-      .#{$E} {
-        gap: var(--space-2);
-        ::slotted(*) {
-          padding-inline: var(--space-1);
-        }
-      }
+    color: getAccentColor(a11);
+    box-sizing: border-box;
+    @include declareVars(
+      (
+        min-inline-size: slot-min-inline-size,
+        padding-inline: slot-padding-inline,
+      )
+    );
+    &#{getIs(empty, '', true)} {
+      inline-size: 0;
+      min-inline-size: 0;
+      padding-inline: 0;
     }
   }
 
@@ -140,7 +144,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-inline-size: 32px;
+      min-inline-size: getRVarValue(('input', 'slot-min-inline-size'));
 
       .#{$B}:hover &:not(:empty) {
         opacity: 1;
@@ -151,7 +155,7 @@
     }
   }
   // suffix slot default content clear-icon
-  slot .#{bem(input, suffix, clear-icon)} {
+  slot .#{getBEM(input, suffix, clear-icon)} {
     position: relative;
   }
 
@@ -227,32 +231,36 @@
 
   $empty: getIs(not-empty, $B);
   $float: getIs(float-label);
-  // size
+
+  // ----------------- size -----------------
   @include size(1) {
-    @include e(slot, true) {
+    @include setVars(
+      (
+        // same as input's height
+        slot-min-inline-size: getSpaceValue(5),
+        slot-padding-inline: getSpaceValue(1)
+      )
+    );
+    @include e(slot) {
       gap: getSpaceValue(2);
-      ::slotted(*) {
-        padding-inline: getSpaceValue(1);
-      }
     }
-    @include e(length-info, true) {
+    @include e(length-info) {
       padding-inline: getSpaceValue(1);
       font-size: getFontSizeValue(1);
     }
-    @include e(inner-input, true) {
+    @include e(inner-input) {
       height: getSpaceValue(5);
-      // TODO padding? size?
       padding-block-start: 0.5px;
       padding-block-end: 1px;
       padding-inline-start: getSpaceValue(1);
       font-size: getFontSizeValue(1);
       letter-spacing: getLetterSpacingValue(1);
     }
-    @include e(tag-container, true) {
+    @include e(tag-container) {
       padding-inline-start: getSpaceValue(1);
       gap: getSpaceValue(1);
     }
-    @include e('background', true) {
+    @include e('background') {
       border-radius: getRadiusValue(2);
     }
     @include is(float-label, false) {
@@ -271,17 +279,20 @@
     }
   }
   @include size(2) {
-    @include e(slot, true) {
+    @include setVars(
+      (
+        slot-min-inline-size: getSpaceValue(6),
+        slot-padding-inline: getSpaceValue(2),
+      )
+    );
+    @include e(slot) {
       gap: getSpaceValue(2);
-      ::slotted(*) {
-        padding-inline: getSpaceValue(2);
-      }
     }
-    @include e(length-info, true) {
+    @include e(length-info) {
       padding-inline: getSpaceValue(2);
       font-size: getFontSizeValue(2);
     }
-    @include e(inner-input, true) {
+    @include e(inner-input) {
       height: getSpaceValue(6);
       padding-block-start: 0.5px;
       padding-block-end: 1px;
@@ -289,11 +300,11 @@
       font-size: getFontSizeValue(2);
       letter-spacing: getLetterSpacingValue(2);
     }
-    @include e(tag-container, true) {
+    @include e(tag-container) {
       padding-inline-start: getSpaceValue(2);
       gap: getSpaceValue(2);
     }
-    @include e('background', true) {
+    @include e('background') {
       border-radius: getRadiusValue(2);
     }
     @include is(float-label, false) {
@@ -310,17 +321,20 @@
     }
   }
   @include size(3) {
-    @include e(slot, true) {
+    @include setVars(
+      (
+        slot-min-inline-size: getSpaceValue(7),
+        slot-padding-inline: getSpaceValue(3),
+      )
+    );
+    @include e(slot) {
       gap: getSpaceValue(3);
-      ::slotted(*) {
-        padding-inline: getSpaceValue(3);
-      }
     }
-    @include e(length-info, true) {
+    @include e(length-info) {
       padding-inline: getSpaceValue(3);
       font-size: getFontSizeValue(3);
     }
-    @include e(inner-input, true) {
+    @include e(inner-input) {
       height: getSpaceValue(7);
       padding-block-start: 0.5px;
       padding-block-end: 1px;
@@ -328,11 +342,11 @@
       font-size: getFontSizeValue(3);
       letter-spacing: getLetterSpacingValue(3);
     }
-    @include e(tag-container, true) {
+    @include e(tag-container) {
       padding-inline-start: getSpaceValue(3);
       gap: getSpaceValue(3);
     }
-    @include e('background', true) {
+    @include e('background') {
       border-radius: getRadiusValue(3);
     }
     @include is(float-label, false) {
