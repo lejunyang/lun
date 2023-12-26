@@ -34,6 +34,14 @@
           cursor: pointer;
         }
       }
+      @include e(renderer) {
+        opacity: 0 !important;
+        pointer-events: none;
+        z-index: -1 !important;
+      }
+    }
+    @include e(inner-input) {
+      opacity: 1;
     }
   }
 
@@ -94,6 +102,12 @@
       &::selection {
         background-color: getGrayColor(a5);
       }
+    }
+  }
+  @include is(with-renderer, false, true) {
+    @include e(inner-input) {
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
   }
 
@@ -192,31 +206,20 @@
     position: relative;
   }
 
-  @include e(custom-renderer) {
+  @include e(renderer) {
     position: absolute;
-    /* inset: 0; width should be decided by content, otherwise empty renderer would cover the input */
-    inline-size: auto;
+    inset: 0;
     z-index: 2;
-    background-color: white; /** TODO theme color */
-    text-align: start;
-    transition: opacity 0.3s linear;
-    /* border-top: 1px solid var(--gray-a7); */
-    /* border-bottom: 1px solid var(--gray-a7); */
-    /* in case of covering input-back's border */
-    border: 1px solid transparent;
     background-clip: content-box;
-    .#{$B} & {
-      /* display: none; */
-      opacity: 0 !important;
-      pointer-events: none;
-      z-index: -1;
-    }
+    display: flex;
+    align-items: center;
+    opacity: 1;
   }
 
   // float label
   @include is(float-label, false, true) {
     top: 0;
-    z-index: 0;
+    z-index: 1;
     transition: all 0.3s ease-out;
     color: getGrayColor(a10);
     white-space: nowrap;

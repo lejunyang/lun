@@ -83,6 +83,7 @@ export const Input = defineSSRCustomFormElement({
     const prefixSlot = useSlot({ name: 'prefix' });
     const suffixSlot = useSlot({ name: 'suffix' });
     const appendSlot = useSlot({ name: 'append' });
+    const rendererSlot = useSlot({ name: 'renderer' });
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
@@ -118,6 +119,7 @@ export const Input = defineSSRCustomFormElement({
               multiple,
               'with-prepend': !prependSlot.empty.value,
               'with-append': !appendSlot.empty.value,
+              'with-renderer': !rendererSlot.empty.value,
             }),
           ]}
         >
@@ -139,9 +141,10 @@ export const Input = defineSSRCustomFormElement({
             </div>
             <span style="position: relative" part="wrapper">
               {/* render when value is defined，in case it covers float label and placeholder */}
-              {!empty && (
-                <div class={[ns.e('inner-input'), ns.e('custom-renderer')]}>
-                  <slot name="renderer"></slot>
+              {/* TODO support custom renderer when multiple */}
+              {!empty && !multiple && (
+                <div class={[ns.e('inner-input'), ns.e('renderer')]} part="renderer">
+                  <slot {...rendererSlot.slotProps}></slot>
                 </div>
               )}
               {multiple ? (
