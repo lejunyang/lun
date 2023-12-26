@@ -1,6 +1,6 @@
 import { InputPeriod, InputType } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { PropObjOrFunc, editStateProps, themeProps } from 'common';
+import { GetEventPropsFromEmits, PropObjOrFunc, editStateProps, themeProps } from 'common';
 import { TagProps } from '../tag/type';
 
 export const baseInputProps = {
@@ -41,8 +41,14 @@ export const inputProps = {
   showClearIcon: { type: Boolean },
 };
 
+export const inputEmits = {
+  update: null,
+  enterDown: null,
+}
+
 export type InputSetupProps = ExtractPropTypes<typeof inputProps>;
-export type InputProps = Partial<InputSetupProps>;
+export type InputEvents = GetEventPropsFromEmits<typeof inputEmits>;
+export type InputProps = Partial<InputSetupProps> & InputEvents;
 
 export const inputNumberProps = {
   ...inputProps,

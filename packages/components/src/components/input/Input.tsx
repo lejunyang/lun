@@ -2,8 +2,8 @@ import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useNamespace, useVModelCompatible, useValueModel } from 'hooks';
-import { inputProps } from './type';
+import { useCEExpose, useNamespace, useSlot, useVModelCompatible, useValueModel } from 'hooks';
+import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
@@ -15,7 +15,7 @@ export const Input = defineSSRCustomFormElement({
   name,
   props: inputProps,
   inheritAttrs: false,
-  emits: ['update', 'enterDown'],
+  emits: inputEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
@@ -79,6 +79,11 @@ export const Input = defineSSRCustomFormElement({
       return props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
     });
 
+    const prependSlot = useSlot({ name: 'prepend' });
+    const prefixSlot = useSlot({ name: 'prefix' });
+    const suffixSlot = useSlot({ name: 'suffix' });
+    const appendSlot = useSlot({ name: 'append' });
+
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
       const { multiple, placeholder, labelType, label } = props;
@@ -92,7 +97,7 @@ export const Input = defineSSRCustomFormElement({
           exportparts=""
           type={props.type}
           ref={inputRef}
-          part={ns.p('inner-input')}
+          part="inner-input"
           class={[ns.e('inner-input')]}
           value={multiple ? valueForMultiple.value : valueModel.value}
           placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
@@ -104,28 +109,32 @@ export const Input = defineSSRCustomFormElement({
       );
       return (
         <span
-          part={ns.p('root')}
+          part="root"
           class={[
             ns.s(editComputed),
-            ns.is(empty ? 'empty' : 'not-empty'),
-            ns.is(editable ? 'editable' : 'not-editable'),
-            ns.is('multiple', multiple),
+            ns.isN('empty', empty),
+            ns.isN('editable', editable),
+            ns.is({
+              multiple,
+              'with-prepend': !prependSlot.empty.value,
+              'with-append': !appendSlot.empty.value,
+            }),
           ]}
         >
-          <div class={[ns.e('slot'), ns.b('addon-before')]} part={ns.p('addon-before')}>
-            <slot name="addon-before"></slot>
+          <div class={[ns.e('slot'), ns.e('prepend')]} part="prepend">
+            <slot {...prependSlot.slotProps}></slot>
           </div>
-          <label class={ns.e('label')} part={ns.p('label')}>
+          <label class={ns.e('label')} part="label">
             {hasFloatLabel && (
-              <div class={[ns.e('label'), ns.is('float-label')]} part={ns.p('float-label')}>
+              <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
                 {floatLabel}
                 <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
               </div>
             )}
-            <div class={[ns.e('slot'), ns.e('prefix')]} part={ns.p('prefix')}>
-              <slot name="prefix"></slot>
+            <div class={[ns.e('slot'), ns.e('prefix'), ns.isN('empty', prefixSlot.empty.value)]} part="prefix">
+              <slot {...prefixSlot.slotProps}></slot>
             </div>
-            <span style="position: relative">
+            <span style="position: relative" part="wrapper">
               {/* render when value is defined，in case it covers float label and placeholder */}
               {!empty && (
                 <div class={[ns.e('inner-input'), ns.e('custom-renderer')]}>
@@ -133,7 +142,7 @@ export const Input = defineSSRCustomFormElement({
                 </div>
               )}
               {multiple ? (
-                <span {...wrapperHandlers} class={[ns.e('tag-container')]} part={ns.p('tag-container')}>
+                <span {...wrapperHandlers} class={[ns.e('tag-container')]} part="tag-container">
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
                       const tagProps = mergeProps(runIfFn(props.tagProps, v, index), {
@@ -152,15 +161,12 @@ export const Input = defineSSRCustomFormElement({
                             content={props.tagRenderer(v, index)}
                           />
                         );
-                      return renderElement(
-                        'tag',
-                        {
-                          label: v,
-                          ...pickThemeProps(props),
-                          ...tagProps,
-                          removable: editable,
-                        },
-                      );
+                      return renderElement('tag', {
+                        label: v,
+                        ...pickThemeProps(props),
+                        ...tagProps,
+                        removable: editable,
+                      });
                     })}
                   {input}
                 </span>
@@ -168,21 +174,30 @@ export const Input = defineSSRCustomFormElement({
                 input
               )}
             </span>
-            <span class={ns.e('background')} part={ns.p('background')} />
+            <span class={ns.e('background')} part="background" />
             <span
-              class={[ns.e('slot'), ns.e('suffix'), props.showClearIcon && ns.is('with-clear')]}
-              part={ns.p('suffix')}
+              class={[
+                ns.e('slot'),
+                ns.e('suffix'),
+                props.showClearIcon && ns.is('with-clear'),
+                ns.isN('empty', suffixSlot.empty.value),
+              ]}
+              part="suffix"
             >
               {getClearIcon()}
-              <slot name="suffix">
+              <slot {...suffixSlot.slotProps}>
                 {/* this is static position clear icon, used to occupy place */}
                 {getClearIcon()}
               </slot>
             </span>
-            {props.showLengthInfo && <span class={ns.e('length-info')}>{lengthInfo.value}</span>}
+            {props.showLengthInfo && (
+              <span class={ns.e('length-info')} part="length-info">
+                {lengthInfo.value}
+              </span>
+            )}
           </label>
-          <div class={[ns.e('slot'), ns.b('addon-after')]} part={ns.p('addon-after')}>
-            <slot name="addon-after"></slot>
+          <div class={[ns.e('slot'), ns.e('append')]} part="append">
+            <slot {...appendSlot.slotProps}></slot>
           </div>
         </span>
       );
