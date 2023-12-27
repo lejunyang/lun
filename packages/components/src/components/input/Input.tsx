@@ -25,20 +25,30 @@ export const Input = defineSSRCustomFormElement({
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
     const { inputHandlers, wrapperHandlers } = useMultipleInput(
-      computed(() => ({
-        ...props,
-        value: valueModel.value,
-        onChange: (val) => {
-          updateVModel(val);
-          valueModel.value = val;
-        },
-        onInputUpdate(val) {
-          valueForMultiple.value = val;
-        },
-        onEnterDown(e) {
-          emit('enterDown', e);
-        },
-      })),
+      computed(() => {
+        let { updateWhen, multiple, ...others } = props;
+        if (updateWhen == null || updateWhen === 'auto') {
+          updateWhen = multiple ? 'change' : 'not-composing';
+        }
+        return {
+          ...others,
+          multiple,
+          updateWhen,
+          value: valueModel.value,
+          onChange: (val) => {
+            console.log('onChange val', val);
+            updateVModel(val);
+            valueModel.value = val;
+          },
+          onInputUpdate(val) {
+            console.log('onInputUpdate val', val);
+            valueForMultiple.value = val || '';
+          },
+          onEnterDown(e) {
+            emit('enterDown', e);
+          },
+        };
+      }),
     );
     const clearValue = () => {
       if (props.multiple) {
@@ -104,6 +114,7 @@ export const Input = defineSSRCustomFormElement({
           placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
           disabled={disabled}
           readonly={readonly}
+          // FIXME size is not wide enough for chinese chars
           size={hidePlaceholderForMultiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
           {...inputHandlers}
         />
