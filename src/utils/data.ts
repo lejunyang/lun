@@ -1,4 +1,5 @@
-import { delay, themeColors } from '@lun/components';
+import { themeColors } from '@lun/components';
+import { delay } from '@lun/utils';
 
 // data for some code cases
 export const options = [

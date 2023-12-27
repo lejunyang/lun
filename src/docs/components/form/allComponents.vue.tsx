@@ -1,4 +1,4 @@
-import { useForm } from '@lun/components';
+import { useForm } from '@lun/core';
 
 const form = useForm({
   defaultFormData: {
