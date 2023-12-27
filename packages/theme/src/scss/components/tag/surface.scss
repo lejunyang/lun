@@ -13,7 +13,7 @@
       color: getAccentColor(12);
     }
 
-    :host(:focus) & {
+    :host(:focus-visible) &, &:focus-visible {
       outline: getAccentColor(a8) 1px solid;
     }
   }

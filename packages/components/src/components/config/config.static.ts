@@ -152,7 +152,9 @@ export const GlobalStaticConfig = new Proxy(
         trueValue: true,
         falseValue: false,
       },
-      tag: {},
+      tag: {
+        transition: 'scaleOut',
+      },
       'theme-provider': {},
       tooltip: {
         open: undefined, // must be undefined, otherwise it will be controlled

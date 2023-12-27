@@ -47,12 +47,3 @@
     cursor: pointer;
   }
 }
-
-.tag-leave-active {
-  transition: var(--tag-remove-transition, all 0.5s);
-}
-
-.tag-leave-to {
-  opacity: 0;
-  transform: scale(0);
-}
