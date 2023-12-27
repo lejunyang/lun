@@ -123,11 +123,11 @@ export const GlobalStaticConfig = new Proxy(
       input: {
         waitType: 'debounce' as const,
         trim: true,
-        updateWhen: (props: any) => {
-          // console.log('props', props);
-          return props.multiple ? 'change' : 'not-composing';
-        },
+        updateWhen: 'auto',
+        restrictWhen: 'not-composing',
+        transformWhen: 'not-composing',
         showClearIcon: true,
+        splitter: /[\s,]/,
       },
       popover: {
         offset: 4,

@@ -13,7 +13,7 @@ export type InputType = 'text' | 'number' | 'number-text';
 
 export type UseInputOptions<
   IType extends InputType = 'text',
-  T = InputType extends 'number' | 'number-text' ? number : string
+  T = InputType extends 'number' | 'number-text' ? number : string,
 > = {
   type?: IType;
   onChange: (val: T | null) => void;
@@ -69,7 +69,7 @@ function handleNumberBeforeInput(
     step,
     strictStep,
     optimizeChPeriodSymbolForNum,
-  }: TransformedUseInputOption<UseInputOptions<'number', number>>
+  }: TransformedUseInputOption<UseInputOptions<'number', number>>,
 ) {
   if (!e.data || (type !== 'number' && type !== 'number-text')) return;
   const noDecimal = precision === 0 || (strictStep && step && Number.isInteger(step));
@@ -127,11 +127,11 @@ export function useInput<
     utils: {
       transformValue(actionNow: InputPeriod, value: string): any;
       handleEvent(actionNow: InputPeriod, e: Event): void;
-    }
-  ) => void
+    },
+  ) => void,
 >(
   optionsGetter: MaybeRefLikeOrGetter<UseInputOptions<IType, ValueType>>,
-  extraHandlers?: Partial<Record<Handlers, E> & { transform?: (val: any, e: Event) => any }>
+  extraHandlers?: Partial<Record<Handlers, E> & { transform?: (val: any, e: Event) => any }>,
 ) {
   const options = computed(() => {
     const result = unrefOrGet(optionsGetter)!;
@@ -187,7 +187,8 @@ export function useInput<
           const end = +maxLength;
           if (end >= 0) value = value.substring(0, end);
         }
-        if (trim) value = value.trim();
+        // trim only when change, otherwise it will prevent inputting whitespace in the middle
+        if (trim && actionNow === 'change') target.value = target.value.trim();
         // only reassign when it's changed
         // When type = number, value is a empty string when it's not a valid number, you can't assign target.value at this time otherwise the input will clear
         // For example, you input '-', trigger input event, but value is '', if you set target.value = '', input will be cleared
@@ -200,7 +201,7 @@ export function useInput<
           // type.startsWith('number') && transformedVal != null
           // 	? (toNumberOrNull(transformedVal) as ValueType)
           // 	: transformedVal
-          transformedVal
+          transformedVal,
         );
       }
     },

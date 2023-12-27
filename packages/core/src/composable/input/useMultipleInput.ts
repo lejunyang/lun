@@ -28,7 +28,7 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
 };
 
 export function useMultipleInput<IType extends InputType = 'text'>(
-  options: MaybeRefLikeOrGetter<UseMultipleInputOptions<IType>>
+  options: MaybeRefLikeOrGetter<UseMultipleInputOptions<IType>, true>,
 ) {
   const handleDeleteTag = (target?: HTMLElement | null) => {
     if (!target) return;
@@ -80,12 +80,15 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   const transform = (val: any, e: Event) => {
     const { splitter = ',', unique, reserveInput, multiple, value, onInputUpdate } = unrefOrGet(options)!;
     onInputUpdate && onInputUpdate(val);
+    if (!multiple) return val;
     const valuesBefore = toArrayIfNotNil(value);
-    if (!multiple || isNilOrEmptyStr(val)) return val;
+    if (isNilOrEmptyStr(val)) return value;
     const valuesNow = val.split(splitter);
+    console.log('valuesNow', valuesNow);
     if (!valuesNow.length) return val;
     const result = valuesBefore.concat(valuesNow).filter((i) => !isNilOrEmptyStr(i));
     const needChange = e.type === 'change' || valuesNow.length > 1 || isEnterDown(e);
+    console.log('needChange', needChange);
     if (!needChange) return valuesBefore;
     // TODO reserveInput is conflict with ‘change' event
     if (!reserveInput) {
@@ -100,6 +103,10 @@ export function useMultipleInput<IType extends InputType = 'text'>(
       const { value, maxTags } = unrefOrGet(options)!;
       const values = toArrayIfNotNil(value);
       if (maxTags && values.length >= maxTags) e.preventDefault();
+    },
+    onInput(e) {
+      const { onInputUpdate } = unrefOrGet(options);
+      onInputUpdate && onInputUpdate((e.target as HTMLInputElement).value);
     },
     onKeydown(e, state, utils) {
       const { multiple, updateWhen } = unrefOrGet(options)!;
