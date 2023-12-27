@@ -1,34 +1,37 @@
-import { AnyFn } from "@lun/utils";
-import { PropType } from "vue";
+import { PropType } from 'vue';
+import { Constructor, UnwrapPrimitive } from '@lun/utils';
 
-export function PropString<T extends string>() {
-  return { type: String as unknown as PropType<T> };
-}
+const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => {
+  return <T extends UnwrapPrimitive<InstanceType<Presets[number]>>, C extends Constructor[] = []>(
+    ...constructors: C
+  ) => {
+    return {
+      type: [...types, ...constructors] as unknown as PropType<T | InstanceType<C[number]>>,
+    };
+  };
+};
 
-export function PropNumber<T extends number>() {
-  return { type: Number as unknown as PropType<T> };
-}
+export const PropString = createPropFactory(String);
+export const PropNumber = createPropFactory(Number);
+export const PropBoolean = createPropFactory(Boolean);
+export const PropObject = createPropFactory(Object);
+export const PropArray = createPropFactory(Array);
+export const PropFunction = createPropFactory(Function);
+export const PropObjOrFunc = createPropFactory(Object, Function);
+export const PropObjOrStr = createPropFactory(Object, String);
+export const PropStrOrArr = createPropFactory(String, Array as Constructor<string[] | null>);
 
-export function PropBoolean<T extends boolean>() {
-  return { type: Boolean as unknown as PropType<T> };
-}
+// const test = {
+//   str: PropString<'const'>(),
+//   strRegex: PropString(RegExp),
+//   strArr: PropStrOrArr(),
+//   num: PropNumber(),
+//   bool: PropBoolean(),
+//   obj: PropObject(),
+//   arr: PropArray(),
+//   func: PropFunction(),
+//   objOrFunc: PropObjOrFunc(),
+//   objOrStr: PropObjOrStr(),
+// };
 
-export function PropObject<T extends {}>() {
-  return { type: Object as unknown as PropType<T> };
-}
-
-export function PropArray<T extends any[]>() {
-  return { type: Array as unknown as PropType<T> };
-}
-
-export function PropFunction<T extends AnyFn>() {
-  return { type: Function as unknown as PropType<T> };
-}
-
-export function PropObjOrFunc<T extends {} | AnyFn>() {
-  return { type: [Object, Function] as unknown as PropType<T> };
-}
-
-export function PropObjOrStr<T extends string | {}>() {
-  return { type: [String, Object] as unknown as PropType<T> };
-}
+// type T = import('vue').ExtractPropTypes<typeof test>;
