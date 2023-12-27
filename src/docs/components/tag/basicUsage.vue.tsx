@@ -1,0 +1,1 @@
+export default () => <l-tag>标签</l-tag>;
