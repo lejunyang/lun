@@ -15,7 +15,7 @@ components.forEach((componentTag) => {
   const componentCamelName = camelize(capitalize(componentTag));
   const compType = `import('./index').t${componentCamelName}`;
   const propType = `import('./index').${componentCamelName}Props`;
-  const vuePropType = `vue.HTMLAttributes & ${propType}`;
+  const vuePropType = `Vue.HTMLAttributes &  Vue.ReservedProps & ${propType}`;
   const reactPropType = `React.HTMLAttributes<HTMLElement> & ${propType}`;
   vueCompTypes.push(`    L${componentCamelName}: ${compType};`);
   vueJSXTypes.push(`      'l-${componentTag}': ${vuePropType};`);
@@ -27,7 +27,7 @@ fs.writeFileSync(
   './dist/elements-types-vue.d.ts',
   // must import vue in the module declaration file(or add export declaration), or it will override vue's declaration, which will lead to ts error `module 'vue' has no exported member xxx'
   // Apart from that, if we don't add this import declaration, we can't write native elements like button, div..., as they have all been overridden
-  `import * as vue from 'vue';
+  `import * as Vue from 'vue';
 declare module 'vue' {
   interface GlobalComponents {
 ${vueCompTypes.join('\n')}
