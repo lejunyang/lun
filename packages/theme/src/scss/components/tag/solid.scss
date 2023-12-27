@@ -13,7 +13,8 @@
       color: getAccentColor(1);
     }
 
-    :host(:focus) & {
+    :host(:focus-visible) &, &:focus-visible {
+      outline: none;
       box-shadow: 0 0 0 2px getAccentColor(7); // a8 looks same as 9 when it's dark, use 7 instead
     }
   }

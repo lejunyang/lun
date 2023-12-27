@@ -4,6 +4,7 @@ import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
+import { getTransitionProps } from 'common';
 
 const name = 'tag';
 export const Tag = defineSSRCustomFormElement({
@@ -30,7 +31,7 @@ export const Tag = defineSSRCustomFormElement({
 
     return () => {
       return (
-        <Transition name={name} {...handlers}>
+        <Transition {...getTransitionProps(props)} {...handlers}>
           {!removed.value && (
             <span class={ns.t} part={ns.p('root')} ref={rootRef}>
               <slot>{props.label}</slot>

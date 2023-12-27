@@ -37,6 +37,14 @@
     opacity: 1;
   }
 
+  .scaleOut-leave-active {
+    transition: 0.3s transform, 0.3s opacity;
+  }
+  .scaleOut-leave-to {
+    transform: scale(0);
+    opacity: 0;
+  }
+
   .slideDown-enter-active,
   .slideDown-leave-active {
     transition: 0.15s scale, 0.15s opacity;
