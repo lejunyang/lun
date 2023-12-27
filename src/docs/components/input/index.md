@@ -11,9 +11,19 @@ lang: zh-CN
 
 <!-- @Code:placeholder -->
 
+## 插槽
+
+<!-- @Code:slots -->
+
 ## 多值
 
 <!-- @Code:multiple -->
+
+## 自定义渲染
+
+`renderer`插槽可用于自定义渲染输入框在未编辑且未被悬浮时的展示内容
+
+<!-- @Code:renderer -->
 
 ## 展示字数
 
