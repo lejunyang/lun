@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
     "composite": true,
+    "target": "ES2020",
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "types": [
-      "vitest/globals"
-    ],
-    "baseUrl": ".",
+    "types": ["vitest/globals"],
+    "baseUrl": "."
   },
 }
