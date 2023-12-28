@@ -6,7 +6,16 @@ import { useNamespace } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed, onBeforeUnmount } from 'vue';
 import { FormInputCollector } from '.';
-import { ensureNumber, isArray, isObject, isPlainString, stringToPath, toArrayIfNotNil } from '@lun/utils';
+import {
+  ensureNumber,
+  isArray,
+  isObject,
+  isPlainString,
+  runIfFn,
+  stringToPath,
+  toArrayIfNotNil,
+  virtualGetMerge,
+} from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
 
@@ -14,15 +23,21 @@ const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
   name,
   props: formItemProps,
-  setup(props) {
+  setup(itemProps) {
     const formContext = FormItemCollector.child();
+    const props = computed(() =>
+      virtualGetMerge(
+        itemProps,
+        runIfFn(formContext?.parent?.props.itemProps, { formContext, formItemProps: itemProps }),
+      ),
+    );
     const ns = useNamespace(name, { parent: formContext?.parent });
     const [editComputed] = useSetupEdit();
     const isPlainName = computed(() => {
-      return formContext?.isPlainName(props.name);
+      return formContext?.isPlainName(props.value.name);
     });
     const path = computed(() => {
-      const { name } = props;
+      const { name } = props.value;
       if (!name) return;
       return isPlainName.value ? name : stringToPath(name);
     });
@@ -32,7 +47,7 @@ export const FormItem = defineSSRCustomElement({
       return inputContext.childrenElIndexMap.get(el!);
     };
     const getValue = (vm?: ComponentInternalInstance, value?: any) => {
-      const { array } = props;
+      const { array } = props.value;
       if (!path.value || !formContext) return;
       const getOrSet = value !== undefined ? formContext.setValue : formContext.getValue;
       if (isObject(value) && 'value' in value) value = value.value;
@@ -45,7 +60,7 @@ export const FormItem = defineSSRCustomElement({
       extraProvide: { getValue, setValue: getValue },
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
-        const { array } = props;
+        const { array } = props.value;
         if (!formContext || !array || !path.value) return;
         const value = formContext.getValue(path.value);
         if (isArray(value)) value.splice(index, 1);
@@ -64,14 +79,15 @@ export const FormItem = defineSSRCustomElement({
       }
     };
     const depValues = computed(() => {
-      const { deps } = props;
+      const { deps } = props.value;
       if (!formContext || !deps) return;
       return toArrayIfNotNil(deps).map((name) => formContext.getValue(name));
     });
     const validateProps = computed(() => {
       // TODO plainNameSet in form, depsMatch(deps: string[], match: (values: any[]) => boolean)
       // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
-      const { min, max, lessThan, greaterThan, len, step, precision, type, required, requireWhenDepRequired } = props;
+      const { min, max, lessThan, greaterThan, len, step, precision, type, required, requireWhenDepRequired } =
+        props.value;
       // TODO type === 'date'
       return {
         type,
@@ -88,7 +104,7 @@ export const FormItem = defineSSRCustomElement({
 
     onBeforeUnmount(() => {
       if (!formContext || !path.value) return;
-      switch (props.unmountBehavior) {
+      switch (props.value.unmountBehavior) {
         case 'delete':
           formContext.deletePath(path.value);
           break;
@@ -114,7 +130,10 @@ export const FormItem = defineSSRCustomElement({
         labelWrapperStyle,
         contentWrapperStyle,
         element,
-      } = props;
+        elementProps,
+        label,
+        noLabel,
+      } = props.value;
       if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
       const rMark = required && requiredMark && (
         <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
@@ -122,8 +141,8 @@ export const FormItem = defineSSRCustomElement({
         </span>
       );
       return (
-        <div class={[ns.s(editComputed), ns.is('required', props.required)]} part={ns.p('root')}>
-          {!props.noLabel && (
+        <div class={[ns.s(editComputed), ns.is('required', required)]} part={ns.p('root')}>
+          {!noLabel && (
             <span
               part={ns.p('label')}
               class={[ns.e('label')]}
@@ -135,7 +154,7 @@ export const FormItem = defineSSRCustomElement({
             >
               {requiredMarkAlign === 'start' && rMark}
               <slot name="label-start"></slot>
-              <slot name="label">{props.label}</slot>
+              <slot name="label">{label}</slot>
               {requiredMarkAlign === 'end' && rMark}
               {/* help icon */}
               {colonMark && (
@@ -155,7 +174,11 @@ export const FormItem = defineSSRCustomElement({
               ...contentWrapperStyle,
             }}
           >
-            {element ? renderElement(element, props.elementProps, <slot />) : <slot />}
+            {element ? (
+              renderElement(element, runIfFn(elementProps, { formContext, formItemProps: props.value }), <slot />)
+            ) : (
+              <slot />
+            )}
           </span>
         </div>
       );
