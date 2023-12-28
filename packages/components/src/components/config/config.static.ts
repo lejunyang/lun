@@ -127,7 +127,7 @@ export const GlobalStaticConfig = new Proxy(
         restrictWhen: 'not-composing',
         transformWhen: 'not-composing',
         showClearIcon: true,
-        splitter: /[\s,]/,
+        separator: /[\s,]/,
       },
       popover: {
         offset: 4,

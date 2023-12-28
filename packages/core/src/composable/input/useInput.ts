@@ -5,10 +5,12 @@ import {
   toNumberOrNull,
   debounce as toDebounce,
   throttle as toThrottle,
+  toArrayIfNotNil,
+  getFirstOfIterable,
 } from '@lun/utils';
-import { computed, reactive } from 'vue';
+import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
-export type InputPeriod = 'change' | 'input' | 'not-composing';
+export type InputPeriod = 'change' | 'input' | 'not-composing' | 'auto';
 export type InputType = 'text' | 'number' | 'number-text';
 
 export type UseInputOptions<
@@ -16,8 +18,9 @@ export type UseInputOptions<
   T = InputType extends 'number' | 'number-text' ? number : string,
 > = {
   type?: IType;
+  multiple?: boolean;
   onChange: (val: T | null) => void;
-  updateWhen?: InputPeriod; // TODO for multiple, need two options, input and change
+  updateWhen?: InputPeriod | InputPeriod[];
   debounce?: number;
   throttle?: number;
   waitOptions?: any;
@@ -51,11 +54,13 @@ type TransformedOption = {
   max: number;
   precision: number | null;
   step: number | null;
+  updateWhen: Set<InputPeriod>;
 };
 export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & TransformedOption;
 
-export type UseInputState = {
+export type UseInputState<T> = {
   composing: boolean;
+  transformedOptions: ComputedRef<TransformedUseInputOption<T>>;
 };
 
 function handleNumberBeforeInput(
@@ -123,7 +128,7 @@ export function useInput<
     | 'onKeydown',
   E extends Function = (
     e: Event,
-    state: UseInputState,
+    state: UseInputState<UseInputOptions<IType, ValueType>>,
     utils: {
       transformValue(actionNow: InputPeriod, value: string): any;
       handleEvent(actionNow: InputPeriod, e: Event): void;
@@ -135,9 +140,12 @@ export function useInput<
 ) {
   const options = computed(() => {
     const result = unrefOrGet(optionsGetter)!;
-    const { onChange, debounce, throttle, waitOptions } = result;
+    const { onChange, debounce, throttle, waitOptions, updateWhen: originalUpdate, multiple } = result;
+    const updateWhen = new Set(toArrayIfNotNil(originalUpdate!));
+    if (updateWhen.has('auto') || !updateWhen.size) updateWhen.add(multiple ? 'change' : 'not-composing');
     return {
       ...result,
+      updateWhen,
       min: ensureNumber(result.min, -Infinity),
       max: ensureNumber(result.max, Infinity),
       precision: toNumberOrNull(result.precision),
@@ -151,6 +159,7 @@ export function useInput<
   });
   const state = reactive({
     composing: false,
+    transformedOptions: options,
   });
   const utils = {
     transformValue(actionNow: InputPeriod, value: string) {
@@ -162,7 +171,7 @@ export function useInput<
     },
     handleEvent(actionNow: InputPeriod, e: Event) {
       const {
-        updateWhen = 'not-composing',
+        updateWhen,
         restrict,
         optimizeChPeriodSymbolForNum = true,
         trim,
@@ -172,8 +181,8 @@ export function useInput<
         type = 'text',
       } = options.value;
       const target = e.target as HTMLInputElement;
+      let value = target.value;
       if (restrictWhen === actionNow) {
-        let value = target.value;
         if (type === 'number-text') {
           // native input[type="number"] will eliminate all spaces, we follow that
           value = value.replace(/\s/g, '');
@@ -187,14 +196,17 @@ export function useInput<
           const end = +maxLength;
           if (end >= 0) value = value.substring(0, end);
         }
-        // trim only when change, otherwise it will prevent inputting whitespace in the middle
-        if (trim && actionNow === 'change') target.value = target.value.trim();
-        // only reassign when it's changed
-        // When type = number, value is a empty string when it's not a valid number, you can't assign target.value at this time otherwise the input will clear
+        // only reassign when value is changed
+        // When type = number, value is a empty string when it's not a valid number, you can't assign target.value at this time otherwise the input will be cleared
         // For example, you input '-', trigger input event, but value is '', if you set target.value = '', input will be cleared
         if (value !== target.value) target.value = value;
       }
-      if (updateWhen === actionNow) {
+      // ignore restrictWhen, trim only when actionNow is change, otherwise it will prevent inputting whitespace in the middle
+      if (actionNow === 'change' && trim) {
+        const trimmed = target.value.trim();
+        if (trimmed !== target.value) target.value = trimmed; // same as above, only reassign when value is changed
+      }
+      if (updateWhen.has(actionNow) || value !== target.value) {
         let transformedVal = utils.transformValue(actionNow, target.value);
         transformedVal = extraHandlers?.transform ? extraHandlers.transform(transformedVal, e) : transformedVal;
         onChange(
@@ -239,14 +251,14 @@ export function useInput<
       if (!state.composing) utils.handleEvent('not-composing', e);
     },
     onChange(e: Event) {
-      const { updateWhen = 'not-composing' } = options.value;
+      const { updateWhen } = options.value;
       utils.handleEvent('change', e);
       // inspired by vue3 v-model
       // Safari < 10.2 & UIWebView doesn't fire compositionend when switching focus before confirming composition choice
       // this also fixes the issue where some browsers e.g. iOS Chrome fires "change" instead of "input" on autocomplete.
-      if (state.composing && updateWhen !== 'change') {
+      if (state.composing && !updateWhen.has('change')) {
         state.composing = false;
-        utils.handleEvent(updateWhen || 'input', e);
+        utils.handleEvent(getFirstOfIterable(updateWhen)!, e);
       }
     },
     onCompositionstart() {
