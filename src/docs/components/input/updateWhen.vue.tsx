@@ -24,6 +24,10 @@ export default () => {
       <div>
         updateWhen="change" <l-input v-update={mul.value} updateWhen="change" multiple />
       </div>
+      <div>
+        updateWhen=["change", "not-composing"]
+        <l-input v-update={mul.value} updateWhen={['change', 'not-composing']} multiple />
+      </div>
       <pre style="flex-basis: 100%">multiple values: {JSON.stringify(mul.value)}</pre>
     </>
   );
