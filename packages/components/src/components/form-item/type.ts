@@ -1,7 +1,18 @@
 import { PropType, ExtractPropTypes } from 'vue';
-import { LogicalPosition, PropBoolean, PropNumber, PropObject, PropString, editStateProps, themeProps } from 'common';
-import { MaybePromise } from '@lun/core';
+import {
+  LogicalPosition,
+  PropBoolean,
+  PropNumber,
+  PropObjOrFunc,
+  PropObject,
+  PropString,
+  editStateProps,
+  themeProps,
+} from 'common';
+import { MaybePromise, CollectorContext } from '@lun/core';
 import { ComponentKey } from 'config';
+import { FormProps } from '../form/type';
+import { FormProvideExtra } from '../form';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
 
@@ -13,7 +24,10 @@ export const formItemProps = {
   array: PropBoolean(),
 
   element: PropString<ComponentKey>(),
-  elementProps: PropObject(),
+  elementProps: PropObjOrFunc<
+    | object
+    | ((param: { formContext: CollectorContext<any, any, FormProvideExtra> | undefined; formItemProps: any }) => any)
+  >(),
 
   // props for layout
   rowSpan: PropNumber(),
@@ -65,7 +79,14 @@ export const formItemProps = {
 };
 
 export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;
-export type FormItemProps = Partial<FormItemSetupProps>; 
+export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> & {
+  elementProps?:
+    | object
+    | ((param: {
+        formContext: CollectorContext<FormProps, FormItemProps, FormProvideExtra> | undefined;
+        formItemProps: FormItemSetupProps;
+      }) => any);
+};
 
 export type Rule = {
   type?: string;
