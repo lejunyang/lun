@@ -1,4 +1,4 @@
-import { InputPeriod, InputType } from '@lun/core';
+import { InputPeriod, InputPeriodWithAuto, InputType } from '@lun/core';
 import { ExtractPropTypes } from 'vue';
 import {
   GetEventPropsFromEmits,
@@ -19,7 +19,7 @@ export const baseInputProps = {
   placeholder: PropString(),
   required: PropString(),
   type: PropString<InputType>(),
-  updateWhen: PropStrOrArr<InputPeriod | InputPeriod[]>(),
+  updateWhen: PropStrOrArr<InputPeriodWithAuto | InputPeriodWithAuto[]>(),
   debounce: PropNumber(),
   throttle: PropNumber(),
   waitOptions: {},
@@ -72,7 +72,8 @@ export const inputNumberProps = {
   step: PropNumber(),
   strictStep: { type: Boolean },
   noExponent: { type: Boolean },
-  optimizeChPeriodSymbolForNum: { type: Boolean, default: true },
+
+  replaceChPeriodMark: { type: Boolean, default: true },
 };
 
 export type InputNumberProps = ExtractPropTypes<typeof inputNumberProps>;
