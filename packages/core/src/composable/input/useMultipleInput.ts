@@ -110,7 +110,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
       onInputUpdate && onInputUpdate((e.target as HTMLInputElement).value);
     },
     onKeydown(e, state, utils) {
-      const { multiple, updateWhen } = unrefOrGet(state.transformedOptions)!;
+      const { multiple, updateWhen } = state.transformedOptions;
       if (multiple && isEnterDown(e) && !state.composing) {
         const target = e.target as HTMLInputElement;
         if (target.value) {

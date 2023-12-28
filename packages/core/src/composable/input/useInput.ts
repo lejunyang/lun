@@ -7,10 +7,12 @@ import {
   throttle as toThrottle,
   toArrayIfNotNil,
   getFirstOfIterable,
+  toRegExp,
 } from '@lun/utils';
-import { ComputedRef, computed, reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
-export type InputPeriod = 'change' | 'input' | 'not-composing' | 'auto';
+export type InputPeriod = 'change' | 'input' | 'not-composing';
+export type InputPeriodWithAuto = InputPeriod | 'auto';
 export type InputType = 'text' | 'number' | 'number-text';
 
 export type UseInputOptions<
@@ -20,7 +22,7 @@ export type UseInputOptions<
   type?: IType;
   multiple?: boolean;
   onChange: (val: T | null) => void;
-  updateWhen?: InputPeriod | InputPeriod[];
+  updateWhen?: InputPeriodWithAuto | InputPeriodWithAuto[];
   debounce?: number;
   throttle?: number;
   waitOptions?: any;
@@ -44,9 +46,9 @@ export type UseInputOptions<
   strictStep?: boolean;
   noExponent?: boolean;
   /**
-   * if it's true, will replace '。' with '.'，when type is 'number-text', so that users can input dot symbol directly under chinese input method
+   * if it's true and type is 'number-text', will replace '。' with '.', so that users can input dot mark directly under chinese input method
    */
-  optimizeChPeriodSymbolForNum?: boolean;
+  replaceChPeriodMark?: boolean;
 };
 
 type TransformedOption = {
@@ -60,7 +62,7 @@ export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & Tr
 
 export type UseInputState<T> = {
   composing: boolean;
-  transformedOptions: ComputedRef<TransformedUseInputOption<T>>;
+  transformedOptions: TransformedUseInputOption<T>;
 };
 
 function handleNumberBeforeInput(
@@ -73,15 +75,15 @@ function handleNumberBeforeInput(
     precision,
     step,
     strictStep,
-    optimizeChPeriodSymbolForNum,
+    replaceChPeriodMark,
   }: TransformedUseInputOption<UseInputOptions<'number', number>>,
 ) {
   if (!e.data || (type !== 'number' && type !== 'number-text')) return;
   const noDecimal = precision === 0 || (strictStep && step && Number.isInteger(step));
   const noNegativeSymbol = min >= 0 && noExponent; // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
-  let allowChars = `${optimizeChPeriodSymbolForNum ? '。' : ''}${noExponent ? '' : 'eE'}${
-    noNegativeSymbol ? '' : '\\-'
-  }${max <= 0 ? '' : '+'}${noDecimal ? '' : '.'}`;
+  let allowChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
+    max <= 0 ? '' : '+'
+  }${noDecimal ? '' : '.'}`;
   if (e.data && e.data.match(new RegExp(`[^\\s0-9${allowChars}]`))) {
     console.log('prevented', allowChars);
     return e.preventDefault();
@@ -143,9 +145,10 @@ export function useInput<
     const { onChange, debounce, throttle, waitOptions, updateWhen: originalUpdate, multiple } = result;
     const updateWhen = new Set(toArrayIfNotNil(originalUpdate!));
     if (updateWhen.has('auto') || !updateWhen.size) updateWhen.add(multiple ? 'change' : 'not-composing');
+    updateWhen.delete('auto');
     return {
       ...result,
-      updateWhen,
+      updateWhen: updateWhen as Set<InputPeriod>,
       min: ensureNumber(result.min, -Infinity),
       max: ensureNumber(result.max, Infinity),
       precision: toNumberOrNull(result.precision),
@@ -173,7 +176,7 @@ export function useInput<
       const {
         updateWhen,
         restrict,
-        optimizeChPeriodSymbolForNum = true,
+        replaceChPeriodMark = true,
         trim,
         maxLength,
         restrictWhen = 'not-composing',
@@ -186,10 +189,10 @@ export function useInput<
         if (type === 'number-text') {
           // native input[type="number"] will eliminate all spaces, we follow that
           value = value.replace(/\s/g, '');
-          if (optimizeChPeriodSymbolForNum) value = value.replace(/。/g, '.');
+          if (replaceChPeriodMark) value = value.replace(/。/g, '.');
         }
         if (restrict) {
-          const regex = restrict instanceof RegExp ? restrict : new RegExp(restrict, 'g');
+          const regex = toRegExp(restrict, 'g');
           value = target.value.replace(regex, '');
         }
         if (maxLength != null) {
@@ -199,12 +202,27 @@ export function useInput<
         // only reassign when value is changed
         // When type = number, value is a empty string when it's not a valid number, you can't assign target.value at this time otherwise the input will be cleared
         // For example, you input '-', trigger input event, but value is '', if you set target.value = '', input will be cleared
-        if (value !== target.value) target.value = value;
+        if (value !== target.value) {
+          // const { selectionStart, selectionEnd } = target;
+          target.value = value;
+          // value of input is changed during composition, current composition will be invalid, need to refocus the input to remove the composition
+          // It's very hacky, don't use it for now
+          // if (state.composing && actionNow === 'input') {
+          //   target.blur();
+          //   setTimeout(() => {
+          //     target.focus();
+          //     target.selectionStart = selectionStart! - 1;
+          //     target.selectionEnd = selectionEnd! - 1;
+          //   }, 10);
+          // }
+        }
       }
       // ignore restrictWhen, trim only when actionNow is change, otherwise it will prevent inputting whitespace in the middle
       if (actionNow === 'change' && trim) {
         const trimmed = target.value.trim();
-        if (trimmed !== target.value) target.value = trimmed; // same as above, only reassign when value is changed
+        if (trimmed !== target.value) {
+          target.value = trimmed; // same as above, only reassign when value is changed
+        }
       }
       if (updateWhen.has(actionNow) || value !== target.value) {
         let transformedVal = utils.transformValue(actionNow, target.value);
@@ -239,9 +257,13 @@ export function useInput<
           target.value.substring(0, target.selectionStart || 0) +
           e.data +
           target.value.substring(target.selectionEnd || 0);
-        console.log('nextVal', nextVal);
-        const regex = restrict instanceof RegExp ? restrict : new RegExp(restrict, 'g');
-        if (nextVal.match(regex)) e.preventDefault();
+        console.log('before input nextVal', nextVal);
+        const regex = toRegExp(restrict, 'g');
+        if (nextVal.match(regex)) {
+          // found that if e.isComposing is true, e.preventDefault() will not work...
+          e.preventDefault();
+          // e.target.value = e.target.value; // reassign value can prevent input
+        }
       }
     },
     onInput(e: Event) {
@@ -252,6 +274,7 @@ export function useInput<
     },
     onChange(e: Event) {
       const { updateWhen } = options.value;
+      console.log('change');
       utils.handleEvent('change', e);
       // inspired by vue3 v-model
       // Safari < 10.2 & UIWebView doesn't fire compositionend when switching focus before confirming composition choice

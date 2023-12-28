@@ -41,7 +41,9 @@ export const Input = defineSSRCustomFormElement({
             valueModel.value = val;
           },
           onInputUpdate(val) {
-            console.log('onInputUpdate val', val);
+            // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
+            // and that will cause input composition issue when input is empty
+            if (!props.multiple) return;
             valueForMultiple.value = val || '';
           },
           onEnterDown(e) {
