@@ -4,9 +4,10 @@ import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { exportParts } from '../common/exportParts';
 import { error } from './console';
+import { getFirstOfIterable } from '@lun/utils';
 
 export function getElementFirstName(comp: ComponentKey) {
-  return GlobalStaticConfig.actualNameMap[comp]?.values().next().value;
+  return getFirstOfIterable(GlobalStaticConfig.actualNameMap[comp]);
 }
 
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
