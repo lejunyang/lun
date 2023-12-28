@@ -1,4 +1,4 @@
-import { isString } from "./is";
+import { isRegExp, isString } from './is';
 
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -25,4 +25,9 @@ export function stringToPath(path?: string): string[] {
     })
     .split('.')
     .filter(Boolean);
+}
+
+export function toRegExp(pattern: string | RegExp, flags?: string) {
+  if (isRegExp(pattern)) return pattern;
+  else return new RegExp(pattern, flags);
 }

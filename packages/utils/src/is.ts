@@ -52,3 +52,7 @@ export function isPlainNumber(target: unknown): target is number {
 export function isNumber(target: unknown): target is number | Number {
   return isPlainNumber(target) || target instanceof Number;
 }
+
+export function isRegExp(target: unknown): target is RegExp {
+  return target instanceof RegExp;
+}
