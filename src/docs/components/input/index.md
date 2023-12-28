@@ -29,18 +29,28 @@ lang: zh-CN
 
 ## 自定义更新时机
 通过`updateWhen`属性来自定义输入值的更新时机，可选值有：
-- `input`: input事件时触发更新，当`multiple`为true，在输入过程中遇到`splitter`便立即更新
+- `input`: input事件时触发更新，当`multiple`为true，在输入过程中遇到`separator`便立即更新
 - `not-composing`: input事件时触发更新，处于composition时不更新
 - `change`: change事件时触发更新
 - `auto`: 当`multiple`为true时相当于`change`，当为false时相当于`not-composing`
 
+同时，`updateWhen`支持设置为数组，这通常用于`multiple`为true的时候
 <!-- @Code:updateWhen -->
 
 ## 自定义字符限制时机
-`restrictWhen`
+`restrict`, `maxLength`, `replaceChPeriodMark`这三个属性会限制输入的内容，而`restrictWhen`决定了限制的时机，其可选值有`beforeInput`, `input`, `not-composing`, `change`
+:::warning 注
+不建议将restrictWhen设为input，在input事件中限制字符输入，如果此时处于中文输入composition下会导致字符被吞，但是输入法仍然显示你输入的字符，而且会出现怪异的行为。推荐设为not-composing
+:::
+<!-- @Code:restrictWhen -->
 
 ## 自定义值转换时机
-`transformWhen`
+`transformWhen`用于设置`transform`的时机，可选值有`input`, `not-composing`, `change`
+
+<!-- @Code:transformWhen -->
+:::warning 注
+`updateWhen`必须包含`transformWhen`，值才会被转换
+:::
 
 ## 自定义渲染
 
