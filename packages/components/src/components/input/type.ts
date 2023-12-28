@@ -19,7 +19,7 @@ export const baseInputProps = {
   placeholder: PropString(),
   required: PropString(),
   type: PropString<InputType>(),
-  updateWhen: PropString<InputPeriod | 'auto'>(),
+  updateWhen: PropStrOrArr<InputPeriod | InputPeriod[]>(),
   debounce: PropNumber(),
   throttle: PropNumber(),
   waitOptions: {},
@@ -42,11 +42,13 @@ export const inputProps = {
   ...themeProps,
   value: PropStrOrArr(),
   multiple: PropBoolean(),
-  unique: PropBoolean(), // determines whether to allow duplicate tags when it's multiple
+  /** determines whether to allow duplicate tags when it's multiple input */
+  unique: PropBoolean(),
   tagProps: PropObjOrFunc<((value: any, index: number) => TagProps) | TagProps>(),
   tagRenderer: PropFunction<(value: string, index: number) => any>(),
   tagRendererType: PropString(),
-  splitter: PropString(RegExp),
+  /** separator used to split current input string when it's multiple input */
+  separator: PropString(RegExp),
   label: PropString(),
   labelType: PropString<'float'>(),
   showLengthInfo: PropBoolean(),

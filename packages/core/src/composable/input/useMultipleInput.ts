@@ -1,6 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import {
   getDeepestActiveElement,
+  getFirstOfIterable,
   getNextMatchElInTree,
   getPreviousMatchElInTree,
   isEnterDown,
@@ -17,7 +18,7 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
    * @default 'tagIndex'
    */
   tagIndexAttr?: string;
-  splitter?: string | RegExp;
+  separator?: string | RegExp;
   unique?: boolean;
   reserveInput?: boolean;
   value?: string[] | string | null;
@@ -78,12 +79,12 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   };
 
   const transform = (val: any, e: Event) => {
-    const { splitter = ',', unique, reserveInput, multiple, value, onInputUpdate } = unrefOrGet(options)!;
+    const { separator = ',', unique, reserveInput, multiple, value, onInputUpdate } = unrefOrGet(options)!;
     onInputUpdate && onInputUpdate(val);
     if (!multiple) return val;
     const valuesBefore = toArrayIfNotNil(value);
     if (isNilOrEmptyStr(val)) return value;
-    const valuesNow = val.split(splitter);
+    const valuesNow = val.split(separator);
     console.log('valuesNow', valuesNow);
     if (!valuesNow.length) return val;
     const result = valuesBefore.concat(valuesNow).filter((i) => !isNilOrEmptyStr(i));
@@ -109,11 +110,11 @@ export function useMultipleInput<IType extends InputType = 'text'>(
       onInputUpdate && onInputUpdate((e.target as HTMLInputElement).value);
     },
     onKeydown(e, state, utils) {
-      const { multiple, updateWhen } = unrefOrGet(options)!;
+      const { multiple, updateWhen } = unrefOrGet(state.transformedOptions)!;
       if (multiple && isEnterDown(e) && !state.composing) {
         const target = e.target as HTMLInputElement;
         if (target.value) {
-          utils.handleEvent(updateWhen || 'not-composing', e);
+          utils.handleEvent(getFirstOfIterable(updateWhen)!, e);
         }
       }
     },
