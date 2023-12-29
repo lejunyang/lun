@@ -91,6 +91,13 @@ export const Input = defineSSRCustomFormElement({
       return props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
     });
 
+    const rootOnPointerDown = () => {
+      // input will gain focus after we click anything inside label, but it's not immediate. We need to focus the input to show focus styles as soon as possible
+      requestAnimationFrame(() => {
+        if (editComputed.value.editable) inputRef.value?.focus();
+      });
+    };
+
     const prependSlot = useSlot({ name: 'prepend' });
     const prefixSlot = useSlot({ name: 'prefix' });
     const suffixSlot = useSlot({ name: 'suffix' });
@@ -99,7 +106,7 @@ export const Input = defineSSRCustomFormElement({
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
-      const { multiple, placeholder, labelType, label } = props;
+      const { multiple, placeholder, labelType, label, wrapTags } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       const empty = isEmpty(valueModel.value) && !valueForMultiple.value;
@@ -135,6 +142,7 @@ export const Input = defineSSRCustomFormElement({
               'with-renderer': !rendererSlot.empty.value,
             }),
           ]}
+          onPointerdown={rootOnPointerDown}
         >
           <div
             class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isN('empty', prependSlot.empty.value)]}
@@ -152,7 +160,7 @@ export const Input = defineSSRCustomFormElement({
             <div class={[ns.e('slot'), ns.e('prefix'), ns.isN('empty', prefixSlot.empty.value)]} part="prefix">
               <slot {...prefixSlot.slotProps}></slot>
             </div>
-            <span style="position: relative" part="wrapper">
+            <span class={ns.e('wrapper')} part="wrapper">
               {/* render when value is defined，in case it covers float label and placeholder */}
               {/* TODO support custom renderer when multiple */}
               {!empty && !multiple && (
@@ -161,7 +169,11 @@ export const Input = defineSSRCustomFormElement({
                 </div>
               )}
               {multiple ? (
-                <span {...wrapperHandlers} class={[ns.e('tag-container')]} part="tag-container">
+                <span
+                  {...wrapperHandlers}
+                  class={[ns.e('tag-container'), ns.isN(`wrap`, wrapTags)]}
+                  part="tag-container"
+                >
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
                       const tagProps = mergeProps(runIfFn(props.tagProps, v, index), {
