@@ -4,11 +4,13 @@
 @use '../../mixins/config' as *;
 
 :host {
-  display: inline-block;
+  display: inline-flex;
+  max-inline-size: 100%;
 }
 
 @include b(input) {
   display: inline-flex;
+  max-inline-size: 100%;
   position: relative;
   vertical-align: bottom;
 
@@ -56,6 +58,10 @@
     }
   }
 
+  label {
+    max-inline-size: 100%;
+  }
+
   @include is(disabled) {
     @include e(label) {
       cursor: getDisabledCursor();
@@ -63,6 +69,11 @@
     @include e(inner-input) {
       cursor: getDisabledCursor();
     }
+  }
+
+  @include e(wrapper) {
+    position: relative;
+    overflow: auto;
   }
 
   @include e(inner-input) {
@@ -80,7 +91,7 @@
     padding: 0;
     inline-size: 100%;
 
-    @include declareVars((height, font-size));
+    @include declareVars((block-size, font-size));
 
     // placeholder and selection
     &::placeholder {
@@ -118,12 +129,13 @@
     align-items: center;
   }
 
+  // ----------------- background -----------------
   @include e('background') {
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    transition: border-color 0.3s ease;
+    outline-color: transparent;
     @include declareVars((border-radius));
     .#{$B}:focus-within & {
       outline: 2px solid getFocusColor();
@@ -164,7 +176,7 @@
     box-sizing: border-box;
     @include declareVars(
       (
-        height: height,
+        block-size: block-size,
         min-inline-size: slot-min-inline-size,
         padding-inline: slot-padding-inline,
       )
@@ -257,12 +269,17 @@
     }
   }
 
+  // ----------------- tag-container -----------------
   @include e(tag-container) {
     position: relative;
     z-index: 1;
     display: inline-flex;
     align-items: center;
     min-width: var(#{getVarName(('input', 'tag-container', 'min-width'))}, 140px);
+    flex-wrap: wrap;
+    @include is(not-wrap) {
+      flex-wrap: nowrap;
+    }
   }
 
   $empty: getIs(not-empty, $B);
@@ -274,7 +291,7 @@
       (
         border-radius: getRadiusValue(2),
         font-size: getFontSizeValue(1),
-        height: getSpaceValue(5),
+        block-size: getSpaceValue(5),
         slot-min-inline-size: getSpaceValue(5),
         slot-padding-inline: getSpaceValue(1),
       )
@@ -287,18 +304,17 @@
       font-size: getFontSizeValue(1);
     }
     @include e(inner-input) {
-      padding-block-start: 0.5px;
-      padding-block-end: 1px;
       padding-inline-start: getSpaceValue(1);
       letter-spacing: getLetterSpacingValue(1);
     }
     @include e(tag-container) {
-      padding-inline-start: getSpaceValue(1);
+      padding: getSpaceValue(1);
+      padding-inline-end: 0;
       gap: getSpaceValue(1);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(1);
-      height: getSpaceValue(5);
+      block-size: getSpaceValue(5);
       line-height: getSpaceValue(5);
       font-size: getFontSizeValue(1);
       max-inline-size: calc(100% - 2 * #{getSpaceValue(1)});
@@ -315,7 +331,7 @@
     @include setVars(
       (
         border-radius: getRadiusValue(2),
-        height: getSpaceValue(6),
+        block-size: getSpaceValue(6),
         font-size: getFontSizeValue(2),
         slot-min-inline-size: getSpaceValue(6),
         slot-padding-inline: getSpaceValue(2),
@@ -329,18 +345,17 @@
       font-size: getFontSizeValue(2);
     }
     @include e(inner-input) {
-      padding-block-start: 0.5px;
-      padding-block-end: 1px;
       padding-inline-start: getSpaceValue(2);
       letter-spacing: getLetterSpacingValue(2);
     }
     @include e(tag-container) {
-      padding-inline-start: getSpaceValue(2);
+      padding: getSpaceValue(1);
+      padding-inline-end: 0;
       gap: getSpaceValue(2);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(2);
-      height: getSpaceValue(6);
+      block-size: getSpaceValue(6);
       line-height: getSpaceValue(6);
       font-size: getFontSizeValue(2);
       max-inline-size: calc(100% - 2 * #{getSpaceValue(2)});
@@ -355,7 +370,7 @@
     @include setVars(
       (
         border-radius: getRadiusValue(3),
-        height: getSpaceValue(7),
+        block-size: getSpaceValue(7),
         font-size: getFontSizeValue(3),
         slot-min-inline-size: getSpaceValue(7),
         slot-padding-inline: getSpaceValue(3),
@@ -369,18 +384,17 @@
       font-size: getFontSizeValue(3);
     }
     @include e(inner-input) {
-      padding-block-start: 0.5px;
-      padding-block-end: 1px;
       padding-inline-start: getSpaceValue(3);
       letter-spacing: getLetterSpacingValue(3);
     }
     @include e(tag-container) {
-      padding-inline-start: getSpaceValue(3);
+      padding: getSpaceValue(1);
+      padding-inline-end: 0;
       gap: getSpaceValue(3);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(3);
-      height: getSpaceValue(7);
+      block-size: getSpaceValue(7);
       line-height: getSpaceValue(7);
       font-size: getFontSizeValue(3);
       max-inline-size: calc(100% - 2 * #{getSpaceValue(3)});
@@ -395,11 +409,14 @@
   // multiple
   @include is(multiple) {
     @include e(inner-input) {
-      box-sizing: content-box;
-      // inline-size: 5px;
+      inline-size: unset;
+      block-size: unset; // input height is larger than tag, needs to be unset
       max-inline-size: 100%;
       display: inline-block;
       padding-inline-start: 0;
+    }
+    @include e(slot) {
+      block-size: 100%; // for nowrap tags
     }
   }
 }
