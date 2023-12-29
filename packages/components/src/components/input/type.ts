@@ -27,10 +27,10 @@ export const baseInputProps = {
   maxLength: PropNumber(),
   maxTags: PropNumber(),
   restrict: PropString(RegExp),
-  restrictWhen: PropString<InputPeriod>(),
+  restrictWhen: PropStrOrArr<InputPeriod | 'beforeInput' | (InputPeriod | 'beforeInput')[]>(),
   toNullWhenEmpty: PropBoolean(),
   transform: PropFunction<(value: string | null) => any>(),
-  transformWhen: PropString<InputPeriod>(),
+  transformWhen: PropStrOrArr<InputPeriod | InputPeriod[]>(),
   emitEnterDownWhenComposing: PropBoolean(),
 };
 
@@ -44,6 +44,7 @@ export const inputProps = {
   multiple: PropBoolean(),
   /** determines whether to allow duplicate tags when it's multiple input */
   unique: PropBoolean(),
+  wrapTags: PropBoolean(),
   tagProps: PropObjOrFunc<((value: any, index: number) => TagProps) | TagProps>(),
   tagRenderer: PropFunction<(value: string, index: number) => any>(),
   tagRendererType: PropString(),
