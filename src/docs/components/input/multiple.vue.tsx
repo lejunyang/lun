@@ -14,8 +14,18 @@ export default function () {
           multi.value = e.detail;
         }}
       />
-      disabled: <l-input multiple value={multi.value} disabled placeholder="placeholder" />
-      readonly: <l-input multiple value={multi.value} readonly placeholder="placeholder" />
+      <div>
+        disabled: <l-input multiple value={multi.value} disabled placeholder="placeholder" />
+      </div>
+      <div>
+        readonly: <l-input multiple value={multi.value} readonly placeholder="placeholder" />
+      </div>
+      <div>
+        wrapTags: <l-input multiple value={Array(20).fill(1)} wrapTags />
+      </div>
+      <div style="width: 100%">
+        wrapTags=false: <l-input multiple value={Array(20).fill(1)} wrapTags={false} />
+      </div>
     </>
   );
 }
