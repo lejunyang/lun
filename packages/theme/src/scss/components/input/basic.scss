@@ -6,6 +6,7 @@
 :host {
   display: inline-flex;
   max-inline-size: 100%;
+  vertical-align: bottom;
 }
 
 @include b(input) {
