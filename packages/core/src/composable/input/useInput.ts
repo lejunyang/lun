@@ -29,10 +29,10 @@ export type UseInputOptions<
   trim?: boolean;
   maxLength?: number;
   restrict?: string | RegExp;
-  restrictWhen?: InputPeriod | 'beforeInput';
+  restrictWhen?: InputPeriod | 'beforeInput' | (InputPeriod | 'beforeInput')[];
   toNullWhenEmpty?: boolean;
   transform?: (val: T | null) => T | null;
-  transformWhen?: InputPeriod;
+  transformWhen?: InputPeriod | InputPeriod[];
   onEnterDown?: (e: KeyboardEvent) => void;
   /**
    * enterDown event will not be emitted when composing by default
@@ -57,6 +57,8 @@ type TransformedOption = {
   precision: number | null;
   step: number | null;
   updateWhen: Set<InputPeriod>;
+  restrictWhen: Set<InputPeriod | 'beforeInput'>;
+  transformWhen: Set<InputPeriod>;
 };
 export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & TransformedOption;
 
@@ -142,13 +144,28 @@ export function useInput<
 ) {
   const options = computed(() => {
     const result = unrefOrGet(optionsGetter)!;
-    const { onChange, debounce, throttle, waitOptions, updateWhen: originalUpdate, multiple } = result;
+    const {
+      onChange,
+      debounce,
+      throttle,
+      waitOptions,
+      updateWhen: originalUpdate,
+      multiple,
+      transformWhen: originalTransform,
+      restrictWhen: originalRestrict,
+    } = result;
     const updateWhen = new Set(toArrayIfNotNil(originalUpdate!));
     if (updateWhen.has('auto') || !updateWhen.size) updateWhen.add(multiple ? 'change' : 'not-composing');
     updateWhen.delete('auto');
+    const transformWhen = new Set(toArrayIfNotNil(originalTransform!));
+    if (!transformWhen.size) transformWhen.add('not-composing');
+    const restrictWhen = new Set(toArrayIfNotNil(originalRestrict!));
+    if (!restrictWhen.size) restrictWhen.add('not-composing');
     return {
       ...result,
       updateWhen: updateWhen as Set<InputPeriod>,
+      transformWhen,
+      restrictWhen,
       min: ensureNumber(result.min, -Infinity),
       max: ensureNumber(result.max, Infinity),
       precision: toNumberOrNull(result.precision),
@@ -166,8 +183,8 @@ export function useInput<
   });
   const utils = {
     transformValue(actionNow: InputPeriod, value: string) {
-      const { transform, transformWhen = 'not-composing', toNullWhenEmpty = true } = options.value;
-      if (actionNow !== transformWhen) return value as ValueType;
+      const { transform, transformWhen, toNullWhenEmpty = true } = options.value;
+      if (!transformWhen.has(actionNow)) return value as ValueType;
       let newValue: ValueType | null = value as ValueType;
       if (isFunction(transform)) newValue = transform(newValue);
       return !newValue && newValue !== 0 && toNullWhenEmpty ? null : newValue;
@@ -179,13 +196,13 @@ export function useInput<
         replaceChPeriodMark = true,
         trim,
         maxLength,
-        restrictWhen = 'not-composing',
+        restrictWhen,
         onChange,
         type = 'text',
       } = options.value;
       const target = e.target as HTMLInputElement;
       let value = target.value;
-      if (restrictWhen === actionNow) {
+      if (restrictWhen.has(actionNow)) {
         if (type === 'number-text') {
           // native input[type="number"] will eliminate all spaces, we follow that
           value = value.replace(/\s/g, '');
@@ -252,7 +269,7 @@ export function useInput<
       let { restrict, restrictWhen } = options.value;
       handleNumberBeforeInput(e, options.value as TransformedUseInputOption<UseInputOptions<'number', number>>);
       if (e.defaultPrevented) return;
-      if (e.data && restrict && restrictWhen === 'beforeInput' && e.inputType.startsWith('insert')) {
+      if (e.data && restrict && restrictWhen.has('beforeInput') && e.inputType.startsWith('insert')) {
         const nextVal =
           target.value.substring(0, target.selectionStart || 0) +
           e.data +
