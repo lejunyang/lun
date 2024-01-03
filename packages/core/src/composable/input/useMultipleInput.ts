@@ -22,7 +22,7 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
   unique?: boolean;
   reserveInput?: boolean;
   value?: string[] | string | null;
-  maxTags?: number;
+  maxTags?: number | string;
   onChange: (value: string[]) => void;
   onInputUpdate?: (value: string) => void;
   iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
@@ -103,7 +103,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     onBeforeinput(e) {
       const { value, maxTags } = unrefOrGet(options)!;
       const values = toArrayIfNotNil(value);
-      if (maxTags && values.length >= maxTags) e.preventDefault();
+      if (maxTags && values.length >= +maxTags) e.preventDefault();
     },
     onInput(e) {
       const { onInputUpdate } = unrefOrGet(options);

@@ -54,6 +54,8 @@ export const inputProps = {
   labelType: PropString<'float'>(),
   showLengthInfo: PropBoolean(),
   showClearIcon: PropBoolean(),
+  status: PropString<'success' | 'warning' | 'error'>(),
+  showStatusIcon: PropBoolean(),
 };
 
 export const inputEmits = {

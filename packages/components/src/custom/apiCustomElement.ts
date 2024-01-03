@@ -48,7 +48,7 @@ export type Style = string | CSSStyleSheet;
 
 // overload 1: direct setup function
 export function defineCustomElement<Props, RawBindings = object>(
-  setup: (props: Readonly<Props>, ctx: SetupContext) => RawBindings | RenderFunction
+  setup: (props: Readonly<Props>, ctx: SetupContext) => RawBindings | RenderFunction,
 ): VueElementConstructor<Props>;
 
 // overload 2: object format with no props
@@ -64,7 +64,7 @@ export function defineCustomElement<
   EE extends string = string,
   I extends ComponentInjectOptions = {},
   II extends string = string,
-  S extends SlotsType = {}
+  S extends SlotsType = {},
 >(
   options: ComponentOptionsWithoutProps<Props, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
@@ -73,7 +73,7 @@ export function defineCustomElement<
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
     delegateCEEvents?: { targetId: string; events: string[] };
-  }
+  },
 ): VueElementConstructor<Props>;
 
 // overload 3: object format with array props declaration
@@ -89,7 +89,7 @@ export function defineCustomElement<
   EE extends string = string,
   I extends ComponentInjectOptions = {},
   II extends string = string,
-  S extends SlotsType = {}
+  S extends SlotsType = {},
 >(
   options: ComponentOptionsWithArrayProps<PropNames, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
@@ -98,7 +98,7 @@ export function defineCustomElement<
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
     delegateCEEvents?: { targetId: string; events: string[] };
-  }
+  },
 ): VueElementConstructor<{ [K in PropNames]: any }>;
 
 // overload 4: object format with object props declaration
@@ -114,7 +114,7 @@ export function defineCustomElement<
   EE extends string = string,
   I extends ComponentInjectOptions = {},
   II extends string = string,
-  S extends SlotsType = {}
+  S extends SlotsType = {},
 >(
   options: ComponentOptionsWithObjectProps<PropsOptions, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
@@ -123,7 +123,7 @@ export function defineCustomElement<
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
     delegateCEEvents?: { targetId: string; events: string[] };
-  }
+  },
 ): VueElementConstructor<ExtractPropTypes<PropsOptions>>;
 
 // overload 5: defining a custom element from the returned value of
@@ -213,7 +213,7 @@ export class VueElement extends BaseClass {
   constructor(
     private _def: InnerComponentDef,
     private _props: Record<string, any> = {},
-    hydrate?: RootHydrateFunction
+    hydrate?: RootHydrateFunction,
   ) {
     super();
     if (_def.noShadow) {
@@ -227,7 +227,7 @@ export class VueElement extends BaseClass {
       if (__DEV__ && this.shadowRoot) {
         warn(
           `Custom element has pre-rendered declarative shadow root but is not ` +
-            `defined as hydratable. Use \`defineSSRCustomElement\`.`
+            `defined as hydratable. Use \`defineSSRCustomElement\`.`,
         );
       }
       if (!this._def.noShadow) this.attachShadow({ mode: 'open' });
@@ -242,7 +242,7 @@ export class VueElement extends BaseClass {
         () => {
           return this.shadowRoot!.getElementById(_def.delegateCEEvents!.targetId);
         },
-        _def.delegateCEEvents.events
+        _def.delegateCEEvents.events,
       );
       this._notBindEvents = result?.notBindEvents;
     }
@@ -305,7 +305,7 @@ export class VueElement extends BaseClass {
       if (props && !Array.isArray(props)) {
         for (const key in props) {
           const opt = props[key];
-          if (opt === Number || (opt && opt.type === Number)) {
+          if (opt === Number || (opt && opt.type === Number) || opt?.type?.[0] === Number) {
             if (key in this._props) {
               this._props[key] = toNumberIfValid(this._props[key]);
             }
@@ -431,7 +431,7 @@ export class VueElement extends BaseClass {
             new CustomEvent(event, {
               ...this._def.customEventInit?.[event],
               detail: args.length === 1 ? args[0] : args, // 如果只有一个参数则取出
-            })
+            }),
           );
         };
 

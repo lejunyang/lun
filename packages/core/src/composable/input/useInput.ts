@@ -23,11 +23,11 @@ export type UseInputOptions<
   multiple?: boolean;
   onChange: (val: T | null) => void;
   updateWhen?: InputPeriodWithAuto | InputPeriodWithAuto[];
-  debounce?: number;
-  throttle?: number;
+  debounce?: number | string;
+  throttle?: number | string;
   waitOptions?: any;
   trim?: boolean;
-  maxLength?: number;
+  maxLength?: number | string;
   restrict?: string | RegExp;
   restrictWhen?: InputPeriod | 'beforeInput' | (InputPeriod | 'beforeInput')[];
   toNullWhenEmpty?: boolean;
