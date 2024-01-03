@@ -12,7 +12,7 @@ const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => 
 };
 
 export const PropString = createPropFactory(String);
-export const PropNumber = createPropFactory(Number);
+export const PropNumber = createPropFactory(Number, String);
 export const PropBoolean = createPropFactory(Boolean);
 export const PropObject = createPropFactory(Object);
 export const PropArray = createPropFactory(Array);

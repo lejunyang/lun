@@ -88,7 +88,7 @@ export const Input = defineSSRCustomFormElement({
     const lengthInfo = computed(() => {
       const valueLength = props.multiple ? valueForMultiple.value.length : valueModel.value?.length;
       // if no maxLength, show current char count as length info
-      return props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
+      return +props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
     });
 
     const rootOnPointerDown = () => {
@@ -103,6 +103,19 @@ export const Input = defineSSRCustomFormElement({
     const suffixSlot = useSlot({ name: 'suffix' });
     const appendSlot = useSlot({ name: 'append' });
     const rendererSlot = useSlot({ name: 'renderer' });
+
+    const statusIcon = computed(() => {
+      const { status, showStatusIcon } = props;
+      if (!showStatusIcon) return;
+      switch (status) {
+        case 'success':
+          return renderElement('icon', { name: 'success', class: [ns.em('suffix', 'success-icon')] });
+        case 'error':
+          return renderElement('icon', { name: 'error', class: [ns.em('suffix', 'error-icon')] });
+        case 'warning':
+          return renderElement('icon', { name: 'warning', class: [ns.em('suffix', 'warning-icon')] });
+      }
+    });
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
@@ -211,15 +224,14 @@ export const Input = defineSSRCustomFormElement({
                 ns.e('slot'),
                 ns.e('suffix'),
                 props.showClearIcon && ns.is('with-clear'),
-                ns.isN('empty', suffixSlot.empty.value),
+                ns.isN('empty', suffixSlot.empty.value && !props.showClearIcon && !props.showStatusIcon),
               ]}
               part="suffix"
             >
               {getClearIcon()}
               <slot {...suffixSlot.slotProps}>
-                {/* this is static position clear icon, used to occupy place */}
-                {getClearIcon()}
               </slot>
+              {statusIcon.value}
             </span>
             {props.showLengthInfo && (
               <span class={ns.e('length-info')} part="length-info">
