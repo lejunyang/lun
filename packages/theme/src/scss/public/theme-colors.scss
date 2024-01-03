@@ -9,6 +9,7 @@
   &:not([#{$accent-color-name}]) {
     @include generateThemeColor($color, true);
   }
+  @include generateStatusColor();
 
   // map gray colors
   @each $color in $gray-color-list {

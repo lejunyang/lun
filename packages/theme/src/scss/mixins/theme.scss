@@ -190,6 +190,20 @@
   }
 }
 
+@mixin generateStatusColor($declareVar: true) {
+  // success warning error info color
+  @each $name, $value in $status-color-map {
+    @if $declareVar {
+      @include semanticColor($name, getColor($value, 9));
+    }
+    // status color will override accent color
+    [#{$status-attr-name + '=' + $name}],
+    [#{'data-' + $status-attr-name + '=' + $name}] {
+      @include generateColorProperties($value);
+    }
+  }
+}
+
 @mixin mapGrayColor($target, $noSelector: false) {
   @if $noSelector {
     @for $num from 1 through 12 {
