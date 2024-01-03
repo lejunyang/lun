@@ -9,3 +9,4 @@
 @each $color in $color-list {
   @include generateThemeColor($color);
 }
+@include generateStatusColor(false);

@@ -4,7 +4,10 @@ $element-separator: '__' !default;
 $modifier-separator: '--' !default;
 $state-prefix: 'is-' !default;
 
-$with-where-map: ('is': true, 'modifier': false) !default;
+$with-where-map: (
+  'is': true,
+  'modifier': false,
+) !default;
 
 $color-list: (
   'gray' 'gold' 'bronze' 'brown' 'yellow' 'amber' 'orange' 'tomato' 'red' 'ruby' 'crimson' 'pink' 'plum' 'purple'
@@ -25,6 +28,13 @@ $gray-name: 'gray' !default;
 $gray-color-name: #{$gray-name + '-color'} !default;
 $gray-color-list: ('mauve' 'slate' 'sage' 'olive' 'sand') !default;
 $default-gray-color: 'slate' !default;
+$status-color-map: (
+  'success': 'green',
+  'warning': 'amber',
+  'error': 'red',
+  'info': 'blue',
+) !default;
+$status-attr-name: 'status' !default;
 
 $scale-name: 'scale' !default;
 $scale-list: (0.9, 0.95, 1, 1.05, 1.1) !default;
