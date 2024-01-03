@@ -15,20 +15,11 @@
   position: relative;
   vertical-align: bottom;
 
-  @include declareVars((font-size));
+  @include declareVars((font-size, line-height));
 
   :is(&:hover, &:focus-within) {
     @include is(not-empty) {
       @include is(with-clear, false) {
-        // hide suffix slot content when hover
-        slot {
-          &::slotted(*),
-          * {
-            opacity: 0 !important;
-            pointer-events: none;
-            z-index: -1 !important;
-          }
-        }
         // make clearIcon show when hover
         @include em(suffix, clear-icon) {
           opacity: 1;
@@ -91,6 +82,7 @@
     box-sizing: border-box;
     padding: 0;
     inline-size: 100%;
+    line-height: inherit;
 
     @include declareVars((block-size, font-size));
 
@@ -191,8 +183,7 @@
 
   @include e(suffix, true) {
     @include m(clear-icon) {
-      position: absolute;
-      inset: 0;
+      position: relative;
       opacity: 0;
       pointer-events: none;
       z-index: -1;
@@ -212,6 +203,15 @@
         pointer-events: all;
         cursor: pointer;
       }
+    }
+    @include m(success-icon) {
+      color: getSemanticColor(success);
+    }
+    @include m(error-icon) {
+      color: getSemanticColor(error);
+    }
+    @include m(warning-icon) {
+      color: getSemanticColor(warning);
     }
   }
   // suffix slot default content clear-icon
@@ -293,6 +293,7 @@
         border-radius: getRadiusValue(2),
         font-size: getFontSizeValue(1),
         block-size: getSpaceValue(5),
+        line-height: getSpaceValue(5),
         slot-min-inline-size: getSpaceValue(5),
         slot-padding-inline: getSpaceValue(1),
       )
@@ -334,6 +335,7 @@
         border-radius: getRadiusValue(2),
         block-size: getSpaceValue(6),
         font-size: getFontSizeValue(2),
+        line-height: getSpaceValue(6),
         slot-min-inline-size: getSpaceValue(6),
         slot-padding-inline: getSpaceValue(2),
       )
@@ -373,6 +375,7 @@
         border-radius: getRadiusValue(3),
         block-size: getSpaceValue(7),
         font-size: getFontSizeValue(3),
+        line-height: getSpaceValue(7),
         slot-min-inline-size: getSpaceValue(7),
         slot-padding-inline: getSpaceValue(3),
       )
@@ -411,7 +414,8 @@
   @include is(multiple) {
     @include e(inner-input) {
       inline-size: unset;
-      block-size: unset; // input height is larger than tag, needs to be unset
+      block-size: unset; // input height is larger than tag, needs to be unset, or height of last line tags will be same as input's height
+      line-height: normal; // same as height
       max-inline-size: 100%;
       display: inline-block;
       padding-inline-start: 0;
