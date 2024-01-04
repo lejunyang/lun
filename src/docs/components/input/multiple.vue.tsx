@@ -5,15 +5,19 @@ const multi = ref(['1', '2', '3']);
 export default function () {
   return (
     <>
-      <l-input
-        multiple
-        value={multi.value}
-        placeholder="placeholder"
-        onUpdate={(e) => {
-          console.log('e', e);
-          multi.value = e.detail;
-        }}
-      />
+      <div>
+        maxTags=4
+        <l-input
+          multiple
+          value={multi.value}
+          placeholder="placeholder"
+          maxTags={4}
+          onUpdate={(e) => {
+            console.log('e', e);
+            multi.value = e.detail;
+          }}
+        />
+      </div>
       <div>
         disabled: <l-input multiple value={multi.value} disabled placeholder="placeholder" />
       </div>

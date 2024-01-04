@@ -79,7 +79,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
   };
 
   const transform = (val: any, e: Event) => {
-    const { separator = ',', unique, reserveInput, multiple, value, onInputUpdate } = unrefOrGet(options)!;
+    const { separator = ',', unique, reserveInput, multiple, value, onInputUpdate, maxTags } = unrefOrGet(options)!;
     onInputUpdate && onInputUpdate(val);
     if (!multiple) return val;
     const valuesBefore = toArrayIfNotNil(value);
@@ -96,7 +96,8 @@ export function useMultipleInput<IType extends InputType = 'text'>(
       (e.target as HTMLInputElement).value = '';
       onInputUpdate && onInputUpdate('');
     }
-    return unique ? Array.from(new Set(result)) : result;
+    const final = unique ? Array.from(new Set(result)) : result;
+    return +maxTags! >=0 ? final.slice(0, +maxTags!) : final;
   };
   const [inputHandlers, state] = useInput<IType>(options as any, {
     transform,
