@@ -1,11 +1,12 @@
-import { ExtractPropTypes, PropType } from "vue";
+import { ExtractPropTypes } from "vue";
 import { IconLibraryValue, IconNameValue } from "./icon.default";
+import { PropString } from 'common';
 
 export const iconProps = {
-  library: { type: String as PropType<IconLibraryValue> },
-  name: { type: String as PropType<IconNameValue>, required: true },
-  autoClearCache: { type: Boolean },
-}
+  library: PropString<IconLibraryValue>(),
+  name: PropString<IconNameValue>(),
+  autoClearCache: PropString(),
+};
 
 export type IconSetupProps = ExtractPropTypes<typeof iconProps>;
 export type IconProps = Partial<IconSetupProps>;
