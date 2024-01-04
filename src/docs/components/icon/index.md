@@ -23,21 +23,29 @@ registerIconLibrary({
 </script>
 
 ## 内置默认图标
+
 <div>
   Default Icon Library
   <l-icon name="clear" />
   <l-icon name="down" />
   <l-icon name="x" />
+  <l-icon name="success" />
+  <l-icon name="warning" />
+  <l-icon name="error" />
 </div>
 
 ```html
 <l-icon name="clear" />
 <l-icon name="down" />
 <l-icon name="x" />
+<l-icon name="success" />
+<l-icon name="warning" />
+<l-icon name="error" />
 ```
 
 ## 注册 SVG 图标库
-下面为注册font-awesome图标库的例子
+
+下面为注册 font-awesome 图标库的例子
 
 <div>
   Font Awesome

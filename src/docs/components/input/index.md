@@ -16,7 +16,7 @@ lang: zh-CN
 <!-- @Code:slots -->
 
 ## 多值
-
+`maxTags`属性可限制最大标签数量，`wrapTags`属性可控制标签过多时是否换行
 <!-- @Code:multiple -->
 
 ## 展示字数

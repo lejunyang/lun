@@ -94,7 +94,7 @@ export const Input = defineSSRCustomFormElement({
     const rootOnPointerDown = () => {
       // input will gain focus after we click anything inside label, but it's not immediate. We need to focus the input to show focus styles as soon as possible
       requestAnimationFrame(() => {
-        if (editComputed.value.editable) inputRef.value?.focus();
+        if (editComputed.value.interactive) inputRef.value?.focus();
       });
     };
 
