@@ -23,6 +23,14 @@ const icons = {
       />
     </svg>
   ),
+  up: () => (
+    <svg {...commonProps}>
+      <path
+        fill-rule="evenodd"
+        d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"
+      />
+    </svg>
+  ),
   x: () => (
     <svg {...commonProps}>
       <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
@@ -72,14 +80,9 @@ export const defaultIconLibrary: IconLibrary = {
 };
 
 export interface DefaultIcons {
-  library: 'default';
-  name: keyof typeof icons;
+  library: 'default' | string;
+  name: keyof typeof icons | string;
 }
 
-/** Other registered icon type info */
-export interface RegisteredIcons {}
-
-type P<O, K> = K extends keyof O ? O[K] : never;
-
-export type IconLibraryValue = DefaultIcons['library'] | P<RegisteredIcons, 'library'>;
-export type IconNameValue = DefaultIcons['name'] | P<RegisteredIcons, 'name'>;
+export type IconLibraryValue = DefaultIcons['library'];
+export type IconNameValue = DefaultIcons['name'];

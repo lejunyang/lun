@@ -78,6 +78,12 @@ export const Select = defineSSRCustomFormElement({
 
     const { render, loading, options } = useOptions(props, 'select-option', 'select-optgroup');
 
+    const contentOnPointerDown = () => {
+      requestAnimationFrame(() => {
+        inputRef.value?.focus();
+      });
+    };
+
     // TODO ArrowUp down popup
     return () => {
       const { multiple } = props;
@@ -96,35 +102,38 @@ export const Select = defineSSRCustomFormElement({
               toggleMode: true,
               useTransform: false,
               placement: 'bottom-start',
+              children: ({ isShow }: { isShow: boolean }) =>
+                renderElement(
+                  'input',
+                  {
+                    ...attrs,
+                    ...themeProps,
+                    ref: inputRef,
+                    multiple,
+                    readonly: true,
+                    value: multiple ? valueModel.value : customTagProps(valueModel.value).label,
+                    tagProps: customTagProps,
+                  },
+                  <>
+                    {loading.value
+                      ? renderElement('spin', { slot: 'suffix' })
+                      : renderElement('icon', { name: isShow ? 'up' : 'down', slot: 'suffix' })}
+                  </>,
+                ),
               // TODO pick props
             },
-            <>
-              {/* select input element */}
-              {renderElement(
-                'input',
-                {
-                  ...attrs,
-                  ...themeProps,
-                  ref: inputRef,
-                  multiple,
-                  readonly: true,
-                  value: multiple ? valueModel.value : customTagProps(valueModel.value).label,
-                  tagProps: customTagProps,
-                },
-                <>{loading.value && renderElement('spin', { slot: 'suffix' })}</>,
+            // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
+            <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={contentOnPointerDown}>
+              {!children.value.length && !options.value?.length ? (
+                <slot name="no-content">No content</slot>
+              ) : (
+                <>
+                  {render()}
+                  {/* slot for select children, also assigned to popover content slot */}
+                  <slot></slot>
+                </>
               )}
-              <div class={ns.e('content')} part="content" slot="pop-content">
-                {!children.value.length && !options.value?.length ? (
-                  <slot name="no-content">No content</slot>
-                ) : (
-                  <>
-                    {render()}
-                    {/* slot for select children, also assigned to popover content slot */}
-                    <slot></slot>
-                  </>
-                )}
-              </div>
-            </>,
+            </div>,
           )}
         </>
       );
