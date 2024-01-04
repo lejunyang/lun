@@ -1,7 +1,16 @@
-import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObject, PropString, createTransitionProps, themeProps } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropNumber,
+  PropObjOrFunc,
+  PropObject,
+  PropString,
+  createTransitionProps,
+  themeProps,
+} from 'common';
 import { Placement } from '@floating-ui/vue';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, Responsive, VirtualElement } from '@lun/core';
-import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
+import type { CSSProperties, ExtractPropTypes, PropType, VNode } from 'vue';
 
 export const popoverProps = {
   ...createTransitionProps(),
@@ -14,6 +23,7 @@ export const popoverProps = {
   content: {},
   contentType: PropString(),
   preferHtml: PropBoolean(),
+  children: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(),
 
   placement: PropString<Placement>(),
   offset: PropNumber(),
@@ -30,7 +40,7 @@ export const popoverProps = {
   openDelay: PropNumber(),
   closeDelay: PropNumber(),
   triggers: { type: [String, Array] as PropType<PopoverTrigger | PopoverTrigger[]> },
-  // whether to toggle when retrigger, useful for select(TODO select also need input to trigger)
+  /** it's only for click trigger, used to toggle open and close state when click. */
   toggleMode: PropBoolean(),
   beforeOpen: { type: Function as PropType<() => boolean | void> },
 

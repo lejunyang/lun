@@ -3,7 +3,7 @@ import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition 
 import { unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
-import { isElement, isFunction, isSupportPopover, pick } from '@lun/utils';
+import { isElement, isFunction, isSupportPopover, pick, runIfFn } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset, ElementRects } from '@floating-ui/vue';
@@ -62,7 +62,7 @@ export const Popover = defineSSRCustomElement({
       return virtualTarget.value || slotRef.value;
     });
 
-    const { targetHandler, popContentHandler, options } = usePopover(() => ({
+    const { targetHandlers, popContentHandlers, options } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
       manual: props.open !== undefined,
       isShow,
@@ -83,7 +83,7 @@ export const Popover = defineSSRCustomElement({
           // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
           // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
           const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
-          return floatingOffset + (props.offset || 0);
+          return floatingOffset + (+props.offset! || 0);
         }),
         props.showArrow &&
           arrow({
@@ -101,7 +101,7 @@ export const Popover = defineSSRCustomElement({
     } = useFloating(ceRef, actualPopRef as any, {
       whileElementsMounted: (...args) => {
         return autoUpdate(...args, {
-          elementResize: false,
+          // elementResize: false, // 这个也会影响target的resize， select需要同步target的宽度
         });
       },
       strategy: 'fixed',
@@ -192,7 +192,7 @@ export const Popover = defineSSRCustomElement({
       const { value } = type;
       const result = (
         <div
-          {...popContentHandler}
+          {...popContentHandlers}
           part={ns.p([value === 'teleport' ? 'teleport-fixed' : 'fixed', 'content'])}
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
@@ -208,7 +208,7 @@ export const Popover = defineSSRCustomElement({
     const popover = computed(() => {
       return (
         <div
-          {...popContentHandler}
+          {...popContentHandlers}
           v-show={isOpen.value}
           style={finalFloatingStyles.value}
           part={ns.p(['native', 'content'])}
@@ -245,7 +245,9 @@ export const Popover = defineSSRCustomElement({
           <Transition {...getTransitionProps(props)} {...transitionHandler}>
             {value === 'popover' ? popover.value : fixed.value}
           </Transition>
-          <slot {...targetHandler} ref={slotRef}></slot>
+          <slot {...targetHandlers} ref={slotRef}>
+            {runIfFn(props.children, { isOpen: isOpen.value, isShow: isShow.value })}
+          </slot>
         </>
       );
     };
