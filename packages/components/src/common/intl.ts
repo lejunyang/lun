@@ -10,6 +10,10 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'validation.number.max': '不得大于${max}',
     'validation.number.greaterThan': '不得小于等于${greaterThan}',
     'validation.number.lessThan': '不得大于等于${lessThan}',
+
+    'select.button.selectAll': '全选',
+    'select.button.reverse': '反选',
+    'select.button.clear': '清空',
   },
 });
 

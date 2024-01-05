@@ -19,6 +19,7 @@ export const PropArray = createPropFactory(Array);
 export const PropFunction = createPropFactory(Function);
 export const PropObjOrFunc = createPropFactory(Object, Function);
 export const PropObjOrStr = createPropFactory(Object, String);
+export const PropObjOrBool = createPropFactory(Boolean, Object);
 export const PropStrOrArr = createPropFactory(String, Array as Constructor<string[] | null>);
 
 // const test = {

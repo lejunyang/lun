@@ -1,5 +1,5 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { ComponentInternalInstance, computed, ref, toRef } from 'vue';
+import { ComponentInternalInstance, computed, ref, toRef, mergeProps } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
@@ -10,8 +10,9 @@ import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptgroup } from './SelectOptgroup';
 import { getAllThemeValuesFromInstance, useCEExpose, useNamespace, useOptions, useValueModel } from 'hooks';
-import { pickThemeProps } from 'common';
+import { intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
+import { defineButton } from '../button/Button';
 
 const name = 'select';
 export const Select = defineSSRCustomFormElement({
@@ -92,16 +93,79 @@ export const Select = defineSSRCustomFormElement({
       });
     };
 
+    const themeProps = computed(() => pickThemeProps(props));
+    const buttons = computed(() => {
+      const { multiple, commonButtons } = props;
+      if (!multiple || !commonButtons) return;
+      const buttonConfigs = {
+        selectAll: {
+          ...themeProps.value,
+          label: intl('select.button.selectAll').d('Select All'),
+          onClick: methods.selectAll,
+        },
+        reverse: {
+          ...themeProps.value,
+          label: intl('select.button.reverse').d('Reverse'),
+          onClick: methods.reverse,
+        },
+        clear: {
+          ...themeProps.value,
+          label: intl('select.button.clear').d('Clear'),
+          onClick: methods.unselectAll,
+        },
+      };
+      const result = Object.entries(buttonConfigs)
+        .map(([key, config]) => {
+          let finalConfig = commonButtons === true ? config : commonButtons[key as keyof typeof buttonConfigs];
+          if (!finalConfig) return;
+          else if (finalConfig === true) finalConfig = config;
+          else finalConfig = mergeProps(config, finalConfig);
+          return (
+            (commonButtons === true || commonButtons[key as keyof typeof buttonConfigs]) &&
+            renderElement('button', {
+              ...finalConfig,
+              key,
+            })
+          );
+        })
+        .filter(Boolean);
+      return (
+        <>
+          {result.length && <div class={ns.e('buttons')}>{result}</div>}
+          {result.length && renderElement('divider')}
+        </>
+      );
+    });
+
+    const popoverChildren = ({ isShow }: { isShow: boolean }) => {
+      const { multiple } = props;
+      return renderElement(
+        'input',
+        {
+          ...attrs,
+          ...themeProps.value,
+          ref: inputRef,
+          multiple,
+          readonly: true,
+          value: multiple ? valueModel.value : customTagProps(valueModel.value).label,
+          tagProps: customTagProps,
+        },
+        <>
+          {loading.value
+            ? renderElement('spin', { slot: 'suffix' })
+            : renderElement('icon', { name: isShow ? 'up' : 'down', slot: 'suffix' })}
+        </>,
+      );
+    };
+
     // TODO ArrowUp down popup
     return () => {
-      const { multiple } = props;
-      const themeProps = pickThemeProps(props);
       return (
         <>
           {renderElement(
             'popover',
             {
-              ...themeProps,
+              ...themeProps.value,
               class: [ns.s(editComputed)],
               triggers: ['click', 'focus'],
               sync: 'width',
@@ -110,24 +174,7 @@ export const Select = defineSSRCustomFormElement({
               toggleMode: true,
               useTransform: false,
               placement: 'bottom-start',
-              children: ({ isShow }: { isShow: boolean }) =>
-                renderElement(
-                  'input',
-                  {
-                    ...attrs,
-                    ...themeProps,
-                    ref: inputRef,
-                    multiple,
-                    readonly: true,
-                    value: multiple ? valueModel.value : customTagProps(valueModel.value).label,
-                    tagProps: customTagProps,
-                  },
-                  <>
-                    {loading.value
-                      ? renderElement('spin', { slot: 'suffix' })
-                      : renderElement('icon', { name: isShow ? 'up' : 'down', slot: 'suffix' })}
-                  </>,
-                ),
+              children: popoverChildren,
               // TODO pick props
             },
             // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
@@ -136,6 +183,7 @@ export const Select = defineSSRCustomFormElement({
                 <slot name="no-content">No content</slot>
               ) : (
                 <>
+                  {buttons.value}
                   {render()}
                   {/* slot for select children, also assigned to popover content slot */}
                   <slot></slot>
@@ -157,4 +205,5 @@ export const defineSelect = createDefineElement('select', Select, {
   popover: definePopover,
   input: defineInput,
   spin: defineSpin,
+  button: defineButton,
 });

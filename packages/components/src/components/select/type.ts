@@ -1,8 +1,9 @@
 import { ExtractPropTypes } from 'vue';
-import { PropBoolean, PropStrOrArr, editStateProps, themeProps } from 'common';
+import { PropBoolean, PropObjOrBool, PropStrOrArr, editStateProps, themeProps } from 'common';
 import { popoverProps } from '../popover/type';
 import { omit } from '@lun/utils';
 import { createOptionProps } from 'hooks';
+import { ButtonProps } from '../button/type';
 
 export const selectProps = {
   ...themeProps,
@@ -13,6 +14,8 @@ export const selectProps = {
   autoClose: PropBoolean(),
   /** only for multiple select, will hide selected option in popover */
   hideOptionWhenSelected: PropBoolean(),
+  /** only for multiple select, used to determine whether to show some common button in pop content, also can be used to pass button props to those buttons */
+  commonButtons: PropObjOrBool<boolean | Record<'selectAll' | 'reverse' | 'clear', ButtonProps | boolean>>(),
   ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers']),
 };
 
