@@ -1,12 +1,12 @@
 import { MaybePromiseOrGetter, usePromiseRef } from '@lun/core';
-import { PropType, Ref, StyleValue, WritableComputedRef, toRef } from 'vue';
-import { EditStateProps, editStateProps } from '../common/editStateProps';
+import { PropType, Ref, StyleValue, WritableComputedRef, computed, toRef } from 'vue';
 import { isArray } from '@lun/utils';
 import { error, renderElement } from '../utils';
 import { ComponentKey } from '../components';
+import { PropObject, EditStateProps, editStateProps } from 'common';
 
 type Style = { class?: any; style?: StyleValue };
-export type CommonOption = { label?: string; value: any } & Style & EditStateProps;
+export type CommonOption = { label?: string; value?: any } & Style & EditStateProps;
 export type CommonOptionGroup = {
   label?: string;
   children?: CommonOption[];
@@ -24,14 +24,14 @@ export type CommonOptionNameMap = { label?: string; value?: string; children?: s
  */
 export const createOptionProps = <
   T extends boolean = false,
-  M = T extends true ? CommonOptionNameMap : Omit<CommonOptionNameMap, 'children'>,
+  M extends object = T extends true ? CommonOptionNameMap : Omit<CommonOptionNameMap, 'children'>,
 >(
   _hasChildren?: T,
 ) => {
   return {
     ...editStateProps,
     options: { type: [Array, Function] as PropType<MaybePromiseOrGetter<CommonOptions<T>>> },
-    optionNameMap: { type: Object as PropType<M> },
+    optionNameMap: PropObject<M>(),
   };
 };
 
@@ -61,22 +61,26 @@ export function useOptions<
     if (optionNameMap) {
       const result = { ...option, key: option.value ?? index };
       Object.entries(optionNameMap).forEach(([key, value]) => {
-        if (value) result[key] = option[value];
+        if (value) {
+          result[key] = option[value];
+          result[value] = undefined;
+        }
       });
       return result;
     } else return { ...option, key: option.value ?? index };
   };
   const renderOption = (i: any, index: number) => renderElement(optionName, processOption(i, index), i.label);
-  const render = () => {
+  const render = computed(() => {
     return (
       isArray(options.value) &&
       options.value.map((i: any, index) => {
-        if (groupOptionName && isArray(i.children)) {
-          return renderElement(groupOptionName, processOption(i, index), i.children.map(renderOption));
+        const option = processOption(i, index);
+        if (groupOptionName && isArray(option.children)) {
+          return renderElement(groupOptionName, { ...option, children: undefined }, option.children.map(renderOption));
         }
-        return renderOption(i, index);
+        return renderElement(optionName, option, option.label);
       })
     );
-  };
+  });
   return { options, render, loading };
 }
