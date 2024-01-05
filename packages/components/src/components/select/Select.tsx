@@ -25,8 +25,16 @@ export const Select = defineSSRCustomFormElement({
     const valueModel = useValueModel(props, {
       emit: (name, value) => {
         emit(name as any, value);
-        // if it's multiple, keep focus after change
-        if (props.multiple && inputRef.value) inputRef.value.focus();
+        const { autoClose, multiple } = props;
+        // if it's multiple, keep focus after input change
+        if (multiple) {
+          inputRef.value?.focus();
+        } else if (autoClose && value) {
+          // it has to be after rootOnPointerDown rAF, or focus will reopen popover
+          setTimeout(() => {
+            popoverRef.value?.closePopover();
+          }, 20);
+        }
       },
     });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
