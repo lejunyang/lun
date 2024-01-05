@@ -184,7 +184,7 @@ export const Select = defineSSRCustomFormElement({
               ) : (
                 <>
                   {buttons.value}
-                  {render()}
+                  {render.value}
                   {/* slot for select children, also assigned to popover content slot */}
                   <slot></slot>
                 </>

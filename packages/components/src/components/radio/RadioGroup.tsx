@@ -24,7 +24,7 @@ export const RadioGroup = defineSSRCustomFormElement({
     const { render } = useOptions(props, 'radio');
     return () => (
       <>
-        {render()}
+        {render.value}
         <slot></slot>
       </>
     );

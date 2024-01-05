@@ -80,7 +80,7 @@ export const CheckboxGroup = defineSSRCustomFormElement({
     const { render } = useOptions(props, 'checkbox');
     return () => (
       <>
-        {render()}
+        {render.value}
         <slot></slot>
       </>
     );
