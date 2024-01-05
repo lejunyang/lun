@@ -1,5 +1,5 @@
-import { ExtractPropTypes, PropType } from 'vue';
-import { PropBoolean, editStateProps, themeProps } from 'common';
+import { ExtractPropTypes } from 'vue';
+import { PropBoolean, PropStrOrArr, editStateProps, themeProps } from 'common';
 import { popoverProps } from '../popover/type';
 import { omit } from '@lun/utils';
 import { createOptionProps } from 'hooks';
@@ -7,9 +7,12 @@ import { createOptionProps } from 'hooks';
 export const selectProps = {
   ...themeProps,
   ...createOptionProps(true),
-  value: { type: [String, Array] as PropType<any | any[]> },
+  value: PropStrOrArr(),
   multiple: PropBoolean(),
-  hideOptionWhenSelected: PropBoolean(), // only for multiple select
+  /** if it's not multiple, will close the pop when select an option */
+  autoClose: PropBoolean(),
+  /** only for multiple select, will hide selected option in popover */
+  hideOptionWhenSelected: PropBoolean(),
   ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers']),
 };
 

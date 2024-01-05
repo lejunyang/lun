@@ -38,9 +38,6 @@ export type ShadowComponentKey = (typeof shadowComponents)[number];
 
 export type ComponentStyles = Record<'common' | ShadowComponentKey, (string | CSSStyleSheet)[]>;
 
-let inited = false;
-let isInInitFunc = false;
-
 const styles = shadowComponents.reduce(
   (result, name) => {
     result[name] = [];
@@ -52,9 +49,8 @@ const styles = shadowComponents.reduce(
 const langRef = ref('zh-CN');
 
 /**
- * use `initStaticConfig` to set up your personal config\
- * Please make sure you do it before you import the component or read the config\
- * otherwise you can't modify it anymore
+ * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
+ * change it dynamically may not work
  */
 export const GlobalStaticConfig = new Proxy(
   {
@@ -141,7 +137,9 @@ export const GlobalStaticConfig = new Proxy(
         labelPosition: 'end' as const,
       },
       'radio-group': {},
-      select: {},
+      select: {
+        autoClose: true,
+      },
       'select-option': {},
       'select-optgroup': {},
       spin: {
@@ -207,17 +205,3 @@ export const GlobalStaticConfig = new Proxy(
     },
   },
 );
-
-// TODO use Proxy to intercept GlobalStaticConfig, if some properties were read, freeze the whole object, make inited true
-
-/**
- * GlobalStaticConfig can be initialized with `initStaticConfig` only once.\
- * Repeat call will not take effect
- */
-export function initStaticConfig() {
-  if (inited) {
-    return GlobalStaticConfig;
-  }
-  // need deep freeze
-  Object.freeze(GlobalStaticConfig);
-}
