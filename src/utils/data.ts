@@ -33,6 +33,18 @@ export const groupOptions = [
   { label: 'option5', value: 'value5' },
 ];
 
+export const optionNameMap = {
+  label: 'meaning',
+  value: 'v',
+  children: 'options',
+};
+
+export const renamedGroupOptions = groupOptions.map((groupOption) => ({
+  meaning: groupOption.label,
+  v: groupOption.value,
+  options: groupOption.children?.map((option) => ({ meaning: option.label, v: option.value })),
+}));
+
 export const groupOptionsWithColors = [...groupOptions].map((groupOption, index) => ({
   ...groupOption,
   color: themeColors[themeColors.length - index - 1],

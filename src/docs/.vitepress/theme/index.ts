@@ -25,6 +25,11 @@ export default {
     once = true;
 
     app.component('Code', Code);
+    app.config.warnHandler = (msg, _vm, _trace) => {
+      // ignore injection not found warning
+      if (msg.includes('injection') && msg.includes('not found')) return;
+      console.warn(msg);
+    };
 
     importCommonStyle();
     importAllBasicStyles();
