@@ -47,6 +47,7 @@ export const Popover = defineSSRCustomElement({
       isOpen.value = false;
     };
     const toggle = (force?: boolean) => {
+      options.value.cancelShowOrHide();
       const { value } = popRef;
       if (value) value.togglePopover(force);
       isOpen.value = force !== undefined ? force : !isOpen.value;
@@ -161,13 +162,16 @@ export const Popover = defineSSRCustomElement({
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
     useCEExpose(
       {
-        openPopover: show,
-        closePopover: hide,
         togglePopover: toggle,
         isOpen: () => (props.open !== undefined ? !!props.open : isOpen.value),
         updatePosition: update,
       },
-      toGetterDescriptors(options, { show: 'delayOpenPopover', hide: 'delayClosePopover' }),
+      toGetterDescriptors(options, {
+        show: 'delayOpenPopover',
+        hide: 'delayClosePopover',
+        showNow: 'openPopover',
+        hideNow: 'closePopover',
+      }),
     );
 
     const contentSlot = computed(() => {

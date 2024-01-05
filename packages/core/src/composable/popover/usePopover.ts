@@ -27,9 +27,14 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       tHide = debounce(hide, closeDelay);
     triggers = toArrayIfNotNil(triggers!);
     if (!triggers.length) triggers = ['hover', 'click', 'focus'];
+    const cancelShowOrHide = () => {
+      tShow.cancel();
+      tHide.cancel();
+    };
     return {
       targetFocusThreshold: 20,
       ..._options,
+      cancelShowOrHide,
       triggers: new Set<PopoverTrigger>(triggers),
       show() {
         tHide.cancel();
@@ -40,13 +45,11 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
         tHide();
       },
       showNow() {
-        tShow.cancel();
-        tHide.cancel();
+        cancelShowOrHide();
         show();
       },
       hideNow() {
-        tShow.cancel();
-        tHide.cancel();
+        cancelShowOrHide();
         hide();
       },
     };
