@@ -16,10 +16,20 @@
   @include e(content) {
     display: flex;
     flex-direction: column;
-    gap: getSpaceValue(2);
     @include declareVars(
       (
         padding: content-padding,
+        gap: content-gap,
+      )
+    );
+  }
+
+  @include e(buttons) {
+    display: flex;
+    flex-wrap: wrap;
+    @include declareVars(
+      (
+        gap: buttons-gap,
       )
     );
   }
@@ -29,6 +39,8 @@
       (
         content-padding: getSpaceValue(1),
         content-border-radius: getRadiusValue(2),
+        content-gap: getSpaceValue(1),
+        buttons-gap: getSpaceValue(1),
       )
     );
   }
@@ -37,6 +49,8 @@
       (
         content-padding: getSpaceValue(2),
         content-border-radius: getRadiusValue(2),
+        content-gap: getSpaceValue(2),
+        buttons-gap: getSpaceValue(2),
       )
     );
   }
@@ -45,6 +59,8 @@
       (
         content-padding: getSpaceValue(3),
         content-border-radius: getRadiusValue(3),
+        content-gap: getSpaceValue(3),
+        buttons-gap: getSpaceValue(3),
       )
     );
   }
