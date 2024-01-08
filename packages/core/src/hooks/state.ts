@@ -1,5 +1,5 @@
 import { isFunction, runIfFn } from '@lun/utils';
-import { computed, ref, shallowRef, watchEffect, WatchOptionsBase } from 'vue';
+import { computed, ref, shallowRef, watchEffect, WatchOptionsBase, Ref } from 'vue';
 import { unrefOrGet } from '../utils/ref';
 
 /**
@@ -9,11 +9,35 @@ import { unrefOrGet } from '../utils/ref';
  * @returns
  */
 export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
-  const local = shallowRef<T>(getter());
-  watchEffect(() => {
-    local.value = getter();
-  }, options);
-  return local;
+  let temp = getter();
+  const local = shallowRef<T>(temp);
+  const changed = computed(() => {
+    if (local.value !== temp) {
+      return (changedOnce.value = true);
+    } else return false;
+  });
+  const changedOnce = shallowRef(false);
+  const reset = () => {
+    changedOnce.value = false;
+    return (local.value = temp = getter());
+  };
+  watchEffect(reset, options);
+  Object.defineProperties(local, {
+    changed: {
+      get() {
+        return changed.value;
+      },
+    },
+    changedOnce: {
+      get() {
+        changed.value; // need to access changed to trigger computed
+        return changedOnce.value;
+      },
+    },
+  });
+  return Object.assign(local, {
+    reset,
+  }) as Ref<T> & { reset: () => T; readonly changed: boolean; readonly changedOnce: boolean };
 }
 
 /**
