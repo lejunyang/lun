@@ -2,6 +2,7 @@ import { createCollector, useSelect } from '@lun/core';
 import { Select } from './Select';
 import { SelectOption } from './SelectOption';
 import { ComponentInternalInstance, getCurrentInstance, inject, provide } from 'vue';
+import { CommonOption } from 'hooks';
 
 export * from './Select';
 export * from './SelectOptgroup';
@@ -13,7 +14,7 @@ export const SelectCollector = createCollector({
   name: 'select',
   parent: Select,
   child: SelectOption,
-  parentExtra: null as any as ReturnType<typeof useSelect>,
+  parentExtra: null as any as ReturnType<typeof useSelect> & { isHidden: (option: CommonOption) => boolean },
 });
 
 export const SelectOptgroupContext = (() => {

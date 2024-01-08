@@ -3,8 +3,8 @@ import { ComponentInternalInstance, computed, ref, toRef, mergeProps } from 'vue
 import { createDefineElement, renderElement } from 'utils';
 import { selectProps } from './type';
 import { definePopover } from '../popover/Popover';
-import { useSelect, useSetupEdit } from '@lun/core';
-import { toArrayIfNotNil } from '@lun/utils';
+import { useSelect, useSetupEdit, useTempState } from '@lun/core';
+import { isFunction, toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
@@ -65,7 +65,22 @@ export const Select = defineSSRCustomFormElement({
       allValues: () => data.value.childrenValuesSet,
     });
     const children = SelectCollector.parent({
-      extraProvide: methods,
+      extraProvide: {
+        ...methods,
+        isHidden(option) {
+          const { hideOptionWhenSelected, multiple, filter } = props;
+          const isSelected = methods.isSelected(option.value);
+          let filterResult: boolean | undefined = true;
+          if (filter === true) {
+            filterResult = option.label?.toLowerCase().includes(inputValue.value?.toLowerCase() ?? '');
+          } else if (isFunction(filter)) filterResult = filter(inputValue.value, option);
+          return (hideOptionWhenSelected && multiple && isSelected) || !filterResult;
+        },
+      },
+    });
+
+    const childrenAllHidden = computed(() => {
+      return children.value.every((i) => i.exposed!.hidden.value);
     });
 
     const customTagProps = (value: any) => {
@@ -100,7 +115,7 @@ export const Select = defineSSRCustomFormElement({
       const buttonConfigs = {
         selectAll: {
           ...themeProps.value,
-          label: intl('select.button.selectAll').d('Select All'),
+          label: intl('select.button.selectAll').d('All'),
           onClick: methods.selectAll,
         },
         reverse: {
@@ -137,17 +152,23 @@ export const Select = defineSSRCustomFormElement({
       );
     });
 
+    const inputValue = useTempState(() => customTagProps(valueModel.value).label);
     const popoverChildren = ({ isShow }: { isShow: boolean }) => {
-      const { multiple } = props;
+      const { multiple, filter } = props;
+      const editable = editComputed.value.editable && filter;
       return renderElement(
         'input',
         {
+          // debounce: editable ? 150 : undefined,
           ...attrs,
           ...themeProps.value,
           ref: inputRef,
           multiple,
-          readonly: true,
-          value: multiple ? valueModel.value : customTagProps(valueModel.value).label,
+          readonly: !editable,
+          value: multiple ? valueModel.value : inputValue.value,
+          onUpdate: (e: CustomEvent) => {
+            if (editable) inputValue.value = e.detail;
+          },
           tagProps: customTagProps,
         },
         <>
@@ -166,6 +187,7 @@ export const Select = defineSSRCustomFormElement({
             'popover',
             {
               ...themeProps.value,
+              open: editComputed.value.editable ? undefined : false,
               class: [ns.s(editComputed)],
               triggers: ['click', 'focus'],
               sync: 'width',
@@ -184,6 +206,7 @@ export const Select = defineSSRCustomFormElement({
               ) : (
                 <>
                   {buttons.value}
+                  {childrenAllHidden.value && <slot name="no-content">No content</slot>}
                   {render.value}
                   {/* slot for select children, also assigned to popover content slot */}
                   <slot></slot>

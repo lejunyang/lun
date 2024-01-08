@@ -1,8 +1,8 @@
 import { ExtractPropTypes } from 'vue';
 import { PropBoolean, PropObjOrBool, PropStrOrArr, editStateProps, themeProps } from 'common';
 import { popoverProps } from '../popover/type';
-import { omit } from '@lun/utils';
-import { createOptionProps } from 'hooks';
+import { Constructor, omit } from '@lun/utils';
+import { CommonOption, createOptionProps } from 'hooks';
 import { ButtonProps } from '../button/type';
 
 export const selectProps = {
@@ -10,6 +10,8 @@ export const selectProps = {
   ...createOptionProps(true),
   value: PropStrOrArr(),
   multiple: PropBoolean(),
+  filter: PropBoolean(Function as any as Constructor<(inputValue: string | null, option: CommonOption) => boolean>),
+
   /** if it's not multiple, will close the pop when select an option */
   autoClose: PropBoolean(),
   /** only for multiple select, will hide selected option in popover */
