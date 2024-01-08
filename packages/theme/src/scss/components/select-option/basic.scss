@@ -27,10 +27,16 @@
     white-space: nowrap;
   }
 
-  &:hover:not(#{getIs(disabled)}),
-  &#{getIs(selected)} {
+  @include is(active) {
+    background-color: getGrayColor(5);
+  }
+
+  &#{getIs(selected)}:not(#{getIs(disabled)}) {
     background-color: getAccentColor(9);
     color: getContrastColor(accent);
+    &#{getIs(active)} {
+      background-color: getAccentColor(10);
+    }
   }
 
   @include is(disabled) {

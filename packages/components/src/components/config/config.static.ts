@@ -139,6 +139,8 @@ export const GlobalStaticConfig = new Proxy(
       'radio-group': {},
       select: {
         autoClose: true,
+        upDownToggle: true,
+        autoActivateFirst: true,
       },
       'select-option': {},
       'select-optgroup': {},
