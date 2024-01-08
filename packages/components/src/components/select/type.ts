@@ -18,6 +18,9 @@ export const selectProps = {
   hideOptionWhenSelected: PropBoolean(),
   /** only for multiple select, used to determine whether to show some common button in pop content, also can be used to pass button props to those buttons */
   commonButtons: PropObjOrBool<boolean | Record<'selectAll' | 'reverse' | 'clear', ButtonProps | boolean>>(),
+
+  autoActivateFirst: PropBoolean(),
+  upDownToggle: PropBoolean(),
   ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers']),
 };
 

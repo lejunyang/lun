@@ -14,7 +14,11 @@ export const SelectCollector = createCollector({
   name: 'select',
   parent: Select,
   child: SelectOption,
-  parentExtra: null as any as ReturnType<typeof useSelect> & { isHidden: (option: CommonOption) => boolean },
+  parentExtra: null as any as ReturnType<typeof useSelect> & {
+    isHidden: (option: CommonOption) => boolean;
+    isActive: (vm: ComponentInternalInstance) => boolean;
+    activate: (vm: ComponentInternalInstance) => void;
+  },
 });
 
 export const SelectOptgroupContext = (() => {
