@@ -42,3 +42,15 @@ export function mergeRef(...args: ({ value: any } | { current: any } | ((r: any)
     });
   };
 }
+
+export function refLikeToGetters<M extends Record<string | number | symbol, MaybeRefLikeOrGetter<any>>>(obj: M) {
+  const descriptors: PropertyDescriptorMap = {};
+  for (const key in obj) {
+    descriptors[key] = {
+      get() {
+        return unrefOrGet(obj[key]);
+      },
+    };
+  }
+  return Object.defineProperties({}, descriptors) as { readonly [k in keyof M]: ReturnType<typeof unrefOrGet<M[k]>> };
+}
