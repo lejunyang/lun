@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { computed } from 'vue';
+import { computed, getCurrentInstance } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useSetupContextEvent } from 'hooks';
@@ -11,7 +11,7 @@ const name = 'select-option';
 export const SelectOption = defineSSRCustomElement({
   name,
   props: selectOptionProps,
-  setup(props) {
+  setup(props, { expose }) {
     const selectContext = SelectCollector.child();
     const optgroup = SelectOptgroupContext.inject();
     if (!selectContext) {
@@ -25,20 +25,24 @@ export const SelectOption = defineSSRCustomElement({
     const selected = computed(() => {
       return selectContext.isSelected(props.value);
     });
-    const handler = {
+    const hidden = computed(() => {
+      return selectContext.isHidden(props);
+    });
+    expose({ hidden, selected }); // expose it to Select
+
+    const handlers = {
       onClick() {
         if (editComputed.value.disabled) return;
         selectContext.toggle(props.value);
       },
     };
     return () => {
-      const { hideOptionWhenSelected, multiple } = selectContext?.parent?.props || {};
       return (
         <label
           part="root"
           class={[ns.s(editComputed), ns.is('selected', selected.value), ns.is('under-group', optgroup)]}
-          hidden={hideOptionWhenSelected && multiple && selected.value}
-          onClick={handler.onClick}
+          hidden={hidden.value}
+          {...handlers}
         >
           <slot name="start"></slot>
           <span class={ns.e('label')} part="label">
