@@ -13,6 +13,7 @@ import { getAllThemeValuesFromInstance, useCEExpose, useNamespace, useOptions, u
 import { intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
 import { defineButton } from '../button/Button';
+import { useActivateOption } from './useActivateOption';
 
 const name = 'select';
 export const Select = defineSSRCustomFormElement({
@@ -71,16 +72,26 @@ export const Select = defineSSRCustomFormElement({
           const { hideOptionWhenSelected, multiple, filter } = props;
           const isSelected = methods.isSelected(option.value);
           let filterResult: boolean | undefined = true;
-          if (filter === true) {
-            filterResult = option.label?.toLowerCase().includes(inputValue.value?.toLowerCase() ?? '');
-          } else if (isFunction(filter)) filterResult = filter(inputValue.value, option);
+          // only filter when input value changed once
+          if (inputValue.changedOnce) {
+            if (filter === true) {
+              filterResult = option.label?.toLowerCase().includes(inputValue.value?.toLowerCase() ?? '');
+            } else if (isFunction(filter)) filterResult = filter(inputValue.value, option);
+          }
           return (hideOptionWhenSelected && multiple && isSelected) || !filterResult;
+        },
+        isActive(vm) {
+          return activateMethods.isActive(vm);
+        },
+        activate(vm) {
+          activateMethods.activate(vm);
         },
       },
     });
+    const { methods: activateMethods, handlers: activateHandlers } = useActivateOption(children, () => props); // can not use props directly, as it has 'value' prop...
 
     const childrenAllHidden = computed(() => {
-      return children.value.every((i) => i.exposed!.hidden.value);
+      return children.value.every((i) => i.exposed?.hidden);
     });
 
     const customTagProps = (value: any) => {
@@ -162,13 +173,17 @@ export const Select = defineSSRCustomFormElement({
           // debounce: editable ? 150 : undefined,
           ...attrs,
           ...themeProps.value,
+          ...activateHandlers,
           ref: inputRef,
           multiple,
           readonly: !editable,
           value: multiple ? valueModel.value : inputValue.value,
           onUpdate: (e: CustomEvent) => {
             if (editable) inputValue.value = e.detail;
+            // if it's not multiple, unselect current when input is cleared
+            if (!e.detail && !props.multiple) methods.unselectAll();
           },
+          onBlur: inputValue.reset,
           tagProps: customTagProps,
         },
         <>
@@ -179,7 +194,6 @@ export const Select = defineSSRCustomFormElement({
       );
     };
 
-    // TODO ArrowUp down popup
     return () => {
       return (
         <>
@@ -197,6 +211,7 @@ export const Select = defineSSRCustomFormElement({
               useTransform: false,
               placement: 'bottom-start',
               children: popoverChildren,
+              onAfterClose: activateMethods.resetIndex,
               // TODO pick props
             },
             // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
