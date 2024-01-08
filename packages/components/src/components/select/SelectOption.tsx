@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
-import { useSetupEdit } from '@lun/core';
+import { refLikeToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useSetupContextEvent } from 'hooks';
 import { selectOptionProps } from './type';
@@ -17,6 +17,7 @@ export const SelectOption = defineSSRCustomElement({
     if (!selectContext) {
       throw new Error(name + ' must be used under select');
     }
+    const vm = getCurrentInstance()!;
     const ns = useNamespace(name, { parent: optgroup || selectContext.parent });
 
     useSetupContextEvent();
@@ -28,19 +29,32 @@ export const SelectOption = defineSSRCustomElement({
     const hidden = computed(() => {
       return selectContext.isHidden(props);
     });
-    expose({ hidden, selected }); // expose it to Select
+    const active = computed(() => selectContext.isActive(vm));
+
+    expose(refLikeToGetters({ hidden, selected, disabled: () => editComputed.value.disabled })); // expose it to Select
 
     const handlers = {
       onClick() {
         if (editComputed.value.disabled) return;
         selectContext.toggle(props.value);
       },
+      onPointerenter() {
+        if (editComputed.value.disabled) return;
+        selectContext.activate(vm);
+      },
     };
     return () => {
       return (
         <label
           part="root"
-          class={[ns.s(editComputed), ns.is('selected', selected.value), ns.is('under-group', optgroup)]}
+          class={[
+            ns.s(editComputed),
+            ns.is({
+              selected: selected.value,
+              active: active.value,
+              'under-group': optgroup,
+            }),
+          ]}
           hidden={hidden.value}
           {...handlers}
         >
