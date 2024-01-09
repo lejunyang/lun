@@ -7,6 +7,10 @@ lang: zh-CN
 
 <!-- @Code:basicUsage -->
 
+## 过滤
+
+<!-- @Code:filter -->
+
 ## 多选
 
 使用`hideOptionWhenSelected`属性可以隐藏已选择选项

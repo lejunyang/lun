@@ -9,6 +9,15 @@ export const options = [
   { label: 'option4', value: 'value4' },
   { label: 'option5', value: 'value5' },
 ];
+
+export const optionsForSearch = [
+  { label: 'Jack', value: 'value1' },
+  { label: 'Jason', value: 'value2' },
+  { label: 'John', value: 'value3' },
+  { label: 'Joanna', value: 'value4' },
+  { label: 'Joe', value: 'value5' },
+];
+
 export const optionsWithColors = [...options].map((option, index) => ({
   ...option,
   color: themeColors[themeColors.length - index - 1],
