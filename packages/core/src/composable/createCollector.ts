@@ -53,7 +53,7 @@ export function createCollector<
     : P extends ComponentObjectPropsOptions
     ? ExtractPropTypes<P>
     : C,
-  PE extends Data = Data
+  PE extends Data = Data,
 >(options?: {
   name?: string;
   parent?: P;
@@ -173,6 +173,9 @@ export function createCollector<
       childrenElIndexMap,
       childrenVmElMap,
       vm: instance,
+      getChildVmIndex(childVm: any) {
+        return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
+      },
     };
   };
   const child = (collect = true) => {
@@ -187,3 +190,6 @@ export function createCollector<
   };
   return { parent, child, COLLECTOR_KEY, CHILD_KEY };
 }
+
+export type CollectorParentReturn<P = Data> = ReturnType<ReturnType<typeof createCollector<P>>['parent']>;
+export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
