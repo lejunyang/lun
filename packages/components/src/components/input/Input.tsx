@@ -1,5 +1,5 @@
 import { computed, ref, mergeProps } from 'vue';
-import { useSetupEdit, useMultipleInput } from '@lun/core';
+import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useNamespace, useSlot, useVModelCompatible, useValueModel } from 'hooks';
@@ -26,17 +26,10 @@ export const Input = defineSSRCustomFormElement({
 
     const { inputHandlers, wrapperHandlers } = useMultipleInput(
       computed(() => {
-        let { updateWhen, multiple, ...others } = props;
-        if (updateWhen == null || updateWhen === 'auto') {
-          updateWhen = multiple ? 'change' : 'not-composing';
-        }
         return {
-          ...others,
-          multiple,
-          updateWhen,
+          ...props,
           value: valueModel.value,
           onChange: (val) => {
-            console.log('onChange val', val);
             updateVModel(val);
             valueModel.value = val;
           },
@@ -45,6 +38,7 @@ export const Input = defineSSRCustomFormElement({
             // and that will cause input composition issue when input is empty
             if (!props.multiple) return;
             valueForMultiple.value = val || '';
+            emit('multiInputUpdate', val);
           },
           onEnterDown(e) {
             emit('enterDown', e);
@@ -56,29 +50,33 @@ export const Input = defineSSRCustomFormElement({
       if (props.multiple) {
         valueModel.value = [];
         valueForMultiple.value = '';
+        emit('multiInputUpdate', '');
       } else valueModel.value = null;
     };
 
-    useCEExpose({
-      focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => {
-        if (!inputRef.value) return;
-        const input = inputRef.value;
-        input.focus(options);
-        const len = input.value.length;
-        switch (options?.cursor) {
-          case 'start':
-            input.setSelectionRange(0, 0);
-            break;
-          case 'end':
-            input.setSelectionRange(len, len);
-            break;
-          case 'all':
-            input.select();
-            break;
-        }
+    useCEExpose(
+      {
+        focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => {
+          if (!inputRef.value) return;
+          const input = inputRef.value;
+          input.focus(options);
+          const len = input.value.length;
+          switch (options?.cursor) {
+            case 'start':
+              input.setSelectionRange(0, 0);
+              break;
+            case 'end':
+              input.setSelectionRange(len, len);
+              break;
+            case 'all':
+              input.select();
+              break;
+          }
+        },
+        blur: () => inputRef.value?.blur(),
       },
-      blur: () => inputRef.value?.blur(),
-    });
+      refLikesToGetters({ input: inputRef }),
+    );
 
     const getClearIcon = () =>
       props.showClearIcon &&
@@ -229,8 +227,7 @@ export const Input = defineSSRCustomFormElement({
               part="suffix"
             >
               {getClearIcon()}
-              <slot {...suffixSlot.slotProps}>
-              </slot>
+              <slot {...suffixSlot.slotProps}></slot>
               {statusIcon.value}
             </span>
             {props.showLengthInfo && (
