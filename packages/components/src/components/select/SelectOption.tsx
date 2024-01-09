@@ -1,11 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
-import { refLikeToGetters, useSetupEdit } from '@lun/core';
+import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useNamespace, useSetupContextEvent } from 'hooks';
 import { selectOptionProps } from './type';
 import { SelectCollector, SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
+import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 
 const name = 'select-option';
 export const SelectOption = defineSSRCustomElement({
@@ -31,7 +32,7 @@ export const SelectOption = defineSSRCustomElement({
     });
     const active = computed(() => selectContext.isActive(vm));
 
-    expose(refLikeToGetters({ hidden, selected, disabled: () => editComputed.value.disabled })); // expose it to Select
+    expose(refLikesToGetters({ hidden, selected, disabled: () => editComputed.value.disabled })); // expose it to Select
 
     const handlers = {
       onClick() {
@@ -44,6 +45,7 @@ export const SelectOption = defineSSRCustomElement({
       },
     };
     return () => {
+      const { content, contentType: type, contentPreferHtml: preferHtml } = props;
       return (
         <label
           part="root"
@@ -60,7 +62,11 @@ export const SelectOption = defineSSRCustomElement({
         >
           <slot name="start"></slot>
           <span class={ns.e('label')} part="label">
-            <slot>{props.label}</slot>
+            {content ? (
+              <VCustomRenderer content={content} type={type} preferHtml={preferHtml} />
+            ) : (
+              <slot>{props.label}</slot>
+            )}
           </span>
           {selected.value && <slot name="end">{renderElement('icon', { name: 'check' })}</slot>}
         </label>

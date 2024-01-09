@@ -1,5 +1,5 @@
 import { ExtractPropTypes } from 'vue';
-import { PropBoolean, PropObjOrBool, PropStrOrArr, editStateProps, themeProps } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropObjOrBool, PropStrOrArr, PropString, editStateProps, themeProps } from 'common';
 import { popoverProps } from '../popover/type';
 import { Constructor, omit } from '@lun/utils';
 import { CommonOption, createOptionProps } from 'hooks';
@@ -21,25 +21,37 @@ export const selectProps = {
 
   autoActivateFirst: PropBoolean(),
   upDownToggle: PropBoolean(),
-  ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers']),
+  ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers', 'children']),
+};
+
+export const selectEmits = {
+  update: null,
+  inputUpdate: null,
 };
 
 export const selectOptionProps = {
   ...themeProps,
   ...editStateProps,
   value: { required: true },
-  label: { type: String },
+  label: PropString(),
+  /** used to custom render content, if it's truthy, will use CustomRenderer to render content, 'label' will not be rendered, but 'label' will still be used in filter */
+  content: {},
+  contentType: PropString(),
+  contentPreferHtml: PropBoolean(),
 };
 
 export const selectOptgroupProps = {
   ...themeProps,
   ...editStateProps,
-  label: { type: String },
+  label: PropString(),
 };
 
 export type SelectSetupProps = ExtractPropTypes<typeof selectProps>;
-export type SelectProps = Partial<SelectSetupProps>;
+export type SelectEvents = GetEventPropsFromEmits<typeof selectEmits>;
+export type SelectProps = Partial<SelectSetupProps> & SelectEvents;
+
 export type SelectOptionSetupProps = ExtractPropTypes<typeof selectOptionProps>;
 export type SelectOptionProps = Partial<SelectOptionSetupProps>;
+
 export type SelectOptgroupSetupProps = ExtractPropTypes<typeof selectOptgroupProps>;
 export type SelectOptgroupProps = Partial<SelectOptgroupSetupProps>;
