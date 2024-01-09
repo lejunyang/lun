@@ -1,9 +1,9 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { ComponentInternalInstance, computed, ref, toRef, mergeProps } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
-import { selectProps } from './type';
+import { selectEmits, selectProps } from './type';
 import { definePopover } from '../popover/Popover';
-import { useSelect, useSetupEdit, useTempState } from '@lun/core';
+import { refLikesToGetters, useSelect, useSetupEdit, useTempState } from '@lun/core';
 import { isFunction, toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
@@ -20,7 +20,7 @@ export const Select = defineSSRCustomFormElement({
   name,
   props: selectProps,
   inheritAttrs: false,
-  emits: ['update'],
+  emits: selectEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
@@ -104,12 +104,18 @@ export const Select = defineSSRCustomFormElement({
       else return { label: value };
     };
 
-    useCEExpose({
-      ...methods,
-      focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) =>
-        inputRef.value?.focus(options),
-      blur: () => inputRef.value?.blur(),
-    });
+    useCEExpose(
+      {
+        ...methods,
+        focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) =>
+          inputRef.value?.focus(options),
+        blur: () => inputRef.value?.blur(),
+      },
+      refLikesToGetters({
+        input: inputRef,
+        popover: popoverRef,
+      }),
+    );
 
     const { render, loading, options } = useOptions(props, 'select-option', 'select-optgroup');
 
@@ -179,9 +185,16 @@ export const Select = defineSSRCustomFormElement({
           readonly: !editable,
           value: multiple ? valueModel.value : inputValue.value,
           onUpdate: (e: CustomEvent) => {
-            if (editable) inputValue.value = e.detail;
-            // if it's not multiple, unselect current when input is cleared
-            if (!e.detail && !props.multiple) methods.unselectAll();
+            if (!multiple) {
+              inputValue.value = e.detail;
+              // if it's not multiple, unselect current when input is cleared
+              if (!e.detail) methods.unselectAll();
+              emit('inputUpdate', e.detail);
+            }
+          },
+          onMultiInputUpdate(e: CustomEvent) {
+            inputValue.value = e.detail;
+            emit('inputUpdate', e.detail);
           },
           onBlur: inputValue.reset,
           tagProps: customTagProps,
