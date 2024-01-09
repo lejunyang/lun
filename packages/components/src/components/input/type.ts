@@ -60,6 +60,8 @@ export const inputProps = {
 
 export const inputEmits = {
   update: null,
+  /** only for multiple input, emit when value of inner input updates */
+  multiInputUpdate: null,
   enterDown: null,
 };
 
