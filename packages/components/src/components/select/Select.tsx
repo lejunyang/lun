@@ -86,6 +86,9 @@ export const Select = defineSSRCustomFormElement({
         activate(vm) {
           activateMethods.activate(vm);
         },
+        deactivate() {
+          activateMethods.deactivate();
+        },
       },
     });
     const { methods: activateMethods, handlers: activateHandlers } = useActivateOption(children, () => props); // can not use props directly, as it has 'value' prop...
@@ -197,6 +200,10 @@ export const Select = defineSSRCustomFormElement({
             emit('inputUpdate', e.detail);
           },
           onBlur: inputValue.reset,
+          onEnterDown() {
+            const child = activateMethods.getActiveChild();
+            methods.toggle(child?.props.value);
+          },
           tagProps: customTagProps,
         },
         <>
@@ -224,7 +231,6 @@ export const Select = defineSSRCustomFormElement({
               useTransform: false,
               placement: 'bottom-start',
               children: popoverChildren,
-              onAfterClose: activateMethods.resetIndex,
               // TODO pick props
             },
             // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content

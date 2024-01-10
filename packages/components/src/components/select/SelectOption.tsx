@@ -32,16 +32,21 @@ export const SelectOption = defineSSRCustomElement({
     });
     const active = computed(() => selectContext.isActive(vm));
 
-    expose(refLikesToGetters({ hidden, selected, disabled: () => editComputed.value.disabled })); // expose it to Select
+    const disabled = () => editComputed.value.disabled;
+    expose(refLikesToGetters({ hidden, selected, disabled })); // expose it to Select
 
     const handlers = {
       onClick() {
-        if (editComputed.value.disabled) return;
+        if (disabled()) return;
         selectContext.toggle(props.value);
       },
       onPointerenter() {
-        if (editComputed.value.disabled) return;
+        if (disabled()) return;
         selectContext.activate(vm);
+      },
+      onPointerleave() {
+        if (disabled()) return;
+        selectContext.deactivate();
       },
     };
     return () => {

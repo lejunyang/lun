@@ -18,6 +18,7 @@ export const SelectCollector = createCollector({
     isHidden: (option: CommonOption) => boolean;
     isActive: (vm: ComponentInternalInstance) => boolean;
     activate: (vm: ComponentInternalInstance) => void;
+    deactivate: () => void;
   },
 });
 
