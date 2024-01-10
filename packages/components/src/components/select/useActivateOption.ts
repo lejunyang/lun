@@ -42,6 +42,11 @@ export function useActivateOption(
       else if (value > 0) activeIndex.value!--;
       if (isNotAllDisabled.value && !methods.isValidNow()) methods.activatePrev();
     },
+    activateCurrentSelected() {
+      if (firstSelectedIndex.value !== -1) {
+        return (activeIndex.value = firstSelectedIndex.value);
+      } else return -1;
+    },
     initIndex() {
       if (!isNotAllDisabled.value) {
         activeIndex.value = undefined;
@@ -49,8 +54,7 @@ export function useActivateOption(
       }
       if (activeIndex.value !== undefined) return;
       // if there is a selected option, activate it, or activate the first option according to the autoActivateFirst prop
-      if (firstSelectedIndex.value !== -1) {
-        activeIndex.value = firstSelectedIndex.value;
+      if (methods.activateCurrentSelected() !== -1) {
         return;
       }
       if (unrefOrGet(params)?.autoActivateFirst && collectorParent.value.length) {

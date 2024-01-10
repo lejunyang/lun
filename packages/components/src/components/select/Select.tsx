@@ -1,5 +1,5 @@
 import { defineSSRCustomFormElement } from 'custom';
-import { ComponentInternalInstance, computed, ref, toRef, mergeProps } from 'vue';
+import { ComponentInternalInstance, computed, ref, toRef, mergeProps, nextTick } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
 import { selectEmits, selectProps } from './type';
 import { definePopover } from '../popover/Popover';
@@ -9,7 +9,14 @@ import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptgroup } from './SelectOptgroup';
-import { getAllThemeValuesFromInstance, useCEExpose, useNamespace, useOptions, useValueModel } from 'hooks';
+import {
+  CommonOption,
+  getAllThemeValuesFromInstance,
+  useCEExpose,
+  useNamespace,
+  useOptions,
+  useValueModel,
+} from 'hooks';
 import { intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
 import { defineButton } from '../button/Button';
@@ -46,7 +53,7 @@ export const Select = defineSSRCustomFormElement({
     const data = computed(() => {
       const childrenValuesSet = new Set<any>();
       const valueToChildMap = new Map<any, ComponentInternalInstance>();
-      children.value.forEach((child) => {
+      context.value.forEach((child) => {
         const { value } = child.props;
         if (value != null) {
           childrenValuesSet.add(value);
@@ -65,7 +72,7 @@ export const Select = defineSSRCustomFormElement({
       },
       allValues: () => data.value.childrenValuesSet,
     });
-    const children = SelectCollector.parent({
+    const context = SelectCollector.parent({
       extraProvide: {
         ...methods,
         isHidden(option) {
@@ -91,20 +98,18 @@ export const Select = defineSSRCustomFormElement({
         },
       },
     });
-    const { methods: activateMethods, handlers: activateHandlers } = useActivateOption(children, () => props); // can not use props directly, as it has 'value' prop...
+    const { methods: activateMethods, handlers: activateHandlers } = useActivateOption(context, () => props); // can not use props directly, as it has 'value' prop...
 
     const childrenAllHidden = computed(() => {
-      return children.value.every((i) => i.exposed?.hidden);
+      return context.value.every((i) => i.exposed?.hidden);
     });
 
     const customTagProps = (value: any) => {
       const child = data.value.valueToChildMap.get(value);
-      if (child)
-        return {
-          ...getAllThemeValuesFromInstance(child),
-          label: child.props.label || value,
-        };
-      else return { label: value };
+      return {
+        ...(child ? getAllThemeValuesFromInstance(child) : themeProps.value),
+        label: child?.props.label || value,
+      };
     };
 
     useCEExpose(
@@ -120,7 +125,7 @@ export const Select = defineSSRCustomFormElement({
       }),
     );
 
-    const { render, loading, options } = useOptions(props, 'select-option', 'select-optgroup');
+    const { render, loading, options, renderOptions } = useOptions(props, 'select-option', 'select-optgroup');
 
     const contentOnPointerDown = () => {
       requestAnimationFrame(() => {
@@ -173,9 +178,11 @@ export const Select = defineSSRCustomFormElement({
     });
 
     const inputValue = useTempState(() => customTagProps(valueModel.value).label);
+    const createdOptions = ref([] as CommonOption[]);
+    const createdOptionsRender = computed(() => renderOptions(createdOptions.value));
     const popoverChildren = ({ isShow }: { isShow: boolean }) => {
-      const { multiple, filter } = props;
-      const editable = editComputed.value.editable && filter;
+      const { multiple, filter, freeInput } = props;
+      const editable = editComputed.value.editable && (filter || freeInput);
       return renderElement(
         'input',
         {
@@ -187,15 +194,16 @@ export const Select = defineSSRCustomFormElement({
           multiple,
           readonly: !editable,
           value: multiple ? valueModel.value : inputValue.value,
+          unique: true,
           onUpdate: (e: CustomEvent) => {
             if (!multiple) {
               inputValue.value = e.detail;
               // if it's not multiple, unselect current when input is cleared
               if (!e.detail) methods.unselectAll();
               emit('inputUpdate', e.detail);
-            }
+            } else valueModel.value = e.detail;
           },
-          onMultiInputUpdate(e: CustomEvent) {
+          onTagsComposing(e: CustomEvent) {
             inputValue.value = e.detail;
             emit('inputUpdate', e.detail);
           },
@@ -203,6 +211,15 @@ export const Select = defineSSRCustomFormElement({
           onEnterDown() {
             const child = activateMethods.getActiveChild();
             methods.toggle(child?.props.value);
+          },
+          onTagsAdd(e: CustomEvent<string[]>) {
+            const newOptions = e.detail.map((i) => ({ label: i, value: i }));
+            methods.select(...e.detail);
+            createdOptions.value = createdOptions.value.concat(newOptions);
+            nextTick(activateMethods.activateCurrentSelected);
+          },
+          onTagsRemove(e: CustomEvent) {
+            methods.unselect(...e.detail);
           },
           tagProps: customTagProps,
         },
@@ -235,12 +252,13 @@ export const Select = defineSSRCustomFormElement({
             },
             // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
             <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={contentOnPointerDown}>
-              {!children.value.length && !options.value?.length ? (
+              {!context.value.length && !options.value?.length ? (
                 <slot name="no-content">No content</slot>
               ) : (
                 <>
                   {buttons.value}
                   {childrenAllHidden.value && <slot name="no-content">No content</slot>}
+                  {createdOptionsRender.value}
                   {render.value}
                   {/* slot for select children, also assigned to popover content slot */}
                   <slot></slot>

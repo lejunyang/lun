@@ -11,6 +11,8 @@ export const selectProps = {
   value: PropStrOrArr(),
   multiple: PropBoolean(),
   filter: PropBoolean(Function as any as Constructor<(inputValue: string | null, option: CommonOption) => boolean>),
+  /** used to freely input and create new select options */
+  freeInput: PropBoolean(),
 
   /** if it's not multiple, will close the pop when select an option */
   autoClose: PropBoolean(),
