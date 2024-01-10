@@ -70,17 +70,15 @@ export function useOptions<
     } else return { ...option, key: option.value ?? index };
   };
   const renderOption = (i: any, index: number) => renderElement(optionName, processOption(i, index), i.label);
-  const render = computed(() => {
-    return (
-      isArray(options.value) &&
-      options.value.map((i: any, index) => {
-        const option = processOption(i, index);
-        if (groupOptionName && isArray(option.children)) {
-          return renderElement(groupOptionName, { ...option, children: undefined }, option.children.map(renderOption));
-        }
-        return renderElement(optionName, option, option.label);
-      })
-    );
-  });
-  return { options, render, loading };
+  const renderOptions = (options?: any[]) =>
+    isArray(options) &&
+    options.map((i: any, index) => {
+      const option = processOption(i, index);
+      if (groupOptionName && isArray(option.children)) {
+        return renderElement(groupOptionName, { ...option, children: undefined }, option.children.map(renderOption));
+      }
+      return renderElement(optionName, option, option.label);
+    });
+  const render = computed(() => renderOptions(options.value));
+  return { options, render, loading, renderOptions };
 }
