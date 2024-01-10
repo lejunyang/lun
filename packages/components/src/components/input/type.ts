@@ -61,7 +61,9 @@ export const inputProps = {
 export const inputEmits = {
   update: null,
   /** only for multiple input, emit when value of inner input updates */
-  multiInputUpdate: null,
+  tagsComposing: null,
+  tagsAdd: (_addedTags: string[]) => null,
+  tagsRemove: (_removedTags: string[]) => null,
   enterDown: null,
 };
 
