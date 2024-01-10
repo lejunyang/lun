@@ -25,6 +25,8 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
   maxTags?: number | string;
   onChange: (value: string[]) => void;
   onInputUpdate?: (value: string) => void;
+  onTagsAdd?: (values: string[]) => void;
+  onTagsRemove?: (values: string[]) => void;
   iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
 };
 
@@ -33,14 +35,16 @@ export function useMultipleInput<IType extends InputType = 'text'>(
 ) {
   const handleDeleteTag = (target?: HTMLElement | null) => {
     if (!target) return;
-    const { tagIndexAttr = 'tagIndex', value, onChange, iterateOptions } = unrefOrGet(options)!;
-    const index = Number(target.dataset[tagIndexAttr]);
-    if (Number.isInteger(index) && index >= 0) {
-      const values = toArrayIfNotNil(value!);
-      const newValue = values.filter((_, i) => i !== index);
-      if (onChange) onChange(newValue);
-      // after delete, focus on next tag or input
-      if (values.length !== newValue.length) {
+    const { tagIndexAttr = 'tagIndex', value, onChange, iterateOptions, onTagsRemove } = unrefOrGet(options)!;
+    const index = +target.dataset[tagIndexAttr]!;
+    const values = toArrayIfNotNil(value!);
+    if (Number.isInteger(index) && index >= 0 && index < values.length) {
+      const newValue = values.slice();
+      const removed = newValue.splice(index, 1);
+      if (removed.length) {
+        onChange && onChange(newValue);
+        onTagsRemove && onTagsRemove(removed);
+        // after delete, focus on next tag or input
         const nextTarget = getNextMatchElInTree(target, iterateOptions) as HTMLElement;
         nextTick(() => {
           if (nextTarget.isConnected) nextTarget.focus();
@@ -78,8 +82,17 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     },
   };
 
-  const transform = (val: any, e: Event) => {
-    const { separator = ',', unique, reserveInput, multiple, value, onInputUpdate, maxTags } = unrefOrGet(options)!;
+  const transform = (val: string, e: Event) => {
+    const {
+      separator = ',',
+      unique,
+      reserveInput,
+      multiple,
+      value,
+      onInputUpdate,
+      maxTags,
+      onTagsAdd,
+    } = unrefOrGet(options)!;
     onInputUpdate && onInputUpdate(val);
     if (!multiple) return val;
     const valuesBefore = toArrayIfNotNil(value);
@@ -87,17 +100,28 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     const valuesNow = val.split(separator);
     console.log('valuesNow', valuesNow);
     if (!valuesNow.length) return val;
-    const result = valuesBefore.concat(valuesNow).filter((i) => !isNilOrEmptyStr(i));
     const needChange = e.type === 'change' || valuesNow.length > 1 || isEnterDown(e);
     console.log('needChange', needChange);
     if (!needChange) return valuesBefore;
+    const result = [...valuesBefore];
+    const uniqueResult = new Set(unique ? valuesBefore : undefined);
+    const added: string[] = [];
+    valuesNow.forEach((v) => {
+      if (isNilOrEmptyStr(v)) return;
+      if (unique) {
+        if (uniqueResult.has(v)) return;
+        uniqueResult.add(v);
+      } else result.push(v);
+      added.push(v);
+    });
     // TODO reserveInput is conflict with ‘change' event
     if (!reserveInput) {
       (e.target as HTMLInputElement).value = '';
       onInputUpdate && onInputUpdate('');
     }
-    const final = unique ? Array.from(new Set(result)) : result;
-    return +maxTags! >=0 ? final.slice(0, +maxTags!) : final;
+    const final = unique ? Array.from(uniqueResult) : result;
+    onTagsAdd && added.length && onTagsAdd(added);
+    return +maxTags! >= 0 ? final.slice(0, +maxTags!) : final;
   };
   const [inputHandlers, state] = useInput<IType>(options as any, {
     transform,
