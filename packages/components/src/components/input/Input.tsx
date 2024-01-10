@@ -38,10 +38,16 @@ export const Input = defineSSRCustomFormElement({
             // and that will cause input composition issue when input is empty
             if (!props.multiple) return;
             valueForMultiple.value = val || '';
-            emit('multiInputUpdate', val);
+            emit('tagsComposing', val);
           },
           onEnterDown(e) {
             emit('enterDown', e);
+          },
+          onTagsAdd(addedTags) {
+            emit('tagsAdd', addedTags);
+          },
+          onTagsRemove(removedTags) {
+            emit('tagsRemove', removedTags);
           },
         };
       }),
@@ -50,7 +56,8 @@ export const Input = defineSSRCustomFormElement({
       if (props.multiple) {
         valueModel.value = [];
         valueForMultiple.value = '';
-        emit('multiInputUpdate', '');
+        emit('tagsComposing', '');
+        emit('tagsRemove', []);
       } else valueModel.value = null;
     };
 
