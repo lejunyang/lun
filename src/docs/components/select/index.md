@@ -7,15 +7,19 @@ lang: zh-CN
 
 <!-- @Code:basicUsage -->
 
+## 多选
+使用`hideOptionWhenSelected`属性可以隐藏已选择选项
+
+<!-- @Code:multiple -->
+
 ## 过滤
 
 <!-- @Code:filter -->
 
-## 多选
+## 自由输入
+使用`freeInput`可以使输入框自由输入并生成新的选项，单选时生成的选项会展示在下拉列表中，多选时不会展示，而是在更新后对输入内容进行分词并生成新选项
 
-使用`hideOptionWhenSelected`属性可以隐藏已选择选项
-
-<!-- @Code:multiple -->
+<!-- @Code:freeInput -->
 
 ## 常用按钮
 
