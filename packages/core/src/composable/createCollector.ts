@@ -135,12 +135,14 @@ export function createCollector<
             } else {
               items.value.unshift(child);
               childrenElIndexMap.set(el, 0);
-              prevIndex = 0;
+              prevIndex = -1;
             }
+            // 0 1 2(newOne) 2: prevIndex = 1, 1 + 2 < 4
+            // 0 1 2 3(newOne): prevIndex = 2, 2 + 2 = 4, no need to update
             if (prevIndex! + 2 < items.value.length) {
               // update other elements' index
               for (const [otherEl, index] of childrenElIndexMap.entries()) {
-                if (index >= (prevIndex || 0) && otherEl !== el) childrenElIndexMap.set(otherEl, index + 1);
+                if (index > prevIndex && otherEl !== el) childrenElIndexMap.set(otherEl, index + 1);
               }
             }
           } else {
