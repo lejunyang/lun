@@ -14,6 +14,7 @@ export const SelectCollector = createCollector({
   name: 'select',
   parent: Select,
   child: SelectOption,
+  sort: true,
   parentExtra: null as any as ReturnType<typeof useSelect> & {
     isHidden: (option: CommonOption) => boolean;
     isActive: (vm: ComponentInternalInstance) => boolean;

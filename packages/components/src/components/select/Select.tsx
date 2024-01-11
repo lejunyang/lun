@@ -62,6 +62,7 @@ export const Select = defineSSRCustomFormElement({
       });
       return { childrenValuesSet, valueToChildMap };
     });
+    const valueToChild = (value: any) => data.value.valueToChildMap.get(value);
 
     const methods = useSelect({
       multiple: toRef(props, 'multiple'),
@@ -76,6 +77,7 @@ export const Select = defineSSRCustomFormElement({
       extraProvide: {
         ...methods,
         isHidden(option) {
+          if ((option as any).hidden) return true;
           const { hideOptionWhenSelected, multiple, filter } = props;
           const isSelected = methods.isSelected(option.value);
           let filterResult: boolean | undefined = true;
@@ -100,12 +102,8 @@ export const Select = defineSSRCustomFormElement({
     });
     const { methods: activateMethods, handlers: activateHandlers } = useActivateOption(context, () => props); // can not use props directly, as it has 'value' prop...
 
-    const childrenAllHidden = computed(() => {
-      return context.value.every((i) => i.exposed?.hidden);
-    });
-
     const customTagProps = (value: any) => {
-      const child = data.value.valueToChildMap.get(value);
+      const child = valueToChild(value);
       return {
         ...(child ? getAllThemeValuesFromInstance(child) : themeProps.value),
         label: child?.props.label || value,
@@ -125,7 +123,11 @@ export const Select = defineSSRCustomFormElement({
       }),
     );
 
-    const { render, loading, options, renderOptions } = useOptions(props, 'select-option', 'select-optgroup');
+    const { render, loading, options, renderOptions, renderOption } = useOptions(
+      props,
+      'select-option',
+      'select-optgroup',
+    );
 
     const contentOnPointerDown = () => {
       requestAnimationFrame(() => {
@@ -177,16 +179,52 @@ export const Select = defineSSRCustomFormElement({
       );
     });
 
-    const inputValue = useTempState(() => customTagProps(valueModel.value).label);
+    const inputValue = useTempState(() => (!props.multiple && customTagProps(valueModel.value).label) || ''); // all falsy value to empty string, to prevent inputValue reset
     const createdOptions = ref([] as CommonOption[]);
+    const extra = computed(() => {
+      // any more efficient way to do this?
+      const { value } = inputValue;
+      const { freeInput, multiple } = props;
+      // it's complicate to preview creating options when it's multiple, so disable it
+      const hasCreatingOption = freeInput && value && !multiple;
+      let allHidden = !hasCreatingOption,
+        hasLabelSameAsInput = false;
+      for (let index = hasCreatingOption ? 1 : 0; index < context.value.length; index++) {
+        const i = context.value[index];
+        const hidden = i.exposed?.hidden;
+        if (!hidden) allHidden = false;
+        if (hasCreatingOption && value === i.props.label) {
+          hasLabelSameAsInput = true;
+        }
+      }
+      // allHidden will be affected by creating option, so put them in one computed
+      return {
+        allHidden,
+        creatingOption:
+          freeInput &&
+          renderOption({
+            label: value,
+            value,
+            hidden: !value || !inputValue.changedOnce || hasLabelSameAsInput || multiple,
+            key: -1, // renderOption will use value as key by default, that will lead to rerender every time value changes
+            onClick() {
+              createdOptions.value.unshift({ label: value, value });
+            },
+          }),
+      };
+    });
     const createdOptionsRender = computed(() => renderOptions(createdOptions.value));
+    const popoverHandlers = {
+      onAfterClose: () => {
+        inputValue.reset();
+      },
+    };
     const popoverChildren = ({ isShow }: { isShow: boolean }) => {
       const { multiple, filter, freeInput } = props;
       const editable = editComputed.value.editable && (filter || freeInput);
       return renderElement(
         'input',
         {
-          // debounce: editable ? 150 : undefined,
           ...attrs,
           ...themeProps.value,
           ...activateHandlers,
@@ -195,27 +233,45 @@ export const Select = defineSSRCustomFormElement({
           readonly: !editable,
           value: multiple ? valueModel.value : inputValue.value,
           unique: true,
+          onInput() {
+            const pop = popoverRef.value;
+            if (!pop?.isOpen()) pop.openPopover();
+          },
           onUpdate: (e: CustomEvent) => {
+            const value = e.detail;
             if (!multiple) {
-              inputValue.value = e.detail;
+              inputValue.value = value;
               // if it's not multiple, unselect current when input is cleared
-              if (!e.detail) methods.unselectAll();
-              emit('inputUpdate', e.detail);
-            } else valueModel.value = e.detail;
+              if (value == null) methods.unselectAll();
+              if (freeInput)
+                nextTick(() => {
+                  activateMethods.deactivate();
+                  activateMethods.activateNext();
+                }); // make the current creating option active
+              emit('inputUpdate', value);
+            } else valueModel.value = value;
           },
           onTagsComposing(e: CustomEvent) {
             inputValue.value = e.detail;
             emit('inputUpdate', e.detail);
           },
-          onBlur: inputValue.reset,
           onEnterDown() {
-            const child = activateMethods.getActiveChild();
-            methods.toggle(child?.props.value);
+            const { value } = inputValue;
+            const activeChild = activateMethods.getActiveChild();
+            methods.toggle(activeChild?.props.value);
+            if (!multiple && freeInput && value && inputValue.changed) {
+              const child = valueToChild(value);
+              if (child !== context.value[0]) return;
+              methods.select(value);
+              createdOptions.value.unshift({ label: value, value });
+              inputValue.reset();
+              nextTick(activateMethods.activateCurrentSelected);
+            }
           },
           onTagsAdd(e: CustomEvent<string[]>) {
             const newOptions = e.detail.map((i) => ({ label: i, value: i }));
             methods.select(...e.detail);
-            createdOptions.value = createdOptions.value.concat(newOptions);
+            createdOptions.value.unshift(...newOptions);
             nextTick(activateMethods.activateCurrentSelected);
           },
           onTagsRemove(e: CustomEvent) {
@@ -248,6 +304,7 @@ export const Select = defineSSRCustomFormElement({
               useTransform: false,
               placement: 'bottom-start',
               children: popoverChildren,
+              ...popoverHandlers,
               // TODO pick props
             },
             // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
@@ -257,7 +314,8 @@ export const Select = defineSSRCustomFormElement({
               ) : (
                 <>
                   {buttons.value}
-                  {childrenAllHidden.value && <slot name="no-content">No content</slot>}
+                  {extra.value.allHidden && <slot name="no-content">No content</slot>}
+                  {extra.value.creatingOption}
                   {createdOptionsRender.value}
                   {render.value}
                   {/* slot for select children, also assigned to popover content slot */}
