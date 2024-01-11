@@ -25,7 +25,7 @@ export function useActivateOption(
     deactivate,
     isValidNow() {
       const vmNow = methods.getActiveChild();
-      return vmNow && !vmNow.exposed?.disabled;
+      return vmNow && !vmNow.exposed?.disabled && !vmNow.exposed?.hidden;
     },
     activateNext() {
       const { value } = activeIndex;

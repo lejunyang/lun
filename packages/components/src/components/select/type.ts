@@ -11,7 +11,7 @@ export const selectProps = {
   value: PropStrOrArr(),
   multiple: PropBoolean(),
   filter: PropBoolean(Function as any as Constructor<(inputValue: string | null, option: CommonOption) => boolean>),
-  /** used to freely input and create new select options */
+  /** used to freely input and create new select options, if it's true, filter will also be enabled */
   freeInput: PropBoolean(),
 
   /** if it's not multiple, will close the pop when select an option */
@@ -36,10 +36,12 @@ export const selectOptionProps = {
   ...editStateProps,
   value: { required: true },
   label: PropString(),
+  excludeFromSelect: PropBoolean(),
   /** used to custom render content, if it's truthy, will use CustomRenderer to render content, 'label' will not be rendered, but 'label' will still be used in filter */
   content: {},
   contentType: PropString(),
   contentPreferHtml: PropBoolean(),
+  hidden: PropBoolean(),
 };
 
 export const selectOptgroupProps = {
