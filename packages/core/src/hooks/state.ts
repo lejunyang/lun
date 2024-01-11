@@ -1,5 +1,5 @@
 import { isFunction, runIfFn } from '@lun/utils';
-import { computed, ref, shallowRef, watchEffect, WatchOptionsBase, Ref } from 'vue';
+import { computed, ref, shallowRef, watchEffect, WatchOptionsBase, Ref, watch } from 'vue';
 import { unrefOrGet } from '../utils/ref';
 
 /**
@@ -17,11 +17,11 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
     } else return false;
   });
   const changedOnce = shallowRef(false);
-  const reset = () => {
+  const reset = (val: any) => {
     changedOnce.value = false;
-    return (local.value = temp = getter());
+    return (local.value = temp = val || getter());
   };
-  watchEffect(reset, options);
+  watch(getter, reset, options);
   Object.defineProperties(local, {
     changed: {
       get() {
@@ -37,7 +37,7 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
   });
   return Object.assign(local, {
     reset,
-  }) as Ref<T> & { reset: () => T; readonly changed: boolean; readonly changedOnce: boolean };
+  }) as Ref<T> & { reset: (newVal?: any) => T; readonly changed: boolean; readonly changedOnce: boolean };
 }
 
 /**
