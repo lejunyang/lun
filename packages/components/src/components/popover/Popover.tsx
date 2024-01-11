@@ -112,7 +112,7 @@ export const Popover = defineSSRCustomElement({
       transform: toRef(props, 'useTransform'),
     });
 
-    // handle manually control visibility by outside
+    // handle manual visibility control by external
     watchEffect(() => {
       if (props.open !== undefined) {
         if (props.open) show();
