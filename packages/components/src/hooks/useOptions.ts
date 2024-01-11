@@ -56,7 +56,7 @@ export function useOptions<
       return [];
     },
   }) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
-  const processOption = (option: any, index: number) => {
+  const processOption = (option: any, index?: number) => {
     const { optionNameMap } = props;
     if (optionNameMap) {
       const result = { ...option, key: option.value ?? index };
@@ -67,9 +67,12 @@ export function useOptions<
         }
       });
       return result;
-    } else return { ...option, key: option.value ?? index };
+    } else return { key: option.value ?? index, ...option };
   };
-  const renderOption = (i: any, index: number) => renderElement(optionName, processOption(i, index), i.label);
+  const renderOption = (_option: any, index?: number) => {
+    const option = processOption(_option, index);
+    return renderElement(optionName, option, option.label);
+  };
   const renderOptions = (options?: any[]) =>
     isArray(options) &&
     options.map((i: any, index) => {
@@ -80,5 +83,5 @@ export function useOptions<
       return renderElement(optionName, option, option.label);
     });
   const render = computed(() => renderOptions(options.value));
-  return { options, render, loading, renderOptions };
+  return { options, render, loading, renderOptions, renderOption };
 }
