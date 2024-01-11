@@ -128,13 +128,14 @@ export function createCollector<
               isMatch: (el) => (el as any)[CHILD_KEY],
               shouldStop: (el) => el === state.parentEl,
             });
-            const prevIndex = childrenElIndexMap.get(prev!);
+            let prevIndex = childrenElIndexMap.get(prev!);
             if (prevIndex != null) {
               items.value.splice(prevIndex + 1, 0, child);
               childrenElIndexMap.set(el, prevIndex + 1);
             } else {
               items.value.unshift(child);
               childrenElIndexMap.set(el, 0);
+              prevIndex = 0;
             }
             if (prevIndex! + 2 < items.value.length) {
               // update other elements' index
