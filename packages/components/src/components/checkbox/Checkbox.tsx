@@ -1,6 +1,6 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { computed } from 'vue';
-import { useSetupEdit } from '@lun/core';
+import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
 import { useCheckedModel, useNamespace, useSetupContextEvent, useVModelCompatible } from 'hooks';
 import { CheckboxCollector } from '.';
@@ -15,13 +15,13 @@ export const Checkbox = defineSSRCustomFormElement({
   emits: {
     update: (_detail: CheckboxUpdateDetail) => null,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
     // if it's under CheckboxGroup, it will not be considered as a model
-    const checkedModal = checkboxContext
+    const checkedModel = checkboxContext
       ? undefined
       : useCheckedModel(props, {
           shouldEmit: false,
@@ -30,7 +30,7 @@ export const Checkbox = defineSSRCustomFormElement({
     if (__DEV__) {
       if (checkboxContext && props.value == null)
         warn(
-          `Please assign the 'value' prop with a defined value to the checkbox that it's under a checkbox-group, or it will be ignored`
+          `Please assign the 'value' prop with a defined value to the checkbox that it's under a checkbox-group, or it will be ignored`,
         );
       if (props.checkForAll && !checkboxContext)
         warn(`checkbox with 'checkForAll' only works under checkbox-group, unless you want to manipulate it manually`);
@@ -41,16 +41,16 @@ export const Checkbox = defineSSRCustomFormElement({
       return props.checkForAll && checkboxContext.radioState.value.intermediate;
     });
     const checked = computed(() => {
-      if (!checkboxContext || props.excludeFromGroup) return checkedModal?.value ?? props.checked;
+      if (!checkboxContext || props.excludeFromGroup) return checkedModel?.value ?? props.checked;
       const { radioState } = checkboxContext;
       const { allChecked, isChecked } = radioState.value;
-      return allChecked || (!props.checkForAll && isChecked(props.value));
+      return (allChecked && !editComputed.value.disabled) || (!props.checkForAll && isChecked(props.value));
     });
 
     const updateChecked = (checked: boolean) => {
       // if it's under CheckboxGroup, use value prop as checked value
       const value = checkboxContext ? props.value : checked ? props.trueValue : props.falseValue;
-      if (checkedModal) checkedModal.value = checked;
+      if (checkedModel) checkedModel.value = checked;
       emit('update', {
         value,
         isCheckForAll: props.checkForAll,
@@ -60,7 +60,7 @@ export const Checkbox = defineSSRCustomFormElement({
       });
       updateVModel(value);
     };
-    const handler = {
+    const handlers = {
       onChange(e: Event) {
         const { checked } = e.target as HTMLInputElement;
         updateChecked(checked);
@@ -71,6 +71,8 @@ export const Checkbox = defineSSRCustomFormElement({
         }
       },
     };
+
+    expose(refLikesToGetters({ disabled: () => editComputed.value.disabled }));
     return () => {
       const isChecked = checked.value,
         isIntermediate = intermediate.value;
@@ -96,7 +98,7 @@ export const Checkbox = defineSSRCustomFormElement({
               part={ns.p('indicator')}
               class={ns.e('indicator')}
               tabindex={editable ? 0 : undefined}
-              onKeydown={handler.onKeydown}
+              onKeydown={handlers.onKeydown}
             >
               <slot name="checked" v-show={isChecked}>
                 {renderElement('icon', { name: 'check', style: 'width: 100%; height: 100%' })}
@@ -113,7 +115,7 @@ export const Checkbox = defineSSRCustomFormElement({
                 value={props.value}
                 readonly={readonly}
                 disabled={disabled}
-                onChange={handler.onChange}
+                onChange={handlers.onChange}
                 hidden
               />
             </span>

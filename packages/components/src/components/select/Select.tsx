@@ -56,7 +56,7 @@ export const Select = defineSSRCustomFormElement({
       context.value.forEach((child) => {
         const { value } = child.props;
         if (value != null) {
-          childrenValuesSet.add(value);
+          !child.exposed?.disabled && childrenValuesSet.add(value); // exclude disabled option from value set
           valueToChildMap.set(value, child);
         }
       });

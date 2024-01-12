@@ -27,7 +27,10 @@ export const CheckboxGroup = defineSSRCustomFormElement({
       () =>
         new Set(
           children.value.flatMap((i) =>
-            i.props.value != null && !i.props.checkForAll && !i.props.excludeFromGroup ? [i.props.value] : [],
+            // nullish value, checkForAll, excludeFromGroup, disabled checkbox will be excluded from children values
+            i.props.value != null && !i.props.checkForAll && !i.props.excludeFromGroup && !i.exposed?.disabled
+              ? [i.props.value]
+              : [],
           ),
         ),
     );
