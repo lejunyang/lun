@@ -29,7 +29,7 @@ export const formProps = {
 };
 
 export const formEmits = {
-  update: emitConstructor<{ formData: Record<string, any>; path: string[] | string; value: any }>(),
+  update: emitConstructor<{ formData: Record<string, any>; path: string[] | string; value: any, isDelete?: boolean }>(),
 };
 
 export type FormSetupProps = ExtractPropTypes<typeof formProps>;
