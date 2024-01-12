@@ -45,8 +45,10 @@ export const Form = defineSSRCustomElement({
       },
       setValue(path, value) {
         if (!path) return;
-        if (isArray(path) || !methods.isPlainName(path)) objectSet(form.formData, path, value);
-        else form.formData[path] = value;
+        if (isArray(path) || !methods.isPlainName(path)) {
+          if (!path.length) return;
+          objectSet(form.formData, path, value);
+        } else form.formData[path] = value;
         emit('update', {
           formData: form.formData,
           path,
@@ -57,10 +59,17 @@ export const Form = defineSSRCustomElement({
         if (!path) return;
         if (methods.isPlainName(path as any)) path = stringToPath(path as string);
         if (isArray(path)) {
+          if (!path.length) return;
           const last = path.pop();
           const obj = objectGet(form.formData, path);
           if (isObject(obj)) delete obj[last!];
         } else delete form.formData[path];
+        emit('update', {
+          formData: form.formData,
+          path,
+          value: undefined,
+          isDelete: true,
+        });
       },
       isPlainName(name) {
         return props.plainName || plainNameSet.value.has(name);
@@ -76,7 +85,7 @@ export const Form = defineSSRCustomElement({
         ...methods,
       },
     });
-    
+
     useCEExpose(methods);
     return () => {
       const { layout, cols, labelWidth } = props;
@@ -87,7 +96,9 @@ export const Form = defineSSRCustomElement({
           part={ns.p('root')}
           style={{
             display: layout,
-            gridTemplateColumns: isGrid ? `repeat(${cols}, [label-start] ${labelWidth} [content-start] 1fr)` : undefined,
+            gridTemplateColumns: isGrid
+              ? `repeat(${cols}, [label-start] ${labelWidth} [content-start] 1fr)`
+              : undefined,
           }}
         >
           <slot></slot>
