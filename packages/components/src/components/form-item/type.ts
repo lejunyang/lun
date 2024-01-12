@@ -1,10 +1,12 @@
 import { PropType, ExtractPropTypes } from 'vue';
 import {
   LogicalPosition,
+  PropBoolOrFunc,
   PropBoolean,
   PropNumber,
   PropObjOrFunc,
   PropObject,
+  PropStrOrArr,
   PropString,
   editStateProps,
   themeProps,
@@ -50,12 +52,12 @@ export const formItemProps = {
   tooltip: PropString(),
 
   unmountBehavior: PropString<'delete' | 'null' | 'undefined'>(),
-  deps: { type: [String, Array] as PropType<string | string[]> },
+  deps: PropStrOrArr(),
   clearWhenDepChange: PropBoolean(),
-  disableWhenDepFalsy: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
+  disableWhenDepFalsy: PropString<'all' | 'some' | 'none', BooleanConstructor[]>(Boolean),
   // validate props
   type: PropString(), // can it be auto detected?
-  required: PropBoolean(),
+  required: PropBoolOrFunc<boolean | ((formContext?: FormProvideExtra) => boolean | undefined | null)>(),
   /**
    * to required when deps are required,
    * 'all' means to required when all the deps are required,
@@ -63,7 +65,7 @@ export const formItemProps = {
    * 'none' means to required when none of deps is required,
    * boolean true equals to 'all'
    **/
-  requireWhenDepRequired: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
+  // requireWhenDepTruthy: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
   min: { type: [Number, String] },
   max: { type: [Number, String] },
   greaterThan: { type: [Number, String] },
