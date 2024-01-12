@@ -1,7 +1,16 @@
 import { ExtractPropTypes } from 'vue';
-import { GetEventPropsFromEmits, PropBoolean, PropObjOrBool, PropStrOrArr, PropString, editStateProps, themeProps } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolOrFunc,
+  PropBoolean,
+  PropObjOrBool,
+  PropStrOrArr,
+  PropString,
+  editStateProps,
+  themeProps,
+} from 'common';
 import { popoverProps } from '../popover/type';
-import { Constructor, omit } from '@lun/utils';
+import { omit } from '@lun/utils';
 import { CommonOption, createOptionProps } from 'hooks';
 import { ButtonProps } from '../button/type';
 
@@ -10,7 +19,7 @@ export const selectProps = {
   ...createOptionProps(true),
   value: PropStrOrArr(),
   multiple: PropBoolean(),
-  filter: PropBoolean(Function as any as Constructor<(inputValue: string | null, option: CommonOption) => boolean>),
+  filter: PropBoolOrFunc<boolean | ((inputValue: string | null, option: CommonOption) => boolean)>(),
   /** used to freely input and create new select options */
   freeInput: PropBoolean(),
 
