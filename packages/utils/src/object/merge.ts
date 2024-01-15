@@ -209,10 +209,10 @@ export function virtualMerge<T extends Record<string | symbol, any>[]>(...target
     {},
     {
       get(_target, key) {
-        return targets.find((i) => i[key] !== undefined)?.[key];
+        return targets.find((i) => i?.[key] !== undefined)?.[key];
       },
       set(_, key, value) {
-        const target = targets.find((i) => key in i);
+        const target = targets.find((i) => i && key in i);
         if (target === undefined) return false;
         target[key] = value;
         return true;
@@ -226,7 +226,7 @@ export function virtualGetMerge<T extends Record<string | symbol, any>[]>(...tar
     {},
     {
       get(_target, key) {
-        return targets.find((i) => i[key] !== undefined)?.[key];
+        return targets.find((i) => i?.[key] !== undefined)?.[key];
       },
       set() {
         return false;

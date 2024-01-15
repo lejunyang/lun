@@ -1,4 +1,4 @@
-import { isArray, isFunction } from './is';
+import { isArray, isFunction, isString } from './is';
 
 export function toArrayIfNotNil<T>(target: T): T extends any[] ? T : T extends null | undefined ? unknown[] : T[] {
   return (isArray(target) ? target : target == null ? [] : [target]) as any;
@@ -18,7 +18,8 @@ export function toNoneNilSet<T extends (Iterable<any> | null | undefined)[]>(
 ): Set<ExtractIterable<T[number]>> {
   const result = new Set();
   args.forEach((arg) => {
-    if (isIterable(arg)) Array.from(arg).forEach((item) => item != null && result.add(item));
+    if (isString(arg)) result.add(arg); // string is iterable
+    else if (isIterable(arg)) Array.from(arg).forEach((item) => item != null && result.add(item));
     else if (arg != null) result.add(arg);
   });
   return result as any;
