@@ -14,6 +14,7 @@ const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => 
 export const PropString = createPropFactory(String);
 export const PropNumber = createPropFactory(Number, String);
 export const PropBoolean = createPropFactory(Boolean);
+export const PropBoolOrStr = createPropFactory(Boolean, String);
 export const PropBoolOrFunc = createPropFactory(Boolean, Function);
 export const PropObject = createPropFactory(Object);
 export const PropArray = createPropFactory(Array);
