@@ -1,16 +1,20 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { formItemProps } from './type';
+import { ValidateTrigger, formItemProps } from './type';
 import { useNamespace } from 'hooks';
 import { FormItemCollector } from '../form';
-import { ComponentInternalInstance, computed, onBeforeUnmount, watch } from 'vue';
+import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch } from 'vue';
 import { FormInputCollector } from '.';
 import {
+  AnyFn,
   ensureNumber,
   isArray,
+  isEmpty,
+  isFunction,
   isObject,
   isPlainString,
+  objectGet,
   runIfFn,
   simpleObjectEquals,
   stringToPath,
@@ -19,6 +23,7 @@ import {
 } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
+import { innerValidator } from './formItem.validate';
 
 const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
@@ -139,8 +144,7 @@ export const FormItem = defineSSRCustomElement({
     const transform = (val: any, type = 'number') => {
       if (typeof val === type) return val;
       if (!isPlainString(val)) return;
-      const path = isPlainName.value ? val : stringToPath(val);
-      const value = formContext.getValue(path);
+      const value = formContext.getValue(path.value);
       switch (type) {
         case 'number':
           const { isNaN, toNumber } = GlobalStaticConfig.math;
@@ -161,16 +165,29 @@ export const FormItem = defineSSRCustomElement({
       });
       return { allFalsy, someFalsy, depValues, noneFalsy: !!temp.length && !someFalsy };
     });
-    watch(depInfo, (info, oldInfo) => {
-      let { clearWhenDepChange, disableWhenDepFalsy, array } = props.value;
+    const localRequired = ref(false);
+    watch(depInfo, (info, oldInfo, onCleanUp) => {
+      let { clearWhenDepChange, disableWhenDepFalsy, array, requireWhenDepTruthy } = props.value;
       const { allFalsy, someFalsy, depValues, noneFalsy } = info;
       const { depValues: oldDepValues } = oldInfo;
+      if (canValidate('depChange')) validate(onCleanUp);
       if (
         clearWhenDepChange &&
         (depValues.length !== oldDepValues.length || !simpleObjectEquals(depValues, oldDepValues))
       ) {
         formContext.setValue(path.value, array ? [] : null);
       }
+      (() => {
+        if (requireWhenDepTruthy === true) requireWhenDepTruthy = 'all';
+        switch (requireWhenDepTruthy) {
+          case 'all':
+            return (localRequired.value = !noneFalsy);
+          case 'some':
+            return (localRequired.value = someFalsy && !allFalsy);
+          case 'none':
+            return (localRequired.value = allFalsy);
+        }
+      })();
       if (disableWhenDepFalsy === true) disableWhenDepFalsy = 'all';
       switch (disableWhenDepFalsy) {
         case 'all':
@@ -181,7 +198,17 @@ export const FormItem = defineSSRCustomElement({
           return (editState.disabled = noneFalsy);
       }
     });
+    const itemErrors = computed(() => {
+      return formContext.form.getError(path.value);
+    });
 
+    const canValidate = (trigger: ValidateTrigger) => {
+      const { validateWhen, revalidateWhen } = props.value;
+      return (
+        (toArrayIfNotNil(validateWhen || 'blur') as ValidateTrigger[]).includes(trigger) ||
+        (!isEmpty(itemErrors.value) && (toArrayIfNotNil(revalidateWhen) as ValidateTrigger[]).includes(trigger))
+      );
+    };
     const validateProps = computed(() => {
       // TODO plainNameSet in form, depsMatch(deps: string[], match: (values: any[]) => boolean)
       // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
@@ -189,7 +216,7 @@ export const FormItem = defineSSRCustomElement({
       // TODO type === 'date'
       return {
         type,
-        required: runIfFn(required, formContext) || false,
+        required: (runIfFn(required, formContext) ?? localRequired.value) || false,
         min: transform(min),
         max: transform(max),
         lessThan: transform(lessThan),
@@ -199,6 +226,47 @@ export const FormItem = defineSSRCustomElement({
         precision: transform(precision),
       };
     });
+    const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
+      const value = formContext.getValue(path.value);
+      const { stopValidate, validators: formValidators } = formContext.parent!.props;
+      const stopEarly = stopValidate === 'first';
+      const { validators } = props.value;
+      const errors = toArrayIfNotNil(
+        await innerValidator(value, formContext.form.formData, validateProps.value),
+      ) as string[];
+      if (stopEarly && errors.length) {
+        formContext.form.setError(path.value, errors);
+        return errors;
+      }
+      const finalValidators = toArrayIfNotNil(validators).concat(
+        ...toArrayIfNotNil(objectGet(formValidators, path.value)),
+      );
+      let stopped = false,
+        aborted = false;
+      onCleanUp && onCleanUp(() => ((stopped = true), (aborted = true)));
+      const collect = (error: string | string[]) => {
+        if (stopped || !error) return;
+        errors.push(...toArrayIfNotNil(error));
+        if (stopEarly && errors.length) stopped = true;
+      };
+      await Promise.allSettled(
+        finalValidators.map(async (validator) => {
+          if (!isFunction(validator) || stopped) return;
+          return Promise.resolve(validator(value, formContext.form.formData, validateProps.value))
+            .then(collect)
+            .catch(collect);
+        }),
+      );
+      !aborted && formContext.form.setError(path.value, errors);
+      return errors;
+    };
+
+    onBeforeUnmount(
+      formContext.form.hooks.onValidate.use(async (_, { stopExec }) => {
+        const errors = await validate();
+        if (errors.length && formContext.parent?.props.stopValidate === 'form-item') stopExec();
+      }),
+    );
 
     onBeforeUnmount(() => {
       switch (props.value.unmountBehavior) {

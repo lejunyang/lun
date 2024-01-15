@@ -2,6 +2,7 @@ import { PropType, ExtractPropTypes } from 'vue';
 import {
   LogicalPosition,
   PropBoolOrFunc,
+  PropBoolOrStr,
   PropBoolean,
   PropNumber,
   PropObjOrFunc,
@@ -17,6 +18,8 @@ import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
+
+export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'submit';
 
 export const formItemProps = {
   ...editStateProps,
@@ -54,18 +57,18 @@ export const formItemProps = {
   unmountBehavior: PropString<'delete' | 'null' | 'undefined'>(),
   deps: PropStrOrArr(),
   clearWhenDepChange: PropBoolean(),
-  disableWhenDepFalsy: PropString<'all' | 'some' | 'none', BooleanConstructor[]>(Boolean),
+  disableWhenDepFalsy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
   // validate props
   type: PropString(), // can it be auto detected?
   required: PropBoolOrFunc<boolean | ((formContext?: FormProvideExtra) => boolean | undefined | null)>(),
   /**
    * to required when deps are required,
-   * 'all' means to required when all the deps are required,
-   * 'any' means to required when any of deps is required,
-   * 'none' means to required when none of deps is required,
+   * 'all' means to required when all the dep values are truthy,
+   * 'some' means to required when some of dep values are truthy,
+   * 'none' means to required when none of dep values are truthy,
    * boolean true equals to 'all'
    **/
-  // requireWhenDepTruthy: { type: [Boolean, String] as PropType<boolean | 'all' | 'any' | 'none'> },
+  requireWhenDepTruthy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
   min: { type: [Number, String] },
   max: { type: [Number, String] },
   greaterThan: { type: [Number, String] },
@@ -77,6 +80,8 @@ export const formItemProps = {
   precision: { type: [Number, String] },
   message: { type: [String, Object] },
   validators: { type: [Array, Function] as PropType<Validator[] | Validator> },
+  validateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
+  revalidateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
   // TODO extra validate props to input component
 };
 
