@@ -2,7 +2,7 @@ import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useNamespace, useSlot, useVModelCompatible, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, useSlot, useStatus, useVModelCompatible, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -19,6 +19,7 @@ export const Input = defineSSRCustomFormElement({
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
+    const [status] = useStatus(props);
     const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
     const inputRef = ref<HTMLInputElement>();
@@ -110,9 +111,8 @@ export const Input = defineSSRCustomFormElement({
     const rendererSlot = useSlot({ name: 'renderer' });
 
     const statusIcon = computed(() => {
-      const { status, showStatusIcon } = props;
-      if (!showStatusIcon) return;
-      switch (status) {
+      if (!props.showStatusIcon) return;
+      switch (status.value) {
         case 'success':
           return renderElement('icon', { name: 'success', class: [ns.em('suffix', 'success-icon')] });
         case 'error':

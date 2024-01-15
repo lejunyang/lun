@@ -9,6 +9,7 @@ import {
   PropObject,
   PropStrOrArr,
   PropString,
+  Status,
   editStateProps,
   themeProps,
 } from 'common';
@@ -54,7 +55,9 @@ export const formItemProps = {
   tip: PropString(),
   tooltip: PropString(),
 
-  unmountBehavior: PropString<'delete' | 'null' | 'undefined'>(),
+  /** used to delete or set current field value null when form-item unmounting */
+  unmountBehavior: PropString<'delete' | 'toNull' | 'toUndefined'>(),
+  /** used to define the dependencies of current field, changing dependent values will trigger some actions, see `clearWhenDepChange` `disableWhenDepFalsy` `requireWhenDepTruthy` `validateWhen` */
   deps: PropStrOrArr(),
   clearWhenDepChange: PropBoolean(),
   disableWhenDepFalsy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
@@ -82,7 +85,7 @@ export const formItemProps = {
   validators: { type: [Array, Function] as PropType<Validator[] | Validator> },
   validateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
   revalidateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
-  // TODO extra validate props to input component
+  status: PropString<Status>(),
 };
 
 export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;

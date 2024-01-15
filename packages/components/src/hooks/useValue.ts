@@ -2,7 +2,8 @@ import type { UseModel } from '@lun/core';
 import { createUseModel } from '@lun/core';
 import { useShadowDom } from './shadowDom';
 import { FormInputCollector } from '../components/form-item';
-import { getCurrentInstance } from 'vue';
+import { computed, getCurrentInstance } from 'vue';
+import { Status } from 'common';
 
 const extra = () => {
   const vm = getCurrentInstance();
@@ -24,6 +25,11 @@ export const useValueModel = createUseModel({
     context.setValue(vm, value);
   },
 }) as UseModel<'value'>;
+
+export const useStatus = (props: { status?: Status }) => {
+  const context = FormInputCollector.child(false);
+  return [computed(() => props.status || context?.status.value), context] as const;
+};
 
 /** used for switch, checkbox, which have 'checked', 'trueValue' and 'falseValue' props. */
 export const useCheckedModel = createUseModel({
