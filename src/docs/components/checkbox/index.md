@@ -6,19 +6,18 @@ lang: zh-CN
 <script setup>
 import { themeColors } from '@lun/components';
 </script>
+
 ## 基本使用
 
-<l-checkbox>勾选</l-checkbox>
+<!-- @Code:basicUsage -->
 
 ## 选项组
 
-<l-checkbox-group @update="console.log('value', $event.detail)">
-<l-checkbox checkForAll>全选</l-checkbox>
-<l-checkbox :value="1">选项 1</l-checkbox>
-<l-checkbox :value="2" disabled>选项 2</l-checkbox>
-<l-checkbox :value="3">选项 3</l-checkbox>
-<l-checkbox>无 value</l-checkbox>
-</l-checkbox-group>
+<!-- @Code:checkboxGroup -->
+
+:::warning 注
+没有 value 的选项无法进行选择，其只会跟随该 group 的全选状态而改变
+:::
 
 ## 选项组无选项
 
@@ -32,11 +31,7 @@ import { themeColors } from '@lun/components';
 </l-checkbox-group>
 
 ## 不同变体
-
-<div class="container">
-  <l-checkbox variant="surface">surface</l-checkbox>
-  <l-checkbox variant="soft">soft</l-checkbox>
-</div>
+<!-- @Code:differentVariants -->
 
 ## 不同颜色
 
