@@ -25,11 +25,13 @@ export function useFormMethods(
     clearErrors() {
       formState.value.errors = {};
     },
-    setError(path: string | string[], error: string | string[] | null) {
+    setError(path: string | string[] | null | undefined, error: string | string[] | null) {
+      if(!path) return;
       if (isArray(path)) objectSet(formState.value.errors, path, error);
       else formState.value.errors[path] = error;
     },
-    getError(path: string | string[]) {
+    getError(path: string | string[] | null | undefined) {
+      if(!path) return;
       if (isArray(path)) return objectGet(formState.value.errors, path);
       else return formState.value.errors[path];
     },

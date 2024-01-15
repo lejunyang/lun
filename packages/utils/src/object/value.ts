@@ -2,8 +2,8 @@ import { isArray } from '../is';
 import { stringToPath } from '../string';
 
 export interface ObjectGet {
-  <T = any>(object: any, path: string | (string | number | symbol)[]): T;
-  <T = any>(object: any, path: string | (string | number | symbol)[], defaultValue: T): T;
+  <T = any>(object: any, path?: string | (string | number | symbol)[]): T;
+  <T = any>(object: any, path?: string | (string | number | symbol)[], defaultValue?: T): T;
 }
 /**
  * 
@@ -11,7 +11,7 @@ export interface ObjectGet {
  * @param path string like a.b[c][0].d，or array like ['a', 'b', 'c', 0, 'd']
  * @param defaultVal if result is undefined or null, return defaultVal
  */
-export const objectGet: ObjectGet = (object: any, path: string | (string | number | symbol)[], defaultVal?: any) => {
+export const objectGet: ObjectGet = (object: any, path?: string | (string | number | symbol)[], defaultVal?: any) => {
   if (object == null) return defaultVal ?? undefined;
   const newPath = isArray(path) ? path : stringToPath(path);
   if (!newPath.length) return defaultVal ?? undefined;
