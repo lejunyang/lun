@@ -19,6 +19,7 @@ import {
   simpleObjectEquals,
   stringToPath,
   toArrayIfNotNil,
+  toNoneNilSet,
   virtualGetMerge,
 } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
@@ -39,6 +40,27 @@ export const FormItem = defineSSRCustomElement({
     );
     const ns = useNamespace(name, { parent: formContext?.parent });
     const [editComputed, editState] = useSetupEdit();
+    const itemErrors = computed(() => {
+      return formContext?.form.getError(path.value);
+    });
+    const status = computed(() => props.value.status || (isEmpty(itemErrors.value) ? undefined : 'error'));
+
+    const validateWhenSet = computed(() => toNoneNilSet(props.value.validateWhen || 'blur'));
+    const revalidateWhenSet = computed(() => toNoneNilSet(props.value.revalidateWhen));
+    const canValidate = (trigger: ValidateTrigger) => {
+      return validateWhenSet.value.has(trigger) || (!isEmpty(itemErrors.value) && revalidateWhenSet.value.has(trigger));
+    };
+    const contentHandlers = {
+      onInput() {
+        if (canValidate('input')) validate();
+      },
+      onChange: () => {
+        if (canValidate('change')) validate();
+      },
+      onFocusout: () => {
+        if (canValidate('blur')) validate();
+      },
+    };
     const render = () => {
       let {
         colonMark,
@@ -95,6 +117,8 @@ export const FormItem = defineSSRCustomElement({
               gridRowStart: rowSpan && `span ${rowSpan}`,
               ...contentWrapperStyle,
             }}
+            data-status={status.value}
+            {...(formContext && contentHandlers)}
           >
             {element ? (
               renderElement(element, runIfFn(elementProps, { formContext, formItemProps: props.value }), <slot />)
@@ -131,8 +155,6 @@ export const FormItem = defineSSRCustomElement({
       if (index === undefined) return;
       return getOrSet(toArrayIfNotNil(path.value).concat(String(index)), value);
     };
-
-    const status = computed(() => props.value.status || (isEmpty(itemErrors.value) ? undefined : 'error'));
 
     const inputContext = FormInputCollector.parent({
       extraProvide: { getValue, setValue: getValue, status },
@@ -201,17 +223,7 @@ export const FormItem = defineSSRCustomElement({
           return (editState.disabled = noneFalsy);
       }
     });
-    const itemErrors = computed(() => {
-      return formContext.form.getError(path.value);
-    });
 
-    const canValidate = (trigger: ValidateTrigger) => {
-      const { validateWhen, revalidateWhen } = props.value;
-      return (
-        (toArrayIfNotNil(validateWhen || 'blur') as ValidateTrigger[]).includes(trigger) ||
-        (!isEmpty(itemErrors.value) && (toArrayIfNotNil(revalidateWhen) as ValidateTrigger[]).includes(trigger))
-      );
-    };
     const validateProps = computed(() => {
       // TODO plainNameSet in form, depsMatch(deps: string[], match: (values: any[]) => boolean)
       // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
@@ -220,7 +232,7 @@ export const FormItem = defineSSRCustomElement({
       return {
         type,
         required: (runIfFn(required, formContext) ?? localRequired.value) || false,
-        min: transform(min),
+        min: transform(min), // TODO pass those props(min, max...) to input element
         max: transform(max),
         lessThan: transform(lessThan),
         greaterThan: transform(greaterThan),

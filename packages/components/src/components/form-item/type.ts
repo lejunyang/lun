@@ -20,7 +20,7 @@ import { FormProvideExtra } from '../form';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
 
-export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'submit';
+export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'submit' | 'input' | 'change';
 
 export const formItemProps = {
   ...editStateProps,
