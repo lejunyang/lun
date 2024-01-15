@@ -2,7 +2,7 @@ import { defineSSRCustomFormElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useNamespace, useSetupContextEvent, useVModelCompatible } from 'hooks';
+import { useNamespace, useSetupContextEvent } from 'hooks';
 import { RadioCollector } from '.';
 import { radioProps } from './type';
 
@@ -15,7 +15,6 @@ export const Radio = defineSSRCustomFormElement({
     const ns = useNamespace(name);
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
-    const [updateVModel] = useVModelCompatible();
     const radioContext = RadioCollector.child();
     const checked = computed(() => {
       if (!radioContext?.parent) return props.checked;
@@ -25,7 +24,6 @@ export const Radio = defineSSRCustomFormElement({
     const handler = {
       onChange() {
         emit('update', props.value);
-        updateVModel(props.value);
       },
     };
     return () => {

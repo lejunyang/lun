@@ -20,7 +20,7 @@ import { FormProvideExtra } from '../form';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
 
-export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'submit' | 'input' | 'change';
+export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
 
 export const formItemProps = {
   ...editStateProps,
@@ -51,9 +51,17 @@ export const formItemProps = {
   requiredMarkAlign: PropString<LogicalPosition>(),
   colonMark: PropString(),
   requiredMark: PropString(),
-  help: PropString(),
+  /** used to set tip text for the input, note that if there is any validation error, validation message will take precedence */
   tip: PropString(),
-  tooltip: PropString(),
+  /** used to set help text for the form-item, help text will always be rendered */
+  help: PropString(),
+  /**
+   * newLine: help text will be rendered in a new line;
+   * tooltip: help text will be rendered as content element's tooltip;
+   * icon: will render an icon in label, help text will be the icon's tooltip
+   */
+  helpType: PropString<'newLine' | 'tooltip' | 'icon'>(),
+  tipType: PropString<'newLine' | 'tooltip'>(),
 
   /** used to delete or set current field value null when form-item unmounting */
   unmountBehavior: PropString<'delete' | 'toNull' | 'toUndefined'>(),

@@ -108,6 +108,7 @@ export const GlobalStaticConfig = new Proxy(
         colonMark: ':',
         requiredMark: '*',
         requiredMarkAlign: 'start',
+        helpType: 'icon',
       },
       icon: {
         library: 'default' as const,

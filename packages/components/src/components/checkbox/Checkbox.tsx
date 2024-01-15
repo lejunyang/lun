@@ -2,7 +2,7 @@ import { defineSSRCustomFormElement } from 'custom';
 import { computed } from 'vue';
 import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
-import { useCheckedModel, useNamespace, useSetupContextEvent, useVModelCompatible } from 'hooks';
+import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
 import { CheckboxCollector } from '.';
 import { CheckboxUpdateDetail, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -26,7 +26,6 @@ export const Checkbox = defineSSRCustomFormElement({
       : useCheckedModel(props, {
           shouldEmit: false,
         });
-    const [updateVModel] = useVModelCompatible();
     if (__DEV__) {
       if (checkboxContext && props.value == null)
         warn(
@@ -58,7 +57,6 @@ export const Checkbox = defineSSRCustomFormElement({
         onlyFor: props.onlyFor,
         excludeFromGroup: props.excludeFromGroup,
       });
-      updateVModel(value);
     };
     const handlers = {
       onChange(e: Event) {

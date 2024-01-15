@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemProps } from './type';
-import { useNamespace } from 'hooks';
+import { useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch } from 'vue';
 import { FormInputCollector } from '.';
@@ -25,6 +25,7 @@ import {
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
 import { innerValidator } from './formItem.validate';
+import { defineTooltip } from '../tooltip/Tooltip';
 
 const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
@@ -61,6 +62,20 @@ export const FormItem = defineSSRCustomElement({
         if (canValidate('blur')) validate();
       },
     };
+    const helpText = computed(() => {
+      const { help, helpType } = props.value;
+      return {
+        icon:
+          helpType === 'icon' &&
+          help &&
+          renderElement('tooltip', {}, [renderElement('icon', { name: 'help' }), <span slot="tooltip">{help}</span>]),
+        newLine: helpType === 'newLine' && help && (
+          <div class={ns.e('help-line')} part="help-line">
+            {help}
+          </div>
+        ),
+      };
+    });
     const render = () => {
       let {
         colonMark,
@@ -100,7 +115,7 @@ export const FormItem = defineSSRCustomElement({
               <slot name="label-start"></slot>
               <slot name="label">{label}</slot>
               {requiredMarkAlign === 'end' && rMark}
-              {/* help icon */}
+              {helpText.value.icon}
               {colonMark && (
                 <span class={ns.e('colon')} part={ns.p('colon')}>
                   {colonMark}
@@ -125,11 +140,18 @@ export const FormItem = defineSSRCustomElement({
             ) : (
               <slot />
             )}
+            {helpText.value.newLine}
           </span>
         </div>
       );
     };
     if (!formContext) return render;
+
+    useSetupContextEvent({
+      update: () => {
+        if (canValidate('update')) validate();
+      },
+    });
 
     const isPlainName = computed(() => {
       return formContext.isPlainName(props.value.name);
@@ -302,4 +324,5 @@ export type tFormItem = typeof FormItem;
 
 export const defineFormItem = createDefineElement(name, FormItem, {
   icon: defineIcon,
+  tooltip: defineTooltip,
 });
