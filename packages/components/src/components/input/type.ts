@@ -8,6 +8,7 @@ import {
   PropObjOrFunc,
   PropStrOrArr,
   PropString,
+  Status,
   editStateProps,
   themeProps,
 } from 'common';
@@ -54,7 +55,7 @@ export const inputProps = {
   labelType: PropString<'float'>(),
   showLengthInfo: PropBoolean(),
   showClearIcon: PropBoolean(),
-  status: PropString<'success' | 'warning' | 'error'>(),
+  status: PropString<Status>(),
   showStatusIcon: PropBoolean(),
 };
 

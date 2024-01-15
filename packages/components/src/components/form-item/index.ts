@@ -1,6 +1,7 @@
 import { createCollector } from '@lun/core';
 import { FormItem } from './FormItem';
-import { ComponentInternalInstance } from 'vue';
+import { ComponentInternalInstance, ComputedRef } from 'vue';
+import { Status } from 'common';
 
 export * from './FormItem';
 export type { FormItemProps } from './type';
@@ -8,6 +9,7 @@ export type { FormItemProps } from './type';
 export type FormItemProvideExtra = {
   getValue(vm?: ComponentInternalInstance | null): any;
   setValue(vm?: ComponentInternalInstance | null, value?: any): void;
+  status: ComputedRef<Status | undefined>;
 };
 
 export const FormInputCollector = createCollector({

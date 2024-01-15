@@ -131,8 +131,11 @@ export const FormItem = defineSSRCustomElement({
       if (index === undefined) return;
       return getOrSet(toArrayIfNotNil(path.value).concat(String(index)), value);
     };
+
+    const status = computed(() => props.value.status || (isEmpty(itemErrors.value) ? undefined : 'error'));
+
     const inputContext = FormInputCollector.parent({
-      extraProvide: { getValue, setValue: getValue },
+      extraProvide: { getValue, setValue: getValue, status },
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
@@ -271,14 +274,11 @@ export const FormItem = defineSSRCustomElement({
     onBeforeUnmount(() => {
       switch (props.value.unmountBehavior) {
         case 'delete':
-          formContext.deletePath(path.value);
-          break;
-        case 'null':
-          formContext.setValue(path.value, null);
-          break;
-        case 'undefined':
-          formContext.setValue(path.value, undefined);
-          break;
+          return formContext.deletePath(path.value);
+        case 'toNull':
+          return formContext.setValue(path.value, null);
+        case 'toUndefined':
+          return formContext.setValue(path.value, undefined);
       }
     });
 
