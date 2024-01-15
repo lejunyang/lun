@@ -1,7 +1,7 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { useCheckbox, useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useCEExpose, useOptions, useSetupContextEvent, useVModelCompatible, useValueModel } from 'hooks';
+import { useCEExpose, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
@@ -56,11 +56,9 @@ export const CheckboxGroup = defineSSRCustomFormElement({
           if (checked) methods.check(value);
           else methods.uncheck(value);
         }
-        updateVModel(valueModel.value);
       },
     });
     useSetupEdit();
-    const [updateVModel] = useVModelCompatible();
     const radioState = computed(() => {
       let allChecked: boolean | null = null,
         intermediate = false;

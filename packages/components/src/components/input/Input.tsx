@@ -2,7 +2,7 @@ import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useNamespace, useSlot, useStatus, useVModelCompatible, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, useSetupContextEvent, useSlot, useStatus, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -20,8 +20,8 @@ export const Input = defineSSRCustomFormElement({
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
     const [status] = useStatus(props);
-    const [updateVModel] = useVModelCompatible();
     const [editComputed] = useSetupEdit();
+    useSetupContextEvent();
     const inputRef = ref<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
@@ -31,7 +31,6 @@ export const Input = defineSSRCustomFormElement({
           ...props,
           value: valueModel.value,
           onChange: (val) => {
-            updateVModel(val);
             valueModel.value = val;
           },
           onInputUpdate(val) {

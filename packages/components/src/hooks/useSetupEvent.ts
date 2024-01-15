@@ -1,3 +1,4 @@
+import { isFunction } from '@lun/utils';
 import { inject, getCurrentInstance, provide, onBeforeUnmount } from 'vue';
 
 export const EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-event-provider-key' : '');
@@ -21,8 +22,8 @@ export function useSetupEvent(events?: Events, options?: { toParentWhen?: () => 
   const currentProvide: Events = {};
   Object.keys({ ...ctx.emitsOptions }).forEach((k) => {
     currentProvide[k] = (...args) => {
-      if (events?.[k] instanceof Function) events[k](...args);
-      if (parentSubscribedEvents?.[k] instanceof Function) parentSubscribedEvents[k](...args);
+      if (isFunction(events?.[k])) events![k](...args);
+      if (isFunction(parentSubscribedEvents?.[k])) parentSubscribedEvents![k](...args);
     };
     unsubscribes.push(toParentWhen ? event.when(k, toParentWhen, currentProvide[k]) : event.on(k, currentProvide[k]));
   });
@@ -48,9 +49,9 @@ export function useSetupContextEvent(events?: Events, options?: { toParentWhen?:
   const parentSubscribedEvents = inject<Events>(CONTEXT_EVENT_PROVIDER_KEY);
   let unsubscribes: Function[] = [];
   Object.keys({ ...ctx.emitsOptions }).forEach((k) => {
-    if (parentSubscribedEvents?.[k] instanceof Function)
+    if (isFunction(parentSubscribedEvents?.[k]))
       unsubscribes.push(
-        toParentWhen ? event.when(k, toParentWhen, parentSubscribedEvents[k]) : event.on(k, parentSubscribedEvents[k])
+        toParentWhen ? event.when(k, toParentWhen, parentSubscribedEvents![k]) : event.on(k, parentSubscribedEvents![k])
       );
   });
   provide(CONTEXT_EVENT_PROVIDER_KEY, events);
