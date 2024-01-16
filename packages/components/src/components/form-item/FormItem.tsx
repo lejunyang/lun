@@ -19,6 +19,7 @@ import {
   simpleObjectEquals,
   stringToPath,
   toArrayIfNotNil,
+  toArrayIfTruthy,
   toNoneNilSet,
   virtualGetMerge,
 } from '@lun/utils';
@@ -76,6 +77,19 @@ export const FormItem = defineSSRCustomElement({
         ),
       };
     });
+    const tips = computed(() => {
+      const { tip, tipType, help, helpType, maxValidationMsg } = props.value;
+      let msgs = itemErrors.value?.length ? itemErrors.value : [];
+      if (!msgs.length) {
+        if (tipType === 'tooltip' && tip) msgs = [tip];
+        else if (helpType === 'tooltip' && help) msgs = [help];
+      }
+      if (maxValidationMsg != null) msgs = msgs.slice(0, +maxValidationMsg);
+      return {
+        tooltip: tipType === 'tooltip' && msgs.map((msg) => <div>{String(msg)}</div>),
+        newLine: tipType === 'newLine' && msgs.map((msg) => <div>{String(msg)}</div>),
+      };
+    });
     const render = () => {
       let {
         colonMark,
@@ -91,6 +105,7 @@ export const FormItem = defineSSRCustomElement({
         element,
         elementProps,
         label,
+        labelAlign,
         noLabel,
       } = props.value;
       if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
@@ -108,6 +123,7 @@ export const FormItem = defineSSRCustomElement({
               style={{
                 gridColumnStart: newLine || fullLine ? 1 : undefined,
                 gridRowStart: rowSpan && `span ${rowSpan}`,
+                textAlign: labelAlign,
                 ...labelWrapperStyle,
               }}
             >
@@ -135,12 +151,22 @@ export const FormItem = defineSSRCustomElement({
             data-status={status.value}
             {...(formContext && contentHandlers)}
           >
-            {element ? (
-              renderElement(element, runIfFn(elementProps, { formContext, formItemProps: props.value }), <slot />)
-            ) : (
-              <slot />
+            {renderElement(
+              'tooltip',
+              {
+                disabled: !(tips.value.tooltip as []).length,
+              },
+              [
+                element ? (
+                  renderElement(element, runIfFn(elementProps, { formContext, formItemProps: props.value }), <slot />)
+                ) : (
+                  <slot />
+                ),
+                <div slot="tooltip">{tips.value.tooltip}</div>,
+              ],
             )}
             {helpText.value.newLine}
+            {tips.value.newLine}
           </span>
         </div>
       );
@@ -201,7 +227,7 @@ export const FormItem = defineSSRCustomElement({
     };
     const depInfo = computed(() => {
       const { deps } = props.value;
-      const temp = toArrayIfNotNil(deps!);
+      const temp = toArrayIfTruthy(deps);
       let allFalsy = !!temp.length,
         someFalsy = false;
       const depValues = temp.map((name) => {
@@ -281,9 +307,9 @@ export const FormItem = defineSSRCustomElement({
       let stopped = false,
         aborted = false;
       onCleanUp && onCleanUp(() => ((stopped = true), (aborted = true)));
-      const collect = (error: string | string[]) => {
-        if (stopped || !error) return;
-        errors.push(...toArrayIfNotNil(error));
+      const collect = (error?: string | string[]) => {
+        if (stopped) return;
+        errors.push(...toArrayIfTruthy(error));
         if (stopEarly && errors.length) stopped = true;
       };
       await Promise.allSettled(

@@ -18,7 +18,7 @@ import { ComponentKey } from 'config';
 import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
 
-export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | void>;
+export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | undefined>;
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
 
@@ -61,7 +61,9 @@ export const formItemProps = {
    * icon: will render an icon in label, help text will be the icon's tooltip
    */
   helpType: PropString<'newLine' | 'tooltip' | 'icon'>(),
+  /** if both helpType and tipType are 'tooltip', show tip as tooltip */
   tipType: PropString<'newLine' | 'tooltip'>(),
+  maxValidationMsg: PropNumber(),
 
   /** used to delete or set current field value null when form-item unmounting */
   unmountBehavior: PropString<'delete' | 'toNull' | 'toUndefined'>(),
@@ -80,15 +82,15 @@ export const formItemProps = {
    * boolean true equals to 'all'
    **/
   requireWhenDepTruthy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
-  min: { type: [Number, String] },
-  max: { type: [Number, String] },
-  greaterThan: { type: [Number, String] },
-  lessThan: { type: [Number, String] },
-  pattern: { type: [RegExp, String] },
-  len: { type: [Number, String] },
+  min: PropNumber(),
+  max: PropNumber(),
+  greaterThan: PropNumber(),
+  lessThan: PropNumber(),
+  pattern: PropString(RegExp),
+  len: PropNumber(),
   /**  */
-  step: { type: [Number, String] },
-  precision: { type: [Number, String] },
+  step: PropNumber(),
+  precision: PropNumber(),
   message: { type: [String, Object] },
   validators: { type: [Array, Function] as PropType<Validator[] | Validator> },
   validateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
