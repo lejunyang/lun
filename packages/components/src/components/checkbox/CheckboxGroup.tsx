@@ -5,12 +5,13 @@ import { useCEExpose, useOptions, useSetupContextEvent, useValueModel } from 'ho
 import { CheckboxCollector } from '.';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
-import { CheckboxUpdateDetail, checkboxGroupProps } from './type';
+import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
 
+const name = 'checkbox-group';
 export const CheckboxGroup = defineSSRCustomFormElement({
-  name: 'checkbox-group',
+  name,
   props: checkboxGroupProps,
-  emits: ['update'],
+  emits: checkboxGroupEmits,
   setup(props, { emit }) {
     const valueModel = useValueModel(props, {
       emit: (name, value) => {
@@ -90,4 +91,4 @@ export const CheckboxGroup = defineSSRCustomFormElement({
 
 export type tCheckboxGroup = typeof CheckboxGroup;
 
-export const defineCheckboxGroup = createDefineElement('checkbox-group', CheckboxGroup);
+export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup);

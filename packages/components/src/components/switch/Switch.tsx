@@ -2,14 +2,14 @@ import { defineSSRCustomFormElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
-import { switchProps } from './type';
+import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 
 const name = 'switch';
 export const Switch = defineSSRCustomFormElement({
   name,
   props: switchProps,
-  emits: ['update'],
+  emits: switchEmits,
   setup(props) {
     const ns = useNamespace(name);
     useSetupContextEvent();

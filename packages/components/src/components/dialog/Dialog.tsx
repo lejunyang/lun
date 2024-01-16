@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { dialogProps } from './type';
+import { dialogEmits, dialogProps } from './type';
 import { useCEExpose, useNamespace, useOpenModel } from 'hooks';
 import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
@@ -14,7 +14,7 @@ const name = 'dialog';
 export const Dialog = defineSSRCustomElement({
   name,
   props: dialogProps,
-  emits: ['update', 'open', 'close'],
+  emits: dialogEmits,
   setup(props) {
     const ns = useNamespace(name);
     const openModel = useOpenModel(props, { passive: true });
@@ -42,7 +42,7 @@ export const Dialog = defineSSRCustomElement({
         onPending(pending) {
           editState.disabled = pending;
         },
-      }))
+      })),
     );
 
     watch([openModel, dialogRef], ([open, dialog]) => {

@@ -1,4 +1,4 @@
-import { editStateProps, themeProps, LogicalPosition } from 'common';
+import { editStateProps, themeProps, LogicalPosition, GetEventPropsFromEmits } from 'common';
 import { ExtractPropTypes, PropType } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
 
@@ -29,6 +29,10 @@ export type CheckboxUpdateDetail = {
   excludeFromGroup?: boolean;
 };
 
+export const checkboxEmits = {
+  update: (_detail: CheckboxUpdateDetail) => null,
+};
+
 export const checkboxGroupProps = {
   ...createOptionProps(false),
   ...themeProps,
@@ -36,7 +40,19 @@ export const checkboxGroupProps = {
   onlyFor: { type: String },
 };
 
+export type CheckboxGroupUpdateDetail = {
+  value: any[];
+  allChecked: boolean;
+  intermediate: boolean;
+};
+
+export const checkboxGroupEmits = {
+  update: (_detail: CheckboxGroupUpdateDetail) => null,
+};
+
 export type CheckboxSetupProps = ExtractPropTypes<typeof checkboxProps>;
-export type CheckboxProps = Partial<CheckboxSetupProps>;
+export type CheckboxEvents = GetEventPropsFromEmits<typeof checkboxEmits>
+export type CheckboxProps = Partial<CheckboxSetupProps> & CheckboxEvents;
 export type CheckboxGroupSetupProps = ExtractPropTypes<typeof checkboxGroupProps>;
-export type CheckboxGroupProps = Partial<CheckboxGroupSetupProps>;
+export type CheckboxGroupEvents = GetEventPropsFromEmits<typeof checkboxGroupEmits>
+export type CheckboxGroupProps = Partial<CheckboxGroupSetupProps> & CheckboxGroupEvents;

@@ -1,6 +1,6 @@
 import { MaybePromise } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { createTransitionProps, editStateProps, themeProps } from "common";
+import { GetEventPropsFromEmits, createTransitionProps, editStateProps, themeProps } from 'common';
 
 export const dialogProps = {
   ...editStateProps,
@@ -34,5 +34,12 @@ export const dialogProps = {
   afterClose: { type: Function as PropType<() => void> },
 };
 
+export const dialogEmits = {
+  update: (_detail: boolean) => null,
+  open: () => null,
+  close: () => null,
+};
+
 export type DialogSetupProps = ExtractPropTypes<typeof dialogProps>;
-export type DialogProps = Partial<DialogSetupProps>;
+export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>
+export type DialogProps = Partial<DialogSetupProps> & DialogEvents;

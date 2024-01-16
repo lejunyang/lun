@@ -3,12 +3,13 @@ import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useOptions, useSetupContextEvent, useValueModel } from 'hooks';
 import { RadioCollector } from '.';
-import { radioGroupProps } from './type';
+import { radioEmits, radioGroupProps } from './type';
 
+const name = 'radio-group';
 export const RadioGroup = defineSSRCustomFormElement({
-  name: 'radio-group',
+  name,
   props: radioGroupProps,
-  emits: ['update'],
+  emits: radioEmits,
   setup(props) {
     const valueModel = useValueModel(props);
     useSetupContextEvent({
@@ -31,4 +32,4 @@ export const RadioGroup = defineSSRCustomFormElement({
 
 export type tRadioGroup = typeof RadioGroup;
 
-export const defineRadioGroup = createDefineElement('radio-group', RadioGroup);
+export const defineRadioGroup = createDefineElement(name, RadioGroup);
