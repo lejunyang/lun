@@ -1,7 +1,15 @@
 import { isArray, isFunction, isString } from './is';
 
-export function toArrayIfNotNil<T>(target: T): T extends any[] ? T : T extends null | undefined ? unknown[] : T[] {
+export function toArrayIfNotNil<T>(
+  target: T,
+): T extends Array<infer E> ? E[] : T extends null | undefined ? never : T[] {
   return (isArray(target) ? target : target == null ? [] : [target]) as any;
+}
+
+export function toArrayIfTruthy<T>(
+  target: T,
+): T extends Array<infer E> ? E[] : T extends null | undefined | false | '' ? never : T[] {
+  return (isArray(target) ? target : target ? [target] : []) as any;
 }
 
 export function isIterable<T>(target: any): target is Iterable<T> {
