@@ -87,6 +87,8 @@ export function createCollector<
       parentMounted: false,
       parentEl: null as Element | null,
     });
+    const indexUpdate = ref();
+    const notifyIndexUpdate = () => (indexUpdate.value = Date.now());
     const { extraProvide, lazyChildren = true, onChildRemoved } = params || {};
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) instance = markRaw(instance);
@@ -99,10 +101,12 @@ export function createCollector<
           const el = finalGetChildEl(child);
           if (el) childrenElIndexMap.set(el, index);
         });
+        notifyIndexUpdate();
       });
       onUnmounted(() => {
         childrenElIndexMap.clear();
         items.value = [];
+        notifyIndexUpdate();
       });
     }
     provide<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY, {
@@ -145,6 +149,7 @@ export function createCollector<
                 if (index > prevIndex && otherEl !== el) childrenElIndexMap.set(otherEl, index + 1);
               }
             }
+            notifyIndexUpdate();
           } else {
             items.value.push(child);
           }
@@ -163,6 +168,7 @@ export function createCollector<
               const el = childrenVmElMap.get(vm);
               el && childrenElIndexMap.set(el, i);
             }
+            notifyIndexUpdate();
             if (onChildRemoved) onChildRemoved(child as any, index);
           }
         }
@@ -177,6 +183,7 @@ export function createCollector<
       childrenVmElMap,
       vm: instance,
       getChildVmIndex(childVm: any) {
+        indexUpdate.value; // trigger computed
         return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
       },
     };

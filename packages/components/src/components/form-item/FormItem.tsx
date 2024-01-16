@@ -189,18 +189,13 @@ export const FormItem = defineSSRCustomElement({
       return isPlainName.value ? name : stringToPath(name);
     });
 
-    const getIndex = (vm?: ComponentInternalInstance) => {
-      if (!vm) return;
-      const el = inputContext.childrenVmElMap.get(vm);
-      return inputContext.childrenElIndexMap.get(el!);
-    };
     const getValue = (vm?: ComponentInternalInstance, value?: any) => {
       const { array } = props.value;
       if (!path.value) return;
       const getOrSet = value !== undefined ? formContext.setValue : formContext.getValue;
       if (isObject(value) && 'value' in value) value = value.value;
       if (!array) return getOrSet(path.value, value);
-      const index = getIndex(vm);
+      const index = inputContext.getChildVmIndex(vm);
       if (index === undefined) return;
       return getOrSet(toArrayIfNotNil(path.value).concat(String(index)), value);
     };

@@ -1,6 +1,6 @@
 <template>
   <div class="code-wrapper" v-show="!devHide" ref="wrapperRef">
-    <div class="code-container" v-show="!initialized">
+    <div class="code-container" v-if="!initialized">
       <!-- this is to preventing long time white screen before initialized -->
       <slot></slot>
     </div>

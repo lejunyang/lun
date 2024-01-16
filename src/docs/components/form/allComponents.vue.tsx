@@ -3,6 +3,7 @@ import { useForm } from '@lun/core';
 const form = useForm({
   defaultFormData: {
     cols: '2',
+    array: [null],
   },
 });
 const options = Array(2)
@@ -23,8 +24,17 @@ export default function () {
           <l-input />
         </l-form-item>
         <l-form-item name="array" array label="数组">
-          <l-input />
-          <l-input />
+          <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+            {Array.isArray(form.formData.array) &&
+              form.formData.array.map((_, index) => (
+                <l-input key={index}>
+                  <l-button slot="append" onClick={() => form.formData.array.splice(index, 1)} variant="ghost">
+                    删除
+                  </l-button>
+                </l-input>
+              ))}
+            <l-button onClick={() => form.formData.array.push(null)}>添加</l-button>
+          </div>
         </l-form-item>
         <l-form-item name="obj.input1" label="对象1">
           <l-input />
