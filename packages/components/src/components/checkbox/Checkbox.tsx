@@ -4,7 +4,7 @@ import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
 import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
 import { CheckboxCollector } from '.';
-import { CheckboxUpdateDetail, checkboxProps } from './type';
+import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { isEnterDown } from '@lun/utils';
 
@@ -12,9 +12,7 @@ const name = 'checkbox';
 export const Checkbox = defineSSRCustomFormElement({
   name,
   props: checkboxProps,
-  emits: {
-    update: (_detail: CheckboxUpdateDetail) => null,
-  },
+  emits: checkboxEmits,
   setup(props, { emit, expose }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
@@ -24,7 +22,7 @@ export const Checkbox = defineSSRCustomFormElement({
     const checkedModel = checkboxContext
       ? undefined
       : useCheckedModel(props, {
-          shouldEmit: false,
+          shouldEmit: false, // do not use auto emit of useCheckedModel, as we need to customize the emit args
         });
     if (__DEV__) {
       if (checkboxContext && props.value == null)

@@ -11,7 +11,7 @@ type Emits = StringArrayEmits | ObjectEmitsOptions;
 type GetCustomEvent<T extends EmitValidator | undefined | null> = T extends (...args: infer U) => any
   ? U extends [any]
     ? (e: CustomEvent<U[0]>) => void
-    : (e: CustomEvent<U>) => void
+    : (e: CustomEvent<undefined>) => void
   : (e: CustomEvent<undefined>) => void;
 
 export type GetEventPropsFromEmits<T extends Emits> = T extends StringArrayEmits

@@ -4,13 +4,13 @@ import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useNamespace, useSetupContextEvent } from 'hooks';
 import { RadioCollector } from '.';
-import { radioProps } from './type';
+import { radioEmits, radioProps } from './type';
 
 const name = 'radio';
 export const Radio = defineSSRCustomFormElement({
   name,
   props: radioProps,
-  emits: ['update'],
+  emits: radioEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
     useSetupContextEvent();
