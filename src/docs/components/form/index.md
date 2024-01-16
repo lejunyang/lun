@@ -7,6 +7,10 @@ lang: zh-CN
 
 <!-- @Code:allComponents -->
 
+:::warning 注
+数组字段必须在`form-item`上设置`array`属性，其下的输入元素需要自行渲染，不可通过`element`属性设置，输入元素无需自行更新和设置value，其会根据dom顺序确定在数组中的index并取值或更新
+:::
+
 ## 校验
 
 <!-- @Code:validate -->
