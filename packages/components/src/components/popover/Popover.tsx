@@ -35,8 +35,8 @@ export const Popover = defineSSRCustomElement({
       else return Object.keys(support).find((i) => support[i as keyof typeof support]);
     });
     const show = () => {
-      const { beforeOpen } = props;
-      if (isFunction(beforeOpen) && beforeOpen() === false) return;
+      const { beforeOpen, disabled } = props;
+      if (disabled || (isFunction(beforeOpen) && beforeOpen() === false)) return;
       const popover = popRef.value;
       const fixed = fixedRef.value;
       if (popover) popover.showPopover();
@@ -47,6 +47,7 @@ export const Popover = defineSSRCustomElement({
       isOpen.value = false;
     };
     const toggle = (force?: boolean) => {
+      if (props.disabled) return;
       options.value.cancelShowOrHide();
       const { value } = popRef;
       if (value) value.togglePopover(force);
