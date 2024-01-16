@@ -73,7 +73,7 @@ export const formItemProps = {
   disableWhenDepFalsy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
   // validate props
   type: PropString(), // can it be auto detected?
-  required: PropBoolOrFunc<boolean | ((formContext?: FormProvideExtra) => boolean | undefined | null)>(),
+  required: PropBoolOrFunc<boolean | ((formContext: FormProvideExtra) => boolean | undefined | null)>(),
   /**
    * to required when deps are required,
    * 'all' means to required when all the dep values are truthy,
