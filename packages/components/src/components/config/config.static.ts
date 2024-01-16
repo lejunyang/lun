@@ -109,6 +109,10 @@ export const GlobalStaticConfig = new Proxy(
         requiredMark: '*',
         requiredMarkAlign: 'start',
         helpType: 'icon',
+        required: undefined, // runIfFn(required, formContext) ?? localRequired.value
+        clearWhenDepChange: undefined, // need to be undefined, cause used in virtualGetMerge
+        disableWhenDepFalsy: undefined,
+        requireWhenDepTruthy: undefined,
       },
       icon: {
         library: 'default' as const,

@@ -108,14 +108,15 @@ export const FormItem = defineSSRCustomElement({
         labelAlign,
         noLabel,
       } = props.value;
+      const finalRequired = formContext ? validateProps.value.required : required;
       if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
-      const rMark = required && requiredMark && (
+      const rMark = finalRequired && requiredMark && (
         <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
           {requiredMark}
         </span>
       );
       return (
-        <div class={[ns.s(editComputed), ns.is('required', required)]} part={ns.p('root')}>
+        <div class={[ns.s(editComputed), ns.is('required', finalRequired)]} part={ns.p('root')}>
           {!noLabel && (
             <span
               part={ns.p('label')}
@@ -254,9 +255,9 @@ export const FormItem = defineSSRCustomElement({
         if (requireWhenDepTruthy === true) requireWhenDepTruthy = 'all';
         switch (requireWhenDepTruthy) {
           case 'all':
-            return (localRequired.value = !noneFalsy);
+            return (localRequired.value = noneFalsy);
           case 'some':
-            return (localRequired.value = someFalsy && !allFalsy);
+            return (localRequired.value = someFalsy && !noneFalsy);
           case 'none':
             return (localRequired.value = allFalsy);
         }
