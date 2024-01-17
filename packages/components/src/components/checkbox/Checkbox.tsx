@@ -34,7 +34,7 @@ export const Checkbox = defineSSRCustomFormElement({
     }
 
     const intermediate = computed(() => {
-      if (!checkboxContext || props.excludeFromGroup) return props.intermediate;
+      if (!checkboxContext || props.excludeFromGroup) return props.intermediate && !props.checked;
       return props.checkForAll && checkboxContext.radioState.value.intermediate;
     });
     const checked = computed(() => {
@@ -50,7 +50,7 @@ export const Checkbox = defineSSRCustomFormElement({
       if (checkedModel) checkedModel.value = checked;
       emit('update', {
         value,
-        isCheckForAll: props.checkForAll,
+        isCheckForAll: props.checkForAll!,
         checked,
         onlyFor: props.onlyFor,
         excludeFromGroup: props.excludeFromGroup,
@@ -72,7 +72,7 @@ export const Checkbox = defineSSRCustomFormElement({
     return () => {
       const isChecked = checked.value,
         isIntermediate = intermediate.value;
-      const { disabled, readonly, editable } = editComputed.value;
+      const { editable } = editComputed.value;
       const labelPart = (
         <span part={ns.p('label')} class={ns.e('label')}>
           <slot>{props.label}</slot>
@@ -109,8 +109,8 @@ export const Checkbox = defineSSRCustomFormElement({
                 checked={isChecked}
                 indeterminate={isIntermediate}
                 value={props.value}
-                readonly={readonly}
-                disabled={disabled}
+                // readonly={readonly} // readonly is not supported by checkbox
+                disabled={!editable}
                 onChange={handlers.onChange}
                 hidden
               />

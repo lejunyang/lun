@@ -1,7 +1,7 @@
 import { defineSSRCustomFormElement } from 'custom';
 import { useCheckbox, useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useCEExpose, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
 import { CheckboxCollector } from '.';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
@@ -12,7 +12,9 @@ export const CheckboxGroup = defineSSRCustomFormElement({
   name,
   props: checkboxGroupProps,
   emits: checkboxGroupEmits,
+  inheritAttrs: false,
   setup(props, { emit }) {
+    const ns = useNamespace(name);
     const valueModel = useValueModel(props, {
       emit: (name, value) => {
         emit(name as any, {
@@ -59,7 +61,7 @@ export const CheckboxGroup = defineSSRCustomFormElement({
         }
       },
     });
-    useSetupEdit();
+    const [editComputed] = useSetupEdit();
     const radioState = computed(() => {
       let allChecked: boolean | null = null,
         intermediate = false;
@@ -81,10 +83,10 @@ export const CheckboxGroup = defineSSRCustomFormElement({
 
     const { render } = useOptions(props, 'checkbox');
     return () => (
-      <>
+      <span part="root" class={[ns.s(editComputed), ns.is('vertical', props.vertical)]}>
         {render.value}
         <slot></slot>
-      </>
+      </span>
     );
   },
 });
