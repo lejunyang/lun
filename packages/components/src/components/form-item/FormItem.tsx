@@ -173,6 +173,10 @@ export const FormItem = defineSSRCustomElement({
       );
     };
     if (!formContext) return render;
+    const {
+      form: { isPlainName, getValue, setValue, deletePath, hooks },
+      form,
+    } = formContext;
 
     useSetupContextEvent({
       update: () => {
@@ -180,19 +184,16 @@ export const FormItem = defineSSRCustomElement({
       },
     });
 
-    const isPlainName = computed(() => {
-      return formContext.isPlainName(props.value.name);
-    });
     const path = computed(() => {
       const { name } = props.value;
       if (!name) return;
-      return isPlainName.value ? name : stringToPath(name);
+      return isPlainName(name) ? name : stringToPath(name);
     });
 
-    const getValue = (vm?: ComponentInternalInstance, value?: any) => {
+    const getOrSetValue = (vm?: ComponentInternalInstance, value?: any) => {
       const { array } = props.value;
       if (!path.value) return;
-      const getOrSet = value !== undefined ? formContext.setValue : formContext.getValue;
+      const getOrSet = value !== undefined ? setValue : getValue;
       if (isObject(value) && 'value' in value) value = value.value;
       if (!array) return getOrSet(path.value, value);
       const index = inputContext.getChildVmIndex(vm);
@@ -201,19 +202,22 @@ export const FormItem = defineSSRCustomElement({
     };
 
     const inputContext = FormInputCollector.parent({
-      extraProvide: { getValue, setValue: getValue, status },
+      extraProvide: { getValue: getOrSetValue, setValue: getOrSetValue, status },
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
         if (!array || !path.value) return;
-        const value = formContext.getValue(path.value);
-        if (isArray(value)) value.splice(index, 1);
+        const value = getValue(path.value);
+        if (isArray(value)) {
+          value.splice(index, 1);
+          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, formData: form.formData });
+        }
       },
     });
     const transform = (val: any, type = 'number') => {
       if (typeof val === type) return val;
       if (!isPlainString(val)) return;
-      const value = formContext.getValue(path.value);
+      const value = getValue(path.value);
       switch (type) {
         case 'number':
           const { isNaN, toNumber } = GlobalStaticConfig.math;
@@ -227,7 +231,7 @@ export const FormItem = defineSSRCustomElement({
       let allFalsy = !!temp.length,
         someFalsy = false;
       const depValues = temp.map((name) => {
-        const val = formContext.getValue(name);
+        const val = getValue(name);
         if (val) allFalsy = false;
         else someFalsy = true;
         return val;
@@ -244,7 +248,7 @@ export const FormItem = defineSSRCustomElement({
         clearWhenDepChange &&
         (depValues.length !== oldDepValues.length || !simpleObjectEquals(depValues, oldDepValues))
       ) {
-        formContext.setValue(path.value, array ? [] : null);
+        setValue(path.value, array ? [] : null);
       }
       (() => {
         if (requireWhenDepTruthy === true) requireWhenDepTruthy = 'all';
@@ -269,7 +273,6 @@ export const FormItem = defineSSRCustomElement({
     });
 
     const validateProps = computed(() => {
-      // TODO plainNameSet in form, depsMatch(deps: string[], match: (values: any[]) => boolean)
       // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
       const { min, max, lessThan, greaterThan, len, step, precision, type, required } = props.value;
       // TODO type === 'date'
@@ -286,7 +289,7 @@ export const FormItem = defineSSRCustomElement({
       };
     });
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
-      const value = formContext.getValue(path.value);
+      const value = getValue(path.value);
       const { stopValidate, validators: formValidators } = formContext.parent!.props;
       const stopEarly = stopValidate === 'first';
       const { validators } = props.value;
@@ -320,6 +323,9 @@ export const FormItem = defineSSRCustomElement({
       return errors;
     };
 
+    const param = { item: inputContext.vm!, form: formContext.parent! };
+    formContext.form.hooks.onFormItemSetup.exec(param);
+
     onBeforeUnmount(
       formContext.form.hooks.onValidate.use(async (_, { stopExec }) => {
         const errors = await validate();
@@ -328,13 +334,14 @@ export const FormItem = defineSSRCustomElement({
     );
 
     onBeforeUnmount(() => {
+      formContext.form.hooks.onFormItemUnmount.exec(param);
       switch (props.value.unmountBehavior) {
         case 'delete':
-          return formContext.deletePath(path.value);
+          return deletePath(path.value);
         case 'toNull':
-          return formContext.setValue(path.value, null);
+          return setValue(path.value, null);
         case 'toUndefined':
-          return formContext.setValue(path.value, undefined);
+          return setValue(path.value, undefined);
       }
     });
 
