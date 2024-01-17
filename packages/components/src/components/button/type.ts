@@ -1,20 +1,34 @@
-import { ExtractPropTypes, PropType } from 'vue';
-import { ThemeVariants, editStateProps, themeProps, LogicalPosition, GetEventPropsFromEmits } from 'common';
+import { ExtractPropTypes } from 'vue';
+import {
+  ThemeVariants,
+  editStateProps,
+  themeProps,
+  LogicalPosition,
+  GetEventPropsFromEmits,
+  PropString,
+  PropFunction,
+  PropObject,
+  PropObjOrStr,
+  PropBoolean,
+  PropNumber,
+} from 'common';
 import { Responsive } from '@lun/core';
 
 export const buttonProps = {
   ...editStateProps,
   ...themeProps,
-  size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3' | '4'>> },
-  variant: { type: String as PropType<ThemeVariants | 'ghost'> },
-  label: { type: String },
-  asyncHandler: { type: Function as PropType<(e?: MouseEvent) => void> },
-  spinProps: { type: Object },
-  showLoading: { type: Boolean },
-  iconPosition: { type: String as PropType<LogicalPosition> },
-  debounce: { type: Number },
-  throttle: { type: Number },
-  holdOn: { type: Number },
+  size: PropObjOrStr<Responsive<'1' | '2' | '3' | '4'>[]>(),
+  variant: PropString<ThemeVariants | 'ghost'>(),
+  label: PropString(),
+  asyncHandler: PropFunction<(e?: MouseEvent) => void>(),
+  spinProps: PropObject(),
+  showLoading: PropBoolean(),
+  iconPosition: PropString<LogicalPosition>(),
+  debounce: PropNumber(),
+  throttle: PropNumber(),
+  holdOn: PropNumber(),
+  iconName: PropString(),
+  iconLibrary: PropString(),
 };
 
 export const buttonEmits = { validClick: null };
