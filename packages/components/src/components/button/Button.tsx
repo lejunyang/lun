@@ -28,8 +28,8 @@ export const Button = defineSSRCustomElement({
           Promise.resolve(props.asyncHandler(e)).finally(() => (editState.loading = false));
         }
       };
-      if (props.debounce! > 0) return debounce(onClick, props.debounce);
-      else if (props.throttle! > 0) return throttle(onClick, props.throttle);
+      if (+props.debounce! > 0) return debounce(onClick, props.debounce);
+      else if (+props.throttle! > 0) return throttle(onClick, props.throttle);
       else return onClick;
     });
 
@@ -64,10 +64,16 @@ export const Button = defineSSRCustomElement({
     };
 
     return () => {
+      const { iconName, iconLibrary, size } = props;
       const { interactive, loading } = editComputed.value;
       const finalDisabled = !interactive;
-      const spinProps = { size: props.size, ...props.spinProps, part: 'spin' };
-      const loadingPart = loading && props.showLoading ? renderElement('spin', spinProps) : <slot name="icon"></slot>;
+      const spinProps = { size, ...props.spinProps, part: 'spin' };
+      const loadingPart =
+        loading && props.showLoading ? (
+          renderElement('spin', spinProps)
+        ) : (
+          <slot name="icon">{iconName && renderElement('icon', { name: iconName, library: iconLibrary })}</slot>
+        );
       return (
         <button
           {...buttonHandlers}
