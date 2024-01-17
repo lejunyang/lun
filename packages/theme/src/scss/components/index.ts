@@ -24,12 +24,14 @@ import { importSelectBasicTheme } from './select/index.ts';
 import { importSelectOptionBasicTheme } from './select-option/index.ts';
 import { importSelectOptgroupBasicTheme } from './select-optgroup/index.ts';
 import { importDividerBasicTheme } from './divider/index.ts';
+import { importCheckboxGroupBasicTheme } from './checkbox-group/index.ts';
 
 export * from './input/index.ts';
 
 export function importBasicTheme() {
   importButtonBasicTheme();
   importCheckboxBasicTheme();
+  importCheckboxGroupBasicTheme();
   importDialogBasicTheme();
   importDividerBasicTheme();
   importFormBasicTheme();
