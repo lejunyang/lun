@@ -4,6 +4,19 @@
 @use '../../mixins/config' as *;
 
 @include b(form-item) {
+  @include e(required-mark) {
+    @include declareVars(
+      (
+        color: required-mark-color,
+      )
+    );
+  }
+
+  @include setVars(
+    (
+      required-mark-color: getSemanticColor(error),
+    )
+  );
 }
 
 :host-context(#{getIs(layout-grid)}) {
