@@ -3,9 +3,9 @@ import { useForm, useSetupEdit } from '@lun/core';
 import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
 import { useCEExpose, useNamespace } from 'hooks';
-import { FormItemCollector, FormProvideExtra } from '.';
-import { computed, getCurrentInstance, onBeforeUnmount, watch } from 'vue';
-import { isArray, isObject, objectGet, objectSet, pick, stringToPath } from '@lun/utils';
+import { FormItemCollector } from '.';
+import { getCurrentInstance, onBeforeUnmount, watch } from 'vue';
+import { isObject, pick } from '@lun/utils';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -14,16 +14,23 @@ export const Form = defineSSRCustomElement({
   emits: formEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const form = isObject(props.formManager)
-      ? props.formManager
-      : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
-    __DEV__ &&
+
+    if (__DEV__) {
+      if (props.instance && isObject(props.instance) && !(props.instance as any)[Symbol.for('use-form')]) {
+        throw new Error(`Prop 'instance' should be a useForm instance`);
+      }
       watch(
-        () => props.formManager,
+        () => props.instance,
         () => {
-          warn(`Prop 'formManager' cannot be dynamically changed, should be set before form mount`);
+          warn(`Prop 'instance' cannot be dynamically changed, should be set before form mount`);
         },
       );
+    }
+
+    const form = isObject(props.instance)
+      ? props.instance
+      : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
+
     const vm = getCurrentInstance()!;
     const [editComputed] = useSetupEdit({
       adjust(state) {
@@ -37,56 +44,19 @@ export const Form = defineSSRCustomElement({
       form.hooks.onFormUnmount.exec(vm);
     });
 
-    const methods: Pick<FormProvideExtra, 'getValue' | 'setValue' | 'deletePath' | 'isPlainName'> = {
-      getValue(path) {
-        if (!path) return;
-        if (isArray(path) || !methods.isPlainName(path)) return objectGet(form.formData, path);
-        else return form.formData[path];
-      },
-      setValue(path, value) {
-        if (!path) return;
-        if (isArray(path) || !methods.isPlainName(path)) {
-          if (!path.length) return;
-          objectSet(form.formData, path, value);
-        } else form.formData[path] = value;
-        emit('update', {
-          formData: form.formData,
-          path,
-          value,
-        });
-      },
-      deletePath(path) {
-        if (!path) return;
-        if (methods.isPlainName(path as any)) path = stringToPath(path as string);
-        if (isArray(path)) {
-          if (!path.length) return;
-          const last = path.pop();
-          const obj = objectGet(form.formData, path);
-          if (isObject(obj)) delete obj[last!];
-        } else delete form.formData[path];
-        emit('update', {
-          formData: form.formData,
-          path,
-          value: undefined,
-          isDelete: true,
-        });
-      },
-      isPlainName(name) {
-        return props.plainName || plainNameSet.value.has(name);
-      },
-    };
-    const plainNameSet = computed(() => {
-      return new Set(formItems.value.map((i) => (i.props.plainName ? i.props.name : null)).filter(Boolean));
-    });
-    const formItems = FormItemCollector.parent({
+    onBeforeUnmount(
+      form.hooks.onUpdateValue.use((param) => {
+        emit('update', param);
+      }),
+    );
+    FormItemCollector.parent({
       extraProvide: {
         form,
         formProps: props,
-        ...methods,
       },
     });
 
-    useCEExpose(methods);
+    useCEExpose(form);
     return () => {
       const { layout, cols, labelWidth } = props;
       const isGrid = layout?.includes('grid');

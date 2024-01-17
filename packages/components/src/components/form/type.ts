@@ -21,8 +21,8 @@ export interface FormValidators {
 export const formProps = {
   ...editStateProps,
   ...themeProps,
-  // no idea why prop `form` will be considered as a string attribute, use `formManager` instead
-  formManager: PropObject<UseFormReturn>(),
+  // no idea why prop `form` will be considered as a string attribute, use `instance` instead
+  instance: PropObject<UseFormReturn>(),
   defaultFormData: PropObject(),
   defaultFormState: PropObject(),
   /** determine whether the name of current form-item is plain or not, plain means the name will be considered as a single string path, will not try transform it into nested path */

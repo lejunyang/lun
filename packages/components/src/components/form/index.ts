@@ -7,10 +7,6 @@ export type { FormProps } from './type';
 
 export type FormProvideExtra = {
   form: UseFormReturn;
-  getValue: (name: string | string[] | undefined | null) => any;
-  setValue: (name: string | string[] | undefined | null, value: any) => void;
-  deletePath: (name: string | string[] | undefined | null) => void;
-  isPlainName: (name?: string) => boolean;
   formProps: FormSetupProps;
 };
 
