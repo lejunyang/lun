@@ -1,19 +1,38 @@
-import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy } from '@lun/utils';
+import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy, stringToPath, isObject } from '@lun/utils';
 import { ProcessedFormParams, UseFormOptions } from './useForm';
 
 export function useFormMethods(
-  { formData, formState, hooks, getDefaultFormState }: ProcessedFormParams,
+  { formData, formState, hooks, getDefaultFormState, nameToFormItemVmMap, formItemVmToFormVmMap }: ProcessedFormParams,
   options: UseFormOptions,
 ) {
   const methods = {
-    getValue(path: string | string[]) {
-      if (isArray(path)) return objectGet(formData.value, path);
+    isPlainName(name?: string) {
+      if (!name) return false;
+      const formItem = nameToFormItemVmMap.value.get(name);
+      const parent = formItemVmToFormVmMap.get(formItem!);
+      return !!(formItem?.props.plainName ?? parent?.props.plainName);
+    },
+    getValue(path: string | string[] | null | undefined) {
+      if (!path) return;
+      if (isArray(path) || !methods.isPlainName(path)) return objectGet(formData.value, path);
       else return formData.value[path];
     },
-    setValue(path: string | string[], value: any) {
-      if (isArray(path)) objectSet(formData.value, path, value);
+    setValue(path: string | string[] | null | undefined, value: any) {
+      if (!path) return;
+      if (isArray(path) || !methods.isPlainName(path)) objectSet(formData.value, path, value);
       else formData.value[path] = value;
       hooks.onUpdateValue.exec({ formData: formData.value, path, value });
+    },
+    deletePath(path: string | string[] | null | undefined) {
+      if (!path) return;
+      if (!isArray(path) && !methods.isPlainName(path)) path = stringToPath(path);
+      if (isArray(path)) {
+        if (!path.length) return;
+        const last = path.pop();
+        const obj = objectGet(formData.value, path);
+        if (isObject(obj)) delete obj[last!];
+      } else delete formData.value[path];
+      hooks.onUpdateValue.exec({ formData: formData.value, path, isDelete: true, value: undefined });
     },
     resetFormData() {
       formData.value = deepCopy(options.defaultFormData || {});
