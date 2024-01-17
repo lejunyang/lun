@@ -8,5 +8,27 @@
 }
 
 @include b(form) {
-    
+  @include declareVars((gap));
+
+  @include size(1) {
+    @include setVars(
+      (
+        gap: getSpaceValue(1),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        gap: getSpaceValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        gap: getSpaceValue(3),
+      )
+    );
+  }
 }

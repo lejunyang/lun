@@ -92,25 +92,25 @@
   }
 
   @include size(1) {
-    padding: var(#{$contentPadding}, getSpaceValue(3));
+    padding: var(#{$contentPadding}, getSpaceValue(1));
     border-radius: getRadiusValue(4);
     #{$arrowSize}: getSpaceValue(2);
     #{$arrowHypot}: getSpaceValue(2, true);
   }
   @include size(2) {
-    padding: var(#{$contentPadding}, getSpaceValue(4));
+    padding: var(#{$contentPadding}, getSpaceValue(2));
     border-radius: getRadiusValue(4);
     #{$arrowSize}: getSpaceValue(3);
     #{$arrowHypot}: getSpaceValue(3, true);
   }
   @include size(3) {
-    padding: var(#{$contentPadding}, getSpaceValue(5));
+    padding: var(#{$contentPadding}, getSpaceValue(4));
     border-radius: getRadiusValue(5);
     #{$arrowSize}: getSpaceValue(4);
     #{$arrowHypot}: getSpaceValue(4, true);
   }
   @include size(4) {
-    padding: var(#{$contentPadding}, getSpaceValue(6));
+    padding: var(#{$contentPadding}, getSpaceValue(5));
     border-radius: getRadiusValue(5);
     #{$arrowSize}: getSpaceValue(5);
     #{$arrowHypot}: getSpaceValue(5, true);
