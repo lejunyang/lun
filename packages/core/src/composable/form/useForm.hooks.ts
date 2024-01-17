@@ -7,13 +7,21 @@ type UpdateValueParam = {
   formData: any;
   path: string | string[];
   value: any;
+  isDelete?: boolean
 };
 export const getHooks = () => ({
   // form lifecycle
   onFormSetup: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
   onFormMount: createSyncHook<() => void>(),
   onFormUnmount: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
+  // form-item lifecycle
+  onFormItemSetup:
+    createSyncHook<(vms: { item: ComponentInternalInstance; form: ComponentInternalInstance }) => void>(),
+  onFormItemMount: createSyncHook<() => void>(),
+  onFormItemUnmount:
+    createSyncHook<(vms: { item: ComponentInternalInstance; form: ComponentInternalInstance }) => void>(),
   // value updated
+  /** trigger when value of one field updates */
   onUpdateValue: createSyncHook<(param: UpdateValueParam) => UpdateValueParam | undefined>(),
   onFormReset: createSyncHook<() => void>(),
   // validate

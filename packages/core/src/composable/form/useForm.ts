@@ -23,6 +23,8 @@ export type ProcessedFormParams<Data extends CommonObject = CommonObject> = {
   formState: Ref<FormState>;
   hooks: FormHooks;
   getDefaultFormState(): FormState;
+  nameToFormItemVmMap: Ref<Map<string | string[], ComponentInternalInstance>>;
+  formItemVmToFormVmMap: WeakMap<ComponentInternalInstance, ComponentInternalInstance>;
 };
 
 export function useForm<
@@ -38,9 +40,19 @@ export function useForm<
     deepCopy({ errors: {}, isDirty: false, dirtyFields: new Set<string>(), ...options.defaultFormState });
   const formState = ref(getDefaultFormState());
   const hooks = createFormHooks(options);
-  const param = { options, formData, formState, hooks, getDefaultFormState };
-  const methods = useFormMethods(param, options);
   const forms = new Set<ComponentInternalInstance>();
+  const formItemVmToFormVmMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance>();
+  const nameToFormItemVmMap = ref(new Map<string | string[], ComponentInternalInstance>());
+  const param = {
+    options,
+    formData,
+    formState,
+    hooks,
+    getDefaultFormState,
+    nameToFormItemVmMap,
+    formItemVmToFormVmMap,
+  };
+  const methods = useFormMethods(param, options);
 
   hooks.onFormSetup.use((form) => {
     if (form) forms.add(form);
@@ -48,8 +60,20 @@ export function useForm<
   hooks.onFormUnmount.use((form) => {
     forms.delete(form);
   });
+  hooks.onFormItemSetup.use(({ item, form }) => {
+    if (!item) return;
+    const { name } = item.props;
+    if (name) nameToFormItemVmMap.value.set(name as any, item);
+    formItemVmToFormVmMap.set(item, form);
+  });
+  hooks.onFormItemUnmount.use(({ item }) => {
+    if (!item) return;
+    const { name } = item.props;
+    if (name) nameToFormItemVmMap.value.delete(name as any);
+    formItemVmToFormVmMap.delete(item);
+  });
 
-  return {
+  const result = {
     config: options.config,
     get formData() {
       return formData.value;
@@ -68,6 +92,8 @@ export function useForm<
     ...methods,
     hooks,
   };
+  if (__DEV__) Object.assign(result, { [Symbol.for('use-form')]: true });
+  return result;
 }
 
 export type UseFormReturn = ReturnType<typeof useForm>;
