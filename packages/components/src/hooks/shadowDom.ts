@@ -29,27 +29,27 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootEl extend
 /**
  * expose something to Custom Element
  */
-export function useCEExpose(expose: Record<string | symbol, any>, descriptors?: PropertyDescriptorMap) {
+export function useCEExpose(expose: Record<string | symbol, any>, extraDescriptors?: PropertyDescriptorMap) {
   const instance = getCurrentInstance();
   onMounted(() => {
     const rootEl = instance?.proxy?.$el as HTMLElement;
     const CE = (rootEl?.parentNode as ShadowRoot)?.host;
     if (CE) {
-      if (__DEV__) {
-        const existKeys = Object.keys(expose).filter(
-          (k) => Object.prototype.hasOwnProperty.call(expose, k) && (CE as any)[k] != null
-        );
-        const existDescriptors =
-          descriptors && Object.keys(descriptors).filter((d) => Object.getOwnPropertyDescriptor(CE, d));
-        if (existKeys.length || existDescriptors?.length)
-          warn(
-            `keys '${existKeys.concat(existDescriptors || [])}' have already existed on`,
-            CE,
-            'their values will be override'
-          );
-      }
-      Object.assign(CE, expose);
-      if (descriptors) Object.defineProperties(CE, descriptors);
+      // if (__DEV__) {
+      //   const existKeys = Object.keys(expose).filter(
+      //     (k) => Object.prototype.hasOwnProperty.call(expose, k) && (CE as any)[k] != null
+      //   );
+      //   const existDescriptors =
+      //     descriptors && Object.keys(descriptors).filter((d) => Object.getOwnPropertyDescriptor(CE, d));
+      //   if (existKeys.length || existDescriptors?.length)
+      //     warn(
+      //       `keys '${existKeys.concat(existDescriptors || [])}' have already existed on`,
+      //       CE,
+      //       'their values will be override'
+      //     );
+      // }
+      Object.defineProperties(CE, Object.getOwnPropertyDescriptors(expose));
+      if (extraDescriptors) Object.defineProperties(CE, extraDescriptors);
     }
   });
 }
