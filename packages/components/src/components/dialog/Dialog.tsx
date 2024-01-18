@@ -8,41 +8,46 @@ import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import { useNativeDialog, useSetupEdit } from '@lun/core';
 import { Transition, computed, ref, watch } from 'vue';
-import { getTransitionProps } from 'common';
+import { getTransitionProps, intl } from 'common';
 
 const name = 'dialog';
 export const Dialog = defineSSRCustomElement({
   name,
   props: dialogProps,
   emits: dialogEmits,
-  setup(props) {
+  setup(props, { emit }) {
     const ns = useNamespace(name);
     const openModel = useOpenModel(props, { passive: true });
     const dialogRef = ref<HTMLDialogElement>();
     const [editComputed, editState] = useSetupEdit({
       noInherit: true,
     });
+    const pending = ref(false);
     const { dialogHandlers, methods } = useNativeDialog(
-      computed(() => ({
-        ...props,
-        native: props.modal === 'native', // TODO remove
-        isOpen: openModel.value,
-        open() {
-          if (dialogRef.value) {
-            dialogRef.value.showModal();
-            openModel.value = true;
-          }
-        },
-        close() {
-          if (dialogRef.value) {
-            openModel.value = false;
-          }
-        },
-        isPending: !editComputed.value.editable,
-        onPending(pending) {
-          editState.disabled = pending;
-        },
-      })),
+      computed(() => {
+        return {
+          ...props,
+          native: props.modal === 'native', // TODO
+          isOpen: openModel.value,
+          open() {
+            if (dialogRef.value) {
+              // TODO modal modal={false}
+              dialogRef.value.showModal();
+              openModel.value = true;
+            }
+          },
+          close() {
+            if (dialogRef.value) {
+              openModel.value = false;
+            }
+          },
+          isPending: !editComputed.value.editable || pending.value,
+          onPending(_pending) {
+            pending.value = _pending;
+            if (props.disabledAllWhenPending) editState.disabled = _pending;
+          },
+        };
+      }),
     );
 
     watch([openModel, dialogRef], ([open, dialog]) => {
@@ -52,7 +57,15 @@ export const Dialog = defineSSRCustomElement({
       }
     });
 
-    const onAfterLeave = () => dialogRef.value?.close();
+    const panelTransitionHandlers = {
+      onAfterEnter() {
+        emit('afterOpen');
+      },
+      onAfterLeave() {
+        dialogRef.value?.close();
+        emit('afterClose');
+      },
+    };
 
     useCEExpose({
       openDialog: methods.open,
@@ -71,7 +84,7 @@ export const Dialog = defineSSRCustomElement({
           <Transition {...getTransitionProps(props, 'overlay')}>
             <div v-show={openModel.value} class={[ns.e('overlay')]} part={ns.p('overlay')} tabindex={-1}></div>
           </Transition>
-          <Transition {...getTransitionProps(props, 'panel')} onAfterLeave={onAfterLeave}>
+          <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
             <div v-show={openModel.value} class={ns.e('panel')} part={ns.p('panel')}>
               {props.closeBtn &&
                 renderElement(
@@ -102,11 +115,15 @@ export const Dialog = defineSSRCustomElement({
                     {props.cancelBtn &&
                       renderElement('button', {
                         ...props.cancelBtnProps,
-                        label: props.cancelText,
+                        label: props.cancelText || intl('dialog.cancel').d('Cancel'),
                         asyncHandler: methods.close,
                       })}
                     {props.okBtn &&
-                      renderElement('button', { ...props.okBtnProps, label: props.okText, asyncHandler: methods.ok })}
+                      renderElement('button', {
+                        ...props.okBtnProps,
+                        label: props.okText || intl('dialog.ok').d('OK'),
+                        asyncHandler: methods.ok,
+                      })}
                   </slot>
                   <slot name="footer-end"></slot>
                 </footer>

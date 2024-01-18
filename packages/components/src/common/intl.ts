@@ -11,6 +11,9 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'validation.number.greaterThan': '不得小于等于${greaterThan}',
     'validation.number.lessThan': '不得大于等于${lessThan}',
 
+    'dialog.ok': '确定',
+    'dialog.cancel': '取消',
+
     'select.button.selectAll': '全选',
     'select.button.reverse': '反选',
     'select.button.clear': '清空',
