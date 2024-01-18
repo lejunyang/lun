@@ -9,8 +9,8 @@ export function useNativeDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOpt
     dblclick(_e: MouseEvent) {},
     keydown(e: KeyboardEvent) {
       const { isOpen, native, escapeClosable } = unrefOrGet(options)!;
-      if (e.key === 'Escape' && isOpen && native) {
-        e.preventDefault();
+      if (e.key === 'Escape' && isOpen) {
+        if (native) e.preventDefault();
         if (escapeClosable) methods.close();
       }
     },
@@ -34,7 +34,7 @@ export function useNativeDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOpt
     document.addEventListener('keydown', documentHandlers.keydown, { capture: true });
     cleanup.push(() => document.removeEventListener('click', documentHandlers.click));
     cleanup.push(() => document.removeEventListener('dblclick', documentHandlers.dblclick));
-    cleanup.push(() => document.removeEventListener('keydown', documentHandlers.keydown));
+    cleanup.push(() => document.removeEventListener('keydown', documentHandlers.keydown, { capture: true }));
   }
 
   tryOnScopeDispose(() => {
