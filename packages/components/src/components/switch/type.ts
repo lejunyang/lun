@@ -1,15 +1,15 @@
-import { GetEventPropsFromEmits, editStateProps, themeProps } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropObject, PropString, editStateProps, themeProps, valueProp } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const switchProps = {
   ...editStateProps,
   ...themeProps,
-  checked: { type: Boolean },
-  trueValue: {},
-  falseValue: {},
-  trueText: { type: String },
-  falseText: { type: String },
-  spinProps: { type: Object },
+  checked: PropBoolean(),
+  trueValue: valueProp,
+  falseValue: valueProp,
+  trueText: PropString(),
+  falseText: PropString(),
+  spinProps: PropObject(),
 };
 
 export const switchEmits = {

@@ -2,6 +2,7 @@ import { ExtractPropTypes } from 'vue';
 import {
   GetEventPropsFromEmits,
   PropBoolOrFunc,
+  valueProp,
   PropBoolean,
   PropObjOrBool,
   PropStrOrArr,
@@ -43,7 +44,7 @@ export const selectEmits = {
 export const selectOptionProps = {
   ...themeProps,
   ...editStateProps,
-  value: { required: true },
+  value: valueProp,
   label: PropString(),
   excludeFromSelect: PropBoolean(),
   /** used to custom render content, if it's truthy, will use CustomRenderer to render content, 'label' will not be rendered, but 'label' will still be used in filter */

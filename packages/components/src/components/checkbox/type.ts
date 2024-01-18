@@ -6,6 +6,7 @@ import {
   PropBoolean,
   PropString,
   PropArray,
+  valueProp,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -13,13 +14,13 @@ import { createOptionProps } from '../../hooks/useOptions';
 export const checkboxProps = {
   ...editStateProps,
   ...themeProps,
-  value: {},
+  value: valueProp,
   /**
    * It's not recommended to use trueValue and falseValue in Checkbox, you may want to use Switch instead.
    * They are only used for single Checkbox that's not under CheckboxGroup.
    */
-  trueValue: {},
-  falseValue: {},
+  trueValue: valueProp,
+  falseValue: valueProp,
   label: PropString(),
   labelPosition: PropString<LogicalPosition>(),
   checked: PropBoolean(),
