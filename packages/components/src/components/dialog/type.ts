@@ -1,45 +1,58 @@
 import { MaybePromise } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { GetEventPropsFromEmits, createTransitionProps, editStateProps, themeProps } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolOrStr,
+  PropBoolean,
+  PropFunction,
+  PropObject,
+  PropString,
+  createTransitionProps,
+  editStateProps,
+  themeProps,
+} from 'common';
 
 export const dialogProps = {
   ...editStateProps,
   ...themeProps,
   ...createTransitionProps('panel'),
   ...createTransitionProps('overlay'),
-  open: { type: Boolean, default: undefined },
-  modal: { type: [Boolean, String] as PropType<boolean | 'native' | string> },
-  maskClosable: { type: [Boolean, String] as PropType<boolean | 'click' | 'dblclick'> },
-  escapeClosable: { type: Boolean },
-  movable: { type: Boolean },
-  width: { type: String },
-  // title is global HTMLAttributes, will make the dialog show tooltip, so use headerTitle instead
-  headerTitle: { type: String },
-  noHeader: { type: Boolean },
-  closeBtn: { type: Boolean },
-  closeBtnProps: { type: Object },
+  open: PropBoolean(),
+  modal: PropBoolOrStr<boolean | 'native'>(),
+  maskClosable: PropBoolOrStr<boolean | 'click' | 'dblclick'>(),
+  escapeClosable: PropBoolean(),
+  movable: PropBoolean(),
+  width: PropString(),
+  // title is a global HTMLAttributes, will make the dialog show tooltip, so use headerTitle instead
+  headerTitle: PropString(),
+  noHeader: PropBoolean(),
+  closeBtn: PropBoolean(),
+  closeBtnProps: PropObject(),
   content: {},
-  noFooter: { type: Boolean },
-  okBtn: { type: Boolean, default: true },
-  cancelBtn: { type: Boolean, default: true },
-  // TODO intl
-  okText: { type: String, default: () => 'OK' },
-  cancelText: { type: String, default: () => 'Cancel' },
-  okBtnProps: { type: Object },
-  cancelBtnProps: { type: Object },
-  beforeOpen: { type: Function as PropType<() => void> },
-  afterOpen: { type: Function as PropType<() => void> },
+  noFooter: PropBoolean(),
+  okBtn: PropBoolean(),
+  cancelBtn: PropBoolean(),
+  okText: PropString(),
+  cancelText: PropString(),
+  okBtnProps: PropObject(),
+  cancelBtnProps: PropObject(),
+  /** function that will be called before opening dialog, if it returns false, prevent opening dialog */
+  beforeOpen: PropFunction<() => void | boolean>(),
+  /** function that will be called on clicking ok button, if it returns false, dialog stays open and will not trigger ok event */
   beforeOk: { type: Function as PropType<() => MaybePromise<boolean | void>> },
+  /** function that will be called before closing dialog, if it returns false, prevent closing dialog */
   beforeClose: { type: Function as PropType<() => MaybePromise<boolean | void>> },
-  afterClose: { type: Function as PropType<() => void> },
+  disabledAllWhenPending: PropBoolean(),
 };
 
 export const dialogEmits = {
   update: (_detail: boolean) => null,
-  open: () => null,
-  close: () => null,
+  open: null,
+  afterOpen: null,
+  close: null,
+  afterClose: null,
 };
 
 export type DialogSetupProps = ExtractPropTypes<typeof dialogProps>;
-export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>
+export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>;
 export type DialogProps = Partial<DialogSetupProps> & DialogEvents;

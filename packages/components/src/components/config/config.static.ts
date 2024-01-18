@@ -90,6 +90,8 @@ export const GlobalStaticConfig = new Proxy(
       'custom-renderer': {},
       dialog: {
         closeBtn: true,
+        okBtn: true,
+        cancelBtn: true,
         escapeClosable: true,
         modal: 'native',
         width: '450px',
