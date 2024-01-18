@@ -7,18 +7,19 @@
   border: none;
   padding: 0;
   background-color: transparent;
+  outline: none;
 
   &::backdrop {
     // backdrop doesn't inherit any css variables, no possible way to inherit parent theme var https://github.com/whatwg/fullscreen/issues/124
     // SPEC updated backdrop inheritance, but browsers haven't fixed them https://wpt.fyi/results/html/semantics/interactive-elements/the-dialog-element/backdrop-inherits.html?label=experimental&label=master&aligned
     // https://stackoverflow.com/questions/58818299/css-variables-not-working-in-dialogbackdrop
-    // background-color: getSemanticColor('overlay');
+    // background-color: getSemanticColor('mask');
     background-color: transparent;
   }
-  // so don't use backdrop, add another element as overlay
-  @include e(overlay) {
+  // so don't use backdrop, add another element as mask
+  @include e(mask) {
     position: fixed;
-    background-color: getSemanticColor('overlay');
+    background-color: getSemanticColor('mask');
     transition: background-color 0.25s;
     inset: 0px;
   }
@@ -28,6 +29,7 @@
     position: relative;
     z-index: 2;
     background-color: getSemanticColor('panel-solid');
+    outline: none;
   }
 
   @include e(close) {
@@ -100,9 +102,9 @@
   opacity: 1;
 }
 
-.dialog-overlay-enter-active, .dialog-overlay-leave-active {
+.dialog-mask-enter-active, .dialog-mask-leave-active {
   transition: all 0.25s;
 }
-.dialog-overlay-enter-from, .dialog-overlay-leave-to {
+.dialog-mask-enter-from, .dialog-mask-leave-to {
   background-color: transparent;
 }

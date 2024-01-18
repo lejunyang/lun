@@ -18,6 +18,7 @@ export const Dialog = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const openModel = useOpenModel(props, { passive: true });
+    const maskShow = ref(false);
     const dialogRef = ref<HTMLDialogElement>();
     const [editComputed, editState] = useSetupEdit({
       noInherit: true,
@@ -25,26 +26,27 @@ export const Dialog = defineSSRCustomElement({
     const pending = ref(false);
     const { dialogHandlers, methods } = useNativeDialog(
       computed(() => {
+        const { disabledAllWhenPending, noMask, noTopLayer } = props;
         return {
           ...props,
-          native: props.modal === 'native', // TODO
-          isOpen: openModel.value,
+          native: true,
+          isOpen: openModel,
           open() {
             if (dialogRef.value) {
-              // TODO modal modal={false}
-              dialogRef.value.showModal();
+              dialogRef.value[noTopLayer ? 'show' : 'showModal']();
               openModel.value = true;
+              maskShow.value = !noMask;
             }
           },
           close() {
             if (dialogRef.value) {
-              openModel.value = false;
+              openModel.value = maskShow.value = false;
             }
           },
-          isPending: !editComputed.value.editable || pending.value,
+          isPending: pending,
           onPending(_pending) {
             pending.value = _pending;
-            if (props.disabledAllWhenPending) editState.disabled = _pending;
+            if (disabledAllWhenPending) editState.disabled = _pending;
           },
         };
       }),
@@ -75,18 +77,18 @@ export const Dialog = defineSSRCustomElement({
     return () => {
       return (
         <dialog
-          class={[...ns.t]}
-          part={ns.p('root')}
+          class={ns.s(editComputed)}
+          part="root"
           ref={dialogRef}
           {...dialogHandlers}
           style={{ width: props.width }}
         >
-          <Transition {...getTransitionProps(props, 'overlay')}>
-            <div v-show={openModel.value} class={[ns.e('overlay')]} part={ns.p('overlay')} tabindex={-1}></div>
+          <Transition {...getTransitionProps(props, 'mask')}>
+            <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1}></div>
           </Transition>
           <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
-            <div v-show={openModel.value} class={ns.e('panel')} part={ns.p('panel')}>
-              {props.closeBtn &&
+            <div v-show={openModel.value} class={ns.e('panel')} part="panel">
+              {!props.noCloseBtn &&
                 renderElement(
                   'button',
                   {
@@ -94,31 +96,31 @@ export const Dialog = defineSSRCustomElement({
                     variant: 'ghost',
                     ...props.closeBtnProps,
                     asyncHandler: methods.close,
-                    part: ns.p('close'),
+                    part: 'close',
                   },
                   renderElement('icon', { name: 'x', slot: 'icon' }),
                 )}
               {!props.noHeader && (
-                <header class={[ns.e('header')]} part={ns.p('header')}>
+                <header class={[ns.e('header')]} part="header">
                   <slot name="header-start"></slot>
                   <slot name="header">{props.headerTitle}</slot>
                   <slot name="header-end"></slot>
                 </header>
               )}
-              <div class={[ns.e('content')]} part={ns.p('content')}>
+              <div class={[ns.e('content')]} part="content">
                 <slot>{props.content && <VCustomRenderer content={props.content} />}</slot>
               </div>
               {!props.noFooter && (
-                <footer class={[ns.e('footer')]} part={ns.p('footer')}>
+                <footer class={[ns.e('footer')]} part="footer">
                   <slot name="footer-start"></slot>
                   <slot name="footer">
-                    {props.cancelBtn &&
+                    {!props.noCancelBtn &&
                       renderElement('button', {
                         ...props.cancelBtnProps,
                         label: props.cancelText || intl('dialog.cancel').d('Cancel'),
                         asyncHandler: methods.close,
                       })}
-                    {props.okBtn &&
+                    {!props.noOkBtn &&
                       renderElement('button', {
                         ...props.okBtnProps,
                         label: props.okText || intl('dialog.ok').d('OK'),
