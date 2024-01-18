@@ -3,12 +3,10 @@ import { MaybePromise } from '../../hooks';
 
 export type UseNativeDialogOptions = {
   isOpen: boolean | undefined;
-  beforeOpen?: () => void;
+  beforeOpen?: () => void | boolean;
   open: () => void;
-  afterOpen?: () => void;
   beforeClose?: () => MaybePromise<boolean | void>;
   close: () => void;
-  afterClose?: () => void;
   beforeOk?: () => MaybePromise<boolean | void>;
   isPending?: boolean;
   onPending?: (pending: boolean) => void;
@@ -18,17 +16,17 @@ export type UseNativeDialogOptions = {
 export function useDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOptions, true>) {
   const methods = {
     open() {
-      const { beforeOpen, open, afterOpen } = unrefOrGet(options)!;
-      if (beforeOpen) beforeOpen();
+      const { beforeOpen, open } = unrefOrGet(options)!;
+      if (beforeOpen && beforeOpen() === false) {
+        return;
+      }
       open();
-      if (afterOpen) afterOpen();
     },
     async close() {
-      const { beforeClose, close, afterClose, isPending, onPending, isOpen } = unrefOrGet(options)!;
+      const { beforeClose, close, isPending, onPending, isOpen } = unrefOrGet(options)!;
       if (isPending || !isOpen) return;
       if (!beforeClose) {
         close();
-        afterClose && afterClose();
         return;
       }
       if (onPending) onPending(true);
@@ -36,7 +34,6 @@ export function useDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOptions, 
         .then((res) => {
           if (res !== false) {
             close();
-            if (afterClose) afterClose();
           }
         })
         .catch(() => {})

@@ -33,7 +33,7 @@ export function createUseModel<DK extends string, E extends () => any>({
 }) {
   return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
     props: P,
-    options?: UseModelOptions<P, K, Passive>
+    options?: UseModelOptions<P, K, Passive>,
   ) {
     const extraData = extra && extra();
     let { passive = true, eventName, deep, extraSource, shouldEmit, clone, emit, key } = options || {};
@@ -65,25 +65,22 @@ export function createUseModel<DK extends string, E extends () => any>({
       const initialValue = getter();
       const proxy = ref<P[K]>(initialValue!);
       let isUpdating = false;
-      watch(
-        () => (extraData ? getter() : props[key!]),
-        (v) => {
-          if (!isUpdating) {
-            isUpdating = true;
-            (proxy as any).value = v;
-            nextTick(() => (isUpdating = false));
-          }
+      watch(getter, (v) => {
+        if (!isUpdating) {
+          isUpdating = true;
+          (proxy as any).value = v;
+          nextTick(() => (isUpdating = false));
         }
-      );
+      });
       watch(
         proxy,
         (v) => {
-          if (!isUpdating && (v !== props[key!] || deep)) {
+          if (!isUpdating && (v !== getter() || deep)) {
             if (extraData && setByExtra) setByExtra(extraData, v);
             triggerEmit(v as P[K]);
           }
         },
-        { deep }
+        { deep },
       );
 
       return proxy;
@@ -104,10 +101,10 @@ export function createUseModel<DK extends string, E extends () => any>({
 export interface UseModel<DK extends string> {
   <P extends Record<string | symbol, unknown>, K extends keyof P = DK>(
     props: P,
-    options?: UseModelOptions<P, K, false>
+    options?: UseModelOptions<P, K, false>,
   ): WritableComputedRef<P[K]>;
   <P extends Record<string | symbol, unknown>, K extends keyof P = DK>(
     props: P,
-    options?: UseModelOptions<P, K, true>
+    options?: UseModelOptions<P, K, true>,
   ): Ref<UnwrapRef<P[K]>>;
 }
