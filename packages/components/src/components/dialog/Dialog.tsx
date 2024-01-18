@@ -24,7 +24,7 @@ export const Dialog = defineSSRCustomElement({
       noInherit: true,
     });
     const pending = ref(false);
-    const { dialogHandlers, methods } = useNativeDialog(
+    const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
       computed(() => {
         const { disabledAllWhenPending, noMask, noTopLayer } = props;
         return {
@@ -77,14 +77,14 @@ export const Dialog = defineSSRCustomElement({
     return () => {
       return (
         <dialog
-          class={ns.s(editComputed)}
+          class={[ns.s(editComputed), ns.is('no-top-layer', props.noTopLayer)]}
           part="root"
           ref={dialogRef}
           {...dialogHandlers}
           style={{ width: props.width }}
         >
           <Transition {...getTransitionProps(props, 'mask')}>
-            <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1}></div>
+            <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
           </Transition>
           <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
             <div v-show={openModel.value} class={ns.e('panel')} part="panel">

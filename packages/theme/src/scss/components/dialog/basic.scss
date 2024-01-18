@@ -9,6 +9,21 @@
   background-color: transparent;
   outline: none;
 
+  @include is(no-top-layer) {
+    @include declareVars(z-index);
+    @include setVars(
+      (
+        z-index: 1000,
+      )
+    );
+    // copy from user agent dialog:-internal-dialog-in-top-layer
+    position: fixed;
+    inset-block-start: 0px;
+    inset-block-end: 0px;
+    max-width: calc(100% - 6px - 2em);
+    max-height: calc(100% - 6px - 2em);
+  }
+
   &::backdrop {
     // backdrop doesn't inherit any css variables, no possible way to inherit parent theme var https://github.com/whatwg/fullscreen/issues/124
     // SPEC updated backdrop inheritance, but browsers haven't fixed them https://wpt.fyi/results/html/semantics/interactive-elements/the-dialog-element/backdrop-inherits.html?label=experimental&label=master&aligned
@@ -23,7 +38,6 @@
     transition: background-color 0.25s;
     inset: 0px;
   }
-
 
   @include e(panel) {
     position: relative;
@@ -88,23 +102,4 @@
       inset-inline-end: getSpaceValue(5);
     }
   }
-}
-
-.dialog-panel-enter-active, .dialog-panel-leave-active {
-  transition: all 0.25s;
-}
-.dialog-panel-enter-from, .dialog-panel-leave-to {
-  scale: 0.8;
-  opacity: 0;
-}
-.dialog-panel-enter-to, .dialog-panel-leave-from {
-  scale: 1;
-  opacity: 1;
-}
-
-.dialog-mask-enter-active, .dialog-mask-leave-active {
-  transition: all 0.25s;
-}
-.dialog-mask-enter-from, .dialog-mask-leave-to {
-  background-color: transparent;
 }
