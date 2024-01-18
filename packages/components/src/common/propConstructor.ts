@@ -1,5 +1,5 @@
 import { PropType } from 'vue';
-import { Constructor, UnwrapPrimitive } from '@lun/utils';
+import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun/utils';
 
 const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => {
   return <T extends UnwrapPrimitive<InstanceType<Presets[number]>>, C extends Constructor[] = []>(
@@ -11,18 +11,24 @@ const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => 
   };
 };
 
-export const PropString = createPropFactory(String);
-export const PropNumber = createPropFactory(Number, String);
-export const PropBoolean = createPropFactory(Boolean);
-export const PropBoolOrStr = createPropFactory(Boolean, String);
-export const PropBoolOrFunc = createPropFactory(Boolean, Function);
-export const PropObject = createPropFactory(Object);
-export const PropArray = createPropFactory(Array);
-export const PropFunction = createPropFactory(Function);
-export const PropObjOrFunc = createPropFactory(Object, Function);
-export const PropObjOrStr = createPropFactory(Object, String);
-export const PropObjOrBool = createPropFactory(Boolean, Object);
-export const PropStrOrArr = createPropFactory(String, Array as Constructor<string[] | null>);
+export const PropString = cacheFunctionResult(createPropFactory(String));
+export const PropNumber = cacheFunctionResult(createPropFactory(Number, String));
+export const PropBoolean = cacheFunctionResult(createPropFactory(Boolean));
+export const PropBoolOrStr = cacheFunctionResult(createPropFactory(Boolean, String));
+export const PropBoolOrFunc = cacheFunctionResult(createPropFactory(Boolean, Function));
+export const PropObject = cacheFunctionResult(createPropFactory(Object));
+export const PropArray = cacheFunctionResult(createPropFactory(Array));
+export const PropFunction = cacheFunctionResult(createPropFactory(Function));
+export const PropObjOrFunc = cacheFunctionResult(createPropFactory(Object, Function));
+export const PropObjOrStr = cacheFunctionResult(createPropFactory(Object, String));
+export const PropObjOrBool = cacheFunctionResult(createPropFactory(Boolean, Object));
+export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array as Constructor<string[] | null>));
+
+/**
+ * it's for prop 'value' of some components, like select-option, checkbox, radio... their value can be anything but empty string ''
+ * we need to add type Boolean to let vue transform the empty string to boolean true, and need to add default undefined in case it defaults to boolean false
+ */
+export const valueProp = { ...PropBoolOrStr(Object, Number), default: undefined };
 
 // const test = {
 //   str: PropString<'const'>(),

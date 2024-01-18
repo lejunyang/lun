@@ -4,7 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { selectEmits, selectProps } from './type';
 import { definePopover } from '../popover/Popover';
 import { refLikesToGetters, useSelect, useSetupEdit, useTempState } from '@lun/core';
-import { isFunction, toArrayIfNotNil } from '@lun/utils';
+import { isFunction, isNilOrEmptyStr, toArrayIfNotNil } from '@lun/utils';
 import { defineInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
@@ -38,7 +38,7 @@ export const Select = defineSSRCustomFormElement({
         // if it's multiple, keep focus after input change
         if (multiple) {
           inputRef.value?.focus();
-        } else if (autoClose && value) {
+        } else if (autoClose && !isNilOrEmptyStr(value)) {
           // it has to be after rootOnPointerDown rAF, or focus will reopen popover
           setTimeout(() => {
             popoverRef.value?.closePopover();
