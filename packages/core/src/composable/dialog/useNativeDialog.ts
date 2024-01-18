@@ -9,7 +9,7 @@ export function useNativeDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOpt
     dblclick(_e: MouseEvent) {},
     keydown(e: KeyboardEvent) {
       const { isOpen, native, escapeClosable } = unrefOrGet(options)!;
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && unrefOrGet(isOpen)) {
         if (native) e.preventDefault();
         if (escapeClosable) methods.close();
       }

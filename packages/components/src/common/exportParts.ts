@@ -8,7 +8,7 @@ const children = 'children';
 export const exportParts = {
   checkbox: [root, 'indicator', input, label],
   'checkbox-group': [root],
-  dialog: [root, 'overlay', 'panel', 'header', 'close', content, 'footer'],
+  dialog: [root, 'mask', 'panel', 'header', 'close', content, 'footer'],
   divider: [root, 'text'],
   form: [root],
   'form-item': [root, label, content],
