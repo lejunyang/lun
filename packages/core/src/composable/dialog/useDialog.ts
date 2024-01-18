@@ -1,7 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { MaybePromise } from '../../hooks';
 
-export type UseNativeDialogOptions = {
+export type UseDialogOptions = {
   isOpen: MaybeRefLikeOrGetter<boolean>;
   beforeOpen?: () => void | boolean;
   open: () => void;
@@ -10,10 +10,10 @@ export type UseNativeDialogOptions = {
   beforeOk?: () => MaybePromise<boolean | void>;
   isPending?: MaybeRefLikeOrGetter<boolean>;
   onPending?: (pending: boolean) => void;
-  escapeClosable?: boolean;
+  maskClosable?: boolean | 'click' | 'dblclick';
 };
 
-export function useDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOptions, true>) {
+export function useDialog(options: MaybeRefLikeOrGetter<UseDialogOptions, true>) {
   const methods = {
     open() {
       const { beforeOpen, open } = unrefOrGet(options);
@@ -56,5 +56,18 @@ export function useDialog(options: MaybeRefLikeOrGetter<UseNativeDialogOptions, 
         .finally(() => onPending && onPending(false));
     },
   };
-  return methods;
+  const maskHandlers = {
+    onClick() {
+      const { maskClosable } = unrefOrGet(options);
+      if (maskClosable === 'click' || maskClosable === true) {
+        methods.close();
+      }
+    },
+    onDblclick() {
+      if (unrefOrGet(options).maskClosable === 'dblclick') {
+        methods.close();
+      }
+    },
+  };
+  return { methods, maskHandlers };
 }
