@@ -9,6 +9,7 @@
 
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 
   @include e(indicator) {
     display: inline-block;
@@ -43,20 +44,88 @@
     }
   }
 
+  // ------------------------------radio button------------------------------
+  @include is(button) {
+    @include declareVars(
+      (
+        padding-inline: button-padding-inline,
+        line-height: button-line-height,
+        height: button-height,
+      )
+    );
+    border: 1px solid getGrayColor(a6);
+    border-inline-end: none;
+    @include e(indicator) {
+      display: none;
+    }
+  }
+  @include is(start) {
+    @include declareVars(
+      (
+        border-start-start-radius: button-border-radius,
+        border-end-start-radius: button-border-radius,
+      )
+    );
+  }
+  @include is(end) {
+    border-inline-end: 1px solid getGrayColor(a6);
+    @include declareVars(
+      (
+        border-start-end-radius: button-border-radius,
+        border-end-end-radius: button-border-radius,
+      )
+    );
+  }
+
+  @include is((button, checked)) {
+    background-color: getAccentColor(a4); // button soft
+    border: 1px solid getAccentColor(7);
+    position: relative; // set this to let the border of the checked one overlap the unchecked one, so that the border color won't be mixed
+    &:not(#{getIs(end)}) {
+      // to avoid two borders
+      margin-inline-end: -1px;
+    }
+  }
+  // ------------------------------radio button------------------------------
+
   @include size(1) {
     #{$size}: calc(#{getSpaceValue(4)} * 0.875);
+    @include setVars(
+      (
+        button-border-radius: getRadiusValue(1),
+        button-padding-inline: getSpaceValue(2),
+        button-line-height: getLineHeightValue(1),
+        button-height: getSpaceValue(5),
+      )
+    );
     @include e(indicator) {
       border-radius: getRadiusValue(1, false);
     }
   }
   @include size(2) {
     #{$size}: getSpaceValue(4);
+    @include setVars(
+      (
+        button-border-radius: getRadiusValue(2),
+        button-padding-inline: getSpaceValue(3),
+        button-line-height: getLineHeightValue(2),
+        button-height: getSpaceValue(6),
+      )
+    );
     @include e(indicator) {
       border-radius: getRadiusValue(2, false);
     }
   }
   @include size(3) {
     #{$size}: calc(#{getSpaceValue(4)} * 1.25);
+    @include setVars(
+      (
+        button-border-radius: getRadiusValue(3),
+        button-padding-inline: getSpaceValue(4),
+        button-line-height: getLineHeightValue(3),
+        button-height: getSpaceValue(7),
+      )
+    );
     @include e(indicator) {
       border-radius: getRadiusValue(2, false);
     }
