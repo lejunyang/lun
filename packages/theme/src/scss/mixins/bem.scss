@@ -194,6 +194,40 @@
   }
 }
 
+@mixin hover($excludeSelector: null) {
+  @if $excludeSelector {
+    $excludeSelector: ':not(' + $excludeSelector + ')';
+  }
+  @if map.get(config.$with-where-map, 'hover') {
+    &:where(:hover)#{$excludeSelector} {
+      @content;
+    }
+  } @else {
+    &:hover#{$excludeSelector} {
+      @content;
+    }
+  }
+}
+
+@mixin active($excludeSelector: null, $withEnabled: true) {
+  @if $excludeSelector {
+    $excludeSelector: ':not(' + $excludeSelector + ')';
+  }
+  $pseudo: ':active';
+  @if $withEnabled {
+    $pseudo: $pseudo + ':enabled'; // disabled button can still be active, so add :enabled
+  }
+  @if map.get(config.$with-where-map, 'active') {
+    &:where(#{$pseudo})#{$excludeSelector} {
+      @content;
+    }
+  } @else {
+    &#{$pseudo}#{$excludeSelector} {
+      @content;
+    }
+  }
+}
+
 @function getRVarName($list) {
   @return getVarName(list.join($Root, $list));
 }

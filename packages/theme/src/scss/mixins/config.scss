@@ -7,6 +7,8 @@ $state-prefix: 'is-' !default;
 $with-where-map: (
   'is': true,
   'modifier': false,
+  'hover': true,
+  'active': true,
 ) !default;
 
 $color-list: (
