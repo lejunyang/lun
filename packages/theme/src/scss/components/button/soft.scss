@@ -8,10 +8,10 @@
     color: getAccentColor(a11);
     background-color: getAccentColor(a3);
 
-    &:hover {
+    @include hover {
       background-color: getAccentColor(a4);
     }
-    &:active {
+    @include active {
       background-color: getAccentColor(a5);
     }
     &:focus-visible {
@@ -32,10 +32,10 @@
   @include variant(ghost) {
     color: getAccentColor(a11);
 
-    &:hover:not(#{getIs(disabled)}) {
-      background-color: getAccentColor(a3);
+    @include hover(getIs(disabled)) {
+      background-color: getAccentColor(a3);;
     }
-    &:active {
+    @include active {
       background-color: getAccentColor(a4);
     }
     &:focus-visible {
