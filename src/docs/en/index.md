@@ -4,28 +4,23 @@ layout: home
 hero:
   name: Lun
   text: Web Components base on Vue3
-  tagline: Lorem ipsum...
-  image:
-    src: /logo.png
-    alt: VitePress
+  tagline: Personal leaning only, do not use it in production
+  image: ' '
   actions:
     - theme: brand
       text: Get Started
       link: /components/button/
     - theme: alt
-      text: View on GitHub
+      text: View in GitHub
       link: https://github.com/lejunyang/lun
 features:
+  - icon: ✨
+    title: Cross Frameworks
+    details: Based on Custom Element and Shadow DOM，support all modern web environments
   - icon: 🛠️
-    title: Simple and minimal, always
-    details: Lorem ipsum...
-  - icon:
-      src: /cool-feature-icon.svg
-    title: Another cool feature
-    details: Lorem ipsum...
-  - icon:
-      dark: /dark-feature-icon.svg
-      light: /light-feature-icon.svg
-    title: Another cool feature
-    details: Lorem ipsum...
+    title: Easy to configure
+    details: Provide abundant global static and dynamic configurations
+  - icon: 🎨
+    title: Easy to prettify
+    details: Fully customize the components' styles, provide a beautiful preset styles based on @radix/colors
 ---

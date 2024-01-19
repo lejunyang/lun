@@ -14,7 +14,7 @@ export default function () {
   return (
     <div>
       <l-form
-        formManager={form}
+        instance={form}
         cols={form.formData.cols}
         onUpdate={(e) => {
           console.log('form update', e.detail);

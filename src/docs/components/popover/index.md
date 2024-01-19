@@ -73,6 +73,7 @@ lang: zh-CN
   border-radius: 50%;
   translate: 0px -50px;
   animation: 1s virtual-element infinite;
+  pointer-events: none;
 }
 @keyframes virtual-element {
   0% { scale: 1; }

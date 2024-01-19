@@ -25,6 +25,23 @@ export default function () {
           ghost
         </l-button>
       </div>
+      <div class="container">
+        <l-button variant="surface" highContrast disabled>
+          surface
+        </l-button>
+        <l-button variant="solid" highContrast disabled>
+          solid
+        </l-button>
+        <l-button variant="outline" highContrast disabled>
+          outline
+        </l-button>
+        <l-button variant="soft" highContrast disabled>
+          soft
+        </l-button>
+        <l-button variant="ghost" highContrast disabled>
+          ghost
+        </l-button>
+      </div>
     </>
   );
 }
