@@ -32,7 +32,7 @@
   @include variant(ghost) {
     color: getAccentColor(a11);
 
-    &:hover {
+    &:hover:not(#{getIs(disabled)}) {
       background-color: getAccentColor(a3);
     }
     &:active {
@@ -49,7 +49,6 @@
 
     @include is(disabled, true) {
       color: getGrayColor(a8);
-      background-color: getGrayColor(a3);
     }
   }
 }

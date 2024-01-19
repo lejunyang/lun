@@ -218,6 +218,17 @@
 }
 
 /**
+  * declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
+  */
+@mixin declareVarValues($varValMap) {
+  @each $prop, $nameVal in $varValMap {
+    $name: list.nth($nameVal, 1);
+    $val: list.nth($nameVal, 2);
+    #{$prop}: #{getRVarValue($name, $val)};
+  }
+}
+
+/**
   * inside @include b(button) { ... }
   * setVars((padding: 10px, margin: 20px)) => --l-button-padding: 10px; --l-button-margin: 20px;
   */
