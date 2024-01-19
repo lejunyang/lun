@@ -21,11 +21,14 @@ export interface FormValidators {
 export const formProps = {
   ...editStateProps,
   ...themeProps,
-  // no idea why prop `form` will be considered as a string attribute, use `instance` instead
+  // intent to use prop `form` originally, but found `form` will be considered as a string attribute. It's vue's behavior, see vuejs/core/packages/runtime-dom/src/patchProp.ts. use `instance` instead
   instance: PropObject<UseFormReturn>(),
   defaultFormData: PropObject(),
   defaultFormState: PropObject(),
-  /** determine whether the name of current form-item is plain or not, plain means the name will be considered as a single string path, will not try transform it into nested path */
+  /**
+   * determine whether the name of form-items of current form are plain or not, plain means the name will be considered as a single string path, will not try transform it into nested path
+   * prop `plainName` of form-item itself takes higher priority
+   */
   plainName: PropBoolean(),
   validators: PropObject<FormValidators>(),
   /**

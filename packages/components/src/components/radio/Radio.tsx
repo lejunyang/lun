@@ -12,10 +12,10 @@ export const Radio = defineSSRCustomFormElement({
   props: radioProps,
   emits: radioEmits,
   setup(props, { emit }) {
-    const ns = useNamespace(name);
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
     const radioContext = RadioCollector.child();
+    const ns = useNamespace(name, { parent: radioContext?.parent });
     const checked = computed(() => {
       if (!radioContext?.parent) return props.checked;
       const { value } = radioContext.valueModel;

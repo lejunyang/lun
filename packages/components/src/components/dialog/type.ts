@@ -39,9 +39,9 @@ export const dialogProps = {
   cancelBtnProps: PropObject(),
   /** function that will be called before opening dialog, if it returns false, prevent opening dialog */
   beforeOpen: PropFunction<() => void | boolean>(),
-  /** function that will be called on clicking ok button, if it returns false, dialog stays open and will not trigger ok event */
+  /** function that will be called on clicking ok button, if it returns false/Promise.resolve(false)/Promise.reject(), dialog stays open and will not trigger ok event */
   beforeOk: { type: Function as PropType<() => MaybePromise<boolean | void>> },
-  /** function that will be called before closing dialog, if it returns false, prevent closing dialog */
+  /** function that will be called before closing dialog, if it returns false/Promise.resolve(false)/Promise.reject(), prevent closing dialog */
   beforeClose: { type: Function as PropType<() => MaybePromise<boolean | void>> },
   disabledAllWhenPending: PropBoolean(),
 };
