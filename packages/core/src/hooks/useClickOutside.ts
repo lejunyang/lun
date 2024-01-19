@@ -1,4 +1,4 @@
-import { isClient } from '@lun/utils';
+import { inBrowser } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
@@ -17,7 +17,7 @@ export function useClickOutside(
   callback: (e: Event) => void,
   isOn?: MaybeRefLikeOrGetter<boolean>
 ) {
-  if (!isClient()) return;
+  if (!inBrowser) return;
   const cleanup: (() => void)[] = [];
   const handler = {
     documentClick(e: MouseEvent) {

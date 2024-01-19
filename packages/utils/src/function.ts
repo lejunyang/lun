@@ -11,10 +11,10 @@ export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T
 
 export const cacheFunctionResult = <T extends (...args: any[]) => any>(fn: T) => {
   let cache: ReturnType<T>;
-  return (...args: Parameters<T>): ReturnType<T> => {
+  return ((...args: Parameters<T>): ReturnType<T> => {
     if (cache != null) return cache;
     else return (cache = fn(...args));
-  };
+  }) as T;
 };
 
 export function runIfFn<T, Args extends unknown[] = EnsureParameters<T>>(

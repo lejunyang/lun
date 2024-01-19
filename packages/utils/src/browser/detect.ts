@@ -1,6 +1,6 @@
-import { cacheFunctionResult } from '../function';
-import { isClient } from './support';
+import { inBrowser } from './support';
 
-export const isPreferDark = cacheFunctionResult(() => {
-  return isClient() && window.matchMedia('(prefers-color-scheme: dark)').matches;
-});
+export const isPreferDark = (() => {
+  const media = inBrowser ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  return () => !!media?.matches;
+})();

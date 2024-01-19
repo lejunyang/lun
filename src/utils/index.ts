@@ -1,5 +1,5 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
-import { isClient, isFunction } from '@lun/utils';
+import { inBrowser, isFunction } from '@lun/utils';
 import * as data from './data';
 
 const allowedImport = new Set([
@@ -37,7 +37,7 @@ const dependencies = {
 };
 
 const initPromise = (async () => {
-  if (!isClient()) return;
+  if (!inBrowser) return;
   // don't load esbuild until window is loaded
   return new Promise<void>((resolve) => {
     const load = async () => {
