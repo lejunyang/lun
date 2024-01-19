@@ -1,9 +1,9 @@
-import { isClient } from './support';
+import { inBrowser } from './support';
 
 export const copyText = (() => {
   let textarea: HTMLTextAreaElement;
   return (text: string) => {
-    if (!isClient()) return;
+    if (!inBrowser) return;
     try {
       if (typeof navigator?.clipboard?.writeText === 'function') return navigator.clipboard.writeText(text);
     } catch {}

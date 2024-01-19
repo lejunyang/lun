@@ -4,9 +4,9 @@ export const isSupportCSSStyleSheet = cacheFunctionResult(
   () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document
 );
 
-export const isClient = cacheFunctionResult(() => typeof window !== 'undefined' && typeof document !== 'undefined');
+export const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
-export const isSupportPopover = cacheFunctionResult(() => isClient() && 'popover' in document.body);
+export const isSupportPopover = cacheFunctionResult(() => inBrowser && 'popover' in document.body);
 
 export const isSupportDialog = cacheFunctionResult(
   () => typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype
@@ -20,7 +20,7 @@ export const isInputSupportPicker = cacheFunctionResult(
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
 export const isSupportFileSystem = cacheFunctionResult(() => {
-  if (!isClient()) return;
+  if (!inBrowser) return;
   // ToDo: Remove this check once Permissions Policy integration
   // has happened, tracked in
   // https://github.com/WICG/file-system-access/issues/245.
