@@ -28,6 +28,7 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
   items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
   addItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
   removeItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
+  getIndex(child: any): number | undefined;
 };
 
 /**
@@ -109,6 +110,10 @@ export function createCollector<
         notifyIndexUpdate();
       });
     }
+    const getChildVmIndex = (childVm: any) => {
+      indexUpdate.value; // trigger computed
+      return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
+    };
     provide<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY, {
       ...extraProvide,
       parent: instance,
@@ -173,6 +178,7 @@ export function createCollector<
           }
         }
       },
+      getIndex: getChildVmIndex,
     });
     return {
       get value() {
@@ -182,19 +188,36 @@ export function createCollector<
       childrenElIndexMap,
       childrenVmElMap,
       vm: instance,
-      getChildVmIndex(childVm: any) {
-        indexUpdate.value; // trigger computed
-        return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
-      },
+      getChildVmIndex,
     };
   };
   const child = (collect = true) => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
     if (instance) instance = markRaw(instance);
-    const context = inject<CollectorContext<ParentProps, ChildProps, PE>>(COLLECTOR_KEY);
+    let context =
+      inject<
+        CollectorContext<
+          ParentProps,
+          ChildProps,
+          PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean }
+        >
+      >(COLLECTOR_KEY);
     if (context && collect) {
-      onMounted(() => context.addItem(instance));
-      onBeforeUnmount(() => context.removeItem(instance));
+      const { getIndex, items } = context;
+      context = Object.defineProperties({} as any, {
+        ...Object.getOwnPropertyDescriptors(context),
+        index: {
+          get: () => getIndex(instance) ?? -1,
+        },
+        isStart: {
+          get: () => getIndex(instance) === 0,
+        },
+        isEnd: {
+          get: () => getIndex(instance) === items.value.length - 1,
+        },
+      });
+      onMounted(() => context!.addItem(instance));
+      onBeforeUnmount(() => context!.removeItem(instance));
     }
     return context;
   };
