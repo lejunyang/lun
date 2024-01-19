@@ -24,6 +24,7 @@ export type RadioProps = Partial<RadioSetupProps> & RadioEvents;
 
 export const radioGroupProps = {
   ...createOptionProps(false),
+  ...themeProps,
   value: {}, // TODO use valueProp or not?
   type: PropString<'radio' | 'button'>(),
 };

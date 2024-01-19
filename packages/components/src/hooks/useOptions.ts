@@ -6,12 +6,13 @@ import { ComponentKey } from '../components';
 import { PropObject, EditStateProps, editStateProps } from 'common';
 
 type Style = { class?: any; style?: StyleValue };
-export type CommonOption = { label?: string; value?: any } & Style & EditStateProps;
+export type CommonOption = { label?: string; value?: any } & Style & EditStateProps & Record<string, any>;
 export type CommonOptionGroup = {
   label?: string;
   children?: CommonOption[];
 } & Style &
-  EditStateProps;
+  EditStateProps &
+  Record<string, any>;
 export type CommonOptions<HasChildren extends boolean = false> = HasChildren extends true
   ? (CommonOptionGroup | CommonOption)[]
   : CommonOption[];

@@ -185,7 +185,7 @@ export const Select = defineSSRCustomFormElement({
       // any more efficient way to do this?
       const { value } = inputValue;
       const { freeInput, multiple } = props;
-      // it's complicate to preview creating options when it's multiple, so disable it
+      // it's complicated to preview creating options when it's multiple, so disable it
       const hasCreatingOption = freeInput && value && !multiple;
       let allHidden = !hasCreatingOption,
         hasLabelSameAsInput = false;
