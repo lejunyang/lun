@@ -13,24 +13,22 @@ import { themeColors } from '@lun/components';
 
 ## 选项组
 
+`checkbox-group`下的任一`checkbox`，可通过添加`checkForAll`属性使其变为控制该组全选状态的复选框
+
 <!-- @Code:checkboxGroup -->
 
 :::warning 注
+全选会无视 disabled 选项，但是 readonly 选项会被改变（该行为存疑）
+
 没有 value 的选项无法进行选择，其只会跟随该 group 的全选状态而改变
 :::
 
-## 选项组无选项
+## 纵向选项组
 
-<l-checkbox-group @update="console.log('no children', $event.detail)">
-<l-checkbox checkForAll>全选</l-checkbox>
-</l-checkbox-group>
-
-<l-checkbox-group @update="console.log('no value', $event.detail)">
-<l-checkbox checkForAll>全选</l-checkbox>
-<l-checkbox>无 value</l-checkbox>
-</l-checkbox-group>
+<!-- @Code:verticalGroup -->
 
 ## 不同变体
+
 <!-- @Code:differentVariants -->
 
 ## 不同颜色

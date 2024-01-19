@@ -173,6 +173,10 @@ main .code-container {
   .align-end {
     align-items: end;
   }
+
+  .w-full {
+    width: 100%;
+  }
 }
 
 .code-block-actions {

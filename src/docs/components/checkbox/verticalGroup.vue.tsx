@@ -1,11 +1,10 @@
-import { options } from "data";
+import { options } from 'data';
 
 export default () => (
   <l-checkbox-group
+    vertical
     onUpdate={(e) => console.log('check', e.detail)}
     options={[{ checkForAll: true, label: '全选' }, ...options]}
   >
-    <l-checkbox readonly value="readonly">readonly项</l-checkbox>
-    <l-checkbox>无value项</l-checkbox>
   </l-checkbox-group>
 );
