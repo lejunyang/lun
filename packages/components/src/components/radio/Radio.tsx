@@ -34,13 +34,23 @@ export const Radio = defineSSRCustomFormElement({
       );
       return (
         <>
-          <label part={ns.p('root')} class={[...ns.s(editComputed), ns.is('checked', checked.value)]}>
+          <label
+            part={ns.p('root')}
+            class={[
+              ...ns.s(editComputed),
+              ns.is('checked', checked.value),
+              radioContext?.parent?.props.type === 'button' && [
+                ns.is('button'),
+                ns.is('start', props.start || radioContext?.isStart),
+                ns.is('end', props.end || radioContext?.isEnd),
+              ],
+            ]}
+          >
             {props.labelPosition === 'start' && labelPart}
             <input
               type={name}
               checked={checked.value}
               value={props.value}
-              readonly={editComputed.value.readonly}
               disabled={editComputed.value.disabled}
               onChange={handler.onChange}
               hidden

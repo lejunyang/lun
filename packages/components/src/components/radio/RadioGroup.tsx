@@ -21,6 +21,7 @@ export const RadioGroup = defineSSRCustomFormElement({
     RadioCollector.parent({ extraProvide: { valueModel } });
 
     const { render } = useOptions(props, 'radio');
+    // TODO arrow move to check prev/next active radio
     return () => (
       <>
         {render.value}
