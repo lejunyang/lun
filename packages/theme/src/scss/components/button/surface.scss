@@ -8,24 +8,24 @@
     background-color: getAccentColor(surface);
     box-shadow: inset 0 0 0 1px getAccentColor(a7);
     color: getAccentColor(a11);
-    &:where(:focus-visible) {
+    &:focus-visible {
       outline: 2px solid getFocusColor();
       outline-offset: -1px;
     }
-    &:where(:hover) {
+    @include hover {
       box-shadow: inset 0 0 0 1px getAccentColor(a8);
     }
-    &:where(:active) {
+    @include active {
       box-shadow: inset 0 0 0 1px getAccentColor(a8);
       background-color: getAccentColor(a3);
+    }
+    @include is(high-contrast, true) {
+      color: getAccentColor(12);
     }
     @include is(disabled, true) {
       color: getGrayColor(a8);
       box-shadow: inset 0 0 0 1px getGrayColor(a6);
       background-color: getGrayColor(a2);
-    }
-    @include is(high-contrast, true) {
-      color: getAccentColor(12);
     }
   }
 }

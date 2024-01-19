@@ -8,11 +8,33 @@
     background-color: getAccentColor(9);
     color: getAccentColor(contrast);
 
-    &:hover {
+    @include setVars(
+      (
+        solid-active-filter: brightness(0.92) saturate(1.1),
+        solid-high-contrast-hover-filter: contrast(0.88) saturate(1.1) brightness(1.1),
+        solid-high-contrast-active-filter: contrast(0.82) saturate(1.2) brightness(1.16),
+      )
+    );
+    @include is(dark) {
+      @include setVars(
+        (
+          solid-active-filter: brightness(1.08),
+          solid-high-contrast-hover-filter: contrast(0.88) saturate(1.3) brightness(1.18),
+          solid-high-contrast-active-filter: brightness(0.95) saturate(1.2),
+        )
+      );
+    }
+
+    @include hover {
       background-color: getAccentColor(10);
     }
-    &:active {
+    @include active {
       background-color: getAccentColor(10);
+      @include declareVars(
+        (
+          filter: solid-active-filter,
+        )
+      );
     }
     &:focus-visible {
       outline: 2px solid getFocusColor();
@@ -22,11 +44,21 @@
     @include is(high-contrast, true) {
       background-color: getAccentColor(12);
       color: getGrayColor(1);
-      &:hover {
+      @include hover {
         background-color: getAccentColor(12);
+        @include declareVars(
+          (
+            filter: solid-high-contrast-hover-filter,
+          )
+        );
       }
-      &:active {
+      @include active {
         background-color: getAccentColor(12);
+        @include declareVars(
+          (
+            filter: solid-high-contrast-active-filter,
+          )
+        );
       }
       .hold-enter-active {
         background-color: getAccentColor(11);
