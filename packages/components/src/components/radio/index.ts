@@ -10,5 +10,7 @@ export const RadioCollector = createCollector({
   name: 'radio',
   parent: RadioGroup,
   child: Radio,
+  sort: true,
   parentExtra: { valueModel: { value: '' as unknown } },
+  getChildEl: (el) => (el.parentNode as ShadowRoot).host, // must, as it's Fragment root, getPreviousMatchElInTree will not work
 });

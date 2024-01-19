@@ -1,14 +1,17 @@
-import { editStateProps, themeProps, LogicalPosition, GetEventPropsFromEmits, valueProp } from 'common';
-import { ExtractPropTypes, PropType } from 'vue';
+import { editStateProps, themeProps, LogicalPosition, GetEventPropsFromEmits, valueProp, PropString, PropBoolean } from 'common';
+import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
 
 export const radioProps = {
   ...editStateProps,
   ...themeProps,
   value: valueProp,
-  label: { type: String },
-  labelPosition: { type: String as PropType<LogicalPosition> },
-  checked: { type: Boolean },
+  label: PropString(),
+  labelPosition: PropString<LogicalPosition>(),
+  checked: PropBoolean(),
+
+  start: PropBoolean(),
+  end: PropBoolean(),
 };
 
 export const radioEmits = {
@@ -22,6 +25,7 @@ export type RadioProps = Partial<RadioSetupProps> & RadioEvents;
 export const radioGroupProps = {
   ...createOptionProps(false),
   value: {}, // TODO use valueProp or not?
+  type: PropString<'radio' | 'button'>(),
 };
 
 export const radioGroupEmits = {
