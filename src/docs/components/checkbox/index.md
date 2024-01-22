@@ -13,7 +13,7 @@ import { themeColors } from '@lun/components';
 
 ## 选项组
 
-`checkbox-group`下的任一`checkbox`，可通过添加`checkForAll`属性使其变为控制该组全选状态的复选框
+`checkbox-group`下的任一`checkbox`，可通过添加`checkForAll`属性使其变为控制该组全选状态的复选框。如果想在选项组外面使用全选，也可以通过直接调用`checkbox-group`元素上的方法来实现
 
 <!-- @Code:checkboxGroup -->
 
