@@ -6,7 +6,7 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { ref } from 'vue';
-import { createDefaultMath } from '@lun/core';
+import { presets } from '@lun/core';
 
 export const noShadowComponents = Object.freeze(['custom-renderer', 'theme-provider'] as const);
 export const shadowComponents = Object.freeze([
@@ -190,13 +190,13 @@ export const GlobalStaticConfig = new Proxy(
     customRendererMap: getInitialCustomRendererMap(),
     animationRegistry: getInitialDefaultAnimationRegistry(),
     elAnimationRegistry: getInitialElementAnimationRegistry(),
-    math: createDefaultMath(),
+    ...presets,
   },
   {
     get(target, p, receiver) {
       if (p === 'lang') return langRef.value;
       // deep get, or remove components key
-      return Reflect.get(target, p, receiver);
+      return Reflect.get(p in presets ? presets : target, p, receiver);
     },
     set(target: any, p, newValue, receiver) {
       const oldVal = target[p];
@@ -205,7 +205,7 @@ export const GlobalStaticConfig = new Proxy(
         return false;
       } else {
         if (p === 'lang') langRef.value = newValue;
-        return Reflect.set(target, p, newValue, receiver);
+        return Reflect.set(p in presets ? presets : target, p, newValue, receiver);
       }
     },
   },

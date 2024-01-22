@@ -1,10 +1,8 @@
 import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy, stringToPath, isObject } from '@lun/utils';
 import { ProcessedFormParams, UseFormOptions } from './useForm';
 
-export function useFormMethods(
-  { formData, formState, hooks, getDefaultFormState, nameToFormItemVmMap, formItemVmToFormVmMap }: ProcessedFormParams,
-  options: UseFormOptions,
-) {
+export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
+  const { formData, formState, hooks, getDefaultFormState, nameToFormItemVmMap, formItemVmToFormVmMap } = params;
   const methods = {
     isPlainName(name?: string) {
       if (!name) return false;
@@ -40,6 +38,10 @@ export function useFormMethods(
     },
     resetFormState() {
       formState.value = getDefaultFormState();
+    },
+    async validate() {
+      await hooks.onValidate.exec({ ...params, setError: methods.setError, appendError: methods.appendError });
+      return params.formState.value.errors;
     },
     clearErrors() {
       formState.value.errors = {};
