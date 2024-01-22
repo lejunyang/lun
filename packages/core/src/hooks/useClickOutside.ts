@@ -1,4 +1,4 @@
-import { inBrowser } from '@lun/utils';
+import { inBrowser, toArrayIfNotNil } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
@@ -13,18 +13,19 @@ function isMouseEventInRect(e: MouseEvent, rect: Omit<DOMRectReadOnly, 'toJSON'>
 }
 
 export function useClickOutside(
-  targetsGetter: MaybeRefLikeOrGetter<Element | VirtualElement>[],
+  targetsGetter: MaybeRefLikeOrGetter<MaybeRefLikeOrGetter<Element | VirtualElement>[]>,
   callback: (e: Event) => void,
-  isOn?: MaybeRefLikeOrGetter<boolean>
+  isOn?: MaybeRefLikeOrGetter<boolean>,
 ) {
-  if (!inBrowser) return;
+  if (!inBrowser) return [];
   const cleanup: (() => void)[] = [];
   const handler = {
     documentClick(e: MouseEvent) {
       if (isOn !== undefined && !unrefOrGet(isOn)) return; // avoid trigger clickOutSide callback when not show
       let target: Element | VirtualElement;
       const els = e.composedPath();
-      for (let getter of targetsGetter) {
+      const getters = toArrayIfNotNil(unrefOrGet(targetsGetter));
+      for (let getter of getters) {
         if (!getter || !(target = unrefOrGet(getter)!)) continue;
         if (e.target === target || els.includes(target as any)) return;
         if (isMouseEventInRect(e, target.getBoundingClientRect())) return;

@@ -1,5 +1,5 @@
-import { debounce, toArrayIfNotNil } from '@lun/utils';
-import { computed } from 'vue';
+import { debounce, isElement, toArrayIfNotNil } from '@lun/utils';
+import { computed, ref } from 'vue';
 import { VirtualElement, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
@@ -55,66 +55,106 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     };
   });
   const createTrigger =
-    (trigger: PopoverTrigger | null, method: 'show' | 'hide' | 'toggle', extraHandle?: (e: Event) => void | boolean) =>
+    (
+      trigger: PopoverTrigger | null,
+      method: 'show' | 'hide' | 'toggle',
+      extraHandle?: (e: Event, actualMethod: 'show' | 'hide') => void | boolean,
+    ) =>
     (e: Event) => {
       const { triggers, manual, toggleMode, isShow } = options.value;
       if ((!trigger || triggers.has(trigger)) && !manual) {
-        if (extraHandle && extraHandle(e) === false) return;
-        if (method === 'toggle') {
-          if (
-            toggleMode &&
-            // do hide only when triggers don't have hover or focus, or have focus and target is focused
-            !(triggers.has('hover') || (triggers.has('focus') && !targetFocusIn)) &&
-            unrefOrGet(isShow)
-          ) {
-            options.value.hide();
-          } else {
-            options.value.show();
-          }
-        } else {
-          options.value[method as 'show' | 'hide']();
-        }
+        const actualMethod =
+          method === 'toggle'
+            ? toggleMode &&
+              // when it's toggle, do hide only when triggers don't have hover or focus, or have focus and target is focused
+              !(triggers.has('hover') || (triggers.has('focus') && !focusInTargetSet.has(e.target!))) &&
+              unrefOrGet(isShow)
+              ? 'hide'
+              : 'show'
+            : method;
+        if (extraHandle && extraHandle(e, actualMethod) === false) return;
+        options.value[actualMethod]();
       }
     };
 
   let popFocusIn = false,
-    targetFocusIn = false,
-    targetFocusInTime = 0,
-    targetFocusOutTime = 0,
-    pointerDownTime = 0,
     active = false;
-  const targetHandlers = {
-    onMouseenter: createTrigger('hover', 'show'),
-    onMouseleave: createTrigger('hover', 'hide', () => !popFocusIn), // if focusing on pop, don't hide when mouse leave
-    // need to use pointer down to trigger toggle before focusin
-    onPointerdown: createTrigger('click', 'toggle', () => {
-      pointerDownTime = Date.now();
-      // focusin should be triggered after pointerdown
-      // but found an exception... if we focus on target and then focus other place outside viewport(like browser address input or console input), then click target again
-      // it will trigger focusin first and then pointerdown, no idea why...
-      // so prevent focusin trigger when it's before pointerdown
-      const { targetFocusThreshold } = options.value;
-      if (pointerDownTime - targetFocusInTime < targetFocusThreshold) return false;
-    }),
-    onContextmenu: createTrigger('contextmenu', 'show', (e) => {
-      e.preventDefault();
-    }),
-    onFocusin: createTrigger('focus', 'show', () => {
-      targetFocusInTime = Date.now();
-      targetFocusIn = true;
-      // if we click suffix icon when input is focused and toggleMode is true, it will trigger pointerdown(toggle hide) -> focusout -> focusin(show). hide will be canceled
-      // so we need a focus threshold to prevent this
-      const { targetFocusThreshold } = options.value;
-      if (targetFocusInTime - pointerDownTime < targetFocusThreshold) return false;
-    }),
-    onFocusout: createTrigger('focus', 'hide', () => {
-      targetFocusOutTime = Date.now();
-      targetFocusIn = false;
-      const { targetFocusThreshold } = options.value;
-      if (targetFocusOutTime - pointerDownTime < targetFocusThreshold) return false;
-      if (active) return false;
-    }),
+  const focusInTargetSet = new WeakSet<EventTarget>();
+
+  // ------------------ extra targets ------------------
+  // it's to support attaching events of triggering popover on other elements in an imperative manner
+  const extraTargetsMap = ref(new Map<Element, ReturnType<typeof createTargetHandlers>>());
+  const activeTargetInExtra = ref();
+  const methods = {
+    attachTarget(target?: Element) {
+      if (!isElement(target)) return;
+      const targetHandlers = createTargetHandlers((_e, method) => {
+        if (method === 'show') activeTargetInExtra.value = target;
+        else activeTargetInExtra.value = null; // maybe need to defer clear activeTarget(setTimeout, clearTimeout), as clear activeTarget will make Popover anchor CE, so the pop content will still be shown for a while
+      });
+      extraTargetsMap.value.set(target, targetHandlers);
+      for (let [key, handler] of Object.entries(targetHandlers)) {
+        target.addEventListener(key.slice(2).toLowerCase(), handler);
+      }
+    },
+    detachTarget(target?: Element) {
+      if (!isElement(target)) return;
+      const targetHandlers = extraTargetsMap.value.get(target);
+      if (!targetHandlers) return;
+      for (let [key, handler] of Object.entries(targetHandlers)) {
+        target.removeEventListener(key.slice(2).toLowerCase(), handler);
+      }
+      extraTargetsMap.value.delete(target);
+    },
   };
+  // ------------------ extra targets ------------------
+
+  const createTargetHandlers = (onTrigger: (e: Event, actualMethod: 'show' | 'hide') => void = () => null) => {
+    let targetFocusInTime = 0,
+      targetFocusOutTime = 0,
+      pointerDownTime = 0;
+    const targetHandlers = {
+      onMouseenter: createTrigger('hover', 'show', onTrigger),
+      onMouseleave: createTrigger('hover', 'hide', (e, m) => {
+        !popFocusIn && onTrigger(e, m);
+        return !popFocusIn;
+      }), // if focusing on pop, don't hide when mouse leave
+      // need to use pointer down to trigger toggle before focusin
+      onPointerdown: createTrigger('click', 'toggle', (e, m) => {
+        pointerDownTime = Date.now();
+        // focusin should be triggered after pointerdown
+        // but found an exception... if we focus on target and then focus other place outside viewport(like browser address input or console input), then click target again
+        // it will trigger focusin first and then pointerdown, no idea why...
+        // so prevent focusin trigger when it's before pointerdown
+        const { targetFocusThreshold } = options.value;
+        if (pointerDownTime - targetFocusInTime < targetFocusThreshold) return false;
+        onTrigger(e, m);
+      }),
+      onContextmenu: createTrigger('contextmenu', 'show', (e, m) => {
+        e.preventDefault();
+        onTrigger(e, m);
+      }),
+      onFocusin: createTrigger('focus', 'show', (e, m) => {
+        targetFocusInTime = Date.now();
+        focusInTargetSet.add(e.target!);
+        // if we click suffix icon when input is focused and toggleMode is true, it will trigger pointerdown(toggle hide) -> focusout -> focusin(show). hide will be canceled
+        // so we need a focus threshold to prevent this
+        const { targetFocusThreshold } = options.value;
+        if (targetFocusInTime - pointerDownTime < targetFocusThreshold) return false;
+        onTrigger(e, m);
+      }),
+      onFocusout: createTrigger('focus', 'hide', (e, m) => {
+        targetFocusOutTime = Date.now();
+        focusInTargetSet.delete(e.target!);
+        const { targetFocusThreshold } = options.value;
+        if (targetFocusOutTime - pointerDownTime < targetFocusThreshold) return false;
+        if (active) return false;
+        onTrigger(e, m);
+      }),
+    };
+    return targetHandlers;
+  };
+
   const handlePopShow = createTrigger(null, 'show');
   const popContentHandlers = {
     onMouseenter: handlePopShow,
@@ -142,7 +182,9 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   };
 
   const cleanup = useClickOutside(
-    [options.value.target, options.value.pop],
+    computed(() =>
+      Array.from(extraTargetsMap.value.keys()).concat(options.value.target as any, options.value.pop as any),
+    ),
     () => {
       options.value.hide();
       active = false;
@@ -152,10 +194,13 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       return unrefOrGet(isShow) && !manual;
     },
   );
+  cleanup.push(() => extraTargetsMap.value.clear());
   return {
-    targetHandlers,
+    targetHandlers: createTargetHandlers(),
     popContentHandlers,
     options,
     cleanup,
+    methods,
+    activeTargetInExtra,
   };
 }
