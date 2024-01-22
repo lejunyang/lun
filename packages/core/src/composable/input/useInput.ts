@@ -1,8 +1,6 @@
 import {
-  ensureNumber,
   isEnterDown,
   isFunction,
-  toNumberOrNull,
   debounce as toDebounce,
   throttle as toThrottle,
   toArrayIfNotNil,
@@ -11,6 +9,8 @@ import {
 } from '@lun/utils';
 import { computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
+import { processNumOptions } from './useNumberStep';
+
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
 export type InputType = 'text' | 'number' | 'number-text';
@@ -18,7 +18,8 @@ export type InputType = 'text' | 'number' | 'number-text';
 export type UseInputOptions<
   IType extends InputType = 'text',
   T = InputType extends 'number' | 'number-text' ? number : string,
-> = {
+  > = {
+  value?: MaybeRefLikeOrGetter<T | T[]>;
   type?: IType;
   multiple?: boolean;
   onChange: (val: T | null) => void;
@@ -120,6 +121,7 @@ function handleNumberBeforeInput(
     return e.preventDefault();
 }
 
+
 export function useInput<
   IType extends InputType = 'text',
   ValueType extends string | number = IType extends 'number' | 'number-text' ? number : string,
@@ -162,14 +164,10 @@ export function useInput<
     const restrictWhen = new Set(toArrayIfNotNil(originalRestrict!));
     if (!restrictWhen.size) restrictWhen.add('not-composing');
     return {
-      ...result,
+      ...processNumOptions(result),
       updateWhen: updateWhen as Set<InputPeriod>,
       transformWhen,
       restrictWhen,
-      min: ensureNumber(result.min, -Infinity),
-      max: ensureNumber(result.max, Infinity),
-      precision: toNumberOrNull(result.precision),
-      step: toNumberOrNull(result.step),
       onChange: debounce
         ? toDebounce(onChange, debounce, waitOptions)
         : throttle

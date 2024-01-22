@@ -21,7 +21,6 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
   separator?: string | RegExp;
   unique?: boolean;
   reserveInput?: boolean;
-  value?: string[] | string | null;
   maxTags?: number | string;
   onChange: (value: string[]) => void;
   onInputUpdate?: (value: string) => void;
@@ -37,12 +36,12 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     if (!target) return;
     const { tagIndexAttr = 'tagIndex', value, onChange, iterateOptions, onTagsRemove } = unrefOrGet(options)!;
     const index = +target.dataset[tagIndexAttr]!;
-    const values = toArrayIfNotNil(value!);
+    const values = toArrayIfNotNil(unrefOrGet(value));
     if (Number.isInteger(index) && index >= 0 && index < values.length) {
-      const newValue = values.slice();
-      const removed = newValue.splice(index, 1);
+      const newValues = values.slice();
+      const removed = newValues.splice(index, 1);
       if (removed.length) {
-        onChange && onChange(newValue);
+        onChange && onChange(newValues);
         onTagsRemove && onTagsRemove(removed);
         // after delete, focus on next tag or input
         const nextTarget = getNextMatchElInTree(target, iterateOptions) as HTMLElement;
@@ -95,7 +94,7 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     } = unrefOrGet(options)!;
     onInputUpdate && onInputUpdate(val);
     if (!multiple) return val;
-    const valuesBefore = toArrayIfNotNil(value);
+    const valuesBefore = toArrayIfNotNil(unrefOrGet(value));
     if (isNilOrEmptyStr(val)) return value;
     const valuesNow = val.split(separator);
     console.log('valuesNow', valuesNow);

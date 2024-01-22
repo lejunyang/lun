@@ -1,20 +1,59 @@
 import { ComputedRef } from 'vue';
 import { TransformedUseInputOption, UseInputOptions } from '.';
+import { presets } from '../../presets';
+
+export function processNumOptions<
+  T extends { [k in 'min' | 'max' | 'step' | 'precision']?: string | number | null | undefined },
+>(options: T) {
+  const { toNumberOrNull, toPrecision, ensureNumber, getPositiveInfinity, getNegativeInfinity } = presets.math;
+  const precision = toNumberOrNull(options.precision);
+  const toFixed = (value?: string | number | null) => {
+    value = toNumberOrNull(value);
+    return precision === null || value === null ? value : toPrecision(value, precision);
+  };
+  const step = toFixed(options.step);
+  const min = ensureNumber(options.min, getNegativeInfinity());
+  const max = ensureNumber(options.max, getPositiveInfinity());
+  return { ...options, min, max, step, precision };
+}
 
 export function useNumberStep(options: ComputedRef<TransformedUseInputOption<UseInputOptions<'number', number>>>) {
-	const getInitStep = (isNext: boolean) => {
-		let { step, min, max } = options.value;
-    if (!step) return isNext ? 1 : -1;
-    let result = isNext ? step : -step;
-    if (result < min && Number.isFinite(min)) return isNext ? (step + min > max ? min : step + min) : min;
-    else if (result > max && Number.isFinite(max)) return step * Math.floor(max / step);
-    else return result;
-	};
-	const nextStep = (value: number) => {
-		if (Number.isNaN(value)) return getInitStep(true);
-	};
-	const lastStep = (value: number) => {
-		if (Number.isNaN(value)) return getInitStep(false);
+  const getValue = (isNext: boolean) => {
+    const { plus, multiply, divide, lessThan, greaterThan, isNaN, getZero, toNegative, floor, toNumber } = presets.math;
+    let { step, min, max, value, onChange } = options.value;
+    value = toNumber(value);
+    if (isNaN(value)) value = getZero();
+    if (step === null) step = 1;
+    let result = value + (isNext ? step : -step);
+    result = plus(value, isNext ? step : toNegative(step));
+    if (lessThan(result, min)) {
+      const minAddStep = plus(min, step);
+      result = isNext ? (greaterThan(minAddStep, max) ? min : minAddStep) : min;
+    } else if (greaterThan(result, max)) {
+      result = multiply(step, floor(divide(max, step))); // result = result - (result % step)
+      result = isNext || !lessThan(result, min) ? result : min;
+    }
+    onChange(result);
   };
-  return { nextStep, lastStep };
+
+  const methods = {
+    nextStep() {
+      return getValue(true);
+    },
+    prevStep() {
+      return getValue(false);
+    },
+  };
+
+  const handlers = {
+    onKeydown(e: KeyboardEvent) {
+      if (e.key === 'ArrowDown') methods.nextStep();
+      if (e.key === 'ArrowUp') methods.prevStep();
+    },
+  };
+
+  return {
+    handlers,
+    methods,
+  };
 }

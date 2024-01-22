@@ -29,7 +29,7 @@ export const Input = defineSSRCustomFormElement({
       computed(() => {
         return {
           ...props,
-          value: valueModel.value,
+          value: valueModel,
           onChange: (val) => {
             valueModel.value = val;
           },
