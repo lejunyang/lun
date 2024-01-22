@@ -5,7 +5,7 @@ import { warn } from 'utils';
 
 export const locales = reactive<Record<string, Record<string, string | ((param?: Record<string, any>) => string)>>>({
   'zh-CN': {
-    'validation.required': ({ label } = {}) => (label ? `请填写${label}` : '请填写此字段'),
+    'validation.required': ({ label } = {}) => `请填写${label || '此字段'}`,
     'validation.number.min': '不得小于${min}',
     'validation.number.max': '不得大于${max}',
     'validation.number.greaterThan': '不得小于等于${greaterThan}',
@@ -20,21 +20,28 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
   },
 });
 
-const wrapDefault = (strGetter?: string | ((param?: Record<string, any>) => string), param?: Record<string, any>) => {
-  let str: string = '';
-  if (isFunction(strGetter)) str = strGetter(param);
-  else if (strGetter) {
-    str = strGetter;
-    if (param) {
-      str = str.replace(/\${\w+}/g, (match) => {
+export function processStringWithParams<T>(value: string | ((param: T) => string) | undefined, param: T): string | undefined;
+export function processStringWithParams<T>(value?: string | ((param?: T) => string), param?: T): string | undefined;
+
+export function processStringWithParams<T extends Record<string, any>>(
+  value?: string | ((param?: T) => string),
+  param?: T,
+): string | undefined {
+  return isFunction(value)
+    ? value(param)
+    : param && value
+    ? value.replace(/\${\w+}/g, (match) => {
         const key = match.slice(2, -1);
         return param[key] || '';
-      });
-    }
-  }
+      })
+    : value;
+}
+
+const wrapDefault = (strGetter?: string | ((param?: Record<string, any>) => string), param?: Record<string, any>) => {
+  let str: string = processStringWithParams(strGetter, param) || '';
   return Object.assign(str, {
-    d(defaultStr: string) {
-      return str || defaultStr;
+    d(defaultStr: string | ((param?: Record<string, any>) => string)) {
+      return str || processStringWithParams(defaultStr, param)!;
     },
   });
 };
