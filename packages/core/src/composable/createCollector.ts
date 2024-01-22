@@ -226,3 +226,6 @@ export function createCollector<
 
 export type CollectorParentReturn<P = Data> = ReturnType<ReturnType<typeof createCollector<P>>['parent']>;
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
+
+// it's a must if sort is enabled and render return a fragment, as getPreviousMatchElInTree will not work for fragment node
+export const getHostOfRootShadow = (el: Node) => (el.parentNode as ShadowRoot).host;

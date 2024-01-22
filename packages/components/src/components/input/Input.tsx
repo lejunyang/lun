@@ -8,7 +8,7 @@ import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
-import { pickThemeProps } from 'common';
+import { InputFocusOption, pickThemeProps } from 'common';
 
 const name = 'input';
 export const Input = defineSSRCustomFormElement({
@@ -63,7 +63,7 @@ export const Input = defineSSRCustomFormElement({
 
     useCEExpose(
       {
-        focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => {
+        focus: (options?: InputFocusOption) => {
           if (!inputRef.value) return;
           const input = inputRef.value;
           input.focus(options);
@@ -255,6 +255,11 @@ export const Input = defineSSRCustomFormElement({
 });
 
 export type tInput = typeof Input;
+export type iInput = InstanceType<tInput> & {
+  focus: (options?: InputFocusOption) => void;
+  blur: () => void;
+  readonly input: HTMLInputElement;
+};
 
 export const defineInput = createDefineElement(name, Input, {
   icon: defineIcon,

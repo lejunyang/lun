@@ -1,4 +1,4 @@
-import { UseFormReturn, createCollector } from '@lun/core';
+import { UseFormReturn, createCollector, getHostOfRootShadow } from '@lun/core';
 import { FormProps, FormSetupProps } from './type';
 import { FormItemProps } from '../form-item';
 
@@ -16,5 +16,5 @@ export const FormItemCollector = createCollector({
   child: null as any as FormItemProps,
   sort: true,
   parentExtra: null as any as FormProvideExtra,
-  // TODO getChildEl
+  getChildEl: getHostOfRootShadow,
 });

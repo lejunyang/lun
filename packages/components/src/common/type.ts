@@ -24,3 +24,5 @@ export type GetEventPropsFromEmits<T extends Emits> = T extends StringArrayEmits
 export const emitConstructor = <T extends any = undefined>() => (_: T) => true;
 
 export type Status = 'success' | 'warning' | 'error';
+
+export type InputFocusOption = { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' };

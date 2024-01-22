@@ -2,10 +2,10 @@ import { defineSSRCustomFormElement } from 'custom';
 import { ComponentInternalInstance, computed, ref, toRef, mergeProps, nextTick } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
 import { selectEmits, selectProps } from './type';
-import { definePopover } from '../popover/Popover';
+import { definePopover, iPopover } from '../popover/Popover';
 import { refLikesToGetters, useSelect, useSetupEdit, useTempState } from '@lun/core';
 import { isFunction, isNilOrEmptyStr, toArrayIfNotNil } from '@lun/utils';
-import { defineInput } from '../input/Input';
+import { defineInput, iInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from '.';
 import { defineSelectOptgroup } from './SelectOptgroup';
@@ -17,7 +17,7 @@ import {
   useOptions,
   useValueModel,
 } from 'hooks';
-import { intl, pickThemeProps } from 'common';
+import { InputFocusOption, intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
 import { defineButton } from '../button/Button';
 import { useActivateOption } from './useActivateOption';
@@ -113,8 +113,7 @@ export const Select = defineSSRCustomFormElement({
     useCEExpose(
       {
         ...methods,
-        focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) =>
-          inputRef.value?.focus(options),
+        focus: (options?: InputFocusOption) => inputRef.value?.focus(options),
         blur: () => inputRef.value?.blur(),
       },
       refLikesToGetters({
@@ -331,6 +330,13 @@ export const Select = defineSSRCustomFormElement({
 });
 
 export type tSelect = typeof Select;
+export type iSelect = InstanceType<tSelect> &
+  ReturnType<typeof useSelect> & {
+    blur: () => void;
+    focus: (option?: InputFocusOption) => void;
+    readonly input: iInput;
+    readonly popover: iPopover;
+  };
 
 export const defineSelect = createDefineElement('select', Select, {
   'select-option': defineSelectOption,

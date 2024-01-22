@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector, getHostOfRootShadow } from '@lun/core';
 import { Radio } from './Radio';
 import { RadioGroup } from './RadioGroup';
 
@@ -12,5 +12,5 @@ export const RadioCollector = createCollector({
   child: Radio,
   sort: true,
   parentExtra: { valueModel: { value: '' as unknown } },
-  getChildEl: (el) => (el.parentNode as ShadowRoot).host, // must, as it's Fragment root, getPreviousMatchElInTree will not work
+  getChildEl: getHostOfRootShadow,
 });
