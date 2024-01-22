@@ -30,3 +30,7 @@ dist-ssr
 src/docs/.vitepress/dist
 src/docs/.vitepress/cache
 src/docs/.vitepress/.temp
+
+#mac
+.DS_Store
+._*

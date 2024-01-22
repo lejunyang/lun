@@ -9,7 +9,7 @@ export default () => {
           formItemProps.name !== 'restrict'
             ? {
                 restrictWhen: formItemProps.name,
-                restrict: formContext.getValue('restrict'),
+                restrict: formContext.form.getValue('restrict'),
               }
             : {},
       })}
