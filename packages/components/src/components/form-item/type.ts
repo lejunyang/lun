@@ -22,6 +22,10 @@ export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<stri
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
 
+export type ValidateMessages = {
+  [key in RuleName]?: string | ((args: Rule) => string);
+};
+
 export const formItemProps = {
   ...editStateProps,
   ...themeProps,
@@ -96,6 +100,8 @@ export const formItemProps = {
   validateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
   revalidateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
   status: PropString<Status>(),
+
+  validateMessages: PropObject<ValidateMessages>(),
 };
 
 export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;
@@ -117,6 +123,6 @@ export type Rule = {
   lessThan?: number;
   label?: string;
 };
-// export type ErrorMessageFactory = string | ((args: Record<string, any>) => string);
+
 export type RuleName = 'required' | 'min' | 'max' | 'greaterThan' | 'lessThan';
-// export type RuleMessageFactory = Record<RuleName, ErrorMessageFactory>;
+

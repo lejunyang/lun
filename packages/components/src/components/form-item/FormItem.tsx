@@ -274,7 +274,7 @@ export const FormItem = defineSSRCustomElement({
 
     const validateProps = computed(() => {
       // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
-      const { min, max, lessThan, greaterThan, len, step, precision, type, required } = props.value;
+      const { min, max, lessThan, greaterThan, len, step, precision, type, required, label } = props.value;
       // TODO type === 'date'
       return {
         type,
@@ -286,15 +286,19 @@ export const FormItem = defineSSRCustomElement({
         len: transform(len),
         step: transform(step),
         precision: transform(precision),
+        label,
       };
     });
+    const validateMessages = computed(() =>
+      virtualGetMerge(props.value.validateMessages, formContext.parent!.props.validateMessages),
+    );
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
       const value = getValue(path.value);
       const { stopValidate, validators: formValidators } = formContext.parent!.props;
       const stopEarly = stopValidate === 'first';
       const { validators } = props.value;
       const errors = toArrayIfNotNil(
-        await innerValidator(value, formContext.form.formData, validateProps.value),
+        innerValidator(value, formContext.form.formData, validateProps.value, validateMessages.value),
       ) as string[];
       if (stopEarly && errors.length) {
         formContext.form.setError(path.value, errors);
