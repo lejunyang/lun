@@ -64,7 +64,7 @@ export const Popover = defineSSRCustomElement({
       return virtualTarget.value || slotRef.value;
     });
 
-    const { targetHandlers, popContentHandlers, options } = usePopover(() => ({
+    const { targetHandlers, popContentHandlers, options, activeTargetInExtra, methods } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
       manual: props.open !== undefined,
       isShow,
@@ -75,7 +75,7 @@ export const Popover = defineSSRCustomElement({
     }));
 
     const shadow = useShadowDom();
-    const ceRef = computed(() => (isOpen.value ? virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
+    const ceRef = computed(() => (isOpen.value ? activeTargetInExtra.value || virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
       return [
@@ -166,6 +166,7 @@ export const Popover = defineSSRCustomElement({
         togglePopover: toggle,
         isOpen: () => (props.open !== undefined ? !!props.open : isOpen.value),
         updatePosition: update,
+        ...methods,
       },
       toGetterDescriptors(options, {
         show: 'delayOpenPopover',
