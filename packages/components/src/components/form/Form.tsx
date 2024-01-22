@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { useForm, useSetupEdit } from '@lun/core';
+import { UseFormReturn, useForm, useSetupEdit } from '@lun/core';
 import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
 import { useCEExpose, useNamespace } from 'hooks';
@@ -79,5 +79,6 @@ export const Form = defineSSRCustomElement({
 });
 
 export type tForm = typeof Form;
+export type iForm = InstanceType<tForm> & UseFormReturn;
 
 export const defineForm = createDefineElement(name, Form);

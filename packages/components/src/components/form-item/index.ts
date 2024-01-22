@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector, getHostOfRootShadow } from '@lun/core';
 import { FormItem } from './FormItem';
 import { ComponentInternalInstance, ComputedRef } from 'vue';
 import { Status } from 'common';
@@ -17,5 +17,5 @@ export const FormInputCollector = createCollector({
   parent: FormItem,
   sort: true,
   parentExtra: null as any as FormItemProvideExtra,
-  // TODO getChildEl
+  getChildEl: getHostOfRootShadow,
 });

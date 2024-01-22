@@ -1,4 +1,4 @@
-import { createCollector, useSelect } from '@lun/core';
+import { createCollector, getHostOfRootShadow, useSelect } from '@lun/core';
 import { Select } from './Select';
 import { SelectOption } from './SelectOption';
 import { ComponentInternalInstance, getCurrentInstance, inject, provide } from 'vue';
@@ -21,6 +21,7 @@ export const SelectCollector = createCollector({
     activate: (vm: ComponentInternalInstance) => void;
     deactivate: () => void;
   },
+  getChildEl: getHostOfRootShadow,
 });
 
 export const SelectOptgroupContext = (() => {

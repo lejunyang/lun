@@ -260,5 +260,14 @@ export const Popover = defineSSRCustomElement({
 });
 
 export type tPopover = typeof Popover;
+export type iPopover = InstanceType<tPopover> & {
+  togglePopover: (force?: boolean) => void;
+  isOpen: () => boolean;
+  updatePosition: () => void;
+  delayOpenPopover: () => void;
+  delayClosePopover: () => void;
+  openPopover: () => void;
+  closePopover: () => void;
+};
 
 export const definePopover = createDefineElement(name, Popover);

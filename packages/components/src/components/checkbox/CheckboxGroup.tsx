@@ -92,5 +92,6 @@ export const CheckboxGroup = defineSSRCustomFormElement({
 });
 
 export type tCheckboxGroup = typeof CheckboxGroup;
+export type iCheckboxGroup = InstanceType<tCheckboxGroup> & ReturnType<typeof useCheckbox>;
 
 export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup);
