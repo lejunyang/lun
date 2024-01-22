@@ -11,7 +11,7 @@ import {
   PropNumber,
 } from 'common';
 import { CollectorContext, UseFormReturn } from '@lun/core';
-import { FormItemSetupProps, Validator } from '../form-item/type';
+import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
 import { FormProvideExtra } from '.';
 
 export interface FormValidators {
@@ -38,10 +38,13 @@ export const formProps = {
    */
   stopValidate: PropString<'first' | 'form-item'>(),
   scrollToFirstError: PropBoolean(),
+  validateMessages: PropObject<ValidateMessages>(),
 
   layout: PropString<'flex' | 'grid' | 'inline-flex' | 'inline-grid'>(),
+  labelLayout: PropString<'horizontal' | 'vertical'>(),
   labelWidth: PropString(),
   cols: PropNumber(),
+  // TODO responsive props for above four
 
   itemProps: PropObjOrFunc<
     | Partial<FormItemSetupProps>
@@ -58,4 +61,11 @@ export const formEmits = {
 
 export type FormSetupProps = ExtractPropTypes<typeof formProps>;
 export type FormEvents = GetEventPropsFromEmits<typeof formEmits>;
-export type FormProps = Partial<FormSetupProps> & FormEvents;
+export type FormProps = Omit<Partial<FormSetupProps>, 'itemProps'> & {
+  itemProps?:
+    | Partial<FormItemSetupProps>
+    | ((params: {
+        formContext: CollectorContext<FormSetupProps, FormItemSetupProps, FormProvideExtra> | undefined;
+        formItemProps: FormItemSetupProps;
+      }) => Partial<FormItemSetupProps>);
+} & FormEvents;
