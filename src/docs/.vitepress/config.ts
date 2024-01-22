@@ -35,7 +35,6 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           text: locales[lang].sidebar.dataInput.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.dataInput.baseInput, link: wrapLink('/components/base-input/', lang) },
             { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/', lang) },
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/', lang) },
             { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/', lang) },
