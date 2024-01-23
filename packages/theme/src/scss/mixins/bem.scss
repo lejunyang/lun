@@ -77,7 +77,11 @@
 }
 
 @function getM($modifier) {
-  @return #{'.' + $B + config.$modifier-separator + $modifier};
+  $temp: #{'.' + $B + config.$modifier-separator + $modifier};
+  @if map.get(config.$with-where-map, 'modifier') {
+    $temp: #{':where(' + $temp + ')'};
+  }
+  @return $temp;
 }
 
 // withParent: false => selector will be under parent; true => selector will be connected after parent
