@@ -23,6 +23,12 @@ lang: zh-CN
 
 <!-- @Code:showLengthInfo -->
 
+## 数字输入
+
+通过`stepControl`属性可控制数字步进器的种类，可选值有`up-down`和`plus-minus`，其他任意值视为不展示步进器
+
+<!-- @Code:typeNumber -->
+
 ## 不同变体
 
 <!-- @Code:differentVariants -->

@@ -22,5 +22,5 @@ features:
     details: Provide abundant global static and dynamic configurations
   - icon: 🎨
     title: Easy to prettify
-    details: Fully customize the components' styles, provide a beautiful preset styles based on @radix/colors
+    details: Fully customize the components' styles, provide a beautiful preset styles based on @radix/theme
 ---
