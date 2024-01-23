@@ -25,10 +25,11 @@ export const Input = defineSSRCustomFormElement({
     const inputRef = ref<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
-    const { inputHandlers, wrapperHandlers } = useMultipleInput(
+    const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers } = useMultipleInput(
       computed(() => {
         return {
           ...props,
+          disabled: !editComputed.value.editable,
           value: valueModel,
           onChange: (val) => {
             valueModel.value = val;
@@ -81,6 +82,7 @@ export const Input = defineSSRCustomFormElement({
           }
         },
         blur: () => inputRef.value?.blur(),
+        ...numberMethods,
       },
       refLikesToGetters({ input: inputRef }),
     );
@@ -94,6 +96,17 @@ export const Input = defineSSRCustomFormElement({
       const valueLength = props.multiple ? valueForMultiple.value.length : valueModel.value?.length;
       // if no maxLength, show current char count as length info
       return +props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
+    });
+
+    const numberStepIcons = computed(() => {
+      const { type } = props;
+      if (type !== 'number' && type !== 'number-text') return;
+      return (
+        <span class={ns.e('steps-wrapper')} part="steps-wrapper">
+          {renderElement('icon', { class: ns.e('step'), name: 'up', part: 'next-step', ...nextStepHandlers })}
+          {renderElement('icon', { class: ns.e('step'), name: 'down', part: 'prev-step', ...prevStepHandlers })}
+        </span>
+      );
     });
 
     const rootOnPointerDown = () => {
@@ -123,7 +136,7 @@ export const Input = defineSSRCustomFormElement({
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
-      const { multiple, placeholder, labelType, label, wrapTags } = props;
+      const { multiple, placeholder, labelType, label, wrapTags, type } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       const empty = isEmpty(valueModel.value) && !valueForMultiple.value;
@@ -132,7 +145,7 @@ export const Input = defineSSRCustomFormElement({
         <input
           {...attrs}
           exportparts=""
-          type={props.type}
+          type={type}
           ref={inputRef}
           part="inner-input"
           class={[ns.e('inner-input')]}
@@ -158,6 +171,7 @@ export const Input = defineSSRCustomFormElement({
               'with-append': !appendSlot.empty.value,
               'with-renderer': !rendererSlot.empty.value,
             }),
+            ns.m(type),
           ]}
           onPointerdown={rootOnPointerDown}
         >
@@ -241,6 +255,7 @@ export const Input = defineSSRCustomFormElement({
                 {lengthInfo.value}
               </span>
             )}
+            {numberStepIcons.value}
           </label>
           <div
             class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isN('empty', appendSlot.empty.value)]}
