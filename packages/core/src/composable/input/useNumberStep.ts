@@ -1,9 +1,12 @@
 import { ComputedRef } from 'vue';
 import { TransformedUseInputOption, UseInputOptions } from '.';
 import { presets } from '../../presets';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 
 export function processNumOptions<
-  T extends { [k in 'min' | 'max' | 'step' | 'precision']?: string | number | null | undefined },
+  T extends { [k in 'min' | 'max' | 'step' | 'precision']?: string | number | null | undefined } & {
+    disabled?: MaybeRefLikeOrGetter<boolean>;
+  },
 >(options: T) {
   const { toNumberOrNull, toPrecision, ensureNumber, getPositiveInfinity, getNegativeInfinity } = presets.math;
   const precision = toNumberOrNull(options.precision);
@@ -17,11 +20,14 @@ export function processNumOptions<
   return { ...options, min, max, step, precision };
 }
 
-export function useNumberStep(options: ComputedRef<TransformedUseInputOption<UseInputOptions<'number', number>>>) {
+export function useNumberStep(
+  options: ComputedRef<TransformedUseInputOption<UseInputOptions<'number' | 'number-text', number>>>,
+) {
   const getValue = (isNext: boolean) => {
     const { plus, multiply, divide, lessThan, greaterThan, isNaN, getZero, toNegative, floor, toNumber } = presets.math;
-    let { step, min, max, value, onChange } = options.value;
-    value = toNumber(value);
+    let { step, min, max, value, onChange, type } = options.value;
+    if (type !== 'number' && type !== 'number-text') return;
+    value = toNumber(unrefOrGet(value));
     if (isNaN(value)) value = getZero();
     if (step === null) step = 1;
     let result = value + (isNext ? step : -step);
@@ -45,15 +51,45 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
     },
   };
 
-  const handlers = {
+  const numberHandlers = {
     onKeydown(e: KeyboardEvent) {
-      if (e.key === 'ArrowDown') methods.nextStep();
-      if (e.key === 'ArrowUp') methods.prevStep();
+      if (options.value.disabled) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault(); // prevent native type=number
+        methods.prevStep();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        methods.nextStep();
+      }
     },
   };
 
+  const createStepHandlers = (isNext: boolean) => {
+    let firstTimer: ReturnType<typeof setTimeout>, timer: ReturnType<typeof setInterval>;
+    const clear = () => {
+      clearTimeout(firstTimer);
+      clearInterval(timer);
+    };
+    return {
+      onPointerdown() {
+        if (options.value.disabled) return;
+        const method = isNext ? methods.nextStep : methods.prevStep;
+        method();
+        firstTimer = setTimeout(() => {
+          method();
+          timer = setInterval(method, 100);
+        }, 500); // TODO options for this
+      },
+      onPointerup: clear,
+      onPointercancel: clear,
+      onPointerleave: clear,
+    };
+  };
+
   return {
-    handlers,
-    methods,
+    numberHandlers,
+    numberMethods: methods,
+    nextStepHandlers: createStepHandlers(true),
+    prevStepHandlers: createStepHandlers(false),
   };
 }

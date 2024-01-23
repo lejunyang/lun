@@ -122,7 +122,11 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     onTagsAdd && added.length && onTagsAdd(added);
     return +maxTags! >= 0 ? final.slice(0, +maxTags!) : final;
   };
-  const [inputHandlers, state] = useInput<IType>(options as any, {
+  const {
+    handlers: inputHandlers,
+    state,
+    ...others
+  } = useInput<IType>(options as any, {
     transform,
     onBeforeinput(e) {
       const { value, maxTags } = unrefOrGet(options)!;
@@ -147,5 +151,6 @@ export function useMultipleInput<IType extends InputType = 'text'>(
     wrapperHandlers,
     inputHandlers,
     state,
+    ...others,
   };
 }
