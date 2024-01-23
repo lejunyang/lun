@@ -7,9 +7,9 @@ import {
   getFirstOfIterable,
   toRegExp,
 } from '@lun/utils';
-import { computed, reactive } from 'vue';
+import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
-import { processNumOptions } from './useNumberStep';
+import { processNumOptions, useNumberStep } from './useNumberStep';
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
@@ -18,10 +18,11 @@ export type InputType = 'text' | 'number' | 'number-text';
 export type UseInputOptions<
   IType extends InputType = 'text',
   T = InputType extends 'number' | 'number-text' ? number : string,
-  > = {
+> = {
   value?: MaybeRefLikeOrGetter<T | T[]>;
   type?: IType;
   multiple?: boolean;
+  disabled?: boolean;
   onChange: (val: T | null) => void;
   updateWhen?: InputPeriodWithAuto | InputPeriodWithAuto[];
   debounce?: number | string;
@@ -120,7 +121,6 @@ function handleNumberBeforeInput(
   if (splitsByE.length === 2 && splitsByE[1] && !splitsByE[1].match(new RegExp(`[${noDecimal ? '' : '-'}+]?\\d+`)))
     return e.preventDefault();
 }
-
 
 export function useInput<
   IType extends InputType = 'text',
@@ -251,6 +251,11 @@ export function useInput<
       }
     },
   };
+
+  const { numberHandlers, ...otherNum } = useNumberStep(
+    options as ComputedRef<TransformedUseInputOption<UseInputOptions<'number', number>>>,
+  );
+
   const handlers = {
     onBeforeinput(e: InputEvent) {
       const target = e.target as HTMLInputElement;
@@ -312,6 +317,7 @@ export function useInput<
       if (isEnterDown(e)) {
         if ((!state.composing || emitEnterDownWhenComposing) && isFunction(onEnterDown)) onEnterDown(e);
       }
+      numberHandlers.onKeydown(e);
     },
   } as Record<Handlers, (e: Event) => void>;
   if (extraHandlers) {
@@ -326,5 +332,10 @@ export function useInput<
       }
     });
   }
-  return [handlers, state] as const;
+
+  return {
+    handlers,
+    state,
+    ...otherNum,
+  };
 }
