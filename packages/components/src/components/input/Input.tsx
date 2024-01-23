@@ -99,14 +99,29 @@ export const Input = defineSSRCustomFormElement({
     });
 
     const numberStepIcons = computed(() => {
-      const { type } = props;
+      const { type, stepControl } = props;
       if (type !== 'number' && type !== 'number-text') return;
-      return (
-        <span class={ns.e('steps-wrapper')} part="steps-wrapper">
-          {renderElement('icon', { class: ns.e('step'), name: 'up', part: 'next-step', ...nextStepHandlers })}
-          {renderElement('icon', { class: ns.e('step'), name: 'down', part: 'prev-step', ...prevStepHandlers })}
-        </span>
-      );
+      const step = ns.e('step'),
+        arrow = ns.e('arrow'),
+        slot = ns.e('slot');
+      return {
+        arrow: stepControl === 'up-down' && (
+          <span class={ns.e('steps-wrapper')} part="steps-wrapper">
+            {renderElement('icon', { class: [step, arrow], name: 'up', part: 'up', ...nextStepHandlers })}
+            {renderElement('icon', { class: [step, arrow], name: 'down', part: 'down', ...prevStepHandlers })}
+          </span>
+        ),
+        plus: stepControl === 'plus-minus' && (
+          <div class={[slot, ns.e('plus')]}>
+            {renderElement('icon', { class: step, name: 'plus', part: 'plus', ...nextStepHandlers })}
+          </div>
+        ),
+        minus: stepControl === 'plus-minus' && (
+          <div class={[slot, ns.e('minus')]}>
+            {renderElement('icon', { class: step, name: 'minus', part: 'minus', ...prevStepHandlers })}
+          </div>
+        ),
+      };
     });
 
     const rootOnPointerDown = () => {
@@ -141,6 +156,8 @@ export const Input = defineSSRCustomFormElement({
       const hasFloatLabel = labelType === 'float' && floatLabel;
       const empty = isEmpty(valueModel.value) && !valueForMultiple.value;
       const hidePlaceholderForMultiple = multiple && !empty;
+      const withPrepend = !prependSlot.empty.value;
+      const withAppend = !appendSlot.empty.value;
       const input = (
         <input
           {...attrs}
@@ -167,18 +184,15 @@ export const Input = defineSSRCustomFormElement({
             ns.isN('editable', editable),
             ns.is({
               multiple,
-              'with-prepend': !prependSlot.empty.value,
-              'with-append': !appendSlot.empty.value,
+              'with-prepend': withPrepend,
+              'with-append': withAppend,
               'with-renderer': !rendererSlot.empty.value,
             }),
             ns.m(type),
           ]}
           onPointerdown={rootOnPointerDown}
         >
-          <div
-            class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isN('empty', prependSlot.empty.value)]}
-            part="prepend"
-          >
+          <div class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isN('empty', !withPrepend)]} part="prepend">
             <slot {...prependSlot.slotProps}></slot>
           </div>
           <label class={ns.e('label')} part="label">
@@ -188,6 +202,7 @@ export const Input = defineSSRCustomFormElement({
                 <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
               </div>
             )}
+            {numberStepIcons.value?.minus}
             <div class={[ns.e('slot'), ns.e('prefix'), ns.isN('empty', prefixSlot.empty.value)]} part="prefix">
               <slot {...prefixSlot.slotProps}></slot>
             </div>
@@ -255,12 +270,10 @@ export const Input = defineSSRCustomFormElement({
                 {lengthInfo.value}
               </span>
             )}
-            {numberStepIcons.value}
+            {numberStepIcons.value?.plus}
+            {numberStepIcons.value?.arrow}
           </label>
-          <div
-            class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isN('empty', appendSlot.empty.value)]}
-            part="append"
-          >
+          <div class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isN('empty', !withAppend)]} part="append">
             <slot {...appendSlot.slotProps}></slot>
           </div>
         </span>

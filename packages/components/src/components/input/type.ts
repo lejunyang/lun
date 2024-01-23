@@ -57,6 +57,7 @@ export const inputProps = {
   showClearIcon: PropBoolean(),
   status: PropString<Status>(),
   showStatusIcon: PropBoolean(),
+  stepControl: PropString<'up-down' | 'plus-minus' | 'none'>(),
 };
 
 export const inputEmits = {
