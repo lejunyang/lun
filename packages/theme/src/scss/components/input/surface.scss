@@ -29,6 +29,14 @@
       border-inline-start: none;
     }
 
+    @include e(minus) {
+      border-inline-end: 1px solid getGrayColor(a7);
+    }
+
+    @include e(plus) {
+      border-inline-start: 1px solid getGrayColor(a7);
+    }
+
     @include is(disabled) {
       @include e('background') {
         background-image: linear-gradient(getGrayColor(a3), getGrayColor(a3));

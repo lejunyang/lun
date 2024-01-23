@@ -166,6 +166,7 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
+    justify-content: center; // minus icon needs this
     box-sizing: border-box;
     @include declareVars(
       (
@@ -318,12 +319,14 @@
         }
       }
       @include e(step) {
-        height: 50%;
         cursor: pointer;
         @include hover {
           transform: scale(1.2);
           transition: scale 0.2s ease;
         }
+      }
+      @include e(arrow) {
+        height: 50%;
       }
     }
   }
