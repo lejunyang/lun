@@ -72,9 +72,3 @@ registerIconLibrary({
   },
 });
 ```
-
-<style>
-  l-icon::part(svg) {
-    vertical-align: -0.125em;
-  }
-</style>
