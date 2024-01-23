@@ -12,7 +12,8 @@ const name = 'icon';
 export const Icon = defineSSRCustomElement({
   name,
   props: iconProps,
-  setup(props) {
+  inheritAttrs: false,
+  setup(props, { attrs }) {
     const config = useContextConfig();
     const state = shallowReactive({
       type: '',
@@ -32,7 +33,7 @@ export const Icon = defineSSRCustomElement({
       let { type, mutator, resolver } = libraryOption;
       mutator = mutator instanceof Function ? mutator : (i) => i;
       try {
-        let result = await resolver(name);
+        let result = await resolver(name, attrs);
         if (type === 'html-url' && typeof result === 'string') {
           // if type is `html-url`, do a fetch to get html text
           result = (await GlobalStaticConfig.iconRequest(result))!;
@@ -108,7 +109,7 @@ export const Icon = defineSSRCustomElement({
           );
         case 'svg-sprite-href':
           return (
-            <svg part="svg">
+            <svg {...attrs} part="svg">
               <use part="use" href={state.src as string}></use>
             </svg>
           );
