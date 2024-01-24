@@ -190,6 +190,25 @@ export const FormItem = defineSSRCustomElement({
       return isPlainName(name) ? name : stringToPath(name);
     });
 
+    const validateProps = computed(() => {
+      // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
+      const { min, max, lessThan, greaterThan, len, step, precision, type, required, label, pattern } = props.value;
+      // TODO type === 'date'
+      return {
+        type,
+        required: (runIfFn(required, formContext) ?? localRequired.value) || false,
+        min: transform(min),
+        max: transform(max),
+        lessThan: transform(lessThan),
+        greaterThan: transform(greaterThan),
+        len: transform(len),
+        step: transform(step),
+        precision: transform(precision),
+        pattern,
+        label,
+      };
+    });
+
     const getOrSetValue = (vm?: ComponentInternalInstance, value?: any) => {
       const { array } = props.value;
       if (!path.value) return;
@@ -202,7 +221,7 @@ export const FormItem = defineSSRCustomElement({
     };
 
     const inputContext = FormInputCollector.parent({
-      extraProvide: { getValue: getOrSetValue, setValue: getOrSetValue, status },
+      extraProvide: { getValue: getOrSetValue, setValue: getOrSetValue, status, validateProps },
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
@@ -214,6 +233,7 @@ export const FormItem = defineSSRCustomElement({
         }
       },
     });
+
     const transform = (val: any, type = 'number') => {
       if (typeof val === type) return val;
       if (!isPlainString(val)) return;
@@ -225,6 +245,7 @@ export const FormItem = defineSSRCustomElement({
           return isNaN(numValue) ? undefined : numValue;
       }
     };
+
     const depInfo = computed(() => {
       const { deps } = props.value;
       const temp = toArrayIfTruthy(deps);
@@ -238,7 +259,9 @@ export const FormItem = defineSSRCustomElement({
       });
       return { allFalsy, someFalsy, depValues, noneFalsy: !!temp.length && !someFalsy };
     });
-    const localRequired = ref(false);
+
+    const localRequired = ref(false); // to required when depValues changed
+
     watch(depInfo, (info, oldInfo, onCleanUp) => {
       let { clearWhenDepChange, disableWhenDepFalsy, array, requireWhenDepTruthy } = props.value;
       const { allFalsy, someFalsy, depValues, noneFalsy } = info;
@@ -272,26 +295,10 @@ export const FormItem = defineSSRCustomElement({
       }
     });
 
-    const validateProps = computed(() => {
-      // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
-      const { min, max, lessThan, greaterThan, len, step, precision, type, required, label } = props.value;
-      // TODO type === 'date'
-      return {
-        type,
-        required: (runIfFn(required, formContext) ?? localRequired.value) || false,
-        min: transform(min), // TODO pass those props(min, max...) to input element
-        max: transform(max),
-        lessThan: transform(lessThan),
-        greaterThan: transform(greaterThan),
-        len: transform(len),
-        step: transform(step),
-        precision: transform(precision),
-        label,
-      };
-    });
     const validateMessages = computed(() =>
       virtualGetMerge(props.value.validateMessages, formContext.parent!.props.validateMessages),
     );
+
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
       const value = getValue(path.value);
       const { stopValidate, validators: formValidators } = formContext.parent!.props;
