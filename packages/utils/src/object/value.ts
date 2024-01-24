@@ -1,13 +1,14 @@
 import { isArray } from '../is';
 import { stringToPath } from '../string';
+import { MergeObjects } from './merge';
 
 export interface ObjectGet {
   <T = any>(object: any, path?: string | (string | number | symbol)[]): T;
   <T = any>(object: any, path?: string | (string | number | symbol)[], defaultValue?: T): T;
 }
 /**
- * 
- * @param object 
+ *
+ * @param object
  * @param path string like a.b[c][0].d，or array like ['a', 'b', 'c', 0, 'd']
  * @param defaultVal if result is undefined or null, return defaultVal
  */
@@ -43,4 +44,41 @@ export function objectSet<T>(object: T, path: string | string[], value: any, ign
     return obj[p];
   }, object as any);
   return object;
+}
+
+export function pick<T extends Record<string | symbol, any>, K extends keyof T = keyof T>(obj: T, keys: K[]) {
+  return keys.reduce((result, current) => {
+    result[current] = obj[current];
+    return result;
+  }, {} as Pick<T, K>);
+}
+
+export function omit<T extends Record<string | symbol, any>, K extends keyof T = keyof T>(obj: T, keys: K[]) {
+  const result = { ...obj };
+  keys.forEach((key) => {
+    delete result[key];
+  });
+  return result as Omit<T, K>;
+}
+
+// @ts-ignore
+export const hasOwn = Object.hasOwn || Object.prototype.hasOwnProperty.call;
+
+/**
+ * pick non-nil value from multiple objects
+ */
+export function pickNonNil<
+  T extends (Record<string | symbol, any> | null | undefined)[],
+  M = MergeObjects<T>,
+  K extends (keyof M)[] = [],
+>(keys: K, ...targets: T) {
+  return keys.reduce((result, key) => {
+    for (const target of targets) {
+      if (target && (target as any)[key] != null) {
+        result[key] = (target as any)[key];
+        break;
+      }
+    }
+    return result;
+  }, {} as Pick<M, K[number]>);
 }
