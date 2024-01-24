@@ -221,7 +221,7 @@ export function virtualMerge<T extends Record<string | symbol, any>[]>(...target
   ) as MergeObjects<T>;
 }
 
-export function virtualGetMerge<T extends Record<string | symbol, any>[]>(...targets: T) {
+export function virtualGetMerge<T extends (Record<string | symbol, any> | null | undefined)[]>(...targets: T) {
   return new Proxy(
     {},
     {
