@@ -129,6 +129,7 @@ export const GlobalStaticConfig = new Proxy(
         separator: /[\s,]/,
         showStatusIcon: true,
         stepControl: 'up-down',
+        required: undefined,
       },
       popover: {
         offset: 4,

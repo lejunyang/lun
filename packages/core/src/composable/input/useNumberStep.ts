@@ -21,12 +21,12 @@ export function processNumOptions<
 }
 
 export function useNumberStep(
-  options: ComputedRef<TransformedUseInputOption<UseInputOptions<'number' | 'number-text', number>>>,
+  options: ComputedRef<TransformedUseInputOption<UseInputOptions<'number' | 'number-string', number>>>,
 ) {
   const getValue = (isNext: boolean) => {
     const { plus, multiply, divide, lessThan, greaterThan, isNaN, getZero, toNegative, floor, toNumber } = presets.math;
-    let { step, min, max, value, onChange, type } = options.value;
-    if (type !== 'number' && type !== 'number-text') return;
+    let { step, min, max, value, onChange, type } = options.value; // TODO lessThan, greaterThan
+    if (type !== 'number' && type !== 'number-string') return;
     value = toNumber(unrefOrGet(value));
     if (isNaN(value)) value = getZero();
     if (step === null) step = 1;

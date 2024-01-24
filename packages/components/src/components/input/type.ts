@@ -18,7 +18,7 @@ export const baseInputProps = {
   ...editStateProps,
   value: PropString(),
   placeholder: PropString(),
-  required: PropString(),
+  required: PropBoolean(),
   type: PropString<InputType>(),
   updateWhen: PropStrOrArr<InputPeriodWithAuto | InputPeriodWithAuto[]>(),
   debounce: PropNumber(),
@@ -57,7 +57,17 @@ export const inputProps = {
   showClearIcon: PropBoolean(),
   status: PropString<Status>(),
   showStatusIcon: PropBoolean(),
+
+  // ------------------ input number ------------------
   stepControl: PropString<'up-down' | 'plus-minus' | 'none'>(),
+  min: PropNumber(),
+  max: PropNumber(),
+  precision: PropNumber(),
+  step: PropNumber(),
+  strictStep: PropBoolean(),
+  noExponent: PropBoolean(),
+  replaceChPeriodMark: PropBoolean(),
+  // ------------------ input number ------------------
 };
 
 export const inputEmits = {
@@ -72,17 +82,3 @@ export const inputEmits = {
 export type InputSetupProps = ExtractPropTypes<typeof inputProps>;
 export type InputEvents = GetEventPropsFromEmits<typeof inputEmits>;
 export type InputProps = Partial<InputSetupProps> & InputEvents;
-
-export const inputNumberProps = {
-  ...inputProps,
-  min: PropNumber(),
-  max: PropNumber(),
-  precision: PropNumber(),
-  step: PropNumber(),
-  strictStep: { type: Boolean },
-  noExponent: { type: Boolean },
-
-  replaceChPeriodMark: { type: Boolean, default: true },
-};
-
-export type InputNumberProps = ExtractPropTypes<typeof inputNumberProps>;
