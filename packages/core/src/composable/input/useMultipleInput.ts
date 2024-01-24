@@ -12,7 +12,7 @@ import {
 import { InputType, UseInputOptions, useInput } from './useInput';
 import { nextTick } from 'vue';
 
-export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInputOptions<T>, 'onChange'> & {
+export type UseMultipleInputOptions<T extends InputType = 'string'> = Omit<UseInputOptions<T>, 'onChange'> & {
   multiple?: boolean;
   /**
    * @default 'tagIndex'
@@ -29,7 +29,7 @@ export type UseMultipleInputOptions<T extends InputType = 'text'> = Omit<UseInpu
   iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
 };
 
-export function useMultipleInput<IType extends InputType = 'text'>(
+export function useMultipleInput<IType extends InputType = 'string'>(
   options: MaybeRefLikeOrGetter<UseMultipleInputOptions<IType>, true>,
 ) {
   const handleDeleteTag = (target?: HTMLElement | null) => {

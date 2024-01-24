@@ -6,7 +6,7 @@ import { defineDivider } from './divider';
 import { defineForm } from './form';
 import { defineFormItem } from './form-item';
 import { defineIcon, importIconStyle } from './icon';
-import { defineBaseInput, defineInput } from './input';
+import { defineInput } from './input';
 import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptgroup } from './select';
@@ -35,7 +35,6 @@ export function defineAllComponents() {
   defineForm();
   defineFormItem();
   defineIcon();
-  defineBaseInput();
   defineInput();
   definePopover();
   defineRadio();

@@ -13,11 +13,11 @@ import { processNumOptions, useNumberStep } from './useNumberStep';
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
-export type InputType = 'text' | 'number' | 'number-text';
+export type InputType = 'string' | 'number' | 'number-string';
 
 export type UseInputOptions<
-  IType extends InputType = 'text',
-  T = InputType extends 'number' | 'number-text' ? number : string,
+  IType extends InputType = 'string',
+  T = InputType extends 'number' | 'number-string' ? number : string,
 > = {
   value?: MaybeRefLikeOrGetter<T | T[]>;
   type?: IType;
@@ -48,7 +48,7 @@ export type UseInputOptions<
   strictStep?: boolean;
   noExponent?: boolean;
   /**
-   * if it's true and type is 'number-text', will replace '。' with '.', so that users can input dot mark directly under chinese input method
+   * if it's true and type is 'number-string', will replace '。' with '.', so that users can input dot mark directly under chinese input method
    */
   replaceChPeriodMark?: boolean;
 };
@@ -82,7 +82,7 @@ function handleNumberBeforeInput(
     replaceChPeriodMark,
   }: TransformedUseInputOption<UseInputOptions<'number', number>>,
 ) {
-  if (!e.data || (type !== 'number' && type !== 'number-text')) return;
+  if (!e.data || (type !== 'number' && type !== 'number-string')) return;
   const noDecimal = precision === 0 || (strictStep && step && Number.isInteger(step));
   const noNegativeSymbol = min >= 0 && noExponent; // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
   let allowChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
@@ -123,8 +123,8 @@ function handleNumberBeforeInput(
 }
 
 export function useInput<
-  IType extends InputType = 'text',
-  ValueType extends string | number = IType extends 'number' | 'number-text' ? number : string,
+  IType extends InputType = 'string',
+  ValueType extends string | number = IType extends 'number' | 'number-string' ? number : string,
   Handlers extends string =
     | 'onBeforeinput'
     | 'onInput'
@@ -201,7 +201,7 @@ export function useInput<
       const target = e.target as HTMLInputElement;
       let value = target.value;
       if (restrictWhen.has(actionNow)) {
-        if (type === 'number-text') {
+        if (type === 'number-string') {
           // native input[type="number"] will eliminate all spaces, we follow that
           value = value.replace(/\s/g, '');
           if (replaceChPeriodMark) value = value.replace(/。/g, '.');

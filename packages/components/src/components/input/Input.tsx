@@ -2,7 +2,7 @@ import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
 import { defineSSRCustomFormElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useNamespace, useSetupContextEvent, useSlot, useStatus, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, usePropsFromFormItem, useSetupContextEvent, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -19,7 +19,7 @@ export const Input = defineSSRCustomFormElement({
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
-    const [status] = useStatus(props);
+    const { status, validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     useSetupContextEvent();
     const inputRef = ref<HTMLInputElement>();
@@ -29,9 +29,10 @@ export const Input = defineSSRCustomFormElement({
       computed(() => {
         return {
           ...props,
+          ...validateProps.value,
           disabled: !editComputed.value.editable,
           value: valueModel,
-          onChange: (val) => {
+          onChange(val) {
             valueModel.value = val;
           },
           onInputUpdate(val) {
@@ -53,6 +54,7 @@ export const Input = defineSSRCustomFormElement({
         };
       }),
     );
+    
     const clearValue = () => {
       if (props.multiple) {
         valueModel.value = [];
@@ -99,8 +101,9 @@ export const Input = defineSSRCustomFormElement({
     });
 
     const numberStepIcons = computed(() => {
-      const { type, stepControl } = props;
-      if (type !== 'number' && type !== 'number-text') return;
+      const { stepControl } = props;
+      const { type } = validateProps.value;
+      if (type !== 'number' && type !== 'number-string') return;
       const step = ns.e('step'),
         arrow = ns.e('arrow'),
         slot = ns.e('slot');
@@ -139,19 +142,16 @@ export const Input = defineSSRCustomFormElement({
 
     const statusIcon = computed(() => {
       if (!props.showStatusIcon) return;
-      switch (status.value) {
-        case 'success':
-          return renderElement('icon', { name: 'success', class: [ns.em('suffix', 'success-icon')] });
-        case 'error':
-          return renderElement('icon', { name: 'error', class: [ns.em('suffix', 'error-icon')] });
-        case 'warning':
-          return renderElement('icon', { name: 'warning', class: [ns.em('suffix', 'warning-icon')] });
-      }
+      const { value } = status;
+      if (value && ['success', 'error', 'warning'].includes(value))
+        return renderElement('icon', { name: value, class: [ns.em('suffix', `${value}-icon`)] });
     });
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
-      const { multiple, placeholder, labelType, label, wrapTags, type } = props;
+      const { multiple, placeholder, labelType, label, wrapTags } = props;
+      const { type } = validateProps.value;
+      const inputType = type === 'number' ? type : 'text';
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       const empty = isEmpty(valueModel.value) && !valueForMultiple.value;
@@ -162,7 +162,7 @@ export const Input = defineSSRCustomFormElement({
         <input
           {...attrs}
           exportparts=""
-          type={type}
+          type={inputType}
           ref={inputRef}
           part="inner-input"
           class={[ns.e('inner-input')]}
@@ -184,6 +184,7 @@ export const Input = defineSSRCustomFormElement({
             ns.isN('editable', editable),
             ns.is({
               multiple,
+              required: validateProps.value.required,
               'with-prepend': withPrepend,
               'with-append': withAppend,
               'with-renderer': !rendererSlot.empty.value,

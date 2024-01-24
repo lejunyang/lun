@@ -4,6 +4,8 @@ import { useShadowDom } from './shadowDom';
 import { FormInputCollector } from '../components/form-item';
 import { computed, getCurrentInstance } from 'vue';
 import { Status } from 'common';
+import { pickNonNil } from '@lun/utils';
+import { formItemRuleProps } from '../components/form-item/type';
 
 const extra = () => {
   const vm = getCurrentInstance();
@@ -29,6 +31,21 @@ export const useValueModel = createUseModel({
 export const useStatus = (props: { status?: Status }) => {
   const context = FormInputCollector.child(false);
   return [computed(() => props.status || context?.status.value), context] as const;
+};
+
+export const usePropsFromFormItem = (props: { status?: Status }) => {
+  const context = FormInputCollector.child(false);
+  return {
+    status: computed(() => props.status || context?.status.value),
+    validateProps: computed(() =>
+      pickNonNil(
+        Object.keys(formItemRuleProps) as (keyof typeof formItemRuleProps)[],
+        props,
+        context?.validateProps.value,
+      ),
+    ),
+    context,
+  };
 };
 
 /** used for switch, checkbox, which have 'checked', 'trueValue' and 'falseValue' props. */
