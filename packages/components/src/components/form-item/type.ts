@@ -130,5 +130,5 @@ export type Rule = {
   pattern?: RegExp | string;
 };
 
-export type RuleName = 'required' | 'min' | 'max' | 'greaterThan' | 'lessThan';
+export type RuleName = keyof Rule;
 

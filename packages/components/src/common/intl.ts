@@ -5,11 +5,21 @@ import { warn } from 'utils';
 
 export const locales = reactive<Record<string, Record<string, string | ((param?: Record<string, any>) => string)>>>({
   'zh-CN': {
+    'validation.number.type': '必须为数字',
     'validation.required': ({ label } = {}) => `请填写${label || '此字段'}`,
     'validation.number.min': '不得小于${min}',
     'validation.number.max': '不得大于${max}',
     'validation.number.greaterThan': '不得小于等于${greaterThan}',
     'validation.number.lessThan': '不得大于等于${lessThan}',
+
+    'validation.string.type': '必须为字符串',
+    'validation.string.min': '长度不得小于${min}',
+    'validation.string.max': '长度不得大于${max}',
+    'validation.string.greaterThan': '长度不得小于等于${greaterThan}',
+    'validation.string.lessThan': '长度不得大于等于${lessThan}',
+    
+    'validation.pattern': '格式不正确',
+    'validation.len': '长度必须为${len}',
 
     'dialog.ok': '确定',
     'dialog.cancel': '取消',
