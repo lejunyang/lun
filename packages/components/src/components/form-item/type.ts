@@ -13,7 +13,7 @@ import {
   editStateProps,
   themeProps,
 } from 'common';
-import { MaybePromise, CollectorContext } from '@lun/core';
+import { MaybePromise, CollectorContext, InputType } from '@lun/core';
 import { ComponentKey } from 'config';
 import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
@@ -24,6 +24,19 @@ export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'chang
 
 export type ValidateMessages = {
   [key in RuleName]?: string | ((args: Rule) => string);
+};
+
+export const formItemRuleProps = {
+  type: PropString<InputType>(), // can it be auto detected?
+  required: PropBoolOrFunc<boolean | ((formContext: FormProvideExtra) => boolean | undefined | null)>(),
+  min: PropNumber(),
+  max: PropNumber(),
+  greaterThan: PropNumber(),
+  lessThan: PropNumber(),
+  pattern: PropString(RegExp),
+  len: PropNumber(),
+  step: PropNumber(),
+  precision: PropNumber(),
 };
 
 export const formItemProps = {
@@ -75,9 +88,8 @@ export const formItemProps = {
   deps: PropStrOrArr(),
   clearWhenDepChange: PropBoolean(),
   disableWhenDepFalsy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
-  // validate props
-  type: PropString(), // can it be auto detected?
-  required: PropBoolOrFunc<boolean | ((formContext: FormProvideExtra) => boolean | undefined | null)>(),
+  // ------------------ validation ------------------
+  ...formItemRuleProps,
   /**
    * to required when deps are required,
    * 'all' means to required when all the dep values are truthy,
@@ -86,16 +98,6 @@ export const formItemProps = {
    * boolean true equals to 'all'
    **/
   requireWhenDepTruthy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
-  min: PropNumber(),
-  max: PropNumber(),
-  greaterThan: PropNumber(),
-  lessThan: PropNumber(),
-  pattern: PropString(RegExp),
-  len: PropNumber(),
-  /**  */
-  step: PropNumber(),
-  precision: PropNumber(),
-  message: { type: [String, Object] },
   validators: { type: [Array, Function] as PropType<Validator[] | Validator> },
   validateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
   revalidateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
@@ -115,13 +117,17 @@ export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> & 
 };
 
 export type Rule = {
-  type?: string;
+  type?: InputType;
   min?: number;
   max?: number;
   required?: boolean;
   greaterThan?: number;
   lessThan?: number;
   label?: string;
+  step?: number;
+  precision?: number;
+  len?: number;
+  pattern?: RegExp | string;
 };
 
 export type RuleName = 'required' | 'min' | 'max' | 'greaterThan' | 'lessThan';
