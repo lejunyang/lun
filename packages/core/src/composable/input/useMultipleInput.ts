@@ -9,10 +9,12 @@ import {
   shadowContains,
   toArrayIfNotNil,
 } from '@lun/utils';
-import { InputType, UseInputOptions, useInput } from './useInput';
+import { UseInputOptions, isNumberInputType, useInput } from './useInput';
 import { nextTick } from 'vue';
+import { presets } from '../../presets/index';
 
-export type UseMultipleInputOptions<T extends InputType = 'string'> = Omit<UseInputOptions<T>, 'onChange'> & {
+export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'> & {
+  value?: MaybeRefLikeOrGetter<string | number | string[] | number[]>;
   multiple?: boolean;
   /**
    * @default 'tagIndex'
@@ -22,16 +24,14 @@ export type UseMultipleInputOptions<T extends InputType = 'string'> = Omit<UseIn
   unique?: boolean;
   reserveInput?: boolean;
   maxTags?: number | string;
-  onChange: (value: string[]) => void;
-  onInputUpdate?: (value: string) => void;
-  onTagsAdd?: (values: string[]) => void;
-  onTagsRemove?: (values: string[]) => void;
+  onChange: (value: string[] | number[]) => void;
+  onInputUpdate?: (value: string | number) => void;
+  onTagsAdd?: (values: string[] | number[]) => void;
+  onTagsRemove?: (values: string[] | number[]) => void;
   iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
 };
 
-export function useMultipleInput<IType extends InputType = 'string'>(
-  options: MaybeRefLikeOrGetter<UseMultipleInputOptions<IType>, true>,
-) {
+export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputOptions, true>) {
   const handleDeleteTag = (target?: HTMLElement | null) => {
     if (!target) return;
     const { tagIndexAttr = 'tagIndex', value, onChange, iterateOptions, onTagsRemove } = unrefOrGet(options)!;
@@ -81,7 +81,7 @@ export function useMultipleInput<IType extends InputType = 'string'>(
     },
   };
 
-  const transform = (val: string, e: Event) => {
+  const transform = (val: string | number, e: Event) => {
     const {
       separator = ',',
       unique,
@@ -91,9 +91,11 @@ export function useMultipleInput<IType extends InputType = 'string'>(
       onInputUpdate,
       maxTags,
       onTagsAdd,
+      type,
     } = unrefOrGet(options)!;
     onInputUpdate && onInputUpdate(val);
     if (!multiple) return val;
+    val = String(val);
     const valuesBefore = toArrayIfNotNil(unrefOrGet(value));
     if (isNilOrEmptyStr(val)) return value;
     const valuesNow = val.split(separator);
@@ -103,15 +105,16 @@ export function useMultipleInput<IType extends InputType = 'string'>(
     console.log('needChange', needChange);
     if (!needChange) return valuesBefore;
     const result = [...valuesBefore];
-    const uniqueResult = new Set(unique ? valuesBefore : undefined);
-    const added: string[] = [];
-    valuesNow.forEach((v) => {
+    const uniqueResult = new Set<number | string>(unique ? valuesBefore : undefined);
+    const added: string[] | number[] = [];
+    valuesNow.forEach((v: number | string) => {
       if (isNilOrEmptyStr(v)) return;
+      if (isNumberInputType(type)) v = presets.math.toNumber(v);
       if (unique) {
         if (uniqueResult.has(v)) return;
         uniqueResult.add(v);
       } else result.push(v);
-      added.push(v);
+      (added as Array<number | string>).push(v);
     });
     // TODO reserveInput is conflict with ‘change' event
     if (!reserveInput) {
@@ -126,7 +129,7 @@ export function useMultipleInput<IType extends InputType = 'string'>(
     handlers: inputHandlers,
     state,
     ...others
-  } = useInput<IType>(options as any, {
+  } = useInput(options as any, {
     transform,
     onBeforeinput(e) {
       const { value, maxTags } = unrefOrGet(options)!;

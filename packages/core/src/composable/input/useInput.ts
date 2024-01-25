@@ -6,24 +6,25 @@ import {
   toArrayIfNotNil,
   getFirstOfIterable,
   toRegExp,
+  isArray,
 } from '@lun/utils';
 import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { processNumOptions, useNumberStep } from './useNumberStep';
+import { presets } from '../../presets/index';
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
 export type InputType = 'string' | 'number' | 'number-string';
 
-export type UseInputOptions<
-  IType extends InputType = 'string',
-  T = InputType extends 'number' | 'number-string' ? number : string,
-> = {
-  value?: MaybeRefLikeOrGetter<T | T[]>;
-  type?: IType;
+export const isNumberInputType = (type: any) => type === 'number' || type === 'number-string';
+
+export type UseInputOptions = {
+  value?: MaybeRefLikeOrGetter<string | number>;
+  type?: InputType;
   multiple?: boolean;
   disabled?: boolean;
-  onChange: (val: T | null) => void;
+  onChange: (val: string | number | null) => void;
   updateWhen?: InputPeriodWithAuto | InputPeriodWithAuto[];
   debounce?: number | string;
   throttle?: number | string;
@@ -33,7 +34,7 @@ export type UseInputOptions<
   restrict?: string | RegExp;
   restrictWhen?: InputPeriod | 'beforeInput' | (InputPeriod | 'beforeInput')[];
   toNullWhenEmpty?: boolean;
-  transform?: (val: T | null) => T | null;
+  transform?: (val: string | number | null) => string | number | null;
   transformWhen?: InputPeriod | InputPeriod[];
   onEnterDown?: (e: KeyboardEvent) => void;
   /**
@@ -80,7 +81,7 @@ function handleNumberBeforeInput(
     step,
     strictStep,
     replaceChPeriodMark,
-  }: TransformedUseInputOption<UseInputOptions<'number', number>>,
+  }: TransformedUseInputOption<UseInputOptions>,
 ) {
   if (!e.data || (type !== 'number' && type !== 'number-string')) return;
   const noDecimal = precision === 0 || (strictStep && step && Number.isInteger(step));
@@ -122,27 +123,21 @@ function handleNumberBeforeInput(
     return e.preventDefault();
 }
 
-export function useInput<
-  IType extends InputType = 'string',
-  ValueType extends string | number = IType extends 'number' | 'number-string' ? number : string,
-  Handlers extends string =
-    | 'onBeforeinput'
-    | 'onInput'
-    | 'onChange'
-    | 'onCompositionstart'
-    | 'onCompositionend'
-    | 'onKeydown',
-  E extends Function = (
-    e: Event,
-    state: UseInputState<UseInputOptions<IType, ValueType>>,
-    utils: {
-      transformValue(actionNow: InputPeriod, value: string): any;
-      handleEvent(actionNow: InputPeriod, e: Event): void;
-    },
-  ) => void,
->(
-  optionsGetter: MaybeRefLikeOrGetter<UseInputOptions<IType, ValueType>>,
-  extraHandlers?: Partial<Record<Handlers, E> & { transform?: (val: any, e: Event) => any }>,
+export function useInput(
+  optionsGetter: MaybeRefLikeOrGetter<UseInputOptions>,
+  extraHandlers?: { transform?: (val: any, e: Event) => any } & Partial<
+    Record<
+      'onBeforeinput' | 'onInput' | 'onChange' | 'onCompositionstart' | 'onCompositionend' | 'onKeydown',
+      (
+        e: Event,
+        state: UseInputState<UseInputOptions>,
+        utils: {
+          transformValue(actionNow: InputPeriod, value: string): any;
+          handleEvent(actionNow: InputPeriod, e: Event): void;
+        },
+      ) => void
+    >
+  >,
 ) {
   const options = computed(() => {
     const result = unrefOrGet(optionsGetter)!;
@@ -180,10 +175,10 @@ export function useInput<
     transformedOptions: options,
   });
   const utils = {
-    transformValue(actionNow: InputPeriod, value: string) {
+    transformValue(actionNow: InputPeriod, value: string | number | null) {
       const { transform, transformWhen, toNullWhenEmpty = true } = options.value;
-      if (!transformWhen.has(actionNow)) return value as ValueType;
-      let newValue: ValueType | null = value as ValueType;
+      if (!transformWhen.has(actionNow)) return value;
+      let newValue = value;
       if (isFunction(transform)) newValue = transform(newValue);
       return !newValue && newValue !== 0 && toNullWhenEmpty ? null : newValue;
     },
@@ -240,24 +235,22 @@ export function useInput<
         }
       }
       if (updateWhen.has(actionNow) || value !== target.value) {
-        let transformedVal = utils.transformValue(actionNow, target.value);
+        let transformedVal = utils.transformValue(actionNow, type === 'number' ? target.valueAsNumber : target.value);
         transformedVal = extraHandlers?.transform ? extraHandlers.transform(transformedVal, e) : transformedVal;
-        onChange(
-          // type.startsWith('number') && transformedVal != null
-          // 	? (toNumberOrNull(transformedVal) as ValueType)
-          // 	: transformedVal
-          transformedVal,
-        );
+        if (type === 'number-string' && transformedVal != null && !isArray(transformedVal))
+          transformedVal = presets.math.toNumber(transformedVal);
+        onChange(transformedVal);
       }
     },
   };
 
   const { numberHandlers, ...otherNum } = useNumberStep(
-    options as ComputedRef<TransformedUseInputOption<UseInputOptions<'number', number>>>,
+    options as ComputedRef<TransformedUseInputOption<UseInputOptions>>,
   );
 
   const handlers = {
-    onBeforeinput(e: InputEvent) {
+    onBeforeinput(_e: Event) {
+      const e = _e as InputEvent;
       const target = e.target as HTMLInputElement;
       console.log('before input', e.data, e);
       console.log({
@@ -270,7 +263,7 @@ export function useInput<
 
       // native number: 粘贴内容如果包含原来就输不进去的内容，那么就取消粘贴，但是空白字符除外，空白字符都会被消除。发现native奇怪的问题，双击空格，会输入小数点
       let { restrict, restrictWhen } = options.value;
-      handleNumberBeforeInput(e, options.value as TransformedUseInputOption<UseInputOptions<'number', number>>);
+      handleNumberBeforeInput(e, options.value as TransformedUseInputOption<UseInputOptions>);
       if (e.defaultPrevented) return;
       if (e.data && restrict && restrictWhen.has('beforeInput') && e.inputType.startsWith('insert')) {
         const nextVal =
@@ -319,16 +312,16 @@ export function useInput<
       }
       numberHandlers.onKeydown(e);
     },
-  } as Record<Handlers, (e: Event) => void>;
+  };
   if (extraHandlers) {
     Object.keys(handlers).forEach((_k) => {
-      const k = _k as Handlers;
+      const k = _k as keyof typeof handlers;
       if (k in extraHandlers && isFunction(extraHandlers[k])) {
         const original = handlers[k];
-        handlers[k] = (e: any) => {
+        handlers[k] = ((e: any) => {
           original(e);
           extraHandlers[k]!(e, state, utils);
-        };
+        }) as any;
       }
     });
   }
