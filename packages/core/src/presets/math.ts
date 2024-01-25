@@ -1,15 +1,21 @@
 import { greaterThan, isNumber, isPlainNumber, lessThan, numbersEqual } from '@lun/utils';
 
 export type MathMethods<T = number> = {
+  // ----------------- do not correct type -----------------
   isNumber(target: unknown): target is T;
   isNaN(target: unknown): boolean;
   isZero(target: unknown): boolean;
+  isFinite(target: unknown): boolean;
+  isInteger(target: unknown): boolean;
+  // ----------------- do not correct type -----------------
   toNumber(target: unknown): T;
+  toPrecision(target: T, precision: number): T;
   getZero(): T;
   getNaN(): T;
   getPositiveInfinity(): T;
   getNegativeInfinity(): T;
-  isFinite(target: unknown): boolean;
+
+  // below can correct type
   plus(target: T, delta: T): T;
   minus(target: T, delta: T): T;
   multiply(target: T, delta: T): T;
@@ -20,14 +26,13 @@ export type MathMethods<T = number> = {
   equals(left: T, right: T): boolean;
   greaterThan(left: T, right: T): boolean;
   lessThan(left: T, right: T): boolean;
-  toPrecision(target: T, precision: number): T;
 
   // optional
   greaterThanOrEqual?: (left: T, right: T) => boolean;
   lessThanOrEqual?: (left: T, right: T) => boolean;
   ensureNumber?: (target: unknown, defaultVal: T) => T;
   toNumberOrNull?: (target: unknown) => T | null;
-  toNegative(target: T): T;
+  toNegative?: (target: T) => T;
 };
 
 export function createMath<T = number>(methods: MathMethods<T>) {
@@ -45,6 +50,11 @@ export function createMath<T = number>(methods: MathMethods<T>) {
       const result = toNumber(target);
       return isNaN(result) ? null : result;
     };
+  if (!methods.toNegative)
+    methods.toNegative = (target) => {
+      if (methods.isZero(target)) return target;
+      return methods.minus(methods.getZero(), target);
+    };
   return methods as Required<MathMethods<T>>;
 }
 
@@ -59,6 +69,7 @@ export const createDefaultMath = () =>
     getPositiveInfinity: () => Number.POSITIVE_INFINITY,
     getNegativeInfinity: () => Number.NEGATIVE_INFINITY,
     isFinite: Number.isFinite,
+    isInteger: Number.isInteger,
     plus: (target, delta) => target + delta,
     minus: (target, delta) => target - delta,
     multiply: (target, delta) => target * delta,
