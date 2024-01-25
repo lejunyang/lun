@@ -111,6 +111,7 @@ export const GlobalStaticConfig = new Proxy(
         clearWhenDepChange: undefined, // need to be undefined, cause used in virtualGetMerge
         disableWhenDepFalsy: undefined,
         requireWhenDepTruthy: undefined,
+        validateWhen: ['blur', 'depChange'],
       },
       icon: {
         library: 'default' as const,

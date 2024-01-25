@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit } from '@lun/core';
+import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemProps } from './type';
 import { useNamespace, useSetupContextEvent } from 'hooks';
@@ -191,19 +191,19 @@ export const FormItem = defineSSRCustomElement({
     });
 
     const validateProps = computed(() => {
-      // transform min, max, lessThan, greaterThan, len, step, precision from props, if they are number, return it, if it's string, consider it as a path, try to get it from formContext, judge if the value is number, return if true, otherwise return undefined
       const { min, max, lessThan, greaterThan, len, step, precision, type, required, label, pattern } = props.value;
+      const transformType = isNumberInputType(type) ? 'number' : null;
       // TODO type === 'date'
       return {
         type,
         required: (runIfFn(required, formContext) ?? localRequired.value) || false,
-        min: transform(min),
-        max: transform(max),
-        lessThan: transform(lessThan),
-        greaterThan: transform(greaterThan),
-        len: transform(len),
-        step: transform(step),
-        precision: transform(precision),
+        min: transform(min, transformType),
+        max: transform(max, transformType),
+        lessThan: transform(lessThan, transformType),
+        greaterThan: transform(greaterThan, transformType),
+        len: transform(len, transformType),
+        step: transform(step, transformType),
+        precision: transform(precision, transformType),
         pattern,
         label,
       };
@@ -234,20 +234,30 @@ export const FormItem = defineSSRCustomElement({
       },
     });
 
-    const transform = (val: any, type = 'number') => {
-      if (typeof val === type) return val;
+    /**
+     * transform prop like min, max, lessThan, greaterThan, len, step, precision.
+     * If it's number, return it;
+     * if it's string, consider it as a path of other field, try to get it from formContext, check if the value is number, return if true, otherwise return undefined
+     */
+    const transform = (val: any, type?: string | null) => {
+      if (!type || typeof val === type) return val;
       if (!isPlainString(val)) return;
-      const value = getValue(path.value);
+      const valueOfOtherField = getValue(val);
       switch (type) {
         case 'number':
-          const { isNaN, toNumber } = GlobalStaticConfig.math;
-          const numValue = toNumber(value);
-          return isNaN(numValue) ? undefined : numValue;
+          const { isNaN, toNumber, isNumber } = GlobalStaticConfig.math;
+          const numVal = toNumber(val);
+          return isNaN(numVal) ? (isNumber(valueOfOtherField) ? valueOfOtherField : undefined) : numVal;
       }
     };
 
     const depInfo = computed(() => {
-      const { deps } = props.value;
+      // get deps from formItem' props, not the merged props, because I found a dead loop case
+      // In doc form validation code case, we set a object literal itemProps to form, and we use JSON.stringify to render formData and formError.
+      // As long as we update a field, the form will rerender and itemProps will be recreated, and then props.value updates, depInfo updates, depChange validation is triggered
+      // get new validation error, and then dead loop
+      // So ignore deps from form, as it is commonly defined in formItem itself
+      const { deps } = itemProps;
       const temp = toArrayIfTruthy(deps);
       let allFalsy = !!temp.length,
         someFalsy = false;

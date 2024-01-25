@@ -33,7 +33,7 @@ export const formProps = {
   validators: PropObject<FormValidators>(),
   /**
    * determine the validate early stop strategy.
-   * If it's 'first', then stop validating when first error occurs;
+   * if it's 'first', then stop validating when first error occurs;
    * 'form-item' is similar to 'first', but it will finish all validators of the same form-item
    */
   stopValidate: PropString<'first' | 'form-item'>(),
@@ -46,6 +46,10 @@ export const formProps = {
   cols: PropNumber(),
   // TODO responsive props for above four
 
+  /**
+   * set common props for children form-items.
+   * note that 'deps' prop will be ignored, as it's commonly set on form-item itself
+   */
   itemProps: PropObjOrFunc<
     | Partial<FormItemSetupProps>
     | ((params: {
@@ -63,9 +67,9 @@ export type FormSetupProps = ExtractPropTypes<typeof formProps>;
 export type FormEvents = GetEventPropsFromEmits<typeof formEmits>;
 export type FormProps = Omit<Partial<FormSetupProps>, 'itemProps'> & {
   itemProps?:
-    | Partial<FormItemSetupProps>
+    | Partial<Omit<FormItemSetupProps, 'deps'>>
     | ((params: {
         formContext: CollectorContext<FormSetupProps, FormItemSetupProps, FormProvideExtra> | undefined;
         formItemProps: FormItemSetupProps;
-      }) => Partial<FormItemSetupProps>);
+      }) => Partial<Omit<FormItemSetupProps, 'deps'>>);
 } & FormEvents;

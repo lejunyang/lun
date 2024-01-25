@@ -2,6 +2,7 @@ import { isString, toRegExp } from '@lun/utils';
 import { GlobalStaticConfig } from '../config';
 import { Rule, ValidateMessages } from './type';
 import { intl, processStringWithParams } from 'common';
+import { isNumberInputType } from '@lun/core';
 
 export const innerValidator = (value: any, _data: any, rule: Rule, msgs: ValidateMessages) => {
   const { type, min, max, greaterThan, lessThan, required, pattern, len } = rule;
@@ -48,7 +49,7 @@ export const innerValidator = (value: any, _data: any, rule: Rule, msgs: Validat
     isNaN,
     isNumber,
   } = GlobalStaticConfig.math;
-  if (type === 'number' || type === 'number-string') {
+  if (isNumberInputType(type)) {
     if (type === 'number' && !isNumber(value))
       return processStringWithParams(msgs.type, rule) || intl('validation.number.type', rule).d('Must be a number');
     else if (type === 'number-string' && isNaN((value = toNumber(value))))
