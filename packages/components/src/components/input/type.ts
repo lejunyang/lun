@@ -13,6 +13,7 @@ import {
   themeProps,
 } from 'common';
 import { TagProps } from '../tag/type';
+import { Constructor } from '@lun/utils';
 
 export const baseInputProps = {
   ...editStateProps,
@@ -30,7 +31,7 @@ export const baseInputProps = {
   restrict: PropString(RegExp),
   restrictWhen: PropStrOrArr<InputPeriod | 'beforeInput' | (InputPeriod | 'beforeInput')[]>(),
   toNullWhenEmpty: PropBoolean(),
-  transform: PropFunction<(value: string | null) => any>(),
+  transform: PropFunction<(value: any) => any>(),
   transformWhen: PropStrOrArr<InputPeriod | InputPeriod[]>(),
   emitEnterDownWhenComposing: PropBoolean(),
 };
@@ -41,13 +42,13 @@ export type BaseInputProps = Partial<BaseInputSetupProps>;
 export const inputProps = {
   ...baseInputProps,
   ...themeProps,
-  value: PropStrOrArr(),
+  value: PropStrOrArr(Number as any as Constructor<number | number[]>),
   multiple: PropBoolean(),
   /** determines whether to allow duplicate tags when it's multiple input */
   unique: PropBoolean(),
   wrapTags: PropBoolean(),
   tagProps: PropObjOrFunc<((value: any, index: number) => TagProps) | TagProps>(),
-  tagRenderer: PropFunction<(value: string, index: number) => any>(),
+  tagRenderer: PropFunction<(value: string | number, index: number) => any>(),
   tagRendererType: PropString(),
   /** separator used to split current input string when it's multiple input */
   separator: PropString(RegExp),
@@ -74,8 +75,8 @@ export const inputEmits = {
   update: null,
   /** only for multiple input, emit when value of inner input updates */
   tagsComposing: null,
-  tagsAdd: (_addedTags: string[]) => null,
-  tagsRemove: (_removedTags: string[]) => null,
+  tagsAdd: (_addedTags: string[] | number[]) => null,
+  tagsRemove: (_removedTags: string[] | number[]) => null,
   enterDown: null,
 };
 

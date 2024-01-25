@@ -197,6 +197,13 @@ declare module 'vue' {
   }
 }
 
+// custom element doesn't inherit vue app's context
+const warnHandler = (msg: string, _: any, trace: string) => {
+  // ignore injection not found warning
+  if (msg.includes('injection') && msg.includes('not found')) return;
+  console.warn(msg, msg.includes('Extraneous non-props') ? '\n' + trace : undefined);
+};
+
 export class VueElement extends BaseClass {
   /**
    * @internal
@@ -413,6 +420,7 @@ export class VueElement extends BaseClass {
         instance.event = createPlainEvent(); // add Event Manager
         // HMR
         if (__DEV__) {
+          instance.appContext.config.warnHandler = warnHandler;
           instance.ceReload = (newStyles) => {
             // always reset styles
             if (this._styles) {

@@ -9,11 +9,17 @@ export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T
   }) as T;
 };
 
+/**
+ * cache the result of function, cache depends on the length of arguments
+ * @param fn 
+ * @returns 
+ */
 export const cacheFunctionResult = <T extends (...args: any[]) => any>(fn: T) => {
-  let cache: ReturnType<T>;
+  const cache: ReturnType<T>[] = [];
   return ((...args: Parameters<T>): ReturnType<T> => {
-    if (cache != null) return cache;
-    else return (cache = fn(...args));
+    const hit = cache[args.length];
+    if (hit != null) return hit;
+    else return (cache[args.length] = fn(...args));
   }) as T;
 };
 
