@@ -75,6 +75,13 @@ export type UseInputState<T> = {
 
 function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseInputOptions>) {
   const { type, min, max, noExponent, precision, step, strictStep, replaceChPeriodMark } = state.transformedOptions;
+
+  if (e.data === '' && state.prevValue !== null && e.inputType === 'insertCompositionText') {
+    // one special case. during composition, if we input something invalid and then delete all the composition text, e.data will be ''
+    // but we have stored the prevValue, and that will prevent next input, so we need to clear it in this case
+    state.prevValue = state.prevSelectionStart = null;
+  }
+
   if (!e.data || (type !== 'number' && type !== 'number-string')) return;
   const target = e.target as HTMLInputElement;
 
@@ -93,42 +100,56 @@ function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseInputOpt
   const { isInteger, getZero, equals, greaterThanOrEqual, lessThanOrEqual } = presets.math;
   const zero = getZero();
   const noDecimal = (precision !== null && equals(precision, zero)) || (strictStep && step && isInteger(step));
-  const noNegativeSymbol = greaterThanOrEqual(min, zero) && (noExponent || noDecimal); // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
+  const noNegative = greaterThanOrEqual(min, zero);
+  const noNegativeSymbol = noNegative && (noExponent || noDecimal); // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
   let allowedChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
     lessThanOrEqual(max, 0) ? '' : '+'
   }${noDecimal ? '' : '.'}`;
   if (e.data && e.data.match(new RegExp(`[^\\s0-9${allowedChars}]`))) {
     cancel();
-    console.log('noDecimal', noDecimal, precision);
     console.log('prevented! allowedChars', allowedChars, e.defaultPrevented, state.prevValue);
     return;
   }
-  // below codes rely on selectionStart and selectionEnd. The input element's type ('number') does not support selectionStart and selectionEnd.
+  // below codes rely on selectionStart and selectionEnd. Input element of type=number does not support selectionStart and selectionEnd.
   if (target?.selectionStart == null) return;
   const selectionStart = target.selectionStart || 0,
     selectionEnd = target.selectionEnd || 0;
   const { value } = target;
-  let nextVal = value.substring(0, selectionStart) + e.data + target.value.substring(selectionEnd);
+  let nextVal = value.substring(0, selectionStart) + e.data + value.substring(selectionEnd);
   nextVal = nextVal.replace(/\s/g, ''); // eliminate all spaces
   console.log('nextVal', nextVal);
   const firstChar = nextVal.charAt(0);
   const isNegative = firstChar === '-',
     isPositive = firstChar === '+';
-  // remove the first symbol
-  if (isNegative || isPositive) nextVal = nextVal.substring(1);
-  // [-+]?[0-9]*.?([eE])?
-  const splitsByDot = nextVal.split('.');
+  if (isNegative && noNegative) cancel();
+  if (isNegative || isPositive)
+    // remove the first symbol
+    nextVal = nextVal.substring(1);
+  // [-+]?[0-9]*.?[eE]?[-+]?[0-9]* // TODO use this?
+  // first split by '.' and '。‘ if replaceChPeriodMark
+  const splitsByDot = nextVal.split(new RegExp(`[${replaceChPeriodMark ? '。' : ''}.]`));
+  const splitsByDotLen = splitsByDot.length;
+  // if splitsByDotLen = 1, it's an integer with a scientific notation part
+  // if splitsByDotLen = 2, splitsByDot[0] is the integer part, splitsByDot[1] is the decimal part with a scientific notation part
   console.log('splitsByDot', splitsByDot);
-  // more than two dot symbols, prevent;or if length = 2, index=0 is integer part, check if any useless symbols exist in the integer part
-  if (splitsByDot.length > 2 || (splitsByDot.length === 2 && splitsByDot[0].match(/[-+eE]/))) return cancel();
-  const rightPart = splitsByDot[splitsByDot.length - 1];
+  // length > 2, more than two dot symbols, prevent;
+  // length = 1, no dot symbol, check if any +- symbols exist before eE;
+  // length = 2, index = 0 is the integer part, check if any useless symbols exist in the integer part
+  if (
+    splitsByDotLen > 2 ||
+    (splitsByDotLen === 1 && splitsByDot[0].match(/(?<![eE])[-+]/)) ||
+    (splitsByDotLen === 2 && splitsByDot[0].match(/[-+eE]/))
+  )
+    return cancel();
+  const rightPart = splitsByDot[splitsByDotLen - 1];
   const splitsByE = rightPart.split(/[eE]/);
+  const splitsByELen = splitsByE.length;
   console.log('splitsByE', splitsByE);
-  if (splitsByE.length > (noExponent ? 1 : 2)) return cancel();
-  // if noExponent is true, '-+' can not exist in the decimal part
-  if (splitsByE.length === 1 && splitsByE[0].match(/[-+]/)) return cancel();
+  if (splitsByELen > (noExponent ? 1 : 2)) return cancel();
+  // '-+' can not exist in the decimal part
+  if (splitsByE[0].match(/[-+]/)) return cancel();
   // if exponent, '-' is allowed only when noDecimal is false
-  if (splitsByE.length === 2 && splitsByE[1] && !splitsByE[1].match(new RegExp(`[${noDecimal ? '' : '-'}+]?\\d+`)))
+  if (splitsByELen === 2 && splitsByE[1] && !splitsByE[1].match(new RegExp(`^[${noDecimal ? '' : '-'}+]?\\d*$`)))
     return cancel();
 }
 
