@@ -21,7 +21,7 @@ export function processNumOptions<
 }
 
 export function useNumberStep(
-  options: ComputedRef<TransformedUseInputOption<UseInputOptions<'number' | 'number-string', number>>>,
+  options: ComputedRef<TransformedUseInputOption<UseInputOptions>>,
 ) {
   const getValue = (isNext: boolean) => {
     const { plus, multiply, divide, lessThan, greaterThan, isNaN, getZero, toNegative, floor, toNumber } = presets.math;

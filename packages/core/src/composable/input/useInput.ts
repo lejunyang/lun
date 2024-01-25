@@ -68,32 +68,41 @@ export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & Tr
 export type UseInputState<T> = {
   composing: boolean;
   transformedOptions: TransformedUseInputOption<T>;
+  prevValue: string | null;
+  prevSelectionStart: number | null;
+  prevSelectionEnd: number | null;
 };
 
-function handleNumberBeforeInput(
-  e: InputEvent,
-  {
-    type,
-    min,
-    max,
-    noExponent,
-    precision,
-    step,
-    strictStep,
-    replaceChPeriodMark,
-  }: TransformedUseInputOption<UseInputOptions>,
-) {
+function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseInputOptions>) {
+  const { type, min, max, noExponent, precision, step, strictStep, replaceChPeriodMark } = state.transformedOptions;
   if (!e.data || (type !== 'number' && type !== 'number-string')) return;
-  const noDecimal = precision === 0 || (strictStep && step && Number.isInteger(step));
-  const noNegativeSymbol = min >= 0 && noExponent; // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
-  let allowChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
-    max <= 0 ? '' : '+'
-  }${noDecimal ? '' : '.'}`;
-  if (e.data && e.data.match(new RegExp(`[^\\s0-9${allowChars}]`))) {
-    console.log('prevented', allowChars);
-    return e.preventDefault();
-  }
   const target = e.target as HTMLInputElement;
+
+  const cancel = () => {
+    if (e.cancelable) e.preventDefault();
+    else if (type === 'number-string' && state.prevValue === null) {
+      // if not cancelable(like composition), store value and selectionStart, selectionEnd so that we can restore them later update
+      // need to do this when state.prevValue is null, as beforeInput will trigger twice, one is before input, one is before composition end
+      state.prevValue = target.value;
+      state.prevSelectionStart = target.selectionStart;
+      state.prevSelectionEnd = target.selectionEnd;
+      console.log('update preValue', state.prevValue, e);
+    }
+  };
+
+  const { isInteger, getZero, equals, greaterThanOrEqual, lessThanOrEqual } = presets.math;
+  const zero = getZero();
+  const noDecimal = (precision !== null && equals(precision, zero)) || (strictStep && step && isInteger(step));
+  const noNegativeSymbol = greaterThanOrEqual(min, zero) && (noExponent || noDecimal); // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
+  let allowedChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
+    lessThanOrEqual(max, 0) ? '' : '+'
+  }${noDecimal ? '' : '.'}`;
+  if (e.data && e.data.match(new RegExp(`[^\\s0-9${allowedChars}]`))) {
+    cancel();
+    console.log('noDecimal', noDecimal, precision);
+    console.log('prevented! allowedChars', allowedChars, e.defaultPrevented, state.prevValue);
+    return;
+  }
   // below codes rely on selectionStart and selectionEnd. The input element's type ('number') does not support selectionStart and selectionEnd.
   if (target?.selectionStart == null) return;
   const selectionStart = target.selectionStart || 0,
@@ -110,17 +119,17 @@ function handleNumberBeforeInput(
   // [-+]?[0-9]*.?([eE])?
   const splitsByDot = nextVal.split('.');
   console.log('splitsByDot', splitsByDot);
-  // more than two dot symbols; if length = 2, index=0 is integer part, check if any useless symbols exist in the integer part
-  if (splitsByDot.length > 2 || (splitsByDot.length === 2 && splitsByDot[0].match(/[-+eE]/))) return e.preventDefault();
+  // more than two dot symbols, prevent;or if length = 2, index=0 is integer part, check if any useless symbols exist in the integer part
+  if (splitsByDot.length > 2 || (splitsByDot.length === 2 && splitsByDot[0].match(/[-+eE]/))) return cancel();
   const rightPart = splitsByDot[splitsByDot.length - 1];
   const splitsByE = rightPart.split(/[eE]/);
   console.log('splitsByE', splitsByE);
-  if (splitsByE.length > (noExponent ? 1 : 2)) return e.preventDefault();
+  if (splitsByE.length > (noExponent ? 1 : 2)) return cancel();
   // if noExponent is true, '-+' can not exist in the decimal part
-  if (splitsByE.length === 1 && splitsByE[0].match(/[-+]/)) return e.preventDefault();
+  if (splitsByE.length === 1 && splitsByE[0].match(/[-+]/)) return cancel();
   // if exponent, '-' is allowed only when noDecimal is false
   if (splitsByE.length === 2 && splitsByE[1] && !splitsByE[1].match(new RegExp(`[${noDecimal ? '' : '-'}+]?\\d+`)))
-    return e.preventDefault();
+    return cancel();
 }
 
 export function useInput(
@@ -173,20 +182,24 @@ export function useInput(
   const state = reactive({
     composing: false,
     transformedOptions: options,
+    prevValue: null,
+    prevSelectionStart: null,
+    prevSelectionEnd: null,
   });
   const utils = {
     transformValue(actionNow: InputPeriod, value: string | number | null) {
-      const { transform, transformWhen, toNullWhenEmpty = true } = options.value;
+      const { transform, transformWhen, toNullWhenEmpty, type } = options.value;
       if (!transformWhen.has(actionNow)) return value;
       let newValue = value;
       if (isFunction(transform)) newValue = transform(newValue);
-      return !newValue && newValue !== 0 && toNullWhenEmpty ? null : newValue;
+      // if type === 'number-string', force to null when empty
+      return !newValue && newValue !== 0 && (toNullWhenEmpty || type === 'number-string') ? null : newValue;
     },
     handleEvent(actionNow: InputPeriod, e: Event) {
       const {
         updateWhen,
         restrict,
-        replaceChPeriodMark = true,
+        replaceChPeriodMark,
         trim,
         maxLength,
         restrictWhen,
@@ -194,7 +207,8 @@ export function useInput(
         type = 'text',
       } = options.value;
       const target = e.target as HTMLInputElement;
-      let value = target.value;
+      let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
+      console.log('handle event', actionNow, 'prev', state.prevValue, 'target.value', target.value);
       if (restrictWhen.has(actionNow)) {
         if (type === 'number-string') {
           // native input[type="number"] will eliminate all spaces, we follow that
@@ -209,13 +223,18 @@ export function useInput(
           const end = +maxLength;
           if (end >= 0) value = value.substring(0, end);
         }
-        // only reassign when value is changed
-        // When type = number, value is a empty string when it's not a valid number, you can't assign target.value at this time otherwise the input will be cleared
+        // Only reassign when value has changed
+        // When type = number, value is an empty string when it's not a valid number, you can't assign target.value at that moment otherwise the input will be cleared
         // For example, you input '-', trigger input event, but value is '', if you set target.value = '', input will be cleared
         if (value !== target.value) {
           // const { selectionStart, selectionEnd } = target;
           target.value = value;
-          // value of input is changed during composition, current composition will be invalid, need to refocus the input to remove the composition
+          if (state.prevSelectionStart !== null) {
+            target.selectionStart = state.prevSelectionStart;
+            target.selectionEnd = state.prevSelectionEnd;
+          }
+          state.prevValue = state.prevSelectionStart = null;
+          // If value of input is changed during composition, current composition will be invalid, need to refocus the input to remove the composition
           // It's very hacky, don't use it for now
           // if (state.composing && actionNow === 'input') {
           //   target.blur();
@@ -231,14 +250,19 @@ export function useInput(
       if (actionNow === 'change' && trim) {
         const trimmed = target.value.trim();
         if (trimmed !== target.value) {
-          target.value = trimmed; // same as above, only reassign when value is changed
+          target.value = trimmed; // same as above, only reassign when value has changed
         }
       }
-      if (updateWhen.has(actionNow) || value !== target.value) {
+      if ((updateWhen.has(actionNow) || value !== target.value) && state.prevValue === null) {
         let transformedVal = utils.transformValue(actionNow, type === 'number' ? target.valueAsNumber : target.value);
         transformedVal = extraHandlers?.transform ? extraHandlers.transform(transformedVal, e) : transformedVal;
-        if (type === 'number-string' && transformedVal != null && !isArray(transformedVal))
-          transformedVal = presets.math.toNumber(transformedVal);
+        if (type === 'number-string' && transformedVal != null && !isArray(transformedVal)) {
+          if (presets.math.isNaN(presets.math.toNumber(transformedVal))) {
+            console.log('NaN transformedVal', transformedVal, target.value);
+            // if it's NaN, means it's something like 1e, don't call onChange until the value is valid
+            return;
+          }
+        }
         onChange(transformedVal);
       }
     },
@@ -250,6 +274,7 @@ export function useInput(
 
   const handlers = {
     onBeforeinput(_e: Event) {
+      // state.prevValue = null;
       const e = _e as InputEvent;
       const target = e.target as HTMLInputElement;
       console.log('before input', e.data, e);
@@ -263,7 +288,7 @@ export function useInput(
 
       // native number: 粘贴内容如果包含原来就输不进去的内容，那么就取消粘贴，但是空白字符除外，空白字符都会被消除。发现native奇怪的问题，双击空格，会输入小数点
       let { restrict, restrictWhen } = options.value;
-      handleNumberBeforeInput(e, options.value as TransformedUseInputOption<UseInputOptions>);
+      handleNumberBeforeInput(e, state);
       if (e.defaultPrevented) return;
       if (e.data && restrict && restrictWhen.has('beforeInput') && e.inputType.startsWith('insert')) {
         const nextVal =
@@ -273,14 +298,14 @@ export function useInput(
         console.log('before input nextVal', nextVal);
         const regex = toRegExp(restrict, 'g');
         if (nextVal.match(regex)) {
-          // found that if e.isComposing is true, e.preventDefault() will not work...
+          // found that if e.isComposing is true, e.preventDefault() will not work... it's not cancelable when composing
           e.preventDefault();
           // e.target.value = e.target.value; // reassign value can prevent input
         }
       }
     },
     onInput(e: Event) {
-      console.log('input');
+      console.log('input', e.cancelable);
       utils.handleEvent('input', e);
       // 发现一个问题，如果在input里面消除了composition的字符，后续的输入会不断触发compositionStart
       if (!state.composing) utils.handleEvent('not-composing', e);
