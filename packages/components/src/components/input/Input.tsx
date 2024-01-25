@@ -39,7 +39,7 @@ export const Input = defineSSRCustomFormElement({
             // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
             // and that will cause input composition issue when input is empty
             if (!props.multiple) return;
-            valueForMultiple.value = val || '';
+            valueForMultiple.value = val ? String(val) : '';
             emit('tagsComposing', val);
           },
           onEnterDown(e) {
@@ -54,7 +54,7 @@ export const Input = defineSSRCustomFormElement({
         };
       }),
     );
-    
+
     const clearValue = () => {
       if (props.multiple) {
         valueModel.value = [];
@@ -95,7 +95,7 @@ export const Input = defineSSRCustomFormElement({
       renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue });
 
     const lengthInfo = computed(() => {
-      const valueLength = props.multiple ? valueForMultiple.value.length : valueModel.value?.length;
+      const valueLength = props.multiple ? valueForMultiple.value.length : String(valueModel.value ?? '').length;
       // if no maxLength, show current char count as length info
       return +props.maxLength! >= 0 ? (valueLength || '0') + '/' + props.maxLength : valueLength;
     });

@@ -11,6 +11,7 @@ export const Radio = defineSSRCustomFormElement({
   name,
   props: radioProps,
   emits: radioEmits,
+  inheritAttrs: false,
   setup(props, { emit }) {
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();

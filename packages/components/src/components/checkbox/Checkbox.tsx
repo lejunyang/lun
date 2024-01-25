@@ -13,6 +13,7 @@ export const Checkbox = defineSSRCustomFormElement({
   name,
   props: checkboxProps,
   emits: checkboxEmits,
+  inheritAttrs: false,
   setup(props, { emit, expose }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
