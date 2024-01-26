@@ -1,5 +1,7 @@
 import { ensureNumber } from './number';
 
+// lodash
+
 export function debounce<T extends (...args: any[]) => any>(
 	func: T,
 	_wait?: number | string,
