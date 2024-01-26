@@ -29,6 +29,10 @@ lang: zh-CN
 
 <!-- @Code:typeNumber -->
 
+## 数字限制
+
+<!-- @Code:restrictNumber -->
+
 ## 不同变体
 
 <!-- @Code:differentVariants -->
