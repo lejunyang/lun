@@ -9,6 +9,7 @@ import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
 import { InputFocusOption, pickThemeProps } from 'common';
+import { GlobalStaticConfig } from 'config';
 
 const name = 'input';
 export const Input = defineSSRCustomFormElement({
@@ -85,6 +86,9 @@ export const Input = defineSSRCustomFormElement({
         },
         blur: () => inputRef.value?.blur(),
         ...numberMethods,
+        get valueAsNumber() {
+          return GlobalStaticConfig.math.toNumber(valueModel.value);
+        },
       },
       refLikesToGetters({ input: inputRef }),
     );
@@ -163,6 +167,7 @@ export const Input = defineSSRCustomFormElement({
           {...attrs}
           exportparts=""
           type={inputType}
+          inputmode={type === 'number-string' ? 'numeric' : undefined}
           ref={inputRef}
           part="inner-input"
           class={[ns.e('inner-input')]}

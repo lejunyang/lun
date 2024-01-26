@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { ValidateTrigger, formItemProps } from './type';
+import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch } from 'vue';
@@ -32,7 +32,8 @@ const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
   name,
   props: formItemProps,
-  setup(itemProps) {
+  emits: formItemEmits,
+  setup(itemProps, { emit }) {
     const formContext = FormItemCollector.child();
     const props = computed(() =>
       virtualGetMerge(
@@ -179,8 +180,9 @@ export const FormItem = defineSSRCustomElement({
     } = formContext;
 
     useSetupContextEvent({
-      update: () => {
+      update: (val) => {
         if (canValidate('update')) validate();
+        emit('update', val);
       },
     });
 
@@ -252,11 +254,11 @@ export const FormItem = defineSSRCustomElement({
     };
 
     const depInfo = computed(() => {
-      // get deps from formItem' props, not the merged props, because I found a dead loop case
-      // In doc form validation code case, we set a object literal itemProps to form, and we use JSON.stringify to render formData and formError.
-      // As long as we update a field, the form will rerender and itemProps will be recreated, and then props.value updates, depInfo updates, depChange validation is triggered
-      // get new validation error, and then dead loop
-      // So ignore deps from form, as it is commonly defined in formItem itself
+      // Get deps from the formItem' props, not the merged props, to avoid a dead loop case
+      // In the code case of doc form validation, we set an object literal itemProps to the form, and we use JSON.stringify to render formData and formError.
+      // Whenever we update a field, the form will rerender and itemProps will be recreated. Then props.value updates, depInfo updates, triggering depChange validation
+      // Receive a new validation error, rerender and enter a dead loop
+      // So ignore deps from the form, as it is commonly defined in formItem itself
       const { deps } = itemProps;
       const temp = toArrayIfTruthy(deps);
       let allFalsy = !!temp.length,
@@ -340,7 +342,7 @@ export const FormItem = defineSSRCustomElement({
             .catch(collect);
         }),
       );
-      !aborted && formContext.form.setError(path.value, errors);
+      !aborted && errors.length && formContext.form.setError(path.value, errors);
       return errors;
     };
 

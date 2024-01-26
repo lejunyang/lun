@@ -4,7 +4,7 @@
 @use '../../mixins/config' as *;
 
 :host {
-  display: inline-block;
+  display: inline-flex;
 }
 
 .hold-enter-active {

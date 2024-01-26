@@ -1,5 +1,6 @@
 import { PropType, ExtractPropTypes } from 'vue';
 import {
+  GetEventPropsFromEmits,
   LogicalPosition,
   PropBoolOrFunc,
   PropBoolOrStr,
@@ -106,15 +107,21 @@ export const formItemProps = {
   validateMessages: PropObject<ValidateMessages>(),
 };
 
-export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;
-export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> & {
-  elementProps?:
-    | object
-    | ((param: {
-        formContext: CollectorContext<FormProps, FormItemProps, FormProvideExtra> | undefined;
-        formItemProps: FormItemSetupProps;
-      }) => any);
+export const formItemEmits = {
+  update: (_val: any) => null,
 };
+
+export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;
+export type FormItemEvents = GetEventPropsFromEmits<typeof formItemEmits>;
+export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> &
+  FormItemEvents & {
+    elementProps?:
+      | object
+      | ((param: {
+          formContext: CollectorContext<FormProps, FormItemProps, FormProvideExtra> | undefined;
+          formItemProps: FormItemSetupProps;
+        }) => any);
+  };
 
 export type Rule = {
   type?: InputType;
@@ -131,4 +138,3 @@ export type Rule = {
 };
 
 export type RuleName = keyof Rule;
-
