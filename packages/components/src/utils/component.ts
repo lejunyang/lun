@@ -3,8 +3,10 @@ import { ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { exportParts } from '../common/exportParts';
-import { error } from './console';
+import { error, warn } from './console';
 import { getFirstOfIterable } from '@lun/utils';
+import { PropString } from 'common';
+import { useContextStyles } from 'hooks';
 
 export function getElementFirstName(comp: ComponentKey) {
   return getFirstOfIterable(GlobalStaticConfig.actualNameMap[comp]);
@@ -82,6 +84,16 @@ export function preprocessComponentOptions(options: ComponentOptions) {
         },
       },
     });
+    options.inheritAttrs ||= false;
+    options.props.innerStyle = PropString();
     options.props = setDefaultsForPropOptions(options.props, GlobalStaticConfig.defaultProps[compKey]);
+    const originalSetup = options.setup;
+    options.setup = (props: any, ctx: any) => {
+      const styleNodes = options.noShadow ? undefined : useContextStyles(compKey as ShadowComponentKey);
+      const setupResult = originalSetup?.(props, ctx);
+      return () => [styleNodes?.value, setupResult()];
+    };
+  } else if (__DEV__) {
+    warn(`Component "${compKey}" is not defined in GlobalStaticConfig`, options);
   }
 }
