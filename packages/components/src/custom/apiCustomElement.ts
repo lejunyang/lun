@@ -137,8 +137,10 @@ export function defineCustomElement(options: any, hydrate?: RootHydrateFunction)
   const Comp = defineComponent(options) as any;
   class VueCustomElement extends VueElement {
     static def = Comp;
+    _internals?: ElementInternals;
     constructor(initialProps?: Record<string, any>) {
       super(Comp, initialProps, hydrate);
+      if (this.attachInternals) this._internals = this.attachInternals();
     }
   }
 

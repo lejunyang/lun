@@ -9,6 +9,7 @@ export const radioProps = {
   label: PropString(),
   labelPosition: PropString<LogicalPosition>(),
   checked: PropBoolean(),
+  noIndicator: PropBoolean(),
 
   start: PropBoolean(),
   end: PropBoolean(),

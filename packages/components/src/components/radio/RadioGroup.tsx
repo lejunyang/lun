@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useOptions, useSetupContextEvent, useValueModel } from 'hooks';
@@ -6,7 +6,7 @@ import { RadioCollector } from '.';
 import { radioEmits, radioGroupProps } from './type';
 
 const name = 'radio-group';
-export const RadioGroup = defineSSRCustomFormElement({
+export const RadioGroup = defineSSRCustomElement({
   name,
   props: radioGroupProps,
   emits: radioEmits,
