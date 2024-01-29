@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { ComponentInternalInstance, computed, ref, toRef, mergeProps, nextTick } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
 import { selectEmits, selectProps } from './type';
@@ -23,7 +23,7 @@ import { defineButton } from '../button/Button';
 import { useActivateOption } from './useActivateOption';
 
 const name = 'select';
-export const Select = defineSSRCustomFormElement({
+export const Select = defineSSRCustomElement({
   name,
   props: selectProps,
   inheritAttrs: false,

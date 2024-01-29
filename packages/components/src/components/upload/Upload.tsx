@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useNamespace, useSetupContextEvent, useValueModel } from 'hooks';
@@ -8,7 +8,7 @@ import { ref } from 'vue';
 import { isInputSupportPicker } from '@lun/utils';
 
 const name = 'upload';
-export const Upload = defineSSRCustomFormElement({
+export const Upload = defineSSRCustomElement({
   name,
   props: uploadProps,
   emits: ['update'],

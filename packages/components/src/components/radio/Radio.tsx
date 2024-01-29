@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
@@ -7,7 +7,7 @@ import { RadioCollector } from '.';
 import { radioEmits, radioProps } from './type';
 
 const name = 'radio';
-export const Radio = defineSSRCustomFormElement({
+export const Radio = defineSSRCustomElement({
   name,
   props: radioProps,
   emits: radioEmits,
@@ -56,7 +56,7 @@ export const Radio = defineSSRCustomFormElement({
               onChange={handler.onChange}
               hidden
             />
-            <span class={ns.e('indicator')} part={ns.p('indicator')}></span>
+            {!props.noIndicator && <span class={ns.e('indicator')} part={ns.p('indicator')}></span>}
             {props.labelPosition === 'end' && labelPart}
           </label>
         </>

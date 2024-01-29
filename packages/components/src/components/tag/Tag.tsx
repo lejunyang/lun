@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -7,7 +7,7 @@ import { useCEExpose, useNamespace } from 'hooks';
 import { getTransitionProps } from 'common';
 
 const name = 'tag';
-export const Tag = defineSSRCustomFormElement({
+export const Tag = defineSSRCustomElement({
   name,
   props: tagProps,
   emits: tagEmits,

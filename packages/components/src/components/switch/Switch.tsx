@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
@@ -6,7 +6,7 @@ import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 
 const name = 'switch';
-export const Switch = defineSSRCustomFormElement({
+export const Switch = defineSSRCustomElement({
   name,
   props: switchProps,
   emits: switchEmits,

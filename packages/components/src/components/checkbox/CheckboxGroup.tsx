@@ -1,4 +1,4 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { useCheckbox, useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useCEExpose, useNamespace, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
@@ -8,7 +8,7 @@ import { toArrayIfNotNil } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
 
 const name = 'checkbox-group';
-export const CheckboxGroup = defineSSRCustomFormElement({
+export const CheckboxGroup = defineSSRCustomElement({
   name,
   props: checkboxGroupProps,
   emits: checkboxGroupEmits,

@@ -1,6 +1,6 @@
 import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useNamespace, usePropsFromFormItem, useSetupContextEvent, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
@@ -12,7 +12,7 @@ import { InputFocusOption, pickThemeProps } from 'common';
 import { GlobalStaticConfig } from 'config';
 
 const name = 'input';
-export const Input = defineSSRCustomFormElement({
+export const Input = defineSSRCustomElement({
   name,
   props: inputProps,
   inheritAttrs: false,

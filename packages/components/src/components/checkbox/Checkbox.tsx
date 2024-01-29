@@ -1,15 +1,15 @@
-import { defineSSRCustomFormElement } from 'custom';
+import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
 import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
-import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
 import { CheckboxCollector } from '.';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { isEnterDown } from '@lun/utils';
 
 const name = 'checkbox';
-export const Checkbox = defineSSRCustomFormElement({
+export const Checkbox = defineSSRCustomElement({
   name,
   props: checkboxProps,
   emits: checkboxEmits,
@@ -68,6 +68,12 @@ export const Checkbox = defineSSRCustomFormElement({
         }
       },
     };
+
+    useCEStates(() => ({
+      checked,
+      intermediate,
+      on: checked.value || intermediate.value,
+    }), editComputed);
 
     expose(refLikesToGetters({ disabled: () => editComputed.value.disabled }));
     return () => {
