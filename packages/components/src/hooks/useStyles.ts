@@ -1,25 +1,25 @@
-import { isFunction, isSupportCSSStyleSheet } from '@lun/utils';
+import { isFunction, isSupportCSSStyleSheet, toArrayIfNotNil } from '@lun/utils';
 import type { ShadowComponentKey } from 'config';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
-import { useShadowDom } from './shadowDom';
+import { onCEMount } from './shadowDom';
+import { error } from '../utils/console';
 
 export function useContextStyles(name: ShadowComponentKey) {
-  const vm = getCurrentInstance();
-  // TODO add __DEV__
-  if (!vm) {
+  const vm = getCurrentInstance()!;
+  if (__DEV__ && !vm) {
+    error('useContextStyles must be called inside setup()');
     return;
   }
   const dynamicStyles = useContextConfig('dynamicStyles');
-  const styles = dynamicStyles[name];
-  if (!Array.isArray(styles)) return;
+  const styles = toArrayIfNotNil(dynamicStyles[name]).concat(() => (vm.props.innerStyle as string) || '');
   const sheets: CSSStyleSheet[] = [];
   const textStyles: (() => string)[] = [];
-  const support = isSupportCSSStyleSheet();
+  const adopt = isSupportCSSStyleSheet() && GlobalStaticConfig.preferCSSStyleSheet;
   styles.forEach((s) => {
     if (!s) return;
     const css = !isFunction(s) ? () => String(s) : s;
-    if (support && GlobalStaticConfig.preferCSSStyleSheet) {
+    if (adopt) {
       const sheet = new CSSStyleSheet();
       watchEffect(() => {
         const result = css(vm);
@@ -30,8 +30,8 @@ export function useContextStyles(name: ShadowComponentKey) {
       textStyles.push(() => css(vm));
     }
   });
-  useShadowDom(({ shadowRoot }) => {
-    shadowRoot.adoptedStyleSheets = shadowRoot.adoptedStyleSheets.concat(sheets);
+  onCEMount(({ shadowRoot }) => {
+    if (sheets.length) shadowRoot.adoptedStyleSheets = shadowRoot.adoptedStyleSheets.concat(sheets);
   });
   return computed(() => textStyles.map((i) => h('style', { type: 'text/css' }, i())));
 }
