@@ -1,7 +1,7 @@
 import { cacheFunctionResult } from '../function';
 
 export const isSupportCSSStyleSheet = cacheFunctionResult(
-  () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document
+  () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document,
 );
 
 export const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -9,13 +9,13 @@ export const inBrowser = typeof window !== 'undefined' && typeof document !== 'u
 export const isSupportPopover = cacheFunctionResult(() => inBrowser && 'popover' in document.body);
 
 export const isSupportDialog = cacheFunctionResult(
-  () => typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype
+  () => typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype,
 );
 
 export const isSupportResizeObserver = cacheFunctionResult(() => typeof ResizeObserver === 'function');
 
 export const isInputSupportPicker = cacheFunctionResult(
-  () => typeof HTMLInputElement === 'function' && 'showPicker' in HTMLInputElement.prototype
+  () => typeof HTMLInputElement === 'function' && 'showPicker' in HTMLInputElement.prototype,
 );
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
@@ -37,3 +37,10 @@ export const isSupportFileSystem = cacheFunctionResult(() => {
   }
   return 'showOpenFilePicker' in self;
 });
+
+export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === 'function');
+
+export const isSupportCustomStateSet = cacheFunctionResult(
+  // @ts-ignore
+  () => isSupportElementInternals() && typeof CustomStateSet === 'function',
+);

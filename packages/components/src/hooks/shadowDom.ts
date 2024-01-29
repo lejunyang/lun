@@ -1,6 +1,7 @@
-import { isFunction, isHTMLElement } from '@lun/utils';
+import { useSetupEdit } from '@lun/core';
+import { isFunction, isHTMLElement, pick } from '@lun/utils';
 import { warn } from 'utils';
-import { getCurrentInstance, onMounted, shallowReactive } from 'vue';
+import { MaybeRef, getCurrentInstance, onBeforeUnmount, onMounted, shallowReactive, unref, watchEffect } from 'vue';
 
 export function onCEMount(CB?: (state: { rootChildNode: Node; shadowRoot: ShadowRoot; CE: HTMLElement }) => void) {
   const vm = getCurrentInstance();
@@ -54,4 +55,35 @@ export function useCEExpose(expose: Record<string | symbol, any>, extraDescripto
     Object.defineProperties(CE, Object.getOwnPropertyDescriptors(expose));
     if (extraDescriptors) Object.defineProperties(CE, extraDescriptors);
   });
+}
+
+/**
+ * update custom element's states automatically.
+ * this depends on the ElementInternals property '_internals'.
+ * if no CustomStateSet, expose states to dataset.
+ * @param states
+ */
+export function useCEStates(states: () => Record<string, MaybeRef>, editComputed?: ReturnType<typeof useSetupEdit>[0]) {
+  let stop: ReturnType<typeof watchEffect>;
+  onCEMount(({ CE }) => {
+    const stateSet = (CE as any)._internals?.states as Set<string>;
+    stop = watchEffect(() => {
+      const state = {
+        ...states(),
+        ...(editComputed?.value &&
+          pick(editComputed.value, ['disabled', 'editable', 'interactive', 'loading', 'readonly'])),
+      };
+      for (let [k, v] of Object.entries(state)) {
+        v = unref(v);
+        if (stateSet) {
+          if (v) stateSet.add('--' + k); // TODO for chromium, need to add '--' prefix
+          else stateSet.delete(k);
+        } else {
+          if (v) CE.dataset[k] = '';
+          else delete CE.dataset[k];
+        }
+      }
+    });
+  });
+  onBeforeUnmount(() => stop?.());
 }
