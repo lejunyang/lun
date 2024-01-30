@@ -27,7 +27,7 @@
     font-size: getFontSizeValue(1);
     line-height: getLineHeightValue(1);
     gap: calc(getSpaceValue(1) * 0.75);
-    border-radius: calc(#{getRadiusValue(1)} / 1,25);
+    border-radius: calc(#{getRadiusValue(1)} / 1.25);
     @include e(indicator, true) {
       $size: calc(#{getSpaceValue(4)} * 0.875);
       width: $size;

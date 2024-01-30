@@ -14,7 +14,7 @@
     }
 
     @include e(addon) {
-      &#{getIs(not-empty)} {
+      &#{getIsN(empty)} {
         background-color: getSemanticColor('surface');
         border: 1px solid getGrayColor(a7);
         background-clip: content-box;
