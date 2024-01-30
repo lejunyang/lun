@@ -3,7 +3,7 @@ import { useSetupEdit } from '@lun/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
-import { useNamespace } from 'hooks';
+import { useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce, isFunction, throttle } from '@lun/utils';
 
@@ -63,6 +63,8 @@ export const Button = defineSSRCustomElement({
       },
     };
 
+    const [stateClass] = useCEStates(() => ({ 'hold-on-show': holdOnShow }), ns, editComputed);
+
     return () => {
       const { iconName, iconLibrary, size } = props;
       const { interactive, loading } = editComputed.value;
@@ -77,7 +79,7 @@ export const Button = defineSSRCustomElement({
       return (
         <button
           {...buttonHandlers}
-          class={[...ns.s(editComputed)]}
+          class={stateClass.value}
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handleClick.value}

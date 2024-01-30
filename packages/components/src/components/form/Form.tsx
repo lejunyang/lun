@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { UseFormReturn, useForm, useSetupEdit } from '@lun/core';
 import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
-import { useCEExpose, useNamespace } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
 import { getCurrentInstance, onBeforeUnmount, watch } from 'vue';
 import { isObject, pick } from '@lun/utils';
@@ -57,16 +57,16 @@ export const Form = defineSSRCustomElement({
     });
 
     useCEExpose(form);
+    const [stateClass, states] = useCEStates(() => ({ grid: props.layout?.includes('grid') }), ns, editComputed);
     return () => {
       const { layout, cols, labelWidth } = props;
-      const isGrid = layout?.includes('grid');
       return (
         <form
-          class={[ns.s(editComputed), ns.is(`layout-grid`, isGrid)]}
+          class={stateClass}
           part={ns.p('root')}
           style={{
             display: layout,
-            gridTemplateColumns: isGrid
+            gridTemplateColumns: states.value.grid
               ? `repeat(${cols}, [label-start] ${labelWidth} [content-start] 1fr)`
               : undefined,
           }}

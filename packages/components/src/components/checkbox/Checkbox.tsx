@@ -13,7 +13,7 @@ export const Checkbox = defineSSRCustomElement({
   name,
   props: checkboxProps,
   emits: checkboxEmits,
-  inheritAttrs: false,
+  formAssociated: true,
   setup(props, { emit, expose }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
@@ -69,11 +69,15 @@ export const Checkbox = defineSSRCustomElement({
       },
     };
 
-    useCEStates(() => ({
-      checked,
-      intermediate,
-      on: checked.value || intermediate.value,
-    }), editComputed);
+    const [stateClass] = useCEStates(
+      () => ({
+        checked,
+        intermediate,
+        on: checked.value || intermediate.value,
+      }),
+      ns,
+      editComputed,
+    );
 
     expose(refLikesToGetters({ disabled: () => editComputed.value.disabled }));
     return () => {
@@ -87,15 +91,7 @@ export const Checkbox = defineSSRCustomElement({
       );
       return (
         <>
-          <label
-            part={ns.p('root')}
-            class={[
-              ns.s(editComputed),
-              ns.is('checked', isChecked),
-              ns.is('indeterminate', isIntermediate),
-              ns.is('on', isChecked || isIntermediate),
-            ]}
-          >
+          <label part={ns.p('root')} class={stateClass.value}>
             {props.labelPosition === 'start' && labelPart}
             <span
               part={ns.p('indicator')}
