@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
-import { useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector } from '../form';
 import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch } from 'vue';
 import { FormInputCollector } from '.';
@@ -91,12 +91,14 @@ export const FormItem = defineSSRCustomElement({
         newLine: tipType === 'newLine' && msgs.map((msg) => <div>{String(msg)}</div>),
       };
     });
+    const [stateClass, states] = useCEStates(() => ({
+      required: formContext ? validateProps.value.required : props.value.required,
+    }), ns, editComputed);
     const render = () => {
       let {
         colonMark,
         requiredMark,
         requiredMarkAlign,
-        required,
         colSpan,
         rowSpan,
         newLine,
@@ -109,15 +111,15 @@ export const FormItem = defineSSRCustomElement({
         labelAlign,
         noLabel,
       } = props.value;
-      const finalRequired = formContext ? validateProps.value.required : required;
+      const { required } = states.value;
       if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
-      const rMark = finalRequired && requiredMark && (
+      const rMark = required && requiredMark && (
         <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
           {requiredMark}
         </span>
       );
       return (
-        <div class={[ns.s(editComputed), ns.is('required', finalRequired)]} part={ns.p('root')}>
+        <div class={stateClass.value} part={ns.p('root')}>
           {!noLabel && (
             <span
               part={ns.p('label')}

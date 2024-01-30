@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { dialogEmits, dialogProps } from './type';
-import { useCEExpose, useNamespace, useOpenModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
@@ -74,15 +74,11 @@ export const Dialog = defineSSRCustomElement({
       closeDialog: methods.close,
       toggleDialog: methods.toggle,
     });
+
+    const [stateClass] = useCEStates(() => ({ 'no-top-layer': props.noTopLayer }), ns, editComputed);
     return () => {
       return (
-        <dialog
-          class={[ns.s(editComputed), ns.is('no-top-layer', props.noTopLayer)]}
-          part="root"
-          ref={dialogRef}
-          {...dialogHandlers}
-          style={{ width: props.width }}
-        >
+        <dialog class={stateClass.value} part="root" ref={dialogRef} {...dialogHandlers} style={{ width: props.width }}>
           <Transition {...getTransitionProps(props, 'mask')}>
             <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
           </Transition>
