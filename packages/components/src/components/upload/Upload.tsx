@@ -12,6 +12,7 @@ export const Upload = defineSSRCustomElement({
   name,
   props: uploadProps,
   emits: ['update'],
+  formAssociated: true,
   setup(props) {
     const ns = useNamespace(name);
     useSetupContextEvent();

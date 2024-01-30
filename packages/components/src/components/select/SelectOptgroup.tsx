@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { selectOptgroupProps } from './type';
-import { useNamespace } from 'hooks';
+import { useCEStates, useNamespace } from 'hooks';
 import { useSetupEdit } from '@lun/core';
 import { SelectCollector, SelectOptgroupContext } from '.';
 
@@ -14,9 +14,10 @@ export const SelectOptgroup = defineSSRCustomElement({
     const ns = useNamespace(name, { parent: selectContext?.parent });
     SelectOptgroupContext.provide();
     const [editComputed] = useSetupEdit();
+    const [stateClass] = useCEStates(() => null, ns, editComputed);
 
     return () => (
-      <div part="root" class={ns.s(editComputed)}>
+      <div part="root" class={stateClass.value}>
         <div class={ns.e('label')} part="label">
           <slot name="group-label">{props.label}</slot>
         </div>

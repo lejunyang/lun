@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
 import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { selectOptionProps } from './type';
 import { SelectCollector, SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
@@ -34,6 +34,7 @@ export const SelectOption = defineSSRCustomElement({
 
     const disabled = () => editComputed.value.disabled;
     expose(refLikesToGetters({ hidden, selected, disabled })); // expose it to Select
+    const [stateClass] = useCEStates(() => ({ selected, active, 'under-group': optgroup }), ns, editComputed);
 
     const handlers = {
       onClick() {
@@ -52,19 +53,7 @@ export const SelectOption = defineSSRCustomElement({
     return () => {
       const { content, contentType: type, contentPreferHtml: preferHtml } = props;
       return (
-        <label
-          part="root"
-          class={[
-            ns.s(editComputed),
-            ns.is({
-              selected: selected.value,
-              active: active.value,
-              'under-group': optgroup,
-            }),
-          ]}
-          hidden={hidden.value}
-          {...handlers}
-        >
+        <label part="root" class={stateClass.value} hidden={hidden.value} {...handlers}>
           <slot name="start"></slot>
           <span class={ns.e('label')} part="label">
             {content ? (

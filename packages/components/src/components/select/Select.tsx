@@ -13,6 +13,7 @@ import {
   CommonOption,
   getAllThemeValuesFromInstance,
   useCEExpose,
+  useCEStates,
   useNamespace,
   useOptions,
   useValueModel,
@@ -26,7 +27,7 @@ const name = 'select';
 export const Select = defineSSRCustomElement({
   name,
   props: selectProps,
-  inheritAttrs: false,
+  formAssociated: true,
   emits: selectEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
@@ -121,6 +122,7 @@ export const Select = defineSSRCustomElement({
         popover: popoverRef,
       }),
     );
+    const [stateClass] = useCEStates(() => null, ns, editComputed);
 
     const { render, loading, options, renderOptions, renderOption } = useOptions(
       props,
@@ -294,7 +296,7 @@ export const Select = defineSSRCustomElement({
             {
               ...themeProps.value,
               open: editComputed.value.editable ? undefined : false,
-              class: [ns.s(editComputed)],
+              class: stateClass.value,
               triggers: ['click', 'focus'],
               sync: 'width',
               showArrow: false,

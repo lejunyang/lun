@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
 import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 
@@ -10,6 +10,7 @@ export const Switch = defineSSRCustomElement({
   name,
   props: switchProps,
   emits: switchEmits,
+  formAssociated: true,
   setup(props) {
     const ns = useNamespace(name);
     useSetupContextEvent();
@@ -23,13 +24,15 @@ export const Switch = defineSSRCustomElement({
       },
     };
 
+    const [stateClass] = useCEStates(() => ({ checked: checkedModel.value }), ns, editComputed);
+
     return () => {
       const checked = checkedModel.value;
       const { spinProps, trueText, falseText } = props;
       const { readonly, disabled, loading } = editComputed.value;
       return (
         <>
-          <label part={ns.p('root')} class={[...ns.s(editComputed), ns.is('checked', checked)]}>
+          <label part={ns.p('root')} class={stateClass.value}>
             <input
               part={ns.p('input')}
               type="checkbox"
