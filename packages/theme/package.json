@@ -36,9 +36,9 @@
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",
     "cross-env": "^7.0.3",
-    "postcss-logical": "^7.0.0",
+    "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.5",
-    "vite-plugin-dts": "^3.6.4",
+    "vite-plugin-dts": "^3.7.2",
     "vitest": "^0.34.6"
   }
 }

@@ -16,37 +16,39 @@
     "@lun/core": "workspace:^",
     "@lun/theme": "workspace:^",
     "@lun/utils": "workspace:^",
-    "@vueuse/core": "^10.5.0",
-    "esbuild-wasm": "^0.19.8",
-    "monaco-editor": "^0.44.0",
+    "@vueuse/core": "^10.7.2",
+    "esbuild-wasm": "^0.20.0",
+    "monaco-editor": "^0.45.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vue": "^3.2.0"
+    "vue": "^3.4.15"
   },
   "devDependencies": {
     "@lun/babel-plugin-jsx": "workspace:^",
     "@types/dom-view-transitions": "^1.0.4",
-    "@types/node": "^20.6.0",
-    "@types/react": "^18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "@vitejs/plugin-vue": "^4.3.1",
-    "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@types/node": "^20.11.10",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitejs/plugin-vue-jsx": "^3.1.0",
+    "@vue/runtime-dom": "^3.4.15",
     "cross-env": "^7.0.3",
-    "happy-dom": "^12.9.1",
-    "postcss-logical": "^7.0.0",
+    "happy-dom": "^13.3.5",
+    "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.5",
-    "sass": "^1.66.1",
-    "typescript": "^5.2.0",
+    "sass": "^1.70.0",
+    "typescript": "^5.3.3",
     "v-lazy-show": "^0.2.4",
-    "vite": "^4.5.0",
-    "vite-plugin-dts": "^3.6.4",
-    "vitepress": "^1.0.0-rc.24",
-    "vitest": "^0.34.6",
-    "vue-tsc": "^1.8.5"
+    "vite": "^5.0.12",
+    "vite-plugin-dts": "^3.7.2",
+    "vitepress": "1.0.0-rc.40",
+    "vitest": "^1.2.2",
+    "vue-tsc": "^1.8.27"
   },
   "resolutions": {
     "@vueuse/core": "^10.5.0",
     "postcss": "^8.4.30",
-    "typescript": "^5.2.0"
+    "typescript": "^5.2.0",
+    "vue": "^3.4.15"
   }
 }
