@@ -13,24 +13,15 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "common": [
-        "src/common"
-      ],
-      "config": [
-        "src/components/config"
-      ],
-      "custom": [
-        "src/custom"
-      ],
-      "utils": [
-        "src/utils"
-      ],
-      "hooks": [
-        "src/hooks"
-      ],
+      "@/*": ["src/*"],
+      "common": ["src/common"],
+      "config": ["src/components/config"],
+      "custom": ["src/custom"],
+      "utils": ["src/utils"],
+      "hooks": ["src/hooks"],
+      // [vite:dts] Internal Error: Unable to determine semantic information for declaration
+      // add below to fix above ts build error, we have export {useForm} from '@lun/core' in index, see https://github.com/qmhc/vite-plugin-dts/issues/281
+      "@lun/core": ["./node_modules/@lun/core"]
     },
   }
 }
