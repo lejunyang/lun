@@ -7,7 +7,6 @@ import { isElement, isFunction, isSupportPopover, pick, runIfFn } from '@lun/uti
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset, ElementRects } from '@floating-ui/vue';
-import { topLayerOverTransforms } from './floating.top-layer-fix';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps } from 'common';
 
@@ -79,7 +78,7 @@ export const Popover = defineSSRCustomElement({
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
       return [
-        type.value === 'popover' && topLayerOverTransforms(),
+        // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         offset(() => {
           const arrowLen = arrowRef.value?.offsetWidth || 0;
           // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
@@ -176,7 +175,14 @@ export const Popover = defineSSRCustomElement({
       }),
     );
 
-    const contentSlot = computed(() => {
+    const getRootClass = (type: string) => [
+      props.variant === 'styleless' ? null : ns.t,
+      ns.is(type),
+      ns.is(`placement-${actualPlacement.value}`),
+      ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
+    ];
+
+    const getContent = () => {
       return (
         <>
           {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value} class={ns.e('arrow')}></div>}
@@ -185,16 +191,9 @@ export const Popover = defineSSRCustomElement({
           </slot>
         </>
       );
-    });
+    };
 
-    const getRootClass = (type: string) => [
-      props.variant === 'styleless' ? null : ns.t,
-      ns.is(type),
-      ns.is(`placement-${actualPlacement.value}`),
-      ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
-    ];
-
-    const fixed = computed(() => {
+    const getFixed = () => {
       const { value } = type;
       const result = (
         <div
@@ -205,27 +204,11 @@ export const Popover = defineSSRCustomElement({
           ref={fixedRef}
           class={getRootClass('fixed')}
         >
-          {contentSlot.value}
+          {getContent()}
         </div>
       );
       return value === 'teleport' ? <Teleport to={props.to || 'body'}>{result}</Teleport> : result;
-    });
-
-    const popover = computed(() => {
-      return (
-        <div
-          {...popContentHandlers}
-          v-show={isOpen.value}
-          style={finalFloatingStyles.value}
-          part={ns.p(['native', 'content'])}
-          popover="manual"
-          ref={popRef}
-          class={getRootClass('popover')}
-        >
-          {contentSlot.value}
-        </div>
-      );
-    });
+    };
 
     const transitionHandler = {
       onEnter() {
@@ -249,7 +232,21 @@ export const Popover = defineSSRCustomElement({
       return (
         <>
           <Transition {...getTransitionProps(props)} {...transitionHandler}>
-            {value === 'popover' ? popover.value : fixed.value}
+            {value === 'popover' ? (
+              <div
+                {...popContentHandlers}
+                v-show={isOpen.value}
+                style={finalFloatingStyles.value}
+                part={ns.p(['native', 'content'])}
+                popover="manual"
+                ref={popRef}
+                class={getRootClass('popover')}
+              >
+                {getContent()}
+              </div>
+            ) : (
+              getFixed()
+            )}
           </Transition>
           <slot {...targetHandlers} ref={slotRef}>
             {runIfFn(props.children, { isOpen: isOpen.value, isShow: isShow.value })}
