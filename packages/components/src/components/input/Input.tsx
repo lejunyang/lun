@@ -2,7 +2,7 @@ import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useNamespace, usePropsFromFormItem, useSetupContextEvent, useSlot, useValueModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSetupContextEvent, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -15,7 +15,7 @@ const name = 'input';
 export const Input = defineSSRCustomElement({
   name,
   props: inputProps,
-  inheritAttrs: false,
+  formAssociated: true,
   emits: inputEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
@@ -93,6 +93,19 @@ export const Input = defineSSRCustomElement({
       refLikesToGetters({ input: inputRef }),
     );
 
+    const [stateClass, states] = useCEStates(
+      () => ({
+        empty: isEmpty(valueModel.value) && !valueForMultiple.value,
+        multiple: props.multiple,
+        required: validateProps.value.required,
+        'with-prepend': !prependSlot.empty.value,
+        'with-append': !appendSlot.empty.value,
+        'with-renderer': !rendererSlot.empty.value,
+      }),
+      ns,
+      editComputed,
+    );
+
     const getClearIcon = () =>
       props.showClearIcon &&
       editComputed.value.editable &&
@@ -158,7 +171,7 @@ export const Input = defineSSRCustomElement({
       const inputType = type === 'number' ? type : 'text';
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
-      const empty = isEmpty(valueModel.value) && !valueForMultiple.value;
+      const { empty } = states.value;
       const hidePlaceholderForMultiple = multiple && !empty;
       const withPrepend = !prependSlot.empty.value;
       const withAppend = !appendSlot.empty.value;
@@ -184,16 +197,7 @@ export const Input = defineSSRCustomElement({
         <span
           part="root"
           class={[
-            ns.s(editComputed),
-            ns.isN('empty', empty),
-            ns.isN('editable', editable),
-            ns.is({
-              multiple,
-              required: validateProps.value.required,
-              'with-prepend': withPrepend,
-              'with-append': withAppend,
-              'with-renderer': !rendererSlot.empty.value,
-            }),
+            stateClass.value,
             ns.m(type),
           ]}
           onPointerdown={rootOnPointerDown}

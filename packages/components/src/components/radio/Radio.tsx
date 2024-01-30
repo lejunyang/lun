@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { RadioCollector } from '.';
 import { radioEmits, radioProps } from './type';
 
@@ -11,7 +11,7 @@ export const Radio = defineSSRCustomElement({
   name,
   props: radioProps,
   emits: radioEmits,
-  inheritAttrs: false,
+  formAssociated: true,
   setup(props, { emit }) {
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
@@ -27,6 +27,20 @@ export const Radio = defineSSRCustomElement({
         emit('update', props.value);
       },
     };
+
+    const [stateClass] = useCEStates(
+      () => {
+        const button = radioContext?.parent?.props.type === 'button';
+        return {
+          checked,
+          button,
+          start: button && (props.start || radioContext?.isStart),
+          end: button && (props.end || radioContext?.isEnd),
+        };
+      },
+      ns,
+      editComputed,
+    );
     return () => {
       const labelPart = (
         <span part={ns.p('label')} class={ns.e('label')}>
@@ -34,32 +48,19 @@ export const Radio = defineSSRCustomElement({
         </span>
       );
       return (
-        <>
-          <label
-            part={ns.p('root')}
-            class={[
-              ...ns.s(editComputed),
-              ns.is('checked', checked.value),
-              radioContext?.parent?.props.type === 'button' && [
-                ns.is('button'),
-                ns.is('start', props.start || radioContext?.isStart),
-                ns.is('end', props.end || radioContext?.isEnd),
-              ],
-            ]}
-          >
-            {props.labelPosition === 'start' && labelPart}
-            <input
-              type={name}
-              checked={checked.value}
-              value={props.value}
-              disabled={editComputed.value.disabled}
-              onChange={handler.onChange}
-              hidden
-            />
-            {!props.noIndicator && <span class={ns.e('indicator')} part={ns.p('indicator')}></span>}
-            {props.labelPosition === 'end' && labelPart}
-          </label>
-        </>
+        <label part={ns.p('root')} class={stateClass}>
+          {props.labelPosition === 'start' && labelPart}
+          <input
+            type={name}
+            checked={checked.value}
+            value={props.value}
+            disabled={editComputed.value.disabled}
+            onChange={handler.onChange}
+            hidden
+          />
+          {!props.noIndicator && <span class={ns.e('indicator')} part={ns.p('indicator')}></span>}
+          {props.labelPosition === 'end' && labelPart}
+        </label>
       );
     };
   },

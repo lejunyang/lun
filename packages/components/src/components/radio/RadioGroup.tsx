@@ -10,6 +10,7 @@ export const RadioGroup = defineSSRCustomElement({
   name,
   props: radioGroupProps,
   emits: radioEmits,
+  formAssociated: true,
   setup(props) {
     const valueModel = useValueModel(props);
     useSetupContextEvent({
