@@ -37,7 +37,7 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
   });
   return Object.assign(local, {
     reset,
-  }) as Ref<T> & { reset: (newVal?: any) => T; readonly changed: boolean; readonly changedOnce: boolean };
+  }) as any as Ref<T> & { reset: (newVal?: any) => T; readonly changed: boolean; readonly changedOnce: boolean };
 }
 
 /**

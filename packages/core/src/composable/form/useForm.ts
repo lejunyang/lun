@@ -42,7 +42,10 @@ export function useForm<
   const hooks = createFormHooks(options);
   const forms = new Set<ComponentInternalInstance>();
   const formItemVmToFormVmMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance>();
-  const nameToFormItemVmMap = ref(new Map<string | string[], ComponentInternalInstance>());
+  // need ts as, no idea why
+  const nameToFormItemVmMap = ref(new Map<string | string[], ComponentInternalInstance>()) as Ref<
+    Map<string | string[], ComponentInternalInstance>
+  >;
   const param = {
     options,
     formData,

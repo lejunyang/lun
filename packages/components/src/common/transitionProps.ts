@@ -1,4 +1,4 @@
-import { capitalize, pick } from '@lun/utils';
+import { capitalize } from '@lun/utils';
 import { PropString } from './propConstructor';
 
 const classes = [
