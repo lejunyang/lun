@@ -18,7 +18,7 @@
   @include declareVars((font-size, line-height));
 
   :is(&:hover, &:focus-within) {
-    @include is(not-empty) {
+    @include isN(empty) {
       @include is(with-clear, false) {
         // make clearIcon show when hover
         @include em(suffix, clear-icon) {
@@ -240,7 +240,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     .#{$B}:focus-within &,
-    .#{getIs(not-empty, $B, true)} & {
+    .#{getIsN(empty, $B, true)} & {
       color: fieldtext;
       z-index: 1;
       transform: scale(0.8);
@@ -279,7 +279,7 @@
     align-items: center;
     min-width: var(#{getVarName(('input', 'tag-container', 'min-width'))}, 140px);
     flex-wrap: wrap;
-    @include is(not-wrap) {
+    @include isN(wrap) {
       flex-wrap: nowrap;
     }
   }
@@ -331,7 +331,7 @@
     }
   }
 
-  $empty: getIs(not-empty, $B);
+  $empty: getIsN(empty, $B);
   $float: getIs(float-label);
 
   // ----------------- size -----------------

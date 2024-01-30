@@ -84,8 +84,7 @@
   @return $temp;
 }
 
-// withParent: false => selector will be under parent; true => selector will be connected after parent
-@mixin is($state, $withParent: true, $atRoot: false) {
+@mixin basicIs($state, $withParent: true, $atRoot: false, $isNot: false) {
   $selector: '';
   @if type-of($state) == 'list' {
     @each $s in $state {
@@ -93,6 +92,9 @@
     }
   } @else {
     $selector: '.' + config.$state-prefix + $state;
+  }
+  @if $isNot {
+    $selector: ':not(' + $selector + ')';
   }
   @if map.get(config.$with-where-map, 'is') {
     $selector: ':where(' + $selector + ')';
@@ -122,7 +124,20 @@
   }
 }
 
-@function getIs($state, $pre: '', $noWhere: false) {
+// withParent: false => selector will be under parent; true => selector will be connected after parent
+@mixin is($state, $withParent: true, $atRoot: false) {
+  @include basicIs($state, $withParent, false, false) {
+    @content;
+  }
+}
+
+@mixin isN($state, $withParent: true, $atRoot: false) {
+  @include basicIs($state, $withParent, false, true) {
+    @content;
+  }
+}
+
+@function basicGetIsN($state, $pre: '', $noWhere: false, $isNot: false) {
   $selector: '';
   @if type-of($state) == 'list' {
     @each $s in $state {
@@ -131,10 +146,21 @@
   } @else {
     $selector: '.' + config.$state-prefix + $state;
   }
+  @if $isNot {
+    $selector: ':not(' + $selector + ')';
+  }
   @if map.get(config.$with-where-map, 'is') and not $noWhere {
     $selector: ':where(' + $selector + ')';
   }
   @return #{$pre + $selector};
+}
+
+@function getIs($state, $pre: '', $noWhere: false) {
+  @return basicGetIsN($state, $pre, $noWhere, false);
+}
+
+@function getIsN($state, $pre: '', $noWhere: false) {
+  @return basicGetIsN($state, $pre, $noWhere, true);
 }
 
 @function blockInRoot($block: '') {
