@@ -1,6 +1,6 @@
 // inspired by element-plus
-import { EditState, withBreakpoints } from '@lun/core';
-import { ComponentInternalInstance, ComputedRef, computed, getCurrentInstance } from 'vue';
+import { withBreakpoints } from '@lun/core';
+import { ComponentInternalInstance, computed, getCurrentInstance, unref } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
 import { ThemeProps, themeProps } from 'common';
@@ -63,11 +63,11 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   } = (name: string | Record<string, any>, ...args: [boolean | undefined] | []) => {
     if (isString(name)) {
       const state = args.length >= 1 ? args[0]! : true;
-      return name && state ? `${GlobalStaticConfig.statePrefix}${name}` : '';
+      return name && unref(state) ? `${GlobalStaticConfig.statePrefix}${name}` : '';
     } else {
       let cls = '';
       for (const key in name) {
-        if (name[key]) cls += `${GlobalStaticConfig.statePrefix}${key} `;
+        if (unref(name[key])) cls += `${GlobalStaticConfig.statePrefix}${key} `;
       }
       return cls;
     }
@@ -109,11 +109,6 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const p = (part: string | string[]): string =>
     isArray(part) ? part.map(p).join(' ') : `${block ? block + '-' : ''}${part} ${part}`;
 
-  const stateClass = (editComputed: ComputedRef<EditState>) => {
-    const { disabled, readonly, loading } = editComputed.value;
-    return [...themeClass.value, is('disabled', disabled), is('readonly', readonly), is('loading', loading)];
-  };
-
   return {
     namespace,
     /** block */
@@ -153,8 +148,6 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     },
     /** used to generate html part value */
     p,
-    /** get editState class from editComputed, also return themeClass */
-    s: stateClass,
   };
 };
 

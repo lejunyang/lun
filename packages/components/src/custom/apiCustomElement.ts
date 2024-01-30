@@ -69,6 +69,7 @@ export function defineCustomElement<
   options: ComponentOptionsWithoutProps<Props, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
     noShadow?: boolean;
+    formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
@@ -94,6 +95,7 @@ export function defineCustomElement<
   options: ComponentOptionsWithArrayProps<PropNames, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
     noShadow?: boolean;
+    formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
@@ -119,6 +121,7 @@ export function defineCustomElement<
   options: ComponentOptionsWithObjectProps<PropsOptions, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
     noShadow?: boolean;
+    formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
@@ -137,6 +140,7 @@ export function defineCustomElement(options: any, hydrate?: RootHydrateFunction)
   const Comp = defineComponent(options) as any;
   class VueCustomElement extends VueElement {
     static def = Comp;
+    static formAssociated = !!Comp.formAssociated; // must set true if want to access _internals.form
     _internals?: ElementInternals;
     constructor(initialProps?: Record<string, any>) {
       super(Comp, initialProps, hydrate);
@@ -158,6 +162,7 @@ const BaseClass = (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) 
 type InnerComponentDef = ConcreteComponent & {
   styles?: Style[];
   noShadow?: boolean;
+  formAssociated?: boolean;
   customEventInit?: EventInitMap;
   onPropUpdate?: PropUpdateCallback;
   onCE?: CECallback;
