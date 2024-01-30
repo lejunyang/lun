@@ -37,7 +37,8 @@
       ],
       "@lun/core": ["../core/index.ts"],
       "@lun/theme": ["../theme/index.ts"],
-      "@lun/utils": ["../utils/index.ts"]
+      "@lun/utils": ["../utils/index.ts"],
+      "@vue/runtime-dom": ["../../node_modules/@vue/runtime-dom"]
     },
   }
 }

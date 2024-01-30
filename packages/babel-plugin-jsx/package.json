@@ -25,9 +25,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.23.6",
+    "@babel/core": "^7.23.9",
     "@babel/plugin-syntax-jsx": "^7.23.3",
-    "@babel/types": "^7.23.6",
+    "@babel/types": "^7.23.9",
     "@types/babel__core": "^7.20.5"
   }
 }
