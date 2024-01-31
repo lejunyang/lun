@@ -24,7 +24,6 @@ $contrast-color-map: (
 ) !default;
 $color-name: 'color' !default;
 $accent-name: 'accent' !default;
-$accent-color-name: #{$accent-name + '-color'} !default;
 $default-accent-color: 'indigo' !default;
 $gray-name: 'gray' !default;
 $gray-color-name: #{$gray-name + '-color'} !default;

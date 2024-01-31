@@ -6,7 +6,8 @@
 #{$theme-provider-el-name} {
   // default accent color
   $color: $default-accent-color;
-  &:not([#{$accent-color-name}]) {
+  // need where, or color="XXX" cannot override this
+  &:where(:not([#{$color-name}])) {
     @include generateThemeColor($color, true);
   }
   @include generateStatusColor();
