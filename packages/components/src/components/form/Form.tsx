@@ -57,16 +57,20 @@ export const Form = defineSSRCustomElement({
     });
 
     useCEExpose(form);
-    const [stateClass, states] = useCEStates(() => ({ grid: props.layout?.includes('grid') }), ns, editComputed);
+    const [stateClass, states] = useCEStates(
+      () => ({ 'layout-grid': props.layout?.includes('grid') }),
+      ns,
+      editComputed,
+    );
     return () => {
       const { layout, cols, labelWidth } = props;
       return (
         <form
-          class={stateClass}
+          class={stateClass.value}
           part={ns.p('root')}
           style={{
             display: layout,
-            gridTemplateColumns: states.value.grid
+            gridTemplateColumns: states.value['layout-grid']
               ? `repeat(${cols}, [label-start] ${labelWidth} [content-start] 1fr)`
               : undefined,
           }}
