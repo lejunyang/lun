@@ -4,6 +4,7 @@ import { warn } from 'utils';
 import {
   ComputedRef,
   MaybeRef,
+  camelize,
   computed,
   getCurrentInstance,
   onBeforeUnmount,
@@ -112,6 +113,7 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
           }
         }
         if (setAttr) {
+          k = camelize(k); // must, because dataset only accepts camelCase
           if (v) CE.dataset[k] = '';
           else delete CE.dataset[k];
         }
