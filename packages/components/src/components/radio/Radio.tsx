@@ -48,7 +48,7 @@ export const Radio = defineSSRCustomElement({
         </span>
       );
       return (
-        <label part={ns.p('root')} class={stateClass}>
+        <label part={ns.p('root')} class={stateClass.value}>
           {props.labelPosition === 'start' && labelPart}
           <input
             type={name}
