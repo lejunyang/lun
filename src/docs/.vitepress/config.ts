@@ -117,6 +117,8 @@ export default defineConfig({
     },
     define: {
       __DEV__: 'true',
+      __VUE_OPTIONS_API__: 'false',
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true',
     },
     optimizeDeps: {
       exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils'],

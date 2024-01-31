@@ -89,8 +89,9 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     options.props = setDefaultsForPropOptions(options.props, GlobalStaticConfig.defaultProps[compKey]);
     const originalSetup = options.setup;
     options.setup = (props: any, ctx: any) => {
-      const styleNodes = options.noShadow ? undefined : useContextStyles(compKey as ShadowComponentKey);
       const setupResult = originalSetup?.(props, ctx);
+      if (options.noShadow) return setupResult;
+      const styleNodes = useContextStyles(compKey as ShadowComponentKey);
       return () => [styleNodes?.value, setupResult()];
     };
   } else if (__DEV__) {
