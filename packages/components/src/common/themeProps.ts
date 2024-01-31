@@ -3,7 +3,7 @@ import { ExtractPropTypes, PropType } from 'vue';
 import { ShadowComponentKey } from '../components';
 import { pick } from '@lun/utils';
 
-export const themeColors = Object.freeze([
+export const themeColors = [
   'gray',
   'gold',
   'bronze',
@@ -30,7 +30,9 @@ export const themeColors = Object.freeze([
   'lime',
   'mint',
   'sky',
-] as const);
+] as const;
+
+export const grayColors = ['gray', 'mauve', 'slate', 'sage', 'olive', 'sand'] as const;
 
 export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline', 'classic'] as const);
 
@@ -43,12 +45,12 @@ export const themeProps = {
   appearance: { type: String as PropType<'light' | 'dark'> },
 };
 
-
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
 export type ThemeConfig = {
   [key in keyof ThemeProps]: ThemeProps[key] | Record<ShadowComponentKey | 'common', ThemeProps[key]>;
 };
 export type ThemeColors = (typeof themeColors)[number];
+export type GrayColors = (typeof grayColors)[number];
 export type ThemeVariants = (typeof themeVariants)[number];
 
 export const pickThemeProps = (props: ThemeProps) => pick(props, Object.keys(themeProps) as (keyof ThemeProps)[]);

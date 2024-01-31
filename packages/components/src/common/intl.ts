@@ -1,5 +1,5 @@
 import { isFunction, isObject } from '@lun/utils';
-import { GlobalStaticConfig } from '../components/config';
+import { GlobalContextConfig } from '../components/config';
 import { reactive } from 'vue';
 import { warn } from 'utils';
 
@@ -57,10 +57,10 @@ const wrapDefault = (strGetter?: string | ((param?: Record<string, any>) => stri
 };
 
 export const intl = (key: string, params?: Record<string, any>) => {
-  const map = locales[GlobalStaticConfig.lang];
+  const map = locales[GlobalContextConfig.lang];
   if (isObject(map)) return wrapDefault(map[key], params);
   else if (__DEV__) {
-    warn(`intl: can't find locale map for lang '${GlobalStaticConfig.lang}'`);
+    warn(`intl: can't find locale map for lang '${GlobalContextConfig.lang}'`);
   }
   return wrapDefault();
 };
