@@ -1,40 +1,49 @@
 <template>
-  <div class="code-wrapper" v-show="!devHide" ref="wrapperRef">
-    <div class="code-container" v-if="!initialized">
-      <!-- this is to preventing long time white screen before initialized -->
-      <slot></slot>
+  <ClientOnly>
+    <div class="code-wrapper" v-show="!devHide" ref="wrapperRef">
+      <div class="code-container" v-if="!initialized">
+        <!-- this is to preventing long time white screen before initialized -->
+        <slot></slot>
+      </div>
+      <div class="code-container" v-show="initialized" :style="{ opacity: loading ? 0.7 : 1 }">
+        <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
+      </div>
+      <div class="code-block-actions">
+        <svg
+          v-bind="commonSVGProps"
+          v-show="!isFullscreen && isSupported"
+          @click="toggle"
+          style="transform: scale(0.9)"
+        >
+          <title>Enter fullscreen</title>
+          <path
+            fill-rule="evenodd"
+            d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707m-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707"
+          />
+        </svg>
+        <svg v-bind="commonSVGProps" v-show="isFullscreen && isSupported" @click="toggle" style="transform: scale(0.9)">
+          <title>Exit fullscreen</title>
+          <path
+            d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5m5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5M0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5m10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0z"
+          />
+        </svg>
+        <svg v-bind="commonSVGProps" @click="resetCodes">
+          <title>Refresh</title>
+          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+          <path
+            d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"
+          />
+        </svg>
+        <svg v-bind="commonSVGProps" @click="showEditor = !showEditor">
+          <title>{{ showEditor ? 'Hide code' : 'Show code' }}</title>
+          <path
+            d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"
+          />
+        </svg>
+      </div>
+      <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
     </div>
-    <div class="code-container" v-show="initialized" :style="{ opacity: loading ? 0.7 : 1 }">
-      <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
-    </div>
-    <div class="code-block-actions">
-      <svg v-bind="commonSVGProps" v-show="!isFullscreen && isSupported" @click="toggle" style="transform: scale(0.9)">
-        <title>Enter fullscreen</title>
-        <path
-          fill-rule="evenodd"
-          d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707m-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707"
-        />
-      </svg>
-      <svg v-bind="commonSVGProps" v-show="isFullscreen && isSupported" @click="toggle" style="transform: scale(0.9)">
-        <title>Exit fullscreen</title>
-        <path
-          d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5m5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5M0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5m10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0z"
-        />
-      </svg>
-      <svg v-bind="commonSVGProps" @click="resetCodes">
-        <title>Refresh</title>
-        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
-      </svg>
-      <svg v-bind="commonSVGProps" @click="showEditor = !showEditor">
-        <title>{{ showEditor ? 'Hide code' : 'Show code' }}</title>
-        <path
-          d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"
-        />
-      </svg>
-    </div>
-    <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
-  </div>
+  </ClientOnly>
 </template>
 
 <script setup lang="tsx">

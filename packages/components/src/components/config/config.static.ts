@@ -8,7 +8,7 @@ import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registr
 import { ref } from 'vue';
 import { presets } from '@lun/core';
 
-export const noShadowComponents = Object.freeze(['custom-renderer', 'theme-provider'] as const);
+export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
 export const shadowComponents = Object.freeze([
   'button',
   'checkbox',
@@ -29,6 +29,7 @@ export const shadowComponents = Object.freeze([
   'spin',
   'switch',
   'tag',
+  'theme-provider',
   'tooltip',
   'upload',
 ] as const);

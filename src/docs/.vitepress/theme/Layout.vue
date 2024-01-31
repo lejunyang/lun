@@ -1,17 +1,15 @@
 <template>
-  <!-- no idea why wrapper Layout with l-theme-provider would cause Hydration mismatches and incorrect content rendering  -->
-  <!-- <l-theme-provider :appearance="isDark ? 'dark' : 'light'" root> -->
-  <component :is="inBrowser ? 'l-theme-provider' : 'div'" :appearance="isDark ? 'dark' : 'light'" root>
+  <l-theme-provider :appearance="isDark ? 'dark' : 'light'" root>
     <Layout>
       <template #nav-bar-content-after> </template>
     </Layout>
-  </component>
-  <!-- </l-theme-provider> -->
+  </l-theme-provider>
 </template>
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser } from 'vitepress';
 import { watchEffect, nextTick, provide } from 'vue';
+// import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
 
 const Layout = Theme.Layout;
 
@@ -42,7 +40,7 @@ const toggleAppearanceWithTransition = async () => {
         duration: 500,
         easing: 'ease-in-out',
         pseudoElement: '::view-transition-new(root)',
-      }
+      },
     );
   } else isDark.value = !isDark.value;
 };
