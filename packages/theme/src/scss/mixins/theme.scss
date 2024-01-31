@@ -178,12 +178,11 @@
   #{getAutofillColorName()}: getAccentColor(a3);
 }
 
-// generate styles for theme-provider or elements with color="xxx" accent-color="xxx"
+// generate styles for theme-provider or elements with color="xxx"
 @mixin generateThemeColor($color, $noSelector: false) {
   @if $noSelector {
     @include generateColorProperties($color);
   } @else {
-    [#{$accent-color-name + '=' + $color}],
     [#{$color-name + '=' + $color}] {
       @include generateColorProperties($color);
     }
