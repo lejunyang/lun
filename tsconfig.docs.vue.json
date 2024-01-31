@@ -12,5 +12,5 @@
       "data": ["./src/utils/data.ts"]
     }
   },
-  "include": ["src/docs/**/*.vue.tsx", "src/components/*.vue", "src/docs/**/*.vue", "src/utils/*.ts"]
+  "include": ["src/docs/**/*.vue.tsx", "src/components/*.vue", "src/docs/**/*.vue", "src/utils/*.ts", "src/docs/**/*.ts"]
 }

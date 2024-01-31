@@ -165,6 +165,7 @@ const { isFullscreen, toggle, isSupported } = useFullscreen(wrapperRef);
 }
 
 main .code-container {
+  overflow: auto;
   border: 1px solid var(--vp-c-divider);
   border-bottom: none;
   padding: 26px;

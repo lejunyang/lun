@@ -39,7 +39,12 @@ export default {
       layout: {
         menu: '布局组件',
         divider: 'Divider 分割线',
-      }
+      },
+    },
+    components: {
+      color: '主题色',
+      grayColor: '灰色',
+      appearance: '夜间模式',
     },
   },
   en: {
@@ -82,7 +87,12 @@ export default {
       layout: {
         menu: 'Layout',
         divider: 'Divider',
-      }
+      },
+    },
+    components: {
+      color: 'Theme color',
+      grayColor: 'Gray color',
+      appearance: 'Appearance',
     },
   },
 };
