@@ -67,6 +67,7 @@ export default {
       });
     })();
 
+    GlobalStaticConfig.reflectStateToAttr = 'always';
     if (typeof document !== 'undefined') console.log('GlobalStaticConfig', GlobalStaticConfig);
     defineAllComponents();
   }) as (typeof Theme)['enhanceApp'],

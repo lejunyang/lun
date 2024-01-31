@@ -66,7 +66,7 @@ lang: zh-CN
   z-index: 999;
   pointer-events: none;
 }
-.circle {
+.code-container .circle {
   width: 100px;
   height: 100px;
   border: solid 4px blue;

@@ -1,23 +1,30 @@
 <template>
-  <l-theme-provider :appearance="isDark ? 'dark' : 'light'" root>
+  <l-theme-provider :appearance="isDark ? 'dark' : 'light'" root v-bind="theme">
     <Layout>
-      <template #nav-bar-content-after> </template>
+      <template #nav-bar-content-after>
+        <ThemeConfigPanel :theme="theme" :lang="lang" />
+      </template>
     </Layout>
   </l-theme-provider>
 </template>
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser } from 'vitepress';
-import { watchEffect, nextTick, provide } from 'vue';
-// import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
+import { watchEffect, nextTick, provide, reactive } from 'vue';
+import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
+import { GlobalContextConfig } from '@lun/components';
 
 const Layout = Theme.Layout;
+
+const theme = reactive({
+  color: 'indigo',
+  grayColor: 'slate',
+})
 
 const { isDark, lang } = useData();
 
 const toggleAppearanceWithTransition = async () => {
-  // there are three switches for different screen size, find the current display one by its width
-  const switchButton = Array.from(document.querySelectorAll('.VPSwitchAppearance')).find((i) => i.clientWidth);
+  const switchButton = document.getElementById('switch-appearance');
   if (document.startViewTransition) {
     // https://akashhamirwasia.com/blog/full-page-theme-toggle-animation-with-view-transitions-api/
     await document.startViewTransition(async () => {
@@ -51,6 +58,7 @@ watchEffect(() => {
   if (inBrowser) {
     document.cookie = `nf_lang=${lang.value}; path=/`;
   }
+  GlobalContextConfig.lang = lang.value;
 });
 </script>
 
