@@ -1,5 +1,5 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { ThemeProps, themeProps } from 'common';
+import { GrayColors, PropString, ThemeProps, themeProps } from 'common';
 import { ShadowComponentKey } from '../config/config.static';
 
 export const themeProviderProps = {
@@ -10,11 +10,13 @@ export const themeProviderProps = {
     },
     {} as {
       // -? means remove optional
-      [key in keyof ThemeProps]-?: { type: PropType<ThemeProps[key] | Record<ShadowComponentKey | 'common', ThemeProps[key]>> };
-    }
+      [key in keyof ThemeProps]-?: {
+        type: PropType<ThemeProps[key] | Record<ShadowComponentKey | 'common', ThemeProps[key]>>;
+      };
+    },
   ),
-  grayColor: { type: String },
-  scale: { type: String },
+  grayColor: PropString<GrayColors>(),
+  scale: PropString(),
 };
 
 export type ThemeProviderSetupProps = ExtractPropTypes<typeof themeProviderProps>;

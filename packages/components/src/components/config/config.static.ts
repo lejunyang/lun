@@ -5,7 +5,6 @@ import {
   getInitialElementAnimationRegistry,
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
-import { ref } from 'vue';
 import { presets } from '@lun/core';
 
 export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
@@ -47,15 +46,12 @@ const styles = shadowComponents.reduce(
   { common: [] } as unknown as ComponentStyles,
 );
 
-const langRef = ref('zh-CN');
-
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
  * change it dynamically may not work
  */
 export const GlobalStaticConfig = new Proxy(
   {
-    lang: langRef.value,
     namespace: 'l',
     commonSeparator: '-',
     elementSeparator: '__',
@@ -205,7 +201,6 @@ export const GlobalStaticConfig = new Proxy(
   },
   {
     get(target, p, receiver) {
-      if (p === 'lang') return langRef.value;
       // deep get, or remove components key
       return Reflect.get(p in presets ? presets : target, p, receiver);
     },
@@ -215,7 +210,6 @@ export const GlobalStaticConfig = new Proxy(
         error(`Invalid static config was set on ${String(p)}`, 'old config:', target[p], 'new config:', newValue);
         return false;
       } else {
-        if (p === 'lang') langRef.value = newValue;
         return Reflect.set(p in presets ? presets : target, p, newValue, receiver);
       }
     },

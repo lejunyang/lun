@@ -8,6 +8,7 @@ export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
 export const GlobalContextConfig = reactive({
   namespace: 'l',
+  lang: 'zh-CN',
   iconRegistryMap,
   dynamicStyles: (() => {
     const original = shadowComponents.reduce((result, name) => {
