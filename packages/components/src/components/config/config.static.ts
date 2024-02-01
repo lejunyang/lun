@@ -17,7 +17,6 @@ export const shadowComponents = Object.freeze([
   'form',
   'form-item',
   'icon',
-  'base-input',
   'input',
   'popover',
   'radio',

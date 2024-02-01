@@ -3,6 +3,7 @@ import {
   PropBoolean,
   PropFunction,
   PropNumber,
+  PropObjOrBool,
   PropObjOrFunc,
   PropObject,
   PropStrOrArr,
@@ -10,9 +11,11 @@ import {
   createTransitionProps,
   themeProps,
 } from 'common';
-import { Placement } from '@floating-ui/vue';
+import type { Placement, ShiftOptions } from '@floating-ui/vue';
+import type { Derivable } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
+import { Constructor } from '@lun/utils';
 
 export const popoverProps = {
   ...createTransitionProps(),
@@ -35,6 +38,7 @@ export const popoverProps = {
   placement: PropString<Placement>(),
   offset: PropNumber(),
   showArrow: PropBoolean(),
+  shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
 
   /** used to make the pop content same width or height as the target element. */
   sync: PropString<'width' | 'height' | 'both'>(),

@@ -42,6 +42,7 @@
     "vue": "^3.2.0"
   },
   "devDependencies": {
+    "@floating-ui/core": "^1.6.0",
     "@vitejs/plugin-vue": "^4.6.2",
     "cross-env": "^7.0.3",
     "postcss-logical": "^7.0.1",

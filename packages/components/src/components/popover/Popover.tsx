@@ -6,7 +6,7 @@ import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, isSupportPopover, pick, runIfFn } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
-import { autoUpdate, useFloating, arrow, offset, ElementRects } from '@floating-ui/vue';
+import { autoUpdate, useFloating, arrow, offset, ElementRects, shift } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps } from 'common';
 
@@ -77,7 +77,9 @@ export const Popover = defineSSRCustomElement({
     const ceRef = computed(() => (isOpen.value ? activeTargetInExtra.value || virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
+      const { shift: pShift, showArrow } = props;
       return [
+        pShift && shift(pShift === true ? undefined : pShift),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         offset(() => {
           const arrowLen = arrowRef.value?.offsetWidth || 0;
@@ -86,7 +88,7 @@ export const Popover = defineSSRCustomElement({
           const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
           return floatingOffset + (+props.offset! || 0);
         }),
-        props.showArrow &&
+        showArrow &&
           arrow({
             element: arrowRef,
           }),
