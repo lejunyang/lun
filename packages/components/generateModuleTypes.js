@@ -13,13 +13,13 @@ const reactTypes = [];
 
 components.forEach((componentTag) => {
   const componentCamelName = camelize(capitalize(componentTag));
-  const compType = `import('./index').t${componentCamelName}`;
   const propType = `import('./index').${componentCamelName}Props`;
+  const vueCompType = `Vue.DefineComponent<${propType}>`;
   const vuePropType = `Vue.HTMLAttributes &  Vue.ReservedProps & ${propType}`;
   const reactPropType = `React.HTMLAttributes<HTMLElement> & ${propType}`;
-  vueCompTypes.push(`    L${componentCamelName}: ${compType};`);
+  vueCompTypes.push(`    L${componentCamelName}: ${vueCompType};`);
   vueJSXTypes.push(`      'l-${componentTag}': ${vuePropType};`);
-  htmlTypes.push(`    'l-${componentTag}': ${compType};`);
+  htmlTypes.push(`    'l-${componentTag}': import('./index').t${componentCamelName};`);
   reactTypes.push(`      'l-${componentTag}': ${reactPropType};`);
 });
 
