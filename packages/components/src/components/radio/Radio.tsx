@@ -5,6 +5,7 @@ import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { RadioCollector } from '.';
 import { radioEmits, radioProps } from './type';
+import { virtualGetMerge } from '@lun/utils';
 
 const name = 'radio';
 export const Radio = defineSSRCustomElement({
@@ -17,6 +18,8 @@ export const Radio = defineSSRCustomElement({
     const [editComputed] = useSetupEdit();
     const radioContext = RadioCollector.child();
     const ns = useNamespace(name, { parent: radioContext?.parent });
+    const mergedProps = virtualGetMerge(props, radioContext?.parent?.props);
+
     const checked = computed(() => {
       if (!radioContext?.parent) return props.checked;
       const { value } = radioContext.valueModel;
@@ -41,7 +44,9 @@ export const Radio = defineSSRCustomElement({
       ns,
       editComputed,
     );
+
     return () => {
+      const { labelPosition, noIndicator } = mergedProps;
       const labelPart = (
         <span part={ns.p('label')} class={ns.e('label')}>
           <slot>{props.label}</slot>
@@ -49,7 +54,7 @@ export const Radio = defineSSRCustomElement({
       );
       return (
         <label part={ns.p('root')} class={stateClass.value}>
-          {props.labelPosition === 'start' && labelPart}
+          {labelPosition === 'start' && labelPart}
           <input
             type={name}
             checked={checked.value}
@@ -58,8 +63,8 @@ export const Radio = defineSSRCustomElement({
             onChange={handler.onChange}
             hidden
           />
-          {!props.noIndicator && <span class={ns.e('indicator')} part={ns.p('indicator')}></span>}
-          {props.labelPosition === 'end' && labelPart}
+          {!noIndicator && <span class={ns.e('indicator')} part={ns.p('indicator')}></span>}
+          {labelPosition === 'end' && labelPart}
         </label>
       );
     };

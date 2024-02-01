@@ -28,6 +28,9 @@ export const radioGroupProps = {
   ...themeProps,
   value: {}, // TODO use valueProp or not?
   type: PropString<'radio' | 'button'>(),
+  
+  noIndicator: PropBoolean(),
+  labelPosition: PropString<LogicalPosition>(),
 };
 
 export const radioGroupEmits = {
