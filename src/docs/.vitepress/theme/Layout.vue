@@ -19,6 +19,8 @@ const Layout = Theme.Layout;
 const theme = reactive({
   color: 'indigo',
   grayColor: 'slate',
+  size: '2',
+  radius: 'medium',
 })
 
 const { isDark, lang } = useData();

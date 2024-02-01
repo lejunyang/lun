@@ -1,5 +1,5 @@
 <template>
-  <l-popover triggers="click" class="theme-popover">
+  <l-popover triggers="click" class="theme-popover" shift size="2">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="20"
@@ -30,6 +30,19 @@
       </l-radio-group>
       <strong>{{ locales[lang]?.components.appearance }}</strong>
       <VPSwitchAppearance id="switch-appearance" />
+      <strong>{{ locales[lang]?.components.size }}</strong>
+      <l-radio-group size="3" :value="theme.size" @update="theme.size = $event.detail">
+        <l-radio value="1" :label="locales[lang]?.components.small" />
+        <l-radio value="2" :label="locales[lang]?.components.medium" />
+        <l-radio value="3" :label="locales[lang]?.components.large" />
+      </l-radio-group>
+      <strong>{{ locales[lang]?.components.radius }}</strong>
+      <l-radio-group size="3" :value="theme.radius" @update="theme.radius = $event.detail" no-indicator style="row-gap: 0;">
+        <l-radio class="radius-radio" v-for="radius in radiuses" :value="radius" :key="radius">
+          <div class="wrapper"><div :class="`radius-image radius-${radius}`" :radius="radius"></div></div>
+          <div class="radius-text">{{ radius }}</div>
+        </l-radio>
+      </l-radio-group>
     </div>
   </l-popover>
 </template>
@@ -43,12 +56,22 @@ const props = defineProps<{
   theme?: {
     color: string;
     grayColor: string;
+    size: string;
+    radius: string;
   };
   lang?: string;
 }>();
+
+const radiuses = ['none', 'small', 'medium', 'large', 'full'];
 </script>
 
 <style lang="scss">
+l-theme-provider {
+  --outline-color: black;
+}
+l-theme-provider[appearance='dark'] {
+  --outline-color: white;
+}
 // hide vitepress's default appearance switcher
 .VPNavBarAppearance.appearance {
   display: none;
@@ -69,7 +92,9 @@ const props = defineProps<{
 }
 .theme-panel {
   width: 280px;
-  max-width: 100vh;
+  max-width: 100vw;
+  max-height: calc(100vh - 70px);
+  overflow: auto;
   padding: 5px 10px;
   display: flex;
   flex-direction: column;
@@ -88,14 +113,45 @@ const props = defineProps<{
     }
     // cannot use ',' for these three selectors, as it would all fail if one of them is not supported
     &[data-checked] .circle {
-      outline: 2px solid black;
+      outline: 2px solid var(--outline-color);
     }
     &:--checked .circle {
-      outline: 2px solid black;
+      outline: 2px solid var(--outline-color);
     }
     &:state(checked) .circle {
-      outline: 2px solid black;
+      outline: 2px solid var(--outline-color);
     }
+  }
+  .radius-radio {
+    &[data-checked] .wrapper {
+      outline: 2px solid var(--outline-color);
+    }
+    &:--checked .wrapper {
+      outline: 2px solid var(--outline-color);
+    }
+    &:state(checked) .wrapper {
+      outline: 2px solid var(--outline-color);
+    }
+    .wrapper {
+      outline: 1px solid var(---l-gray-7);
+      padding: 12px;
+    }
+  }
+  .radius-image {
+    width: 40px;
+    height: 40px;
+    background: var(--l-accent-3);
+    border-block-start: 2px solid var(--l-accent-a8);
+    border-inline-start: 2px solid var(--l-accent-a8);
+    border-start-start-radius: var(--l-radius-5);
+  }
+  .radius-text {
+    text-align: center;
+    font-size: 14px;
+    color: var(--l-gray-9);
+  }
+  .radius-full {
+    border-start-start-radius: 80%;
   }
 }
 .VPSocialLinks.VPNavBarSocialLinks {

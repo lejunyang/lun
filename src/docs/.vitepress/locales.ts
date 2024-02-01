@@ -2,6 +2,7 @@ export default {
   'zh-CN': {
     nav: {
       home: '主页',
+      guide: '指南',
       components: '组件',
     },
     sidebar: {
@@ -45,11 +46,17 @@ export default {
       color: '主题色',
       grayColor: '灰色',
       appearance: '夜间模式',
+      size: '组件大小',
+      small: '小(1)',
+      medium: '中(2)',
+      large: '大(3)',
+      radius: '组件圆角',
     },
   },
   en: {
     nav: {
       home: 'Home',
+      guide: 'Guide',
       components: 'Components',
     },
     sidebar: {
@@ -93,6 +100,11 @@ export default {
       color: 'Theme color',
       grayColor: 'Gray color',
       appearance: 'Appearance',
+      size: 'Size',
+      small: 'Small(1)',
+      medium: 'Medium(2)',
+      large: 'Large(3)',
+      radius: 'Radius',
     },
   },
 };
