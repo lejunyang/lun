@@ -76,7 +76,7 @@ $button-loading-opacity: 0.7 !default;
     #{getVarName((button, 'height'))}: getSpaceValue(6);
     border-radius: getRadiusValue(2);
     gap: getSpaceValue(1);
-    font-size: getFontSizeValue(1);
+    font-size: getFontSizeValue(2);
     line-height: getLineHeightValue(2);
     letter-spacing: getLetterSpacingValue(2);
     padding-inline: getSpaceValue(3);
