@@ -10,35 +10,49 @@
   #{$factor}: 0;
 
   @at-root {
-    [#{$radius-name}='none'] {
+    [#{$radius-name}='none'],
+    [data-#{$radius-name}='none'] {
       #{$factor}: 0;
       #{$full}: 0px;
       #{$thumb}: 0.5px;
     }
 
-    [#{$radius-name}='small'] {
+    [#{$radius-name}='small'],
+    [data-#{$radius-name}='small'] {
       #{$factor}: 0.75;
       #{$full}: 0px;
       #{$thumb}: 0.5px;
     }
 
     [#{$radius-name}='medium'],
+    [data-#{$radius-name}='medium'],
     &:not([#{$radius-name}]) {
       #{$factor}: 1;
       #{$full}: 0px;
       #{$thumb}: 9999px;
     }
 
-    [#{$radius-name}='large'] {
+    [#{$radius-name}='large'],
+    [data-#{$radius-name}='large'] {
       #{$factor}: 1.5;
       #{$full}: 0px;
       #{$thumb}: 9999px;
     }
 
-    [#{$radius-name}='full'] {
+    [#{$radius-name}='full'],
+    [data-#{$radius-name}='full'] {
       #{$factor}: 1.5;
       #{$full}: 9999px;
       #{$thumb}: 9999px;
+    }
+
+    // needs to be set on every element with a radius attribute, or it will just inherit the value from the theme-provider
+    [#{$radius-name}],
+    [data-#{$radius-name}] {
+      @for $i from 1 through length($radius-list) {
+        $size: nth($radius-list, $i);
+        #{getVarName(($radius-name, $i))}: calc(#{$size} * #{getScaleValue()} * var(#{$factor}));
+      }
     }
   }
 
