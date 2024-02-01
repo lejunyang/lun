@@ -25,9 +25,9 @@ export const getThemeValueFromInstance = (
   vm: ComponentInternalInstance | null | undefined,
   key: keyof ThemeProps,
 ): any => {
-  const result = vm?.props[key];
-  if (result) return result;
-  if (vmParentMap.get(vm!)) return getThemeValueFromInstance(vmParentMap.get(vm!), key);
+  const result = vm?.props[key],
+    parent = vmParentMap.get(vm!);
+  return result || (parent && getThemeValueFromInstance(parent, key));
 };
 export const getAllThemeValuesFromInstance = (vm: ComponentInternalInstance | null | undefined) => {
   return Object.keys(themeProps).reduce((result, k) => {
@@ -40,7 +40,7 @@ export const getAllThemeValuesFromInstance = (vm: ComponentInternalInstance | nu
 export const useNamespace = (block: string, other?: { parent?: ComponentInternalInstance | null }) => {
   const { parent } = other || {};
   const vm = getCurrentInstance();
-  vmParentMap.set(vm!, parent);
+  parent && vmParentMap.set(vm!, parent);
   const config = vm && useContextConfig();
   const namespace = computed(() => {
     return config?.namespace || GlobalStaticConfig.namespace;
