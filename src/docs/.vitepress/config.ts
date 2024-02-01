@@ -17,9 +17,16 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: locales[lang].nav.home, link: wrapLink('/', lang) },
+      { text: locales[lang].nav.guide, link: wrapLink('/guides/states/', lang) },
       { text: locales[lang].nav.components, link: wrapLink('/components/button/', lang) },
     ],
     sidebar: {
+      '/guides/': [
+        {
+          text: locales[lang].sidebar.states.menu,
+          link: wrapLink('/guides/states/', lang),
+        }
+      ],
       '/components/': [
         {
           text: locales[lang].sidebar.basic.menu,

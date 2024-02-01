@@ -41,6 +41,9 @@ export default {
         menu: '布局组件',
         divider: 'Divider 分割线',
       },
+      states: {
+        menu: 'CSS如何选中特定状态的组件',
+      },
     },
     components: {
       color: '主题色',
@@ -94,6 +97,9 @@ export default {
       layout: {
         menu: 'Layout',
         divider: 'Divider',
+      },
+      states: {
+        menu: 'Select component with specific state in CSS',
       },
     },
     components: {
