@@ -17,15 +17,19 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: locales[lang].nav.home, link: wrapLink('/', lang) },
-      { text: locales[lang].nav.guide, link: wrapLink('/guides/states/', lang) },
+      { text: locales[lang].nav.guide, link: wrapLink('/guides/styles/', lang) },
       { text: locales[lang].nav.components, link: wrapLink('/components/button/', lang) },
     ],
     sidebar: {
       '/guides/': [
         {
-          text: locales[lang].sidebar.states.menu,
+          text: locales[lang].sidebar.guides.styles,
+          link: wrapLink('/guides/styles/', lang),
+        },
+        {
+          text: locales[lang].sidebar.guides.states,
           link: wrapLink('/guides/states/', lang),
-        }
+        },
       ],
       '/components/': [
         {
@@ -69,7 +73,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
         {
           text: locales[lang].sidebar.feedback.menu,
           collapsed: false,
-          items: [{ text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) }],
+          items: [
+            { text: locales[lang].sidebar.feedback.callout, link: wrapLink('/components/callout/', lang) },
+            { text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) },
+          ],
         },
         {
           text: locales[lang].sidebar.layout.menu,

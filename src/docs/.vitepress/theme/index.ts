@@ -1,7 +1,13 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
-import { GlobalStaticConfig, defineAllComponents, importAllBasicStyles, registerCustomRenderer } from '@lun/components';
+import {
+  GlobalStaticConfig,
+  GlobalContextConfig,
+  defineAllComponents,
+  importAllBasicStyles,
+  registerCustomRenderer,
+} from '@lun/components';
 import '@lun/theme/scss/public/index.scss';
 import {
   importCommonStyle,
@@ -11,6 +17,7 @@ import {
   importSoftTheme,
   importSolidTheme,
 } from '@lun/theme';
+import { inBrowser } from 'vitepress';
 import Layout from './Layout.vue';
 import Code from '../../../components/Code.vue';
 import './style.css';
@@ -68,7 +75,11 @@ export default {
     })();
 
     GlobalStaticConfig.reflectStateToAttr = 'always';
-    if (typeof document !== 'undefined') console.log('GlobalStaticConfig', GlobalStaticConfig);
+    if (inBrowser) {
+      console.log('GlobalStaticConfig', GlobalStaticConfig);
+      console.log('GlobalContextConfig', GlobalContextConfig);
+      Object.assign(window, { GlobalStaticConfig, GlobalContextConfig });
+    }
     defineAllComponents();
   }) as (typeof Theme)['enhanceApp'],
 };

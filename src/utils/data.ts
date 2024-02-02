@@ -64,4 +64,5 @@ export const optionsGetter = async () => {
   return options;
 };
 
+export const sentence = 'The quick brown fox jumps over the lazy dog.';
 export const text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.`;

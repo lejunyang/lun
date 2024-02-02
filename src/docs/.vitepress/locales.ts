@@ -35,15 +35,17 @@ export default {
       },
       feedback: {
         menu: '消息反馈',
+        callout: 'Callout 提示框',
         spin: 'Spin 加载中',
       },
       layout: {
         menu: '布局组件',
         divider: 'Divider 分割线',
       },
-      states: {
-        menu: 'CSS如何选中特定状态的组件',
-      },
+      guides: {
+        styles: '自定义样式',
+        states: 'CSS如何选中特定状态的组件',
+      }
     },
     components: {
       color: '主题色',
@@ -92,15 +94,17 @@ export default {
       },
       feedback: {
         menu: 'Feedback',
+        callout: 'Callout',
         spin: 'Spin',
       },
       layout: {
         menu: 'Layout',
         divider: 'Divider',
       },
-      states: {
-        menu: 'Select component with specific state in CSS',
-      },
+      guides: {
+        styles: 'Custom styles',
+        states: 'Select element with specific state in CSS',
+      }
     },
     components: {
       color: 'Theme color',
