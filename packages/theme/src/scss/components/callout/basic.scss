@@ -1,0 +1,76 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(callout) {
+  display: flex;
+  @include declareVars((padding, border-radius));
+
+  @include e(content) {
+  }
+  @include e(message) {
+    @include declareVars(
+      (
+        font-size: message-font-size,
+        line-height: message-line-height,
+      )
+    );
+  }
+  @include e(description) {
+    @include declareVars(
+      (
+        font-size: description-font-size,
+        line-height: description-line-height,
+      )
+    );
+  }
+  @include e(remove-icon) {
+    cursor: pointer;
+    position: relative;
+    top: calc((getRVarValue(message-line-height) - getRVarValue(message-font-size)) / 2);
+    @include declareVars(
+      (
+        font-size: message-font-size,
+        line-height: message-line-height,
+      )
+    );
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        padding: getSpaceValue(2),
+        border-radius: getRadiusValue(3),
+        message-font-size: getFontSizeValue(2),
+        description-font-size: getFontSizeValue(1),
+        message-line-height: getLineHeightValue(2),
+        description-line-height: getLineHeightValue(1),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        padding: getSpaceValue(3),
+        border-radius: getRadiusValue(4),
+        message-font-size: getFontSizeValue(3),
+        description-font-size: getFontSizeValue(2),
+        message-line-height: getLineHeightValue(3),
+        description-line-height: getLineHeightValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        padding: getSpaceValue(4),
+        border-radius: getRadiusValue(5),
+        message-font-size: getFontSizeValue(4),
+        description-font-size: getFontSizeValue(3),
+        message-line-height: getLineHeightValue(4),
+        description-line-height: getLineHeightValue(3),
+      )
+    );
+  }
+}

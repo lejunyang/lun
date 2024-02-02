@@ -25,11 +25,18 @@ import { importSelectOptionBasicTheme } from './select-option/index.ts';
 import { importSelectOptgroupBasicTheme } from './select-optgroup/index.ts';
 import { importDividerBasicTheme } from './divider/index.ts';
 import { importCheckboxGroupBasicTheme } from './checkbox-group/index.ts';
+import {
+  importCalloutBasicTheme,
+  importCalloutOutlineTheme,
+  importCalloutSoftTheme,
+  importCalloutSurfaceTheme,
+} from './callout/index.ts';
 
 export * from './input/index.ts';
 
 export function importBasicTheme() {
   importButtonBasicTheme();
+  importCalloutBasicTheme();
   importCheckboxBasicTheme();
   importCheckboxGroupBasicTheme();
   importDialogBasicTheme();
@@ -48,11 +55,13 @@ export function importBasicTheme() {
 
 export function importOutlineTheme() {
   importButtonOutlineTheme();
+  importCalloutOutlineTheme();
   importTagOutlineTheme();
 }
 
 export function importSoftTheme() {
   importButtonSoftTheme();
+  importCalloutSoftTheme();
   importCheckboxSoftTheme();
   importInputSoftTheme();
   importTagSoftTheme();
@@ -65,6 +74,7 @@ export function importSolidTheme() {
 
 export function importSurfaceTheme() {
   importButtonSurfaceTheme();
+  importCalloutSurfaceTheme();
   importCheckboxSurfaceTheme();
   importInputSurfaceTheme();
   importSwitchSurfaceTheme();
