@@ -1,4 +1,5 @@
 import { defineButton, importButtonStyle } from './button';
+import { defineCallout } from './callout/Callout';
 import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
 import { defineDialog } from './dialog';
@@ -21,39 +22,44 @@ export function importAllBasicStyles() {
   importButtonStyle();
   importIconStyle();
   importPopoverStyle();
-  importSpinStyle()
+  importSpinStyle();
 }
 
 export function defineAllComponents() {
   if (typeof customElements === 'undefined') return;
+  // found that provide and inject are strongly rely on the dom order of the elements, as in defineCustomElement parent is searched by parentNode and instanceof
+  // In SSR, if elements are already in the document and the parent is defined after the child, it will not work
+  // So we need to define the providers first
+  defineThemeProvider();
+  defineForm();
+  defineFormItem();
   defineButton();
-  defineCheckbox();
+  defineCallout();
   defineCheckboxGroup();
+  defineCheckbox();
   defineCustomRenderer();
   defineDialog();
   defineDivider();
-  defineForm();
-  defineFormItem();
   defineIcon();
   defineInput();
   definePopover();
-  defineRadio();
   defineRadioGroup();
+  defineRadio();
   defineSelect();
-  defineSelectOption();
   defineSelectOptgroup();
+  defineSelectOption();
   defineSpin();
   defineSwitch();
   defineTag();
-  defineThemeProvider();
   defineTooltip();
   defineUpload();
 }
 
 export * from './animation';
 export * from './button';
-export * from './config';
+export * from './callout';
 export * from './checkbox';
+export * from './config';
 export * from './custom-renderer';
 export * from './dialog';
 export * from './divider';
