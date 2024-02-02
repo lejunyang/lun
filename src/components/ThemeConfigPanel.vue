@@ -23,7 +23,7 @@
         </l-radio>
       </l-radio-group>
       <strong>{{ locales[lang]?.components.grayColor }}</strong>
-      <l-radio-group size="3" :value="theme.grayColor" @update="theme.grayColor = $event.detail">
+      <l-radio-group size="3" :value="theme['gray-color']" @update="theme['gray-color'] = $event.detail">
         <l-radio v-for="color in grayColors" :key="color" :value="color" :color="color" no-indicator :title="color">
           <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
         </l-radio>
@@ -32,12 +32,24 @@
       <VPSwitchAppearance id="switch-appearance" />
       <strong>{{ locales[lang]?.components.size }}</strong>
       <l-radio-group size="3" :value="theme.size" @update="theme.size = $event.detail">
-        <l-radio value="1" :label="locales[lang]?.components.small" />
-        <l-radio value="2" :label="locales[lang]?.components.medium" />
-        <l-radio value="3" :label="locales[lang]?.components.large" />
+        <l-radio value="1"
+          ><span class="size-radio-label">{{ locales[lang]?.components.small }}</span></l-radio
+        >
+        <l-radio value="2"
+          ><span class="size-radio-label">{{ locales[lang]?.components.medium }}</span></l-radio
+        >
+        <l-radio value="3"
+          ><span class="size-radio-label">{{ locales[lang]?.components.large }}</span></l-radio
+        >
       </l-radio-group>
       <strong>{{ locales[lang]?.components.radius }}</strong>
-      <l-radio-group size="3" :value="theme.radius" @update="theme.radius = $event.detail" no-indicator style="row-gap: 0;">
+      <l-radio-group
+        size="3"
+        :value="theme.radius"
+        @update="theme.radius = $event.detail"
+        no-indicator
+        style="row-gap: 0"
+      >
         <l-radio class="radius-radio" v-for="radius in radiuses" :value="radius" :key="radius">
           <div class="wrapper"><div :class="`radius-image radius-${radius}`" :radius="radius"></div></div>
           <div class="radius-text">{{ radius }}</div>
@@ -55,7 +67,7 @@ import locales from '../docs/.vitepress/locales';
 const props = defineProps<{
   theme?: {
     color: string;
-    grayColor: string;
+    'gray-color': string;
     size: string;
     radius: string;
   };
@@ -121,6 +133,10 @@ l-theme-provider[appearance='dark'] {
     &:state(checked) .circle {
       outline: 2px solid var(--outline-color);
     }
+  }
+  .size-radio-label {
+    font-size: 14px;
+    color: var(--l-gray-12);
   }
   .radius-radio {
     &[data-checked] .wrapper {

@@ -18,7 +18,8 @@ const Layout = Theme.Layout;
 
 const theme = reactive({
   color: 'indigo',
-  grayColor: 'slate',
+  // grayColor: 'slate', // need to use kecab-case for SSR
+  'gray-color': 'slate',
   size: '2',
   radius: 'medium',
 })
