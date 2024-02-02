@@ -11,6 +11,8 @@
   align-items: center;
   cursor: pointer;
 
+  @include declareVars((gap, font-size));
+
   @include e(indicator) {
     display: inline-block;
     box-sizing: border-box;
@@ -99,6 +101,8 @@
     #{$size}: calc(#{getSpaceValue(4)} * 0.875);
     @include setVars(
       (
+        gap: getSpaceValue(1),
+        font-size: getFontSizeValue(2),
         button-border-radius: getRadiusValue(1),
         button-padding-inline: getSpaceValue(2),
         button-line-height: getLineHeightValue(1),
@@ -113,6 +117,8 @@
     #{$size}: getSpaceValue(4);
     @include setVars(
       (
+        gap: getSpaceValue(1),
+        font-size: getFontSizeValue(3),
         button-border-radius: getRadiusValue(2),
         button-padding-inline: getSpaceValue(3),
         button-line-height: getLineHeightValue(2),
@@ -127,6 +133,8 @@
     #{$size}: calc(#{getSpaceValue(4)} * 1.25);
     @include setVars(
       (
+        gap: getSpaceValue(1),
+        font-size: getFontSizeValue(4),
         button-border-radius: getRadiusValue(3),
         button-padding-inline: getSpaceValue(4),
         button-line-height: getLineHeightValue(3),
