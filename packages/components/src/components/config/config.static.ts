@@ -10,6 +10,7 @@ import { presets } from '@lun/core';
 export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
 export const shadowComponents = Object.freeze([
   'button',
+  'callout',
   'checkbox',
   'checkbox-group',
   'dialog',
@@ -84,6 +85,9 @@ export const GlobalStaticConfig = new Proxy(
         showLoading: true,
         iconPosition: 'start' as const,
         variant: 'surface',
+      },
+      callout: {
+        transition: 'scaleOut',
       },
       checkbox: {
         labelPosition: 'end' as const,
