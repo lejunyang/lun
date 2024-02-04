@@ -25,19 +25,21 @@ export const Callout = defineSSRCustomElement({
     };
 
     return () => {
-      const { iconName, iconLibrary, iconProps, message, description, removable } = props;
+      const { status, iconName, iconLibrary, iconProps, message, description, removable } = props;
+      const finalIconName = iconName || status;
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!removed.value && (
             <span class={ns.t} part={ns.p('root')}>
               <slot name="icon">
-                {iconName &&
+                {finalIconName &&
                   renderElement('icon', {
                     ...iconProps,
-                    name: iconName,
+                    name: finalIconName,
                     library: iconLibrary,
                     part: 'icon',
                     class: ns.e('icon'),
+                    'data-status': status,
                   })}
               </slot>
               <div class={ns.e('content')} part="content">
