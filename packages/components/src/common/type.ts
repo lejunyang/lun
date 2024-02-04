@@ -17,12 +17,15 @@ type GetCustomEvent<T extends EmitValidator | undefined | null> = T extends (...
 export type GetEventPropsFromEmits<T extends Emits> = T extends StringArrayEmits
   ? { [K in T[number] as `on${Capitalize<K>}`]?: (e: CustomEvent) => void }
   : T extends ObjectEmitsOptions
-  // @ts-ignore
-  ? { [K in keyof T as `on${Capitalize<K>}`]?: GetCustomEvent<T[K]> }
+  ? // @ts-ignore
+    { [K in keyof T as `on${Capitalize<K>}`]?: GetCustomEvent<T[K]> }
   : {};
 
-export const emitConstructor = <T extends any = undefined>() => (_: T) => true;
+export const emitConstructor =
+  <T extends any = undefined>() =>
+  (_: T) =>
+    true;
 
-export type Status = 'success' | 'warning' | 'error';
+export type Status = 'success' | 'warning' | 'error' | 'info';
 
 export type InputFocusOption = { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' };

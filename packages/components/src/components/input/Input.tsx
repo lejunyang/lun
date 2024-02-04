@@ -8,7 +8,7 @@ import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
-import { InputFocusOption, pickThemeProps } from 'common';
+import { InputFocusOption, isStatus, pickThemeProps } from 'common';
 import { GlobalStaticConfig } from 'config';
 
 const name = 'input';
@@ -160,8 +160,7 @@ export const Input = defineSSRCustomElement({
     const statusIcon = computed(() => {
       if (!props.showStatusIcon) return;
       const { value } = status;
-      if (value && ['success', 'error', 'warning'].includes(value))
-        return renderElement('icon', { name: value, class: [ns.em('suffix', `${value}-icon`)] });
+      if (isStatus(value)) return renderElement('icon', { name: value, class: [ns.em('suffix', `${value}-icon`)] });
     });
 
     return () => {

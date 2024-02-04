@@ -5,7 +5,7 @@
 
 @include b(callout) {
   display: flex;
-  @include declareVars((padding, border-radius));
+  @include declareVars((padding, border-radius, gap));
 
   @include e(content) {
   }
@@ -25,6 +25,13 @@
       )
     );
   }
+  @include e(icon) {
+    font-size: calc(getRVarValue(message-font-size) * 1.4);
+    flex-shrink: 0;
+    &[data-status] {
+      color: getAccentColor(9);
+    }
+  }
   @include e(remove-icon) {
     cursor: pointer;
     position: relative;
@@ -41,6 +48,7 @@
     @include setVars(
       (
         padding: getSpaceValue(2),
+        gap: getSpaceValue(1),
         border-radius: getRadiusValue(3),
         message-font-size: getFontSizeValue(2),
         description-font-size: getFontSizeValue(1),
@@ -53,6 +61,7 @@
     @include setVars(
       (
         padding: getSpaceValue(3),
+        gap: getSpaceValue(2),
         border-radius: getRadiusValue(4),
         message-font-size: getFontSizeValue(3),
         description-font-size: getFontSizeValue(2),
@@ -65,6 +74,7 @@
     @include setVars(
       (
         padding: getSpaceValue(4),
+        gap: getSpaceValue(3),
         border-radius: getRadiusValue(5),
         message-font-size: getFontSizeValue(4),
         description-font-size: getFontSizeValue(3),

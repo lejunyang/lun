@@ -1,4 +1,4 @@
-import { GetEventPropsFromEmits, PropBoolean, PropObject, PropString, createTransitionProps, themeProps } from "common";
+import { GetEventPropsFromEmits, PropBoolean, PropObject, PropString, Status, createTransitionProps, themeProps } from "common";
 import { ExtractPropTypes } from "vue";
 
 export const calloutProps = {
@@ -11,6 +11,7 @@ export const calloutProps = {
   iconProps: PropObject(),
   removable: PropBoolean(),
   removeIconProps: PropObject(),
+  status: PropString<Status>(),
 };
 
 export const calloutEmits = {
