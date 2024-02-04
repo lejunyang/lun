@@ -447,7 +447,7 @@ export class VueElement extends BaseClass {
           this.dispatchEvent(
             new CustomEvent(event, {
               ...this._def.customEventInit?.[event],
-              detail: args.length === 1 ? args[0] : args, // 如果只有一个参数则取出
+              detail: args.length === 1 ? args[0] : args, // if there is only one argument, take it out
             }),
           );
         };
