@@ -8,6 +8,7 @@ import { defineForm } from './form';
 import { defineFormItem } from './form-item';
 import { defineIcon, importIconStyle } from './icon';
 import { defineInput } from './input';
+import { defineMessage } from './message';
 import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptgroup } from './select';
@@ -15,7 +16,7 @@ import { defineSpin, importSpinStyle } from './spin';
 import { defineSwitch } from './switch';
 import { defineTag } from './tag';
 import { defineThemeProvider } from './theme-provider';
-import { defineTooltip } from './tooltip/Tooltip';
+import { defineTooltip } from './tooltip';
 import { defineUpload } from './upload';
 
 export function importAllBasicStyles() {
@@ -34,6 +35,7 @@ export function defineAllComponents() {
   defineForm();
   defineFormItem();
   defineButton();
+  defineMessage();
   defineCallout();
   defineCheckboxGroup();
   defineCheckbox();
@@ -67,6 +69,7 @@ export * from './form';
 export * from './form-item';
 export * from './icon';
 export * from './input';
+export * from './message';
 export * from './popover';
 export * from './radio';
 export * from './select';
