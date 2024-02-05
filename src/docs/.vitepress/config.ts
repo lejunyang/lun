@@ -66,6 +66,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.pop.dialog, link: wrapLink('/components/dialog/', lang) },
+            { text: locales[lang].sidebar.pop.message, link: wrapLink('/components/message/', lang) },
             { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/', lang) },
             { text: locales[lang].sidebar.pop.tooltip, link: wrapLink('/components/tooltip/', lang) },
           ],

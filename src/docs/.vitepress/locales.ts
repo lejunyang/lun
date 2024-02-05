@@ -30,11 +30,12 @@ export default {
       pop: {
         menu: '弹出组件',
         dialog: 'Dialog 弹窗',
+        message: 'Message 消息',
         popover: 'Popover 弹出',
         tooltip: 'Tooltip 提示',
       },
       feedback: {
-        menu: '消息反馈',
+        menu: '反馈展示',
         callout: 'Callout 提示框',
         spin: 'Spin 加载中',
       },
@@ -89,6 +90,7 @@ export default {
       pop: {
         menu: 'Pop',
         dialog: 'Dialog',
+        message: 'Message',
         popover: 'Popover',
         tooltip: 'Tooltip',
       },
