@@ -2,15 +2,24 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { messageEmits, messageProps } from './type';
-import { defineIcon } from '../icon/Icon';
-import { BaseTransitionProps, CSSProperties, Teleport, TransitionGroup, computed, reactive, ref } from 'vue';
+import {
+  BaseTransitionProps,
+  CSSProperties,
+  Teleport,
+  TransitionGroup,
+  computed,
+  reactive,
+  ref,
+  watchEffect,
+} from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
 import { Status, getTransitionProps } from 'common';
 import { isSupportPopover } from '@lun/utils';
 import { CalloutProps } from '../callout/type';
+import { defineCallout } from '../callout/Callout';
 
-const name = 'callout';
-export const MessageHolder = defineSSRCustomElement({
+const name = 'message';
+export const Message = defineSSRCustomElement({
   name,
   props: messageProps,
   emits: messageEmits,
@@ -29,17 +38,30 @@ export const MessageHolder = defineSSRCustomElement({
     const rootRef = ref<HTMLElement>();
     const calloutMap = reactive<Record<string | number, any>>({});
     const keyTimerMap = {} as Record<string | number, ReturnType<typeof setTimeout>>;
+    const showCount = ref(0);
+    const show = computed(() => showCount.value > 0);
 
     const rootProps = computed(() => {
       const { value } = type;
       const result = {
         popover: value === 'popover' ? ('manual' as const) : undefined,
-        styles: {
+        style: {
           position: value === 'fixed' ? 'fixed' : undefined,
         } as CSSProperties,
       };
       return result;
     });
+
+    watchEffect(() => {
+      const root = rootRef.value,
+        typeValue = type.value;
+      if (show.value && root) {
+        if (typeValue === 'popover') {
+          root.showPopover();
+        }
+      }
+    });
+
     const transitionHandlers = {
       onEnter() {},
       onAfterEnter() {},
@@ -59,11 +81,12 @@ export const MessageHolder = defineSSRCustomElement({
         }
       },
       onPointerleave() {
-        const config = calloutMap[key];
-        if (config.resetDurationOnHover) {
+        const { resetDurationOnHover, duration } = calloutMap[key];
+        if (resetDurationOnHover && duration !== null) {
           keyTimerMap[key] = setTimeout(() => {
             delete calloutMap[key];
-          }, config.duration);
+            showCount.value--;
+          }, duration);
         }
       },
     });
@@ -79,12 +102,19 @@ export const MessageHolder = defineSSRCustomElement({
       ) {
         config = { status: config?.type, ...config };
         const key = (config.key ||= Date.now());
-        const duration = (config.duration ||= 3000);
-        if (calloutMap[key]) calloutMap[key] = { ...calloutMap[key], ...config };
-        else calloutMap[key] = config;
-        if (duration) {
+        if (config.duration === undefined) config.duration = 3000;
+        const { duration } = config;
+        if (calloutMap[key]) {
+          clearTimeout(keyTimerMap[key]);
+          calloutMap[key] = { ...calloutMap[key], ...config };
+        } else {
+          calloutMap[key] = config;
+          showCount.value++;
+        }
+        if (duration !== null) {
           keyTimerMap[key] = setTimeout(() => {
             delete calloutMap[key];
+            showCount.value--;
           }, duration);
         }
       },
@@ -96,7 +126,7 @@ export const MessageHolder = defineSSRCustomElement({
       const { to } = props;
       const typeValue = type.value;
       const content = (
-        <div class={ns.t} ref={rootRef} part="root" {...rootProps.value}>
+        <div class={ns.t} ref={rootRef} part="root" {...rootProps.value} v-show={show.value}>
           <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
             {Object.keys(calloutMap).flatMap((key) => {
               const callout = calloutMap[key];
@@ -117,8 +147,8 @@ export const MessageHolder = defineSSRCustomElement({
   },
 });
 
-export type tMessageHolder = typeof MessageHolder;
+export type tMessage = typeof Message;
 
-export const defineMessageHolder = createDefineElement(name, MessageHolder, {
-  icon: defineIcon,
+export const defineMessage = createDefineElement(name, Message, {
+  callout: defineCallout,
 });

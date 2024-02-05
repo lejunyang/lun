@@ -19,6 +19,7 @@ export const shadowComponents = Object.freeze([
   'form-item',
   'icon',
   'input',
+  'message',
   'popover',
   'radio',
   'radio-group',
@@ -137,6 +138,9 @@ export const GlobalStaticConfig = new Proxy(
         showStatusIcon: true,
         stepControl: 'up-down',
         required: undefined,
+      },
+      message: {
+        transition: 'message', 
       },
       popover: {
         offset: 4,
