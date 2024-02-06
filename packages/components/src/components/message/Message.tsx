@@ -13,7 +13,7 @@ import {
 } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
 import { getTransitionProps } from 'common';
-import { isFunction, isSupportPopover } from '@lun/utils';
+import { isFunction, isSupportPopover, omit } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
 
 const name = 'message';
@@ -74,8 +74,14 @@ export const Message = defineSSRCustomElement({
     });
 
     const methods = {
-      open(config?: MessageOpenConfig) {
-        config = { status: config?.type, ...config, class: ns.e('callout') };
+      open(config) {
+        config = {
+          ...omit(props, ['type', 'placement', 'to']),
+          ...getTransitionProps(props, 'callout'),
+          status: config?.type,
+          ...config,
+          class: ns.e('callout'),
+        };
         const key = (config.key ||= Date.now());
         (config as any)['data-key'] = key;
         if (config.duration === undefined) config.duration = 3000;
@@ -87,11 +93,11 @@ export const Message = defineSSRCustomElement({
           calloutMap[key] = config;
           showCount.value++;
         }
-        if (duration !== null) {
-          keyTimerMap[key] = setTimeout(() => methods.close(key), duration);
+        if (duration !== null && duration !== 'none') {
+          keyTimerMap[key] = setTimeout(() => methods.close(key), +duration);
         }
       },
-      close(key: string | number) {
+      close(key) {
         const config = calloutMap[key];
         if (config) {
           clearTimeout(keyTimerMap[key]);
@@ -102,7 +108,7 @@ export const Message = defineSSRCustomElement({
       closeAll() {
         Object.keys(calloutMap).forEach(methods.close);
       },
-    };
+    } as MessageMethods;
 
     const createHandleClose = (type: 'close' | 'afterClose') => {
       const event = type === 'close' ? 'onClose' : 'onAfterClose';
@@ -132,8 +138,8 @@ export const Message = defineSSRCustomElement({
       },
       onPointerleave() {
         const { resetDurationOnHover, duration } = calloutMap[key];
-        if (resetDurationOnHover && duration !== null) {
-          keyTimerMap[key] = setTimeout(() => methods.close(key), duration);
+        if (resetDurationOnHover && duration !== null && duration !== 'none') {
+          keyTimerMap[key] = setTimeout(() => methods.close(key), +duration!);
         }
       },
     });
@@ -165,7 +171,14 @@ export const Message = defineSSRCustomElement({
   },
 });
 
+export type MessageMethods = {
+  open(config?: MessageOpenConfig): void;
+  close(key: string | number): void;
+  closeAll(): void;
+}
+
 export type tMessage = typeof Message;
+export type iMessage = InstanceType<tMessage> & MessageMethods;
 
 export const defineMessage = createDefineElement(name, Message, {
   callout: defineCallout,
