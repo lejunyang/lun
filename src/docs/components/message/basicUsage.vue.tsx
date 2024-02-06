@@ -1,17 +1,19 @@
+import { statuses } from '@lun/components';
 export default () => (
   <>
-    <l-button
-      onClick={() =>
-        (document.getElementById('basic') as any)?.open({
-          type: 'success',
-          duration: null,
-          resetDurationOnHover: true,
-          message: 'This is a success message',
-        })
-      }
-    >
-      show
-    </l-button>
-    <l-message id="basic"></l-message>
+    <l-button onClick={() => (document.getElementById('basic') as any)?.open()}>open</l-button>
+    {statuses.map((status) => (
+      <l-button
+        data-status={status}
+        onClick={() =>
+          (document.getElementById('basic') as any)?.open({
+            type: status,
+          })
+        }
+      >
+        open {status}
+      </l-button>
+    ))}
+    <l-message id="basic" message="This is a message"></l-message>
   </>
 );
