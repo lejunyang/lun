@@ -1,3 +1,4 @@
+import { Side } from '@floating-ui/vue';
 import {
   GetEventPropsFromEmits,
   PropBoolean,
@@ -7,7 +8,8 @@ import {
   createTransitionProps,
   themeProps,
 } from 'common';
-import { ExtractPropTypes } from 'vue';
+import { ExtractPropTypes, HTMLAttributes, ReservedProps } from 'vue';
+import { CalloutProps } from '../callout/type';
 
 export const messageProps = {
   ...themeProps,
@@ -24,12 +26,23 @@ export const messageProps = {
   removable: PropBoolean(),
   removeIconProps: PropObject(),
   status: PropString<Status>(),
+
+  placement: PropString<Side | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' | 'center'>(),
 };
 
 export const messageEmits = {
-  remove: null,
-  afterRemove: null,
+  close: null,
+  afterClose: null,
 };
+
+export type MessageOpenConfig = {
+  key?: string | number;
+  type?: Status;
+  duration?: number;
+  resetDurationOnHover?: boolean;
+} & CalloutProps &
+  HTMLAttributes &
+  Omit<ReservedProps, 'key'>;
 
 export type MessageSetupProps = ExtractPropTypes<typeof messageProps>;
 export type MessageEvents = GetEventPropsFromEmits<typeof messageEmits>;

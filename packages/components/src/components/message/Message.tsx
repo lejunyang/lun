@@ -1,7 +1,6 @@
-// message 作为一个容器组件，通过Teleport向其他地方渲染，其可防止在任意位置来接收config，需要一个for-static属性，用于给static方法接收config
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { messageEmits, messageProps } from './type';
+import { MessageOpenConfig, messageEmits, messageProps } from './type';
 import {
   BaseTransitionProps,
   CSSProperties,
@@ -13,9 +12,8 @@ import {
   watchEffect,
 } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
-import { Status, getTransitionProps } from 'common';
-import { isSupportPopover } from '@lun/utils';
-import { CalloutProps } from '../callout/type';
+import { getTransitionProps } from 'common';
+import { isFunction, isSupportPopover } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
 
 const name = 'message';
@@ -36,17 +34,30 @@ export const Message = defineSSRCustomElement({
         return Object.keys(support).find((i) => support[i as keyof typeof support]) as 'popover' | 'teleport' | 'fixed';
     });
     const rootRef = ref<HTMLElement>();
-    const calloutMap = reactive<Record<string | number, any>>({});
+    const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({});
     const keyTimerMap = {} as Record<string | number, ReturnType<typeof setTimeout>>;
     const showCount = ref(0);
     const show = computed(() => showCount.value > 0);
 
+    const placementMarginMap = {
+      'top-start': '0 auto auto 0',
+      top: '0 auto auto',
+      'top-end': '0 0 auto auto',
+      left: 'auto auto auto 0',
+      center: 'auto',
+      right: 'auto 0 auto auto',
+      'bottom-start': 'auto auto 0 0',
+      bottom: 'auto auto 0',
+      'bottom-end': 'auto 0 0 auto',
+    };
     const rootProps = computed(() => {
+      const { placement } = props;
       const { value } = type;
       const result = {
         popover: value === 'popover' ? ('manual' as const) : undefined,
         style: {
           position: value === 'fixed' ? 'fixed' : undefined,
+          margin: placementMarginMap[placement!],
         } as CSSProperties,
       };
       return result;
@@ -62,15 +73,54 @@ export const Message = defineSSRCustomElement({
       }
     });
 
+    const methods = {
+      open(config?: MessageOpenConfig) {
+        config = { status: config?.type, ...config, class: ns.e('callout') };
+        const key = (config.key ||= Date.now());
+        (config as any)['data-key'] = key;
+        if (config.duration === undefined) config.duration = 3000;
+        const { duration } = config;
+        if (calloutMap[key]) {
+          clearTimeout(keyTimerMap[key]);
+          calloutMap[key] = { ...calloutMap[key], ...config };
+        } else {
+          calloutMap[key] = config;
+          showCount.value++;
+        }
+        if (duration !== null) {
+          keyTimerMap[key] = setTimeout(() => methods.close(key), duration);
+        }
+      },
+      close(key: string | number) {
+        const config = calloutMap[key];
+        if (config) {
+          clearTimeout(keyTimerMap[key]);
+          delete calloutMap[key];
+          showCount.value--;
+        }
+      },
+      closeAll() {
+        Object.keys(calloutMap).forEach(methods.close);
+      },
+    };
+
+    const createHandleClose = (type: 'close' | 'afterClose') => {
+      const event = type === 'close' ? 'onClose' : 'onAfterClose';
+      return (el: any) => {
+        const { key } = el.dataset;
+        const config = calloutMap[key!];
+        if (config) {
+          const handler = config[event];
+          if (isFunction(handler)) handler(new CustomEvent(type));
+        }
+        emit(type as any);
+      };
+    };
     const transitionHandlers = {
       onEnter() {},
       onAfterEnter() {},
-      onLeave() {
-        emit('remove');
-      },
-      onAfterLeave() {
-        emit('afterRemove');
-      },
+      onLeave: createHandleClose('close'),
+      onAfterLeave: createHandleClose('afterClose'),
     } as BaseTransitionProps;
     const getCalloutHandlers = (key: string | number) => ({
       onPointerenter() {
@@ -83,42 +133,10 @@ export const Message = defineSSRCustomElement({
       onPointerleave() {
         const { resetDurationOnHover, duration } = calloutMap[key];
         if (resetDurationOnHover && duration !== null) {
-          keyTimerMap[key] = setTimeout(() => {
-            delete calloutMap[key];
-            showCount.value--;
-          }, duration);
+          keyTimerMap[key] = setTimeout(() => methods.close(key), duration);
         }
       },
     });
-
-    const methods = {
-      open(
-        config?: {
-          key?: string | number;
-          type?: Status;
-          duration?: number;
-          resetDurationOnHover?: boolean;
-        } & CalloutProps,
-      ) {
-        config = { status: config?.type, ...config };
-        const key = (config.key ||= Date.now());
-        if (config.duration === undefined) config.duration = 3000;
-        const { duration } = config;
-        if (calloutMap[key]) {
-          clearTimeout(keyTimerMap[key]);
-          calloutMap[key] = { ...calloutMap[key], ...config };
-        } else {
-          calloutMap[key] = config;
-          showCount.value++;
-        }
-        if (duration !== null) {
-          keyTimerMap[key] = setTimeout(() => {
-            delete calloutMap[key];
-            showCount.value--;
-          }, duration);
-        }
-      },
-    };
 
     useCEExpose(methods);
 
