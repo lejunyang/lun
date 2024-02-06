@@ -32,7 +32,7 @@
       color: getAccentColor(9);
     }
   }
-  @include e(remove-icon) {
+  @include e(close-icon) {
     cursor: pointer;
     position: relative;
     top: calc((getRVarValue(message-line-height) - getRVarValue(message-font-size)) / 2);
