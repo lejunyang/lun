@@ -31,6 +31,7 @@ import {
   importCalloutSoftTheme,
   importCalloutSurfaceTheme,
 } from './callout/index.ts';
+import { importMessageBasicTheme } from './message/index.ts';
 
 export * from './input/index.ts';
 
@@ -44,6 +45,7 @@ export function importBasicTheme() {
   importFormBasicTheme();
   importFormItemBasicTheme();
   importInputBasicTheme();
+  importMessageBasicTheme();
   importPopoverBasicTheme();
   importRadioBasicTheme();
   importSelectBasicTheme();
