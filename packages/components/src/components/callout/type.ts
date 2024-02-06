@@ -4,7 +4,7 @@ import { ExtractPropTypes } from "vue";
 export const calloutProps = {
   ...themeProps,
   ...createTransitionProps(),
-  message: PropString(),
+  message: PropString(Error),
   description: PropString(),
   iconName: PropString(),
   iconLibrary: PropString(),
