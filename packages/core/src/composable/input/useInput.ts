@@ -125,7 +125,7 @@ function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseInputOpt
   if (isNegative || isPositive)
     // remove the first symbol
     nextVal = nextVal.substring(1);
-  // [-+]?[0-9]*.?[eE]?[-+]?[0-9]* // TODO use this?
+  // [-+]?[0-9]*([.。][0-9]*)?((e|E)[-+]?[0-9]*)? // TODO use a single regex to check?
   // first split by '.' and '。‘ if replaceChPeriodMark
   const splitsByDot = nextVal.split(new RegExp(`[${replaceChPeriodMark ? '。' : ''}.]`));
   const splitsByDotLen = splitsByDot.length;
