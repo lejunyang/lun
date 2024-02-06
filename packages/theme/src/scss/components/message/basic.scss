@@ -45,12 +45,14 @@
     transform: translateY(0);
   }
   to {
-    transform: translateY(-60%);
+    transform: translateY(-100%);
   }
 }
 // TODO animations for other placements
 @include b(message) {
   @include e(callout) {
+    display: flex;
+    justify-content: center;
     @include declareVars(
       (
         margin: callout-margin,
@@ -64,21 +66,21 @@
   @include size(1) {
     @include setVars(
       (
-        callout-margin: getSpaceValue(2),
+        callout-margin: getSpaceValue(2) 0,
       )
     );
   }
   @include size(2) {
     @include setVars(
       (
-        callout-margin: getSpaceValue(3),
+        callout-margin: getSpaceValue(3) 0,
       )
     );
   }
   @include size(3) {
     @include setVars(
       (
-        callout-margin: getSpaceValue(4),
+        callout-margin: getSpaceValue(4) 0,
       )
     );
   }

@@ -25,7 +25,12 @@ export const Callout = defineSSRCustomElement({
     };
 
     return () => {
-      const { status, iconName, iconLibrary, iconProps, message, description, closable } = props;
+      let { status, iconName, iconLibrary, iconProps, message, description, closable } = props;
+      if (message instanceof Error) {
+        status = 'error';
+        description ||= message.stack;
+        message = message.message;
+      }
       const finalIconName = iconName || status;
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
