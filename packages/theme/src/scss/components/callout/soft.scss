@@ -5,6 +5,6 @@
 
 @include b(callout) {
   @include variant(soft) {
-    background-color: getAccentColor(a3);
+    background-color: getAccentColor(3);
   }
 }
