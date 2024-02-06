@@ -9,14 +9,14 @@ export const calloutProps = {
   iconName: PropString(),
   iconLibrary: PropString(),
   iconProps: PropObject(),
-  removable: PropBoolean(),
-  removeIconProps: PropObject(),
+  closable: PropBoolean(),
+  closeIconProps: PropObject(),
   status: PropString<Status>(),
 };
 
 export const calloutEmits = {
-  remove: null,
-  afterRemove: null,
+  close: null,
+  afterClose: null,
 };
 
 export type CalloutSetupProps = ExtractPropTypes<typeof calloutProps>;
