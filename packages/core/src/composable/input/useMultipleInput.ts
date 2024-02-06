@@ -9,7 +9,7 @@ import {
   shadowContains,
   toArrayIfNotNil,
 } from '@lun/utils';
-import { UseInputOptions, isNumberInputType, useInput } from './useInput';
+import { UseInputOptions, useInput } from './useInput';
 import { nextTick } from 'vue';
 import { presets } from '../../presets/index';
 

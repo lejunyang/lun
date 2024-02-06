@@ -2,9 +2,9 @@
 
 <!-- @Code:basicUsage -->
 
-## 可移除
+## 可关闭
 
-<!-- @Code:removable -->
+<!-- @Code:closable -->
 
 ## 不同状态
 
