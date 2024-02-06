@@ -13,24 +13,24 @@ export const Callout = defineSSRCustomElement({
   emits: calloutEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const removed = ref(false);
-    const remove = () => (removed.value = true);
+    const closed = ref(false);
+    const close = () => (closed.value = true);
     const handlers = {
       onLeave() {
-        emit('remove');
+        emit('close');
       },
       onAfterLeave() {
-        emit('afterRemove');
+        emit('afterClose');
       },
     };
 
     return () => {
-      const { status, iconName, iconLibrary, iconProps, message, description, removable } = props;
+      const { status, iconName, iconLibrary, iconProps, message, description, closable } = props;
       const finalIconName = iconName || status;
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
-          {!removed.value && (
-            <span class={ns.t} part={ns.p('root')}>
+          {!closed.value && (
+            <span class={ns.t} part="root">
               <slot name="icon">
                 {finalIconName &&
                   renderElement('icon', {
@@ -50,13 +50,13 @@ export const Callout = defineSSRCustomElement({
                   <slot name="description">{description}</slot>
                 </div>
               </div>
-              {removable &&
+              {closable &&
                 renderElement('icon', {
                   name: 'x',
-                  ...props.removeIconProps,
-                  onClick: remove,
-                  part: 'remove-icon',
-                  class: ns.e('remove-icon'),
+                  ...props.closeIconProps,
+                  onClick: close,
+                  part: 'close-icon',
+                  class: ns.e('close-icon'),
                 })}
             </span>
           )}

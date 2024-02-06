@@ -6,6 +6,7 @@ const input = 'input';
 const content = 'content';
 const children = 'children';
 export const exportParts = {
+  callout: [root, 'icon', 'remove-icon', content, 'message', 'description'],
   checkbox: [root, 'indicator', input, label],
   'checkbox-group': [root],
   dialog: [root, 'mask', 'panel', 'header', 'close', content, 'footer'],
