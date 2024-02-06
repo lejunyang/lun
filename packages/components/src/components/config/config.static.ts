@@ -140,7 +140,8 @@ export const GlobalStaticConfig = new Proxy(
         required: undefined,
       },
       message: {
-        transition: 'message', 
+        transition: 'message',
+        resetDurationOnHover: true,
       },
       popover: {
         offset: 4,
