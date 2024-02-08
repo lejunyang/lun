@@ -48,45 +48,72 @@
     transform: translateY(-100%);
   }
 }
-// TODO animations for other placements
+
+@keyframes down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
 @include b(message) {
+  display: flex;
+  flex-direction: column;
+  @include declareVars((gap));
+  @include setVars(
+    (
+      leave-animation: up 0.3s,
+    )
+  );
+
+  &#{getM('bottom-start')},
+  &#{getM('bottom')},
+  &#{getM('bottom-end')} {
+    flex-direction: column-reverse;
+    @include setVars(
+      (
+        leave-animation: down 0.3s,
+      )
+    );
+
+    .message-enter-from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
   @include e(callout) {
     display: flex;
     justify-content: center;
-    @include declareVars(
-      (
-        margin: callout-margin,
-      )
-    );
-    &:first-child {
-      margin-block-start: 0;
-    }
-    &:last-child {
-      margin-block-end: 0;
-    }
     .message-leave-active ~ & {
-      animation: up 0.3s;
+      @include declareVars(
+        (
+          animation: leave-animation,
+        )
+      );
     }
   }
 
   @include size(1) {
     @include setVars(
       (
-        callout-margin: getSpaceValue(2) 0,
+        gap: getSpaceValue(2),
       )
     );
   }
   @include size(2) {
     @include setVars(
       (
-        callout-margin: getSpaceValue(3) 0,
+        gap: getSpaceValue(3),
       )
     );
   }
   @include size(3) {
     @include setVars(
       (
-        callout-margin: getSpaceValue(4) 0,
+        gap: getSpaceValue(4),
       )
     );
   }
