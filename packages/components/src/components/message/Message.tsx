@@ -149,10 +149,10 @@ export const Message = defineSSRCustomElement({
     useCEExpose(methods);
 
     return () => {
-      const { to } = props;
+      const { to, placement } = props;
       const typeValue = type.value;
       const content = (
-        <div class={ns.t} ref={rootRef} part="root" {...rootProps.value} v-show={show.value}>
+        <div class={[ns.t, ns.m(placement)]} ref={rootRef} part="root" {...rootProps.value} v-show={show.value}>
           <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
             {Object.keys(calloutMap).flatMap((key) => {
               const callout = calloutMap[key];

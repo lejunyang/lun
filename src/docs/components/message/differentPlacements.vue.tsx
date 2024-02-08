@@ -3,11 +3,10 @@ const open = (e: any) => {
   const placement = el.dataset.placement;
   if (!placement) return;
   (document.getElementById(placement) as any)?.open({
-    type: 'success',
-    message: 'This is a message',
+    message: Date(),
   });
 };
-const placements = ['top-start', 'top', 'top-end', 'left', 'center', 'right', 'bottom-start', 'bottom', 'bottom-end'];
+const placements = ['top-start', 'top', 'top-end', 'left', 'center', 'right', 'bottom-start', 'bottom', 'bottom-end'] as const;
 
 export default function () {
   return (
