@@ -11,6 +11,8 @@ export const messageProps = {
   /** determine the teleport target when 'type' is 'teleport', default to 'body' */
   to: PropString(),
   placement: PropString<Side | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' | 'center'>(),
+  /** offset relative to placement side, will not be applied when it's 'center' */
+  offset: PropNumber(),
   /** define the common duration, could be number or string 'none'. if duration is 'none' or null, the callout won't be auto closed) */
   duration: PropNumber<number | 'none'>(),
   resetDurationOnHover: PropBoolean(),

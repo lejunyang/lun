@@ -143,6 +143,7 @@ export const GlobalStaticConfig = new Proxy(
         transition: 'message',
         resetDurationOnHover: true,
         placement: 'top',
+        offset: 10,
       },
       popover: {
         offset: 4,
