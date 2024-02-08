@@ -51,13 +51,15 @@ export const Message = defineSSRCustomElement({
       'bottom-end': 'auto 0 0 auto',
     };
     const rootProps = computed(() => {
-      const { placement } = props;
+      const { placement, offset } = props;
+      let margin = placementMarginMap[placement!];
+      if (margin && offset != null) margin = margin.replace(/0/g, `${offset}${isNaN(offset as any) ? '' : 'px'}`);
       const { value } = type;
       const result = {
         popover: value === 'popover' ? ('manual' as const) : undefined,
         style: {
           position: value === 'fixed' ? 'fixed' : undefined,
-          margin: placementMarginMap[placement!],
+          margin,
         } as CSSProperties,
       };
       return result;
@@ -175,7 +177,7 @@ export type MessageMethods = {
   open(config?: MessageOpenConfig): void;
   close(key: string | number): void;
   closeAll(): void;
-}
+};
 
 export type tMessage = typeof Message;
 export type iMessage = InstanceType<tMessage> & MessageMethods;

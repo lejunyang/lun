@@ -58,6 +58,12 @@
         margin: callout-margin,
       )
     );
+    &:first-child {
+      margin-block-start: 0;
+    }
+    &:last-child {
+      margin-block-end: 0;
+    }
     .message-leave-active ~ & {
       animation: up 0.3s;
     }
