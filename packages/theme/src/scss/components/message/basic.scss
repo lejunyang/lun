@@ -11,16 +11,6 @@
   background-color: initial;
 }
 
-.message-enter-from {
-  transform: translateY(-100%);
-  opacity: 0;
-}
-
-.message-enter-to {
-  transform: translateY(0);
-  opacity: 1;
-}
-
 .message-enter-active,
 .message-leave-active {
   transition: all 0.3s;
@@ -65,8 +55,30 @@
   @include setVars(
     (
       leave-animation: up 0.3s,
+      enter-from-transform: translateY(-100%),
+      enter-to-transform: translateY(0),
     )
   );
+
+  @at-root {
+    .message-enter-from {
+      @include declareVars(
+        (
+          transform: enter-from-transform,
+        )
+      );
+      opacity: 0;
+    }
+
+    .message-enter-to {
+      @include declareVars(
+        (
+          transform: enter-to-transform,
+        )
+      );
+      opacity: 1;
+    }
+  }
 
   &#{getM('bottom-start')},
   &#{getM('bottom')},
@@ -75,13 +87,26 @@
     @include setVars(
       (
         leave-animation: down 0.3s,
+        enter-from-transform: translateY(100%),
       )
     );
+  }
 
-    .message-enter-from {
-      transform: translateY(100%);
-      opacity: 0;
-    }
+  @include m(left) {
+    @include setVars(
+      (
+        enter-from-transform: translateX(-100%),
+        enter-to-transform: translateX(0),
+      )
+    );
+  }
+  @include m(right) {
+    @include setVars(
+      (
+        enter-from-transform: translateX(100%),
+        enter-to-transform: translateX(0),
+      )
+    );
   }
 
   @include e(callout) {
