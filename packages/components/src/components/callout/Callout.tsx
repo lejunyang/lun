@@ -26,16 +26,21 @@ export const Callout = defineSSRCustomElement({
 
     return () => {
       let { status, iconName, iconLibrary, iconProps, message, description, closable } = props;
+      let stack: any;
       if (message instanceof Error) {
         status = 'error';
-        description ||= message.stack;
+        // remove first line of stack, and remove leading spaces
+        // 'stack' of Error is non-standard, consider adding a process func
+        let lines = message.stack?.split('\n') || [];
+        lines.shift();
+        stack = <pre>{lines.map((i) => '  ' + i.trimStart() + '\n')}</pre>;
         message = message.message;
       }
       const finalIconName = iconName || status;
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!closed.value && (
-            <span class={ns.t} part="root">
+            <span class={ns.t} part="root" data-status={status}>
               <slot name="icon">
                 {finalIconName &&
                   renderElement('icon', {
@@ -52,7 +57,7 @@ export const Callout = defineSSRCustomElement({
                   <slot>{message}</slot>
                 </div>
                 <div class={ns.e('description')} part="description">
-                  <slot name="description">{description}</slot>
+                  <slot name="description">{stack || description}</slot>
                 </div>
               </div>
               {closable &&
