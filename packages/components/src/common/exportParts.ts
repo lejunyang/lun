@@ -38,6 +38,7 @@ export const exportParts = {
   select: [content],
   'select-optgroup': [root, label, children],
   'select-option': [root, label],
+  spin: ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'],
   switch: [root, input, children, 'thumb'],
   tag: [root, 'icon'],
 } as Record<ShadowComponentKey, string[]>;
