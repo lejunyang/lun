@@ -47,7 +47,23 @@ export const Spin = defineSSRCustomElement({
       }
     };
 
-    return getSVG;
+    return () => {
+      const { asContainer, tip } = props;
+      return asContainer ? (
+        <div class={ns.e('container')} part="container">
+          <slot></slot>
+          {showing.value && <div class={ns.e('mask')} part="mask" />}
+          <span class={ns.e('wrapper')} part="wrapper">
+            {getSVG()}
+            <div class={ns.e('tip')} part="tip">
+              <slot name="tip">{tip}</slot>
+            </div>
+          </span>
+        </div>
+      ) : (
+        getSVG()
+      );
+    };
   },
 });
 

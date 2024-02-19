@@ -7,6 +7,8 @@ export const spinProps = {
   strokeWidth: PropNumber(),
   spinning: PropBoolean(),
   delay: PropNumber(),
+  asContainer: PropBoolean(),
+  tip: PropString(),
 };
 
 export type SpinSetupProps = ExtractPropTypes<typeof spinProps>;
