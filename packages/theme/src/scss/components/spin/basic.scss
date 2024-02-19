@@ -1,0 +1,43 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+:host {
+  display: inline-flex;
+  vertical-align: -0.125em;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes stroke {
+  0% {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 1px 200px;
+  }
+  50% {
+    stroke-dashoffset: -15px;
+    stroke-dasharray: 100px 200px;
+    offset: 0.3;
+  }
+  100% {
+    stroke-dashoffset: -120px;
+    stroke-dasharray: 100px 200px;
+  }
+}
+
+@include b(spin) {
+  @include m(circle) {
+    animation: getRVarValue((circle, outer, animation, name), 'rotate') 1.4s linear infinite;
+    circle {
+      animation: getRVarValue((circle, inner, animation, name), 'stroke') 1.4s ease-in-out infinite;
+    }
+  }
+}

@@ -32,6 +32,7 @@ import {
   importCalloutSurfaceTheme,
 } from './callout/index.ts';
 import { importMessageBasicTheme } from './message/index.ts';
+import { importSpinBasicTheme } from './spin/index.ts';
 
 export * from './input/index.ts';
 
@@ -51,6 +52,7 @@ export function importBasicTheme() {
   importSelectBasicTheme();
   importSelectOptgroupBasicTheme();
   importSelectOptionBasicTheme();
+  importSpinBasicTheme();
   importSwitchBasicTheme();
   importTagBasicTheme();
 }
