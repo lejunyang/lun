@@ -57,6 +57,11 @@ export default {
       medium: '中(2)',
       large: '大(3)',
       radius: '组件圆角',
+      enterFullscreen: '进入全屏',
+      exitFullscreen: '退出全屏',
+      resetCode: '重置代码',
+      showCode: '查看代码',
+      hideCode: '隐藏代码',
     },
   },
   en: {
@@ -117,6 +122,11 @@ export default {
       medium: 'Medium(2)',
       large: 'Large(3)',
       radius: 'Radius',
+      enterFullscreen: 'Enter fullscreen',
+      exitFullscreen: 'Exit fullscreen',
+      resetCode: 'Reset code',
+      showCode: 'Show code',
+      hideCode: 'Hide code',
     },
   },
 };

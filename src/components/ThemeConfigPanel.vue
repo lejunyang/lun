@@ -31,14 +31,14 @@
       <strong>{{ locales[lang]?.components.appearance }}</strong>
       <VPSwitchAppearance id="switch-appearance" />
       <strong>{{ locales[lang]?.components.size }}</strong>
-      <l-radio-group size="3" :value="theme.size" @update="theme.size = $event.detail">
-        <l-radio value="1"
+      <l-radio-group :value="theme.size" @update="theme.size = $event.detail">
+        <l-radio value="1" size="1"
           ><span class="size-radio-label">{{ locales[lang]?.components.small }}</span></l-radio
         >
-        <l-radio value="2"
+        <l-radio value="2" size="2"
           ><span class="size-radio-label">{{ locales[lang]?.components.medium }}</span></l-radio
         >
-        <l-radio value="3"
+        <l-radio value="3" size="3"
           ><span class="size-radio-label">{{ locales[lang]?.components.large }}</span></l-radio
         >
       </l-radio-group>
@@ -123,7 +123,7 @@ l-theme-provider[appearance='dark'] {
       border-radius: 50%;
       outline-offset: 2px;
     }
-    // cannot use ',' for these three selectors, as it would all fail if one of them is not supported
+    // cannot use ',' for these three selectors, as they would all fail if one of them is not supported
     &[data-checked] .circle {
       outline: 2px solid var(--outline-color);
     }
@@ -135,7 +135,6 @@ l-theme-provider[appearance='dark'] {
     }
   }
   .size-radio-label {
-    font-size: 14px;
     color: var(--l-gray-12);
   }
   .radius-radio {
