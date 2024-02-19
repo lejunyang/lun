@@ -12,7 +12,7 @@ import { defineMessage } from './message';
 import { definePopover, importPopoverStyle } from './popover';
 import { defineRadio, defineRadioGroup } from './radio';
 import { defineSelect, defineSelectOption, defineSelectOptgroup } from './select';
-import { defineSpin, importSpinStyle } from './spin';
+import { defineSpin } from './spin';
 import { defineSwitch } from './switch';
 import { defineTag } from './tag';
 import { defineThemeProvider } from './theme-provider';
@@ -23,7 +23,6 @@ export function importAllBasicStyles() {
   importButtonStyle();
   importIconStyle();
   importPopoverStyle();
-  importSpinStyle();
 }
 
 export function defineAllComponents() {

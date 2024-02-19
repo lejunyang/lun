@@ -1,11 +1,11 @@
-import { Responsive } from "@lun/core";
-import { ExtractPropTypes, PropType } from "vue";
+import { PropNumber, PropString, themeProps } from "common";
+import { ExtractPropTypes } from "vue";
 
 export const spinProps = {
-  type: { type: String as PropType<'circle'> },
-  strokeWidth: { type: [Number, String] },
-  size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
-  delay: { type: Number },
+  ...themeProps,
+  type: PropString<'circle'>(),
+  strokeWidth: PropNumber(),
+  delay: PropNumber(),
 };
 
 export type SpinSetupProps = ExtractPropTypes<typeof spinProps>;
