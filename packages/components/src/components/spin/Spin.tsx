@@ -2,6 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { spinProps } from './type';
 import { useNamespace } from 'hooks';
+import { ref, watchEffect } from 'vue';
 
 const name = 'spin';
 export const Spin = defineSSRCustomElement({
@@ -9,20 +10,28 @@ export const Spin = defineSSRCustomElement({
   props: spinProps,
   setup(props) {
     const ns = useNamespace(name);
+    const showing = ref(false);
 
-    return () => {
+    watchEffect((onCleanup) => {
+      const { delay, spinning } = props;
+      if (!spinning) showing.value = false;
+      else {
+        if (+delay! >= 0) {
+          const id = setTimeout(() => {
+            showing.value = true;
+          }, +delay!);
+          onCleanup(() => clearTimeout(id));
+        } else showing.value = true;
+      }
+    });
+
+    const getSVG = () => {
       const { type } = props;
+      if (!showing.value) return null;
       switch (type) {
         case 'circle':
           return (
-            <svg
-              class={[ns.t, ns.m(type)]}
-              viewBox="0 0 50 50"
-              width="1em"
-              height="1em"
-              fill="none"
-              part="svg"
-            >
+            <svg class={[ns.t, ns.m(type)]} viewBox="0 0 50 50" width="1em" height="1em" fill="none" part="svg">
               <circle
                 part="circle"
                 cx="25"
@@ -37,6 +46,8 @@ export const Spin = defineSSRCustomElement({
           );
       }
     };
+
+    return getSVG;
   },
 });
 
