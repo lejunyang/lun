@@ -34,6 +34,7 @@
 }
 
 @include b(spin) {
+  color: getAccentColor(9);
   @include m(circle) {
     animation: getRVarValue((circle, outer, animation, name), 'rotate') 1.4s linear infinite;
     circle {

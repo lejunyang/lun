@@ -167,6 +167,7 @@ export const GlobalStaticConfig = new Proxy(
       spin: {
         type: 'circle' as const,
         strokeWidth: 4,
+        spinning: true,
       },
       switch: {
         trueValue: true,
