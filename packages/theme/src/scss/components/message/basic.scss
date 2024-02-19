@@ -39,6 +39,15 @@
   }
 }
 
+@keyframes halfUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
 @keyframes down {
   from {
     transform: translateY(0);
@@ -88,6 +97,16 @@
       (
         leave-animation: down 0.3s,
         enter-from-transform: translateY(100%),
+      )
+    );
+  }
+
+  &#{getM('left')},
+  &#{getM('center')},
+  &#{getM('right')} {
+    @include setVars(
+      (
+        leave-animation: halfUp 0.3s,
       )
     );
   }
