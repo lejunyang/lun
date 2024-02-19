@@ -41,4 +41,23 @@
       animation: getRVarValue((circle, inner, animation, name), 'stroke') 1.4s ease-in-out infinite;
     }
   }
+
+  @include e(container) {
+    position: relative;
+  }
+  @include e(mask) {
+    position: absolute;
+    inset: 0;
+    opacity: getRVarValue((mask, opacity), 0.7);
+    background: canvas;
+  }
+  @include e(wrapper) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
