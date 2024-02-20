@@ -60,4 +60,14 @@
     flex-direction: column;
     align-items: center;
   }
+
+  @include size(1) {
+    font-size: getFontSizeValue(1);
+  }
+  @include size(2) {
+    font-size: getFontSizeValue(2);
+  }
+  @include size(3) {
+    font-size: getFontSizeValue(3);
+  }
 }

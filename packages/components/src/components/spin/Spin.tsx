@@ -3,6 +3,8 @@ import { createDefineElement } from 'utils';
 import { spinProps } from './type';
 import { useNamespace } from 'hooks';
 import { ref, watchEffect } from 'vue';
+import { useInstanceStyle } from '@lun/core';
+import { getValuesFromStyle } from '@lun/utils';
 
 const name = 'spin';
 export const Spin = defineSSRCustomElement({
@@ -25,13 +27,23 @@ export const Spin = defineSSRCustomElement({
       }
     });
 
+    const ceStyle = useInstanceStyle((style) => getValuesFromStyle(style, 'font-size', 'color'));
+
     const getSVG = () => {
       const { type } = props;
       if (!showing.value) return null;
       switch (type) {
         case 'circle':
           return (
-            <svg class={[ns.t, ns.m(type)]} viewBox="0 0 50 50" width="1em" height="1em" fill="none" part="svg">
+            <svg
+              class={[ns.t, ns.m(type)]}
+              style={ceStyle.value}
+              viewBox="0 0 50 50"
+              width="1em"
+              height="1em"
+              fill="none"
+              part="svg"
+            >
               <circle
                 part="circle"
                 cx="25"
