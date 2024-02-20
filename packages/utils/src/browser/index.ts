@@ -4,5 +4,6 @@ export * from './is';
 export * from './isOverflow';
 export * from './keyboard';
 export * from './shadowDom';
+export * from './style';
 export * from './support';
 export * from './text';
