@@ -15,8 +15,8 @@ export default {
       },
       dataInput: {
         menu: '输入组件',
-        baseInput: 'BaseInput 基础输入',
         checkbox: 'Checkbox 复选框',
+        filePicker: 'FilePicker 文件选择',
         input: 'Input 输入',
         radio: 'Radio 单选框',
         select: 'Select 下拉列表',
@@ -46,7 +46,7 @@ export default {
       guides: {
         styles: '自定义样式',
         states: 'CSS如何选中特定状态的组件',
-      }
+      },
     },
     components: {
       color: '主题色',
@@ -80,8 +80,8 @@ export default {
       },
       dataInput: {
         menu: 'DataInput',
-        baseInput: 'BaseInput',
         checkbox: 'Checkbox',
+        filePicker: 'FilePicker',
         input: 'Input',
         radio: 'Radio',
         select: 'Select',
@@ -111,7 +111,7 @@ export default {
       guides: {
         styles: 'Custom styles',
         states: 'Select element with specific state in CSS',
-      }
+      },
     },
     components: {
       color: 'Theme color',
