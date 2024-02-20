@@ -11,7 +11,6 @@ const name = 'tooltip';
 const Tooltip = defineSSRCustomElement({
   name,
   props: tooltipProps,
-  inheritAttrs: false,
   setup(props, { attrs }) {
     const shadow = useShadowDom();
     const slotRef = ref<HTMLSlotElement>();

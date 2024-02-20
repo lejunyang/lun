@@ -31,7 +31,7 @@ export const shadowComponents = Object.freeze([
   'tag',
   'theme-provider',
   'tooltip',
-  'upload',
+  'file-picker',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
@@ -123,9 +123,8 @@ export const GlobalStaticConfig = new Proxy(
       icon: {
         library: 'default' as const,
       },
-      'base-input': {
-        waitType: 'debounce' as const,
-        trim: true,
+      'file-picker': {
+        preferFileApi: true,
       },
       input: {
         waitType: 'debounce' as const,
@@ -182,7 +181,6 @@ export const GlobalStaticConfig = new Proxy(
         showArrow: true,
         transition: 'scale',
       },
-      upload: {},
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */

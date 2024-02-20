@@ -17,7 +17,7 @@ import { defineSwitch } from './switch';
 import { defineTag } from './tag';
 import { defineThemeProvider } from './theme-provider';
 import { defineTooltip } from './tooltip';
-import { defineUpload } from './upload';
+import { defineFilePicker } from './file-picker';
 
 export function importAllBasicStyles() {
   importButtonStyle();
@@ -53,7 +53,7 @@ export function defineAllComponents() {
   defineSwitch();
   defineTag();
   defineTooltip();
-  defineUpload();
+  defineFilePicker();
 }
 
 export * from './animation';
@@ -77,4 +77,4 @@ export * from './switch';
 export * from './tag';
 export * from './theme-provider';
 export * from './tooltip';
-export * from './upload';
+export * from './file-picker';
