@@ -29,8 +29,8 @@ import {
   VueElementConstructor,
 } from 'vue';
 import { hyphenate, preprocessComponentOptions } from '../utils';
-import { toNumberIfValid } from '@lun/utils';
-import { NotBindEvents, createPlainEvent, delegateEvent } from '../utils/event';
+import { isSupportCSSStyleSheet, toNumberIfValid, isFunction } from '@lun/utils';
+import { createPlainEvent } from '../utils/event';
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
 type EventInit = {
@@ -39,7 +39,7 @@ type EventInit = {
   composed?: boolean;
 };
 export type EventInitMap = Record<string, EventInit>;
-export type PropUpdateCallback = (key: string, value: any, el: HTMLElement) => void;
+export type PropUpdateCallback = (key: string, value: any, el: HTMLElement) => void | false;
 export type CECallback = (instance: ComponentInternalInstance, el: VueElement, parent?: VueElement) => void;
 export type Style = string | CSSStyleSheet;
 
@@ -68,12 +68,11 @@ export function defineCustomElement<
 >(
   options: ComponentOptionsWithoutProps<Props, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
-    noShadow?: boolean;
+    shadowOptions?: ShadowRootInit | null;
     formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
-    delegateCEEvents?: { targetId: string; events: string[] };
   },
 ): VueElementConstructor<Props>;
 
@@ -94,12 +93,11 @@ export function defineCustomElement<
 >(
   options: ComponentOptionsWithArrayProps<PropNames, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
-    noShadow?: boolean;
+    shadowOptions?: ShadowRootInit | null;
     formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
-    delegateCEEvents?: { targetId: string; events: string[] };
   },
 ): VueElementConstructor<{ [K in PropNames]: any }>;
 
@@ -120,12 +118,11 @@ export function defineCustomElement<
 >(
   options: ComponentOptionsWithObjectProps<PropsOptions, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
-    noShadow?: boolean;
+    shadowOptions?: ShadowRootInit | null;
     formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
     onCE?: CECallback;
-    delegateCEEvents?: { targetId: string; events: string[] };
   },
 ): VueElementConstructor<ExtractPropTypes<PropsOptions>>;
 
@@ -161,18 +158,16 @@ const BaseClass = (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) 
 
 type InnerComponentDef = ConcreteComponent & {
   styles?: Style[];
-  noShadow?: boolean;
+  shadowOptions?: ShadowRootInit | null;
   formAssociated?: boolean;
   customEventInit?: EventInitMap;
   onPropUpdate?: PropUpdateCallback;
   onCE?: CECallback;
-  delegateCEEvents?: { targetId: string; events: string[] };
 };
 
 declare module 'vue' {
   interface ComponentInternalInstance {
     event: ReturnType<typeof createPlainEvent>;
-    rootNotBindEvents?: NotBindEvents;
     /**
      * resolved emits options
      * @internal
@@ -211,6 +206,8 @@ const warnHandler = (msg: string, _: any, trace: string) => {
   console.warn(msg, msg.includes('Extraneous non-props') ? '\n' + trace : undefined);
 };
 
+const shadowRootMap = new WeakMap<HTMLElement, ShadowRoot>();
+
 export class VueElement extends BaseClass {
   /**
    * @internal
@@ -222,7 +219,6 @@ export class VueElement extends BaseClass {
   private _numberProps: Record<string, true> | null = null;
   private _styles?: HTMLStyleElement[];
   private _ob?: MutationObserver | null = null;
-  private _notBindEvents?: NotBindEvents;
 
   constructor(
     private _def: InnerComponentDef,
@@ -230,9 +226,10 @@ export class VueElement extends BaseClass {
     hydrate?: RootHydrateFunction,
   ) {
     super();
-    if (_def.noShadow) {
+    Object.freeze(_def);
+    if (_def.shadowOptions === null) {
       if (__DEV__ && _def.styles) {
-        warn(`styles option in the custom components will not be ignored when noShadow is true`);
+        warn(`styles option in the custom components will not be ignored when shadowOptions is null`);
       }
     }
     if (this.shadowRoot && hydrate) {
@@ -244,26 +241,13 @@ export class VueElement extends BaseClass {
             `defined as hydratable. Use \`defineSSRCustomElement\`.`,
         );
       }
-      if (!this._def.noShadow) this.attachShadow({ mode: 'open' });
+      if (_def.shadowOptions !== null)
+        shadowRootMap.set(this, this.attachShadow({ mode: 'open', ..._def.shadowOptions }));
       if (!(this._def as ComponentOptions).__asyncLoader) {
         // for sync component defs we can immediately resolve props
         this._resolveProps(this._def);
       }
     }
-    if (!_def.noShadow && _def.delegateCEEvents?.targetId && _def.delegateCEEvents.events) {
-      const result = delegateEvent(
-        this,
-        () => {
-          return this.shadowRoot!.getElementById(_def.delegateCEEvents!.targetId);
-        },
-        _def.delegateCEEvents.events,
-      );
-      this._notBindEvents = result?.notBindEvents;
-    }
-  }
-
-  get dom(): VueElement | ShadowRoot | null {
-    return this._def.noShadow ? this : this.shadowRoot;
   }
 
   connectedCallback() {
@@ -285,7 +269,7 @@ export class VueElement extends BaseClass {
     }
     nextTick(() => {
       if (!this._connected) {
-        render(null, this.dom!);
+        render(null, this._def.shadowOptions === null ? this : shadowRootMap.get(this)!);
         this._instance = null;
       }
     });
@@ -376,7 +360,7 @@ export class VueElement extends BaseClass {
 
   protected _setAttr(key: string) {
     // ignore data- and aria- attrs
-    if(key.startsWith('data-') || key.startsWith('aria-')) return;
+    if (key.startsWith('data-') || key.startsWith('aria-')) return;
     let value: any = this.getAttribute(key);
     const camelKey = camelize(key);
     if (this._numberProps && this._numberProps[camelKey]) {
@@ -398,7 +382,9 @@ export class VueElement extends BaseClass {
   protected _setProp(key: string, val: any, shouldReflect = true, shouldUpdate = true) {
     if (val !== this._props[key]) {
       this._props[key] = val;
-      if (this._def.onPropUpdate instanceof Function) this._def.onPropUpdate(key, val, this);
+      if (isFunction(this._def.onPropUpdate)) {
+        if (this._def.onPropUpdate(key, val, this) === false) return;
+      }
       if (shouldUpdate && this._instance) {
         this._update();
       }
@@ -416,14 +402,13 @@ export class VueElement extends BaseClass {
   }
 
   private _update() {
-    render(this._createVNode(), this.dom!);
+    render(this._createVNode(), this._def.shadowOptions === null ? this : shadowRootMap.get(this)!);
   }
 
   private _createVNode(): VNode<any, any> {
     const vnode = createVNode(this._def, Object.assign({}, this._props));
     if (!this._instance) {
       vnode.ce = (instance) => {
-        instance.rootNotBindEvents = this._notBindEvents;
         this._instance = instance;
         instance.isCE = true;
         instance.event = createPlainEvent(); // add Event Manager
@@ -473,17 +458,17 @@ export class VueElement extends BaseClass {
           }
         }
 
-        if (this._def.onCE instanceof Function) this._def.onCE(instance, this, parent);
+        if (isFunction(this._def.onCE)) this._def.onCE(instance, this, parent);
       };
     }
     return vnode;
   }
 
   private _applyStyles(styles: (string | CSSStyleSheet)[] | undefined) {
-    if (styles && !this._def.noShadow) {
+    if (styles && this.shadowRoot) {
       const sheets: CSSStyleSheet[] = [];
       styles.forEach((css) => {
-        if (typeof CSSStyleSheet === 'function' && css instanceof CSSStyleSheet) {
+        if (isSupportCSSStyleSheet() && css instanceof CSSStyleSheet) {
           sheets.push(css);
           return;
         }
@@ -495,7 +480,7 @@ export class VueElement extends BaseClass {
           (this._styles || (this._styles = [])).push(s);
         }
       });
-      if (sheets.length) this.shadowRoot!.adoptedStyleSheets = sheets;
+      if (sheets.length) this.shadowRoot.adoptedStyleSheets = sheets;
     }
   }
 }

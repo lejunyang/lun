@@ -85,12 +85,13 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       },
     });
     options.inheritAttrs ||= false;
-    options.props.innerStyle = PropString();
+    const noShadow = options.shadowOptions === null || options.shadowOptions?.mode === 'closed';
+    if (!noShadow) options.props.innerStyle = PropString();
     options.props = setDefaultsForPropOptions(options.props, GlobalStaticConfig.defaultProps[compKey]);
     const originalSetup = options.setup;
     options.setup = (props: any, ctx: any) => {
       const setupResult = originalSetup?.(props, ctx);
-      if (options.noShadow) return setupResult;
+      if (noShadow) return setupResult;
       const styleNodes = useContextStyles(compKey as ShadowComponentKey);
       return () => [styleNodes?.value, setupResult()];
     };

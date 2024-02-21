@@ -10,7 +10,7 @@ const name = 'theme-provider';
 export const ThemeProvider = defineSSRCustomElement({
   name,
   props: themeProviderProps,
-  // noShadow: true, // it will cause Hydration children mismatch as it will render a comment node on client side
+  // shadowOptions: null, // it will cause Hydration children mismatch as it will render a comment node on client side
   onCE(_, el, parent) {
     const isRoot = !parent || !parent._instance?.provides[ThemeProviderKey];
     el.toggleAttribute('root', isRoot);
