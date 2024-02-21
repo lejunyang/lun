@@ -1,6 +1,6 @@
 import { ExtractPropTypes, PropType } from 'vue';
 import { GrayColors, PropString, ThemeProps, themeProps } from 'common';
-import { ShadowComponentKey } from '../config/config.static';
+import { OpenShadowComponentKey } from '../config/config.static';
 
 export const themeProviderProps = {
   ...Object.keys(themeProps).reduce(
@@ -11,7 +11,7 @@ export const themeProviderProps = {
     {} as {
       // -? means remove optional
       [key in keyof ThemeProps]-?: {
-        type: PropType<ThemeProps[key] | Record<ShadowComponentKey | 'common', ThemeProps[key]>>;
+        type: PropType<ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>>;
       };
     },
   ),

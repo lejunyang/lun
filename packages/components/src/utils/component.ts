@@ -1,4 +1,4 @@
-import { ComponentKey, GlobalStaticConfig, ShadowComponentKey } from 'config';
+import { ComponentKey, GlobalStaticConfig, OpenShadowComponentKey } from 'config';
 import { ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
@@ -19,7 +19,7 @@ export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1
     return;
   }
   const { commonSeparator } = GlobalStaticConfig;
-  const exportparts = (exportParts[comp as ShadowComponentKey] || [])
+  const exportparts = (exportParts[comp as OpenShadowComponentKey] || [])
     .map((i) => i + ':' + comp + commonSeparator + i)
     .join(',');
   return h(name, { ...props, exportparts: exportparts || undefined }, children);
@@ -61,7 +61,7 @@ export function createDefineElement(
 }
 
 /*! #__NO_SIDE_EFFECTS__ */
-export function createImportStyle(compKey: ShadowComponentKey, style: string) {
+export function createImportStyle(compKey: OpenShadowComponentKey, style: string) {
   return () => {
     GlobalStaticConfig.styles[compKey].push(processStringStyle(style));
   };
@@ -79,7 +79,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       styles: {
         get() {
           return compKey in GlobalStaticConfig.computedStyles
-            ? GlobalStaticConfig.computedStyles[compKey as ShadowComponentKey]
+            ? GlobalStaticConfig.computedStyles[compKey as OpenShadowComponentKey]
             : undefined;
         },
       },
@@ -92,7 +92,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     options.setup = (props: any, ctx: any) => {
       const setupResult = originalSetup?.(props, ctx);
       if (noShadow) return setupResult;
-      const styleNodes = useContextStyles(compKey as ShadowComponentKey);
+      const styleNodes = useContextStyles(compKey as OpenShadowComponentKey);
       return () => [styleNodes?.value, setupResult()];
     };
   } else if (__DEV__) {

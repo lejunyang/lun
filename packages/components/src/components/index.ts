@@ -18,6 +18,7 @@ import { defineTag } from './tag';
 import { defineThemeProvider } from './theme-provider';
 import { defineTooltip } from './tooltip';
 import { defineFilePicker } from './file-picker';
+import { defineWatermark } from './watermark';
 
 export function importAllBasicStyles() {
   importButtonStyle();
@@ -31,6 +32,7 @@ export function defineAllComponents() {
   // In SSR, if elements are already in the document and the parent is defined after the child, it will not work
   // So we need to define the providers first
   defineThemeProvider();
+  defineWatermark();
   defineForm();
   defineFormItem();
   defineButton();

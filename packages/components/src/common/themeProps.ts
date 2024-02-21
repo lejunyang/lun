@@ -1,6 +1,6 @@
 import { Responsive } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
-import { ShadowComponentKey } from '../components';
+import { OpenShadowComponentKey } from '../components';
 import { pick } from '@lun/utils';
 
 export const themeColors = [
@@ -47,7 +47,7 @@ export const themeProps = {
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
 export type ThemeConfig = {
-  [key in keyof ThemeProps]: ThemeProps[key] | Record<ShadowComponentKey | 'common', ThemeProps[key]>;
+  [key in keyof ThemeProps]: ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>;
 };
 export type ThemeColors = (typeof themeColors)[number];
 export type GrayColors = (typeof grayColors)[number];

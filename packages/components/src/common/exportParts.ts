@@ -1,4 +1,4 @@
-import { ShadowComponentKey } from '../components/config/config.static';
+import { OpenShadowComponentKey } from '../components/config/config.static';
 
 const root = 'root';
 const label = 'label';
@@ -41,4 +41,4 @@ export const exportParts = {
   spin: ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'],
   switch: [root, input, children, 'thumb'],
   tag: [root, 'icon'],
-} as Record<ShadowComponentKey, string[]>;
+} as Record<OpenShadowComponentKey, string[]>;

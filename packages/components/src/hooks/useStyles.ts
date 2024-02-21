@@ -1,11 +1,11 @@
 import { isFunction, isSupportCSSStyleSheet, toArrayIfNotNil } from '@lun/utils';
-import type { ShadowComponentKey } from 'config';
+import type { OpenShadowComponentKey } from 'config';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
 import { onCEMount } from './shadowDom';
 import { error } from '../utils/console';
 
-export function useContextStyles(name: ShadowComponentKey) {
+export function useContextStyles(name: OpenShadowComponentKey) {
   const vm = getCurrentInstance()!;
   if (__DEV__ && !vm) {
     error('useContextStyles must be called inside setup()');
