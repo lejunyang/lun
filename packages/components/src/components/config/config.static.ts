@@ -186,7 +186,17 @@ export const GlobalStaticConfig = new Proxy(
         showArrow: true,
         transition: 'scale',
       },
-      watermark: {},
+      watermark: {
+        rotate: -22,
+        color: 'black',
+        fontSize: 16,
+        fontWeight: 'normal',
+        fontStyle: 'normal',
+        fontFamily: 'sans-serif',
+        textAlign: 'center',
+        gapX: 100,
+        gapY: 100,
+      },
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */

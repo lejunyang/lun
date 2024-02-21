@@ -2,7 +2,8 @@ import { defineSSRCustomElement } from 'custom';
 import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName } from 'utils';
 import { useShadowDom } from 'hooks';
-import { onBeforeUnmount, onMounted, reactive } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watchEffect } from 'vue';
+import { useWatermark } from '@lun/core';
 
 const name = 'watermark';
 const ceStyle =
@@ -20,17 +21,53 @@ export const Watermark = defineSSRCustomElement({
     }
   },
   setup(props) {
+    const mayNeedUpdateKeys = new Set<keyof typeof watermarkProps>(
+      (Object.keys(props) as any).filter((k: any) => !props[k]),
+    );
     const freezedProps = reactive({ ...props });
     const shadow = useShadowDom();
+    const markDiv = ref<HTMLDivElement>();
+    let shadowRoot: ShadowRoot, lastStyle: string;
+
+    const stop = watchEffect(() => {
+      for (const key of Array.from(mayNeedUpdateKeys)) {
+        if (!freezedProps[key] && props[key]) {
+          freezedProps[key] = props[key] as any;
+          mayNeedUpdateKeys.delete(key);
+        }
+      }
+      if (!mayNeedUpdateKeys.size) stop();
+    });
 
     // provide func (renderElement + freezedProps) to show watermark in dialog
 
-    const ob = new MutationObserver((mutations) => {
+    const ceObserver = new MutationObserver((mutations) => {
       for (const m of mutations) {
         console.log('mutation', m, m.target, m.nextSibling, m.previousSibling);
         const removedSet = new Set(m.removedNodes);
         if (m.type === 'childList' && removedSet.has(shadow.CE!) && m.nextSibling) {
           CENext = m.nextSibling;
+        }
+      }
+    });
+
+    const shadowRootObserver = new MutationObserver((mutations) => {
+      const div = markDiv.value!;
+      for (const m of mutations) {
+        console.log('shadowRootObserver m', m);
+        if (m.type === 'childList' && m.removedNodes.length) {
+          shadowRoot.append(...m.removedNodes);
+          console.log('append', m.removedNodes);
+        }
+        if (m.type === 'attributes' && m.attributeName === 'style' && div.style.cssText !== lastStyle) {
+          markDiv.value!.style.cssText = lastStyle;
+          // DEV only, for debugging and preventing infinite loop
+          if (__DEV__ && div.style.cssText !== lastStyle) {
+            shadowRootObserver.disconnect();
+            console.error('div.value.style.cssText !== markStyle.value');
+            console.error('div.value.style.cssText', div.style.cssText);
+            console.error('markStyle.value', markStyle.value);
+          }
         }
       }
     });
@@ -42,12 +79,20 @@ export const Watermark = defineSSRCustomElement({
       const CE = shadow.CE!;
       CE.style.cssText = ceStyle;
       CEParent = CE.parentElement!;
-      ob.observe(CEParent, { childList: true }); // if observe CE, the callback will be triggered very lately, after onBeforeUnmount
+      shadowRoot = markDiv.value!.parentNode as ShadowRoot;
+      ceObserver.observe(CEParent, { childList: true }); // if observe CE, the callback will be triggered very lately, after onBeforeUnmount
+      console.log('markDiv.value!.parentNode!', markDiv.value!.parentNode!);
+      shadowRootObserver.observe(shadowRoot, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+      });
     });
 
     // onBeforeUnmount is ensured, it will be triggered after disconnectedCallback
     onBeforeUnmount(() => {
-      ob.disconnect();
+      ceObserver.disconnect();
+      shadowRootObserver.disconnect();
       const CE = shadow.CE!;
       const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
       Object.assign(newEl, freezedProps);
@@ -56,21 +101,24 @@ export const Watermark = defineSSRCustomElement({
         CEParent.insertBefore(newEl, CENext);
       }
     });
+
+    // @ts-ignore
+    const watermark = useWatermark(freezedProps);
+    const markStyle = computed(
+      () =>
+        `position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none; background-repeat: repeat; background-image: url("${watermark.value[0]}"); visibility: visible !important;`,
+    );
+    watchEffect(() => {
+      const { value } = markDiv;
+      if (value) {
+        value.style.cssText = markStyle.value;
+        lastStyle = value.style.cssText;
+      }
+    });
     return () => (
       <>
         <slot></slot>
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-          }}
-        >
-          test
-        </div>
+        <div ref={markDiv}></div>
       </>
     );
   },
