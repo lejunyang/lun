@@ -124,7 +124,7 @@ export const VCustomRenderer = defineComponent(options);
 export const CustomRenderer = defineSSRCustomElement({
   ...options,
   inheritAttrs: false,
-  noShadow: true,
+  shadowOptions: null,
   onCE(_instance, ce) {
     ce.style.display = 'contents';
   },
