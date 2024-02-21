@@ -22,22 +22,34 @@ export const FilePicker = defineSSRCustomElement({
     const inputHandlers = {
       onChange(e: Event) {
         const { multiple, strictAccept } = props;
-        const files = Array.from((e.target as HTMLInputElement).files!);
+        let files = Array.from((e.target as HTMLInputElement).files!);
+        const mimes = mimeTypes.value,
+          exts = extensions.value;
+        if (strictAccept && (mimes.size || exts.size) && !mimes.has('*/*')) {
+          files = files.filter((file) => {
+            const fileExt = file.name.split('.').pop()?.toLowerCase();
+            return mimes.has(file.type) || (fileExt && exts.has(fileExt)) || mimes.has(file.type.replace(/\/.+/, '/*'));
+          });
+        }
         console.log('onChange files', files);
         valueModel.value = multiple ? files : files[0];
       },
     };
 
-    const getProcessedProp = (key: keyof typeof props) =>
+    const getProcessedProp = (key: 'mimeTypes' | 'extensions') =>
       computed(() => {
         const temp = props[key];
-        return (isArray(temp) ? temp : isString(temp) ? temp.split(',').map((i) => i.trim()) : []) as string[];
+        return new Set(
+          (isArray(temp) ? temp : isString(temp) ? temp.split(',').map((i) => i.trim()) : []).map((i) =>
+            i.toLowerCase(),
+          ),
+        ) as Set<string>;
       });
     const mimeTypes = getProcessedProp('mimeTypes');
     const extensions = getProcessedProp('extensions');
 
     const inputAccept = computed(() => {
-      return mimeTypes.value.concat(extensions.value).join(',');
+      return Array.from(mimeTypes.value).concat(Array.from(extensions.value)).join(',');
     });
 
     const pickFile = async () => {
@@ -48,11 +60,12 @@ export const FilePicker = defineSSRCustomElement({
       const { multiple, strictAccept, preferFileApi, startIn, memoryId } = props;
       if (preferFileApi && isSupportFileSystem()) {
         const mimes = mimeTypes.value,
-          exts = extensions.value;
+          exts = Array.from(extensions.value);
         const types: FileOpenTypeOption[] = [];
-        if (mimes.length) {
-          mimes.forEach((mime, i) => {
-            types[i] = {
+        if (mimes.size) {
+          let i = 0;
+          mimes.forEach((mime) => {
+            types[i++] = {
               accept: {
                 [mime || '*/*']: exts,
               },
@@ -116,6 +129,7 @@ export const FilePicker = defineSSRCustomElement({
 });
 
 export type tFilePicker = typeof FilePicker;
+export type iFilePicker = InstanceType<tFilePicker>;
 
 export const defineFilePicker = createDefineElement(name, FilePicker, {
   spin: defineSpin,
