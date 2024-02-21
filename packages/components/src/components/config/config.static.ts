@@ -15,6 +15,7 @@ export const shadowComponents = Object.freeze([
   'checkbox-group',
   'dialog',
   'divider',
+  'file-picker',
   'form',
   'form-item',
   'icon',
@@ -31,7 +32,7 @@ export const shadowComponents = Object.freeze([
   'tag',
   'theme-provider',
   'tooltip',
-  'file-picker',
+  'watermark',
 ] as const);
 export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
@@ -181,6 +182,7 @@ export const GlobalStaticConfig = new Proxy(
         showArrow: true,
         transition: 'scale',
       },
+      watermark: {},
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** define every components' static styles, also can set global common style with `common` key */
