@@ -1,6 +1,6 @@
 import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
-import { ShadowComponentKey, shadowComponents } from './config.static';
+import { OpenShadowComponentKey, openShadowComponents } from './config.static';
 import { ThemeConfig } from 'common';
 import { virtualGetMerge } from '@lun/utils';
 
@@ -11,10 +11,10 @@ export const GlobalContextConfig = reactive({
   lang: 'zh-CN',
   iconRegistryMap,
   dynamicStyles: (() => {
-    const original = shadowComponents.reduce((result, name) => {
+    const original = openShadowComponents.reduce((result, name) => {
       result[name] = [];
       return result;
-    }, {} as Record<'common' | ShadowComponentKey, ((vm: ComponentInternalInstance) => string)[]>);
+    }, {} as Record<'common' | OpenShadowComponentKey, ((vm: ComponentInternalInstance) => string)[]>);
     const commonStyles = [] as ((vm: ComponentInternalInstance) => string)[];
     return new Proxy(original, {
       get(target, p, receiver) {

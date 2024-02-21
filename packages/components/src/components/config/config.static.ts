@@ -8,7 +8,8 @@ import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registr
 import { presets } from '@lun/core';
 
 export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
-export const shadowComponents = Object.freeze([
+export const closedShadowComponents = Object.freeze(['watermark'] as const);
+export const openShadowComponents = Object.freeze([
   'button',
   'callout',
   'checkbox',
@@ -32,15 +33,18 @@ export const shadowComponents = Object.freeze([
   'tag',
   'theme-provider',
   'tooltip',
-  'watermark',
 ] as const);
-export const components = Object.freeze([...shadowComponents, ...noShadowComponents] as const);
+export const components = Object.freeze([
+  ...openShadowComponents,
+  ...noShadowComponents,
+  ...closedShadowComponents,
+] as const);
 export type ComponentKey = (typeof components)[number];
-export type ShadowComponentKey = (typeof shadowComponents)[number];
+export type OpenShadowComponentKey = (typeof openShadowComponents)[number];
 
-export type ComponentStyles = Record<'common' | ShadowComponentKey, (string | CSSStyleSheet)[]>;
+export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string | CSSStyleSheet)[]>;
 
-const styles = shadowComponents.reduce(
+const styles = openShadowComponents.reduce(
   (result, name) => {
     result[name] = [];
     return result;
