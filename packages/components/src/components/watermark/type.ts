@@ -3,11 +3,13 @@ import { ExtractPropTypes } from 'vue';
 
 export const watermarkProps = {
   content: PropStrOrArr(),
-  image: PropString(),
+  /** image src or image element, could also be 'none' */
+  image: PropObjOrStr<string | HTMLImageElement>(),
   rotate: PropNumber(),
   ratio: PropNumber(),
   width: PropNumber(),
   height: PropNumber(),
+  zIndex: PropNumber(),
   color: PropObjOrStr<CanvasFillStrokeStyles['fillStyle']>(),
   fontSize: PropNumber(),
   fontWeight: PropNumber<'normal' | 'light' | 'weight' | number>(),

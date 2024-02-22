@@ -4,6 +4,7 @@ import { createDefineElement, getElementFirstName } from 'utils';
 import { useShadowDom } from 'hooks';
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watchEffect } from 'vue';
 import { useWatermark } from '@lun/core';
+import { isTruthyOrZero } from '@lun/utils';
 
 const name = 'watermark';
 const ceStyle =
@@ -22,7 +23,7 @@ export const Watermark = defineSSRCustomElement({
   },
   setup(props) {
     const mayNeedUpdateKeys = new Set<keyof typeof watermarkProps>(
-      (Object.keys(props) as any).filter((k: any) => !props[k]),
+      (Object.keys(props) as any).filter((k: any) => !isTruthyOrZero(props[k])),
     );
     const freezedProps = reactive({ ...props });
     const shadow = useShadowDom();
@@ -31,7 +32,7 @@ export const Watermark = defineSSRCustomElement({
 
     const stop = watchEffect(() => {
       for (const key of Array.from(mayNeedUpdateKeys)) {
-        if (!freezedProps[key] && props[key]) {
+        if (!isTruthyOrZero(freezedProps[key]) && isTruthyOrZero(props[key])) {
           freezedProps[key] = props[key] as any;
           mayNeedUpdateKeys.delete(key);
         }
@@ -94,6 +95,7 @@ export const Watermark = defineSSRCustomElement({
     // @ts-ignore
     const watermark = useWatermark(freezedProps);
     const markStyle = computed(() => {
+      const { gapX = 100, gapY = 100, offsetX, offsetY, zIndex } = freezedProps as any;
       const style = {
         position: 'absolute',
         top: '0px',
@@ -106,8 +108,8 @@ export const Watermark = defineSSRCustomElement({
         visibility: 'visible',
         backgroundPosition: '',
         backgroundSize: `${Math.floor(watermark.value[1])}px`,
+        zIndex,
       };
-      const { gapX = 100, gapY = 100, offsetX, offsetY } = freezedProps as any;
       const gapXCenter = gapX / 2,
         gapYCenter = gapY / 2;
       const offsetLeft = offsetX ?? gapXCenter,

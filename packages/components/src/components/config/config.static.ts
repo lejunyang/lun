@@ -187,6 +187,8 @@ export const GlobalStaticConfig = new Proxy(
         transition: 'scale',
       },
       watermark: {
+        image: 'none', // defaults to none so that watermark with only 'content' prop will not be violated by changing 'image' prop
+        zIndex: 1,
         rotate: -22,
         color: 'rgba(0,0,0,.15)',
         fontSize: 16,
