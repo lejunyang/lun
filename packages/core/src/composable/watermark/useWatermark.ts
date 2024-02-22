@@ -32,6 +32,7 @@ export function useWatermark(
     {
       content?: string | string[] | null;
       image?: string | HTMLImageElement;
+      opacity?: number;
       rotate?: number | string;
       ratio?: number;
       width?: number;
@@ -107,9 +108,10 @@ export function useWatermark(
   return computed(() => {
     let {
       content,
+      opacity,
       rotate = -22,
       ratio = globalThis.devicePixelRatio || 1,
-      color = 'rgba(0,0,0,.15)',
+      color = 'rgba(0,0,0,.15)', // FIXME 夜间模式
       fontSize = 16,
       fontWeight = 'normal',
       fontStyle = 'normal',
@@ -122,7 +124,7 @@ export function useWatermark(
 
     // ================= Text / Image =================
     const [ctx, canvas, contentWidth, contentHeight] = prepareCanvas(width, height, ratio);
-
+    opacity && (ctx.globalAlpha = opacity);
     if (imageRef.value || imageLoading.value) {
       // Image
       imageRef.value && ctx.drawImage(imageRef.value, 0, 0, contentWidth, contentHeight);

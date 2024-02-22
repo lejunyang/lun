@@ -1,10 +1,11 @@
-import { PropNumber, PropObjOrStr, PropStrOrArr, PropString } from 'common';
+import { PropBoolean, PropNumber, PropObjOrStr, PropStrOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const watermarkProps = {
   content: PropStrOrArr(),
   /** image src or image element, could also be 'none' */
   image: PropObjOrStr<string | HTMLImageElement>(),
+  opacity: PropNumber(),
   rotate: PropNumber(),
   ratio: PropNumber(),
   width: PropNumber(),
@@ -20,6 +21,10 @@ export const watermarkProps = {
   gapY: PropNumber(),
   offsetX: PropNumber(),
   offsetY: PropNumber(),
+  /** dialog will inherit parent watermark and render it by default */
+  noInherit: PropBoolean(),
+  /** useful when it's a child of another watermark, avoid recreating watermark */
+  reuse: PropBoolean(),
 };
 
 export type WatermarkSetupProps = ExtractPropTypes<typeof watermarkProps>;

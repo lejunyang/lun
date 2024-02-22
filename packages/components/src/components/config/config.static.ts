@@ -188,8 +188,8 @@ export const GlobalStaticConfig = new Proxy(
       },
       watermark: {
         image: 'none', // defaults to none so that watermark with only 'content' prop will not be violated by changing 'image' prop
-        zIndex: 1,
-        rotate: -22,
+        zIndex: 5, // needs to be greater than the dialog panel's z-index
+        opacity: 1,
         color: 'rgba(0,0,0,.15)',
         fontSize: 16,
         fontWeight: 'normal',
