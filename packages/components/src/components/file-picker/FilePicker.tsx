@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement, error } from 'utils';
-import { useNamespace, useSetupContextEvent, useValueModel } from 'hooks';
+import { useCEExpose, useSetupContextEvent, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { computed, ref } from 'vue';
@@ -14,25 +14,43 @@ export const FilePicker = defineSSRCustomElement({
   emits: filePickerEmits,
   formAssociated: true,
   setup(props) {
-    const ns = useNamespace(name);
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
     const valueModel = useValueModel(props);
     const inputRef = ref<HTMLInputElement>();
+    let picking = false;
+
+    const isFileSizeValid = (file: File) => {
+      const { maxSize } = props;
+      return isNaN(maxSize as number) || +maxSize! >= file.size;
+    };
+    const toLimitCount = (files: File[]) => {
+      const { maxCount } = props;
+      return (maxCount as number) >= 0 ? files.slice(0, maxCount as number) : files;
+    };
+
     const inputHandlers = {
       onChange(e: Event) {
         const { multiple, strictAccept } = props;
         let files = Array.from((e.target as HTMLInputElement).files!);
         const mimes = mimeTypes.value,
           exts = extensions.value;
-        if (strictAccept && (mimes.size || exts.size) && !mimes.has('*/*')) {
-          files = files.filter((file) => {
+        const needCheckFileType = strictAccept && (mimes.size || exts.size) && !mimes.has('*/*');
+        files = toLimitCount(
+          files.filter((file) => {
             const fileExt = file.name.split('.').pop()?.toLowerCase();
-            return mimes.has(file.type) || (fileExt && exts.has(fileExt)) || mimes.has(file.type.replace(/\/.+/, '/*'));
-          });
-        }
+            return (
+              (!needCheckFileType ||
+                mimes.has(file.type) ||
+                (fileExt && exts.has(fileExt)) ||
+                mimes.has(file.type.replace(/\/.+/, '/*'))) &&
+              isFileSizeValid(file)
+            );
+          }),
+        );
         console.log('onChange files', files);
         valueModel.value = multiple ? files : files[0];
+        picking = false;
       },
     };
 
@@ -54,10 +72,11 @@ export const FilePicker = defineSSRCustomElement({
 
     const pickFile = async () => {
       const { value: input } = inputRef;
-      if (!input || !editComputed.value.editable) return;
+      if (!input || !editComputed.value.editable || picking) return;
+      picking = true;
       let needFallback = false;
 
-      const { multiple, strictAccept, preferFileApi, startIn, memoryId } = props;
+      const { multiple, strictAccept, preferFileApi, startIn, rememberId } = props;
       if (preferFileApi && isSupportFileSystem()) {
         const mimes = mimeTypes.value,
           exts = Array.from(extensions.value);
@@ -79,7 +98,7 @@ export const FilePicker = defineSSRCustomElement({
           multiple,
           excludeAcceptAllOption: strictAccept,
           startIn,
-          id: memoryId,
+          id: rememberId,
         };
         const picker = (window as any).showOpenFilePicker(options);
         await picker
@@ -87,7 +106,7 @@ export const FilePicker = defineSSRCustomElement({
             console.log('handle', handles);
             const files = await Promise.all(handles.map((h: any) => h.getFile()));
             console.log('file', files);
-            valueModel.value = files;
+            valueModel.value = toLimitCount(files.filter((f) => isFileSizeValid(f)));
           })
           .catch((e: any) => {
             needFallback = e instanceof TypeError;
@@ -102,7 +121,10 @@ export const FilePicker = defineSSRCustomElement({
               }
             }
           });
-        if (!needFallback) return;
+        if (!needFallback) {
+          picking = false;
+          return;
+        }
       }
 
       if (isInputSupportPicker()) input.showPicker();
@@ -115,6 +137,9 @@ export const FilePicker = defineSSRCustomElement({
     };
 
     // TODO useCEStates?  useCEExpose?
+    useCEExpose({
+      pickFile,
+    });
 
     return () => {
       const { disabled } = editComputed.value;

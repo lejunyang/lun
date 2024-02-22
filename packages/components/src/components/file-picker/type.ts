@@ -2,6 +2,7 @@ import { ExtractPropTypes } from 'vue';
 import {
   GetEventPropsFromEmits,
   PropBoolean,
+  PropNumber,
   PropObjOrStr,
   PropObject,
   PropStrOrArr,
@@ -20,6 +21,8 @@ export const filePickerProps = {
   ...editStateProps,
   value: PropObject<File | File[]>(),
   multiple: PropBoolean(),
+  maxSize: PropNumber(),
+  maxCount: PropNumber(),
   strictAccept: PropBoolean(),
   preferFileApi: PropBoolean(),
   mimeTypes: PropStrOrArr(),
@@ -27,7 +30,7 @@ export const filePickerProps = {
   /** for showOpenFilePicker */
   startIn: PropObjOrStr<WellKnownDirectory | FileSystemHandle>(),
   /** for showOpenFilePicker. By specifying an ID, the user agent can remember different directories for different IDs. */
-  memoryId: PropString(),
+  rememberId: PropString(),
 };
 
 export const filePickerEmits = {
