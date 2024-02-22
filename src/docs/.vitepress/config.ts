@@ -78,6 +78,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           items: [
             { text: locales[lang].sidebar.feedback.callout, link: wrapLink('/components/callout/', lang) },
             { text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) },
+            { text: locales[lang].sidebar.feedback.watermark, link: wrapLink('/components/watermark/', lang) },
           ],
         },
         {
