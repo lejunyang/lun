@@ -188,7 +188,7 @@ export const GlobalStaticConfig = new Proxy(
       },
       watermark: {
         rotate: -22,
-        color: 'black',
+        color: 'rgba(0,0,0,.15)',
         fontSize: 16,
         fontWeight: 'normal',
         fontStyle: 'normal',

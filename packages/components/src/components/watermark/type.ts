@@ -1,4 +1,4 @@
-import { PropNumber, PropStrOrArr, PropString } from 'common';
+import { PropNumber, PropObjOrStr, PropStrOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const watermarkProps = {
@@ -8,14 +8,16 @@ export const watermarkProps = {
   ratio: PropNumber(),
   width: PropNumber(),
   height: PropNumber(),
-  color: PropString(),
+  color: PropObjOrStr<CanvasFillStrokeStyles['fillStyle']>(),
   fontSize: PropNumber(),
-  fontWeight: PropString(),
-  fontStyle: PropString(),
+  fontWeight: PropNumber<'normal' | 'light' | 'weight' | number>(),
+  fontStyle: PropString<'none' | 'normal' | 'italic' | 'oblique'>(),
   fontFamily: PropString(),
-  textAlign: PropString(),
+  textAlign: PropString<CanvasTextAlign>(),
   gapX: PropNumber(),
   gapY: PropNumber(),
+  offsetX: PropNumber(),
+  offsetY: PropNumber(),
 };
 
 export type WatermarkSetupProps = ExtractPropTypes<typeof watermarkProps>;

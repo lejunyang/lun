@@ -43,7 +43,6 @@ export const Watermark = defineSSRCustomElement({
 
     const ceObserver = new MutationObserver((mutations) => {
       for (const m of mutations) {
-        console.log('mutation', m, m.target, m.nextSibling, m.previousSibling);
         const removedSet = new Set(m.removedNodes);
         if (m.type === 'childList' && removedSet.has(shadow.CE!) && m.nextSibling) {
           CENext = m.nextSibling;
@@ -54,20 +53,11 @@ export const Watermark = defineSSRCustomElement({
     const shadowRootObserver = new MutationObserver((mutations) => {
       const div = markDiv.value!;
       for (const m of mutations) {
-        console.log('shadowRootObserver m', m);
         if (m.type === 'childList' && m.removedNodes.length) {
           shadowRoot.append(...m.removedNodes);
-          console.log('append', m.removedNodes);
         }
         if (m.type === 'attributes' && m.attributeName === 'style' && div.style.cssText !== lastStyle) {
-          markDiv.value!.style.cssText = lastStyle;
-          // DEV only, for debugging and preventing infinite loop
-          if (__DEV__ && div.style.cssText !== lastStyle) {
-            shadowRootObserver.disconnect();
-            console.error('div.value.style.cssText !== markStyle.value');
-            console.error('div.value.style.cssText', div.style.cssText);
-            console.error('markStyle.value', markStyle.value);
-          }
+          div.style.cssText = lastStyle;
         }
       }
     });
@@ -81,7 +71,6 @@ export const Watermark = defineSSRCustomElement({
       CEParent = CE.parentElement!;
       shadowRoot = markDiv.value!.parentNode as ShadowRoot;
       ceObserver.observe(CEParent, { childList: true }); // if observe CE, the callback will be triggered very lately, after onBeforeUnmount
-      console.log('markDiv.value!.parentNode!', markDiv.value!.parentNode!);
       shadowRootObserver.observe(shadowRoot, {
         childList: true,
         attributes: true,
@@ -104,14 +93,44 @@ export const Watermark = defineSSRCustomElement({
 
     // @ts-ignore
     const watermark = useWatermark(freezedProps);
-    const markStyle = computed(
-      () =>
-        `position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none; background-repeat: repeat; background-image: url("${watermark.value[0]}"); visibility: visible !important;`,
-    );
+    const markStyle = computed(() => {
+      const style = {
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        backgroundRepeat: 'repeat',
+        backgroundImage: `url("${watermark.value[0]}")`,
+        visibility: 'visible',
+        backgroundPosition: '',
+        backgroundSize: `${Math.floor(watermark.value[1])}px`,
+      };
+      const { gapX = 100, gapY = 100, offsetX, offsetY } = freezedProps as any;
+      const gapXCenter = gapX / 2,
+        gapYCenter = gapY / 2;
+      const offsetLeft = offsetX ?? gapXCenter,
+        offsetTop = offsetY ?? gapYCenter;
+      let positionLeft = offsetLeft - gapXCenter;
+      let positionTop = offsetTop - gapYCenter;
+      if (positionLeft > 0) {
+        style.left = `${positionLeft}px`;
+        style.width = `calc(100% - ${positionLeft}px)`;
+        positionLeft = 0;
+      }
+      if (positionTop > 0) {
+        style.top = `${positionTop}px`;
+        style.height = `calc(100% - ${positionTop}px)`;
+        positionTop = 0;
+      }
+      style.backgroundPosition = `${positionLeft}px ${positionTop}px`;
+      return style;
+    });
     watchEffect(() => {
       const { value } = markDiv;
       if (value) {
-        value.style.cssText = markStyle.value;
+        Object.assign(value.style, markStyle.value);
         lastStyle = value.style.cssText;
       }
     });

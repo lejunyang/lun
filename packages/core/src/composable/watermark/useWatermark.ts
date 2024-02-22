@@ -21,8 +21,6 @@ function prepareCanvas(
   return [ctx, canvas, realWidth, realHeight];
 }
 
-
-
 /**
  * Get the clips of text content.
  * This is a lazy hook function since SSR no need this
@@ -51,7 +49,7 @@ export function useWatermark(options: {
       ratio = globalThis.devicePixelRatio || 1,
       width,
       height,
-      color = 'black',
+      color = 'rgba(0,0,0,.15)',
       fontSize = 16,
       fontWeight = 'normal',
       fontStyle = 'normal',
