@@ -38,6 +38,7 @@ export default {
         menu: '反馈展示',
         callout: 'Callout 提示框',
         spin: 'Spin 加载中',
+        watermark: 'Watermark 水印',
       },
       layout: {
         menu: '布局组件',
@@ -103,6 +104,7 @@ export default {
         menu: 'Feedback',
         callout: 'Callout',
         spin: 'Spin',
+        watermark: 'Watermark',
       },
       layout: {
         menu: 'Layout',
