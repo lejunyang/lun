@@ -7,6 +7,7 @@ import {
   getFirstOfIterable,
   toRegExp,
   isArray,
+  isTruthyOrZero,
 } from '@lun/utils';
 import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
@@ -214,7 +215,7 @@ export function useInput(
       let newValue = value;
       if (isFunction(transform)) newValue = transform(newValue);
       // if type === 'number-string', force to null when empty
-      return !newValue && newValue !== 0 && (toNullWhenEmpty || type === 'number-string') ? null : newValue;
+      return !isTruthyOrZero(newValue) && (toNullWhenEmpty || type === 'number-string') ? null : newValue;
     },
     handleEvent(actionNow: InputPeriod, e: Event) {
       const {

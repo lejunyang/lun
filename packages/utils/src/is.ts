@@ -45,6 +45,10 @@ export function isEmpty(target: unknown) {
   return false;
 }
 
+export function isTruthyOrZero(target: unknown) {
+  return target || target === 0;
+}
+
 export function isPlainNumber(target: unknown): target is number {
   return typeof target === 'number';
 }
