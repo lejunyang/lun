@@ -1,14 +1,16 @@
 import { defineSSRCustomElement } from 'custom';
 import { watermarkProps } from './type';
-import { createDefineElement, getElementFirstName } from 'utils';
+import { createDefineElement, getElementFirstName, renderElement } from 'utils';
 import { useShadowDom } from 'hooks';
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watchEffect } from 'vue';
+import { VNode, computed, inject, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue';
 import { useWatermark } from '@lun/core';
 import { isTruthyOrZero } from '@lun/utils';
 
 const name = 'watermark';
 const ceStyle =
   'display: block !important; position: relative !important; visibility: visible !important; opacity: 1 !important; transform: none !important; clip-path: none !important;';
+const isTruthyOrZeroOrFalse = (v: any) => isTruthyOrZero(v) || v === false;
+
 export const Watermark = defineSSRCustomElement({
   name,
   props: watermarkProps,
@@ -23,7 +25,7 @@ export const Watermark = defineSSRCustomElement({
   },
   setup(props) {
     const mayNeedUpdateKeys = new Set<keyof typeof watermarkProps>(
-      (Object.keys(props) as any).filter((k: any) => !isTruthyOrZero(props[k])),
+      (Object.keys(props) as any).filter((k: any) => !isTruthyOrZeroOrFalse(props[k])),
     );
     const freezedProps = reactive({ ...props });
     const shadow = useShadowDom();
@@ -32,15 +34,13 @@ export const Watermark = defineSSRCustomElement({
 
     const stop = watchEffect(() => {
       for (const key of Array.from(mayNeedUpdateKeys)) {
-        if (!isTruthyOrZero(freezedProps[key]) && isTruthyOrZero(props[key])) {
+        if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(props[key])) {
           freezedProps[key] = props[key] as any;
           mayNeedUpdateKeys.delete(key);
         }
       }
       if (!mayNeedUpdateKeys.size) stop();
     });
-
-    // provide func (renderElement + freezedProps) to show watermark in dialog
 
     const ceObserver = new MutationObserver((mutations) => {
       for (const m of mutations) {
@@ -92,8 +92,9 @@ export const Watermark = defineSSRCustomElement({
       }
     });
 
+    const parent = WatermarkContext.inject();
     // @ts-ignore
-    const watermark = useWatermark(freezedProps);
+    const watermark = freezedProps.reuse && parent.watermark ? parent.watermark : useWatermark(freezedProps);
     const markStyle = computed(() => {
       const { gapX = 100, gapY = 100, offsetX, offsetY, zIndex } = freezedProps as any;
       const style = {
@@ -110,6 +111,7 @@ export const Watermark = defineSSRCustomElement({
         backgroundSize: `${Math.floor(watermark.value[1])}px`,
         zIndex,
       };
+      // FIXME offset需要特殊值，例如half-gap，避免没有初始值而被恶意更改
       const gapXCenter = gapX / 2,
         gapYCenter = gapY / 2;
       const offsetLeft = offsetX ?? gapXCenter,
@@ -136,6 +138,13 @@ export const Watermark = defineSSRCustomElement({
         lastStyle = value.style.cssText;
       }
     });
+
+    // provide render to show watermark in dialog, provide watermark to reuse
+    WatermarkContext.provide({
+      render: (nodes) =>
+        freezedProps.noInherit ? nodes : renderElement(name, { ...freezedProps, reuse: true }, nodes),
+      watermark,
+    });
     return () => (
       <>
         <slot></slot>
@@ -144,6 +153,24 @@ export const Watermark = defineSSRCustomElement({
     );
   },
 });
+
+export const WatermarkContext = (() => {
+  const key = Symbol(__DEV__ ? 'WatermarkContext' : '');
+  type ProvideContent = {
+    render: (nodes: VNode) => VNode | undefined;
+    watermark?: ReturnType<typeof useWatermark>;
+  };
+  return {
+    provide(content: ProvideContent) {
+      provide(key, content);
+    },
+    inject() {
+      return inject<ProvideContent>(key, {
+        render: (i: any) => i,
+      });
+    },
+  };
+})();
 
 export type tWatermark = typeof Watermark;
 export type iWatermark = InstanceType<tWatermark>;
