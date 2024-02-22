@@ -9,6 +9,7 @@ import { defineIcon } from '../icon/Icon';
 import { useNativeDialog, useSetupEdit } from '@lun/core';
 import { Transition, computed, ref, watch } from 'vue';
 import { getTransitionProps, intl } from 'common';
+import { WatermarkContext } from '../watermark';
 
 const name = 'dialog';
 export const Dialog = defineSSRCustomElement({
@@ -75,59 +76,66 @@ export const Dialog = defineSSRCustomElement({
       toggleDialog: methods.toggle,
     });
 
+    // if there is a parent watermark, wrap children with watermark render
+    const { render } = WatermarkContext.inject();
+
     const [stateClass] = useCEStates(() => ({ 'no-top-layer': props.noTopLayer }), ns, editComputed);
     return () => {
       return (
         <dialog class={stateClass.value} part="root" ref={dialogRef} {...dialogHandlers} style={{ width: props.width }}>
-          <Transition {...getTransitionProps(props, 'mask')}>
-            <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
-          </Transition>
-          <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
-            <div v-show={openModel.value} class={ns.e('panel')} part="panel">
-              {!props.noCloseBtn &&
-                renderElement(
-                  'button',
-                  {
-                    class: ns.e('close'),
-                    variant: 'ghost',
-                    ...props.closeBtnProps,
-                    asyncHandler: methods.close,
-                    part: 'close',
-                  },
-                  renderElement('icon', { name: 'x', slot: 'icon' }),
-                )}
-              {!props.noHeader && (
-                <header class={[ns.e('header')]} part="header">
-                  <slot name="header-start"></slot>
-                  <slot name="header">{props.headerTitle}</slot>
-                  <slot name="header-end"></slot>
-                </header>
-              )}
-              <div class={[ns.e('content')]} part="content">
-                <slot>{props.content && <VCustomRenderer content={props.content} />}</slot>
-              </div>
-              {!props.noFooter && (
-                <footer class={[ns.e('footer')]} part="footer">
-                  <slot name="footer-start"></slot>
-                  <slot name="footer">
-                    {!props.noCancelBtn &&
-                      renderElement('button', {
-                        ...props.cancelBtnProps,
-                        label: props.cancelText || intl('dialog.cancel').d('Cancel'),
+          {render(
+            <>
+              <Transition {...getTransitionProps(props, 'mask')}>
+                <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
+              </Transition>
+              <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
+                <div v-show={openModel.value} class={ns.e('panel')} part="panel">
+                  {!props.noCloseBtn &&
+                    renderElement(
+                      'button',
+                      {
+                        class: ns.e('close'),
+                        variant: 'ghost',
+                        ...props.closeBtnProps,
                         asyncHandler: methods.close,
-                      })}
-                    {!props.noOkBtn &&
-                      renderElement('button', {
-                        ...props.okBtnProps,
-                        label: props.okText || intl('dialog.ok').d('OK'),
-                        asyncHandler: methods.ok,
-                      })}
-                  </slot>
-                  <slot name="footer-end"></slot>
-                </footer>
-              )}
-            </div>
-          </Transition>
+                        part: 'close',
+                      },
+                      renderElement('icon', { name: 'x', slot: 'icon' }),
+                    )}
+                  {!props.noHeader && (
+                    <header class={[ns.e('header')]} part="header">
+                      <slot name="header-start"></slot>
+                      <slot name="header">{props.headerTitle}</slot>
+                      <slot name="header-end"></slot>
+                    </header>
+                  )}
+                  <div class={[ns.e('content')]} part="content">
+                    <slot>{props.content && <VCustomRenderer content={props.content} />}</slot>
+                  </div>
+                  {!props.noFooter && (
+                    <footer class={[ns.e('footer')]} part="footer">
+                      <slot name="footer-start"></slot>
+                      <slot name="footer">
+                        {!props.noCancelBtn &&
+                          renderElement('button', {
+                            ...props.cancelBtnProps,
+                            label: props.cancelText || intl('dialog.cancel').d('Cancel'),
+                            asyncHandler: methods.close,
+                          })}
+                        {!props.noOkBtn &&
+                          renderElement('button', {
+                            ...props.okBtnProps,
+                            label: props.okText || intl('dialog.ok').d('OK'),
+                            asyncHandler: methods.ok,
+                          })}
+                      </slot>
+                      <slot name="footer-end"></slot>
+                    </footer>
+                  )}
+                </div>
+              </Transition>
+            </>,
+          )}
         </dialog>
       );
     };
