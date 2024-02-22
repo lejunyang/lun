@@ -1,6 +1,8 @@
-// copied from ant-design/components/watermark/useClips.ts
+// derived from ant-design/components/watermark/useClips.ts
 
-import { ComputedRef, computed } from 'vue';
+import { ComputedRef, computed, ref, watchEffect } from 'vue';
+import { unrefOrGet, MaybeRefLikeOrGetter } from '../../utils/ref';
+import { isHTMLImageElement, toArrayIfNotNil } from '@lun/utils';
 
 export const FontGap = 3;
 
@@ -25,30 +27,88 @@ function prepareCanvas(
  * Get the clips of text content.
  * This is a lazy hook function since SSR no need this
  */
-export function useWatermark(options: {
-  content?: string | string[] | null;
-  image?: string;
-  rotate?: number | string;
-  ratio?: number;
-  width?: number;
-  height?: number;
-  color?: CanvasFillStrokeStyles['fillStyle'];
-  fontSize?: number | string;
-  fontWeight?: 'normal' | 'light' | 'weight' | number;
-  fontStyle?: 'none' | 'normal' | 'italic' | 'oblique';
-  fontFamily?: string;
-  textAlign?: CanvasTextAlign;
-  gapX?: number;
-  gapY?: number;
-}): ComputedRef<[dataURL: string, finalWidth: number, finalHeight: number]> {
+export function useWatermark(
+  options: MaybeRefLikeOrGetter<
+    {
+      content?: string | string[] | null;
+      image?: string | HTMLImageElement;
+      rotate?: number | string;
+      ratio?: number;
+      width?: number;
+      height?: number;
+      color?: CanvasFillStrokeStyles['fillStyle'];
+      fontSize?: number | string;
+      fontWeight?: 'normal' | 'light' | 'weight' | number;
+      fontStyle?: 'none' | 'normal' | 'italic' | 'oblique';
+      fontFamily?: string;
+      textAlign?: CanvasTextAlign;
+      gapX?: number;
+      gapY?: number;
+    },
+    true
+  >,
+): ComputedRef<[dataURL: string, finalWidth: number, finalHeight: number]> {
+  let textCtx: CanvasRenderingContext2D;
+  const imageRef = ref<HTMLImageElement>(),
+    imageLoading = ref(false);
+  watchEffect(() => {
+    const { image } = unrefOrGet(options);
+    if (image === 'none') return;
+    if (isHTMLImageElement(image)) {
+      imageRef.value = image;
+    } else if (image) {
+      const imageEl = new Image();
+      imageEl.crossOrigin = 'anonymous';
+      imageEl.referrerPolicy = 'no-referrer';
+      imageLoading.value = true;
+      imageEl.onload = () => {
+        imageLoading.value = false;
+        imageRef.value = imageEl;
+      };
+      imageEl.onerror = () => {
+        imageLoading.value = false;
+      };
+      imageEl.src = image;
+    } else {
+      imageRef.value = undefined;
+    }
+  });
+  const size = computed(() => {
+    let { width, height, fontSize, fontFamily, content } = unrefOrGet(options);
+    // ============================ Content =============================
+    /**
+     * Get the width and height of the watermark. The default values are as follows
+     * Image: [120, 64]; Content: It's calculated by content;
+     */
+    if (!width || !height) {
+      if (!textCtx) {
+        const canvas = document.createElement('canvas');
+        textCtx = canvas.getContext('2d')!;
+      }
+      let defaultWidth = 120;
+      let defaultHeight = 64;
+      if (!imageRef.value && textCtx.measureText) {
+        textCtx.font = `${Number(fontSize)}px ${fontFamily}`;
+        const contents = Array.isArray(content) ? content : [content];
+        const sizes = contents.map((item) => {
+          const metrics = textCtx.measureText(item!);
+          return [metrics.width, metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent];
+        });
+        defaultWidth = Math.ceil(Math.max(...sizes.map((size) => size[0])));
+        defaultHeight =
+          Math.ceil(Math.max(...sizes.map((size) => size[1]))) * contents.length + (contents.length - 1) * FontGap;
+      }
+      width ||= defaultWidth;
+      height ||= defaultHeight;
+    }
+    return [width, height];
+  });
+
   return computed(() => {
     let {
       content,
-      image,
       rotate = -22,
       ratio = globalThis.devicePixelRatio || 1,
-      width,
-      height,
       color = 'rgba(0,0,0,.15)',
       fontSize = 16,
       fontWeight = 'normal',
@@ -57,43 +117,15 @@ export function useWatermark(options: {
       textAlign = 'center',
       gapX = 100,
       gapY = 100,
-    } = options;
-
-    // ============================ Content =============================
-    /**
-     * Get the width and height of the watermark. The default values are as follows
-     * Image: [120, 64]; Content: It's calculated by content;
-     */
-    const getMarkSize = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      let defaultWidth = 120;
-      let defaultHeight = 64;
-      if (!image && ctx.measureText) {
-        ctx.font = `${Number(fontSize)}px ${fontFamily}`;
-        const contents = Array.isArray(content) ? content : [content];
-        const sizes = contents.map((item) => {
-          const metrics = ctx.measureText(item!);
-          return [metrics.width, metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent];
-        });
-        defaultWidth = Math.ceil(Math.max(...sizes.map((size) => size[0])));
-        defaultHeight =
-          Math.ceil(Math.max(...sizes.map((size) => size[1]))) * contents.length + (contents.length - 1) * FontGap;
-      }
-      return [width ?? defaultWidth, height ?? defaultHeight] as const;
-    };
-    if (!width || !height) {
-      const [w, h] = getMarkSize();
-      width ||= w;
-      height ||= h;
-    }
+    } = unrefOrGet(options);
+    const [width, height] = size.value;
 
     // ================= Text / Image =================
     const [ctx, canvas, contentWidth, contentHeight] = prepareCanvas(width, height, ratio);
 
-    if (content instanceof HTMLImageElement) {
+    if (imageRef.value || imageLoading.value) {
       // Image
-      ctx.drawImage(content, 0, 0, contentWidth, contentHeight);
+      imageRef.value && ctx.drawImage(imageRef.value, 0, 0, contentWidth, contentHeight);
     } else {
       // Text
       const mergedFontSize = Number(fontSize) * ratio;
@@ -102,8 +134,8 @@ export function useWatermark(options: {
       ctx.fillStyle = color!;
       ctx.textAlign = textAlign!;
       ctx.textBaseline = 'top';
-      const contents = Array.isArray(content) ? content : [content];
-      contents?.forEach((item, index) => {
+      const contents = toArrayIfNotNil(content);
+      contents.forEach((item, index) => {
         ctx.fillText(item ?? '', contentWidth / 2, index * (mergedFontSize + FontGap * ratio));
       });
     }
