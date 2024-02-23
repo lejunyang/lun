@@ -1,3 +1,4 @@
+import { AppearanceColor } from 'hooks';
 import { PropBoolean, PropNumber, PropObjOrStr, PropStrOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -11,7 +12,7 @@ export const watermarkProps = {
   width: PropNumber(),
   height: PropNumber(),
   zIndex: PropNumber(),
-  color: PropObjOrStr<CanvasFillStrokeStyles['fillStyle']>(),
+  color: PropObjOrStr<AppearanceColor<CanvasFillStrokeStyles['fillStyle']>>(),
   fontSize: PropNumber(),
   fontWeight: PropNumber<'normal' | 'light' | 'weight' | number>(),
   fontStyle: PropString<'none' | 'normal' | 'italic' | 'oblique'>(),
@@ -19,12 +20,16 @@ export const watermarkProps = {
   textAlign: PropString<CanvasTextAlign>(),
   gapX: PropNumber(),
   gapY: PropNumber(),
-  offsetX: PropNumber(),
-  offsetY: PropNumber(),
+  /** number or 'half-gap' */
+  offsetLeft: PropNumber(),
+  /** number or 'half-gap' */
+  offsetTop: PropNumber(),
   /** dialog will inherit parent watermark and render it by default */
   noInherit: PropBoolean(),
   /** useful when it's a child of another watermark, avoid recreating watermark */
   reuse: PropBoolean(),
+  /** used to make the props of watermark mutable, note that it can not be dynamically changed, only valid when it's set before mount */
+  mutable: PropBoolean(),
 };
 
 export type WatermarkSetupProps = ExtractPropTypes<typeof watermarkProps>;

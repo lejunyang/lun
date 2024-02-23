@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName, renderElement } from 'utils';
-import { useShadowDom } from 'hooks';
+import { useNamespace, useShadowDom } from 'hooks';
 import { VNode, computed, inject, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue';
 import { useWatermark } from '@lun/core';
 import { isTruthyOrZero } from '@lun/utils';
@@ -24,23 +24,28 @@ export const Watermark = defineSSRCustomElement({
     }
   },
   setup(props) {
-    const mayNeedUpdateKeys = new Set<keyof typeof watermarkProps>(
-      (Object.keys(props) as any).filter((k: any) => !isTruthyOrZeroOrFalse(props[k])),
-    );
-    const freezedProps = reactive({ ...props });
+    const { getColor } = useNamespace(name);
+    const { mutable } = props;
+    const freezedProps = mutable ? props : reactive({ ...props });
     const shadow = useShadowDom();
     const markDiv = ref<HTMLDivElement>();
     let shadowRoot: ShadowRoot, lastStyle: string;
 
-    const stop = watchEffect(() => {
-      for (const key of Array.from(mayNeedUpdateKeys)) {
-        if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(props[key])) {
-          freezedProps[key] = props[key] as any;
-          mayNeedUpdateKeys.delete(key);
+    if (!mutable) {
+      const mayNeedUpdateKeys = new Set<keyof typeof watermarkProps>(
+        (Object.keys(props) as any).filter((k: any) => !isTruthyOrZeroOrFalse(props[k])),
+      );
+      const stop = watchEffect(() => {
+        for (const key of Array.from(mayNeedUpdateKeys)) {
+          if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(props[key])) {
+            // @ts-ignore
+            freezedProps[key] = props[key];
+            mayNeedUpdateKeys.delete(key);
+          }
         }
-      }
-      if (!mayNeedUpdateKeys.size) stop();
-    });
+        if (!mayNeedUpdateKeys.size) stop();
+      });
+    }
 
     const ceObserver = new MutationObserver((mutations) => {
       for (const m of mutations) {
@@ -93,10 +98,15 @@ export const Watermark = defineSSRCustomElement({
     });
 
     const parent = WatermarkContext.inject();
-    // @ts-ignore
-    const watermark = freezedProps.reuse && parent.watermark ? parent.watermark : useWatermark(freezedProps);
+    const watermark =
+      freezedProps.reuse && parent.watermark
+        ? parent.watermark
+        : useWatermark(
+            // @ts-ignore
+            computed(() => ({ ...freezedProps, color: getColor(freezedProps) })),
+          );
     const markStyle = computed(() => {
-      const { gapX = 100, gapY = 100, offsetX, offsetY, zIndex } = freezedProps as any;
+      let { gapX = 100, gapY = 100, offsetLeft, offsetTop, zIndex } = freezedProps as any;
       const style = {
         position: 'absolute',
         top: '0px',
@@ -111,11 +121,10 @@ export const Watermark = defineSSRCustomElement({
         backgroundSize: `${Math.floor(watermark.value[1])}px`,
         zIndex,
       };
-      // FIXME offset需要特殊值，例如half-gap，避免没有初始值而被恶意更改
       const gapXCenter = gapX / 2,
         gapYCenter = gapY / 2;
-      const offsetLeft = offsetX ?? gapXCenter,
-        offsetTop = offsetY ?? gapYCenter;
+      offsetLeft = offsetLeft === 'half-gap' || !isTruthyOrZero(offsetLeft) ? gapXCenter : offsetLeft;
+      offsetTop = offsetTop === 'half-gap' || !isTruthyOrZeroOrFalse(offsetTop) ? gapYCenter : offsetTop;
       let positionLeft = offsetLeft - gapXCenter;
       let positionTop = offsetTop - gapYCenter;
       if (positionLeft > 0) {

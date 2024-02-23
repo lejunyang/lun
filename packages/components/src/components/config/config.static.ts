@@ -190,7 +190,10 @@ export const GlobalStaticConfig = new Proxy(
         image: 'none', // defaults to none so that watermark with only 'content' prop will not be violated by changing 'image' prop
         zIndex: 5, // needs to be greater than the dialog panel's z-index
         opacity: 1,
-        color: 'rgba(0,0,0,.15)',
+        color: {
+          initial: 'rgba(0,0,0,.15)',
+          dark: 'rgba(255,255,255,.18)',
+        },
         fontSize: 16,
         fontWeight: 'normal',
         fontStyle: 'normal',
@@ -198,6 +201,8 @@ export const GlobalStaticConfig = new Proxy(
         textAlign: 'center',
         gapX: 100,
         gapY: 100,
+        offsetLeft: 'half-gap',
+        offsetTop: 'half-gap',
       },
     },
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
