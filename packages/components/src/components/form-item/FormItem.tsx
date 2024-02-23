@@ -91,9 +91,13 @@ export const FormItem = defineSSRCustomElement({
         newLine: tipType === 'newLine' && msgs.map((msg) => <div>{String(msg)}</div>),
       };
     });
-    const [stateClass, states] = useCEStates(() => ({
-      required: formContext ? validateProps.value.required : props.value.required,
-    }), ns, editComputed);
+    const [stateClass, states] = useCEStates(
+      () => ({
+        required: formContext ? validateProps.value.required : props.value.required,
+      }),
+      ns,
+      editComputed,
+    );
     const render = () => {
       let {
         colonMark,
@@ -145,6 +149,7 @@ export const FormItem = defineSSRCustomElement({
             </span>
           )}
           <span
+            class={ns.e('content')}
             part={ns.p('content')}
             style={{
               gridColumnStart: colSpan && `span ${(colSpan as number) * 2 - 1}`,

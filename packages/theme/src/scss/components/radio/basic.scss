@@ -102,7 +102,7 @@
     @include setVars(
       (
         gap: getSpaceValue(1),
-        font-size: getFontSizeValue(2),
+        font-size: getFontSizeValue(1),
         button-border-radius: getRadiusValue(1),
         button-padding-inline: getSpaceValue(2),
         button-line-height: getLineHeightValue(1),
@@ -118,7 +118,7 @@
     @include setVars(
       (
         gap: getSpaceValue(1),
-        font-size: getFontSizeValue(3),
+        font-size: getFontSizeValue(2),
         button-border-radius: getRadiusValue(2),
         button-padding-inline: getSpaceValue(3),
         button-line-height: getLineHeightValue(2),
@@ -134,7 +134,7 @@
     @include setVars(
       (
         gap: getSpaceValue(1),
-        font-size: getFontSizeValue(4),
+        font-size: getFontSizeValue(3),
         button-border-radius: getRadiusValue(3),
         button-padding-inline: getSpaceValue(4),
         button-line-height: getLineHeightValue(3),
