@@ -17,6 +17,51 @@
       required-mark-color: getSemanticColor(error),
     )
   );
+
+  @include e(label) {
+    @include declareVars(
+      (
+        line-height: label-line-height,
+        font-size: label-font-size,
+      )
+    );
+  }
+
+  @include e(content) {
+    @include declareVars(
+      (
+        line-height: content-line-height,
+      )
+    );
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        label-font-size: getFontSizeValue(1),
+        label-line-height: getSpaceValue(5),
+        content-line-height: getSpaceValue(5),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        label-font-size: getFontSizeValue(2),
+        label-line-height: getSpaceValue(6),
+        content-line-height: getSpaceValue(6),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        label-font-size: getFontSizeValue(3),
+        label-line-height: getSpaceValue(7),
+        content-line-height: getSpaceValue(7),
+      )
+    );
+  }
 }
 
 :host-context(#{getIs(layout-grid)}) {
