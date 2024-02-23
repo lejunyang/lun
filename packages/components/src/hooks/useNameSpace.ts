@@ -92,22 +92,34 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     const theme = contextConfig?.theme[key];
     return (getThemeValueFromInstance(vm, key) || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
   };
+
+  const isDark = () => {
+    const appearance = getActualThemeValue('appearance');
+    return appearance === 'dark' || (isPreferDark() && appearance !== 'light');
+  };
+
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
     const size = getActualThemeValue('size');
     const highContrast = getActualThemeValue<boolean>('highContrast');
-    const appearance = getActualThemeValue('appearance');
     return [
       b(),
       variant && m(`variant-${variant}`),
       withBreakpoints(size || '1', m('size')),
       is('high-contrast', highContrast),
-      is('dark', appearance === 'dark' || isPreferDark()),
+      is('dark', isDark()),
     ];
   });
 
   const p = (part: string | string[]): string =>
     isArray(part) ? part.map(p).join(' ') : `${block ? block + '-' : ''}${part} ${part}`;
+
+  const getColor = <K extends string = 'color'>(props: Record<K, AppearanceColor<any> | undefined>, key?: K) => {
+    key ||= 'color' as K;
+    const appearance = getActualThemeValue('appearance');
+    const value = props[key];
+    return isString(value) ? value : (appearance && (value as any)?.[appearance]) || (value as any)?.initial;
+  };
 
   return {
     namespace,
@@ -148,7 +160,19 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     },
     /** used to generate html part value */
     p,
+    isDark,
+    /** getActualThemeValue */
+    getT: getActualThemeValue,
+    getColor,
   };
 };
 
 export type UseNamespaceReturn = ReturnType<typeof useNamespace>;
+
+export type AppearanceColor<T = string> =
+  | T
+  | {
+      initial: T;
+      light: T;
+      dark: T;
+    };
