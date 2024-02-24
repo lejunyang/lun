@@ -34,6 +34,7 @@
   // so don't use backdrop, add another element as mask
   @include e(mask) {
     position: fixed;
+    user-select: none; // prevent text selection(prevent the context menu triggered by text selection in edge)
     background-color: getSemanticColor('mask');
     transition: background-color 0.25s;
     inset: 0px;
@@ -48,15 +49,33 @@
 
   @include e(close) {
     position: absolute;
+    transform: getRVarValue((close, transform), translate(50%, -50%));
+    @include declareVars(
+      (
+        inset-block-start: close-inset-block-start,
+        inset-inline-end: close-inset-inline-end,
+      )
+    );
   }
 
   @include e(header) {
     display: flex;
     margin-block-end: getSpaceValue(1);
-    // font-weight: getFontWeightValue(medium);
-    // font-size: getFontSizeValue(2);
+    font-weight: getRVarValue((header, font-weight), getFontWeightValue(medium));
+    @include declareVars(
+      (
+        font-size: header-font-size,
+        line-height: header-line-height,
+      )
+    );
   }
   @include e(content) {
+    @include declareVars(
+      (
+        font-size: content-font-size,
+        line-height: content-line-height,
+      )
+    );
   }
   @include e(footer) {
     display: flex;
@@ -64,6 +83,16 @@
   }
 
   @include size(1) {
+    @include setVars(
+      (
+        header-font-size: getFontSizeValue(2),
+        header-line-height: getLineHeightValue(2),
+        content-font-size: getFontSizeValue(1),
+        content-line-height: getLineHeightValue(1),
+        close-inset-block-start: calc(#{getSpaceValue(3)} + #{getLineHeightValue(2)} / 2),
+        close-inset-inline-end: calc(#{getSpaceValue(3)} + #{getLineHeightValue(2)} / 2),
+      )
+    );
     @include e(panel) {
       padding: getSpaceValue(3);
       border-radius: getRadiusValue(1);
@@ -71,12 +100,18 @@
     @include e(footer) {
       gap: getSpaceValue(3);
     }
-    @include e(close) {
-      inset-block-start: getSpaceValue(3);
-      inset-inline-end: getSpaceValue(3);
-    }
   }
   @include size(2) {
+    @include setVars(
+      (
+        header-font-size: getFontSizeValue(3),
+        header-line-height: getLineHeightValue(3),
+        content-font-size: getFontSizeValue(2),
+        content-line-height: getLineHeightValue(2),
+        close-inset-block-start: calc(#{getSpaceValue(4)} + #{getLineHeightValue(3)} / 2),
+        close-inset-inline-end: calc(#{getSpaceValue(4)} + #{getLineHeightValue(3)} / 2),
+      )
+    );
     @include e(panel) {
       padding: getSpaceValue(4);
       border-radius: getRadiusValue(2);
@@ -84,22 +119,24 @@
     @include e(footer) {
       gap: getSpaceValue(4);
     }
-    @include e(close) {
-      inset-block-start: getSpaceValue(4);
-      inset-inline-end: getSpaceValue(4);
-    }
   }
   @include size(3) {
+    @include setVars(
+      (
+        header-font-size: getFontSizeValue(4),
+        header-line-height: getLineHeightValue(4),
+        content-font-size: getFontSizeValue(3),
+        content-line-height: getLineHeightValue(3),
+        close-inset-block-start: calc(#{getSpaceValue(5)} + #{getLineHeightValue(4)} / 2),
+        close-inset-inline-end: calc(#{getSpaceValue(5)} + #{getLineHeightValue(4)} / 2),
+      )
+    );
     @include e(panel) {
       padding: getSpaceValue(5);
       border-radius: getRadiusValue(3);
     }
     @include e(footer) {
       gap: getSpaceValue(5);
-    }
-    @include e(close) {
-      inset-block-start: getSpaceValue(5);
-      inset-inline-end: getSpaceValue(5);
     }
   }
 }
