@@ -3,12 +3,6 @@
 @use 'sass:map';
 @use 'sass:list';
 
-@mixin where {
-  $WHERE: true !global;
-  @content;
-  $WHERE: false !global;
-}
-
 // block
 @mixin b($block: '') {
   $Root: $block !global;
@@ -258,10 +252,20 @@
   }
 }
 
+/**
+  * inside @include b(button) { ... }
+  * getRVarName(padding) => --l-button-padding
+  * getRVarName((label, padding)) => --l-button-label-padding
+  */
 @function getRVarName($list) {
   @return getVarName(list.join($Root, $list));
 }
 
+/**
+  * inside @include b(button) { ... }
+  * getRVarValue(padding) => var(--l-button-padding)
+  * getRVarValue((label, padding), 1px) => var(--l-button-label-padding, 1px)
+  */
 @function getRVarValue($args, $default: '') {
   @return getVarValue(list.join($Root, $args), $default);
 }
@@ -281,13 +285,24 @@
   }
 }
 
+// TODO declareVars改为不带前缀 setVars var(前缀，不带前缀，值)
+
 /**
+  * inside @include b(button) { ... }
+  * declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
   * declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
   */
 @mixin declareVarValues($varValMap) {
   @each $prop, $nameVal in $varValMap {
-    $name: list.nth($nameVal, 1);
-    $val: list.nth($nameVal, 2);
+    $name: '';
+    $val: '';
+    @if list.length($nameVal) == 1 {
+      $name: $prop;
+      $val: list.nth($nameVal, 1);
+    } @else {
+      $name: list.nth($nameVal, 1);
+      $val: list.nth($nameVal, 2);
+    }
     #{$prop}: #{getRVarValue($name, $val)};
   }
 }

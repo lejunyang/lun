@@ -8,77 +8,122 @@
   vertical-align: text-bottom;
 }
 
-@include b(switch) {
-  $height: getVarName((switch, 'height'));
-  $borderRadius: getVarName((switch, 'border-radius'));
-  $minWidth: getVarName((switch, 'min-width'));
-  $padding: getVarName((switch, 'padding'));
-  $thumbSize: getVarName((switch, 'thumb-size'));
+.children-enter-active {
+  transition: opacity 0.15s 0.1s ease-in;
+}
 
-  #{$minWidth}: calc(var(#{$height}) * 1.75);
-  #{$padding}: 1px;
-  #{$thumbSize}: calc(var(#{$height}) - var(#{$padding}) * 2);
+.children-enter-from {
+  opacity: 0;
+}
+
+.children-enter-to {
+  opacity: 1;
+}
+
+.children-leave-active {
+  display: none; // prevent two children from being displayed at the same time
+}
+
+@include b(switch) {
+  $padding: getRVarValue('padding', 1px);
 
   display: inline-flex;
   align-items: center;
-  min-inline-size: var(#{$minWidth});
-  height: var(#{$height});
-  border-radius: var(#{$borderRadius});
   overflow: hidden;
+  cursor: pointer;
+  @include declareVars((height, border-radius));
+  @include declareVarValues(
+    (
+      min-inline-size: calc(getRVarValue('height') * 1.75),
+      padding: 1px,
+      transition: background-color 0.3s,
+    )
+  );
+  @include setVars(
+    (
+      thumb-size: calc(getRVarValue('height') - $padding * 2),
+    )
+  );
 
   @include e(thumb) {
     align-items: center;
     display: inline-flex;
     justify-content: center;
-    inline-size: var(#{$thumbSize});
-    block-size: var(#{$thumbSize});
+    inline-size: getRVarValue('thumb-size');
+    block-size: getRVarValue('thumb-size');
     background-color: white;
-    border-radius: calc(var(#{$borderRadius}) - var(#{$padding}));
+    border-radius: calc(getRVarValue(border-radius) - $padding);
     position: relative;
-    inset-inline-start: var(#{$padding});
+    inset-inline-start: $padding;
     transition: all 0.3s;
   }
+
+  @include e(children) {
+    @include declareVars(
+      (
+        font-size: children-font-size,
+      )
+    );
+  }
+
   @include e(checked) {
     position: relative;
-    inset-inline-start: calc(0px - var(#{$thumbSize}));
+    inset-inline-start: calc(0px - getRVarValue('thumb-size'));
+    color: getAccentColor(contrast);
+    @include declareVars(
+      (
+        padding: children-padding,
+      )
+    );
   }
   @include e(unchecked) {
     position: relative;
-    inset-inline-start: var(#{$padding});
+    inset-inline-start: $padding;
+    @include declareVars(
+      (
+        padding: children-padding,
+      )
+    );
   }
 
   @include is(checked) {
-    #{getE(thumb)} {
-      inset-inline-start: calc(100% - var(#{$thumbSize}) - var(#{$padding}));
+    @include e(thumb) {
+      inset-inline-start: calc(100% - getRVarValue('thumb-size') - $padding);
     }
   }
 
   @include is(disabled) {
     cursor: getDisabledCursor();
-    .#{$B}:not(&) {
-      cursor: pointer;
-    }
   }
 
   @include size(1) {
-    #{$height}: getSpaceValue(4);
-    #{$borderRadius}: getRadiusValue(1, false);
-    #{getE(children)} {
-      font-size: getFontSizeValue(1);
-    }
+    @include setVars(
+      (
+        children-padding: 0 calc(#{getSpaceValue(1)} / 2),
+        border-radius: getRadiusValue(1, false),
+        height: getSpaceValue(4),
+        children-font-size: getFontSizeValue(1),
+      )
+    );
   }
   @include size(2) {
-    #{$height}: calc(getSpaceValue(5) * 5 / 6);
-    #{$borderRadius}: getRadiusValue(2, false);
-    #{getE(children)} {
-      font-size: getFontSizeValue(2);
-    }
+    @include setVars(
+      (
+        children-padding: 0 getSpaceValue(1),
+        border-radius: getRadiusValue(2, false),
+        height: calc(getSpaceValue(5) * 5 / 6),
+        children-font-size: getFontSizeValue(2),
+      )
+    );
   }
   @include size(3) {
-    #{$height}: getSpaceValue(5);
-    #{$borderRadius}: getRadiusValue(2, false);
-    #{getE(children)} {
-      font-size: getFontSizeValue(3);
-    }
+    @include setVars(
+      (
+        children-padding: 0 getSpaceValue(2),
+        border-radius: getRadiusValue(2, false),
+        height: getSpaceValue(5),
+        children-font-size: getFontSizeValue(3),
+      )
+    );
   }
 }
