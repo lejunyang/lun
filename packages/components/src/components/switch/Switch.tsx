@@ -4,6 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
 import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
+import { Transition } from 'vue';
 
 const name = 'switch';
 export const Switch = defineSSRCustomElement({
@@ -48,12 +49,16 @@ export const Switch = defineSSRCustomElement({
               <slot name={loading ? 'loading' : 'thumb'}>{loading && renderElement('spin', spinProps)}</slot>
             </span>
             <span part={ns.p('children')} class={ns.e('children')}>
-              <span v-show={checked} class={ns.e('checked')}>
-                <slot name="checked">{trueText}</slot>
-              </span>
-              <span v-show={!checked} class={ns.e('unchecked')}>
-                <slot name="unchecked">{falseText}</slot>
-              </span>
+              <Transition name="children">
+                <span v-show={checked} class={ns.e('checked')}>
+                  <slot name="checked">{trueText}</slot>
+                </span>
+              </Transition>
+              <Transition name="children">
+                <span v-show={!checked} class={ns.e('unchecked')}>
+                  <slot name="unchecked">{falseText}</slot>
+                </span>
+              </Transition>
             </span>
           </label>
         </>
