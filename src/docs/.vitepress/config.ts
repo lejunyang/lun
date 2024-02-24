@@ -1,7 +1,7 @@
 import { defineConfig, DefaultTheme } from 'vitepress';
 import { fileURLToPath, URL } from 'node:url';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import postcssLogical from 'postcss-logical';
+// import postcssLogical from 'postcss-logical';
 import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
 import { replaceCodeTags } from './replaceCodeTags';
@@ -168,7 +168,7 @@ export default defineConfig({
     },
     css: {
       postcss: {
-        plugins: [postcssLogical()],
+        // plugins: [postcssLogical()],
       },
     },
   },

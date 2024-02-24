@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { delay } from '@lun/utils';
 import { useForm } from '@lun/core';
+import { sentence, text } from 'data';
 
 const open = ref(false);
 const form = useForm({
@@ -33,7 +34,7 @@ export default function () {
         <l-form-item
           name="disabledAllWhenPending"
           label="disabledAllWhenPending"
-          help="是否在pending时禁用，pending指Dialog自带的按钮进入加载状态"
+          help="是否在pending时禁用，pending指Dialog自带的按钮进入加载状态，当回调返回Promise时会如此"
         />
       </l-form>
       <pre>{JSON.stringify(form.formData)}</pre>
@@ -41,14 +42,14 @@ export default function () {
       <l-dialog
         {...form.formData}
         open={open.value}
-        headerTitle="标题"
+        headerTitle={sentence}
         onUpdate={(e) => (open.value = e.detail)}
         onAfterOpen={() => console.log('afterOpen')}
         onAfterClose={() => console.log('afterClose')}
         beforeOk={() => delay(3000)}
         beforeClose={() => console.log('beforeClose')}
       >
-        <div>内容</div>
+        <div>{text}</div>
       </l-dialog>
     </>
   );
