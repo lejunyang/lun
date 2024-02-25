@@ -214,6 +214,13 @@ export const GlobalStaticConfig = new Proxy(
         return Reflect.get(target, 'common', receiver).concat(Reflect.get(target, p, receiver)).filter(Boolean);
       },
     }),
+    breakpoints: {
+      xs: '520px',
+      sm: '768px',
+      md: '1024px',
+      lg: '1280px',
+      xl: '1640px',
+    },
     /** function used to request icon url, should return html string */
     iconRequest: async (url?: string | null) => {
       if (!url) return;
