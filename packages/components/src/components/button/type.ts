@@ -12,7 +12,7 @@ import {
   PropBoolean,
   PropNumber,
 } from 'common';
-import { Responsive } from '@lun/core';
+import { Responsive } from 'hooks';
 
 export const buttonProps = {
   ...editStateProps,

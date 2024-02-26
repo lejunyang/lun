@@ -29,6 +29,11 @@ export const GlobalContextConfig = reactive({
   })(),
   theme: {
     variant: 'surface',
+    size: {
+      initial: '1',
+      sm: '2',
+      xl: '3',
+    },
   } as ThemeConfig,
 });
 

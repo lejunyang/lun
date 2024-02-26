@@ -82,3 +82,8 @@ export function pickNonNil<
     return result;
   }, {} as Pick<M, K[number]>);
 }
+
+/** it's annoying Object.keys() returns string[], use this instead */
+export const objectKeys = <T extends object>(obj: T) => {
+  return Object.keys(obj) as Array<keyof T>;
+};

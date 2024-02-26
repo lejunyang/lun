@@ -214,6 +214,7 @@ export const GlobalStaticConfig = new Proxy(
         return Reflect.get(target, 'common', receiver).concat(Reflect.get(target, p, receiver)).filter(Boolean);
       },
     }),
+    /** must define the breakpoints from smallest to largest */
     breakpoints: {
       xs: '520px',
       sm: '768px',

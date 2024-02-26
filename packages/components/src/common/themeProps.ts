@@ -1,7 +1,7 @@
-import { Responsive } from '@lun/core';
 import { ExtractPropTypes, PropType } from 'vue';
 import { OpenShadowComponentKey } from '../components';
 import { pick } from '@lun/utils';
+import { Responsive } from 'hooks';
 
 export const themeColors = [
   'gray',
