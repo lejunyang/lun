@@ -5,10 +5,14 @@
 
 @include b(switch) {
   @include variant(surface) {
-    background-color: getGrayColor(a3);
-    box-shadow: 0 0 0 1px getGrayColor(a5);
+    @include setVars((
+      background-color: getGrayColor(a3),
+      box-shadow: 0 0 0 1px getGrayColor(a5),
+    ));
     @include is(checked, true, true) {
-      background-color: getAccentColor(9);
+      @include setVars((
+        background-color: getAccentColor(9),
+      ));
     }
   }
 }
