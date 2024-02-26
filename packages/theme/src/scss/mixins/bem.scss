@@ -180,25 +180,26 @@
       .#{$selector} {
         @content;
       }
-      @each $breakpoint, $width in config.$breakpoints-map {
-        @media (min-width: $width) {
-          .#{$breakpoint + '-' + $selector} {
-            @content;
-          }
-        }
-      }
+      // media query is moved to js side to reduce css size
+      // @each $breakpoint, $width in config.$breakpoints-map {
+      //   @media (min-width: $width) {
+      //     .#{$breakpoint + '-' + $selector} {
+      //       @content;
+      //     }
+      //   }
+      // }
     }
   } @else {
     &.#{$selector} {
       @content;
     }
-    @each $breakpoint, $width in config.$breakpoints-map {
-      @media (min-width: $width) {
-        &.#{$breakpoint + '-' + $selector} {
-          @content;
-        }
-      }
-    }
+    // @each $breakpoint, $width in config.$breakpoints-map {
+    //   @media (min-width: $width) {
+    //     &.#{$breakpoint + '-' + $selector} {
+    //       @content;
+    //     }
+    //   }
+    // }
   }
 }
 
