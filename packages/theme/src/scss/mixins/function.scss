@@ -1,14 +1,18 @@
 @use 'config';
 
-// getVarName(('button', 'text-color')) => '--l-button-text-color'
-@function getVarName($list) {
-  $name: '--' + config.$namespace;
+@function join($list, $separator: config.$common-separator) {
+  $result: '';
   @each $item in $list {
     @if $item != '' {
-      $name: $name + '-' + $item;
+      $result: $result + $separator + $item;
     }
   }
-  @return $name;
+  @return $result;
+}
+
+// getVarName(('button', 'text-color')) => '--l-button-text-color'
+@function getVarName($list) {
+  @return '--' + config.$namespace + join($list);
 }
 
 // getVarValue(('button', 'text-color'), red) => var(--l-button-text-color, red)

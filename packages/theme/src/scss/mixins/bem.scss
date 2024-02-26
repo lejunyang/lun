@@ -272,21 +272,18 @@
 }
 
 /**
-  * inside @include b(button) { ... }
-  * declareVars((padding, margin)) => padding: var(--l-button-padding); margin: var(--l-button-margin);
-  * declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--l-button-icon-padding); margin: var(--l-button-icon-margin);
+  * declareVars((padding, margin)) => padding: var(--padding); margin: var(--margin);
+  * declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--icon-padding); margin: var(--icon-margin);
   */
 @mixin declareVars($varListOrMap) {
   @each $name, $alias in $varListOrMap {
     @if $alias {
-      #{$name}: #{getRVarValue($alias)};
+      #{$name}: var(#{'--' + $alias});
     } @else {
-      #{$name}: #{getRVarValue($name)};
+      #{$name}: var(#{'--' + $name});;
     }
   }
 }
-
-// TODO declareVars改为不带前缀 setVars var(前缀，不带前缀，值)
 
 /**
   * inside @include b(button) { ... }
@@ -310,10 +307,10 @@
 
 /**
   * inside @include b(button) { ... }
-  * setVars((padding: 10px, margin: 20px)) => --l-button-padding: 10px; --l-button-margin: 20px;
+  * setVars((padding: 10px, margin: 20px)) => --padding: var(--l-button-padding, 10px); --margin: var(--l-button-margin, 20px);
   */
 @mixin setVars($varMap) {
   @each $name, $value in $varMap {
-    #{getRVarName($name)}: #{$value};
+    #{'--' + $name}: #{getRVarValue($name, $value)};
   }
 }
