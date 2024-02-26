@@ -13,6 +13,7 @@
         solid-active-filter: brightness(0.92) saturate(1.1),
         solid-high-contrast-hover-filter: contrast(0.88) saturate(1.1) brightness(1.1),
         solid-high-contrast-active-filter: contrast(0.82) saturate(1.2) brightness(1.16),
+        hold-background-color: getAccentColor(8),
       )
     );
     @include is(dark) {
@@ -59,9 +60,11 @@
             filter: solid-high-contrast-active-filter,
           )
         );
-      }
-      .hold-enter-active {
-        background-color: getAccentColor(11);
+        @include setVars(
+          (
+            hold-background-color: getAccentColor(12),
+          )
+        );
       }
     }
 
@@ -71,7 +74,6 @@
     }
 
     .hold-enter-active {
-      background-color: getAccentColor(8);
       mix-blend-mode: overlay;
     }
   }

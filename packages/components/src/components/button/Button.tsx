@@ -20,7 +20,7 @@ export const Button = defineSSRCustomElement({
     const handleClick = computed(() => {
       const onClick = async (e?: MouseEvent) => {
         if (!editComputed.value.interactive) return;
-        if (props.holdOn && !holdAnimationDone) return;
+        if (props.hold && !holdAnimationDone) return;
         holdAnimationDone = false;
         emit('validClick');
         if (isFunction(props.asyncHandler)) {
@@ -33,37 +33,37 @@ export const Button = defineSSRCustomElement({
       else return onClick;
     });
 
-    const holdOnShow = ref(false);
-    const hideHoldOn = () => {
-      holdOnShow.value = false;
+    const holdShow = ref(false);
+    const hideHold = () => {
+      holdShow.value = false;
     };
 
     const buttonHandlers = {
       onPointerdown() {
-        if (props.holdOn && editComputed.value.interactive) holdOnShow.value = true;
+        if (props.hold && editComputed.value.interactive) holdShow.value = true;
       },
-      onPointerup: hideHoldOn,
+      onPointerup: hideHold,
       // find that pointerout will be triggered when hold-on element grows to the pointer position, use pointerleave instead
-      onPointerleave: hideHoldOn,
-      onPointercancel: hideHoldOn,
-      // In some mobile browsers, contextmenu and text selection will be triggered when long press, need to prevent it when holdOn is true
+      onPointerleave: hideHold,
+      onPointercancel: hideHold,
+      // In some mobile browsers, contextmenu and text selection will be triggered when long press, need to prevent it when hold is true
       onContextmenu(e: MouseEvent) {
-        if (holdOnShow.value) e.preventDefault();
+        if (holdShow.value) e.preventDefault();
       },
       onTouchstart(e: TouchEvent) {
-        if (props.holdOn && editComputed.value.interactive) e.preventDefault();
+        if (props.hold && editComputed.value.interactive) e.preventDefault();
       },
     };
 
     const holdTransitionHandlers = {
       onAfterEnter() {
-        holdOnShow.value = false;
+        holdShow.value = false;
         holdAnimationDone = true;
         handleClick.value();
       },
     };
 
-    const [stateClass] = useCEStates(() => ({ 'hold-on-show': holdOnShow }), ns, editComputed);
+    const [stateClass] = useCEStates(() => ({ 'hold-show': holdShow }), ns, editComputed);
 
     return () => {
       const { iconName, iconLibrary, size } = props;
@@ -84,10 +84,10 @@ export const Button = defineSSRCustomElement({
           disabled={finalDisabled}
           onClick={handleClick.value}
           part="button"
-          style={ns.v({ 'hold-on': props.holdOn && `${props.holdOn}ms` })}
+          style={ns.v({ hold: props.hold && `${props.hold}ms` })}
         >
           <Transition name="hold" {...holdTransitionHandlers}>
-            {holdOnShow.value && <div part="hold"></div>}
+            {holdShow.value && <div class="hold-enter-active" part="hold"></div>}
           </Transition>
           {props.iconPosition === 'start' && loadingPart}
           <slot>{props.label}</slot>

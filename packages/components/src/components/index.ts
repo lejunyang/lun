@@ -1,4 +1,4 @@
-import { defineButton, importButtonStyle } from './button';
+import { defineButton } from './button';
 import { defineCallout } from './callout/Callout';
 import { defineCheckbox, defineCheckboxGroup } from './checkbox';
 import { defineCustomRenderer } from './custom-renderer';
@@ -21,7 +21,6 @@ import { defineFilePicker } from './file-picker';
 import { defineWatermark } from './watermark';
 
 export function importAllBasicStyles() {
-  importButtonStyle();
   importIconStyle();
   importPopoverStyle();
 }

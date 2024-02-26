@@ -26,7 +26,7 @@ export const buttonProps = {
   iconPosition: PropString<LogicalPosition>(),
   debounce: PropNumber(),
   throttle: PropNumber(),
-  holdOn: PropNumber(),
+  hold: PropNumber(),
   iconName: PropString(),
   iconLibrary: PropString(),
 };
