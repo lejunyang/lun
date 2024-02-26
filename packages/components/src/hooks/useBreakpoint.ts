@@ -1,30 +1,42 @@
-import { GlobalStaticConfig } from '@/components';
-import { Responsive } from '@lun/core';
-import { isObject } from '@lun/utils';
-import { computed, ref } from 'vue';
+import { GlobalStaticConfig } from 'config';
+import { inBrowser, isObject, objectKeys } from '@lun/utils';
+import { ComputedRef, computed, reactive } from 'vue';
 
-let medias: Record<keyof (typeof GlobalStaticConfig)['breakpoints'], MediaQueryList>;
-const activeBreakpoint = ref<keyof (typeof GlobalStaticConfig)['breakpoints']>();
+export type Breakpoints = 'initial' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type Responsive<T> = T | Partial<Record<Breakpoints, T>>;
 
-export function useBreakpoints<P extends Record<string, Responsive<any>>, K extends keyof P>(props: P, k?: K) {
-  if (!medias) {
+type B = (typeof GlobalStaticConfig)['breakpoints'];
+type BK = keyof B;
+
+let medias: Record<BK, MediaQueryList>;
+const breakpointStates = reactive({} as Record<BK, boolean>);
+
+export function useBreakpoint<P extends Record<string, Responsive<any>>, K extends keyof P = 'size'>(
+  props: P,
+  k?: K,
+): P[K] extends Responsive<infer T> ? ComputedRef<T> : ComputedRef<P[K]> {
+  if (!medias && inBrowser) {
     medias = {} as any;
     const { breakpoints } = GlobalStaticConfig;
-    for (const k in breakpoints) {
-      const key = k as keyof typeof breakpoints;
-      const value = breakpoints[key];
-      const media = window.matchMedia(`(min-width: ${value})`);
+    objectKeys(breakpoints).forEach((key) => {
+      const minWidth = breakpoints[key];
+      const media = matchMedia(`(min-width: ${minWidth})`);
       media.onchange = () => {
-        if (media.matches) {
-          // TODO test xs to xl
-          activeBreakpoint.value = key;
-        }
+        breakpointStates[key] = media.matches;
       };
+      breakpointStates[key] = media.matches;
       medias[key] = media;
-    }
+    });
   }
   return computed(() => {
     const value = props[k || 'size'];
-    return isObject(value) ? value[activeBreakpoint.value || 'initial'] || value : value;
-  });
+    if (isObject(value)) {
+      // find the largest active breakpoint
+      const key = objectKeys(breakpointStates).find(
+        (k, index, keys) => value[k] && breakpointStates[k] && !value[keys[index + 1]],
+      );
+      return key ? value[key] : value.initial || value;
+    }
+    return value;
+  }) as any;
 }

@@ -1,9 +1,9 @@
-// inspired by element-plus
-import { withBreakpoints } from '@lun/core';
+// derived from element-plus
 import { ComponentInternalInstance, computed, getCurrentInstance, unref } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
 import { ThemeProps, themeProps } from 'common';
+import { useBreakpoint } from './useBreakpoint';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -98,14 +98,19 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     return appearance === 'dark' || (isPreferDark() && appearance !== 'light');
   };
 
+  const size = useBreakpoint({
+    get size() {
+      return getActualThemeValue('size');
+    },
+  });
+
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
-    const size = getActualThemeValue('size');
     const highContrast = getActualThemeValue<boolean>('highContrast');
     return [
       b(),
       variant && m(`variant-${variant}`),
-      withBreakpoints(size || '1', m('size')),
+      m('size') + '-' + (size.value || 2),
       is('high-contrast', highContrast),
       is('dark', isDark()),
     ];
@@ -147,10 +152,6 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     v,
     /** css var name */
     vn,
-    /** withBreakpoints */
-    bp: (...args: Parameters<typeof withBreakpoints>) => {
-      return withBreakpoints(args[0] || '1', args[1] || m('size'), args[2]);
-    },
     /** context config */
     config: contextConfig,
     vm,
