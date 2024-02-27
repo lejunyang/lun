@@ -12,6 +12,7 @@
     "src/main.ts"
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "common": ["src/common"],
@@ -21,7 +22,8 @@
       "hooks": ["src/hooks"],
       // [vite:dts] Internal Error: Unable to determine semantic information for declaration
       // add below to fix above ts build error, we have export {useForm} from '@lun/core' in index, see https://github.com/qmhc/vite-plugin-dts/issues/281
-      "@lun/core": ["./node_modules/@lun/core"]
-    },
+      // useless... replace it with LUNCOER and then perform string replace manually, see generateModuleTypes.js
+      "@lun/core": ["LUNCOER"]
+    }
   }
 }
