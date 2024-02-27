@@ -40,7 +40,7 @@ export function useDialog(options: MaybeRefLikeOrGetter<UseDialogOptions, true>)
         .finally(() => onPending && onPending(false));
     },
     toggle() {
-      if (unrefOrGet(unrefOrGet(options).isOpen)) methods.close();
+      if (unrefOrGet(unrefOrGet(options).isOpen)) return methods.close();
       else methods.open();
     },
     async ok() {
