@@ -38,7 +38,7 @@ export default function () {
         />
       </l-form>
       <pre>{JSON.stringify(form.formData)}</pre>
-      <l-button onClick={() => (open.value = !open.value)}>展示</l-button>
+      <l-button onClick={() => (open.value = !open.value)}>打开</l-button>
       <l-dialog
         {...form.formData}
         open={open.value}

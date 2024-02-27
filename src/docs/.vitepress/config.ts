@@ -140,6 +140,9 @@ export default defineConfig({
     server: {
       host: '0.0.0.0',
       port: 7000,
+      fs: {
+        cachedChecks: false, // after upgrading vite, adding file will cause error
+      }
     },
     define: {
       __DEV__: 'true',
