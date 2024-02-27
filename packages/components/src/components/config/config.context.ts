@@ -45,8 +45,8 @@ export function provideContextConfig(config: Partial<TGlobalContextConfig>) {
   provide(CONTEXT_CONFIG_KEY, {
     ...parentConfig,
     ...config,
-    // theme-provider provides props as theme, actual merge will make it lose reactivity
-    theme: config.theme ? virtualGetMerge(parentConfig.theme, config.theme) : parentConfig.theme,
+    // theme-provider provides props as theme, actual merge will make it lose reactivity, so need a virtual merge
+    theme: config.theme ? virtualGetMerge(config.theme, parentConfig.theme) : parentConfig.theme,
   });
 }
 

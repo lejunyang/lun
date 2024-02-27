@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
-import { RadioCollector } from '.';
+import { RadioCollector } from './collector';
 import { radioEmits, radioProps } from './type';
 import { virtualGetMerge } from '@lun/utils';
 

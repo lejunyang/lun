@@ -3,7 +3,8 @@ import { createDefineElement } from 'utils';
 import { selectOptgroupProps } from './type';
 import { useCEStates, useNamespace } from 'hooks';
 import { useSetupEdit } from '@lun/core';
-import { SelectCollector, SelectOptgroupContext } from '.';
+import { SelectOptgroupContext } from '.';
+import { SelectCollector } from './collector';
 
 const name = 'select-optgroup';
 export const SelectOptgroup = defineSSRCustomElement({

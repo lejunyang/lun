@@ -40,7 +40,7 @@ export function createDefineElement<T extends ComponentDependencyDefineMap>(
   dependencies: T,
 ): (name?: string, dependencyNames?: Record<keyof T, string>) => void;
 
-/*! #__NO_SIDE_EFFECTS__ */
+/*@__NO_SIDE_EFFECTS__*/
 export function createDefineElement(
   compKey: ComponentKey,
   Component: CustomElementConstructor,
@@ -60,7 +60,7 @@ export function createDefineElement(
   };
 }
 
-/*! #__NO_SIDE_EFFECTS__ */
+/*@__NO_SIDE_EFFECTS__*/
 export function createImportStyle(compKey: OpenShadowComponentKey, style: string) {
   return () => {
     GlobalStaticConfig.styles[compKey].push(processStringStyle(style));

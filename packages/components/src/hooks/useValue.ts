@@ -1,7 +1,7 @@
 import type { UseModel } from '@lun/core';
 import { createUseModel } from '@lun/core';
 import { useShadowDom } from './shadowDom';
-import { FormInputCollector } from '../components/form-item';
+import { FormInputCollector } from '../components/form-item/collector';
 import { computed, getCurrentInstance } from 'vue';
 import { Status } from 'common';
 import { pickNonNil } from '@lun/utils';
