@@ -4,9 +4,10 @@ import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { selectOptionProps } from './type';
-import { SelectCollector, SelectOptgroupContext } from '.';
+import { SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { SelectCollector } from './collector';
 
 const name = 'select-option';
 export const SelectOption = defineSSRCustomElement({

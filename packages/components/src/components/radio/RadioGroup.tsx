@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useOptions, useSetupContextEvent, useValueModel } from 'hooks';
-import { RadioCollector } from '.';
+import { RadioCollector } from './collector';
 import { radioEmits, radioGroupProps } from './type';
 
 const name = 'radio-group';

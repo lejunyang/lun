@@ -3,9 +3,9 @@ import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
-import { FormItemCollector } from '../form';
+import { FormItemCollector } from '../form/collector';
 import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch } from 'vue';
-import { FormInputCollector } from '.';
+import { FormInputCollector } from './collector';
 import {
   AnyFn,
   ensureNumber,

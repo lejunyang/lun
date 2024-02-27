@@ -1,2 +1,2 @@
 export * from './Dialog';
-export type { DialogProps } from './type';
+export * from './type';

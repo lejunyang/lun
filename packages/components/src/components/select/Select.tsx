@@ -7,7 +7,7 @@ import { refLikesToGetters, useSelect, useSetupEdit, useTempState } from '@lun/c
 import { isFunction, isNilOrEmptyStr, toArrayIfNotNil } from '@lun/utils';
 import { defineInput, iInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
-import { SelectCollector } from '.';
+import { SelectCollector } from './collector';
 import { defineSelectOptgroup } from './SelectOptgroup';
 import {
   CommonOption,

@@ -176,7 +176,7 @@ export const Input = defineSSRCustomElement({
       const withAppend = !appendSlot.empty.value;
       const input = (
         <input
-          {...attrs}
+          {...attrs} // FIXME 当多选的时候style似乎应该传到wrapper上去，设一个width会非常明显，多选时会导致出现滚动条
           exportparts=""
           type={inputType}
           inputmode={type === 'number-string' ? 'numeric' : undefined}

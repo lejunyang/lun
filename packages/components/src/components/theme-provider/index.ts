@@ -1,2 +1,2 @@
 export * from './ThemeProvider';
-export type { ThemeProviderProps } from './type';
+export * from './type';

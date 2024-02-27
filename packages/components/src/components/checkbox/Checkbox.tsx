@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { refLikesToGetters, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
 import { useCEStates, useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
-import { CheckboxCollector } from '.';
+import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { isEnterDown } from '@lun/utils';

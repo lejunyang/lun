@@ -79,7 +79,7 @@ export default {
       console.log('GlobalStaticConfig', GlobalStaticConfig);
       console.log('GlobalContextConfig', GlobalContextConfig);
       Object.assign(window, { GlobalStaticConfig, GlobalContextConfig });
+      defineAllComponents();
     }
-    defineAllComponents();
   }) as (typeof Theme)['enhanceApp'],
 };
