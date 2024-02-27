@@ -10,7 +10,6 @@ export default {
         menu: '基础组件',
         button: 'Button 按钮',
         icon: 'Icon 图标',
-        renderer: 'CustomRenderer 自定义渲染',
         tag: 'Tag 标签',
       },
       dataInput: {
@@ -48,6 +47,13 @@ export default {
         styles: '自定义样式',
         states: 'CSS如何选中特定状态的组件',
       },
+      other: {
+        menu: '其他',
+        renderer: 'CustomRenderer 自定义渲染',
+        contextConfig: 'ContextConfig 上下文配置',
+        staticConfig: 'StaticConfig 静态配置',
+        themeProvider: 'ThemeProvider 主题',
+      },
     },
     components: {
       color: '主题色',
@@ -76,7 +82,6 @@ export default {
         menu: 'Basic',
         button: 'Button',
         icon: 'Icon',
-        renderer: 'CustomRenderer',
         tag: 'Tag',
       },
       dataInput: {
@@ -114,6 +119,13 @@ export default {
         styles: 'Custom styles',
         states: 'Select element with specific state in CSS',
       },
+      other: {
+        menu: 'Other',
+        renderer: 'CustomRenderer',
+        contextConfig: 'ContextConfig',
+        staticConfig: 'StaticConfig',
+        themeProvider: 'ThemeProvider',
+      }
     },
     components: {
       color: 'Theme color',

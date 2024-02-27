@@ -38,7 +38,6 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           items: [
             { text: locales[lang].sidebar.basic.button, link: wrapLink('/components/button/', lang) },
             { text: locales[lang].sidebar.basic.icon, link: wrapLink('/components/icon/', lang) },
-            { text: locales[lang].sidebar.basic.renderer, link: wrapLink('/components/custom-renderer/', lang) },
             { text: locales[lang].sidebar.basic.tag, link: wrapLink('/components/tag/', lang) },
           ],
         },
@@ -85,6 +84,16 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           text: locales[lang].sidebar.layout.menu,
           collapsed: false,
           items: [{ text: locales[lang].sidebar.layout.divider, link: wrapLink('/components/divider/', lang) }],
+        },
+        {
+          text: locales[lang].sidebar.other.menu,
+          collapsed: false,
+          items: [
+            { text: locales[lang].sidebar.other.renderer, link: wrapLink('/components/custom-renderer/', lang) },
+            { text: locales[lang].sidebar.other.contextConfig, link: wrapLink('/components/context-config/', lang) },
+            { text: locales[lang].sidebar.other.staticConfig, link: wrapLink('/components/static-config/', lang) },
+            { text: locales[lang].sidebar.other.themeProvider, link: wrapLink('/components/theme-provider/', lang) },
+          ],
         },
       ],
     },
@@ -148,11 +157,13 @@ export default defineConfig({
       alias:
         process.env.NODE_ENV !== 'production'
           ? {
+              custom: fileURLToPath(
+                new URL('../../../packages/components/src/custom/index', import.meta.url),
+              ),
               common: fileURLToPath(new URL('../../../packages/components/src/common/index', import.meta.url)),
               config: fileURLToPath(
                 new URL('../../../packages/components/src/components/config/index', import.meta.url),
               ),
-              custom: fileURLToPath(new URL('../../../packages/components/src/custom/index', import.meta.url)),
               utils: fileURLToPath(new URL('../../../packages/components/src/utils/index', import.meta.url)),
               hooks: fileURLToPath(new URL('../../../packages/components/src/hooks/index', import.meta.url)),
               '@lun/babel-plugin-jsx': fileURLToPath(
