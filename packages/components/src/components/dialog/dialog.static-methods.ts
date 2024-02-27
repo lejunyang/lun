@@ -17,7 +17,7 @@ export const methods = {
     ...props
   }: Omit<DialogProps, 'open'> & { destroyOnClose?: boolean; getContainer?: () => Element | string } = {}) {
     let dialog = destroyOnClose ? null : commonDialog;
-    if (!commonDialog) {
+    if (!commonDialog || !commonDialog.isConnected) {
       const container = (getContainer && toElement(getContainer())) || getFirstThemeProvider() || document.body;
       const dialogName = getElementFirstName('dialog')!;
       if (__DEV__ && !dialogName) throw new Error('dialog component is not registered, please register it first.');

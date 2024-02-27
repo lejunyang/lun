@@ -35,3 +35,9 @@ export type MessageOpenConfig = {
 export type MessageSetupProps = ExtractPropTypes<typeof messageProps>;
 export type MessageEvents = GetEventPropsFromEmits<typeof messageEmits>;
 export type MessageProps = Partial<MessageSetupProps> & MessageEvents;
+
+export type MessageMethods = {
+  open(config?: MessageOpenConfig): void;
+  close(key: string | number): void;
+  closeAll(): void;
+};
