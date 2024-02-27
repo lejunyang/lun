@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { MessageOpenConfig, messageEmits, messageProps } from './type';
+import { MessageMethods, MessageOpenConfig, messageEmits, messageProps } from './type';
 import {
   BaseTransitionProps,
   CSSProperties,
@@ -15,169 +15,170 @@ import { useCEExpose, useNamespace } from 'hooks';
 import { getTransitionProps } from 'common';
 import { isFunction, isSupportPopover, omit } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
+import { methods } from './message.static-methods';
 
 const name = 'message';
-export const Message = defineSSRCustomElement({
-  name,
-  props: messageProps,
-  emits: messageEmits,
-  setup(props, { emit }) {
-    const ns = useNamespace(name);
-    const support = {
-      popover: isSupportPopover(),
-      teleport: true,
-      fixed: true,
-    };
-    const type = computed(() => {
-      if (['popover', 'fixed', 'teleport'].includes(props.type!) && support[props.type!]) return props.type;
-      else
-        return Object.keys(support).find((i) => support[i as keyof typeof support]) as 'popover' | 'teleport' | 'fixed';
-    });
-    const rootRef = ref<HTMLElement>();
-    const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({});
-    const keyTimerMap = {} as Record<string | number, ReturnType<typeof setTimeout>>;
-    const showCount = ref(0);
-    const show = computed(() => showCount.value > 0);
-
-    const placementMarginMap = {
-      'top-start': '0 auto auto 0',
-      top: '0 auto auto',
-      'top-end': '0 0 auto auto',
-      left: 'auto auto auto 0',
-      center: 'auto',
-      right: 'auto 0 auto auto',
-      'bottom-start': 'auto auto 0 0',
-      bottom: 'auto auto 0',
-      'bottom-end': 'auto 0 0 auto',
-    };
-    const rootProps = computed(() => {
-      const { placement, offset } = props;
-      let margin = placementMarginMap[placement!];
-      if (margin && offset != null) margin = margin.replace(/0/g, `${offset}${isNaN(offset as any) ? '' : 'px'}`);
-      const { value } = type;
-      const result = {
-        popover: value === 'popover' ? ('manual' as const) : undefined,
-        style: {
-          position: value === 'fixed' ? 'fixed' : undefined,
-          margin,
-        } as CSSProperties,
+export const Message = Object.assign(
+  defineSSRCustomElement({
+    name,
+    props: messageProps,
+    emits: messageEmits,
+    setup(props, { emit }) {
+      const ns = useNamespace(name);
+      const support = {
+        popover: isSupportPopover(),
+        teleport: true,
+        fixed: true,
       };
-      return result;
-    });
+      const type = computed(() => {
+        if (['popover', 'fixed', 'teleport'].includes(props.type!) && support[props.type!]) return props.type;
+        else
+          return Object.keys(support).find((i) => support[i as keyof typeof support]) as
+            | 'popover'
+            | 'teleport'
+            | 'fixed';
+      });
+      const rootRef = ref<HTMLElement>();
+      const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({});
+      const keyTimerMap = {} as Record<string | number, ReturnType<typeof setTimeout>>;
+      const showCount = ref(0);
+      const show = computed(() => showCount.value > 0);
 
-    watchEffect(() => {
-      const root = rootRef.value,
-        typeValue = type.value;
-      if (show.value && root) {
-        if (typeValue === 'popover') {
-          root.showPopover();
-        }
-      }
-    });
-
-    const methods = {
-      open(config) {
-        config = {
-          ...omit(props, ['type', 'placement', 'to']),
-          ...getTransitionProps(props, 'callout'),
-          status: config?.type,
-          ...config,
-          class: ns.e('callout'),
+      const placementMarginMap = {
+        'top-start': '0 auto auto 0',
+        top: '0 auto auto',
+        'top-end': '0 0 auto auto',
+        left: 'auto auto auto 0',
+        center: 'auto',
+        right: 'auto 0 auto auto',
+        'bottom-start': 'auto auto 0 0',
+        bottom: 'auto auto 0',
+        'bottom-end': 'auto 0 0 auto',
+      };
+      const rootProps = computed(() => {
+        const { placement, offset } = props;
+        let margin = placementMarginMap[placement!];
+        if (margin && offset != null) margin = margin.replace(/0/g, `${offset}${isNaN(offset as any) ? '' : 'px'}`);
+        const { value } = type;
+        const result = {
+          popover: value === 'popover' ? ('manual' as const) : undefined,
+          style: {
+            position: value === 'fixed' ? 'fixed' : undefined,
+            margin,
+          } as CSSProperties,
         };
-        const key = (config.key ||= Date.now());
-        (config as any)['data-key'] = key;
-        if (config.duration === undefined) config.duration = 3000;
-        const { duration } = config;
-        if (calloutMap[key]) {
-          clearTimeout(keyTimerMap[key]);
-          calloutMap[key] = { ...calloutMap[key], ...config };
-        } else {
-          calloutMap[key] = config;
-          showCount.value++;
-        }
-        if (duration !== null && duration !== 'none') {
-          keyTimerMap[key] = setTimeout(() => methods.close(key), +duration);
-        }
-      },
-      close(key) {
-        const config = calloutMap[key];
-        if (config) {
-          clearTimeout(keyTimerMap[key]);
-          delete calloutMap[key];
-          showCount.value--;
-        }
-      },
-      closeAll() {
-        Object.keys(calloutMap).forEach(methods.close);
-      },
-    } as MessageMethods;
+        return result;
+      });
 
-    const createHandleClose = (type: 'close' | 'afterClose') => {
-      const event = type === 'close' ? 'onClose' : 'onAfterClose';
-      return (el: any) => {
-        const { key } = el.dataset;
-        const config = calloutMap[key!];
-        if (config) {
-          const handler = config[event];
-          if (isFunction(handler)) handler(new CustomEvent(type));
+      watchEffect(() => {
+        const root = rootRef.value,
+          typeValue = type.value;
+        if (show.value && root) {
+          if (typeValue === 'popover') {
+            root.showPopover();
+          }
         }
-        emit(type as any);
+      });
+
+      const methods = {
+        open(config) {
+          config = {
+            ...omit(props, ['type', 'placement', 'to']),
+            ...getTransitionProps(props, 'callout'),
+            status: config?.type,
+            ...config,
+            class: ns.e('callout'),
+          };
+          const key = (config.key ||= Date.now());
+          (config as any)['data-key'] = key;
+          if (config.duration === undefined) config.duration = 3000;
+          const { duration } = config;
+          if (calloutMap[key]) {
+            clearTimeout(keyTimerMap[key]);
+            calloutMap[key] = { ...calloutMap[key], ...config };
+          } else {
+            calloutMap[key] = config;
+            showCount.value++;
+          }
+          if (duration !== null && duration !== 'none') {
+            keyTimerMap[key] = setTimeout(() => methods.close(key), +duration);
+          }
+        },
+        close(key) {
+          const config = calloutMap[key];
+          if (config) {
+            clearTimeout(keyTimerMap[key]);
+            delete calloutMap[key];
+            showCount.value--;
+          }
+        },
+        closeAll() {
+          Object.keys(calloutMap).forEach(methods.close);
+        },
+      } as MessageMethods;
+
+      const createHandleClose = (type: 'close' | 'afterClose') => {
+        const event = type === 'close' ? 'onClose' : 'onAfterClose';
+        return (el: any) => {
+          const { key } = el.dataset;
+          const config = calloutMap[key!];
+          if (config) {
+            const handler = config[event];
+            if (isFunction(handler)) handler(new CustomEvent(type));
+          }
+          emit(type as any);
+        };
       };
-    };
-    const transitionHandlers = {
-      onEnter() {},
-      onAfterEnter() {},
-      onLeave: createHandleClose('close'),
-      onAfterLeave: createHandleClose('afterClose'),
-    } as BaseTransitionProps;
-    const getCalloutHandlers = (key: string | number) => ({
-      onPointerenter() {
-        const config = calloutMap[key];
-        if (config.resetDurationOnHover) {
-          clearTimeout(keyTimerMap[key]);
-          delete keyTimerMap[key];
-        }
-      },
-      onPointerleave() {
-        const { resetDurationOnHover, duration } = calloutMap[key];
-        if (resetDurationOnHover && duration !== null && duration !== 'none') {
-          keyTimerMap[key] = setTimeout(() => methods.close(key), +duration!);
-        }
-      },
-    });
+      const transitionHandlers = {
+        onEnter() {},
+        onAfterEnter() {},
+        onLeave: createHandleClose('close'),
+        onAfterLeave: createHandleClose('afterClose'),
+      } as BaseTransitionProps;
+      const getCalloutHandlers = (key: string | number) => ({
+        onPointerenter() {
+          const config = calloutMap[key];
+          if (config.resetDurationOnHover) {
+            clearTimeout(keyTimerMap[key]);
+            delete keyTimerMap[key];
+          }
+        },
+        onPointerleave() {
+          const { resetDurationOnHover, duration } = calloutMap[key];
+          if (resetDurationOnHover && duration !== null && duration !== 'none') {
+            keyTimerMap[key] = setTimeout(() => methods.close(key), +duration!);
+          }
+        },
+      });
 
-    useCEExpose(methods);
+      useCEExpose(methods);
 
-    return () => {
-      const { to, placement } = props;
-      const typeValue = type.value;
-      const content = (
-        <div class={[ns.t, ns.m(placement)]} ref={rootRef} part="root" {...rootProps.value} v-show={show.value}>
-          <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
-            {Object.keys(calloutMap).flatMap((key) => {
-              const callout = calloutMap[key];
-              return callout
-                ? [
-                    renderElement('callout', {
-                      ...callout,
-                      ...getCalloutHandlers(key),
-                    }),
-                  ]
-                : [];
-            })}
-          </TransitionGroup>
-        </div>
-      );
-      return typeValue === 'teleport' && to ? <Teleport to={to}>{content}</Teleport> : content;
-    };
-  },
-});
-
-export type MessageMethods = {
-  open(config?: MessageOpenConfig): void;
-  close(key: string | number): void;
-  closeAll(): void;
-};
+      return () => {
+        const { to, placement } = props;
+        const typeValue = type.value;
+        const content = (
+          <div class={[ns.t, ns.m(placement)]} ref={rootRef} part="root" {...rootProps.value} v-show={show.value}>
+            <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
+              {Object.keys(calloutMap).flatMap((key) => {
+                const callout = calloutMap[key];
+                return callout
+                  ? [
+                      renderElement('callout', {
+                        ...callout,
+                        ...getCalloutHandlers(key),
+                      }),
+                    ]
+                  : [];
+              })}
+            </TransitionGroup>
+          </div>
+        );
+        return typeValue === 'teleport' && to ? <Teleport to={to}>{content}</Teleport> : content;
+      };
+    },
+  }),
+  methods,
+);
 
 export type tMessage = typeof Message;
 export type iMessage = InstanceType<tMessage> & MessageMethods;
