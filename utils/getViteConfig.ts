@@ -2,6 +2,7 @@ import { defineConfig, UserConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 import dts from 'vite-plugin-dts';
 import { addIndexEntry } from './vitePlugin';
+import replace from '@rollup/plugin-replace';
 
 export function getViteConfig(name: string, viteConfig?: UserConfig) {
   const dev = process.env.NODE_ENV === 'development';
@@ -10,6 +11,12 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
   return defineConfig({
     ...viteConfig,
     plugins: [
+      replace({
+        preventAssignment: true,
+        values: {
+          __DEV__: dev ? 'true' : "process.env.NODE_ENV !== 'production'",
+        },
+      }),
       !dev &&
         !noType &&
         dts({
@@ -20,7 +27,6 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       addIndexEntry({ fileName }),
     ],
     define: {
-      __DEV__: dev ? 'true' : "!!(process.env.NODE_ENV !== 'production')",
       ...viteConfig?.define,
     },
     build: {
