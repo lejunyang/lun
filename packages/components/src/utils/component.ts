@@ -4,7 +4,7 @@ import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { exportParts } from '../common/exportParts';
 import { error, warn } from './console';
-import { getFirstOfIterable } from '@lun/utils';
+import { getFirstOfIterable, isElement, isString } from '@lun/utils';
 import { PropString } from 'common';
 import { useContextStyles } from 'hooks';
 
@@ -97,5 +97,17 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     };
   } else if (__DEV__) {
     warn(`Component "${compKey}" is not defined in GlobalStaticConfig`, options);
+  }
+}
+
+export function toElement(queryOrElement?: string | Element) {
+  return isElement(queryOrElement) ? queryOrElement : isString(queryOrElement) ? document.querySelector(queryOrElement) : null;
+}
+
+export function getFirstThemeProvider() {
+  const { actualNameMap } = GlobalStaticConfig;
+  for (const name of actualNameMap['theme-provider']) {
+    const results = document.getElementsByTagName(name);
+    if (results.length) return results[0];
   }
 }
