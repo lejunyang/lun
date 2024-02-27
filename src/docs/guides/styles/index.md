@@ -2,7 +2,7 @@
 
 1. CSS 变量（目前不够齐全）
 2. `::part`伪元素
-3. `innerStyle`属性，每个拥有 Shadow DOM 的元素均支持该属性，通过它可直接向该元素内部注入样式，无需再写繁琐的::part
+3. `innerStyle`属性，每个拥有 Open Shadow DOM 的元素均支持该属性，通过它可直接向该元素内部注入样式，无需再写繁琐的::part
 
 ```html
 <l-button inner-style="button { color: red }"></l-button>
