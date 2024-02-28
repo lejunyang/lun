@@ -237,6 +237,9 @@ importers:
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
+      sass:
+        specifier: ^1.71.1
+        version: 1.71.1
       vite-plugin-dts:
         specifier: ^3.7.3
         version: 3.7.3(@types/node@20.11.20)(typescript@5.3.3)(vite@5.1.4)
