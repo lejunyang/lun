@@ -1,4 +1,4 @@
-import { greaterThan, isNumber, isPlainNumber, lessThan, numbersEqual } from '@lun/utils';
+import { greaterThan, isNumber, isPlainNumber, lessThan, numbersEqual, BigIntDecimal } from '@lun/utils';
 
 export type MathMethods<T = number> = {
   // ----------------- do not correct type -----------------
@@ -22,6 +22,7 @@ export type MathMethods<T = number> = {
   divide(target: T, delta: T): T;
   max(...args: T[]): T;
   min(...args: T[]): T;
+  mod: (target: T, delta: T) => T;
   floor(target: T): T;
   equals(left: T, right: T): boolean;
   greaterThan(left: T, right: T): boolean;
@@ -74,6 +75,7 @@ export const createDefaultMath = () =>
     minus: (target, delta) => target - delta,
     multiply: (target, delta) => target * delta,
     divide: (target, delta) => target / delta,
+    mod: (target, delta) => target % delta,
     max: Math.max,
     min: Math.min,
     floor: Math.floor,
@@ -82,4 +84,13 @@ export const createDefaultMath = () =>
     lessThan,
     toPrecision: (target, precision) => +target.toFixed(precision),
     toNegative: (target) => -target,
+  });
+
+export const createBigIntDecimalMath = () =>
+  createMath({
+    ...createDefaultMath(),
+    plus: (target, delta) => new BigIntDecimal(target).plus(delta).toNumber(),
+    minus: (target, delta) => new BigIntDecimal(target).minus(delta).toNumber(),
+    multiply: (target, delta) => new BigIntDecimal(target).multi(delta).toNumber(),
+    mod: (target, delta) => new BigIntDecimal(target).mod(delta).toNumber(),
   });
