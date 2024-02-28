@@ -1,9 +1,12 @@
 import { defineWorkspace } from 'vitest/config';
 
+const define = {
+  __DEV__: 'true',
+}
 export default defineWorkspace([
   'packages/*',
-  // 'tests/*/vitest.config.{e2e,unit}.ts',
   {
+    define,
     test: {
       name: '@lun/components',
       globals: true,
@@ -12,6 +15,7 @@ export default defineWorkspace([
     },
   },
   {
+    define,
     test: {
       name: '@lun/core',
       globals: true,
@@ -20,6 +24,7 @@ export default defineWorkspace([
     },
   },
   {
+    define,
     test: {
       name: '@lun/theme',
       globals: true,
@@ -28,6 +33,7 @@ export default defineWorkspace([
     },
   },
   {
+    define,
     test: {
       name: '@lun/utils',
       globals: true,
@@ -36,6 +42,7 @@ export default defineWorkspace([
     },
   },
   {
+    define,
     test: {
       name: '@lun/babel-plugin-jsx',
       globals: true,
