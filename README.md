@@ -1,8 +1,8 @@
 # Web components based on Vue3
 
-- Based on custom elements ([Vue3 defineCustomElement](https://vuejs.org/guide/extras/web-components.html)) and shadow DOM, works with all frameworks
-- Provides abundant global static and dynamic configurations, easy to customize not only CSS but also many behaviors
-- Provides a beautiful preset theme based on @radix/theme
+- Based on custom elements ([Vue3 defineCustomElement](https://vuejs.org/guide/extras/web-components.html)) and shadow DOM, works with all frameworks(maybe)
+- Provides abundant global static and dynamic configurations, easy to customize not only CSS but also many internal behaviors
+- Provides a beautiful preset theme based on @radix/theme, out-of-box dark mode and responsive ui support
 
 
 ## Why

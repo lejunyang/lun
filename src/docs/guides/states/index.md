@@ -1,3 +1,8 @@
+---
+title: 匹配元素自定义状态
+lang: zh-CN
+---
+
 有时，我们需要对特定状态的元素自定义样式。例如，我们可能需要修改处于勾选状态的radio的样式，我们可能会想到如下代码
 ```css
 l-radio::part(root).is-checked {
