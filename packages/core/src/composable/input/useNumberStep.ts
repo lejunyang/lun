@@ -20,11 +20,9 @@ export function processNumOptions<
   return { ...options, min, max, step, precision };
 }
 
-export function useNumberStep(
-  options: ComputedRef<TransformedUseInputOption<UseInputOptions>>,
-) {
-  const getValue = (isNext: boolean) => {
-    const { plus, multiply, divide, lessThan, greaterThan, isNaN, getZero, toNegative, floor, toNumber } = presets.math;
+export function useNumberStep(options: ComputedRef<TransformedUseInputOption<UseInputOptions>>) {
+  const performStep = (isNext: boolean) => {
+    const { plus, minus, mod, lessThan, greaterThan, isNaN, getZero, toNegative, toNumber } = presets.math;
     let { step, min, max, value, onChange, type } = options.value; // TODO lessThan, greaterThan
     if (type !== 'number' && type !== 'number-string') return;
     value = toNumber(unrefOrGet(value));
@@ -36,7 +34,7 @@ export function useNumberStep(
       const minAddStep = plus(min, step);
       result = isNext ? (greaterThan(minAddStep, max) ? min : minAddStep) : min;
     } else if (greaterThan(result, max)) {
-      result = multiply(step, floor(divide(max, step))); // result = result - (result % step)
+      result = minus(max, mod(max, step)); // result = max - (max % step)
       result = isNext || !lessThan(result, min) ? result : min;
     }
     onChange(result);
@@ -44,10 +42,10 @@ export function useNumberStep(
 
   const methods = {
     nextStep() {
-      return getValue(true);
+      return performStep(true);
     },
     prevStep() {
-      return getValue(false);
+      return performStep(false);
     },
   };
 

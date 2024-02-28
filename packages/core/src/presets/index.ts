@@ -1,7 +1,7 @@
-import { createDefaultMath } from './math';
+import { createBigIntDecimalMath } from './math';
 
 export * from './math';
 
 export const presets = {
-  math: createDefaultMath(),
-}
+  math: createBigIntDecimalMath(),
+};
