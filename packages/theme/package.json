@@ -15,6 +15,7 @@
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
+    "./public.css": "./dist/public.css",
     "./scss/common/*.scss": "./src/scss/common/*.scss",
     "./scss/mixins/*.scss": "./src/scss/mixins/*.scss",
     "./scss/public/*.scss": "./src/scss/public/*.scss",
@@ -24,10 +25,11 @@
   "scripts": {
     "dev": "vite",
     "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",
+    "scss": "sass ./src/scss/public/index.scss ./dist/public.css",
     "build:dev": "cross-env NODE_ENV=development vite build",
-    "build:prod": "cross-env NODE_ENV=production vite build",
+    "build:prod": "cross-env NODE_ENV=production vite build && pnpm scss",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
-    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build && pnpm scss",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -39,6 +41,7 @@
     "cross-env": "^7.0.3",
     "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.5",
+    "sass": "^1.71.1",
     "vite-plugin-dts": "^3.7.3",
     "vitest": "^1.3.1"
   }
