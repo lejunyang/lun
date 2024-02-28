@@ -23,6 +23,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
     sidebar: {
       '/guides/': [
         {
+          text: locales[lang].sidebar.guides.usage,
+          link: wrapLink('/guides/usage/', lang),
+        },
+        {
           text: locales[lang].sidebar.guides.styles,
           link: wrapLink('/guides/styles/', lang),
         },

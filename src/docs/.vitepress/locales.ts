@@ -44,6 +44,7 @@ export default {
         divider: 'Divider 分割线',
       },
       guides: {
+        usage: '如何使用',
         styles: '自定义样式',
         states: 'CSS如何选中特定状态的组件',
       },
@@ -116,6 +117,7 @@ export default {
         divider: 'Divider',
       },
       guides: {
+        usage: 'Usage',
         styles: 'Custom styles',
         states: 'Select element with specific state in CSS',
       },
