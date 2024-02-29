@@ -109,7 +109,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
     const added: string[] | number[] = [];
     valuesNow.forEach((v: number | string) => {
       if (isNilOrEmptyStr(v)) return;
-      if (type === 'number') v = presets.math.toNumber(v);
+      if (type === 'number') v = presets.math.toRawNum(v);
       if (unique) {
         if (uniqueResult.has(v)) return;
         uniqueResult.add(v);
