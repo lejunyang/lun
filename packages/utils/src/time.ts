@@ -77,8 +77,9 @@ export function debounce<T extends (...args: any[]) => any>(
 	}
 
 	const debounced = function (this: ThisType<T>) {
-		lastCallTime = Date.now();
-		const shouldInvokeNow = shouldInvoke(lastCallTime);
+		const time = Date.now();
+		const shouldInvokeNow = shouldInvoke(time);
+		lastCallTime = time;
 		lastArgs = arguments;
 		lastThis = this;
 		if (shouldInvokeNow) {
