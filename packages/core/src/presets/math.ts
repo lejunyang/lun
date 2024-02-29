@@ -1,29 +1,41 @@
-import { greaterThan, isNumber, isPlainNumber, lessThan, numbersEqual, BigIntDecimal } from '@lun/utils';
+import {
+  greaterThan,
+  isNumber,
+  isPlainNumber,
+  lessThan,
+  numbersEqual,
+  BigIntDecimal,
+  toBigIntDecimal,
+} from '@lun/utils';
 
-export type MathMethods<T = number> = {
-  // ----------------- do not correct type -----------------
+export type MathMethods<W = number, T = W | number> = {
+  // ----------------- do not correct param type -----------------
   isNumber(target: unknown): target is T;
   isNaN(target: unknown): boolean;
   isZero(target: unknown): boolean;
   isFinite(target: unknown): boolean;
   isInteger(target: unknown): boolean;
   // ----------------- do not correct type -----------------
-  toNumber(target: unknown): T;
-  toPrecision(target: T, precision: number): T;
-  getZero(): T;
-  getNaN(): T;
-  getPositiveInfinity(): T;
-  getNegativeInfinity(): T;
 
-  // below can correct type
-  plus(target: T, delta: T): T;
-  minus(target: T, delta: T): T;
-  multi(target: T, delta: T): T;
-  divide(target: T, delta: T): T;
-  max(...args: T[]): T;
-  min(...args: T[]): T;
-  mod: (target: T, delta: T) => T;
-  floor(target: T): T;
+  // to js number or custom number type
+  toNumber(target: unknown): W;
+  // to js number only
+  toRawNum(target: unknown): number;
+  toPrecision(target: T, precision: T): W;
+  getZero(): W;
+  getNaN(): W;
+  getPositiveInfinity(): W;
+  getNegativeInfinity(): W;
+
+  // below can correct param type
+  plus(target: T, delta: T): W;
+  minus(target: T, delta: T): W;
+  multi(target: T, delta: T): W;
+  divide(target: T, delta: T): W;
+  max(...args: T[]): W;
+  min(...args: T[]): W;
+  mod: (target: T, delta: T) => W;
+  floor(target: T): W;
   equals(left: T, right: T): boolean;
   greaterThan(left: T, right: T): boolean;
   lessThan(left: T, right: T): boolean;
@@ -31,9 +43,9 @@ export type MathMethods<T = number> = {
   // optional
   greaterThanOrEqual?: (left: T, right: T) => boolean;
   lessThanOrEqual?: (left: T, right: T) => boolean;
-  ensureNumber?: (target: unknown, defaultVal: T) => T;
-  toNumberOrNull?: (target: unknown) => T | null;
-  toNegative?: (target: T) => T;
+  ensureNumber?: (target: unknown, defaultVal: T) => W;
+  toNumberOrNull?: (target: unknown) => W | null;
+  toNegative?: (target: T) => W;
 };
 
 export function createMath<T = number>(methods: MathMethods<T>) {
@@ -44,7 +56,7 @@ export function createMath<T = number>(methods: MathMethods<T>) {
   if (!methods.ensureNumber)
     methods.ensureNumber = (target, defaultVal) => {
       const result = toNumber(target);
-      return isNaN(result) ? defaultVal : result;
+      return isNaN(result) ? toNumber(defaultVal) : result;
     };
   if (!methods.toNumberOrNull)
     methods.toNumberOrNull = (target) => {
@@ -53,7 +65,7 @@ export function createMath<T = number>(methods: MathMethods<T>) {
     };
   if (!methods.toNegative)
     methods.toNegative = (target) => {
-      if (methods.isZero(target)) return target;
+      if (methods.isZero(target)) return toNumber(target);
       return methods.minus(methods.getZero(), target);
     };
   return methods as Required<MathMethods<T>>;
@@ -65,6 +77,7 @@ export const createDefaultMath = () =>
     isNaN: Number.isNaN,
     isZero: (target) => target === 0,
     toNumber: (target) => Number(target),
+    toRawNum: (target) => Number(target),
     getZero: () => 0,
     getNaN: () => Number.NaN,
     getPositiveInfinity: () => Number.POSITIVE_INFINITY,
@@ -86,11 +99,74 @@ export const createDefaultMath = () =>
     toNegative: (target) => -target,
   });
 
+const is = (target: unknown): target is BigIntDecimal => target instanceof BigIntDecimal;
 export const createBigIntDecimalMath = () =>
-  createMath({
-    ...createDefaultMath(),
-    plus: (target, delta) => new BigIntDecimal(target).plus(delta).toNumber(),
-    minus: (target, delta) => new BigIntDecimal(target).minus(delta).toNumber(),
-    multi: (target, delta) => new BigIntDecimal(target).multi(delta).toNumber(),
-    mod: (target, delta) => new BigIntDecimal(target).mod(delta).toNumber(),
+  createMath<BigIntDecimal>({
+    isNumber: (target): target is number | BigIntDecimal => isNumber(target) || is(target),
+    isNaN(target) {
+      return is(target) ? target.isNaN() : Number.isNaN(target);
+    },
+    isZero(target) {
+      return is(target) ? target.isZero() : target === 0;
+    },
+    toNumber: toBigIntDecimal,
+    toRawNum(target) {
+      return is(target) ? target.toNumber() : Number(target);
+    },
+    getZero: () => toBigIntDecimal({ integer: '0' }),
+    getNaN: () => toBigIntDecimal({ nan: true }),
+    getPositiveInfinity: () => toBigIntDecimal({ infinite: true }),
+    getNegativeInfinity: () => toBigIntDecimal({ infinite: true, negative: true }),
+    isFinite(target) {
+      return is(target) ? !target.isInfinite() : Number.isFinite(target);
+    },
+    isInteger(target) {
+      return is(target) ? target.isInteger() : Number.isInteger(target);
+    },
+    plus: (target, delta) => toBigIntDecimal(target).plus(delta),
+    minus: (target, delta) => toBigIntDecimal(target).minus(delta),
+    multi: (target, delta) => toBigIntDecimal(target).multi(delta),
+    divide(target, delta) {
+      return toBigIntDecimal(this.toRawNum(target) / this.toRawNum(delta));
+    },
+    mod: (target, delta) => toBigIntDecimal(target).mod(delta),
+
+    max(...args) {
+      if (!args.length) return this.getNegativeInfinity();
+      let max = args[0];
+      for (let i of args) {
+        i = toBigIntDecimal(i);
+        if (i.isInvalidate() || (i.infinite && !i.negative)) return i;
+        else if (i.greaterThan(max)) max = i;
+      }
+      return toBigIntDecimal(max);
+    },
+
+    min(...args) {
+      if (!args.length) return this.getPositiveInfinity();
+      let min = args[0];
+      for (let i of args) {
+        i = toBigIntDecimal(i);
+        if (i.isInvalidate() || (i.infinite && i.negative)) return i;
+        else if (i.lessThan(min)) min = i;
+      }
+      return toBigIntDecimal(min);
+    },
+
+    floor(target) {
+      return toBigIntDecimal(target).toFloor();
+    },
+    equals: (left, right) => toBigIntDecimal(left).equals(right),
+    greaterThan(left, right) {
+      return !!toBigIntDecimal(left).greaterThan(right);
+    },
+    lessThan(left, right) {
+      return !!toBigIntDecimal(left).lessThan(right);
+    },
+    toPrecision(target, precision) {
+      return toBigIntDecimal(target).toPrecision(precision);
+    },
+    toNegative(target) {
+      return toBigIntDecimal(target).negated();
+    },
   });
