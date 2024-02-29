@@ -39,31 +39,49 @@ export class BigIntDecimal {
   decimalLen: number = 0;
   empty: boolean = false;
   nan: boolean = false;
+  infinite: boolean = false;
 
   constructor(
     value:
       | string
       | number
       | BigIntDecimal
-      | { integer?: string; decimal?: string; negative?: boolean; exp?: string; expNegative?: boolean },
+      | {
+          integer?: string;
+          decimal?: string;
+          negative?: boolean;
+          exp?: string;
+          expNegative?: boolean;
+          infinite?: boolean;
+          nan?: boolean;
+        },
   ) {
+    if (!new.target) {
+      return new BigIntDecimal(value);
+    }
     if (value instanceof BigIntDecimal) {
       return new BigIntDecimal({
         integer: value.getIntegerStr(),
         decimal: value.getDecimalStr(),
         negative: value.negative,
+        infinite: value.infinite,
+        nan: value.nan,
       });
     } else if (isNumber(value) || isString(value)) {
       return this.initStrOrNum(value)!;
     }
-    let { integer = '', decimal = '', negative, exp, expNegative } = value;
-    if (!integer && !decimal) {
+    let { integer = '', decimal = '', negative, exp, expNegative, infinite, nan } = value;
+    this.negative = negative;
+    if (nan || (!integer && !decimal)) {
       this.nan = true;
+      return;
+    }
+    if (infinite) {
+      this.infinite = true;
       return;
     }
     decimal = decimal.replace(/0+$/, ''); // remove trailing zeros of decimal
     let decimalLen = decimal.length;
-    this.negative = negative;
     if (exp) {
       const e = +exp;
       if (__DEV__ && Number.isNaN(e)) throw new Error('Invalid exponent');
@@ -94,6 +112,11 @@ export class BigIntDecimal {
       return;
     }
     value = String(value).trim();
+    if (value === 'Infinity' || value === '+Infinity' || value === '-Infinity') {
+      this.infinite = true;
+      this.negative = value[0] === '-';
+      return;
+    }
     if (value === '') {
       this.empty = true;
       return;
@@ -131,7 +154,7 @@ export class BigIntDecimal {
     return BigInt(str);
   }
 
-  negate() {
+  negated() {
     const clone = new BigIntDecimal(this);
     clone.negative = !clone.negative;
     return clone;
@@ -160,10 +183,22 @@ export class BigIntDecimal {
     });
   }
 
+  /**
+   * @private
+   * if this or target is infinite, return infinite; if this or target is NaN, return NaN; or return undefined
+   */
+  private check(value: string | number | BigIntDecimal) {
+    const target = new BigIntDecimal(value);
+    if (this.isInvalidate() || target.isInvalidate()) return new BigIntDecimal(NaN);
+    else if (this.infinite || target.infinite) return new BigIntDecimal({ infinite: true });
+  }
+
   plus(value: string | number | BigIntDecimal): BigIntDecimal {
     const target = new BigIntDecimal(value);
-    if (this.isInvalidate() || target.isInvalidate()) {
-      return new BigIntDecimal(NaN);
+    let temp;
+    if ((temp = this.check(target))) {
+      if (temp.negative || target.negative) temp.nan = true;
+      return temp;
     }
     return this.cal(
       target,
@@ -173,13 +208,16 @@ export class BigIntDecimal {
   }
 
   minus(value: string | number | BigIntDecimal): BigIntDecimal {
-    return this.plus(new BigIntDecimal(value).negate());
+    return this.plus(new BigIntDecimal(value).negated());
   }
 
   multi(value: string | number | BigIntDecimal): BigIntDecimal {
     const target = new BigIntDecimal(value);
-    if (this.isInvalidate() || target.isInvalidate()) {
-      return new BigIntDecimal(NaN);
+    let temp;
+    if ((temp = this.check(target))) {
+      // @ts-ignore
+      temp.negative = temp.negative ^ target.negative;
+      return temp;
     }
     return this.cal(
       target,
@@ -190,8 +228,10 @@ export class BigIntDecimal {
 
   mod(value: string | number | BigIntDecimal): BigIntDecimal {
     const target = new BigIntDecimal(value);
-    if (this.isInvalidate() || target.isInvalidate()) {
-      return new BigIntDecimal(NaN);
+    let temp;
+    if ((temp = this.check(target))) {
+      temp.nan = true;
+      return temp;
     }
     return this.cal(
       target,
@@ -201,12 +241,12 @@ export class BigIntDecimal {
   }
 
   toFloor() {
-    if (this.isInvalidate()) {
-      return new BigIntDecimal(NaN);
+    if (this.isInvalidate() || this.infinite) {
+      return new BigIntDecimal(this);
     }
+    // remove decimal part
     const temp = new BigIntDecimal({
       integer: this.getIntegerStr(),
-      decimal: '',
       negative: this.negative,
     });
     if (this.negative) {
@@ -229,6 +269,10 @@ export class BigIntDecimal {
     return this.nan;
   }
 
+  isInfinite() {
+    return this.infinite;
+  }
+
   isInvalidate() {
     return this.empty || this.nan;
   }
@@ -238,6 +282,10 @@ export class BigIntDecimal {
   }
 
   lessThan(target: BigIntDecimal) {
+    if (this.infinite) {
+      if (!this.negative) return false; // this is positive infinity, must be greater than target
+      return !target.infinite || !target.negative; // this is negative infinity, if target is finite, always returns true; if target is infinite, returns true only when it's positive infinity
+    } else if (target.infinite) return !target.negative;
     return this.minus(target).negative;
   }
 
@@ -251,6 +299,7 @@ export class BigIntDecimal {
 
   toString() {
     if (this.isInvalidate()) return '';
+    else if (this.infinite) return this.negative ? '-Infinity' : 'Infinity';
     return this.getMark() + this.getIntegerStr() + (this.decimalLen ? '.' + this.getDecimalStr() : '');
   }
 }
