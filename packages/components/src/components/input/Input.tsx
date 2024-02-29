@@ -87,7 +87,7 @@ export const Input = defineSSRCustomElement({
         blur: () => inputRef.value?.blur(),
         ...numberMethods,
         get valueAsNumber() {
-          return GlobalStaticConfig.math.toNumber(valueModel.value);
+          return GlobalStaticConfig.math.toRawNum(valueModel.value);
         },
       },
       refLikesToGetters({ input: inputRef }),
@@ -118,9 +118,9 @@ export const Input = defineSSRCustomElement({
     });
 
     const numberStepIcons = computed(() => {
-      const { stepControl } = props;
+      const { stepControl, multiple } = props;
       const { type } = validateProps.value;
-      if (type !== 'number' && type !== 'number-string') return;
+      if (type !== 'number' && type !== 'number-string' || multiple) return;
       const step = ns.e('step'),
         arrow = ns.e('arrow'),
         slot = ns.e('slot');

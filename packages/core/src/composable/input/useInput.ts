@@ -8,6 +8,7 @@ import {
   toRegExp,
   isArray,
   isTruthyOrZero,
+  BigIntDecimal,
 } from '@lun/utils';
 import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
@@ -57,10 +58,10 @@ export type UseInputOptions = {
 };
 
 type TransformedOption = {
-  min: number;
-  max: number;
-  precision: number | null;
-  step: number | null;
+  min: BigIntDecimal;
+  max: BigIntDecimal;
+  precision: BigIntDecimal | null;
+  step: BigIntDecimal | null;
   updateWhen: Set<InputPeriod>;
   restrictWhen: Set<InputPeriod | 'beforeInput'>;
   transformWhen: Set<InputPeriod>;

@@ -2,6 +2,7 @@ import { ComputedRef } from 'vue';
 import { TransformedUseInputOption, UseInputOptions } from '.';
 import { presets } from '../../presets';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
+import { BigIntDecimal } from '@lun/utils';
 
 export function processNumOptions<
   T extends { [k in 'min' | 'max' | 'step' | 'precision']?: string | number | null | undefined } & {
@@ -10,7 +11,7 @@ export function processNumOptions<
 >(options: T) {
   const { toNumberOrNull, toPrecision, ensureNumber, getPositiveInfinity, getNegativeInfinity } = presets.math;
   const precision = toNumberOrNull(options.precision);
-  const toFixed = (value?: string | number | null) => {
+  const toFixed = (value?: string | number | null | BigIntDecimal) => {
     value = toNumberOrNull(value);
     return precision === null || value === null ? value : toPrecision(value, precision);
   };
@@ -22,13 +23,15 @@ export function processNumOptions<
 
 export function useNumberStep(options: ComputedRef<TransformedUseInputOption<UseInputOptions>>) {
   const performStep = (isNext: boolean) => {
-    const { plus, minus, mod, lessThan, greaterThan, isNaN, getZero, toNegative, toNumber } = presets.math;
-    let { step, min, max, value, onChange, type } = options.value; // TODO lessThan, greaterThan
-    if (type !== 'number' && type !== 'number-string') return;
-    value = toNumber(unrefOrGet(value));
+    const { plus, minus, mod, lessThan, greaterThan, isNaN, getZero, toNegative, toNumber, toRawNum } = presets.math;
+    let { step, min, max, value: v, onChange, type, multiple } = options.value; // TODO lessThan, greaterThan
+    const isN = type === 'number',
+      isNS = type === 'number-string';
+    if ((!isN && !isNS) || multiple) return;
+    let value = toNumber(unrefOrGet(v));
     if (isNaN(value)) value = getZero();
-    if (step === null) step = 1;
-    let result = value + (isNext ? step : -step);
+    if (step === null) step = toNumber(1);
+    let result = plus(value, isNext ? step : -step);
     result = plus(value, isNext ? step : toNegative(step));
     if (lessThan(result, min)) {
       const minAddStep = plus(min, step);
@@ -37,7 +40,7 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
       result = minus(max, mod(max, step)); // result = max - (max % step)
       result = isNext || !lessThan(result, min) ? result : min;
     }
-    onChange(result);
+    onChange(isN ? toRawNum(result) : result.toString());
   };
 
   const methods = {

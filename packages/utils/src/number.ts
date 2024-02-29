@@ -262,12 +262,13 @@ export class BigIntDecimal {
     return temp;
   }
 
-  toPrecision(precision: number) {
+  toPrecision(_precision: BigIntDecimalValue) {
+    _precision = toBigIntDecimal(_precision);
+    if (__DEV__ && (!_precision.isInteger() || _precision.lessThan(0))) throw new Error('Invalid precision');
+    const precision = Number(_precision.integer);
     if (this.isInvalidate() || this.infinite || this.decimalLen <= precision) {
       return toBigIntDecimal(this, true);
     }
-    precision = +precision;
-    if (__DEV__ && (Number.isNaN(precision) || precision < 0)) throw new Error('Invalid precision');
     const decimalStr = this.getDecimalStr();
     let decimal = decimalStr.slice(0, precision);
     const nextDigit = +decimalStr[precision];
