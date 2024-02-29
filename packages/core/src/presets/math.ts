@@ -18,7 +18,7 @@ export type MathMethods<T = number> = {
   // below can correct type
   plus(target: T, delta: T): T;
   minus(target: T, delta: T): T;
-  multiply(target: T, delta: T): T;
+  multi(target: T, delta: T): T;
   divide(target: T, delta: T): T;
   max(...args: T[]): T;
   min(...args: T[]): T;
@@ -73,7 +73,7 @@ export const createDefaultMath = () =>
     isInteger: Number.isInteger,
     plus: (target, delta) => target + delta,
     minus: (target, delta) => target - delta,
-    multiply: (target, delta) => target * delta,
+    multi: (target, delta) => target * delta,
     divide: (target, delta) => target / delta,
     mod: (target, delta) => target % delta,
     max: Math.max,
@@ -91,6 +91,6 @@ export const createBigIntDecimalMath = () =>
     ...createDefaultMath(),
     plus: (target, delta) => new BigIntDecimal(target).plus(delta).toNumber(),
     minus: (target, delta) => new BigIntDecimal(target).minus(delta).toNumber(),
-    multiply: (target, delta) => new BigIntDecimal(target).multi(delta).toNumber(),
+    multi: (target, delta) => new BigIntDecimal(target).multi(delta).toNumber(),
     mod: (target, delta) => new BigIntDecimal(target).mod(delta).toNumber(),
   });
