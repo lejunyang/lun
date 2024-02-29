@@ -1,12 +1,8 @@
 import { defineWorkspace } from 'vitest/config';
 
-const define = {
-  __DEV__: 'true',
-}
 export default defineWorkspace([
-  'packages/*',
   {
-    define,
+    extends: './packages/components/vite.config.ts',
     test: {
       name: '@lun/components',
       globals: true,
@@ -15,7 +11,7 @@ export default defineWorkspace([
     },
   },
   {
-    define,
+    extends: './packages/core/vite.config.ts',
     test: {
       name: '@lun/core',
       globals: true,
@@ -24,7 +20,7 @@ export default defineWorkspace([
     },
   },
   {
-    define,
+    extends: './packages/theme/vite.config.ts',
     test: {
       name: '@lun/theme',
       globals: true,
@@ -33,7 +29,7 @@ export default defineWorkspace([
     },
   },
   {
-    define,
+    extends: './packages/utils/vite.config.ts',
     test: {
       name: '@lun/utils',
       globals: true,
@@ -42,7 +38,7 @@ export default defineWorkspace([
     },
   },
   {
-    define,
+    extends: './packages/babel-plugin-jsx/vite.config.ts',
     test: {
       name: '@lun/babel-plugin-jsx',
       globals: true,
