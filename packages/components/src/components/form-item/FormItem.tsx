@@ -163,6 +163,7 @@ export const FormItem = defineSSRCustomElement({
             {renderElement(
               'tooltip',
               {
+                class: ns.e('tooltip'),
                 disabled: !(tips.value.tooltip as []).length,
               },
               [

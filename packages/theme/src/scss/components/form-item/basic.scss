@@ -28,11 +28,16 @@
   }
 
   @include e(content) {
+    display: flex;
     @include declareVars(
       (
         line-height: content-line-height,
       )
     );
+  }
+
+  @include e(tooltip) {
+    display: contents;
   }
 
   @include size(1) {
