@@ -114,11 +114,6 @@ export const Input = defineSSRCustomElement({
       editComputed,
     );
 
-    const getClearIcon = () =>
-      props.showClearIcon &&
-      editComputed.value.editable &&
-      renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue });
-
     const lengthInfo = computed(() => {
       const valueLength = props.multiple ? valueForMultiple.value.length : String(valueModel.value ?? '').length;
       // if no maxLength, show current char count as length info
@@ -165,6 +160,13 @@ export const Input = defineSSRCustomElement({
     const appendSlot = useSlot({ name: 'append' });
     const rendererSlot = useSlot({ name: 'renderer' });
 
+    const clearIcon = computed(
+      () =>
+        props.showClearIcon &&
+        editComputed.value.editable &&
+        renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue }),
+    );
+
     const statusIcon = computed(() => {
       if (!props.showStatusIcon) return;
       const { value } = status;
@@ -194,14 +196,13 @@ export const Input = defineSSRCustomElement({
           placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
           disabled={disabled}
           readonly={readonly}
-          // FIXME size is not wide enough for chinese chars
-          size={hidePlaceholderForMultiple ? valueForMultiple.value.length + 1 : undefined} // when it's multiple, width of input is determined by size
+          size={hidePlaceholderForMultiple ? 1 : undefined}
           {...inputHandlers}
         />
       );
       return (
         <span part="root" class={[stateClass.value, ns.m(type)]} onPointerdown={rootOnPointerDown}>
-          <div class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isN('empty', !withPrepend)]} part="prepend">
+          <div class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isOr('empty', !withPrepend)]} part="prepend">
             <slot {...prependSlot.slotProps}></slot>
           </div>
           <label class={ns.e('label')} part="label">
@@ -212,7 +213,7 @@ export const Input = defineSSRCustomElement({
               </div>
             )}
             {numberStepIcons.value?.minus}
-            <div class={[ns.e('slot'), ns.e('prefix'), ns.isN('empty', prefixSlot.empty.value)]} part="prefix">
+            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty.value)]} part="prefix">
               <slot {...prefixSlot.slotProps}></slot>
             </div>
             <span class={ns.e('wrapper')} part="wrapper">
@@ -226,7 +227,7 @@ export const Input = defineSSRCustomElement({
               {multiple ? (
                 <span
                   {...wrapperHandlers}
-                  class={[ns.e('tag-container'), ns.isN(`wrap`, wrapTags)]}
+                  class={[ns.e('tag-container'), ns.isOr(`wrap`, wrapTags)]}
                   part="tag-container"
                 >
                   {isArray(valueModel.value) &&
@@ -254,7 +255,16 @@ export const Input = defineSSRCustomElement({
                         removable: editable,
                       });
                     })}
-                  {input}
+                  {editable && (
+                    // use grid and pseudo to make the input auto grow, see in https://css-tricks.com/auto-growing-inputs-textareas/
+                    <span
+                      class={ns.e('multi-input-wrapper')}
+                      part="multi-input-wrapper"
+                      data-value={hidePlaceholderForMultiple ? valueForMultiple.value : placeholder}
+                    >
+                      {input}
+                    </span>
+                  )}
                 </span>
               ) : (
                 input
@@ -266,11 +276,11 @@ export const Input = defineSSRCustomElement({
                 ns.e('slot'),
                 ns.e('suffix'),
                 props.showClearIcon && ns.is('with-clear'),
-                ns.isN('empty', suffixSlot.empty.value && !props.showClearIcon && !props.showStatusIcon),
+                ns.isOr('empty', suffixSlot.empty.value && !clearIcon.value && !statusIcon.value),
               ]}
               part="suffix"
             >
-              {getClearIcon()}
+              {clearIcon.value}
               <slot {...suffixSlot.slotProps}></slot>
               {statusIcon.value}
             </span>
@@ -282,7 +292,7 @@ export const Input = defineSSRCustomElement({
             {numberStepIcons.value?.plus}
             {numberStepIcons.value?.arrow}
           </label>
-          <div class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isN('empty', !withAppend)]} part="append">
+          <div class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isOr('empty', !withAppend)]} part="append">
             <slot {...appendSlot.slotProps}></slot>
           </div>
         </span>

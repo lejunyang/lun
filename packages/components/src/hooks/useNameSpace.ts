@@ -143,8 +143,8 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     /** block, element and modifier */
     bem,
     is,
-    /** similar to 'is', but add prefix 'not-' when it's falsy */
-    isN(name: string, state: any) {
+    /** similar to 'is', but add prefix 'not-' when state is falsy */
+    isOr(name: string, state: any) {
       return is(state ? name : `not-${name}`);
     },
     // css
