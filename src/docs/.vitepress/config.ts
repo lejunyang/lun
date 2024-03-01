@@ -55,6 +55,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/', lang) },
             { text: locales[lang].sidebar.dataInput.select, link: wrapLink('/components/select/', lang) },
             { text: locales[lang].sidebar.dataInput.switch, link: wrapLink('/components/switch/', lang) },
+            { text: locales[lang].sidebar.dataInput.textarea, link: wrapLink('/components/textarea/', lang) },
           ],
         },
         {
@@ -80,6 +81,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.feedback.callout, link: wrapLink('/components/callout/', lang) },
+            { text: locales[lang].sidebar.feedback.progress, link: wrapLink('/components/progress/', lang) },
             { text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) },
             { text: locales[lang].sidebar.feedback.watermark, link: wrapLink('/components/watermark/', lang) },
           ],
