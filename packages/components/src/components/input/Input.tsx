@@ -2,7 +2,15 @@ import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSetupContextEvent, useSlot, useValueModel } from 'hooks';
+import {
+  useCEExpose,
+  useCEStates,
+  useNamespace,
+  usePropsFromFormItem,
+  useSetupContextEvent,
+  useSlot,
+  useValueModel,
+} from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -17,7 +25,7 @@ export const Input = defineSSRCustomElement({
   props: inputProps,
   formAssociated: true,
   emits: inputEmits,
-  setup(props, { emit, attrs }) {
+  setup(props, { emit }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
     const { status, validateProps } = usePropsFromFormItem(props);
@@ -120,7 +128,7 @@ export const Input = defineSSRCustomElement({
     const numberStepIcons = computed(() => {
       const { stepControl, multiple } = props;
       const { type } = validateProps.value;
-      if (type !== 'number' && type !== 'number-string' || multiple) return;
+      if ((type !== 'number' && type !== 'number-string') || multiple) return;
       const step = ns.e('step'),
         arrow = ns.e('arrow'),
         slot = ns.e('slot');
@@ -176,7 +184,6 @@ export const Input = defineSSRCustomElement({
       const withAppend = !appendSlot.empty.value;
       const input = (
         <input
-          {...attrs} // FIXME 当多选的时候style似乎应该传到wrapper上去，设一个width会非常明显，多选时会导致出现滚动条
           exportparts=""
           type={inputType}
           inputmode={type === 'number-string' ? 'numeric' : undefined}
@@ -193,14 +200,7 @@ export const Input = defineSSRCustomElement({
         />
       );
       return (
-        <span
-          part="root"
-          class={[
-            stateClass.value,
-            ns.m(type),
-          ]}
-          onPointerdown={rootOnPointerDown}
-        >
+        <span part="root" class={[stateClass.value, ns.m(type)]} onPointerdown={rootOnPointerDown}>
           <div class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isN('empty', !withPrepend)]} part="prepend">
             <slot {...prependSlot.slotProps}></slot>
           </div>

@@ -6,12 +6,16 @@
 :host {
   display: inline-flex;
   max-inline-size: 100%;
+  min-inline-size: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
   vertical-align: bottom;
 }
 
 @include b(input) {
   display: inline-flex;
   max-inline-size: 100%;
+  flex-grow: 1;
   position: relative;
   vertical-align: bottom;
 
@@ -52,6 +56,7 @@
 
   label {
     max-inline-size: 100%;
+    flex-grow: 1;
   }
 
   @include is(disabled) {
@@ -66,6 +71,7 @@
   @include e(wrapper) {
     position: relative;
     overflow: auto;
+    flex-grow: 1;
   }
 
   @include e(inner-input) {
