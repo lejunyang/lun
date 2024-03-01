@@ -1,0 +1,45 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@keyframes rotate {
+  0% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(1turn);
+  }
+}
+
+@include b(progress) {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border: 1px solid black;
+  overflow: hidden;
+
+  @include e(wave) {
+    width: 200px;
+    height: 200px;
+    background: getAccentColor(a9);
+    border-radius: calc(100px * 3 / 4);
+    position: absolute;
+    left: 50%;
+    top: calc(100% - getRVarValue(value));
+    // must set this in animation, animation will override this
+    // transform: translateX(-50%);
+    animation: rotate 5s linear infinite;
+  }
+
+  @include size(1) {
+  }
+  @include size(2) {
+  }
+  @include size(3) {
+  }
+}

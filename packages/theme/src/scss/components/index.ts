@@ -33,6 +33,7 @@ import {
 } from './callout/index.ts';
 import { importMessageBasicTheme } from './message/index.ts';
 import { importSpinBasicTheme } from './spin/index.ts';
+import { importProgressBasicTheme } from './progress/index.ts';
 
 export * from './input/index.ts';
 
@@ -48,6 +49,7 @@ export function importBasicTheme() {
   importInputBasicTheme();
   importMessageBasicTheme();
   importPopoverBasicTheme();
+  importProgressBasicTheme();
   importRadioBasicTheme();
   importSelectBasicTheme();
   importSelectOptgroupBasicTheme();
