@@ -12,6 +12,10 @@
       padding: 1px;
       background-clip: content-box;
     }
+    @include e(renderer) {
+      background-color: getSemanticColor('surface-solid');
+      padding-block: 1px;
+    }
 
     @include e(addon) {
       &#{getIsN(empty)} {
@@ -40,6 +44,9 @@
     @include is(disabled) {
       @include e('background') {
         background-image: linear-gradient(getGrayColor(a3), getGrayColor(a3));
+      }
+      @include e(renderer) {
+        background-image: linear-gradient(getGrayColor(3), getGrayColor(3));
       }
     }
   }

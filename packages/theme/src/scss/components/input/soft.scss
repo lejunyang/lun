@@ -9,6 +9,9 @@
     @include e('background') {
       background-color: getAccentColor(a3);
     }
+    @include e(renderer) {
+      background-color: getAccentColor(3);
+    }
 
     @include e(addon) {
       background-color: getAccentColor(a3);
@@ -24,6 +27,9 @@
     @include is(disabled) {
       @include e('background') {
         background-color: getGrayColor(a4);
+      }
+      @include e(renderer) {
+        background-color: getGrayColor(4);
       }
     }
   }

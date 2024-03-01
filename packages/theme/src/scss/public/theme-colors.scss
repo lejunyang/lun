@@ -32,6 +32,7 @@
     @include semanticColor('panel-solid', white);
     @include semanticColor('panel-translucent', rgba(255, 255, 255, 0.8));
     @include semanticColor('surface', rgba(255, 255, 255, 0.9));
+    @include semanticColor('surface-solid', rgb(255, 255, 255));
     --#{$namespace}-gray-surface: #ffffffcc;
     --#{$namespace}-mauve-surface: #ffffffcc;
     --#{$namespace}-slate-surface: #ffffffcc;
@@ -71,6 +72,7 @@
     @include semanticColor('panel-solid', getColor('gray', 2));
     // @include semanticColor('panel-translucent', rgba(255, 255, 255, 0.8));
     @include semanticColor('surface', rgba(0, 0, 0, 0.25));
+    @include semanticColor('surface', rgb(0, 0, 0));
     --#{$namespace}-gray-surface: #21212180;
     --#{$namespace}-mauve-surface: #22212380;
     --#{$namespace}-slate-surface: #1f212380;

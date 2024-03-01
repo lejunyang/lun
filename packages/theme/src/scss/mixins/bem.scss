@@ -120,13 +120,13 @@
 
 // withParent: false => selector will be under parent; true => selector will be connected after parent
 @mixin is($state, $withParent: true, $atRoot: false) {
-  @include basicIs($state, $withParent, false, false) {
+  @include basicIs($state, $withParent, $atRoot, false) {
     @content;
   }
 }
 
 @mixin isN($state, $withParent: true, $atRoot: false) {
-  @include basicIs($state, $withParent, false, true) {
+  @include basicIs($state, $withParent, $atRoot, true) {
     @content;
   }
 }
