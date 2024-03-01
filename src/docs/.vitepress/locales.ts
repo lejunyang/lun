@@ -20,6 +20,7 @@ export default {
         radio: 'Radio 单选框',
         select: 'Select 下拉列表',
         switch: 'Switch 开关',
+        textarea: 'Textarea 文本域',
       },
       ft: {
         menu: '表单与表格',
@@ -36,6 +37,7 @@ export default {
       feedback: {
         menu: '反馈展示',
         callout: 'Callout 提示框',
+        progress: 'Progress 进度',
         spin: 'Spin 加载中',
         watermark: 'Watermark 水印',
       },
@@ -93,6 +95,7 @@ export default {
         radio: 'Radio',
         select: 'Select',
         switch: 'Switch',
+        textarea: 'Textarea',
       },
       ft: {
         menu: 'Form & Table',
@@ -109,6 +112,7 @@ export default {
       feedback: {
         menu: 'Feedback',
         callout: 'Callout',
+        progress: 'Progress',
         spin: 'Spin',
         watermark: 'Watermark',
       },
