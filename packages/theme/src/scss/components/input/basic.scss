@@ -114,13 +114,24 @@
       }
     }
   }
+
+  @include e(renderer) {
+    position: absolute;
+    inset: 0;
+    background-clip: content-box;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+  }
+
   @include is(with-renderer, false, true) {
-    @include e(renderer) {
-      z-index: 2;
-    }
     @include e(inner-input) {
       opacity: 0;
       transition: opacity 0.3s ease;
+    }
+    @include e(renderer) {
+      opacity: 1;
+      z-index: 2;
     }
   }
 
@@ -201,11 +212,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      @include declareVars(
-        (
-          min-inline-size: slot-min-inline-size,
-        )
-      );
 
       .#{$B}:hover &:not(:empty) {
         opacity: 1;
@@ -227,15 +233,6 @@
   // suffix slot default content clear-icon
   slot .#{getBEM(input, suffix, clear-icon)} {
     position: relative;
-  }
-
-  @include e(renderer) {
-    position: absolute;
-    inset: 0;
-    background-clip: content-box;
-    display: flex;
-    align-items: center;
-    opacity: 1;
   }
 
   // float label
@@ -289,6 +286,22 @@
     flex-wrap: wrap;
     @include isN(wrap) {
       flex-wrap: nowrap;
+    }
+  }
+
+  // ----------------- multiple input wrapper -----------------
+  @include e(multi-input-wrapper) {
+    display: inline-grid;
+    position: relative;
+    &::after,
+    input {
+      grid-area: 1 / 1;
+      min-width: 1em;
+    }
+    &::after {
+      content: attr(data-value) ' ';
+      visibility: hidden;
+      white-space: pre-wrap;
     }
   }
 
