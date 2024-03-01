@@ -3,7 +3,19 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+:host {
+  display: inline-flex;
+  min-inline-size: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
 @include b(select) {
+  display: inline-flex;
+  min-inline-size: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+
   &::part(popover-content) {
     padding: 0;
     @include declareVars(

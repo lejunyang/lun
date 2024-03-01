@@ -10,6 +10,7 @@
   flex-grow: 1;
   flex-shrink: 1;
   vertical-align: bottom;
+  height: min-content; // prevent input's height from stretching the container
 }
 
 @include b(input) {
@@ -297,6 +298,11 @@
     input {
       grid-area: 1 / 1;
       min-width: 1em;
+      @include declareVars(
+        (
+          block-size: multi-input-block-size,
+        )
+      );
     }
     &::after {
       content: attr(data-value) ' ';
@@ -365,6 +371,7 @@
         line-height: getSpaceValue(5),
         slot-min-inline-size: getSpaceValue(5),
         slot-padding-inline: getSpaceValue(1),
+        multi-input-block-size: getLineHeightValue(1),
       )
     );
     @include e(slot) {
@@ -407,6 +414,7 @@
         line-height: getSpaceValue(6),
         slot-min-inline-size: getSpaceValue(6),
         slot-padding-inline: getSpaceValue(2),
+        multi-input-block-size: getLineHeightValue(2),
       )
     );
     @include e(slot) {
@@ -447,6 +455,7 @@
         line-height: getSpaceValue(7),
         slot-min-inline-size: getSpaceValue(7),
         slot-padding-inline: getSpaceValue(3),
+        multi-input-block-size: getLineHeightValue(3),
       )
     );
     @include e(slot) {
