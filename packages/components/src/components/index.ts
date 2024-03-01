@@ -24,6 +24,7 @@ import { defineTooltip } from './tooltip/Tooltip';
 import { defineFilePicker } from './file-picker/FilePicker';
 import { defineWatermark } from './watermark/Watermark';
 import { importPopoverStyle } from './popover';
+import { defineProgress } from './progress/Progress';
 
 export function importAllBasicStyles() {
   importIconStyle();
@@ -60,6 +61,7 @@ export function defineAllComponents() {
   defineTag();
   defineTooltip();
   defineFilePicker();
+  defineProgress();
 }
 
 export * from './animation';
@@ -77,6 +79,7 @@ export * from './icon';
 export * from './input';
 export * from './message';
 export * from './popover';
+export * from './progress';
 export * from './radio';
 export * from './select';
 export * from './spin';

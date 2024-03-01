@@ -23,6 +23,7 @@ export const openShadowComponents = Object.freeze([
   'input',
   'message',
   'popover',
+  'progress',
   'radio',
   'radio-group',
   'select',
@@ -31,6 +32,7 @@ export const openShadowComponents = Object.freeze([
   'spin',
   'switch',
   'tag',
+  'textarea',
   'theme-provider',
   'tooltip',
 ] as const);
@@ -86,6 +88,7 @@ export const GlobalStaticConfig = new Proxy(
       result[name] = new Set();
       return result;
     }, {} as Record<ComponentKey, Set<string>>),
+    /** define default props of every component */
     defaultProps: {
       button: {
         showLoading: true,
@@ -156,6 +159,7 @@ export const GlobalStaticConfig = new Proxy(
         useTransform: false,
         transition: 'fade',
       },
+      progress: { type: 'wave' },
       radio: {
         labelPosition: 'end' as const,
         noIndicator: undefined, // virtualMerge requires undefined as default
@@ -180,6 +184,7 @@ export const GlobalStaticConfig = new Proxy(
       tag: {
         transition: 'scaleOut',
       },
+      textarea: {},
       'theme-provider': {},
       tooltip: {
         open: undefined, // must be undefined, otherwise it will be controlled
