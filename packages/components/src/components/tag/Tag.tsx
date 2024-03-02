@@ -11,7 +11,7 @@ export const Tag = defineSSRCustomElement({
   name,
   props: tagProps,
   emits: tagEmits,
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const removed = ref(false);
     const rootRef = ref<HTMLElement>();
@@ -33,7 +33,7 @@ export const Tag = defineSSRCustomElement({
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!removed.value && (
-            <span class={ns.t} part={ns.p('root')} ref={rootRef}>
+            <span class={ns.t} part={ns.p('root')} ref={rootRef} tabindex={attrs.tabindex as any}>
               <slot>{props.label}</slot>
               {props.removable &&
                 renderElement('icon', {
