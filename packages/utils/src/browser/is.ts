@@ -1,4 +1,4 @@
-function is(node: unknown, type: 'Node' | 'Element' | 'HTMLElement' | 'HTMLTemplateElement' | 'HTMLImageElement') {
+function is(node: unknown, type: 'Node' | 'Element' | 'HTMLElement' | 'HTMLTemplateElement' | 'HTMLImageElement' | 'HTMLInputElement') {
   return (
     globalThis[type] &&
     (node instanceof globalThis[type] ||
@@ -24,4 +24,8 @@ export function isHTMLTemplateElement(node: unknown): node is HTMLTemplateElemen
 
 export function isHTMLImageElement(node: unknown): node is HTMLImageElement {
   return is(node, 'HTMLImageElement');
+}
+
+export function isHTMLInputElement(node: unknown): node is HTMLInputElement {
+  return is(node, 'HTMLInputElement')
 }
