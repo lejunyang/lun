@@ -5,6 +5,7 @@ import {
   getNextMatchElInTree,
   getPreviousMatchElInTree,
   isEnterDown,
+  isHTMLInputElement,
   isNilOrEmptyStr,
   shadowContains,
   toArrayIfNotNil,
@@ -12,6 +13,8 @@ import {
 import { UseInputOptions, useInput } from './useInput';
 import { nextTick } from 'vue';
 import { presets } from '../../presets/index';
+
+type IterateOptions = Parameters<typeof getNextMatchElInTree>[1] & {};
 
 export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'> & {
   value?: MaybeRefLikeOrGetter<string | number | string[] | number[]>;
@@ -28,13 +31,19 @@ export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'
   onInputUpdate?: (value: string | number) => void;
   onTagsAdd?: (values: string[] | number[]) => void;
   onTagsRemove?: (values: string[] | number[]) => void;
-  iterateOptions?: { isMatch?: (el: Element) => boolean; shouldStop: (el: Element) => boolean };
+  iterateOptions?: IterateOptions;
 };
+
+const defaultTagIndexAttr = 'tagIndex';
+const getDefaultIterateOptions = (options?: IterateOptions, attr: string = defaultTagIndexAttr) => ({
+  isMatch: (el: Element) => !!(el as HTMLElement).dataset?.[attr] || isHTMLInputElement(el),
+  ...options,
+});
 
 export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputOptions, true>) {
   const handleDeleteTag = (target?: HTMLElement | null) => {
     if (!target) return;
-    const { tagIndexAttr = 'tagIndex', value, onChange, iterateOptions, onTagsRemove } = unrefOrGet(options)!;
+    const { tagIndexAttr = defaultTagIndexAttr, value, onChange, iterateOptions, onTagsRemove } = unrefOrGet(options)!;
     const index = +target.dataset[tagIndexAttr]!;
     const values = toArrayIfNotNil(unrefOrGet(value));
     if (Number.isInteger(index) && index >= 0 && index < values.length) {
@@ -44,9 +53,12 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
         onChange && onChange(newValues);
         onTagsRemove && onTagsRemove(removed);
         // after delete, focus on next tag or input
-        const nextTarget = getNextMatchElInTree(target, iterateOptions) as HTMLElement;
+        const nextTarget = getNextMatchElInTree(
+          target,
+          getDefaultIterateOptions(iterateOptions, tagIndexAttr),
+        ) as HTMLElement;
         nextTick(() => {
-          if (nextTarget.isConnected) nextTarget.focus();
+          if (nextTarget?.isConnected) nextTarget.focus();
           else {
             // rely on dom, if use value+index as tag key, following tags will update after every change, nextTarget is tangling
             // TODO
@@ -57,12 +69,13 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
   };
   const wrapperHandlers = {
     onKeydown(e: KeyboardEvent) {
-      const { iterateOptions } = unrefOrGet(options)!;
+      let { iterateOptions, tagIndexAttr } = unrefOrGet(options)!;
+      iterateOptions = getDefaultIterateOptions(iterateOptions, tagIndexAttr);
       let target = e.target as HTMLElement;
       if (e.key === 'Backspace' || e.key === 'Delete') {
-        if (target.tagName === 'INPUT' && e.key === 'Backspace') {
+        if (isHTMLInputElement(target) && e.key === 'Backspace') {
           // handle input only when no value
-          if ((target as HTMLInputElement).value) return;
+          if (target.value) return;
           else target = getPreviousMatchElInTree(target, iterateOptions) as HTMLElement;
         }
         // different from Backspace/Delete behavior in text, delete current focused tag whatever
@@ -72,10 +85,9 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
         if (!active || (active !== target && !shadowContains(target, active))) return;
-        const { isMatch, shouldStop } = iterateOptions || {};
         let targetEl = null as Element | null;
-        if (e.key === 'ArrowLeft') targetEl = getPreviousMatchElInTree(target, { isMatch, shouldStop });
-        else if (e.key === 'ArrowRight') targetEl = getNextMatchElInTree(target, { isMatch, shouldStop });
+        if (e.key === 'ArrowLeft') targetEl = getPreviousMatchElInTree(target, iterateOptions);
+        else if (e.key === 'ArrowRight') targetEl = getNextMatchElInTree(target, iterateOptions);
         (targetEl as HTMLElement)?.focus();
       }
     },
