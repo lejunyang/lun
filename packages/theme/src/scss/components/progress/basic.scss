@@ -23,6 +23,11 @@
   border: 1px solid black;
   overflow: hidden;
 
+  @include e(text) {
+    position: relative;
+    z-index: 1;
+  }
+
   @include e(wave) {
     width: 200px;
     height: 200px;

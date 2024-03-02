@@ -1,10 +1,14 @@
-import { PropNumber, PropString, themeProps } from 'common';
+import { PropBoolean, PropNumber, PropString, Status, themeProps } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const progressProps = {
   ...themeProps,
   value: PropNumber(),
-  type: PropString<'wave'>(),
+  type: PropString<'wave' | 'ring' | 'line' | 'steps'>(),
+  noPercent: PropBoolean(),
+  status: PropString<Status>(),
+  strokeColor: PropString(),
+  trailerColor: PropString(),
 };
 
 export type ProgressSetupProps = ExtractPropTypes<typeof progressProps>;
