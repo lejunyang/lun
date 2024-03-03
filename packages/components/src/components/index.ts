@@ -25,6 +25,7 @@ import { defineFilePicker } from './file-picker/FilePicker';
 import { defineWatermark } from './watermark/Watermark';
 import { importPopoverStyle } from './popover';
 import { defineProgress } from './progress/Progress';
+import { defineTextarea } from './textarea/Textarea';
 
 export function importAllBasicStyles() {
   importIconStyle();
@@ -62,6 +63,7 @@ export function defineAllComponents() {
   defineTooltip();
   defineFilePicker();
   defineProgress();
+  defineTextarea();
 }
 
 export * from './animation';
@@ -85,6 +87,7 @@ export * from './select';
 export * from './spin';
 export * from './switch';
 export * from './tag';
+export * from './textarea';
 export * from './theme-provider';
 export * from './tooltip';
 export * from './watermark';
