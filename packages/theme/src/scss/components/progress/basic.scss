@@ -12,39 +12,132 @@
   }
 }
 
-@include b(progress) {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
+:host {
+  flex: 1;
   display: inline-flex;
-  justify-content: center;
   align-items: center;
+}
+
+:host([type='line']) {
+  display: flex;
+}
+
+@include b(progress) {
+  @include declareVars((width, height));
   position: relative;
-  border: 1px solid black;
-  overflow: hidden;
 
   @include e(text) {
     position: relative;
     z-index: 1;
   }
 
+  @include m(wave) {
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    @include declareVarValues((
+      border: (
+        wave-border,
+        '1px solid ' + getGrayColor(9),
+      ),
+    ));
+    @include size(1, false) {
+      @include setVars(
+        (
+          width: 60px,
+          height: 60px,
+        )
+      );
+    }
+    @include size(2, false) {
+      @include setVars(
+        (
+          width: 120px,
+          height: 120px,
+        )
+      );
+    }
+    @include size(3, false) {
+      @include setVars(
+        (
+          width: 180px,
+          height: 180px,
+        )
+      );
+    }
+  }
+
   @include e(wave) {
-    width: 200px;
-    height: 200px;
-    background: getAccentColor(a9);
-    border-radius: calc(100px * 3 / 4);
+    width: calc(var(--width) * 2);
+    height: calc(var(--height) * 2);
+    background: getAccentColor(9);
+    border-radius: calc(var(--width) * 3 / 4);
     position: absolute;
     left: 50%;
-    top: calc(100% - getRVarValue(value));
+    top: calc(100% - getRVarValue(value) + getRVarValue(wave-offset, calc(10% * (1 - getRVarValue(num-value)))));
     // must set this in animation, animation will override this
     // transform: translateX(-50%);
     animation: rotate 5s linear infinite;
+    @include declareVarValues(
+      (
+        transition: (
+          wave-transition,
+          'all 0.3s ease',
+        ),
+      )
+    );
   }
 
-  @include size(1) {
+  @include m(line) {
+    background: getGrayColor(5);
+    @include declareVars((border-radius));
+    @include declareVarValues(
+      (
+        width: 100%,
+      )
+    );
+
+    @include size(1, false) {
+      @include setVars(
+        (
+          height: calc(#{getSpaceValue(2)} * 3 / 2),
+          border-radius: getRadiusValue(1, false),
+        )
+      );
+    }
+    @include size(2, false) {
+      @include setVars(
+        (
+          height: getSpaceValue(2),
+          border-radius: getRadiusValue(2, false),
+        )
+      );
+    }
+    @include size(3, false) {
+      @include setVars(
+        (
+          height: getSpaceValue(3),
+          border-radius: getRadiusValue(3, false),
+        )
+      );
+    }
   }
-  @include size(2) {
-  }
-  @include size(3) {
+  @include e(line) {
+    position: absolute;
+    left: 0;
+    width: getRVarValue(value);
+    height: 100%;
+    background: getAccentColor(9);
+    @include declareVars((border-radius));
+    @include declareVarValues(
+      (
+        transition: (
+          line-transition,
+          'width 0.3s ease',
+        ),
+      )
+    );
   }
 }
