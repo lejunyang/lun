@@ -18,7 +18,7 @@
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
-    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && node ./afterBuild.js",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview"
   },
