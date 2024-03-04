@@ -31,18 +31,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.4.0
+        uses: pnpm/action-setup@v3
         with:
           version: 8.9.0
       - name: Setup node
-        uses: actions/setup-node@v4.0.0
+        uses: actions/setup-node@v4
         with:
           # Set always-auth in npmrc.
           # always-auth: # optional, default is false
           # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
-          node-version: 18 # optional
+          node-version: 20 # optional
           # File containing the version Spec of the version to use.  Examples: .nvmrc, .node-version, .tool-versions.
           # node-version-file: # optional
           # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
@@ -62,9 +62,9 @@ jobs:
       - name: Install and Build
         run: pnpm install && pnpm build && pnpm docs:build
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./src/docs/.vitepress/dist
 
@@ -78,4 +78,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
