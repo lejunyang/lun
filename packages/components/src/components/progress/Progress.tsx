@@ -3,6 +3,9 @@ import { createDefineElement } from 'utils';
 import { progressProps } from './type';
 import { useNamespace } from 'hooks';
 import { computed } from 'vue';
+import { renderStatusIcon } from 'common';
+import { defineIcon } from '../icon/Icon';
+import { toPxIfNum } from '@lun/utils';
 
 const name = 'progress';
 export const Progress = defineSSRCustomElement({
@@ -13,36 +16,55 @@ export const Progress = defineSSRCustomElement({
 
     const getInner = () => {
       const { type, strokeColor } = props;
-      switch (type) {
-        case 'wave':
-          return <div class={ns.e('wave')} style={{ backgroundColor: strokeColor }}></div>;
+      if (type === 'wave' || type === 'line') {
+        if (type === 'wave' && !numValue.value) return;
+        return (
+          <div
+            class={ns.e(type)}
+            style={{
+              backgroundColor: strokeColor,
+            }}
+          ></div>
+        );
       }
     };
 
-    const percent = computed(() => (+props.value! || 0) + '%');
+    const numValue = computed(() => +props.value! || 0);
+    const percent = computed(() => numValue.value + '%');
 
     const rootStyles = computed(() => {
-      const { type, strokeColor } = props;
-      switch (type) {
-        case 'wave':
-          return {
-            backgroundColor: strokeColor,
-            ...ns.v({
-              value: percent.value,
-            }),
-          };
+      let { type, trailerColor, width, height } = props;
+      width = toPxIfNum(width);
+      height = toPxIfNum(height);
+      if (type === 'wave' || type === 'line') {
+        return {
+          backgroundColor: trailerColor,
+          ...ns.v({
+            value: percent.value,
+            'num-value': numValue.value / 100,
+            width,
+            height,
+          }),
+        };
       }
     });
 
     return () => {
-      const { noPercent } = props;
+      const { noPercent, status, type } = props;
+      const text = (
+        <span class={ns.e('text')} part="text">
+          <slot>{renderStatusIcon(status) || (!noPercent && percent.value)}</slot>
+        </span>
+      );
+      const isLine = type === 'line';
       return (
-        <div class={ns.t} part="root" style={rootStyles.value}>
-          <span class={ns.e('text')} part="text">
-            <slot>{!noPercent && percent.value}</slot>
-          </span>
-          {getInner()}
-        </div>
+        <>
+          <div class={[ns.t, ns.m(type)]} part="root" style={rootStyles.value}>
+            {getInner()}
+            {!isLine && text}
+          </div>
+          {isLine && text}
+        </>
       );
     };
   },
@@ -50,4 +72,6 @@ export const Progress = defineSSRCustomElement({
 
 export type tProgress = typeof Progress;
 
-export const defineProgress = createDefineElement(name, Progress);
+export const defineProgress = createDefineElement(name, Progress, {
+  icon: defineIcon,
+});

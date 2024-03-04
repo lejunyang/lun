@@ -74,12 +74,12 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   };
 
   // for css var
-  // --el-xxx: value;
-  const v = (object: Record<string, string | false | 0 | null | undefined>, addBlock = true) => {
+  const v = (object: Record<string, string | false | number | null | undefined>, addBlock = true) => {
     const styles: Record<string, string> = {};
     for (const key in object) {
-      if (object[key]) {
-        styles[vn(key, addBlock)] = object[key] as string;
+      const value = object[key];
+      if (value || value === 0) {
+        styles[vn(key, addBlock)] = value as string;
       }
     }
     return styles;
