@@ -9,6 +9,8 @@ export const progressProps = {
   status: PropString<Status>(),
   strokeColor: PropString(),
   trailerColor: PropString(),
+  width: PropNumber(),
+  height: PropNumber(),
 };
 
 export type ProgressSetupProps = ExtractPropTypes<typeof progressProps>;
