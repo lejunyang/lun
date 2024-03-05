@@ -1,5 +1,5 @@
 import { ExtractPropTypes } from 'vue';
-import { GetEventPropsFromEmits, PropBoolean, PropString, Status, themeProps } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropString, Status, themeProps } from 'common';
 import { baseInputProps } from '../input/type';
 
 export const textareaProps = {
@@ -10,6 +10,10 @@ export const textareaProps = {
   showLengthInfo: PropBoolean(),
   showClearIcon: PropBoolean(),
   status: PropString<Status>(),
+
+  rows: PropNumber(),
+  cols: PropNumber(),
+  resize: PropString<'none' | 'both' | 'horizontal' | 'vertical'>(),
 };
 
 export const textareaEmits = {
