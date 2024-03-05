@@ -1,5 +1,6 @@
 import { themeColors } from '@lun/components';
 import { delay } from '@lun/utils';
+import { ref } from 'vue';
 
 // data for some code cases
 export const options = [
@@ -66,3 +67,9 @@ export const optionsGetter = async () => {
 
 export const sentence = 'The quick brown fox jumps over the lazy dog.';
 export const text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.`;
+
+export const growingProgress = ref(0);
+setInterval(() => {
+  if (growingProgress.value >= 100) growingProgress.value = 0;
+  else growingProgress.value += 10;
+}, 1500);
