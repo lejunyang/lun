@@ -18,7 +18,7 @@ lang: zh-CN
 
 ## 图片水印
 
-`image`优先级更高，会优先展示。为防止图片加载失败，可以同时设置`image`和`content`属性，图片加载失败后会展示`content`
+`image`优先级更高，会优先展示。为防止图片加载失败，可以同时设置`image`和`content`属性，图片加载失败后会展示`content`。同时，可以使用`imageProps`属性来设置图片的各项水印配置，以避免图片失效的情况下其设置与文字的设置要求不符
 
 <!-- @Code:withImage -->
 
@@ -34,6 +34,6 @@ lang: zh-CN
 
 ## 自由更改
 
-使用`mutable`属性即可自由更改 Watermark 的属性，而非只能修改一次，该属性仅能在Watermark元素加载前设置
+使用`mutable`属性即可自由更改 Watermark 的属性，而非只能修改一次，该属性仅能在 Watermark 元素加载前设置
 
 <!-- @Code:mutable -->

@@ -106,7 +106,14 @@ export const Watermark = defineSSRCustomElement({
             computed(() => ({ ...freezedProps, color: getColor(freezedProps) })),
           );
     const markStyle = computed(() => {
-      let { gapX = 100, gapY = 100, offsetLeft, offsetTop, zIndex } = freezedProps as any;
+      const isImage = watermark.value[3];
+      let {
+        gapX = 100,
+        gapY = 100,
+        offsetLeft,
+        offsetTop,
+        zIndex,
+      } = (isImage ? { ...freezedProps, ...freezedProps.imageProps } : freezedProps) as any;
       const style = {
         position: 'absolute',
         top: '0px',
