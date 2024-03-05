@@ -20,8 +20,8 @@ export const Popover = defineSSRCustomElement({
     const ns = useNamespace(name);
     const support = {
       popover: isSupportPopover(),
-      teleport: true,
       fixed: true,
+      teleport: true,
     };
     const popRef = ref<HTMLDivElement>();
     const slotRef = ref<HTMLSlotElement>();
@@ -184,32 +184,34 @@ export const Popover = defineSSRCustomElement({
       ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
     ];
 
-    const getContent = () => {
+    const getContent = (wrapSlot = true) => {
+      const content = props.content && (
+        <VCustomRenderer {...pick(props, ['content', 'preferHtml'])} type={props.contentType} />
+      );
       return (
         <>
           {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value} class={ns.e('arrow')}></div>}
-          <slot name="pop-content">
-            {props.content && <VCustomRenderer {...pick(props, ['content', 'preferHtml'])} type={props.contentType} />}
-          </slot>
+          {wrapSlot ? <slot name="pop-content">{content}</slot> : content}
         </>
       );
     };
 
     const getFixed = () => {
       const { value } = type;
-      const result = (
+      const isTeleport = value === 'teleport';
+      const result = wrapTransition(
         <div
           {...popContentHandlers}
-          part={ns.p([value === 'teleport' ? 'teleport-fixed' : 'fixed', 'content'])}
+          part={isTeleport ? '' : 'fixed content'}
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
           ref={fixedRef}
           class={getRootClass('fixed')}
         >
-          {getContent()}
-        </div>
+          {getContent(!isTeleport)}
+        </div>,
       );
-      return value === 'teleport' ? <Teleport to={props.to || 'body'}>{result}</Teleport> : result;
+      return isTeleport ? <Teleport to={props.to || 'body'}>{result}</Teleport> : result;
     };
 
     const transitionHandler = {
@@ -229,27 +231,31 @@ export const Popover = defineSSRCustomElement({
       },
     };
 
+    const wrapTransition = (node: any) => (
+      <Transition {...getTransitionProps(props)} {...transitionHandler}>
+        {node}
+      </Transition>
+    );
+
     return () => {
       const { value } = type;
       return (
         <>
-          <Transition {...getTransitionProps(props)} {...transitionHandler}>
-            {value === 'popover' ? (
-              <div
-                {...popContentHandlers}
-                v-show={isOpen.value}
-                style={finalFloatingStyles.value}
-                part={ns.p(['native', 'content'])}
-                popover="manual"
-                ref={popRef}
-                class={getRootClass('popover')}
-              >
-                {getContent()}
-              </div>
-            ) : (
-              getFixed()
-            )}
-          </Transition>
+          {value === 'popover'
+            ? wrapTransition(
+                <div
+                  {...popContentHandlers}
+                  v-show={isOpen.value}
+                  style={finalFloatingStyles.value}
+                  part={ns.p(['native', 'content'])}
+                  popover="manual"
+                  ref={popRef}
+                  class={getRootClass('popover')}
+                >
+                  {getContent()}
+                </div>,
+              )
+            : getFixed()}
           <slot {...targetHandlers} ref={slotRef}>
             {runIfFn(props.children, { isOpen: isOpen.value, isShow: isShow.value })}
           </slot>

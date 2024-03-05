@@ -34,18 +34,19 @@ lang: zh-CN
 
 <!-- @Code:differentPlacements -->
 
-## fixed 实现
+## 实现方式
 
-默认情况下会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现，若浏览器不支持，则会改为使用 fixed 定位
+通过`type`属性指定 Popover 实现方式, 目前支持以下方式：
+
+- `popover`: 默认值，会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现
+- `fixed`: 当前位置渲染，使用 fixed 定位，会受父元素影响
+- `teleport`: 将弹出内容渲染到其他地方（默认 body）并使用 fixed 定位，此时`pop-content`插槽将无效，必须通过 `content` 属性来指定弹出框渲染内容
+
+需要注意的是，若浏览器不支持，手动指定的 `type` 会被无视，将采用备选方案实现
 
 检测到当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
 
-当然，也可以通过`type`属性指定实现方式(`popover`, `teleport`, `fixed`)。需要注意的是，若浏览器不支持，手动指定的 `type` 会被无视，将采用备选方案实现
-
-<l-popover type="fixed">
-  <div slot="pop-content">由fixed实现</div>
-  <l-button>悬浮触发</l-button>
-</l-popover>
+<!-- @Code:otherTypes -->
 
 ## 虚拟元素
 
