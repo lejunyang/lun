@@ -7,8 +7,7 @@ import { useWatermark } from '@lun/core';
 import { isTruthyOrZero } from '@lun/utils';
 
 const name = 'watermark';
-const ceStyle =
-  'display: block !important; position: relative !important; visibility: visible !important; opacity: 1 !important; transform: none !important; clip-path: none !important;';
+const ceStyle = `display: block !important; position: relative !important; inset: 0px !important; visibility: visible !important; opacity: 1 !important; transform: none !important; clip-path: none !important; animation: auto ease 0s 1 normal none running none !important; translate: none !important; scale: none !important;`;
 const isTruthyOrZeroOrFalse = (v: any) => isTruthyOrZero(v) || v === false;
 
 export const Watermark = defineSSRCustomElement({

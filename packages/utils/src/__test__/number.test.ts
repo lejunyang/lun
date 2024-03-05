@@ -11,6 +11,7 @@ describe('BigIntDecimal', () => {
     expect(new BigIntDecimal('-123.45e-3').toString()).toBe('-0.12345');
     expect(new BigIntDecimal('-123.45e3').toString()).toBe('-123450');
     expect(new BigIntDecimal('-123.45e-0').toString()).toBe('-123.45');
+    expect(new BigIntDecimal('123.45e').toString()).toBe('123.45');
   });
 
   test('should correctly initialize from an object', () => {

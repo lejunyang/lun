@@ -1,3 +1,5 @@
+import { isNumber } from '../is';
+
 const styleCommentRE = /\/\*[^]*?\*\//g;
 
 export function removeStyleComment(style: string) {
@@ -19,4 +21,8 @@ export function getValuesFromStyle<K extends string[]>(style: string, ...keys: K
     result[match[1] as K[number]] = match[2].trim();
   }
   return result;
+}
+
+export function toPxIfNum(value: string | number | undefined) {
+  return isNumber(value) ? `${value}px` : value;
 }
