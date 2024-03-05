@@ -37,17 +37,28 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    @include declareVarValues((
-      border: (
-        wave-border,
-        '1px solid ' + getGrayColor(9),
-      ),
-    ));
+    @include declareVarValues(
+      (
+        border: (
+          wave-border,
+          '1px solid ' + getGrayColor(3),
+        ),
+      )
+    );
+    [data-status-icon] {
+      @include declareVars(
+        (
+          font-size: icon-font-size,
+        )
+      );
+    }
+
     @include size(1, false) {
       @include setVars(
         (
           width: 60px,
           height: 60px,
+          icon-font-size: 24px,
         )
       );
     }
@@ -56,6 +67,7 @@
         (
           width: 120px,
           height: 120px,
+          icon-font-size: 36px,
         )
       );
     }
@@ -64,6 +76,7 @@
         (
           width: 180px,
           height: 180px,
+          icon-font-size: 48px,
         )
       );
     }
@@ -72,7 +85,7 @@
   @include e(wave) {
     width: calc(var(--width) * 2);
     height: calc(var(--height) * 2);
-    background: getAccentColor(9);
+    background: getAccentColor(a9);
     border-radius: calc(var(--width) * 3 / 4);
     position: absolute;
     left: 50%;
@@ -92,12 +105,22 @@
 
   @include m(line) {
     background: getGrayColor(5);
+    overflow: hidden; // if height is big, border-radius will be obvious. line width transition from 0 can be weird, need to hide the overflow part.
     @include declareVars((border-radius));
     @include declareVarValues(
       (
         width: 100%,
       )
     );
+    @at-root {
+      .#{getBEM(progress, text, line)} {
+        @include declareVarValues(
+          (
+            margin-inline-start: getSpaceValue(2),
+          )
+        );
+      }
+    }
 
     @include size(1, false) {
       @include setVars(
