@@ -193,8 +193,10 @@ export const GlobalStaticConfig = new Proxy(
       },
       watermark: {
         image: 'none', // defaults to none so that watermark with only 'content' prop will not be violated by changing 'image' prop
+        imageProps: {},
         zIndex: 5, // needs to be greater than the dialog panel's z-index
         opacity: 1,
+        ratio: globalThis.devicePixelRatio,
         color: {
           initial: 'rgba(0,0,0,.15)',
           dark: 'rgba(255,255,255,.18)',

@@ -45,19 +45,19 @@ export function useWatermark(
       textAlign?: CanvasTextAlign;
       gapX?: number;
       gapY?: number;
+      imageProps?: Record<string, any>;
     },
     true
   >,
-): ComputedRef<[dataURL: string, finalWidth: number, finalHeight: number]> {
+): ComputedRef<[dataURL: string, finalWidth: number, finalHeight: number, HTMLImageElement | undefined]> {
   let textCtx: CanvasRenderingContext2D;
   const imageRef = ref<HTMLImageElement>(),
     imageLoading = ref(false);
   watchEffect(() => {
     const { image } = unrefOrGet(options);
-    if (image === 'none') return;
     if (isHTMLImageElement(image)) {
       imageRef.value = image;
-    } else if (image) {
+    } else if (image && image !== 'none') {
       const imageEl = new Image();
       imageEl.crossOrigin = 'anonymous';
       imageEl.referrerPolicy = 'no-referrer';
@@ -75,7 +75,12 @@ export function useWatermark(
     }
   });
   const size = computed(() => {
-    let { width, height, fontSize, fontFamily, content } = unrefOrGet(options);
+    let defaultWidth = 120;
+    let defaultHeight = 64;
+    let { width, height, fontSize, fontFamily, content, imageProps } = unrefOrGet(options);
+    if (imageRef.value) {
+      return [imageProps?.width || defaultWidth, imageProps?.height || defaultHeight];
+    }
     // ============================ Content =============================
     /**
      * Get the width and height of the watermark. The default values are as follows
@@ -86,11 +91,9 @@ export function useWatermark(
         const canvas = document.createElement('canvas');
         textCtx = canvas.getContext('2d')!;
       }
-      let defaultWidth = 120;
-      let defaultHeight = 64;
-      if (!imageRef.value && textCtx.measureText) {
+      if (textCtx.measureText) {
         textCtx.font = `${Number(fontSize)}px ${fontFamily}`;
-        const contents = Array.isArray(content) ? content : [content];
+        const contents = toArrayIfNotNil(content);
         const sizes = contents.map((item) => {
           const metrics = textCtx.measureText(item!);
           return [metrics.width, metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent];
@@ -106,12 +109,15 @@ export function useWatermark(
   });
 
   return computed(() => {
+    const renderImage = imageRef.value || imageLoading.value;
+    let optionsVal = unrefOrGet(options);
+    if (renderImage) optionsVal = { ...optionsVal, ...optionsVal.imageProps };
     let {
       content,
       opacity,
       rotate = -22,
       ratio = globalThis.devicePixelRatio || 1,
-      color = 'rgba(0,0,0,.15)', // FIXME 夜间模式
+      color = 'rgba(0,0,0,.15)',
       fontSize = 16,
       fontWeight = 'normal',
       fontStyle = 'normal',
@@ -119,13 +125,14 @@ export function useWatermark(
       textAlign = 'center',
       gapX = 100,
       gapY = 100,
-    } = unrefOrGet(options);
+    } = optionsVal;
+
     const [width, height] = size.value;
 
     // ================= Text / Image =================
     const [ctx, canvas, contentWidth, contentHeight] = prepareCanvas(width, height, ratio);
     opacity && (ctx.globalAlpha = opacity);
-    if (imageRef.value || imageLoading.value) {
+    if (renderImage) {
       // Image
       imageRef.value && ctx.drawImage(imageRef.value, 0, 0, contentWidth, contentHeight);
     } else {
@@ -202,6 +209,6 @@ export function useWatermark(
     drawImg(cutWidth + realGapX, -cutHeight / 2 - realGapY / 2);
     drawImg(cutWidth + realGapX, +cutHeight / 2 + realGapY / 2);
 
-    return [fCanvas.toDataURL(), filledWidth / ratio, filledHeight / ratio];
+    return [fCanvas.toDataURL(), filledWidth / ratio, filledHeight / ratio, imageRef.value];
   });
 }

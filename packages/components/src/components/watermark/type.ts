@@ -1,11 +1,13 @@
 import { AppearanceColor } from 'hooks';
-import { PropBoolean, PropNumber, PropObjOrStr, PropStrOrArr, PropString } from 'common';
+import { PropBoolean, PropNumber, PropObjOrStr, PropObject, PropStrOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const watermarkProps = {
   content: PropStrOrArr(),
   /** image src or image element, could also be 'none' */
   image: PropObjOrStr<string | HTMLImageElement>(),
+  /** watermark options for image, it's to distinguish text and image props */
+  imageProps: PropObject(),
   opacity: PropNumber(),
   rotate: PropNumber(),
   ratio: PropNumber(),
