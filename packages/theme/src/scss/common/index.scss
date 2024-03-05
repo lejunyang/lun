@@ -11,3 +11,7 @@
   @include generateThemeColor($color);
 }
 @include generateStatusColor(false);
+
+[data-status-icon='true'] {
+  color: getAccentColor(9);
+}
