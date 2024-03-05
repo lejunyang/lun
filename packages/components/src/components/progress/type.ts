@@ -7,6 +7,7 @@ export const progressProps = {
   type: PropString<'wave' | 'ring' | 'line' | 'steps'>(),
   noPercent: PropBoolean(),
   status: PropString<Status>(),
+  showStatusIcon: PropBoolean(),
   strokeColor: PropString(),
   trailerColor: PropString(),
   width: PropNumber(),

@@ -50,10 +50,17 @@ export const Progress = defineSSRCustomElement({
     });
 
     return () => {
-      const { noPercent, status, type } = props;
+      const { noPercent, status, showStatusIcon, type } = props;
       const text = (
-        <span class={ns.e('text')} part="text">
-          <slot>{renderStatusIcon(status) || (!noPercent && percent.value)}</slot>
+        <span class={[ns.em('text', type), ns.e('text')]} part="text">
+          <slot>
+            {(showStatusIcon &&
+              renderStatusIcon(status, {
+                noAccentColor: type === 'wave',
+                noCircle: type === 'wave',
+              })) ||
+              (!noPercent && percent.value)}
+          </slot>
         </span>
       );
       const isLine = type === 'line';
