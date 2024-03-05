@@ -1,5 +1,5 @@
 import { computed, ref, mergeProps } from 'vue';
-import { useSetupEdit, useMultipleInput, refLikesToGetters } from '@lun/core';
+import { useSetupEdit, useMultipleInput, refLikesToGetters, useInputElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -31,7 +31,7 @@ export const Input = defineSSRCustomElement({
     const { status, validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     useSetupContextEvent();
-    const inputRef = ref<HTMLInputElement>();
+    const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
     const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers } = useMultipleInput(
@@ -75,24 +75,7 @@ export const Input = defineSSRCustomElement({
 
     useCEExpose(
       {
-        focus: (options?: InputFocusOption) => {
-          if (!inputRef.value) return;
-          const input = inputRef.value;
-          input.focus(options);
-          const len = input.value.length;
-          switch (options?.cursor) {
-            case 'start':
-              input.setSelectionRange(0, 0);
-              break;
-            case 'end':
-              input.setSelectionRange(len, len);
-              break;
-            case 'all':
-              input.select();
-              break;
-          }
-        },
-        blur: () => inputRef.value?.blur(),
+        ...methods,
         ...numberMethods,
         get valueAsNumber() {
           return GlobalStaticConfig.math.toRawNum(valueModel.value);
@@ -184,6 +167,7 @@ export const Input = defineSSRCustomElement({
       const hidePlaceholderForMultiple = multiple && !empty;
       const withPrepend = !prependSlot.empty.value;
       const withAppend = !appendSlot.empty.value;
+      // autofocus
       const input = (
         <input
           exportparts=""

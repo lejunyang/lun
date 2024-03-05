@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue';
-import { useSetupEdit, refLikesToGetters, useInput } from '@lun/core';
+import { useSetupEdit, refLikesToGetters, useInput, useInputElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -24,10 +24,10 @@ export const Textarea = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
-    const { status, validateProps } = usePropsFromFormItem(props);
+    const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     useSetupContextEvent();
-    const textareaRef = ref<HTMLTextAreaElement>();
+    const [textareaRef, methods] = useInputElement<HTMLTextAreaElement>();
 
     const { handlers } = useInput(
       computed(() => {
@@ -50,29 +50,7 @@ export const Textarea = defineSSRCustomElement({
       valueModel.value = null as any;
     };
 
-    useCEExpose(
-      {
-        focus: (options?: InputFocusOption) => {
-          if (!textareaRef.value) return;
-          const textarea = textareaRef.value;
-          textarea.focus(options);
-          const len = textarea.value.length;
-          switch (options?.cursor) {
-            case 'start':
-              textarea.setSelectionRange(0, 0);
-              break;
-            case 'end':
-              textarea.setSelectionRange(len, len);
-              break;
-            case 'all':
-              textarea.select();
-              break;
-          }
-        },
-        blur: () => textareaRef.value?.blur(),
-      },
-      refLikesToGetters({ textarea: textareaRef }),
-    );
+    useCEExpose(methods, refLikesToGetters({ textarea: textareaRef }));
 
     const [stateClass, states] = useCEStates(
       () => ({
@@ -105,8 +83,8 @@ export const Textarea = defineSSRCustomElement({
     );
 
     return () => {
-      const { disabled, readonly, editable } = editComputed.value;
-      const { placeholder, labelType, label } = props;
+      const { disabled, readonly } = editComputed.value;
+      const { placeholder, labelType, label, rows, cols } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (

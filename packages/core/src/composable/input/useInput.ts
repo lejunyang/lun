@@ -155,7 +155,7 @@ export function useInput(
       console.log('handle event', actionNow, 'prev', state.prevValue, 'target.value', target.value);
       if (restrictWhen.has(actionNow)) {
         if (type === 'number-string') {
-          // native input[type="number"] will eliminate all spaces, we follow that
+          // native input[type="number"] will eliminate all spaces when pasting or inputting, we follow that
           value = value.replace(/\s/g, '');
           if (replaceChPeriodMark) value = value.replace(/。/g, '.');
         }
