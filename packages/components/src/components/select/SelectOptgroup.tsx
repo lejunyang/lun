@@ -11,7 +11,7 @@ export const SelectOptgroup = defineSSRCustomElement({
   name,
   props: selectOptgroupProps,
   setup(props) {
-    const selectContext = SelectCollector.child(false);
+    const selectContext = SelectCollector.child(false, props.selectContext);
     const ns = useNamespace(name, { parent: selectContext?.parent });
     SelectOptgroupContext.provide();
     const [editComputed] = useSetupEdit();
