@@ -7,6 +7,8 @@ import {
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun/core';
 
+const holderName = 'teleport-holder';
+export const componentsWithTeleport = Object.freeze(['message', 'popover', 'tooltip'] as const);
 export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
 export const closedShadowComponents = Object.freeze(['watermark'] as const);
 export const openShadowComponents = Object.freeze([
@@ -32,6 +34,7 @@ export const openShadowComponents = Object.freeze([
   'spin',
   'switch',
   'tag',
+  holderName,
   'textarea',
   'theme-provider',
   'tooltip',
@@ -184,6 +187,7 @@ export const GlobalStaticConfig = new Proxy(
       tag: {
         transition: 'scaleOut',
       },
+      [holderName]: {},
       textarea: {},
       'theme-provider': {},
       tooltip: {
@@ -217,8 +221,14 @@ export const GlobalStaticConfig = new Proxy(
     styles,
     computedStyles: new Proxy(styles, {
       get(target, p, receiver) {
-        if (p === 'common') return [...Reflect.get(target, 'common', receiver)];
-        return Reflect.get(target, 'common', receiver).concat(Reflect.get(target, p, receiver)).filter(Boolean);
+        const commons = Reflect.get(target, 'common', receiver);
+        const targetStyles = Reflect.get(target, p, receiver);
+        if (p === 'common') return [...commons];
+        else if (p === holderName)
+          return commons
+            .concat(targetStyles)
+            .concat(...componentsWithTeleport.map((name) => Reflect.get(target, name, receiver)));
+        return commons.concat(targetStyles);
       },
     }),
     /** must define the breakpoints from smallest to largest */
