@@ -114,8 +114,10 @@ export function createCollector<
       indexUpdate.value; // trigger computed
       return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
     };
-    provide<CollectorContext<ParentProps, ChildProps>>(COLLECTOR_KEY, {
+
+    const provideContext = {
       ...extraProvide,
+      [COLLECTOR_KEY]: true,
       parent: instance,
       items,
       addItem(child) {
@@ -179,7 +181,8 @@ export function createCollector<
         }
       },
       getIndex: getChildVmIndex,
-    });
+    } as CollectorContext<ParentProps, ChildProps>;
+    provide(COLLECTOR_KEY, provideContext);
     return {
       get value() {
         if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
@@ -189,20 +192,21 @@ export function createCollector<
       childrenVmElMap,
       vm: instance,
       getChildVmIndex,
+      provided: provideContext,
     };
   };
-  const child = (collect = true) => {
+  const child = (collect = true, defaultContext?: any) => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
     if (instance) instance = markRaw(instance);
-    let context =
-      inject<
-        CollectorContext<
-          ParentProps,
-          ChildProps,
-          PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean }
-        >
-      >(COLLECTOR_KEY);
-    if (context && collect) {
+    let context = inject<
+      CollectorContext<
+        ParentProps,
+        ChildProps,
+        PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean }
+      >
+    >(COLLECTOR_KEY, defaultContext);
+    // @ts-ignore
+    if (context?.[COLLECTOR_KEY] && collect) {
       const { getIndex, items } = context;
       context = Object.defineProperties({} as any, {
         ...Object.getOwnPropertyDescriptors(context),
