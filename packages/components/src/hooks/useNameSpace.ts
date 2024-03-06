@@ -104,13 +104,15 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     },
   });
 
+  const getSizeClass = () => m('size') + '-' + (size.value || 2);
+
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant');
     const highContrast = getActualThemeValue<boolean>('highContrast');
     return [
       b(),
       variant && m(`variant-${variant}`),
-      m('size') + '-' + (size.value || 2),
+      getSizeClass(),
       is('high-contrast', highContrast),
       is('dark', isDark()),
     ];
@@ -159,6 +161,8 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     get t() {
       return themeClass.value;
     },
+    /** get size class */
+    s: getSizeClass,
     /** used to generate html part value */
     p,
     isDark,
