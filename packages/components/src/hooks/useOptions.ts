@@ -49,8 +49,13 @@ export function useOptions<
 >(
   props: { options?: MaybePromiseOrGetter<CommonOptions<HasChildren>>; optionNameMap?: CommonOptionNameMap },
   optionName: ComponentKey,
-  groupOptionName?: G,
+  params: {
+    groupOptionName?: G;
+    context?: any;
+    contextName?: string;
+  } = {},
 ) {
+  const { groupOptionName, context, contextName } = params;
   const [options, loading] = usePromiseRef(toRef(props, 'options'), {
     fallbackWhenReject: (err) => {
       error(err);
@@ -59,27 +64,35 @@ export function useOptions<
   }) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
   const processOption = (option: any, index?: number) => {
     const { optionNameMap } = props;
+    let result: any;
     if (optionNameMap) {
-      const result = { ...option, key: option.value ?? index };
+      result = { ...option, key: option.value ?? index };
       Object.entries(optionNameMap).forEach(([key, value]) => {
         if (value) {
           result[key] = option[value];
           result[value] = undefined;
         }
       });
-      return result;
-    } else return { key: option.value ?? index, ...option };
+    } else result = { key: option.value ?? index, ...option };
+    const { children } = option;
+    // Failed setting prop "children" on <l-select-option>: value undefined is invalid.TypeError: Cannot set property children of #<Element> which has only a getter
+    // undefined is not working, must delete it
+    delete result.children;
+    if (context && contextName) {
+      result[contextName] = context;
+    }
+    return [result, children];
   };
   const renderOption = (_option: any, index?: number) => {
-    const option = processOption(_option, index);
+    const [option] = processOption(_option, index);
     return renderElement(optionName, option, option.label);
   };
   const renderOptions = (options?: any[]) =>
     isArray(options) &&
     options.map((i: any, index) => {
-      const option = processOption(i, index);
-      if (groupOptionName && isArray(option.children)) {
-        return renderElement(groupOptionName, { ...option, children: undefined }, option.children.map(renderOption));
+      const [option, children] = processOption(i, index);
+      if (groupOptionName && isArray(children)) {
+        return renderElement(groupOptionName, option, children.map(renderOption));
       }
       return renderElement(optionName, option, option.label);
     });
