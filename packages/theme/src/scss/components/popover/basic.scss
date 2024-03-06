@@ -115,4 +115,15 @@
     #{$arrowSize}: getSpaceValue(5);
     #{$arrowHypot}: getSpaceValue(5, true);
   }
+
+  // ------------------------------ for select ------------------------------
+  @include is(select) {
+    padding: 0;
+    @include declareVars(
+      (
+        border-radius: content-border-radius,
+      )
+    );
+  }
+  // ------------------------------ for select ------------------------------
 }

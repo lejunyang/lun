@@ -35,6 +35,8 @@ export const popoverProps = {
   contentType: PropString(),
   preferHtml: PropBoolean(),
   children: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(),
+  /** internal usage */
+  rootClass: PropStrOrArr(),
 
   placement: PropString<Placement>(),
   offset: PropNumber(),

@@ -176,6 +176,7 @@ export const Popover = defineSSRCustomElement({
     );
 
     const getRootClass = (type: string) => [
+      props.rootClass,
       props.variant === 'styleless' ? null : ns.t,
       ns.is(type),
       ns.is(`placement-${actualPlacement.value}`),
