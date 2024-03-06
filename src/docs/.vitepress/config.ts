@@ -98,6 +98,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.other.renderer, link: wrapLink('/components/custom-renderer/', lang) },
             { text: locales[lang].sidebar.other.contextConfig, link: wrapLink('/components/context-config/', lang) },
             { text: locales[lang].sidebar.other.staticConfig, link: wrapLink('/components/static-config/', lang) },
+            { text: locales[lang].sidebar.other.teleport, link: wrapLink('/components/teleport-holder/', lang) },
             { text: locales[lang].sidebar.other.themeProvider, link: wrapLink('/components/theme-provider/', lang) },
           ],
         },
@@ -148,7 +149,7 @@ export default defineConfig({
       port: 7000,
       fs: {
         cachedChecks: false, // after upgrading vite, adding file will cause error
-      }
+      },
     },
     define: {
       __DEV__: 'true',
@@ -166,9 +167,7 @@ export default defineConfig({
       alias:
         process.env.NODE_ENV !== 'production'
           ? {
-              custom: fileURLToPath(
-                new URL('../../../packages/components/src/custom/index', import.meta.url),
-              ),
+              custom: fileURLToPath(new URL('../../../packages/components/src/custom/index', import.meta.url)),
               common: fileURLToPath(new URL('../../../packages/components/src/common/index', import.meta.url)),
               config: fileURLToPath(
                 new URL('../../../packages/components/src/components/config/index', import.meta.url),
