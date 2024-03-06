@@ -1,0 +1,67 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(textarea) {
+  position: relative;
+  display: grid;
+
+  @include e(textarea) {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    appearance: none;
+    scrollbar-width: thin;
+    outline: none;
+    border: none;
+    @include declareVars((padding, line-height, letter-spacing, font-size));
+  }
+
+  @include e('background') {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    outline-color: transparent;
+    @include declareVars((border-radius));
+    .#{$B}:focus-within & {
+      outline: 2px solid getFocusColor();
+      outline-offset: -1px;
+    }
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        padding: calc(getSpaceValue(1)) calc(getSpaceValue(1) * 1.5),
+        line-height: getLineHeightValue(1),
+        letter-spacing: getLetterSpacingValue(1),
+        font-size: getFontSizeValue(1),
+        border-radius: getRadiusValue(2),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        padding: calc(getSpaceValue(1) * 1.5) calc(getSpaceValue(2)),
+        line-height: getLineHeightValue(2),
+        letter-spacing: getLetterSpacingValue(2),
+        font-size: getFontSizeValue(2),
+        border-radius: getRadiusValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        padding: calc(getSpaceValue(2)) calc(getSpaceValue(3)),
+        line-height: getLineHeightValue(3),
+        letter-spacing: getLetterSpacingValue(3),
+        font-size: getFontSizeValue(3),
+        border-radius: getRadiusValue(3),
+      )
+    );
+  }
+}

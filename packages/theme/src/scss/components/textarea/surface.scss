@@ -1,0 +1,25 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(textarea) {
+  @include variant(surface) {
+    color: getGrayColor(12);
+    @include e('background') {
+      background-color: getSemanticColor('surface');
+      box-shadow: inset 0 0 0 1px getGrayColor(a7);
+      padding: 1px;
+      background-clip: content-box;
+    }
+
+    @include is(disabled) {
+      @include e('background') {
+        background-image: linear-gradient(getGrayColor(a3), getGrayColor(a3));
+      }
+      @include e(renderer) {
+        background-image: linear-gradient(getGrayColor(3), getGrayColor(3));
+      }
+    }
+  }
+}
