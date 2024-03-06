@@ -140,6 +140,12 @@
     }
   }
 
+  @include is(fixed) {
+    inset: 0;
+    width: fit-content;
+    height: fit-content;
+  }
+
   @include size(1) {
     @include setVars(
       (

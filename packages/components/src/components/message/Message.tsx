@@ -1,21 +1,14 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { MessageMethods, MessageOpenConfig, messageEmits, messageProps } from './type';
-import {
-  BaseTransitionProps,
-  CSSProperties,
-  Teleport,
-  TransitionGroup,
-  computed,
-  reactive,
-  ref,
-  watchEffect,
-} from 'vue';
+import { BaseTransitionProps, CSSProperties, TransitionGroup, computed, reactive, ref, watchEffect } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
 import { getTransitionProps } from 'common';
-import { isFunction, isSupportPopover, omit } from '@lun/utils';
+import { isFunction, isSupportPopover, objectKeys, omit } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
+import { useTeleport } from '../teleport-holder';
+import { useContextConfig } from 'config';
 
 const name = 'message';
 export const Message = Object.assign(
@@ -27,22 +20,21 @@ export const Message = Object.assign(
       const ns = useNamespace(name);
       const support = {
         popover: isSupportPopover(),
-        teleport: true,
         fixed: true,
+        teleport: true,
       };
       const type = computed(() => {
-        if (['popover', 'fixed', 'teleport'].includes(props.type!) && support[props.type!]) return props.type;
-        else
-          return Object.keys(support).find((i) => support[i as keyof typeof support]) as
-            | 'popover'
-            | 'teleport'
-            | 'fixed';
+        if (support[props.type!]) return props.type;
+        else return objectKeys(support).find((i) => support[i]);
       });
       const rootRef = ref<HTMLElement>();
       const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({});
       const keyTimerMap = {} as Record<string | number, ReturnType<typeof setTimeout>>;
       const showCount = ref(0);
       const show = computed(() => showCount.value > 0);
+      const zIndex = useContextConfig('zIndex');
+      const isPopover = computed(() => type.value === 'popover');
+      const isFixed = computed(() => type.value === 'fixed' || type.value === 'teleport');
 
       const placementMarginMap = {
         'top-start': '0 auto auto 0',
@@ -59,11 +51,11 @@ export const Message = Object.assign(
         const { placement, offset } = props;
         let margin = placementMarginMap[placement!];
         if (margin && offset != null) margin = margin.replace(/0/g, `${offset}${isNaN(offset as any) ? '' : 'px'}`);
-        const { value } = type;
         const result = {
-          popover: value === 'popover' ? ('manual' as const) : undefined,
+          popover: isPopover.value ? ('manual' as const) : undefined,
           style: {
-            position: value === 'fixed' ? 'fixed' : undefined,
+            position: isFixed.value ? 'fixed' : undefined,
+            zIndex: zIndex.message,
             margin,
           } as CSSProperties,
         };
@@ -71,10 +63,9 @@ export const Message = Object.assign(
       });
 
       watchEffect(() => {
-        const root = rootRef.value,
-          typeValue = type.value;
+        const root = rootRef.value;
         if (show.value && root) {
-          if (typeValue === 'popover') {
+          if (isPopover.value) {
             root.showPopover();
           }
         }
@@ -153,13 +144,20 @@ export const Message = Object.assign(
 
       useCEExpose(methods);
 
+      const wrapTeleport = useTeleport(props);
+
       return () => {
-        const { to, placement } = props;
-        const typeValue = type.value;
+        const { placement } = props;
         const content = (
-          <div class={[ns.t, ns.m(placement)]} ref={rootRef} part="root" {...rootProps.value} v-show={show.value}>
+          <div
+            class={[ns.t, ns.m(placement), ns.is('fixed', isFixed.value)]}
+            ref={rootRef}
+            part={ns.p('root')}
+            {...rootProps.value}
+            v-show={show.value}
+          >
             <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
-              {Object.keys(calloutMap).flatMap((key) => {
+              {objectKeys(calloutMap).flatMap((key) => {
                 const callout = calloutMap[key];
                 return callout
                   ? [
@@ -173,7 +171,7 @@ export const Message = Object.assign(
             </TransitionGroup>
           </div>
         );
-        return typeValue === 'teleport' && to ? <Teleport to={to}>{content}</Teleport> : content;
+        return wrapTeleport(content, type.value === 'teleport');
       };
     },
   }),
