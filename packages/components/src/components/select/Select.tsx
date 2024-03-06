@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
 import { ComponentInternalInstance, computed, ref, toRef, mergeProps, nextTick } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
-import { selectEmits, selectProps } from './type';
+import { selectEmits, selectProps, selectPropsOfPopover } from './type';
 import { definePopover, iPopover } from '../popover/Popover';
 import { refLikesToGetters, useSelect, useSetupEdit, useTempState } from '@lun/core';
-import { isFunction, isNilOrEmptyStr, toArrayIfNotNil } from '@lun/utils';
+import { isFunction, isNilOrEmptyStr, objectKeys, pick, toArrayIfNotNil } from '@lun/utils';
 import { defineInput, iInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { SelectCollector } from './collector';
@@ -124,11 +124,11 @@ export const Select = defineSSRCustomElement({
     );
     const [stateClass] = useCEStates(() => null, ns, editComputed);
 
-    const { render, loading, options, renderOptions, renderOption } = useOptions(
-      props,
-      'select-option',
-      'select-optgroup',
-    );
+    const { render, loading, options, renderOptions, renderOption } = useOptions(props, 'select-option', {
+      groupOptionName: 'select-optgroup',
+      context: context.provided,
+      contextName: 'selectContext',
+    });
 
     const contentOnPointerDown = () => {
       requestAnimationFrame(() => {
@@ -289,43 +289,47 @@ export const Select = defineSSRCustomElement({
     };
 
     return () => {
-      return (
-        <>
-          {renderElement(
-            'popover',
-            {
-              ...themeProps.value,
-              open: editComputed.value.editable ? undefined : false,
-              class: stateClass.value,
-              triggers: ['click', 'focus'],
-              sync: 'width',
-              showArrow: false,
-              ref: popoverRef,
-              toggleMode: true,
-              useTransform: false,
-              placement: 'bottom-start',
-              children: popoverChildren,
-              ...popoverHandlers,
-              // TODO pick props
-            },
-            // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
-            <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={contentOnPointerDown}>
-              {!context.value.length && !options.value?.length ? (
-                <slot name="no-content">No content</slot>
-              ) : (
-                <>
-                  {buttons.value}
-                  {extra.value.allHidden && <slot name="no-content">No content</slot>}
-                  {extra.value.creatingOption}
-                  {createdOptionsRender.value}
-                  {render.value}
-                  {/* slot for select children, also assigned to popover content slot */}
-                  <slot></slot>
-                </>
-              )}
-            </div>,
+      const isTeleport = props.type === 'teleport';
+      const popContent = (
+        <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={contentOnPointerDown}>
+          {!context.value.length && !options.value?.length ? (
+            <slot name="no-content">No content</slot> // TODO emptyText prop
+          ) : (
+            <>
+              {buttons.value}
+              {extra.value.allHidden && <slot name="no-content">No content</slot>}
+              {extra.value.creatingOption}
+              {createdOptionsRender.value}
+              {render.value}
+              {/* slot for select children, also assigned to popover content slot */}
+              <slot></slot>
+            </>
           )}
-        </>
+        </div>
+      );
+      return renderElement(
+        'popover',
+        {
+          ...mergeProps(pick(props, objectKeys(selectPropsOfPopover)), popoverHandlers),
+          ...themeProps.value,
+          rootClass: [ns.is('select'), ns.s()],
+          open: editComputed.value.editable ? undefined : false,
+          class: stateClass.value,
+          triggers: ['click', 'focus'],
+          sync: 'width',
+          showArrow: false,
+          ref: popoverRef,
+          toggleMode: true,
+          useTransform: false,
+          placement: 'bottom-start',
+          children: popoverChildren,
+          contentType: 'vnode',
+          // if type is teleport, pop content node must be rendered inside popover, or it can not be teleported
+          // if type is not teleport, pop content node must be rendered as popover children, so that select styles about select-content can work
+          content: isTeleport && popContent,
+        },
+        // do not use <>...</> here, it will cause popover default slot not work, as Fragment will render as comment, comment node will also override popover default slot content
+        isTeleport ? undefined : popContent,
       );
     };
   },

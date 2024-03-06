@@ -9,11 +9,28 @@ import {
   PropString,
   editStateProps,
   themeProps,
+  PropObject,
 } from 'common';
 import { popoverProps } from '../popover/type';
-import { omit } from '@lun/utils';
+import { objectKeys, omit } from '@lun/utils';
 import { CommonOption, createOptionProps } from 'hooks';
 import { ButtonProps } from '../button/type';
+
+export const selectPropsOfPopover = {
+  ...omit(popoverProps, [
+    'open',
+    'content',
+    'contentType',
+    'sync',
+    'triggers',
+    'showArrow',
+    'children',
+    'toggleMode',
+    'useTransform',
+    'placement',
+    ...objectKeys(themeProps),
+  ]),
+};
 
 export const selectProps = {
   ...themeProps,
@@ -33,7 +50,7 @@ export const selectProps = {
 
   autoActivateFirst: PropBoolean(),
   upDownToggle: PropBoolean(),
-  ...omit(popoverProps, ['open', 'content', 'sync', 'type', 'triggers', 'children']),
+  ...selectPropsOfPopover,
 };
 
 export const selectEmits = {
@@ -52,12 +69,16 @@ export const selectOptionProps = {
   contentType: PropString(),
   contentPreferHtml: PropBoolean(),
   hidden: PropBoolean(),
+  /** internal usage, used when type=teleport */
+  selectContext: PropObject(),
 };
 
 export const selectOptgroupProps = {
   ...themeProps,
   ...editStateProps,
   label: PropString(),
+  /** internal usage, used when type=teleport */
+  selectContext: PropObject(),
 };
 
 export type SelectSetupProps = ExtractPropTypes<typeof selectProps>;

@@ -14,7 +14,7 @@ export const SelectOption = defineSSRCustomElement({
   name,
   props: selectOptionProps,
   setup(props, { expose }) {
-    const selectContext = SelectCollector.child(!props.excludeFromSelect);
+    const selectContext = SelectCollector.child(!props.excludeFromSelect, props.selectContext);
     const optgroup = SelectOptgroupContext.inject();
     if (!selectContext) {
       throw new Error(name + ' must be used under select');

@@ -8,7 +8,7 @@ import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registr
 import { presets } from '@lun/core';
 
 const holderName = 'teleport-holder';
-export const componentsWithTeleport = Object.freeze(['message', 'popover', 'tooltip'] as const);
+export const componentsWithTeleport = Object.freeze(['message', 'popover', 'select'] as const);
 export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
 export const closedShadowComponents = Object.freeze(['watermark'] as const);
 export const openShadowComponents = Object.freeze([
