@@ -41,6 +41,7 @@ importSolidTheme();
 - [Dialog](https://caniuse.com/?search=Dialog) (firefox>=98, safari>=15.4)
 - [flatMap](https://caniuse.com/?search=flatMap) (chrome>=69, safari>=12)
 - [Named capture group](https://caniuse.com/?search=Named%20capture%20group) (chrome>=64, firefox>=78, safari>=11.3)
+- [CSS gap in flex](https://caniuse.com/?search=flex-gap) (chrome>=84, edge>=84, safari>=14.1)
 - [CSS :where :is](https://caniuse.com/?search=where) (chrome>=88, edge>=88, firefox>=78, safari>=14)
 - [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) (chrome>=89, edge>=89, firefox>=66, safari>=15)
 

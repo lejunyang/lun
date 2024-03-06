@@ -13,7 +13,13 @@ declare const GlobalContextConfig: {
   dynamicStyles: Record<OpenShadowComponentKey | 'common', ((vm: ComponentInternalInstance) => string)[]>
   theme: {
     [key in keyof ThemeProps]: ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>;
-  }
+  },
+  zIndex: {
+    teleport: number,
+    popover: number,
+    tooltip: number,
+    message: number,
+  },
 }
 ```
 
