@@ -66,3 +66,28 @@ lang: zh-CN
 多选时，输入框中的 tag 会继承其对应`select-option`的主题设置
 
 <!-- @Code:tagInheritTheme -->
+
+## Popover属性
+
+`select`直接依赖于`popover`实现，故`popover`支持的属性也可以直接传递给`select`，除了以下内部写死的
+
+```text
+'open',
+'content',
+'contentType',
+'sync',
+'triggers',
+'showArrow',
+'children',
+'toggleMode',
+'useTransform',
+'placement'
+```
+
+<!-- @Code:popover -->
+
+:::warning 注
+由于`select-option`和`select-optgroup`依赖于dom结构来获取select context，而type="teleport"时它们被移动到别的位置，虽然目前做了兼容，但可能存在问题
+
+而且type="teleport"时插槽均失效，你不可以直接在`select`下渲染选项，必须通过`options`属性，故不推荐`select`使用type="teleport"
+:::

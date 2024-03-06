@@ -55,6 +55,7 @@ export default {
         renderer: 'CustomRenderer 自定义渲染',
         contextConfig: 'ContextConfig 上下文配置',
         staticConfig: 'StaticConfig 静态配置',
+        teleport: 'TeleportHolder 传送门',
         themeProvider: 'ThemeProvider 主题',
       },
     },
@@ -130,6 +131,7 @@ export default {
         renderer: 'CustomRenderer',
         contextConfig: 'ContextConfig',
         staticConfig: 'StaticConfig',
+        teleport: 'TeleportHolder',
         themeProvider: 'ThemeProvider',
       }
     },
