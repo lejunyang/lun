@@ -1,14 +1,15 @@
 import { defineSSRCustomElement } from 'custom';
-import { CSSProperties, Teleport, computed, ref, toRef, watchEffect, Transition } from 'vue';
+import { CSSProperties, computed, ref, toRef, watchEffect, Transition } from 'vue';
 import { unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
-import { isElement, isFunction, isSupportPopover, pick, runIfFn } from '@lun/utils';
+import { isElement, isFunction, objectKeys, pick, runIfFn } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { autoUpdate, useFloating, arrow, offset, ElementRects, shift } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
-import { getTransitionProps } from 'common';
+import { getTransitionProps, popSupport } from 'common';
+import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 
 const name = 'popover';
 export const Popover = defineSSRCustomElement({
@@ -18,11 +19,6 @@ export const Popover = defineSSRCustomElement({
   emits: popoverEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const support = {
-      popover: isSupportPopover(),
-      fixed: true,
-      teleport: true,
-    };
     const popRef = ref<HTMLDivElement>();
     const slotRef = ref<HTMLSlotElement>();
     const fixedRef = ref<HTMLDivElement>();
@@ -30,9 +26,11 @@ export const Popover = defineSSRCustomElement({
     const isOpen = ref(false);
     const isShow = ref(false); // after animation ends, it will be false
     const type = computed(() => {
-      if (['popover', 'fixed', 'teleport'].includes(props.type!) && support[props.type!]) return props.type;
-      else return Object.keys(support).find((i) => support[i as keyof typeof support]);
+      if (popSupport[props.type!]) return props.type;
+      else return objectKeys(popSupport).find((i) => popSupport[i]);
     });
+    const wrapTeleport = useTeleport(props);
+
     const show = () => {
       const { beforeOpen, disabled } = props;
       if (disabled || (isFunction(beforeOpen) && beforeOpen() === false)) return;
@@ -211,7 +209,7 @@ export const Popover = defineSSRCustomElement({
           {getContent(!isTeleport)}
         </div>,
       );
-      return isTeleport ? <Teleport to={props.to || 'body'}>{result}</Teleport> : result;
+      return wrapTeleport(result, isTeleport);
     };
 
     const transitionHandler = {
@@ -276,4 +274,6 @@ export type iPopover = InstanceType<tPopover> & {
   closePopover: () => void;
 };
 
-export const definePopover = createDefineElement(name, Popover);
+export const definePopover = createDefineElement(name, Popover, {
+  'teleport-holder': defineTeleportHolder,
+});
