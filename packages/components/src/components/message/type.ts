@@ -1,15 +1,16 @@
 import { Side } from '@floating-ui/vue';
-import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropString, Status, createTransitionProps } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObjOrStr, PropString, Status, createTransitionProps } from 'common';
 import { ExtractPropTypes, HTMLAttributes, ReservedProps } from 'vue';
 import { CalloutProps, calloutProps } from '../callout/type';
+import { MaybeRefLikeOrGetter } from '@lun/core';
 
 export const messageProps = {
   ...calloutProps,
   ...createTransitionProps('callout'),
   /** determine the implementation type of popover */
   type: PropString<'popover' | 'fixed' | 'teleport'>(),
-  /** determine the teleport target when 'type' is 'teleport', default to 'body' */
-  to: PropString(),
+  /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
+  to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
   placement: PropString<Side | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' | 'center'>(),
   /** offset relative to placement side, will not be applied when it's 'center' */
   offset: PropNumber(),

@@ -5,6 +5,7 @@ import {
   PropNumber,
   PropObjOrBool,
   PropObjOrFunc,
+  PropObjOrStr,
   PropObject,
   PropStrOrArr,
   PropString,
@@ -27,8 +28,8 @@ export const popoverProps = {
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   /** determine the implementation type of popover */
   type: PropString<'popover' | 'fixed' | 'teleport'>(),
-  /** determine the teleport target when 'type' is 'teleport', default to 'body' */
-  to: PropString(),
+  /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
+  to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
 
   content: {},
   contentType: PropString(),

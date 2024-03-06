@@ -1,6 +1,6 @@
 import { isFunction, isSupportCSSStyleSheet, toArrayIfNotNil } from '@lun/utils';
 import type { OpenShadowComponentKey } from 'config';
-import { GlobalStaticConfig, useContextConfig } from 'config';
+import { GlobalStaticConfig, componentsWithTeleport, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
 import { onCEMount } from './shadowDom';
 import { error } from '../utils/console';
@@ -13,6 +13,9 @@ export function useContextStyles(name: OpenShadowComponentKey) {
   }
   const dynamicStyles = useContextConfig('dynamicStyles');
   const styles = toArrayIfNotNil(dynamicStyles[name]).concat(() => (vm.props.innerStyle as string) || '');
+  if (name === 'teleport-holder') {
+    styles.push(...componentsWithTeleport.flatMap((name) => dynamicStyles[name]));
+  }
   const sheets: CSSStyleSheet[] = [];
   const textStyles: (() => string)[] = [];
   const adopt = isSupportCSSStyleSheet() && GlobalStaticConfig.preferCSSStyleSheet;

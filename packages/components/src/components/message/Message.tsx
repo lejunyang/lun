@@ -3,11 +3,11 @@ import { createDefineElement, renderElement } from 'utils';
 import { MessageMethods, MessageOpenConfig, messageEmits, messageProps } from './type';
 import { BaseTransitionProps, CSSProperties, TransitionGroup, computed, reactive, ref, watchEffect } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
-import { getTransitionProps } from 'common';
-import { isFunction, isSupportPopover, objectKeys, omit } from '@lun/utils';
+import { getTransitionProps, popSupport } from 'common';
+import { isFunction, objectKeys, omit } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
-import { useTeleport } from '../teleport-holder';
+import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 
 const name = 'message';
@@ -18,14 +18,9 @@ export const Message = Object.assign(
     emits: messageEmits,
     setup(props, { emit }) {
       const ns = useNamespace(name);
-      const support = {
-        popover: isSupportPopover(),
-        fixed: true,
-        teleport: true,
-      };
       const type = computed(() => {
-        if (support[props.type!]) return props.type;
-        else return objectKeys(support).find((i) => support[i]);
+        if (popSupport[props.type!]) return props.type;
+        else return objectKeys(popSupport).find((i) => popSupport[i]);
       });
       const rootRef = ref<HTMLElement>();
       const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({});
@@ -183,4 +178,5 @@ export type iMessage = InstanceType<tMessage> & MessageMethods;
 
 export const defineMessage = createDefineElement(name, Message, {
   callout: defineCallout,
+  'teleport-holder': defineTeleportHolder,
 });
