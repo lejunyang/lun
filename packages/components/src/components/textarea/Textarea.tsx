@@ -11,7 +11,7 @@ import {
   useValueModel,
 } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
-import { isEmpty} from '@lun/utils';
+import { isEmpty } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 
@@ -98,16 +98,16 @@ export const Textarea = defineSSRCustomElement({
           <textarea
             ref={textareaRef}
             part="textarea"
-            class={[ns.e('textarea')]}
+            class={ns.e('textarea')}
             value={valueModel.value}
             placeholder={hasFloatLabel ? undefined : placeholder}
             disabled={disabled}
             readonly={readonly}
             {...handlers}
           />
+          <span class={ns.e('background')} part="background" />
           {lengthInfo.value}
           {clearIcon.value}
-          <span class={ns.e('background')} part="background" />
         </label>
       );
     };

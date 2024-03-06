@@ -15,6 +15,7 @@
   font-weight: getFontWeightValue(medium);
   flex-shrink: 0;
   line-height: 1;
+  height: fit-content;
 
   @include size(1) {
     font-size: getFontSizeValue(1);

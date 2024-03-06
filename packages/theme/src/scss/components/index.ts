@@ -34,6 +34,7 @@ import {
 import { importMessageBasicTheme } from './message/index.ts';
 import { importSpinBasicTheme } from './spin/index.ts';
 import { importProgressBasicTheme } from './progress/index.ts';
+import { importTextareaBasicTheme, importTextareaSurfaceTheme } from './textarea/index.ts';
 
 export * from './input/index.ts';
 
@@ -57,6 +58,7 @@ export function importBasicTheme() {
   importSpinBasicTheme();
   importSwitchBasicTheme();
   importTagBasicTheme();
+  importTextareaBasicTheme();
 }
 
 export function importOutlineTheme() {
@@ -85,4 +87,5 @@ export function importSurfaceTheme() {
   importInputSurfaceTheme();
   importSwitchSurfaceTheme();
   importTagSurfaceTheme();
+  importTextareaSurfaceTheme();
 }
