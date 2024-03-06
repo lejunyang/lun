@@ -26,6 +26,7 @@ import { defineWatermark } from './watermark/Watermark';
 import { importPopoverStyle } from './popover';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
+import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
 
 export function importAllBasicStyles() {
   importIconStyle();
@@ -39,6 +40,7 @@ export function defineAllComponents() {
   // So we need to define the providers first
   defineThemeProvider();
   defineWatermark();
+  defineTeleportHolder();
   defineForm();
   defineFormItem();
   defineButton();
@@ -87,6 +89,7 @@ export * from './select';
 export * from './spin';
 export * from './switch';
 export * from './tag';
+export * from './teleport-holder';
 export * from './textarea';
 export * from './theme-provider';
 export * from './tooltip';

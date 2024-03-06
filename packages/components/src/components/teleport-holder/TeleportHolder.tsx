@@ -1,0 +1,46 @@
+import { defineSSRCustomElement } from 'custom';
+import { createDefineElement, getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
+import { TeleportHolderProps, teleportHolderProps } from './type';
+import { useContextConfig } from 'config';
+
+const name = 'teleport-holder';
+export const TeleportHolder = defineSSRCustomElement({
+  name,
+  props: teleportHolderProps,
+  setup() {
+    const zIndex = useContextConfig('zIndex');
+    return () => (
+      <style type="text/css">{`:host{position:fixed;inset:0;pointer-events:none;z-index:${zIndex.teleport};}:host *{pointer-events:auto}`}</style>
+    );
+  },
+});
+
+export type tTeleportHolder = typeof TeleportHolder;
+export type iTeleportHolder = InstanceType<tTeleportHolder>;
+
+export const defineTeleportHolder = createDefineElement(name, TeleportHolder);
+
+export function createTeleportHolderInstance({
+  to,
+  initialProps,
+}: { to?: string | Element; initialProps?: TeleportHolderProps } = {}) {
+  let target: Element | null | undefined = toElement(to);
+  if (!target) target = getFirstThemeProvider();
+  const teleportHolderName = getElementFirstName(name)!;
+  if (__DEV__ && !teleportHolderName) throw new Error(name + ' component is not registered, please register it first.');
+  const holder = document.createElement(teleportHolderName) as iTeleportHolder;
+  const props: TeleportHolderProps = {
+    ...initialProps,
+  };
+  Object.assign(holder, props);
+  (target || document.body).appendChild(holder);
+  return holder;
+}
+
+let el: iTeleportHolder;
+export function getTeleportHolderInstance(to?: string | HTMLElement | null) {
+  if (!to) {
+    return el?.isConnected ? el : (el = createTeleportHolderInstance());
+  }
+  return createTeleportHolderInstance({ to });
+}
