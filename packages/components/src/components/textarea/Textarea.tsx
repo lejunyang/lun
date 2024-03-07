@@ -56,6 +56,7 @@ export const Textarea = defineSSRCustomElement({
       () => ({
         empty: isEmpty(valueModel.value),
         required: validateProps.value.required,
+        'with-clear-icon': props.showClearIcon && editComputed.value.editable,
       }),
       ns,
       editComputed,
@@ -77,9 +78,8 @@ export const Textarea = defineSSRCustomElement({
 
     const clearIcon = computed(
       () =>
-        props.showClearIcon &&
-        editComputed.value.editable &&
-        renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue }),
+        states.value['with-clear-icon'] &&
+        renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
     return () => {
@@ -95,19 +95,23 @@ export const Textarea = defineSSRCustomElement({
               <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
             </div>
           )}
-          <textarea
-            ref={textareaRef}
-            part="textarea"
-            class={ns.e('textarea')}
-            value={valueModel.value}
-            placeholder={hasFloatLabel ? undefined : placeholder}
-            disabled={disabled}
-            readonly={readonly}
-            {...handlers}
-          />
+          <span class={ns.e('wrapper')} part="wrapper">
+            <textarea
+              ref={textareaRef}
+              part="textarea"
+              class={ns.e('textarea')}
+              value={valueModel.value}
+              placeholder={hasFloatLabel ? undefined : placeholder}
+              disabled={disabled}
+              readonly={readonly}
+              rows={rows}
+              cols={cols}
+              {...handlers}
+            />
+            {clearIcon.value}
+          </span>
           <span class={ns.e('background')} part="background" />
           {lengthInfo.value}
-          {clearIcon.value}
         </label>
       );
     };
