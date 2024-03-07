@@ -6,3 +6,13 @@ lang: zh-CN
 ## 基本使用
 
 <!-- @Code:basicUsage -->
+
+## 展示清空按钮
+
+当设置`showClearIcon`后且有文本时，清空按钮会在悬浮或聚焦时展示，只读、禁用或加载时均不展示
+
+<!-- @Code:showClearIcon -->
+
+## 展示字数
+
+<!-- @Code:showLengthInfo -->
