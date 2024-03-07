@@ -8,7 +8,7 @@
   @include declareVars((font-size));
   @include setVars(
     (
-      icon-size: 0,
+      icon-size: 0px,
     )
   );
   @include is(with-clear-icon) {

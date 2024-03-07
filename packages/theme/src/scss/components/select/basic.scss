@@ -6,13 +6,15 @@
 :host {
   display: inline-flex;
   min-inline-size: 0;
-  flex: 1;
+  flex-grow: 1; // if we just set flex:1. single select with flex-grow: 0 in flex box will make it width 0(code case: option-group)
+  flex-shrink: 1;
 }
 
 @include b(select) {
   display: inline-flex;
   min-inline-size: 0;
-  flex: 1;
+  flex-grow: 1;
+  flex-shrink: 1;
 
   @include e(content) {
     display: flex;
