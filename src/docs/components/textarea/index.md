@@ -15,4 +15,6 @@ lang: zh-CN
 
 ## 展示字数
 
+没有设置`maxLength`时展示当前字数，设置`maxLength`时两者一起展示
+
 <!-- @Code:showLengthInfo -->

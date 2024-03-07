@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useSetupEdit, refLikesToGetters, useInput, useInputElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
@@ -65,7 +65,7 @@ export const Textarea = defineSSRCustomElement({
     const lengthInfo = computed(() => {
       const { maxLength, showLengthInfo } = props;
       if (!showLengthInfo) return;
-      const valueLength = String(valueModel.value ?? '').length;
+      const valueLength = (valueModel.value ?? '').length;
       // if no maxLength, show current char count as length info
       return +maxLength! >= 0 ? (valueLength || '0') + '/' + maxLength : valueLength;
     });
@@ -110,8 +110,9 @@ export const Textarea = defineSSRCustomElement({
             />
             {clearIcon.value}
           </span>
-          <span class={ns.e('background')} part="background" />
-          {lengthInfo.value}
+          <div class={ns.e('length-info')} part="length-info">
+            {lengthInfo.value}
+          </div>
         </label>
       );
     };
