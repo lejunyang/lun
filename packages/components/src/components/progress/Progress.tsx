@@ -56,7 +56,6 @@ export const Progress = defineSSRCustomElement({
           <slot>
             {(showStatusIcon &&
               renderStatusIcon(status, {
-                noAccentColor: type === 'wave',
                 noCircle: type === 'wave',
               })) ||
               (!noPercent && percent.value)}

@@ -14,5 +14,10 @@ export default () => (
     >
       Custom
     </l-progress>
+    <div class="container">
+      <l-progress type="wave" value={growingProgress.value} status="success" showStatusIcon />
+      <l-progress type="wave" value={growingProgress.value} status="error" showStatusIcon />
+      <l-progress type="wave" value={growingProgress.value} status="warning" showStatusIcon />
+    </div>
   </>
 );

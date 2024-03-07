@@ -29,6 +29,11 @@
   @include e(text) {
     position: relative;
     z-index: 1;
+    @include declareVars(
+      (
+        color: text-color,
+      )
+    );
   }
 
   @include m(wave) {
@@ -53,6 +58,10 @@
       );
     }
 
+    @include e(text) {
+      mix-blend-mode: multiply;
+    }
+
     @include size(1, false) {
       @include setVars(
         (
@@ -67,7 +76,7 @@
         (
           width: 120px,
           height: 120px,
-          icon-font-size: 36px,
+          icon-font-size: 48px,
         )
       );
     }
@@ -76,7 +85,7 @@
         (
           width: 180px,
           height: 180px,
-          icon-font-size: 48px,
+          icon-font-size: 60px,
         )
       );
     }
