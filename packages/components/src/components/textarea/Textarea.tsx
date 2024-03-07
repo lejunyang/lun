@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed, nextTick, watchEffect } from 'vue';
 import { useSetupEdit, refLikesToGetters, useInput, useInputElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
@@ -11,7 +11,7 @@ import {
   useValueModel,
 } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
-import { isEmpty } from '@lun/utils';
+import { getHeight, isEmpty } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 
@@ -44,6 +44,22 @@ export const Textarea = defineSSRCustomElement({
           },
         };
       }),
+      {
+        onInput(e) {
+          if (!props.autoRows) return;
+          const target = e.target as HTMLTextAreaElement;
+          target.style.height = 'auto';
+          target.style.minHeight = '';
+          const minHeight = getHeight(target)!;
+          if (maxHeight && minHeight > maxHeight) {
+            target.style.height = maxHeight + 'px';
+            // scroll to bottom
+            if (target.selectionEnd === target.value.length) target.scrollTop = target.scrollHeight;
+          } else {
+            target.style.minHeight = minHeight + 'px';
+          }
+        },
+      },
     );
 
     const clearValue = () => {
@@ -61,6 +77,19 @@ export const Textarea = defineSSRCustomElement({
       ns,
       editComputed,
     );
+
+    let maxHeight: number;
+    watchEffect(() => {
+      const { maxRows } = props;
+      const textarea = textareaRef.value!;
+      if (!maxRows || !textarea) return;
+      // scrollHeight is not available when first mount
+      nextTick(() => {
+        textarea.rows = maxRows as number;
+        maxHeight = getHeight(textarea)!;
+        textarea.rows = props.rows as number;
+      });
+    });
 
     const lengthInfo = computed(() => {
       const { maxLength, showLengthInfo } = props;
@@ -106,6 +135,9 @@ export const Textarea = defineSSRCustomElement({
               readonly={readonly}
               rows={rows}
               cols={cols}
+              style={{
+                resize: props.autoRows ? 'none' : props.resize,
+              }}
               {...handlers}
             />
             {clearIcon.value}

@@ -26,3 +26,18 @@ export function getValuesFromStyle<K extends string[]>(style: string, ...keys: K
 export function toPxIfNum(value: string | number | undefined) {
   return isNumber(value) ? `${value}px` : value;
 }
+
+/**
+ * border-box => get scrollHeight + borderY
+ * content-box => get scrollHeight - paddingY
+ */
+export function getHeight(node: HTMLElement) {
+  const styles = getComputedStyle(node);
+  // probably node is detached from DOM, can't read computed dimensions
+  if (!styles || !styles.boxSizing) return;
+  const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth, boxSizing } = styles;
+  const paddingY = parseFloat(paddingTop) + parseFloat(paddingBottom);
+  const borderY = parseFloat(borderTopWidth) + parseFloat(borderBottomWidth);
+  const { scrollHeight } = node;
+  return scrollHeight + (boxSizing === 'border-box' ? borderY : -paddingY);
+}
