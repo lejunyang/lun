@@ -272,15 +272,16 @@
 }
 
 /**
-  * declareVars((padding, margin)) => padding: var(--padding); margin: var(--margin);
-  * declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--icon-padding); margin: var(--icon-margin);
+  * inside @include b(button) { ... }
+  * declareVars((padding, margin)) => padding: var(--l-padding, var(--padding)); margin: var(--l-margin, var(--margin));
+  * declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--l-icon-padding, var(--icon-padding)); margin: var(--l-icon-margin, var(--icon-margin));
   */
 @mixin declareVars($varListOrMap) {
   @each $name, $alias in $varListOrMap {
     @if $alias {
-      #{$name}: var(#{'--' + $alias});
+      #{$name}: var(#{getRVarName($alias)}, var(#{'--' + $alias}));
     } @else {
-      #{$name}: var(#{'--' + $name});;
+      #{$name}: var(#{getRVarName($name)}, var(#{'--' + $name}));
     }
   }
 }
@@ -289,6 +290,7 @@
   * inside @include b(button) { ... }
   * declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
   * declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
+  * remind that declareVarValues((transition: all 0.3s)) will be compiled to transition: var(--l-button-transition-all, 0.3s) !!! need to wrap the value with quotes
   */
 @mixin declareVarValues($varValMap) {
   @each $prop, $nameVal in $varValMap {
@@ -306,11 +308,11 @@
 }
 
 /**
-  * inside @include b(button) { ... }
-  * setVars((padding: 10px, margin: 20px)) => --padding: var(--l-button-padding, 10px); --margin: var(--l-button-margin, 20px);
+  * setVars((padding: 10px, margin: 20px)) => --padding: 10px; --margin: 20px;
   */
 @mixin setVars($varMap) {
   @each $name, $value in $varMap {
-    #{'--' + $name}: #{getRVarValue($name, $value)};
+    // #{'--' + $name}: #{getRVarValue($name, $value)};
+    #{'--' + $name}: $value;
   }
 }

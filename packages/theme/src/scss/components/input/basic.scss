@@ -283,8 +283,22 @@
     z-index: 1;
     display: inline-flex;
     align-items: center;
-    min-width: var(#{getVarName(('input', 'tag-container', 'min-width'))}, 140px);
     flex-wrap: wrap;
+    overflow-y: hidden;
+    @include declareVars(
+      (
+        padding: tag-container-padding,
+        gap: tag-container-gap,
+      )
+    );
+    @include declareVarValues(
+      (
+        min-width: (
+          tag-container-min-width,
+          140px,
+        ),
+      )
+    );
     @include isN(wrap) {
       flex-wrap: nowrap;
     }
@@ -372,6 +386,8 @@
         slot-min-inline-size: getSpaceValue(5),
         slot-padding-inline: getSpaceValue(1),
         multi-input-block-size: getLineHeightValue(1),
+        tag-container-padding: getSpaceValue(1),
+        tag-container-gap: getSpaceValue(1),
       )
     );
     @include e(slot) {
@@ -384,11 +400,6 @@
     @include e(inner-input) {
       padding-inline-start: getSpaceValue(1);
       letter-spacing: getLetterSpacingValue(1);
-    }
-    @include e(tag-container) {
-      padding: getSpaceValue(1);
-      padding-inline-end: 0;
-      gap: getSpaceValue(1);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(1);
@@ -415,6 +426,8 @@
         slot-min-inline-size: getSpaceValue(6),
         slot-padding-inline: getSpaceValue(2),
         multi-input-block-size: getLineHeightValue(2),
+        tag-container-padding: getSpaceValue(1),
+        tag-container-gap: calc(getSpaceValue(1) * 1.5),
       )
     );
     @include e(slot) {
@@ -427,11 +440,6 @@
     @include e(inner-input) {
       padding-inline-start: getSpaceValue(2);
       letter-spacing: getLetterSpacingValue(2);
-    }
-    @include e(tag-container) {
-      padding: getSpaceValue(1);
-      padding-inline-end: 0;
-      gap: getSpaceValue(2);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(2);
@@ -456,6 +464,8 @@
         slot-min-inline-size: getSpaceValue(7),
         slot-padding-inline: getSpaceValue(3),
         multi-input-block-size: getLineHeightValue(3),
+        tag-container-padding: getSpaceValue(2),
+        tag-container-gap: getSpaceValue(3),
       )
     );
     @include e(slot) {
@@ -468,11 +478,6 @@
     @include e(inner-input) {
       padding-inline-start: getSpaceValue(3);
       letter-spacing: getLetterSpacingValue(3);
-    }
-    @include e(tag-container) {
-      padding: getSpaceValue(1);
-      padding-inline-end: 0;
-      gap: getSpaceValue(3);
     }
     @include is(float-label, false) {
       inset-inline-start: getSpaceValue(3);
@@ -500,6 +505,9 @@
     }
     @include e(slot) {
       block-size: 100%; // for nowrap tags
+    }
+    @include e(suffix) {
+      padding-inline-start: 0;
     }
   }
 }
