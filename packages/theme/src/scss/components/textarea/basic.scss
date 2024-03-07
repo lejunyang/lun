@@ -39,14 +39,6 @@
     }
   }
 
-  @include e('background') {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    outline-color: transparent;
-  }
-
   @include e(clear-icon) {
     position: absolute;
     top: 50%;
@@ -70,6 +62,12 @@
         pointer-events: auto;
       }
     }
+  }
+
+  @include e(length-info) {
+    text-align: end;
+    color: getGrayColor(10);
+    padding-inline-end: 1px;
   }
 
   @include size(1) {
