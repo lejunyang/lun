@@ -11,9 +11,13 @@ export const textareaProps = {
   showClearIcon: PropBoolean(),
   status: PropString<Status>(),
 
+  /** rows of textarea. When autoRows is enabled, it's min rows */
   rows: PropNumber(),
   cols: PropNumber(),
   resize: PropString<'none' | 'both' | 'horizontal' | 'vertical'>(),
+  autoRows: PropBoolean(),
+  /** max rows of textarea, must be used with autoRows */
+  maxRows: PropNumber(),
 };
 
 export const textareaEmits = {
