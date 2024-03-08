@@ -49,7 +49,7 @@ export default {
     // lazy import react
     (async () => {
       const {
-        default: { isValidElement },
+        default: { isValidElement, cloneElement },
       } = await import('react');
       const {
         default: { createRoot },
@@ -70,6 +70,10 @@ export default {
         },
         onBeforeUnmount(target) {
           reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
+          reactRootMap.delete(target);
+        },
+        clone(content) {
+          return cloneElement(content);
         },
       });
     })();
