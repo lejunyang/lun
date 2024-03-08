@@ -3,6 +3,8 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+@use './basic.number.scss';
+
 :host {
   display: inline-flex;
   max-inline-size: 100%;
@@ -223,15 +225,6 @@
         cursor: pointer;
       }
     }
-    @include m(success-icon) {
-      color: getSemanticColor(success);
-    }
-    @include m(error-icon) {
-      color: getSemanticColor(error);
-    }
-    @include m(warning-icon) {
-      color: getSemanticColor(warning);
-    }
   }
   // suffix slot default content clear-icon
   slot .#{getBEM(input, suffix, clear-icon)} {
@@ -355,54 +348,6 @@
       white-space: pre-wrap;
     }
   }
-
-  // ----------------- type=number -----------------
-  @at-root {
-    #{getM(number)},
-    #{getM(number-string)} {
-      @include e(inner-input) {
-        // hide number input's arrow
-        &::-webkit-inner-spin-button,
-        &::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        -moz-appearance: textfield;
-      }
-      @include e(steps-wrapper) {
-        display: flex;
-        flex-direction: column;
-        z-index: 1;
-        cursor: pointer;
-        @include declareVars(
-          (
-            block-size: block-size,
-            padding-inline-end: slot-padding-inline,
-          )
-        );
-      }
-      @include is(disabled) {
-        @include e(steps-wrapper) {
-          color: getGrayColor(a8);
-          #{getE(step)} {
-            cursor: getDisabledCursor();
-            transform: none;
-          }
-        }
-      }
-      @include e(step) {
-        cursor: pointer;
-        @include hover {
-          transform: scale(1.2);
-          transition: scale 0.2s ease;
-        }
-      }
-      @include e(arrow) {
-        height: 50%;
-      }
-    }
-  }
-  // ----------------- type=number -----------------
 
   // ----------------- size -----------------
   @include size(1) {
