@@ -21,6 +21,8 @@ lang: zh-CN
 
 ## 展示字数
 
+没有设置`maxLength`时展示当前字数，设置`maxLength`时两者一起展示。多值时以当前输入的字符为准
+
 <!-- @Code:showLengthInfo -->
 
 ## 数字输入

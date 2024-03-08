@@ -3,6 +3,9 @@ import { useForm } from '@lun/core';
 const form = useForm({
   defaultFormData: {
     cols: '2',
+    obj: {
+      input1: '对象里的字段',
+    },
     array: [null],
   },
 });
@@ -54,8 +57,22 @@ export default function () {
         <l-form-item name="selects" label="多选下拉框">
           <l-select options={options} multiple />
         </l-form-item>
+        <l-form-item name="switch" label="开关" element="switch" />
+        <l-form-item name="textarea" label="文本域" element="textarea" />
+        <l-form-item name="file" label="文件">
+          <l-file-picker>
+            <l-button>选择文件</l-button>
+          </l-file-picker>
+        </l-form-item>
       </l-form>
-      <pre>formData: {JSON.stringify(form.formData)}</pre>
+      <pre>
+        formData:
+        {JSON.stringify(form.formData, (key, value) => {
+          if (key === 'file') {
+            return value?.name;
+          } else return value;
+        })}
+      </pre>
     </div>
   );
 }

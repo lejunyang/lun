@@ -18,3 +18,15 @@ lang: zh-CN
 没有设置`maxLength`时展示当前字数，设置`maxLength`时两者一起展示
 
 <!-- @Code:showLengthInfo -->
+
+## 自动高度
+
+`autoRows`能够让文本域在高度上跟随内容自动变化，`rows`指定最小行数，`maxRows`指定最大行数。`rows`在不使用自动高度时也能使用，但是`maxRows`不行
+
+<!-- @Code:autoRows -->
+
+## 浮动标签
+
+与placeholder不同，浮动标签只能为一行，超出会隐藏
+
+<!-- @Code:floatLabel -->
