@@ -18,6 +18,8 @@ lang: zh-CN
 
 `Message`有静态方法`open`，方便在 js 中直接创建并展示消息，其相当于创建一个 Message 元素并添加到页面中，创建后会保持复用
 
+另有四个静态方法`success`, `error`, `warning`, `info`，它们用于创建指定类型的消息（相当于open指定type），同时它们可以直接传递字符串，更方便调用
+
 <!-- @Code:staticMethods -->
 
 ## 实现方式
