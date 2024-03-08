@@ -35,7 +35,10 @@ export const filePickerProps = {
 
 export const filePickerEmits = {
   update: (_value: File | File[]) => true,
+  exceedMaxCount: (_value: File[]) => true,
+  exceedMaxSize: (_value: File[]) => true,
   // TODO cancel
+  // TODO typeMismatch
 };
 
 export type FilePickerSetupProps = ExtractPropTypes<typeof filePickerProps>;
