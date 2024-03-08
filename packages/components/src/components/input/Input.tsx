@@ -211,7 +211,7 @@ export const Input = defineSSRCustomElement({
               {multiple ? (
                 <span
                   {...wrapperHandlers}
-                  class={[ns.e('tag-container'), ns.isOr(`wrap`, wrapTags)]}
+                  class={[ns.e('tag-container'), ns.isOr(`wrap`, wrapTags), ns.is('no-tags', isEmpty(valueModel.value))]}
                   part="tag-container"
                 >
                   {isArray(valueModel.value) &&
