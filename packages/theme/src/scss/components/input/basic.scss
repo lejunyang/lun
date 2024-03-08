@@ -10,7 +10,7 @@
   flex-grow: 1;
   flex-shrink: 1;
   vertical-align: bottom;
-  height: min-content; // prevent input's height from stretching the container
+  height: min-content; // prevent input's height from stretching the container when it's multiple
 }
 
 @include b(input) {
@@ -75,6 +75,7 @@
     flex-grow: 1;
   }
 
+  // ----------------- inner input -----------------
   @include e(inner-input) {
     appearance: none;
     border-width: 0;
@@ -91,7 +92,7 @@
     inline-size: 100%;
     line-height: inherit;
 
-    @include declareVars((block-size, font-size));
+    @include declareVars((block-size, font-size, padding-inline-start, letter-spacing));
 
     // placeholder and selection
     &::placeholder {
@@ -115,6 +116,7 @@
       }
     }
   }
+  // ----------------- inner input -----------------
 
   @include e(renderer) {
     position: absolute;
@@ -236,46 +238,66 @@
     position: relative;
   }
 
-  // float label
+  // ----------------- float label -----------------
   @include is(float-label, false, true) {
-    top: 0;
+    inset-block-start: 0;
     z-index: 1;
     transition: all 0.3s ease-out;
     color: getGrayColor(a10);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    --base: 100%;
+    // use input's font-size, line-height, block-size
+    @include declareVars((font-size, line-height, block-size));
+    // use input's padding-inline-start as label's inset-inline-start
+    @include declareVars(
+      (
+        inset-inline-start: padding-inline-start,
+      )
+    );
+    @include declareVarValues(
+      (
+        // reduce two paddings, limit the width of label
+        max-inline-size: calc(var(--base) - #{getDeclaredVar(padding-inline-start)} * 2)
+      )
+    );
+
     .#{$B}:focus-within &,
     .#{getIsN(empty, $B, true)} & {
+      inset-block-start: -50%;
       color: fieldtext;
       z-index: 1;
       transform: scale(0.8);
       transform-origin: 0 50%; // horizontal needs to be 0, or it will be away from the left edge when label is too long
+      --base: 125%; // base becomes 125% as the label is scaled to 0.8
       #{getEM(label, float-background)} {
         opacity: 1;
         background: getSemanticColor('background');
-        /* extra white length */
-        left: -3px;
-        right: -3px;
+        // extra white length
+        // useless, parent is not wide enough
+        // left: -3px;
+        // right: -3px;
       }
     }
 
     @include em(label, float-background) {
       opacity: 0;
-      height: 3px;
+      height: 4px;
       position: absolute;
       overflow: hidden;
-      top: calc(50% - 1px);
+      top: calc(50% - 2px);
       color: white;
       z-index: -1;
       left: 0;
       right: 0;
-      transition: left 0 0.25s, right 0 0.25s, background-color 0 0.25s; // delay for label positioned
+      transition: left 0s 0.25s, right 0s 0.25s, background-color 0s 0.25s; // delay for label positioned
       &:empty {
         display: none;
       }
     }
   }
+  // ----------------- float label -----------------
 
   // ----------------- tag-container -----------------
   @include e(tag-container) {
@@ -299,10 +321,19 @@
         ),
       )
     );
+    @include is(no-tags) {
+      @include declareVars(
+        (
+          // tag-container-padding is smaller than input's padding, it's weird when input is empty, so use input's padding when no tags
+          padding-inline-start
+        )
+      );
+    }
     @include isN(wrap) {
       flex-wrap: nowrap;
     }
   }
+  // ----------------- tag-container -----------------
 
   // ----------------- multiple input wrapper -----------------
   @include e(multi-input-wrapper) {
@@ -371,9 +402,7 @@
       }
     }
   }
-
-  $empty: getIsN(empty, $B);
-  $float: getIs(float-label);
+  // ----------------- type=number -----------------
 
   // ----------------- size -----------------
   @include size(1) {
@@ -388,6 +417,8 @@
         multi-input-block-size: getLineHeightValue(1),
         tag-container-padding: getSpaceValue(1),
         tag-container-gap: getSpaceValue(1),
+        padding-inline-start: getSpaceValue(1),
+        letter-spacing: getLetterSpacingValue(1),
       )
     );
     @include e(slot) {
@@ -396,24 +427,6 @@
     @include e(length-info) {
       padding-inline: getSpaceValue(1);
       font-size: getFontSizeValue(1);
-    }
-    @include e(inner-input) {
-      padding-inline-start: getSpaceValue(1);
-      letter-spacing: getLetterSpacingValue(1);
-    }
-    @include is(float-label, false) {
-      inset-inline-start: getSpaceValue(1);
-      block-size: getSpaceValue(5);
-      line-height: getSpaceValue(5);
-      font-size: getFontSizeValue(1);
-      max-inline-size: calc(100% - 2 * #{getSpaceValue(1)});
-    }
-    &.#{$B}:focus-within #{$float},
-    &.#{$empty} #{$float} {
-      inset-block-start: -50%;
-      max-inline-size: calc(
-        125% - 2 * #{getSpaceValue(1)}
-      ); // suppose to be 100%, but scale(0.8) when active, 100 / 0.8
     }
   }
   @include size(2) {
@@ -428,6 +441,8 @@
         multi-input-block-size: getLineHeightValue(2),
         tag-container-padding: getSpaceValue(1),
         tag-container-gap: calc(getSpaceValue(1) * 1.5),
+        padding-inline-start: getSpaceValue(2),
+        letter-spacing: getLetterSpacingValue(2),
       )
     );
     @include e(slot) {
@@ -436,22 +451,6 @@
     @include e(length-info) {
       padding-inline: getSpaceValue(2);
       font-size: getFontSizeValue(2);
-    }
-    @include e(inner-input) {
-      padding-inline-start: getSpaceValue(2);
-      letter-spacing: getLetterSpacingValue(2);
-    }
-    @include is(float-label, false) {
-      inset-inline-start: getSpaceValue(2);
-      block-size: getSpaceValue(6);
-      line-height: getSpaceValue(6);
-      font-size: getFontSizeValue(2);
-      max-inline-size: calc(100% - 2 * #{getSpaceValue(2)});
-    }
-    &.#{$B}:focus-within #{$float},
-    &.#{$empty} #{$float} {
-      inset-block-start: -50%;
-      max-inline-size: calc(125% - 2 * #{getSpaceValue(2)});
     }
   }
   @include size(3) {
@@ -466,6 +465,8 @@
         multi-input-block-size: getLineHeightValue(3),
         tag-container-padding: getSpaceValue(2),
         tag-container-gap: getSpaceValue(3),
+        padding-inline-start: getSpaceValue(3),
+        letter-spacing: getLetterSpacingValue(3),
       )
     );
     @include e(slot) {
@@ -474,22 +475,6 @@
     @include e(length-info) {
       padding-inline: getSpaceValue(3);
       font-size: getFontSizeValue(3);
-    }
-    @include e(inner-input) {
-      padding-inline-start: getSpaceValue(3);
-      letter-spacing: getLetterSpacingValue(3);
-    }
-    @include is(float-label, false) {
-      inset-inline-start: getSpaceValue(3);
-      block-size: getSpaceValue(7);
-      line-height: getSpaceValue(7);
-      font-size: getFontSizeValue(3);
-      max-inline-size: calc(100% - 2 * #{getSpaceValue(3)});
-    }
-    &.#{$B}:focus-within #{$float},
-    &.#{$empty} #{$float} {
-      inset-block-start: -50%;
-      max-inline-size: calc(125% - 2 * #{getSpaceValue(3)});
     }
   }
 
