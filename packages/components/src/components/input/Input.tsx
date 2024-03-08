@@ -16,7 +16,7 @@ import { isEmpty, isArray, runIfFn } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
-import { InputFocusOption, isStatus, pickThemeProps } from 'common';
+import { InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
 import { GlobalStaticConfig } from 'config';
 
 const name = 'input';
@@ -152,8 +152,7 @@ export const Input = defineSSRCustomElement({
 
     const statusIcon = computed(() => {
       if (!props.showStatusIcon) return;
-      const { value } = status;
-      if (isStatus(value)) return renderElement('icon', { name: value, class: [ns.em('suffix', `${value}-icon`)] });
+      return renderStatusIcon(status.value);
     });
 
     return () => {
@@ -211,7 +210,11 @@ export const Input = defineSSRCustomElement({
               {multiple ? (
                 <span
                   {...wrapperHandlers}
-                  class={[ns.e('tag-container'), ns.isOr(`wrap`, wrapTags), ns.is('no-tags', isEmpty(valueModel.value))]}
+                  class={[
+                    ns.e('tag-container'),
+                    ns.isOr(`wrap`, wrapTags),
+                    ns.is('no-tags', isEmpty(valueModel.value)),
+                  ]}
                   part="tag-container"
                 >
                   {isArray(valueModel.value) &&

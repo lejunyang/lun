@@ -197,8 +197,11 @@
     }
     // status color will override accent color
     [#{$status-attr-name + '=' + $name}],
-    [#{'data-' + $status-attr-name + '=' + $name}] {
+    [data-#{$status-attr-name + '=' + $name}] {
       @include generateColorProperties($value);
+    }
+    [data-is-#{$status-attr-name + '-' + $name}='true'] {
+      color: getSemanticColor($name);
     }
   }
 }

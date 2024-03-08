@@ -1,0 +1,50 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+// ----------------- type=number -----------------
+@include b(input) {
+  @include m((number, number-string)) {
+    @include e(inner-input) {
+      // hide number input's arrow
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      -moz-appearance: textfield;
+    }
+    @include e(steps-wrapper) {
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      cursor: pointer;
+      @include declareVars(
+        (
+          block-size: block-size,
+          padding-inline-end: slot-padding-inline,
+        )
+      );
+    }
+    @include is(disabled) {
+      @include e(steps-wrapper) {
+        color: getGrayColor(a8);
+        #{getE(step)} {
+          cursor: getDisabledCursor();
+          transform: none;
+        }
+      }
+    }
+    @include e(step) {
+      cursor: pointer;
+      @include hover {
+        transform: scale(1.2);
+        transition: scale 0.2s ease;
+      }
+    }
+    @include e(arrow) {
+      height: 50%;
+    }
+  }
+}
