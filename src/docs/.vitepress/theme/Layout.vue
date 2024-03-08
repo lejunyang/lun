@@ -1,5 +1,6 @@
 <template>
-  <l-theme-provider :appearance="isDark ? 'dark' : 'light'" root v-bind="theme">
+  <!-- appearance needs to be undefined when SSR -->
+  <l-theme-provider :appearance="!inBrowser ? undefined : isDark ? 'dark' : 'light'" root v-bind="theme">
     <Layout>
       <template #nav-bar-content-after>
         <ThemeConfigPanel :theme="theme" :lang="lang" />
@@ -22,7 +23,7 @@ const theme = reactive({
   'gray-color': 'slate',
   size: '2',
   radius: 'medium',
-})
+});
 
 const { isDark, lang } = useData();
 
