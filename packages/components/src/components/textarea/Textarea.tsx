@@ -21,13 +21,43 @@ export const Textarea = defineSSRCustomElement({
   props: textareaProps,
   formAssociated: true,
   emits: textareaEmits,
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     useSetupContextEvent();
     const [textareaRef, methods] = useInputElement<HTMLTextAreaElement>();
+
+    let maxHeight: number;
+    const adjustHeight = (el: HTMLTextAreaElement) => {
+      el.style.height = 'auto';
+      el.style.minHeight = '';
+      const minHeight = getHeight(el)!;
+      if (maxHeight && minHeight > maxHeight) {
+        el.style.height = maxHeight + 'px';
+        // scroll to bottom
+        if (el.selectionEnd && el.selectionEnd === el.value.length) el.scrollTop = el.scrollHeight;
+      } else {
+        el.style.minHeight = minHeight + 'px';
+      }
+    };
+    watchEffect(() => {
+      const { maxRows } = props;
+      const textarea = textareaRef.value!;
+      if (!maxRows || !textarea) return;
+      // scrollHeight is not available when first mount
+      nextTick(() => {
+        textarea.rows = maxRows as number;
+        const originalPlaceholder = textarea.placeholder;
+        textarea.placeholder = '';
+        // placeholder can affect scrollHeight, so we need to clear it first
+        maxHeight = getHeight(textarea)!;
+        textarea.rows = props.rows as number;
+        textarea.placeholder = originalPlaceholder;
+        adjustHeight(textarea); // there may be a long placeholder, we need to adjust height
+      });
+    });
 
     const { handlers } = useInput(
       computed(() => {
@@ -47,17 +77,7 @@ export const Textarea = defineSSRCustomElement({
       {
         onInput(e) {
           if (!props.autoRows) return;
-          const target = e.target as HTMLTextAreaElement;
-          target.style.height = 'auto';
-          target.style.minHeight = '';
-          const minHeight = getHeight(target)!;
-          if (maxHeight && minHeight > maxHeight) {
-            target.style.height = maxHeight + 'px';
-            // scroll to bottom
-            if (target.selectionEnd === target.value.length) target.scrollTop = target.scrollHeight;
-          } else {
-            target.style.minHeight = minHeight + 'px';
-          }
+          adjustHeight(e.target as HTMLTextAreaElement);
         },
       },
     );
@@ -77,19 +97,6 @@ export const Textarea = defineSSRCustomElement({
       ns,
       editComputed,
     );
-
-    let maxHeight: number;
-    watchEffect(() => {
-      const { maxRows } = props;
-      const textarea = textareaRef.value!;
-      if (!maxRows || !textarea) return;
-      // scrollHeight is not available when first mount
-      nextTick(() => {
-        textarea.rows = maxRows as number;
-        maxHeight = getHeight(textarea)!;
-        textarea.rows = props.rows as number;
-      });
-    });
 
     const lengthInfo = computed(() => {
       const { maxLength, showLengthInfo } = props;
@@ -126,6 +133,7 @@ export const Textarea = defineSSRCustomElement({
           )}
           <span class={ns.e('wrapper')} part="wrapper">
             <textarea
+              {...attrs}
               ref={textareaRef}
               part="textarea"
               class={ns.e('textarea')}
