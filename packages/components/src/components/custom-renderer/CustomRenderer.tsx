@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
-import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick, defineComponent } from 'vue';
+import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick, defineComponent, h } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
 import { customRendererProps, CustomRendererProps } from './type';
@@ -21,10 +21,11 @@ const options = {
 
     const isRawType = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
 
-    watchEffect(() => {
-      // TODO onCleanup
+    watchEffect((onCleanup) => {
+      let cleared = false;
+      onCleanup(() => (cleared = true));
       let { type } = props;
-      let content = runIfFn(props.content) as any; // if it's a function, consider it as a getter
+      let content = runIfFn(props.content, { h }) as any; // if it's a function, consider it as a getter
       renderer = undefined; // clear before and get new renderer
       if (type !== 'html' && type !== 'vnode') {
         if (type) {
@@ -56,15 +57,14 @@ const options = {
         if (nextType === 'html') {
           if (isNode(content)) {
             updateHtml = () => {
-              if (div.value) {
-                div.value.innerHTML = '';
-                if (isHTMLTemplateElement(content)) content = document.importNode(content.content, true);
-                div.value.append(content);
-              }
+              if (!div.value || cleared) return;
+              div.value.innerHTML = '';
+              if (isHTMLTemplateElement(content)) content = document.importNode(content.content, true);
+              div.value.append(content);
             };
           } else {
             updateHtml = () => {
-              if (!div.value) return;
+              if (!div.value || cleared) return;
               div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content ?? ''));
             };
           }
@@ -88,7 +88,7 @@ const options = {
 
       if (mounted && renderer) {
         const updateOrMount = () => {
-          if (!renderer || !div.value) return;
+          if (!renderer || !div.value || cleared) return;
           // if renderer changed, should mount a new one
           const func = lastRenderer === renderer ? renderer?.onUpdated : renderer.onMounted;
           func && func(content, div.value, attrs);

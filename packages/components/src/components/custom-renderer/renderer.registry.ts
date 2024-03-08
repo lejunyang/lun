@@ -6,6 +6,7 @@ export type CustomRendererRegistry = {
 	onMounted: (content: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
 	onUpdated?: (content: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
 	onBeforeUnmount?: (content: any, target: HTMLDivElement) => void;
+	clone?: (content?: any) => any;
 };
 
 export function getInitialCustomRendererMap() {

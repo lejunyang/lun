@@ -1,8 +1,9 @@
+import { PropBoolean, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const customRendererProps = {
-  type: { type: String },
-  preferHtml: { type: Boolean },
+  type: PropString(),
+  preferHtml: PropBoolean(),
   content: { required: true },
 };
 
