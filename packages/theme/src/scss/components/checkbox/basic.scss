@@ -5,7 +5,8 @@
 
 :host {
   display: inline-flex;
-  vertical-align: middle;
+  vertical-align: bottom;
+  flex-shrink: 0;
 }
 
 @include b(checkbox) {

@@ -3,17 +3,15 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
-:host {
-  display: inline-flex;
-  vertical-align: text-bottom;
-}
-
 @include b(checkbox-group) {
   display: inline-flex;
   @include declareVars(gap);
 
   @include is(vertical) {
     flex-direction: column;
+  }
+  @include isN(vertical) {
+    vertical-align: sub;
   }
 
   @include size(1) {

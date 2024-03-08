@@ -3,11 +3,6 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
-:host {
-  display: inline-flex;
-  vertical-align: text-bottom;
-}
-
 .children-enter-active {
   transition: opacity 0.15s 0.1s ease-in;
 }
@@ -26,6 +21,7 @@
 
 @include b(switch) {
   display: inline-flex;
+  vertical-align: middle; // fix that the switch is not aligned with the label text in form, need to remove display flex in host
   align-items: center;
   overflow: hidden;
   cursor: pointer;
