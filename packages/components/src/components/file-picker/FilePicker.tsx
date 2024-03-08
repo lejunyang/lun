@@ -13,7 +13,7 @@ export const FilePicker = defineSSRCustomElement({
   props: filePickerProps,
   emits: filePickerEmits,
   formAssociated: true,
-  setup(props) {
+  setup(props, { emit }) {
     useSetupContextEvent();
     const [editComputed] = useSetupEdit();
     const valueModel = useValueModel(props);
@@ -22,11 +22,23 @@ export const FilePicker = defineSSRCustomElement({
 
     const isFileSizeValid = (file: File) => {
       const { maxSize } = props;
-      return isNaN(maxSize as number) || +maxSize! >= file.size;
+      return maxSize == null || isNaN(maxSize as number) || +maxSize! >= file.size;
     };
     const toLimitCount = (files: File[]) => {
       const { maxCount } = props;
+      if (files.length > (maxCount as number)) emit('exceedMaxCount', files.slice((maxCount as number) - files.length));
       return (maxCount as number) >= 0 ? files.slice(0, maxCount as number) : files;
+    };
+    const useOverSizeCheck = () => {
+      const files: File[] = [];
+      return [
+        (file: File) => {
+          return isFileSizeValid(file) || (files.push(file), false);
+        },
+        () => {
+          if (files.length) emit('exceedMaxSize', files);
+        },
+      ] as const;
     };
 
     const inputHandlers = {
@@ -36,6 +48,7 @@ export const FilePicker = defineSSRCustomElement({
         const mimes = mimeTypes.value,
           exts = extensions.value;
         const needCheckFileType = strictAccept && (mimes.size || exts.size) && !mimes.has('*/*');
+        const [checkSize, checkEmit] = useOverSizeCheck();
         files = toLimitCount(
           files.filter((file) => {
             const fileExt = file.name.split('.').pop()?.toLowerCase();
@@ -44,10 +57,11 @@ export const FilePicker = defineSSRCustomElement({
                 mimes.has(file.type) ||
                 (fileExt && exts.has(fileExt)) ||
                 mimes.has(file.type.replace(/\/.+/, '/*'))) &&
-              isFileSizeValid(file)
+              checkSize(file)
             );
           }),
         );
+        checkEmit();
         console.log('onChange files', files);
         valueModel.value = multiple ? files : files[0];
         picking = false;
@@ -104,9 +118,12 @@ export const FilePicker = defineSSRCustomElement({
         await picker
           .then(async (handles: any) => {
             console.log('handle', handles);
-            const files = await Promise.all(handles.map((h: any) => h.getFile()));
+            let files = await Promise.all(handles.map((h: any) => h.getFile()));
             console.log('file', files);
-            valueModel.value = toLimitCount(files.filter((f) => isFileSizeValid(f)));
+            const [checkSize, checkEmit] = useOverSizeCheck();
+            files = toLimitCount(files.filter((f) => checkSize(f)));
+            checkEmit();
+            valueModel.value = multiple ? files : files[0];
           })
           .catch((e: any) => {
             needFallback = e instanceof TypeError;
