@@ -273,15 +273,24 @@
 
 /**
   * inside @include b(button) { ... }
+  * getDeclaredVar(padding) => var(--l-button-padding, var(--padding));
+  * getDeclaredVar(label-padding) => var(--l-button-label-padding, var(--label-padding));
+  */
+@function getDeclaredVar($name) {
+  @return var(#{getRVarName($name)}, var(#{'--' + $name}));
+}
+
+/**
+  * inside @include b(button) { ... }
   * declareVars((padding, margin)) => padding: var(--l-padding, var(--padding)); margin: var(--l-margin, var(--margin));
   * declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--l-icon-padding, var(--icon-padding)); margin: var(--l-icon-margin, var(--icon-margin));
   */
 @mixin declareVars($varListOrMap) {
   @each $name, $alias in $varListOrMap {
     @if $alias {
-      #{$name}: var(#{getRVarName($alias)}, var(#{'--' + $alias}));
+      #{$name}: getDeclaredVar($alias);
     } @else {
-      #{$name}: var(#{getRVarName($name)}, var(#{'--' + $name}));
+      #{$name}: getDeclaredVar($name);
     }
   }
 }
