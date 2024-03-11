@@ -5,6 +5,24 @@
       <template #nav-bar-content-after>
         <ThemeConfigPanel :theme="theme" :lang="lang" />
       </template>
+      <template #doc-after>
+        <ClientOnly>
+          <Giscus
+            repo="lejunyang/lun"
+            repo-id="R_kgDOKRu0ww"
+            mapping="pathname"
+            category="Announcements"
+            category-id="DIC_kwDOKRu0w84Cccsd"
+            strict="0"
+            reactions-enabled="1"
+            emit-metadata="0"
+            input-position="top"
+            loading="lazy"
+            :lang="lang"
+            :theme="isDark ? 'dark' : 'light'"
+          />
+        </ClientOnly>
+      </template>
     </Layout>
   </l-theme-provider>
 </template>
@@ -14,6 +32,7 @@ import { useData, inBrowser } from 'vitepress';
 import { watchEffect, nextTick, provide, reactive } from 'vue';
 import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
 import { GlobalContextConfig } from '@lun/components';
+import Giscus from '@giscus/vue';
 
 const Layout = Theme.Layout;
 
@@ -71,5 +90,9 @@ watchEffect(() => {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+giscus-widget::part(iframe) {
+  margin-top: 24px;
 }
 </style>

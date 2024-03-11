@@ -12,6 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@giscus/vue": "^3.0.0",
     "@lun/components": "workspace:^",
     "@lun/core": "workspace:^",
     "@lun/theme": "workspace:^",
