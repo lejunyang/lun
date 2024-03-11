@@ -11,6 +11,7 @@ import { Transition, computed, ref, watch } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
+import { toPxIfNum } from '@lun/utils';
 
 const name = 'dialog';
 export const Dialog = Object.assign(
@@ -81,7 +82,11 @@ export const Dialog = Object.assign(
       // if there is a parent watermark, wrap children with watermark render
       const { render } = WatermarkContext.inject();
 
-      const [stateClass] = useCEStates(() => ({ 'no-top-layer': props.noTopLayer }), ns, editComputed);
+      const [stateClass] = useCEStates(
+        () => ({ 'no-top-layer': props.noTopLayer, confirm: props.isConfirm }),
+        ns,
+        editComputed,
+      );
       return () => {
         return (
           <dialog
@@ -89,7 +94,9 @@ export const Dialog = Object.assign(
             part="root"
             ref={dialogRef}
             {...dialogHandlers}
-            style={{ width: props.width }}
+            style={{ width: toPxIfNum(props.width) }}
+            // title is a global HTMLAttributes, but we use it as prop. it will make the dialog show tooltip even if inheritAttrs is false, we need to set an empty title to prevent it
+            title=""
           >
             {render(
               <>
@@ -113,12 +120,20 @@ export const Dialog = Object.assign(
                     {!props.noHeader && (
                       <header class={[ns.e('header')]} part="header">
                         <slot name="header-start"></slot>
-                        <slot name="header">{props.headerTitle}</slot>
+                        <slot name="header">{props.title}</slot>
                         <slot name="header-end"></slot>
                       </header>
                     )}
                     <div class={[ns.e('content')]} part="content">
-                      <slot>{props.content && <VCustomRenderer content={props.content} />}</slot>
+                      <slot>
+                        {props.content && (
+                          <VCustomRenderer
+                            content={props.content}
+                            type={props.contentType}
+                            preferHtml={props.contentPreferHtml}
+                          />
+                        )}
+                      </slot>
                     </div>
                     {!props.noFooter && (
                       <footer class={[ns.e('footer')]} part="footer">

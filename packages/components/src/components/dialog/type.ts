@@ -1,10 +1,12 @@
 import { MaybePromise } from '@lun/core';
-import { ExtractPropTypes, PropType } from 'vue';
+import { ExtractPropTypes } from 'vue';
 import {
   GetEventPropsFromEmits,
   PropBoolOrStr,
   PropBoolean,
   PropFunction,
+  PropNumber,
+  PropObjOrStr,
   PropObject,
   PropString,
   createTransitionProps,
@@ -23,13 +25,14 @@ export const dialogProps = {
   maskClosable: PropBoolOrStr<boolean | 'click' | 'dblclick'>(),
   escapeClosable: PropBoolean(),
   movable: PropBoolean(),
-  width: PropString(),
-  // title is a global HTMLAttributes, will make the dialog show tooltip, so use headerTitle instead
-  headerTitle: PropString(),
+  width: PropNumber(),
+  title: PropObjOrStr(),
   noHeader: PropBoolean(),
   noCloseBtn: PropBoolean(),
   closeBtnProps: PropObject(),
   content: {},
+  contentType: PropString(),
+  contentPreferHtml: PropBoolean(),
   noFooter: PropBoolean(),
   noOkBtn: PropBoolean(),
   noCancelBtn: PropBoolean(),
@@ -40,10 +43,13 @@ export const dialogProps = {
   /** function that will be called before opening dialog, if it returns false, prevent opening dialog */
   beforeOpen: PropFunction<() => void | boolean>(),
   /** function that will be called on clicking ok button, if it returns false/Promise.resolve(false)/Promise.reject(), dialog stays open and will not trigger ok event */
-  beforeOk: { type: Function as PropType<() => MaybePromise<boolean | void>> },
+  beforeOk: PropFunction<() => MaybePromise<boolean | void>>(),
   /** function that will be called before closing dialog, if it returns false/Promise.resolve(false)/Promise.reject(), prevent closing dialog */
-  beforeClose: { type: Function as PropType<() => MaybePromise<boolean | void>> },
+  beforeClose: PropFunction<() => MaybePromise<boolean | void>>(),
   disabledAllWhenPending: PropBoolean(),
+
+  /** internal usage */
+  isConfirm: PropBoolean(),
 };
 
 export const dialogEmits = {
