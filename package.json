@@ -35,6 +35,7 @@
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/runtime-dom": "^3.4.20",
     "cross-env": "^7.0.3",
+    "cypress": "^13.6.6",
     "happy-dom": "^13.6.2",
     "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.5",
