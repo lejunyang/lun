@@ -45,6 +45,7 @@
     z-index: 2;
     background-color: getSemanticColor('panel-solid');
     outline: none;
+    @include declareVars((border-radius, padding));
   }
 
   @include e(close) {
@@ -60,6 +61,7 @@
 
   @include e(header) {
     display: flex;
+    align-items: center;
     margin-block-end: getSpaceValue(1);
     font-weight: getRVarValue((header, font-weight), getFontWeightValue(medium));
     @include declareVars(
@@ -80,63 +82,73 @@
   @include e(footer) {
     display: flex;
     justify-content: flex-end;
+    @include declareVars(
+      (
+        gap: footer-gap,
+      )
+    );
+  }
+
+  @include is(confirm) {
+    @include e(content) {
+      display: flex;
+    }
+    [data-status-icon] {
+      font-size: calc(var(--header-font-size) * 1.5);
+      @include declareVars(
+        (
+          margin-inline-end: icon-margin-inline-end,
+        )
+      );
+    }
   }
 
   @include size(1) {
     @include setVars(
       (
+        padding: getSpaceValue(3),
+        border-radius: getRadiusValue(1),
         header-font-size: getFontSizeValue(2),
         header-line-height: getLineHeightValue(2),
         content-font-size: getFontSizeValue(1),
         content-line-height: getLineHeightValue(1),
         close-inset-block-start: calc(#{getSpaceValue(3)} + #{getLineHeightValue(2)} / 2),
         close-inset-inline-end: calc(#{getSpaceValue(3)} + #{getLineHeightValue(2)} / 2),
+        icon-margin-inline-end: getSpaceValue(2),
+        footer-gap: getSpaceValue(3),
       )
     );
-    @include e(panel) {
-      padding: getSpaceValue(3);
-      border-radius: getRadiusValue(1);
-    }
-    @include e(footer) {
-      gap: getSpaceValue(3);
-    }
   }
   @include size(2) {
     @include setVars(
       (
+        padding: getSpaceValue(4),
+        border-radius: getRadiusValue(2),
         header-font-size: getFontSizeValue(3),
         header-line-height: getLineHeightValue(3),
         content-font-size: getFontSizeValue(2),
         content-line-height: getLineHeightValue(2),
         close-inset-block-start: calc(#{getSpaceValue(4)} + #{getLineHeightValue(3)} / 2),
         close-inset-inline-end: calc(#{getSpaceValue(4)} + #{getLineHeightValue(3)} / 2),
+        icon-margin-inline-end: getSpaceValue(3),
+        footer-gap: getSpaceValue(4),
       )
     );
-    @include e(panel) {
-      padding: getSpaceValue(4);
-      border-radius: getRadiusValue(2);
-    }
-    @include e(footer) {
-      gap: getSpaceValue(4);
-    }
   }
   @include size(3) {
     @include setVars(
       (
+        padding: getSpaceValue(5),
+        border-radius: getRadiusValue(3),
         header-font-size: getFontSizeValue(4),
         header-line-height: getLineHeightValue(4),
         content-font-size: getFontSizeValue(3),
         content-line-height: getLineHeightValue(3),
         close-inset-block-start: calc(#{getSpaceValue(5)} + #{getLineHeightValue(4)} / 2),
         close-inset-inline-end: calc(#{getSpaceValue(5)} + #{getLineHeightValue(4)} / 2),
+        icon-margin-inline-end: getSpaceValue(4),
+        footer-gap: getSpaceValue(5),
       )
     );
-    @include e(panel) {
-      padding: getSpaceValue(5);
-      border-radius: getRadiusValue(3);
-    }
-    @include e(footer) {
-      gap: getSpaceValue(5);
-    }
   }
 }
