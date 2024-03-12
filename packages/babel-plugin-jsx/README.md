@@ -1,0 +1,1 @@
+Remove this package if https://github.com/vuejs/core/pull/9883 gets merged

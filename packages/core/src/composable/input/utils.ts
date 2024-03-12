@@ -1,3 +1,4 @@
+import { numberRegex } from "@lun/utils";
 import { presets } from "../../presets";
 import { UseInputOptions, UseInputState } from "./useInput";
 
@@ -32,7 +33,8 @@ export function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseI
   const noNegativeSymbol = noNegative && (noExponent || noDecimal); // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
   let allowedChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
     lessThanOrEqual(max, 0) ? '' : '+'
-  }${noDecimal ? '' : '.'}`;
+    }${noDecimal ? '' : '.'}`;
+  // input[type=number] allows pasting a string with spaces, it will eliminate them. so we need to allow spaces
   if (e.data && e.data.match(new RegExp(`[^\\s0-9${allowedChars}]`))) {
     cancel();
     console.log('prevented! allowedChars', allowedChars, e.defaultPrevented, state.prevValue);
@@ -46,6 +48,8 @@ export function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseI
   let nextVal = value.substring(0, selectionStart) + e.data + value.substring(selectionEnd);
   nextVal = nextVal.replace(/\s/g, ''); // eliminate all spaces
   console.log('nextVal', nextVal);
+  if (!nextVal.match(numberRegex)) cancel();
+  return;
   const firstChar = nextVal.charAt(0);
   const isNegative = firstChar === '-',
     isPositive = firstChar === '+';

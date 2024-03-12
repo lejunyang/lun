@@ -4,7 +4,7 @@ import { vUpdate } from '@lun/babel-plugin-jsx';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 const commonAlias = {
-  data: fileURLToPath(new URL('../../utils/data.ts', import.meta.url)),
+  data: fileURLToPath(new URL('./src/utils/data.ts', import.meta.url)),
 };
 
 export default defineConfig({
@@ -27,7 +27,7 @@ export default defineConfig({
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true',
   },
   optimizeDeps: {
-    exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils'],
+    exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils', 'monaco-editor'],
   },
   ssr: {
     // fix monaco-editor bundle error, see in https://github.com/vuejs/vitepress/issues/2832
