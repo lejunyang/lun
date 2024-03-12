@@ -1,7 +1,7 @@
 {
   "name": "@lun/theme",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "type": "module",
   "files": [
     "./dist",
@@ -30,7 +30,8 @@
     "build:prod": "cross-env NODE_ENV=production vite build && pnpm scss",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build && pnpm scss",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "version": "npm version"
   },
   "dependencies": {
     "@lun/components": "workspace:^"

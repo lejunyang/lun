@@ -1,6 +1,6 @@
 {
   "name": "@lun/babel-plugin-jsx",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "description": "",
   "type": "module",
   "main": "./dist/index.js",
@@ -19,7 +19,8 @@
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
-    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build"
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
+    "version": "npm version"
   },
   "keywords": [],
   "author": "",
