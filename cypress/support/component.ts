@@ -21,9 +21,8 @@ import './commands';
 
 import { mount } from 'cypress/vue';
 
-import components, { ComponentKey, GlobalStaticConfig } from '@lun/components';
-import { ComponentInternalInstance, camelize } from 'vue';
-import { capitalize } from '@lun/utils';
+import { ComponentKey, GlobalStaticConfig, autoDefine } from '@lun/components';
+import { ComponentInternalInstance } from 'vue';
 
 // import { getContainerEl } from 'cypress/mount-utils';
 // not able to import from cypress/mount-utils, [vite] Internal server error: No known conditions for "./mount-utils" specifier in "cypress" package
@@ -71,14 +70,9 @@ const cleanup = () => {
 };
 Cypress.Commands.add('l', (componentName) => {
   if (!(componentName in GlobalStaticConfig.defaultProps)) return;
-  const camelName = capitalize(camelize(componentName));
   const wholeTagName = GlobalStaticConfig.namespace + '-' + componentName;
-  if (!customElements.get(componentName)) {
-    const define = components[`define${camelName}`];
-    if (!define) throw new Error('No define func for ' + componentName);
-    define();
-  }
   cleanup();
+  autoDefine();
   return Cypress.Promise.resolve(customElements.whenDefined(wholeTagName)).then(() => {
     // @ts-ignore
     const document: Document = cy.state('document');
