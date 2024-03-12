@@ -9,7 +9,8 @@
     "build": "pnpm --filter \"./packages/**\" run build",
     "docs:build": "node ./buildDoc.js",
     "docs:preview": "vitepress preview src/docs",
-    "test": "vitest"
+    "test": "vitest",
+    "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha"
   },
   "dependencies": {
     "@giscus/vue": "^3.0.0",

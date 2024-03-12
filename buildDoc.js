@@ -12,6 +12,10 @@ child.stdout.on('data', (data) => {
   } else console.log(output)
 });
 
+child.stderr.on('data', (data) => {
+  console.error(data.toString());
+});
+
 child.on('error', (error) => {
   console.error('Failed to start subprocess.', error);
 });
