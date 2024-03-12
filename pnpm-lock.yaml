@@ -160,6 +160,9 @@ importers:
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
+      glob:
+        specifier: ^10.3.10
+        version: 10.3.10
       postcss-logical:
         specifier: ^7.0.1
         version: 7.0.1(postcss@8.4.35)

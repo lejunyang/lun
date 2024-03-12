@@ -21,7 +21,8 @@
     },
     "./elements-types-html": {
       "types": "./dist/elements-types-html.d.ts"
-    }
+    },
+    "./define/*": "./dist/*.define.production.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -47,6 +48,7 @@
     "@rollup/plugin-replace": "^5.0.5",
     "@vitejs/plugin-vue": "^4.6.2",
     "cross-env": "^7.0.3",
+    "glob": "^10.3.10",
     "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3",
