@@ -1,6 +1,7 @@
 import { components } from '@lun/components';
 import { camelize, capitalize } from 'vue';
 import fs from 'fs';
+import path from 'path';
 
 // declare module is not exported by api-extractor, so we have to generate the file manually
 // https://github.com/microsoft/rushstack/issues/2090
@@ -75,3 +76,19 @@ fs.writeFileSync(
   indexContent.replace(/'.+LUNCOER'/g, `'@lun/core'`).replace(/'.+LUNUTILS'/g, `'@lun/utils'`),
   { encoding: 'utf8' },
 );
+
+function deleteFilesInDirectory(directory, fileExtension) {
+  const items = fs.readdirSync(directory);
+  for (const item of items) {
+    const fullPath = path.join(directory, item);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      deleteFilesInDirectory(fullPath, fileExtension);
+    } else if (stat.isFile() && item.endsWith(fileExtension)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
+}
+
+// delete all '.define.d.ts' files
+deleteFilesInDirectory('./dist', '.define.d.ts');
