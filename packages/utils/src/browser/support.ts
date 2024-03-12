@@ -44,3 +44,5 @@ export const isSupportCustomStateSet = cacheFunctionResult(
   // @ts-ignore
   () => isSupportElementInternals() && typeof CustomStateSet === 'function',
 );
+
+export const supportCustomElement = typeof customElements === 'object' && customElements;

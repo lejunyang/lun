@@ -4,7 +4,7 @@ import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { exportParts } from '../common/exportParts';
 import { error, warn } from './console';
-import { getFirstOfIterable, isElement, isString } from '@lun/utils';
+import { getFirstOfIterable, isElement, isString, supportCustomElement } from '@lun/utils';
 import { PropString } from 'common';
 import { useContextStyles } from 'hooks';
 
@@ -47,6 +47,7 @@ export function createDefineElement(
   dependencies?: ComponentDependencyDefineMap,
 ) {
   return (name?: string, dependencyNameMap?: Record<string, string>) => {
+    if (!supportCustomElement) return;
     if (dependencies) {
       for (const [k, v] of Object.entries(dependencies)) {
         v(dependencyNameMap?.[k]);
@@ -101,7 +102,11 @@ export function preprocessComponentOptions(options: ComponentOptions) {
 }
 
 export function toElement(queryOrElement?: string | Element) {
-  return isElement(queryOrElement) ? queryOrElement : isString(queryOrElement) ? document.querySelector(queryOrElement) : null;
+  return isElement(queryOrElement)
+    ? queryOrElement
+    : isString(queryOrElement)
+    ? document.querySelector(queryOrElement)
+    : null;
 }
 
 export function getFirstThemeProvider() {

@@ -27,6 +27,7 @@ import { importPopoverStyle } from './popover';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
+import { supportCustomElement } from '@lun/utils';
 // import { GlobalStaticConfig } from './config';
 
 export function importAllBasicStyles() {
@@ -66,7 +67,7 @@ export const allDefineFunctions = {
 };
 
 export function defineAllComponents() {
-  if (typeof customElements === 'undefined') return;
+  if (!supportCustomElement) return;
   // found that provide and inject are strongly rely on the dom order of the elements, as in defineCustomElement parent is searched by parentNode and instanceof
   // In SSR, if elements are already in the document and the parent is defined after the child, it will not work
   // So we need to define the providers first
