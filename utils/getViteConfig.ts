@@ -22,6 +22,10 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
         dts({
           rollupTypes: true,
           tsconfigPath: './tsconfig.build.json',
+          // beforeWriteFile(filePath, content) {
+          //   if (filePath.includes('define')) return false; // don't emit type file for component define files
+          //   else return { filePath, content };
+          // },
         }),
       ...(viteConfig?.plugins ?? []),
       addIndexEntry({ fileName }),
@@ -33,13 +37,19 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       lib: {
         entry: './index.ts',
         name: name.replace(/[@/]\w/g, (s) => s.slice(1).toUpperCase()),
-        fileName: `${fileName}.${dev ? 'development' : 'production'}`,
+        fileName: (format, entryName) => {
+          return entryName.includes('index')
+            ? `${fileName}.${dev ? 'development' : 'production'}${format === 'es' ? '.js' : '.cjs'}`
+            : `${entryName}.${dev ? 'development' : 'production'}${format === 'es' ? '.js' : '.cjs'}`;
+        },
+        ...viteConfig?.build?.lib,
       },
       minify: dev ? false : 'esbuild',
       emptyOutDir: dev,
       rollupOptions: {
         external: ['vue', /@lun\/.+/],
         output: {
+          ...viteConfig?.build?.rollupOptions?.output,
           globals: {
             vue: 'Vue',
             '@lun/components': 'LunComponents',

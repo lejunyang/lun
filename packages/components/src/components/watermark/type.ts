@@ -26,7 +26,7 @@ export const watermarkProps = {
   offsetLeft: PropNumber(),
   /** number or 'half-gap' */
   offsetTop: PropNumber(),
-  /** dialog will inherit parent watermark and render it by default */
+  /** dialog inherits parent watermark and renders it by default */
   noInherit: PropBoolean(),
   /** useful when it's a child of another watermark, avoid recreating watermark */
   reuse: PropBoolean(),
