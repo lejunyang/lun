@@ -29,3 +29,14 @@ export function runIfFn<T, Args extends unknown[] = EnsureParameters<T>>(
 ): T extends AnyFn ? ReturnType<T> : T {
   return isFunction(target) ? target(...args) : target;
 }
+
+export function once<T extends AnyFn>(fn: T): T {
+  let called = false;
+  let result: ReturnType<T>;
+  return function (this: any, ...args: Parameters<T>) {
+    if (called) return result;
+    called = true;
+    result = fn.apply(this, args);
+    return result;
+  } as T;
+}
