@@ -4,18 +4,17 @@
 @use '../../mixins/config' as *;
 
 @include b(button) {
-  @include variant(soft) {
+  @include variant(ghost) {
     color: getAccentColor(a11);
-    background-color: getAccentColor(a3);
 
-    @include hover {
-      background-color: getAccentColor(a4);
+    @include hover(getIs(disabled)) {
+      background-color: getAccentColor(a3);;
     }
     @include active {
-      background-color: getAccentColor(a5);
+      background-color: getAccentColor(a4);
     }
     &:focus-visible {
-      outline: 2px solid getAccentColor(8);
+      outline: 2px solid getFocusColor();
       outline-offset: -1px;
     }
 
@@ -25,7 +24,6 @@
 
     @include is(disabled, true) {
       color: getGrayColor(a8);
-      background-color: getGrayColor(a3);
     }
   }
 }
