@@ -73,6 +73,7 @@ export default {
       resetCode: '重置代码',
       showCode: '查看代码',
       hideCode: '隐藏代码',
+      noUseCase: '暂未编写用例，你可以点击右下角编辑自行尝试',
     },
   },
   en: {
@@ -133,7 +134,7 @@ export default {
         staticConfig: 'StaticConfig',
         teleport: 'TeleportHolder',
         themeProvider: 'ThemeProvider',
-      }
+      },
     },
     components: {
       color: 'Theme color',
@@ -149,6 +150,7 @@ export default {
       resetCode: 'Reset code',
       showCode: 'Show code',
       hideCode: 'Hide code',
+      noUseCase: 'No use case yet, you can click the bottom right icon to edit and try it yourself',
     },
   },
 };
