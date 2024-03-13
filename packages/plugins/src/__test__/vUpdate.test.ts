@@ -1,5 +1,5 @@
 import * as babel from '@babel/core';
-import vUpdatePlugin from '../vUpdate';
+import vUpdatePlugin from '../vUpdateForBabel';
 
 describe('vUpdate Babel Plugin', () => {
   const transform = (code: string) => {
