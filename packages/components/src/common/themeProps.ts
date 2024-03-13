@@ -34,7 +34,7 @@ export const themeColors = [
 
 export const grayColors = ['gray', 'mauve', 'slate', 'sage', 'olive', 'sand'] as const;
 
-export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline', 'classic'] as const);
+export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline', 'classic', 'ghost'] as const);
 
 export const themeProps = {
   size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },

@@ -4,12 +4,18 @@ import {
   importButtonSoftTheme,
   importButtonSolidTheme,
   importButtonSurfaceTheme,
+  importButtonGhostTheme,
 } from './button/index.ts';
 import { importCheckboxBasicTheme, importCheckboxSoftTheme, importCheckboxSurfaceTheme } from './checkbox/index.ts';
 import { importDialogBasicTheme } from './dialog/index.ts';
 import { importFormBasicTheme } from './form/index.ts';
 import { importFormItemBasicTheme } from './form-item/index.ts';
-import { importInputBasicTheme, importInputSoftTheme, importInputSurfaceTheme } from './input/index.ts';
+import {
+  importInputBasicTheme,
+  importInputGhostTheme,
+  importInputSoftTheme,
+  importInputSurfaceTheme,
+} from './input/index.ts';
 import { importRadioBasicTheme } from './radio/index.ts';
 import { importSwitchBasicTheme, importSwitchSurfaceTheme } from './switch/index.ts';
 import {
@@ -110,6 +116,11 @@ export const importSurfaceTheme = once(() => {
   importSwitchSurfaceTheme();
   importTagSurfaceTheme();
   importTextareaSurfaceTheme();
+});
+
+export const importGhostTheme = once(() => {
+  importButtonGhostTheme();
+  importInputGhostTheme();
 });
 
 export const importCommonStyle = once(createImportStyle('common', commonStyles));

@@ -1,6 +1,5 @@
 import { ExtractPropTypes } from 'vue';
 import {
-  ThemeVariants,
   editStateProps,
   themeProps,
   LogicalPosition,
@@ -18,7 +17,6 @@ export const buttonProps = {
   ...editStateProps,
   ...themeProps,
   size: PropObjOrStr<Responsive<'1' | '2' | '3' | '4'>[]>(),
-  variant: PropString<ThemeVariants | 'ghost'>(),
   label: PropString(),
   asyncHandler: PropFunction<(e?: MouseEvent) => void>(),
   spinProps: PropObject(),

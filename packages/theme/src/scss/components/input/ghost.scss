@@ -1,0 +1,12 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(input) {
+  @include variant(ghost) {
+    @include e('background') {
+      #{getFocusColorName()}: transparent;
+    }
+  }
+}
