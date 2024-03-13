@@ -63,7 +63,7 @@ onMounted(() => {
       props.modelValue,
       props.lang,
       // when it's typescript, we need to specify the uri so that editor can know it's tsx. Same uri can't be created twice.
-      props.lang === 'typescript' ? Uri.file(`${Date.now()}.tsx`) : undefined
+      props.lang === 'typescript' ? Uri.file(`${Date.now()}.tsx`) : undefined,
     ),
     automaticLayout: true,
     language: props.lang,
@@ -89,8 +89,11 @@ watch(
   (val) => {
     if (editor && val !== editor.getValue()) {
       editor.setValue(val);
+      const contentHeight = editor.getContentHeight();
+      height.value = `${contentHeight}px`;
+      editor.layout();
     }
-  }
+  },
 );
 
 watch(isDark, (val) => {
@@ -107,7 +110,7 @@ watch(
       const model = editor.getModel();
       model && monacoEditor.setModelLanguage(model, props.lang);
     }
-  }
+  },
 );
 
 onBeforeUnmount(() => {

@@ -16,6 +16,7 @@ import {
   importOutlineTheme,
   importSoftTheme,
   importSolidTheme,
+  importGhostTheme,
 } from '@lun/theme';
 import { inBrowser } from 'vitepress';
 import Layout from './Layout.vue';
@@ -45,7 +46,8 @@ export default {
     importSoftTheme();
     importSolidTheme();
     importSurfaceTheme();
-
+    importGhostTheme();
+    
     // lazy import react
     (async () => {
       const {
