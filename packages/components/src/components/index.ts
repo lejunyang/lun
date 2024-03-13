@@ -27,7 +27,7 @@ import { importPopoverStyle } from './popover';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
-import { supportCustomElement } from '@lun/utils';
+import { once, supportCustomElement } from '@lun/utils';
 import { GlobalStaticConfig, components } from './config';
 
 export function importAllBasicStyles() {
@@ -70,10 +70,8 @@ export function defineAllComponents() {
   defineTextarea();
 }
 
-let autoDefineCalled = false;
-export function autoDefine() {
-  if (autoDefineCalled) return;
-  autoDefineCalled = true;
+export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];
+export const autoDefine = once(() => {
   const { namespace, defaultProps } = GlobalStaticConfig;
   const undefinedSet = new Set();
   components.forEach((comp) => {
@@ -102,13 +100,12 @@ export function autoDefine() {
       componentNames.unshift(rootTagName.replace(reg, ''));
     }
     const componentsToRegister = [...new Set(componentNames)];
-    return Promise.allSettled(
-      componentsToRegister.map((componentName) => {
-        return import(`./${componentName}/${componentName}.define.ts`).catch(() => {
-          throw new Error(`Unable to auto define component ${componentName}`);
-        });
-      }),
-    );
+    return componentsToRegister.map((componentName) => {
+      __internal_defineSubscriber.forEach((f) => f(componentName));
+      return import(`./${componentName}/${componentName}.define.ts`).catch(() => {
+        // some components may not have define.ts file, like radio-group
+      });
+    });
   };
   const observer = new MutationObserver((mutations) => {
     for (const { addedNodes } of mutations) {
@@ -121,7 +118,7 @@ export function autoDefine() {
   });
   observer.observe(document.documentElement, { subtree: true, childList: true });
   discover(document.body);
-}
+});
 
 export * from './animation';
 export * from './button';
