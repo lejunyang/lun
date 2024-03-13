@@ -253,38 +253,33 @@
   }
 }
 
-/**
-  * inside @include b(button) { ... }
-  * getRVarName(padding) => --l-button-padding
-  * getRVarName((label, padding)) => --l-button-label-padding
-  */
+
+/// inside @include b(button) { ... }
+/// getRVarName(padding) => --l-button-padding
+/// getRVarName((label, padding)) => --l-button-label-padding
 @function getRVarName($list) {
   @return getVarName(list.join($Root, $list));
 }
 
-/**
-  * inside @include b(button) { ... }
-  * getRVarValue(padding) => var(--l-button-padding)
-  * getRVarValue((label, padding), 1px) => var(--l-button-label-padding, 1px)
-  */
+
+/// inside @include b(button) { ... }
+/// getRVarValue(padding) => var(--l-button-padding)
+/// getRVarValue((label, padding), 1px) => var(--l-button-label-padding, 1px)
 @function getRVarValue($args, $default: '') {
   @return getVarValue(list.join($Root, $args), $default);
 }
 
-/**
-  * inside @include b(button) { ... }
-  * getDeclaredVar(padding) => var(--l-button-padding, var(--padding));
-  * getDeclaredVar(label-padding) => var(--l-button-label-padding, var(--label-padding));
-  */
+
+/// inside @include b(button) { ... }
+/// getDeclaredVar(padding) => var(--l-button-padding, var(--padding));
+/// getDeclaredVar(label-padding) => var(--l-button-label-padding, var(--label-padding));
 @function getDeclaredVar($name) {
   @return var(#{getRVarName($name)}, var(#{'--' + $name}));
 }
 
-/**
-  * inside @include b(button) { ... }
-  * declareVars((padding, margin)) => padding: var(--l-padding, var(--padding)); margin: var(--l-margin, var(--margin));
-  * declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--l-icon-padding, var(--icon-padding)); margin: var(--l-icon-margin, var(--icon-margin));
-  */
+/// inside @include b(button) { ... }
+/// declareVars((padding, margin)) => padding: var(--l-padding, var(--padding)); margin: var(--l-margin, var(--margin));
+/// declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--l-icon-padding, var(--icon-padding)); margin: var(--l-icon-margin, var(--icon-margin));
 @mixin declareVars($varListOrMap) {
   @each $name, $alias in $varListOrMap {
     @if $alias {
@@ -295,12 +290,11 @@
   }
 }
 
-/**
-  * inside @include b(button) { ... }
-  * declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
-  * declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
-  * remind that declareVarValues((transition: all 0.3s)) will be compiled to transition: var(--l-button-transition-all, 0.3s) !!! need to wrap the value with quotes
-  */
+
+/// inside @include b(button) { ... }
+/// declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
+/// declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
+/// remind that declareVarValues((transition: all 0.3s)) will be compiled to transition: var(--l-button-transition-all, 0.3s) !!! need to wrap the value with quotes
 @mixin declareVarValues($varValMap) {
   @each $prop, $nameVal in $varValMap {
     $name: '';
@@ -316,9 +310,8 @@
   }
 }
 
-/**
-  * setVars((padding: 10px, margin: 20px)) => --padding: 10px; --margin: 20px;
-  */
+
+/// setVars((padding: 10px, margin: 20px)) => --padding: 10px; --margin: 20px;
 @mixin setVars($varMap) {
   @each $name, $value in $varMap {
     // #{'--' + $name}: #{getRVarValue($name, $value)};

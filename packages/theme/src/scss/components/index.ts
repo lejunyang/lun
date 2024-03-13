@@ -35,10 +35,32 @@ import { importMessageBasicTheme } from './message/index.ts';
 import { importSpinBasicTheme } from './spin/index.ts';
 import { importProgressBasicTheme } from './progress/index.ts';
 import { importTextareaBasicTheme, importTextareaSurfaceTheme } from './textarea/index.ts';
+import { __internal_defineSubscriber, createImportStyle } from '@lun/components';
+import commonStyles from '../common/index.scss?inline';
+import { once } from '@lun/utils';
 
-export * from './input/index.ts';
+export * from './button';
+export * from './callout';
+export * from './checkbox';
+export * from './checkbox-group';
+export * from './dialog';
+export * from './divider';
+export * from './form';
+export * from './form-item';
+export * from './input';
+export * from './message';
+export * from './popover';
+export * from './progress';
+export * from './radio';
+export * from './select';
+export * from './select-optgroup';
+export * from './select-option';
+export * from './spin';
+export * from './switch';
+export * from './tag';
+export * from './textarea';
 
-export function importBasicTheme() {
+export const importBasicTheme = once(() => {
   importButtonBasicTheme();
   importCalloutBasicTheme();
   importCheckboxBasicTheme();
@@ -59,28 +81,28 @@ export function importBasicTheme() {
   importSwitchBasicTheme();
   importTagBasicTheme();
   importTextareaBasicTheme();
-}
+});
 
-export function importOutlineTheme() {
+export const importOutlineTheme = once(() => {
   importButtonOutlineTheme();
   importCalloutOutlineTheme();
   importTagOutlineTheme();
-}
+});
 
-export function importSoftTheme() {
+export const importSoftTheme = once(() => {
   importButtonSoftTheme();
   importCalloutSoftTheme();
   importCheckboxSoftTheme();
   importInputSoftTheme();
   importTagSoftTheme();
-}
+});
 
-export function importSolidTheme() {
+export const importSolidTheme = once(() => {
   importButtonSolidTheme();
   importTagSolidTheme();
-}
+});
 
-export function importSurfaceTheme() {
+export const importSurfaceTheme = once(() => {
   importButtonSurfaceTheme();
   importCalloutSurfaceTheme();
   importCheckboxSurfaceTheme();
@@ -88,4 +110,19 @@ export function importSurfaceTheme() {
   importSwitchSurfaceTheme();
   importTagSurfaceTheme();
   importTextareaSurfaceTheme();
-}
+});
+
+export const importCommonStyle = once(createImportStyle('common', commonStyles));
+
+export const autoImportTheme = once(() => {
+  importCommonStyle();
+  __internal_defineSubscriber.push((comp) => {
+    import(`./${comp}/index.ts`)
+      .then((m) => {
+        Object.values(m).forEach((f: any) => f());
+      })
+      .catch(() => {
+        // not every comp has theme, need to ignore the error
+      });
+  });
+});
