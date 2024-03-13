@@ -1,5 +1,5 @@
 {
-  "name": "@lun/babel-plugin-jsx",
+  "name": "@lun/plugins",
   "version": "0.0.1-alpha.0",
   "description": "",
   "type": "module",
@@ -25,6 +25,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "peerDependencies": {
+    "@vue/compiler-core": "^3.4.21"
+  },
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@babel/plugin-syntax-jsx": "^7.23.3",

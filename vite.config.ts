@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
-import { vUpdate } from '@lun/babel-plugin-jsx';
+import { vUpdateForBabel } from '@lun/plugins';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 const commonAlias = {
@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [
     vueJsx({
       isCustomElement: (tag) => tag.startsWith('l-'),
-      babelPlugins: [vUpdate],
+      babelPlugins: [vUpdateForBabel],
     }),
   ],
   server: {
@@ -42,7 +42,7 @@ export default defineConfig({
             config: fileURLToPath(new URL('./packages/components/src/components/config/index', import.meta.url)),
             utils: fileURLToPath(new URL('./packages/components/src/utils/index', import.meta.url)),
             hooks: fileURLToPath(new URL('./packages/components/src/hooks/index', import.meta.url)),
-            '@lun/babel-plugin-jsx': fileURLToPath(new URL('./packages/babel-plugin-jsx/index', import.meta.url)),
+            '@lun/plugins': fileURLToPath(new URL('./packages/plugins/index', import.meta.url)),
             '@lun/components': fileURLToPath(new URL('./packages/components/index', import.meta.url)),
             '@lun/core': fileURLToPath(new URL('./packages/core/index', import.meta.url)),
             '@lun/utils': fileURLToPath(new URL('./packages/utils/index', import.meta.url)),

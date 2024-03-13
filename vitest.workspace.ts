@@ -38,11 +38,11 @@ export default defineWorkspace([
     },
   },
   {
-    extends: './packages/babel-plugin-jsx/vite.config.ts',
+    extends: './packages/plugins/vite.config.ts',
     test: {
-      name: '@lun/babel-plugin-jsx',
+      name: '@lun/plugins',
       globals: true,
-      root: './packages/babel-plugin-jsx',
+      root: './packages/plugins',
       environment: 'node',
     },
   },

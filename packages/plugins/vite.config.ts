@@ -1,3 +1,3 @@
 import { getViteConfig } from '../../utils/getViteConfig';
 
-export default getViteConfig('@lun/babel-plugin-jsx');
+export default getViteConfig('@lun/plugins');

@@ -1,7 +1,14 @@
 import type * as BabelCore from '@babel/core';
 import type * as BabelTypes from '@babel/types';
 
-export default ({ types: t }: typeof BabelCore): BabelCore.PluginObj => {
+/** 
+ * v-update-TARGET:FROM={EXPR} => TARGET={EXPR} onUpdate={(e) => EXPR = e.detail.FROM}
+ * 
+ * EXPR must be a member expression, e.g. a.b.c a[0]
+ * 
+ * Both TARGET and FROM are optional, Target defaults to 'value', FROM defaults to none(EXPR = e.detail)
+ */
+export const vUpdateForBabel= ({ types: t }: typeof BabelCore): BabelCore.PluginObj => {
   return {
     name: '@lun/babel-plugin-jsx-vUpdate',
     visitor: {

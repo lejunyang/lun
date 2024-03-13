@@ -56,6 +56,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
             '@lun/core': 'LunCore',
             '@lun/theme': 'LunTheme',
             '@lun/utils': 'LunUtils',
+            '@lun/plugins': 'LunPlugins',
           },
         },
       },
