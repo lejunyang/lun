@@ -20,6 +20,7 @@
             loading="lazy"
             :lang="lang"
             :theme="isDark ? 'dark' : 'light'"
+            :key="page.filePath"
           />
         </ClientOnly>
       </template>
@@ -44,7 +45,7 @@ const theme = reactive({
   radius: 'medium',
 });
 
-const { isDark, lang } = useData();
+const { isDark, lang, page } = useData();
 
 const toggleAppearanceWithTransition = async () => {
   const switchButton = document.getElementById('switch-appearance');
