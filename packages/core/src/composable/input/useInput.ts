@@ -15,7 +15,7 @@ import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { processNumOptions, useNumberStep } from './useNumberStep';
 import { presets } from '../../presets/index';
-import { handleNumberBeforeInput, nextValueAfterInput } from './utils';
+import { handleNumberBeforeInput, isNumberInputType, nextValueAfterInput } from './utils';
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
@@ -54,6 +54,8 @@ export type UseInputOptions = {
    * if it's true and type is 'number-string', will replace '。' with '.', so that users can input dot mark directly under chinese input method
    */
   replaceChPeriodMark?: boolean;
+  /** will normalize number in change event, meaning 1.2E2 => 120, 1.20 => 1.2 */
+  normalizeNumber?: boolean;
 };
 
 type TransformedOption = {
@@ -136,8 +138,8 @@ export function useInput(
       if (!transformWhen.has(actionNow)) return value;
       let newValue = value;
       if (isFunction(transform)) newValue = transform(newValue);
-      // if type === 'number-string', force to null when empty
-      return !isTruthyOrZero(newValue) && (toNullWhenEmpty || type === 'number-string') ? null : newValue;
+      // if it's number type, force to null when empty(type=number, value is NaN, type=number-string, value is '')
+      return !isTruthyOrZero(newValue) && (toNullWhenEmpty || isNumberInputType(type)) ? null : newValue;
     },
     handleEvent(actionNow: InputPeriod, e: Event) {
       const {
@@ -149,6 +151,7 @@ export function useInput(
         restrictWhen,
         onChange,
         type = 'text',
+        normalizeNumber,
       } = options.value;
       const target = e.target as HTMLInputElement;
       let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
@@ -189,18 +192,29 @@ export function useInput(
           // }
         }
       }
-      // ignore restrictWhen, trim only when actionNow is change, otherwise it will prevent inputting whitespace in the middle
-      if (actionNow === 'change' && trim) {
-        const trimmed = target.value.trim();
-        if (trimmed !== target.value) {
-          target.value = trimmed; // same as above, only reassign when value has changed
+
+      const { isNaN, toNumber } = presets.math;
+
+      // ignore restrictWhen, some behaviors must be performed in change. take trim as example, it will prevent inputting whitespace in the middle if we trim in the input event
+      if (actionNow === 'change') {
+        if (trim) {
+          const trimmed = target.value.trim();
+          if (trimmed !== target.value) {
+            target.value = trimmed; // same as above, only reassign when value has changed
+          }
+        }
+        if (normalizeNumber && isNumberInputType(type)) {
+          const normalized = String(toNumber(target.value));
+          if (normalized !== target.value) {
+            target.value = normalized;
+          }
         }
       }
       if ((updateWhen.has(actionNow) || value !== target.value) && state.prevValue === null) {
         let transformedVal = utils.transformValue(actionNow, type === 'number' ? target.valueAsNumber : target.value);
         transformedVal = extraHandlers?.transform ? extraHandlers.transform(transformedVal, e) : transformedVal;
         if (type === 'number-string' && transformedVal != null && !isArray(transformedVal)) {
-          if (presets.math.isNaN(presets.math.toNumber(transformedVal))) {
+          if (isNaN(toNumber(transformedVal))) {
             // if it's NaN, means it's something like 1e, don't call onChange until the value is valid
             return;
           }

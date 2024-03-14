@@ -148,6 +148,7 @@ export const GlobalStaticConfig = new Proxy(
         showStatusIcon: true,
         stepControl: 'up-down',
         required: undefined,
+        normalizeNumber: true,
       },
       message: {
         transition: 'message',
