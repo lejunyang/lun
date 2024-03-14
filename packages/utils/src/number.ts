@@ -28,7 +28,7 @@ export function ensureNumber(val: any, defaultVal: number) {
 }
 
 export const numberRegex =
-  /(?<sign>[-+])?(?<integer>[0-9]*)(?<decimal>[.。][0-9]*)?((e|E)(?<expSign>[-+])?(?<exp>[0-9]*))?/;
+  /^(?<sign>[-+])?(?<integer>[0-9]*)(?<decimal>[.。][0-9]*)?((e|E)(?<expSign>[-+])?(?<exp>[0-9]*))?$/;
 
 export type BigIntDecimalValue = string | number | BigIntDecimal | typeof BigIntDecimal;
 export type BigIntDecimalConstructParam =
