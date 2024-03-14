@@ -9,18 +9,17 @@ import {
   isArray,
   isTruthyOrZero,
   BigIntDecimal,
+  objectKeys,
 } from '@lun/utils';
 import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { processNumOptions, useNumberStep } from './useNumberStep';
 import { presets } from '../../presets/index';
-import { handleNumberBeforeInput } from './utils';
+import { handleNumberBeforeInput, nextValueAfterInput } from './utils';
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
 export type InputType = 'string' | 'number' | 'number-string';
-
-export const isNumberInputType = (type: any) => type === 'number' || type === 'number-string';
 
 export type UseInputOptions = {
   value?: MaybeRefLikeOrGetter<string | number>;
@@ -126,6 +125,7 @@ export function useInput(
   const state = reactive({
     composing: false,
     transformedOptions: options,
+    /** store the previous valid value when invalid chars occur in composition */
     prevValue: null,
     prevSelectionStart: null,
     prevSelectionEnd: null,
@@ -152,7 +152,6 @@ export function useInput(
       } = options.value;
       const target = e.target as HTMLInputElement;
       let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
-      console.log('handle event', actionNow, 'prev', state.prevValue, 'target.value', target.value);
       if (restrictWhen.has(actionNow)) {
         if (type === 'number-string') {
           // native input[type="number"] will eliminate all spaces when pasting or inputting, we follow that
@@ -202,7 +201,6 @@ export function useInput(
         transformedVal = extraHandlers?.transform ? extraHandlers.transform(transformedVal, e) : transformedVal;
         if (type === 'number-string' && transformedVal != null && !isArray(transformedVal)) {
           if (presets.math.isNaN(presets.math.toNumber(transformedVal))) {
-            console.log('NaN transformedVal', transformedVal, target.value);
             // if it's NaN, means it's something like 1e, don't call onChange until the value is valid
             return;
           }
@@ -218,45 +216,30 @@ export function useInput(
 
   const handlers = {
     onBeforeinput(_e: Event) {
-      // state.prevValue = null;
       const e = _e as InputEvent;
       const target = e.target as HTMLInputElement;
-      console.log('before input', e.data, e);
-      console.log({
-        dir: target.selectionDirection,
-        start: target.selectionStart,
-        end: target.selectionEnd,
-        startChar: target.value.charAt(target.selectionStart || 0),
-        range: [...e.getTargetRanges()],
-      });
 
-      // native number: 粘贴内容如果包含原来就输不进去的内容，那么就取消粘贴，但是空白字符除外，空白字符都会被消除。发现native奇怪的问题，双击空格，会输入小数点
       let { restrict, restrictWhen } = options.value;
       handleNumberBeforeInput(e, state);
       if (e.defaultPrevented) return;
-      if (e.data && restrict && restrictWhen.has('beforeInput') && e.inputType.startsWith('insert')) {
-        const nextVal =
-          target.value.substring(0, target.selectionStart || 0) +
-          e.data +
-          target.value.substring(target.selectionEnd || 0);
-        console.log('before input nextVal', nextVal);
+
+      // it's not cancelable when composing
+      if (restrict && restrictWhen.has('beforeInput') && e.data && e.cancelable && e.inputType.startsWith('insert')) {
+        const nextVal = nextValueAfterInput(target, e);
         const regex = toRegExp(restrict, 'g');
         if (nextVal.match(regex)) {
-          // found that if e.isComposing is true, e.preventDefault() will not work... it's not cancelable when composing
           e.preventDefault();
-          // e.target.value = e.target.value; // reassign value can prevent input
+          // e.target.value = e.target.value; // reassign value can prevent input even not cancelable, but
         }
       }
     },
     onInput(e: Event) {
-      console.log('input', e.cancelable);
       utils.handleEvent('input', e);
-      // 发现一个问题，如果在input里面消除了composition的字符，后续的输入会不断触发compositionStart
+      // found a issue, if we eliminate the composition text in input event, continuous input will trigger compositionStart constantly
       if (!state.composing) utils.handleEvent('not-composing', e);
     },
     onChange(e: Event) {
       const { updateWhen } = options.value;
-      console.log('change');
       utils.handleEvent('change', e);
       // inspired by vue3 v-model
       // Safari < 10.2 & UIWebView doesn't fire compositionend when switching focus before confirming composition choice
@@ -271,7 +254,6 @@ export function useInput(
     },
     onCompositionend(e: Event) {
       state.composing = false;
-      console.log('composition end');
       utils.handleEvent('not-composing', e);
     },
     onKeydown(e: KeyboardEvent) {
@@ -283,8 +265,7 @@ export function useInput(
     },
   };
   if (extraHandlers) {
-    Object.keys(handlers).forEach((_k) => {
-      const k = _k as keyof typeof handlers;
+    objectKeys(handlers).forEach((k) => {
       if (k in extraHandlers && isFunction(extraHandlers[k])) {
         const original = handlers[k];
         handlers[k] = ((e: any) => {
