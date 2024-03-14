@@ -105,16 +105,15 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
       onTagsAdd,
       type,
     } = unrefOrGet(options)!;
-    onInputUpdate && onInputUpdate(val);
+    const strVal = String(val);
+    onInputUpdate && onInputUpdate(strVal);
     if (!multiple) return val;
-    val = String(val);
+    val = strVal;
     const valuesBefore = toArrayIfNotNil(unrefOrGet(value));
     if (isNilOrEmptyStr(val)) return value;
     const valuesNow = val.split(separator);
-    console.log('valuesNow', valuesNow);
     if (!valuesNow.length) return val;
     const needChange = e.type === 'change' || valuesNow.length > 1 || isEnterDown(e);
-    console.log('needChange', needChange);
     if (!needChange) return valuesBefore;
     const result = [...valuesBefore];
     const uniqueResult = new Set<number | string>(unique ? valuesBefore : undefined);
