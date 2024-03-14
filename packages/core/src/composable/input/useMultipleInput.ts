@@ -27,7 +27,7 @@ export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'
   unique?: boolean;
   reserveInput?: boolean;
   maxTags?: number | string;
-  onChange: (value: string[] | number[]) => void;
+  onChange: (value: string[] | number[], targetValue?: string) => void;
   onInputUpdate?: (value: string | number) => void;
   onTagsAdd?: (values: string[] | number[]) => void;
   onTagsRemove?: (values: string[] | number[]) => void;

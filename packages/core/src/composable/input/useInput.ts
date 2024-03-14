@@ -26,7 +26,7 @@ export type UseInputOptions = {
   type?: InputType;
   multiple?: boolean;
   disabled?: boolean;
-  onChange: (val: string | number | null) => void;
+  onChange: (val: string | number | null, targetValue?: string) => void;
   updateWhen?: InputPeriodWithAuto | InputPeriodWithAuto[];
   debounce?: number | string;
   throttle?: number | string;
@@ -75,13 +75,21 @@ export type UseInputState<T> = {
   prevValue: string | null;
   prevSelectionStart: number | null;
   prevSelectionEnd: number | null;
+  focusing: boolean;
 };
 
 export function useInput(
   optionsGetter: MaybeRefLikeOrGetter<UseInputOptions>,
   extraHandlers?: { transform?: (val: any, e: Event) => any } & Partial<
     Record<
-      'onBeforeinput' | 'onInput' | 'onChange' | 'onCompositionstart' | 'onCompositionend' | 'onKeydown',
+      | 'onBeforeinput'
+      | 'onInput'
+      | 'onChange'
+      | 'onCompositionstart'
+      | 'onCompositionend'
+      | 'onKeydown'
+      | 'onFocus'
+      | 'onBlur',
       (
         e: Event,
         state: UseInputState<UseInputOptions>,
@@ -131,6 +139,7 @@ export function useInput(
     prevValue: null,
     prevSelectionStart: null,
     prevSelectionEnd: null,
+    focusing: false,
   });
   const utils = {
     transformValue(actionNow: InputPeriod, value: string | number | null) {
@@ -204,10 +213,7 @@ export function useInput(
           }
         }
         if (normalizeNumber && isNumberInputType(type)) {
-          const normalized = String(toNumber(target.value));
-          if (normalized !== target.value) {
-            target.value = normalized;
-          }
+          target.value = String(toNumber(target.value));
         }
       }
       if ((updateWhen.has(actionNow) || value !== target.value) && state.prevValue === null) {
@@ -219,7 +225,7 @@ export function useInput(
             return;
           }
         }
-        onChange(transformedVal);
+        onChange(transformedVal, target.value);
       }
     },
   };
@@ -276,6 +282,15 @@ export function useInput(
         if ((!state.composing || emitEnterDownWhenComposing) && isFunction(onEnterDown)) onEnterDown(e);
       }
       numberHandlers.onKeydown(e);
+    },
+    onFocus() {
+      state.focusing = true;
+    },
+    onBlur(e: FocusEvent) {
+      state.focusing = false;
+      const target = e.target as HTMLInputElement;
+      // native type=number can input something like --, --2321, ++3, at that time, target.value is '', and it won't trigger change event, we need to clear it manually
+      if (options.value.type === 'number' && !target.value) target.value = '';
     },
   };
   if (extraHandlers) {

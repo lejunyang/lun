@@ -28,41 +28,57 @@ export const Input = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
+    // when type=number, valueModel is a number, but we need to avoid update input's value when it's '1.'
+    const strValModel = ref('');
     const { status, validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     useSetupContextEvent();
     const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
-    const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers } = useMultipleInput(
-      computed(() => {
-        return {
-          ...props,
-          ...validateProps.value,
-          disabled: !editComputed.value.editable,
-          value: valueModel,
-          onChange(val) {
-            valueModel.value = val;
-          },
-          onInputUpdate(val) {
-            // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
-            // and that will cause input composition issue when input is empty
-            if (!props.multiple) return;
-            valueForMultiple.value = val ? String(val) : '';
-            emit('tagsComposing', val);
-          },
-          onEnterDown(e) {
-            emit('enterDown', e);
-          },
-          onTagsAdd(addedTags) {
-            emit('tagsAdd', addedTags);
-          },
-          onTagsRemove(removedTags) {
-            emit('tagsRemove', removedTags);
-          },
-        };
-      }),
-    );
+    const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers, state } =
+      useMultipleInput(
+        computed(() => {
+          return {
+            ...props,
+            ...validateProps.value,
+            disabled: !editComputed.value.editable,
+            value: valueModel,
+            onChange(val, targetVal) {
+              valueModel.value = val;
+              targetVal != null && (strValModel.value = targetVal);
+            },
+            onInputUpdate(val) {
+              // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
+              // and that will cause input composition issue when input is empty
+              if (!props.multiple) return;
+              valueForMultiple.value = val ? String(val) : '';
+              emit('tagsComposing', val);
+            },
+            onEnterDown(e) {
+              emit('enterDown', e);
+            },
+            onTagsAdd(addedTags) {
+              emit('tagsAdd', addedTags);
+            },
+            onTagsRemove(removedTags) {
+              emit('tagsRemove', removedTags);
+            },
+          };
+        }),
+      );
+
+    const finalInputVal = computed(() => {
+      if (props.multiple) return valueForMultiple.value;
+      const { type } = validateProps.value;
+      const { value } = valueModel,
+        str = strValModel.value;
+      // +value === +str is to avoid input rerender when input is '1.' and type is number
+      // but we need to return valueModel to update the input if it's not focusing
+      // because when we input '1.', actual input value is '1', and it doesn't trigger change event after blur, so normalizeNumber won't happen in useInput
+      if (type === 'number' && value != null && +value === +str && state.focusing) return str;
+      else return value;
+    });
 
     const clearValue = () => {
       if (props.multiple) {
@@ -175,7 +191,7 @@ export const Input = defineSSRCustomElement({
           ref={inputRef}
           part="inner-input"
           class={[ns.e('inner-input')]}
-          value={multiple ? valueForMultiple.value : valueModel.value}
+          value={finalInputVal.value}
           placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
           disabled={disabled}
           readonly={readonly}
