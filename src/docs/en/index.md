@@ -19,8 +19,8 @@ features:
     details: Based on Custom Element and Shadow DOM，support all modern web environments
   - icon: 🛠️
     title: Easy to configure
-    details: Provide abundant global static and dynamic configurations
+    details: Provide abundant global static and dynamic configurations, making it easy to customize most internal behaviors
   - icon: 🎨
     title: Easy to prettify
-    details: Fully customize the components' styles, provide a beautiful preset styles based on @radix/theme
+    details: Fully customize the components' styles, provide a beautiful preset theme similar to @radix/theme
 ---
