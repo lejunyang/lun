@@ -1,0 +1,1 @@
+export default () => <l-button>示例</l-button>
