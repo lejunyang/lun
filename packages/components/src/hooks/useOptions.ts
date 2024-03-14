@@ -1,12 +1,12 @@
 import { MaybePromiseOrGetter, usePromiseRef } from '@lun/core';
 import { PropType, Ref, StyleValue, WritableComputedRef, computed, toRef } from 'vue';
-import { isArray } from '@lun/utils';
+import { isArray, isString } from '@lun/utils';
 import { error, renderElement } from '../utils';
 import { ComponentKey } from '../components';
 import { PropObject, EditStateProps, editStateProps } from 'common';
 
 type Style = { class?: any; style?: StyleValue };
-export type CommonOption = { label?: string; value?: any } & Style & EditStateProps & Record<string, any>;
+export type CommonOption = ({ label?: string; value?: any } & Style & EditStateProps & Record<string, any>) | string;
 export type CommonOptionGroup = {
   label?: string;
   children?: CommonOption[];
@@ -63,6 +63,7 @@ export function useOptions<
     },
   }) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
   const processOption = (option: any, index?: number) => {
+    if (isString(option)) option = { label: option, value: option };
     const { optionNameMap } = props;
     let result: any;
     if (optionNameMap) {
