@@ -48,7 +48,7 @@ export type UseInputOptions = {
   max?: string | number;
   precision?: string | number;
   step?: string | number;
-  strictStep?: boolean;
+  strict?: boolean;
   noExponent?: boolean;
   /**
    * if it's true and type is 'number-string', will replace '。' with '.', so that users can input dot mark directly under chinese input method
@@ -66,6 +66,8 @@ type TransformedOption = {
   updateWhen: Set<InputPeriod>;
   restrictWhen: Set<InputPeriod | 'beforeInput'>;
   transformWhen: Set<InputPeriod>;
+  adjustPrecision: (value?: string | number | null | BigIntDecimal) => number | null | BigIntDecimal;
+  makeDivisibleByStep: (value?: string | number | null | BigIntDecimal, isAdd?: boolean) => number | null | BigIntDecimal; // TODO 是加是减取决于哪个更近，以及是否超出范围
 };
 export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & TransformedOption;
 
@@ -130,7 +132,7 @@ export function useInput(
         : throttle
         ? toThrottle(onChange, throttle, waitOptions)
         : onChange,
-    };
+    } as TransformedUseInputOption<UseInputOptions>;
   });
   const state = reactive({
     composing: false,
@@ -161,6 +163,7 @@ export function useInput(
         onChange,
         type = 'text',
         normalizeNumber,
+        adjustPrecision,
       } = options.value;
       const target = e.target as HTMLInputElement;
       let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
@@ -212,8 +215,10 @@ export function useInput(
             target.value = trimmed; // same as above, only reassign when value has changed
           }
         }
-        if (normalizeNumber && isNumberInputType(type)) {
-          target.value = String(toNumber(target.value));
+        if (isNumberInputType(type)) {
+          const newVal = String(adjustPrecision(target.value));
+          if (newVal !== target.value) target.value = newVal;
+          if (normalizeNumber) target.value = String(toNumber(target.value));
         }
       }
       if ((updateWhen.has(actionNow) || value !== target.value) && state.prevValue === null) {
@@ -230,7 +235,7 @@ export function useInput(
     },
   };
 
-  const { numberHandlers, ...otherNum } = useNumberStep(
+  const { numberHandlers, ...otherNumReturn } = useNumberStep(
     options as ComputedRef<TransformedUseInputOption<UseInputOptions>>,
   );
 
@@ -239,7 +244,7 @@ export function useInput(
       const e = _e as InputEvent;
       const target = e.target as HTMLInputElement;
 
-      let { restrict, restrictWhen } = options.value;
+      const { restrict, restrictWhen } = options.value;
       handleNumberBeforeInput(e, state);
       if (e.defaultPrevented) return;
 
@@ -308,6 +313,6 @@ export function useInput(
   return {
     handlers,
     state,
-    ...otherNum,
+    ...otherNumReturn,
   };
 }

@@ -45,7 +45,8 @@ export type MathMethods<W = number, T = W | number> = {
   lessThanOrEqual?: (left: T, right: T) => boolean;
   ensureNumber?: (target: unknown, defaultVal: T) => W;
   toNumberOrNull?: (target: unknown) => W | null;
-  toNegative?: (target: T) => W;
+  negate?: (target: T) => W;
+  abs?: (target: T) => W;
 };
 
 export function createMath<T = number>(methods: MathMethods<T>) {
@@ -63,11 +64,13 @@ export function createMath<T = number>(methods: MathMethods<T>) {
       const result = toNumber(target);
       return isNaN(result) ? null : result;
     };
-  if (!methods.toNegative)
-    methods.toNegative = (target) => {
+  if (!methods.negate)
+    methods.negate = (target) => {
       if (methods.isZero(target)) return toNumber(target);
       return methods.minus(methods.getZero(), target);
     };
+  if (!methods.abs)
+    methods.abs = (target) => methods.lessThanOrEqual!(target, 0) ? methods.negate!(target) : target as T;
   return methods as Required<MathMethods<T>>;
 }
 
@@ -96,7 +99,7 @@ export const createDefaultMath = () =>
     greaterThan,
     lessThan,
     toPrecision: (target, precision) => +target.toFixed(precision),
-    toNegative: (target) => -target,
+    negate: (target) => -target,
   });
 
 const is = (target: unknown): target is BigIntDecimal => target instanceof BigIntDecimal;
@@ -166,7 +169,7 @@ export const createBigIntDecimalMath = () =>
     toPrecision(target, precision) {
       return toBigIntDecimal(target).toPrecision(precision);
     },
-    toNegative(target) {
+    negate(target) {
       return toBigIntDecimal(target).negated();
     },
   });

@@ -10,7 +10,7 @@ export const nextValueAfterInput = (target: HTMLInputElement, e: InputEvent) => 
 };
 
 export function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseInputOptions>) {
-  const { type, min, max, noExponent, precision, step, strictStep, replaceChPeriodMark } = state.transformedOptions;
+  const { type, min, max, noExponent, precision, step, strict, replaceChPeriodMark } = state.transformedOptions;
 
   if (e.data === '' && state.prevValue !== null && e.inputType === 'insertCompositionText') {
     // one special case: during composition, if we input something invalid and then delete all the composition text, e.data will be ''
@@ -34,7 +34,7 @@ export function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseI
 
   const { isInteger, getZero, equals, greaterThanOrEqual, lessThanOrEqual } = presets.math;
   const zero = getZero();
-  const noDecimal = (precision !== null && equals(precision, zero)) || (strictStep && step && isInteger(step));
+  const noDecimal = (precision !== null && equals(precision, zero)) || (strict && isInteger(step));
   const noNegative = greaterThanOrEqual(min, zero);
   const noNegativeSymbol = noNegative && (noExponent || noDecimal); // negative symbol is also allowed even if min >= 0, for example 1e-2(but require noDecimal === false)
   let allowedChars = `${replaceChPeriodMark ? '。' : ''}${noExponent ? '' : 'eE'}${noNegativeSymbol ? '' : '\\-'}${
