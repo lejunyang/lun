@@ -76,7 +76,7 @@ export const Input = defineSSRCustomElement({
       // +value === +str is to avoid input rerender when input is '1.' and type is number
       // but we need to return valueModel to update the input if it's not focusing
       // because when we input '1.', actual input value is '1', and it doesn't trigger change event after blur, so normalizeNumber won't happen in useInput
-      if (type === 'number' && value != null && +value === +str && state.focusing) return str;
+      if (type === 'number' && str && +value! === +str && state.focusing) return str;
       else return value;
     });
 
