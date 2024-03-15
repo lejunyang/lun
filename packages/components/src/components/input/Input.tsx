@@ -12,7 +12,7 @@ import {
   useValueModel,
 } from 'hooks';
 import { inputEmits, inputProps } from './type';
-import { isEmpty, isArray, runIfFn } from '@lun/utils';
+import { isEmpty, isArray, runIfFn, virtualGetMerge } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
@@ -38,34 +38,37 @@ export const Input = defineSSRCustomElement({
 
     const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers, state } =
       useMultipleInput(
-        computed(() => {
-          return {
-            ...props,
-            ...validateProps.value,
-            disabled: !editComputed.value.editable,
+        // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
+        virtualGetMerge(
+          {
             value: valueModel,
-            onChange(val, targetVal) {
+            get disabled() {
+              return !editComputed.value.editable;
+            },
+            onChange(val: string | number | string[] | number[], targetVal?: string) {
               valueModel.value = val;
               targetVal != null && (strValModel.value = targetVal);
             },
-            onInputUpdate(val) {
+            onInputUpdate(val: string | number) {
               // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
               // and that will cause input composition issue when input is empty
               if (!props.multiple) return;
               valueForMultiple.value = val ? String(val) : '';
               emit('tagsComposing', val);
             },
-            onEnterDown(e) {
+            onEnterDown(e: KeyboardEvent) {
               emit('enterDown', e);
             },
-            onTagsAdd(addedTags) {
+            onTagsAdd(addedTags: string[]) {
               emit('tagsAdd', addedTags);
             },
-            onTagsRemove(removedTags) {
+            onTagsRemove(removedTags: string[]) {
               emit('tagsRemove', removedTags);
             },
-          };
-        }),
+          },
+          validateProps.value,
+          props,
+        ),
       );
 
     const finalInputVal = computed(() => {
