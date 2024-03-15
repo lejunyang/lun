@@ -4,6 +4,7 @@ import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
 import { ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
+import { FormInputCollector } from '../components/form-item/collector';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -38,8 +39,10 @@ export const getAllThemeValuesFromInstance = (vm: ComponentInternalInstance | nu
 };
 
 export const useNamespace = (block: string, other?: { parent?: ComponentInternalInstance | null }) => {
-  const { parent } = other || {};
+  let { parent } = other || {};
   const vm = getCurrentInstance();
+  const context = FormInputCollector.child(false); // form-item will be theme parent for all its children
+  if (!parent && context) parent = context.parent;
   parent && vmParentMap.set(vm!, parent);
   const config = vm && useContextConfig();
   const namespace = computed(() => {

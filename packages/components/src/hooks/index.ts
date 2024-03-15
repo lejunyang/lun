@@ -1,6 +1,5 @@
 export * from './shadowDom';
 export * from './useBreakpoint';
-export * from './useDelegateCEEvents';
 export * from './useNameSpace';
 export * from './useOptions';
 export * from './useSetupEvent';
