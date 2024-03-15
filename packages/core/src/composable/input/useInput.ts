@@ -46,6 +46,8 @@ export type UseInputOptions = {
 
   min?: string | number;
   max?: string | number;
+  moreThan?: string | number;
+  lessThan?: string | number;
   precision?: string | number;
   step?: string | number;
   strict?: boolean;
@@ -61,13 +63,24 @@ export type UseInputOptions = {
 type TransformedOption = {
   min: BigIntDecimal;
   max: BigIntDecimal;
+  moreThan: BigIntDecimal;
+  lessThan: BigIntDecimal;
+  noPositive: boolean;
+  noNegative: boolean;
+  noDecimal: boolean;
   precision: BigIntDecimal | null;
   step: BigIntDecimal | null;
   updateWhen: Set<InputPeriod>;
   restrictWhen: Set<InputPeriod | 'beforeInput'>;
   transformWhen: Set<InputPeriod>;
-  adjustPrecision: (value?: string | number | null | BigIntDecimal) => number | null | BigIntDecimal;
-  makeDivisibleByStep: (value?: string | number | null | BigIntDecimal, isAdd?: boolean) => number | null | BigIntDecimal; // TODO 是加是减取决于哪个更近，以及是否超出范围
+  notAllowedNumReg: RegExp;
+  adjustPrecision: <T extends string | number | null | BigIntDecimal>(value: T) => T;
+  makeDivisibleByStep: <T extends string | number | null | BigIntDecimal>(
+    value: T,
+    isAdd?: boolean,
+  ) => T;
+  clampToRange: <T extends string | number | null | BigIntDecimal>(value: T) => T;
+  processNum: <T extends string | number | null | BigIntDecimal>(value?: T, greater?: boolean) => number | null | BigIntDecimal;
 };
 export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & TransformedOption;
 
@@ -163,7 +176,7 @@ export function useInput(
         onChange,
         type = 'text',
         normalizeNumber,
-        adjustPrecision,
+        processNum,
       } = options.value;
       const target = e.target as HTMLInputElement;
       let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
@@ -216,7 +229,7 @@ export function useInput(
           }
         }
         if (isNumberInputType(type)) {
-          const newVal = String(adjustPrecision(target.value));
+          const newVal = String(processNum(target.value));
           if (newVal !== target.value) target.value = newVal;
           if (normalizeNumber) target.value = String(toNumber(target.value));
         }

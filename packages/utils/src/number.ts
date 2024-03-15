@@ -14,7 +14,7 @@ export function lessThan(num1: number, num2: number) {
 
 export function toNumberIfValid<T>(val: T, defaultVal?: number) {
   const num = +val;
-  return Number.isNaN(num) ? (defaultVal != null ? defaultVal : val) : num;
+  return val == null || Number.isNaN(num) ? (defaultVal != null ? defaultVal : val) : num;
 }
 
 export function toNumberOrNull(val: any) {
@@ -262,9 +262,10 @@ export class BigIntDecimal {
   toPrecision(_precision: BigIntDecimalValue) {
     _precision = toBigIntDecimal(_precision);
     if (!_precision.isInteger() || _precision.lessThan(0)) {
-      if (__DEV__) console.error(
-        `Invalid precision '${_precision.toString()}', will return original value. Precision must be a non-negative integer. `,
-      );
+      if (__DEV__)
+        console.error(
+          `Invalid precision '${_precision.toString()}', will return original value. Precision must be a non-negative integer. `,
+        );
       return this;
     }
     const precision = Number(_precision.integer);
