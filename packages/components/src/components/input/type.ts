@@ -63,9 +63,11 @@ export const inputProps = {
   stepControl: PropString<'up-down' | 'plus-minus' | 'none'>(),
   min: PropNumber(),
   max: PropNumber(),
+  moreThan: PropNumber(),
+  lessThan: PropNumber(),
   precision: PropNumber(),
   step: PropNumber(),
-  strictStep: PropBoolean(),
+  strict: PropBoolean(),
   noExponent: PropBoolean(),
   replaceChPeriodMark: PropBoolean(),
   /** will normalize number in change event, meaning 1.2E2 => 120, 1.20 => 1.2 */
