@@ -1,7 +1,7 @@
 import { getTypeTag, isNil, isObject } from '../is';
 import { capitalize, uncapitalize } from '../string';
 import { deepCopy } from './copy';
-import { objectGet } from './value';
+import { objectGet, objectKeys } from './value';
 
 // /**
 //  * property of `source` will overwrite target only when related property of `target` is null or undefined\
@@ -120,7 +120,7 @@ export const defaultMergeOptions: DeepMergeOptions = {
 export function deepMerge<TargetType extends object = any, SourceType extends object = any>(
   target: TargetType,
   source: SourceType,
-  mergeOptions?: DeepMergeOptions
+  mergeOptions?: DeepMergeOptions,
 ): TargetType & SourceType {
   // 如果source不是对象则与Object.assign逻辑保持一致。null或undefined会被忽略，如果是原始值则会转化为对象，而包装类中只有String有自己的enumerable properties，故只考虑string
   if (typeof source === 'string') return Object.assign(target, source);
@@ -204,7 +204,27 @@ export type MergeObjects<T extends unknown[]> = T extends [infer First, ...infer
     : never
   : {};
 
+function getKeys<T extends (Record<string | symbol, any> | null | undefined)[]>(...targets: T) {
+  return Array.from(
+    targets.reduce<Set<string | symbol>>((result, cur) => {
+      if (cur) {
+        // must use bind on set, or it will throw Method Set.prototype.add called on incompatible receiver undefined
+        objectKeys(cur).forEach(result.add.bind(result));
+      }
+      return result;
+    }, new Set()), // ownKeys can not return duplicate keys
+  );
+}
+
+const getOwnPropertyDescriptor = () => {
+  return {
+    enumerable: true,
+    configurable: true,
+  };
+};
+
 export function virtualMerge<T extends Record<string | symbol, any>[]>(...targets: T) {
+  const keys = getKeys(...targets);
   return new Proxy(
     {},
     {
@@ -217,11 +237,17 @@ export function virtualMerge<T extends Record<string | symbol, any>[]>(...target
         target[key] = value;
         return true;
       },
-    }
+      ownKeys() {
+        return keys;
+      },
+      // the result can be spread only when using getOwnPropertyDescriptor and ownKeys together
+      getOwnPropertyDescriptor,
+    },
   ) as MergeObjects<T>;
 }
 
 export function virtualGetMerge<T extends (Record<string | symbol, any> | null | undefined)[]>(...targets: T) {
+  const keys = getKeys(...targets);
   return new Proxy(
     {},
     {
@@ -231,6 +257,10 @@ export function virtualGetMerge<T extends (Record<string | symbol, any> | null |
       set() {
         return false;
       },
-    }
+      ownKeys() {
+        return keys;
+      },
+      getOwnPropertyDescriptor,
+    },
   ) as Readonly<MergeObjects<T>>;
 }

@@ -1,4 +1,5 @@
 import { isFunction, isObjectByTag } from '@lun/utils';
+import { isRef } from 'vue';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =
   | T
@@ -19,10 +20,12 @@ export function unrefOrGet<
   Target extends MaybeRefLikeOrGetter<any>,
   T = Target extends MaybeRefLikeOrGetter<infer A, infer E> ? (E extends false ? A | undefined | null : A) : never,
 >(target: Target, defaultValue?: T): T {
+  const getP = Object.getOwnPropertyDescriptor;
   // use tag to check if it's an object, in case that target is something like HTMLInputElement
   if (isObjectByTag(target)) {
-    if ('value' in target) return target.value as T;
-    else if ('current' in target) return target.current as T;
+    if (isRef(target) || getP(target, 'value')?.get || getP(Object.getPrototypeOf(target), 'value'))
+      return (target as any).value as T;
+    else if ('current' in target && Reflect.ownKeys(target).length === 1) return target.current as T;
   } else if (isFunction(target)) return target();
   if (defaultValue !== undefined) return defaultValue;
   return target as any;
