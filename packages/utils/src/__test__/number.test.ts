@@ -65,12 +65,18 @@ describe('BigIntDecimal', () => {
     const bigIntDecimal1 = new BigIntDecimal('123.45');
     const bigIntDecimal2 = new BigIntDecimal('678.90');
     expect(bigIntDecimal1.lessThan(bigIntDecimal2)).toBe(true);
+    expect(bigIntDecimal1.lessThan(null)).toBe(false);
+    expect(bigIntDecimal1.lessThan(undefined)).toBe(false);
+    expect(bigIntDecimal1.lessThan(NaN)).toBe(false);
   });
 
   test('should correctly handle greater than', () => {
     const bigIntDecimal1 = new BigIntDecimal('123.45');
     const bigIntDecimal2 = new BigIntDecimal('678.90');
     expect(bigIntDecimal1.greaterThan(bigIntDecimal2)).toBe(false);
+    expect(bigIntDecimal1.greaterThan(null)).toBe(false);
+    expect(bigIntDecimal1.greaterThan(undefined)).toBe(false);
+    expect(bigIntDecimal1.greaterThan(NaN)).toBe(false);
   });
 
   test('should correctly convert to number', () => {

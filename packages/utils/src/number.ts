@@ -57,9 +57,6 @@ export class BigIntDecimal {
   infinite: boolean = false;
 
   constructor(value: BigIntDecimalConstructParam) {
-    if (!new.target) {
-      return toBigIntDecimal(value);
-    }
     if (value instanceof BigIntDecimal) {
       return toBigIntDecimal({
         integer: value.getIntegerStr(),
@@ -264,7 +261,12 @@ export class BigIntDecimal {
 
   toPrecision(_precision: BigIntDecimalValue) {
     _precision = toBigIntDecimal(_precision);
-    if (__DEV__ && (!_precision.isInteger() || _precision.lessThan(0))) throw new Error('Invalid precision');
+    if (!_precision.isInteger() || _precision.lessThan(0)) {
+      if (__DEV__) console.error(
+        `Invalid precision '${_precision.toString()}', will return original value. Precision must be a non-negative integer. `,
+      );
+      return this;
+    }
     const precision = Number(_precision.integer);
     if (this.isInvalidate() || this.infinite || this.decimalLen <= precision) {
       return toBigIntDecimal(this, true);
@@ -324,7 +326,7 @@ export class BigIntDecimal {
       if (!this.negative) return false; // this is positive infinity, must be greater than target
       return !target.infinite || !target.negative; // this is negative infinity, if target is finite, always returns true; if target is infinite, returns true only when it's positive infinity
     } else if (target.infinite) return !target.negative;
-    return this.minus(target).negative;
+    return !!this.minus(target).negative;
   }
 
   greaterThan(target: BigIntDecimalValue) {
@@ -333,6 +335,10 @@ export class BigIntDecimal {
 
   toNumber() {
     return this.nan ? NaN : +this.toString();
+  }
+
+  valueOf() {
+    return this.toNumber();
   }
 
   toString() {
