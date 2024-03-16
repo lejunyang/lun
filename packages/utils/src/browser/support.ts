@@ -46,3 +46,11 @@ export const isSupportCustomStateSet = cacheFunctionResult(
 );
 
 export const supportCustomElement = typeof customElements === 'object' && customElements;
+
+export const supportsPlaintextEditable = cacheFunctionResult(() => {
+  if (!inBrowser) return false;
+  // https://stackoverflow.com/questions/10672081/how-to-detect-if-browser-supports-plaintext-only-value-in-contenteditable-para
+  const div = document.createElement('div');
+  div.setAttribute('contenteditable', 'PLAINTEXT-ONLY');
+  return div.contentEditable === 'plaintext-only';
+});
