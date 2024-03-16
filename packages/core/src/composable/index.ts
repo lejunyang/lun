@@ -1,6 +1,7 @@
 export * from './dialog';
 export * from './form';
 export * from './input';
+export * from './mentions';
 export * from './popover';
 export * from './select';
 export * from './watermark';

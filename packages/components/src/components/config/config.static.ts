@@ -23,6 +23,7 @@ export const openShadowComponents = Object.freeze([
   'form-item',
   'icon',
   'input',
+  'mentions',
   'message',
   'popover',
   'progress',
@@ -149,6 +150,9 @@ export const GlobalStaticConfig = new Proxy(
         stepControl: 'up-down',
         required: undefined,
         normalizeNumber: true,
+      },
+      mentions: {
+        triggers: ['@'],
       },
       message: {
         transition: 'message',

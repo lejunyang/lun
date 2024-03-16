@@ -54,6 +54,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/', lang) },
             { text: locales[lang].sidebar.dataInput.filePicker, link: wrapLink('/components/file-picker/', lang) },
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/', lang) },
+            { text: locales[lang].sidebar.dataInput.mentions, link: wrapLink('/components/mentions/', lang) },
             { text: locales[lang].sidebar.dataInput.radio, link: wrapLink('/components/radio/', lang) },
             { text: locales[lang].sidebar.dataInput.select, link: wrapLink('/components/select/', lang) },
             { text: locales[lang].sidebar.dataInput.switch, link: wrapLink('/components/switch/', lang) },

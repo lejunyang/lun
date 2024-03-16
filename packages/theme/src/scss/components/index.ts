@@ -44,6 +44,7 @@ import { importTextareaBasicTheme, importTextareaSurfaceTheme } from './textarea
 import { __internal_defineSubscriber, createImportStyle } from '@lun/components';
 import commonStyles from '../common/index.scss?inline';
 import { once } from '@lun/utils';
+import { importMentionsBasicTheme, importMentionsSurfaceTheme } from './mentions/index.ts';
 
 export * from './button';
 export * from './callout';
@@ -54,6 +55,7 @@ export * from './divider';
 export * from './form';
 export * from './form-item';
 export * from './input';
+export * from './mentions';
 export * from './message';
 export * from './popover';
 export * from './progress';
@@ -87,6 +89,7 @@ export const importBasicTheme = once(() => {
   importSwitchBasicTheme();
   importTagBasicTheme();
   importTextareaBasicTheme();
+  importMentionsBasicTheme();
 });
 
 export const importOutlineTheme = once(() => {
@@ -116,6 +119,7 @@ export const importSurfaceTheme = once(() => {
   importSwitchSurfaceTheme();
   importTagSurfaceTheme();
   importTextareaSurfaceTheme();
+  importMentionsSurfaceTheme();
 });
 
 export const importGhostTheme = once(() => {
