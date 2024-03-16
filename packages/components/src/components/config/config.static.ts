@@ -153,6 +153,7 @@ export const GlobalStaticConfig = new Proxy(
       },
       mentions: {
         triggers: ['@'],
+        suffix: ' ',
       },
       message: {
         transition: 'message',
