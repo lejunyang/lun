@@ -3,7 +3,7 @@
  * 记录cursorIndexInTotal cursorIndexInArr
  */
 import { computed, nextTick, watchEffect } from 'vue';
-import { useSetupEdit, refLikesToGetters, useInput, useInputElement } from '@lun/core';
+import { useSetupEdit, refLikesToGetters, useInput, useInputElement, useMentions } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -14,7 +14,7 @@ import {
   useSetupContextEvent,
   useValueModel,
 } from 'hooks';
-import { getHeight, isEmpty } from '@lun/utils';
+import { getHeight, isEmpty, supportsPlaintextEditable } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 import { mentionsEmits, mentionsProps } from './type';
@@ -64,7 +64,7 @@ export const Mentions = defineSSRCustomElement({
     //   });
     // });
 
-    const { handlers } = useInput(
+    const { handlers, editRef, render } = useMentions(
       computed(() => {
         return {
           ...props,
@@ -79,17 +79,7 @@ export const Mentions = defineSSRCustomElement({
           },
         };
       }),
-      {
-        onInput(e) {
-          if (!props.autoRows) return;
-          // adjustHeight(e.target as HTMLTextAreaElement);
-        },
-      },
     );
-
-    /**
-     * oninput notcomposing 获取光标位置，获取从头到光标的字符串，遍历triggers，检查是否有endWiths的项，有，弹出popover，div光标处插入tag元素，怎么插，分割文本节点？插入后光标移动至tag末尾
-     */
 
     const clearValue = () => {
       valueModel.value = null as any;
@@ -127,8 +117,9 @@ export const Mentions = defineSSRCustomElement({
         renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
+    const contenteditable = supportsPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
-      const { disabled, readonly } = editComputed.value;
+      const { editable } = editComputed.value;
       const { placeholder, labelType, label, rows, cols } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
@@ -143,20 +134,18 @@ export const Mentions = defineSSRCustomElement({
           <span class={ns.e('wrapper')} part="wrapper">
             <div
               {...attrs}
-              ref={mentionsRef}
-              part="mentions"
-              class={ns.e('mentions')}
+              ref={editRef}
+              part="textarea"
+              class={ns.e('textarea')}
               placeholder={hasFloatLabel ? undefined : placeholder}
-              disabled={disabled}
-              readonly={readonly}
-              rows={rows}
-              cols={cols}
               style={{
                 resize: props.autoRows ? 'none' : props.resize,
               }}
-              contenteditable="plaintext-only"
+              contenteditable={editable ? contenteditable : 'false'}
               {...handlers}
-            ></div>
+            >
+              {render()}
+            </div>
             {clearIcon.value}
           </span>
           <div class={ns.e('length-info')} part="length-info">
