@@ -4,7 +4,7 @@ export default () => {
       defaultFormData={{ restrict: 'a' }}
       itemProps={({ formItemProps, formContext }) => ({
         element: 'input',
-        label: formItemProps.name !== 'restrict' ? `updateWhen=${formItemProps.name}` : undefined,
+        label: formItemProps.name !== 'restrict' ? `restrictWhen=${formItemProps.name}` : undefined,
         elementProps:
           formItemProps.name !== 'restrict'
             ? {

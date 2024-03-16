@@ -1,9 +1,24 @@
+import { pick } from "@lun/utils";
+
+const props = ['disableWhenDepFalsy', 'clearWhenDepChange', 'requireWhenDepTruthy'];
 export default () => {
   return (
     <l-form
-      itemProps={{ element: 'input', disableWhenDepFalsy: true, clearWhenDepChange: true, requireWhenDepTruthy: true }}
-      cols={3}
+      defaultFormData={{
+        disableWhenDepFalsy: true,
+        clearWhenDepChange: true,
+        requireWhenDepTruthy: true,
+      }}
+      itemProps={({ formContext, formItemProps }) => ({
+        element: props.includes(formItemProps.name) ? 'switch' : 'input',
+        ...pick(formContext.form.formData, props),
+      })}
+      cols={1}
     >
+      <l-form-item label="disableWhenDepFalsy" name="disableWhenDepFalsy" />
+      <l-form-item label="clearWhenDepChange" name="clearWhenDepChange" />
+      <l-form-item label="requireWhenDepTruthy" name="requireWhenDepTruthy" />
+
       <l-form-item label="省" name="province" required />
       <l-form-item label="市" name="city" deps="province" />
       <l-form-item label="区" name="region" deps="city" />
