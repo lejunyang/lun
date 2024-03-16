@@ -1,0 +1,173 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(mentions) {
+  display: grid;
+  position: relative;
+  @include declareVars((font-size));
+  @include setVars(
+    (
+      icon-size: 0px,
+    )
+  );
+  @include is(with-clear-icon) {
+    @include setVars(
+      (
+        icon-size: var(--font-size),
+      )
+    );
+  }
+
+  @include e(wrapper) {
+    position: relative;
+    display: flex;
+  }
+
+  @include e(textarea) {
+    background: transparent;
+    appearance: none;
+    scrollbar-width: thin;
+    outline: none;
+    border: none;
+    padding-inline-end: calc(var(--padding-inline-start) * 1.2 + var(--icon-size));
+    @include declareVars((padding-block, padding-inline-start, line-height, letter-spacing, border-radius));
+
+    &:focus {
+      outline: 2px solid getFocusColor();
+      outline-offset: -1px;
+    }
+  }
+
+  @include e(clear-icon) {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    @include declareVars(
+      (
+        inset-inline-end: padding-inline-start,
+      )
+    );
+  }
+
+  // show clear icon when textarea is hovered or focused, and not empty
+  :is(&:hover, &:focus-within) {
+    @include isN(empty) {
+      @include e(clear-icon) {
+        opacity: 1;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+    }
+  }
+
+  @include e(length-info) {
+    text-align: end;
+    color: getGrayColor(10);
+    padding-inline-end: 1px;
+  }
+
+  @include e(label) {
+    display: flex;
+    position: relative;
+    cursor: text;
+    box-sizing: border-box;
+    @include is(float-label) {
+      position: absolute;
+      display: inline-block;
+    }
+  }
+
+  // float label
+  @include is(float-label, false, true) {
+    inset-block-start: 0;
+    z-index: 1;
+    transition: all 0.3s ease-out;
+    color: getGrayColor(a10);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    @include declareVars(
+      (
+        // use textarea's padding-inline-start as label's inset-inline-start
+        inset-inline-start: padding-inline-start
+      )
+    );
+    --base: 100%;
+    @include declareVarValues(
+      (
+        // reduce two paddings, limit the width of label
+        max-inline-size: calc(var(--base) - #{getDeclaredVar(padding-inline-start)} * 2)
+      )
+    );
+    .#{$B}:focus-within &,
+    .#{getIsN(empty, $B, true)} & {
+      color: fieldtext;
+      z-index: 1;
+      transform: translate(0, -50%) scale(0.8);
+      transform-origin: 0 50%; // horizontal needs to be 0, or it will be away from the left edge when label is too long
+      --base: 125%; // base becomes 125% as the label is scaled to 0.8
+      #{getEM(label, float-background)} {
+        opacity: 1;
+        background: getSemanticColor('background');
+      }
+    }
+
+    @include em(label, float-background) {
+      opacity: 0;
+      height: 4px;
+      position: absolute;
+      overflow: hidden;
+      top: calc(50% - 2px);
+      color: white;
+      z-index: -1;
+      left: 0;
+      right: 0;
+      transition: left 0s 0.25s, right 0s 0.25s, background-color 0s 0.25s; // delay for label positioned
+      &:empty {
+        display: none;
+      }
+    }
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        padding-block: calc(getSpaceValue(1)),
+        padding-inline-start: calc(getSpaceValue(1) * 1.5),
+        line-height: getLineHeightValue(1),
+        letter-spacing: getLetterSpacingValue(1),
+        font-size: getFontSizeValue(1),
+        border-radius: getRadiusValue(2),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        padding-block: calc(getSpaceValue(1) * 1.5),
+        padding-inline-start: calc(getSpaceValue(2)),
+        line-height: getLineHeightValue(2),
+        letter-spacing: getLetterSpacingValue(2),
+        font-size: getFontSizeValue(2),
+        border-radius: getRadiusValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        padding-block: calc(getSpaceValue(2)),
+        padding-inline-start: calc(getSpaceValue(3)),
+        line-height: getLineHeightValue(3),
+        letter-spacing: getLetterSpacingValue(3),
+        font-size: getFontSizeValue(3),
+        border-radius: getRadiusValue(3),
+      )
+    );
+  }
+}

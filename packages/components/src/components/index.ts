@@ -29,6 +29,7 @@ import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
 import { once, supportCustomElement } from '@lun/utils';
 import { GlobalStaticConfig, components } from './config';
+import { defineMentions } from './mentions/Mentions';
 
 export function importAllBasicStyles() {
   importIconStyle();
@@ -68,6 +69,7 @@ export function defineAllComponents() {
   defineFilePicker();
   defineProgress();
   defineTextarea();
+  defineMentions();
 }
 
 export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];
@@ -133,6 +135,7 @@ export * from './form';
 export * from './form-item';
 export * from './icon';
 export * from './input';
+export * from './mentions';
 export * from './message';
 export * from './popover';
 export * from './progress';
