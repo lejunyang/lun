@@ -1,4 +1,4 @@
-import { isHTMLElement } from './is';
+import { isHTMLElement, isShadowRoot, isNode } from './is';
 
 // copied from shoelace, no idea why ts would report ts(2802) error in vscode, but build successfully
 export function* getActiveElements(activeElement: Element | null = document.activeElement): Generator<Element> {
@@ -34,4 +34,8 @@ export function shadowContains(el?: Element | null, target?: Element | null) {
   const { shadowRoot } = el;
   if (shadowRoot) return shadowRoot.contains(target);
   return false;
+}
+
+export function isInShadowRoot(node?: Node) {
+  return isNode(node) && isShadowRoot(node.getRootNode());
 }

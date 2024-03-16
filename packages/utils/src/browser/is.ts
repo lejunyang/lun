@@ -1,4 +1,14 @@
-function is(node: unknown, type: 'Node' | 'Element' | 'HTMLElement' | 'HTMLTemplateElement' | 'HTMLImageElement' | 'HTMLInputElement') {
+function is(
+  node: unknown,
+  type:
+    | 'Node'
+    | 'Element'
+    | 'HTMLElement'
+    | 'HTMLTemplateElement'
+    | 'HTMLImageElement'
+    | 'HTMLInputElement'
+    | 'ShadowRoot',
+) {
   return (
     globalThis[type] &&
     (node instanceof globalThis[type] ||
@@ -27,5 +37,9 @@ export function isHTMLImageElement(node: unknown): node is HTMLImageElement {
 }
 
 export function isHTMLInputElement(node: unknown): node is HTMLInputElement {
-  return is(node, 'HTMLInputElement')
+  return is(node, 'HTMLInputElement');
+}
+
+export function isShadowRoot(node: unknown): node is ShadowRoot {
+  return is(node, 'ShadowRoot');
 }
