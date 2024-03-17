@@ -57,11 +57,12 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   });
 
   const render = () => {
-    return content.value.map((item) => {
+    return content.value.map((item, index) => {
       if (isString(item) || !item) return item;
       return h(
         'span',
         {
+          'data-index': index,
           'data-is-mention': '',
           'data-trigger': item.trigger,
           'data-suffix': item.suffix,
@@ -101,19 +102,37 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     triggerStartIndex = 0,
     triggerEndIndex = 0,
     /** length of current composition text */
-    compositionLen = 0;
+    compositionLen = 0,
+    lastDeleteStartIndex = -1,
+    lastDeleteEndIndex = 0;
   const cancelTrigger = () => {
     console.log('canceled');
     lastTrigger = undefined;
     triggerStartIndex = triggerEndIndex = 0;
   };
 
-  const getCurrentCaretInfo = () => {
-    const { startContainer, startOffset } = getRange();
-    const parent = startContainer.parentNode!;
+  const getRangeInfo = () => {
+    const parent = getRange().startContainer.parentNode!;
     parent.normalize();
-    const index = Array.from(parent.childNodes).indexOf(startContainer as any);
-    return { startContainer, startOffset, index };
+    // reget range after normalize
+    const range = getRange();
+    const { startContainer, endContainer } = range;
+    let startIndex = -1,
+      endIndex = -1;
+    const children = Array.from(parent.childNodes);
+    for (const i in children) {
+      const node = children[i];
+      if (node === startContainer) startIndex = +i;
+      if (node === endContainer) endIndex = +i;
+      if (startIndex > -1 && endIndex > -1) break;
+    }
+    return Object.assign(range, {
+      /** index of startContainer in its parent */
+      startIndex,
+      /** index of endContainer in its parent */
+      endIndex,
+      currentNode: children[currentIndex],
+    });
   };
 
   const checkIfCancelTrigger = (e: KeyboardEvent | MouseEvent | FocusEvent) => {
@@ -126,25 +145,30 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           logicalRight = states.isRTL ? key === 'ArrowLeft' : key === 'ArrowRight';
         cancel = (logicalRight && endOffset > triggerEndIndex) || (logicalLeft && endOffset < triggerStartIndex);
       } else if (e.type === 'click') {
-        const { index } = getCurrentCaretInfo();
-        cancel = index !== currentIndex || endOffset < triggerStartIndex || endOffset > triggerEndIndex;
+        const { endIndex } = getRangeInfo();
+        cancel = endIndex !== currentIndex || endOffset < triggerStartIndex || endOffset > triggerEndIndex;
       }
       if (cancel) cancelTrigger();
     }
   };
 
-  // FIXME 选择文本如果选到了mention的文本，然后删除会有问题
   const handlers = {
     onBeforeinput(_e: Event) {
       const { inputType, data, dataTransfer } = _e as InputEvent;
-      const range = getRange();
-      const { startContainer, startOffset } = range;
-      const parent = startContainer.parentNode!;
-      parent.normalize();
+      const isDelete = inputType.startsWith('delete');
+      const range = getRangeInfo();
+      const { startContainer, startOffset, collapsed, startIndex, endIndex } = range;
       // we should get the index in beforeinput event, as in input event we can get wrong index in this way
-      // for example, if we press enter, it will create a new text node, and the index of startContainer will not be the correct index of content.value
-      currentIndex = Array.from(parent.childNodes).indexOf(startContainer as any);
+      // for example, if we press enter, a new text node will be created, and at that time the index of endContainer will not be the correct index responding to content.value
+      currentIndex = endIndex;
       console.log('before input index', currentIndex, startContainer.textContent, inputType);
+
+      // if startIndex !== endIndex, there must be a mention block in the range
+      if (!collapsed && isDelete && startIndex !== endIndex) {
+        lastDeleteStartIndex = Math.min(startIndex, endIndex);
+        lastDeleteEndIndex = Math.max(startIndex, endIndex);
+        console.log('lastDeleteStartIndex', lastDeleteStartIndex, lastDeleteEndIndex);
+      } else lastDeleteStartIndex = -1;
 
       // below it's to updating triggerEndIndex
       if (!lastTrigger) return;
@@ -152,7 +176,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (inputType.startsWith('insert') && !states.isComposing) {
         const add = data?.length || dataTransfer?.getData('text').length;
         if (add) triggerEndIndex += add;
-      } else if (inputType.startsWith('delete')) {
+      } else if (isDelete) {
         const isContentForward = inputType === 'deleteContentForward',
           deleteBackward = inputType === 'deleteContentBackward' || inputType === 'deleteByCut';
         // don't know what to do with other delete types, InputEvent.getTargetRanges always returns empty array in shadow DOM, don't know why, can only cancel trigger
@@ -171,12 +195,17 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
     },
     onInput(e: Event) {
-      const { startContainer, startOffset } = getRange();
-      const parent = startContainer.parentNode!;
-      parent.normalize();
-      const textNode = parent.childNodes[currentIndex] as Text,
+      const { startOffset, startContainer, endContainer, endOffset } = getRangeInfo();
+      console.log('startContainer', startContainer, startContainer.textContent, startOffset, endContainer, endOffset);
+      const textNode = startContainer as Text,
         text = textNode.textContent!;
-      content.value[currentIndex] = text;
+      console.log('text', text, lastDeleteStartIndex);
+
+      if (lastDeleteStartIndex > -1) {
+        content.value[lastDeleteStartIndex] = text;
+        content.value.splice(lastDeleteStartIndex + 1, lastDeleteEndIndex - lastDeleteStartIndex);
+      } else content.value[currentIndex] = text;
+
       console.log('content.value', content.value, text, startOffset);
       const { triggers, on } = info.value;
       const { onTrigger } = unrefOrGet(options);
