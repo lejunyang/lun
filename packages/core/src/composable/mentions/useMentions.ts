@@ -87,6 +87,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   };
   const states = reactive({
     isRTL: false,
+    isComposing: false,
   });
   watchEffect(() => {
     const { value } = editRef;
@@ -98,7 +99,9 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   let currentIndex = 0,
     lastTrigger: string | undefined,
     triggerStartIndex = 0,
-    triggerEndIndex = 0;
+    triggerEndIndex = 0,
+    /** length of current composition text */
+    compositionLen = 0;
   const cancelTrigger = () => {
     console.log('canceled');
     lastTrigger = undefined;
@@ -124,7 +127,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         cancel = (logicalRight && endOffset > triggerEndIndex) || (logicalLeft && endOffset < triggerStartIndex);
       } else if (e.type === 'click') {
         const { index } = getCurrentCaretInfo();
-        cancel = index !== currentIndex || endOffset < triggerStartIndex;
+        cancel = index !== currentIndex || endOffset < triggerStartIndex || endOffset > triggerEndIndex;
       }
       if (cancel) cancelTrigger();
     }
@@ -133,7 +136,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   // FIXME 选择文本如果选到了mention的文本，然后删除会有问题
   const handlers = {
     onBeforeinput(_e: Event) {
-      const { inputType, data, dataTransfer, isComposing } = _e as InputEvent;
+      const { inputType, data, dataTransfer } = _e as InputEvent;
       const range = getRange();
       const { startContainer, startOffset } = range;
       const parent = startContainer.parentNode!;
@@ -143,19 +146,20 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       currentIndex = Array.from(parent.childNodes).indexOf(startContainer as any);
       console.log('before input index', currentIndex, startContainer.textContent, inputType);
 
+      // below it's to updating triggerEndIndex
       if (!lastTrigger) return;
-      if (inputType.startsWith('insert') && startOffset < triggerEndIndex) {
+      // don't add the composition length to the triggerEndIndex here as text can be changed after composition ends, it needs to be handled in composition event
+      if (inputType.startsWith('insert') && !states.isComposing) {
         const add = data?.length || dataTransfer?.getData('text').length;
-        console.log('add', add, data, dataTransfer?.getData('text'));
         if (add) triggerEndIndex += add;
       } else if (inputType.startsWith('delete')) {
         const isContentForward = inputType === 'deleteContentForward',
-          isContentBackward = inputType === 'deleteContentBackward';
+          deleteBackward = inputType === 'deleteContentBackward' || inputType === 'deleteByCut';
         // don't know what to do with other delete types, InputEvent.getTargetRanges always returns empty array in shadow DOM, don't know why, can only cancel trigger
-        if (!isContentBackward && !isContentForward) return cancelTrigger();
+        if (!deleteBackward && !isContentForward) return cancelTrigger();
         const selectionText = range.toString();
         console.log('selectionText', selectionText, selectionText.length);
-        if (isContentBackward) {
+        if (deleteBackward) {
           if (selectionText.length) triggerEndIndex -= selectionText.length;
           else if (startOffset === triggerStartIndex) cancelTrigger();
           else triggerEndIndex -= 1;
@@ -179,14 +183,26 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
       if (lastTrigger) {
-        if (startOffset > triggerEndIndex) triggerEndIndex = startOffset; // means it's appending text, update the triggerEndIndex
-        const input = text.substring(triggerStartIndex, triggerEndIndex);
+        const input = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
         console.log({ trigger: lastTrigger, input, textNode, startOffset, triggerEndIndex });
         if (!input) return;
         onTrigger && onTrigger({ trigger: lastTrigger, input, textNode });
       } else if ((lastTrigger = triggers.find((t) => leadingText.includes(t)))) {
-        triggerStartIndex = startOffset;
+        triggerEndIndex = triggerStartIndex = startOffset;
       }
+    },
+    onCompositionstart() {
+      states.isComposing = true;
+    },
+    onCompositionupdate(e: CompositionEvent) {
+      compositionLen = e.data?.length || 0;
+    },
+    onCompositionend() {
+      states.isComposing = false;
+      if (lastTrigger) {
+        triggerEndIndex += compositionLen;
+      }
+      compositionLen = 0;
     },
     // can not be keydown, because range hasn't been updated yet in keydown
     onKeyup(e: KeyboardEvent) {
