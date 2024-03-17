@@ -99,6 +99,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     lastTrigger: string | undefined,
     triggerStartIndex = 0,
     triggerEndIndex = 0;
+  const cancelTrigger = () => {
+    console.log('canceled');
+    lastTrigger = undefined;
+    triggerStartIndex = triggerEndIndex = 0;
+  };
 
   const getCurrentCaretInfo = () => {
     const { startContainer, startOffset } = getRange();
@@ -108,37 +113,58 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     return { startContainer, startOffset, index };
   };
 
-  const checkIfCancelTrigger = (e: KeyboardEvent | MouseEvent) => {
+  const checkIfCancelTrigger = (e: KeyboardEvent | MouseEvent | FocusEvent) => {
     if (lastTrigger) {
-      const { startOffset } = getRange();
-      let cancel = false;
-      if (e.type === 'keydown') {
+      const { endOffset } = getRange();
+      let cancel = e.type === 'blur';
+      if (e.type === 'keyup') {
         const { key } = e as KeyboardEvent;
         const logicalLeft = states.isRTL ? key === 'ArrowRight' : key === 'ArrowLeft',
           logicalRight = states.isRTL ? key === 'ArrowLeft' : key === 'ArrowRight';
-        cancel = logicalRight || (logicalLeft && startOffset < triggerStartIndex);
-      } else if (e.type === 'pointerdown') {
-        const { startOffset, index } = getCurrentCaretInfo();
-        cancel = index !== currentIndex || startOffset < triggerStartIndex; // FIXME 这个没有测试通过
+        cancel = (logicalRight && endOffset > triggerEndIndex) || (logicalLeft && endOffset < triggerStartIndex);
+      } else if (e.type === 'click') {
+        const { index } = getCurrentCaretInfo();
+        cancel = index !== currentIndex || endOffset < triggerStartIndex;
       }
-      if (cancel) {
-        console.log('canceled');
-        lastTrigger = undefined;
-        triggerStartIndex = triggerEndIndex = 0;
-      }
+      if (cancel) cancelTrigger();
     }
   };
 
   // FIXME 选择文本如果选到了mention的文本，然后删除会有问题
   const handlers = {
-    onBeforeinput(e: Event) {
-      const { startContainer, startOffset } = getRange();
+    onBeforeinput(_e: Event) {
+      const { inputType, data, dataTransfer, isComposing } = _e as InputEvent;
+      const range = getRange();
+      const { startContainer, startOffset } = range;
       const parent = startContainer.parentNode!;
       parent.normalize();
       // we should get the index in beforeinput event, as in input event we can get wrong index in this way
       // for example, if we press enter, it will create a new text node, and the index of startContainer will not be the correct index of content.value
       currentIndex = Array.from(parent.childNodes).indexOf(startContainer as any);
-      console.log('before input index', currentIndex, startContainer.textContent);
+      console.log('before input index', currentIndex, startContainer.textContent, inputType);
+
+      if (!lastTrigger) return;
+      if (inputType.startsWith('insert') && startOffset < triggerEndIndex) {
+        const add = data?.length || dataTransfer?.getData('text').length;
+        console.log('add', add, data, dataTransfer?.getData('text'));
+        if (add) triggerEndIndex += add;
+      } else if (inputType.startsWith('delete')) {
+        const isContentForward = inputType === 'deleteContentForward',
+          isContentBackward = inputType === 'deleteContentBackward';
+        // don't know what to do with other delete types, InputEvent.getTargetRanges always returns empty array in shadow DOM, don't know why, can only cancel trigger
+        if (!isContentBackward && !isContentForward) return cancelTrigger();
+        const selectionText = range.toString();
+        console.log('selectionText', selectionText, selectionText.length);
+        if (isContentBackward) {
+          if (selectionText.length) triggerEndIndex -= selectionText.length;
+          else if (startOffset === triggerStartIndex) cancelTrigger();
+          else triggerEndIndex -= 1;
+        } else if (startOffset < triggerEndIndex) triggerEndIndex -= 1;
+        if (triggerEndIndex < startOffset) cancelTrigger();
+      } else if (inputType.startsWith('history')) {
+        // don't know what to do with historyUndo and historyRedo, just cancel trigger
+        cancelTrigger();
+      }
     },
     onInput(e: Event) {
       const { startContainer, startOffset } = getRange();
@@ -153,24 +179,28 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
       if (lastTrigger) {
-        // FIXME 删除字符的时候 startOffset比它小，应该在beforeInput里面处理
-        if (startOffset > triggerEndIndex) triggerEndIndex = startOffset; // 如果是正常编辑，那么startOffset每次都会比triggerEndIndex大，但是如果往左移动了光标则不然，此时不更新
+        if (startOffset > triggerEndIndex) triggerEndIndex = startOffset; // means it's appending text, update the triggerEndIndex
         const input = text.substring(triggerStartIndex, triggerEndIndex);
-        console.log({ trigger: lastTrigger, input, textNode });
+        console.log({ trigger: lastTrigger, input, textNode, startOffset, triggerEndIndex });
         if (!input) return;
         onTrigger && onTrigger({ trigger: lastTrigger, input, textNode });
       } else if ((lastTrigger = triggers.find((t) => leadingText.includes(t)))) {
         triggerStartIndex = startOffset;
       }
     },
-    onKeydown(e: KeyboardEvent) {
-      // 如果正在triggering，如果是按右箭头（需要考虑rtl吗），则取消triggering；如果是按左箭头，获取当前光标位置，如果小于triggerStartIndex，则取消triggering
+    // can not be keydown, because range hasn't been updated yet in keydown
+    onKeyup(e: KeyboardEvent) {
       checkIfCancelTrigger(e);
-      if (isEnterDown(e)) {
-        // e.preventDefault();
+      if (isEnterDown(e) && lastTrigger) {
+        e.preventDefault();
+        cancelTrigger();
       }
     },
-    onPointerdown(e: MouseEvent) {
+    // can not be pointerdown, because it can be selection
+    onClick(e: MouseEvent) {
+      checkIfCancelTrigger(e);
+    },
+    onBlur(e: FocusEvent) {
       checkIfCancelTrigger(e);
     },
   };
