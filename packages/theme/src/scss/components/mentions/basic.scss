@@ -22,7 +22,7 @@
 
   @include e(wrapper) {
     position: relative;
-    display: flex;
+    display: grid;
   }
 
   @include e(textarea) {
@@ -32,12 +32,19 @@
     outline: none;
     border: none;
     padding-inline-end: calc(var(--padding-inline-start) * 1.2 + var(--icon-size));
-    @include declareVars((padding-block, padding-inline-start, line-height, letter-spacing, border-radius));
+    grid-area: 1 / 1;
+    @include declareVars(
+      (padding-block, padding-inline-start, line-height, letter-spacing, border-radius, min-inline-size, min-block-size)
+    );
 
     &:focus {
       outline: 2px solid getFocusColor();
       outline-offset: -1px;
     }
+  }
+
+  textarea {
+    pointer-events: none;
   }
 
   @include e(clear-icon) {
@@ -155,6 +162,8 @@
         letter-spacing: getLetterSpacingValue(2),
         font-size: getFontSizeValue(2),
         border-radius: getRadiusValue(2),
+        // min-block-size: 150px,
+        // min-inline-size: 200px,
       )
     );
   }

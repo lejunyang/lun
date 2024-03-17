@@ -2,7 +2,7 @@
  * 用类似str + { prefix, value, displayLen, actualLen, append, prepend }的数组存
  * 记录cursorIndexInTotal cursorIndexInArr
  */
-import { computed, nextTick, watchEffect } from 'vue';
+import { computed, nextTick, ref, watchEffect } from 'vue';
 import { useSetupEdit, refLikesToGetters, useInput, useInputElement, useMentions } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
@@ -32,37 +32,38 @@ export const Mentions = defineSSRCustomElement({
     const valueModel = useValueModel(props);
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
-    const [mentionsRef, methods] = useInputElement<HTMLTextAreaElement>();
+    const textareaRef = ref<HTMLTextAreaElement>();
 
-    // let maxHeight: number;
-    // const adjustHeight = (el: HTMLTextAreaElement) => {
-    //   el.style.height = 'auto';
-    //   el.style.minHeight = '';
-    //   const minHeight = getHeight(el)!;
-    //   if (maxHeight && minHeight > maxHeight) {
-    //     el.style.height = maxHeight + 'px';
-    //     // scroll to bottom
-    //     if (el.selectionEnd && el.selectionEnd === el.value.length) el.scrollTop = el.scrollHeight;
-    //   } else {
-    //     el.style.minHeight = minHeight + 'px';
-    //   }
-    // };
-    // watchEffect(() => {
-    //   const { maxRows } = props;
-    //   const mentions = mentionsRef.value!;
-    //   if (!maxRows || !mentions) return;
-    //   // scrollHeight is not available when first mount
-    //   nextTick(() => {
-    //     mentions.rows = maxRows as number;
-    //     const originalPlaceholder = mentions.placeholder;
-    //     mentions.placeholder = '';
-    //     // placeholder can affect scrollHeight, so we need to clear it first
-    //     maxHeight = getHeight(mentions)!;
-    //     mentions.rows = props.rows as number;
-    //     mentions.placeholder = originalPlaceholder;
-    //     adjustHeight(mentions); // there may be a long placeholder, we need to adjust height
-    //   });
-    // });
+    let maxHeight: number;
+    const adjustHeight = (el?: HTMLTextAreaElement) => {
+      if (!el) return;
+      el.style.height = 'auto';
+      el.style.minHeight = '';
+      const minHeight = getHeight(el)!;
+      if (maxHeight && minHeight > maxHeight) {
+        el.style.height = maxHeight + 'px';
+        // scroll to bottom
+        if (el.selectionEnd && el.selectionEnd === el.value.length) el.scrollTop = el.scrollHeight;
+      } else {
+        el.style.minHeight = minHeight + 'px';
+      }
+    };
+    watchEffect(() => {
+      const { maxRows } = props;
+      const textarea = textareaRef.value;
+      if (!maxRows || !textarea) return;
+      // scrollHeight is not available when first mount
+      nextTick(() => {
+        textarea.rows = maxRows as number;
+        const originalPlaceholder = textarea.placeholder;
+        textarea.placeholder = '';
+        // placeholder can affect scrollHeight, so we need to clear it first
+        maxHeight = getHeight(textarea)!;
+        textarea.rows = props.rows as number;
+        textarea.placeholder = originalPlaceholder;
+        adjustHeight(textarea); // there may be a long placeholder, we need to adjust height
+      });
+    });
 
     const { handlers, editRef, render } = useMentions(
       computed(() => {
@@ -81,11 +82,16 @@ export const Mentions = defineSSRCustomElement({
       }),
     );
 
+    const extraHandlers = {
+      onInput() {
+        if (!props.autoRows) return;
+        adjustHeight(textareaRef.value); // need to limit the width of contenteditable, besides, contenteditable support autoRows
+      },
+    };
+
     const clearValue = () => {
       valueModel.value = null as any;
     };
-
-    useCEExpose(methods, refLikesToGetters({ mentions: mentionsRef }));
 
     const [stateClass, states] = useCEStates(
       () => ({
@@ -107,7 +113,7 @@ export const Mentions = defineSSRCustomElement({
 
     const rootOnPointerDown = () => {
       requestAnimationFrame(() => {
-        if (editComputed.value.interactive) mentionsRef.value?.focus();
+        if (editComputed.value.interactive) editRef.value?.focus();
       });
     };
 
@@ -132,6 +138,14 @@ export const Mentions = defineSSRCustomElement({
             </div>
           )}
           <span class={ns.e('wrapper')} part="wrapper">
+            <textarea
+              part="textarea"
+              class={ns.e('textarea')}
+              placeholder={hasFloatLabel ? undefined : placeholder}
+              rows={rows}
+              cols={cols}
+              style="visibility: hidden;"
+            />
             <div
               {...attrs}
               ref={editRef}
