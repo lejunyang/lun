@@ -137,17 +137,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
 
   const checkIfCancelTrigger = (e: KeyboardEvent | MouseEvent | FocusEvent) => {
     if (lastTrigger) {
-      const { endOffset } = getRange();
+      const { focusOffset } = localGetSelection()!; // seems that endOffset is not always equal to focusOffset, startOffset counts
       let cancel = e.type === 'blur';
-      if (e.type === 'keyup') {
-        const { key } = e as KeyboardEvent;
-        const logicalLeft = states.isRTL ? key === 'ArrowRight' : key === 'ArrowLeft',
-          logicalRight = states.isRTL ? key === 'ArrowLeft' : key === 'ArrowRight';
-        cancel = (logicalRight && endOffset > triggerEndIndex) || (logicalLeft && endOffset < triggerStartIndex);
-      } else if (e.type === 'click') {
-        const { endIndex } = getRangeInfo();
-        cancel = endIndex !== currentIndex || endOffset < triggerStartIndex || endOffset > triggerEndIndex;
-      }
+      cancel ||=
+        focusOffset < triggerStartIndex || focusOffset > triggerEndIndex || getRangeInfo().endIndex !== currentIndex;
       if (cancel) cancelTrigger();
     }
   };
@@ -172,19 +165,22 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
 
       // below it's to updating triggerEndIndex
       if (!lastTrigger) return;
+      const selectionLen = range.toString().length;
       // don't add the composition length to the triggerEndIndex here as text can be changed after composition ends, it needs to be handled in composition event
       if (inputType.startsWith('insert') && !states.isComposing) {
-        const add = data?.length || dataTransfer?.getData('text').length;
-        if (add) triggerEndIndex += add;
+        const add = data?.length || dataTransfer?.getData('text').length || 0;
+        if (add || selectionLen) {
+          triggerEndIndex += add;
+          triggerEndIndex -= selectionLen; // if there is a selection in insert, the selection text will be deleted, it won't trigger another delete beforeInput
+        }
       } else if (isDelete) {
         const isContentForward = inputType === 'deleteContentForward',
           deleteBackward = inputType === 'deleteContentBackward' || inputType === 'deleteByCut';
         // don't know what to do with other delete types, InputEvent.getTargetRanges always returns empty array in shadow DOM, don't know why, can only cancel trigger
         if (!deleteBackward && !isContentForward) return cancelTrigger();
-        const selectionText = range.toString();
-        console.log('selectionText', selectionText, selectionText.length);
+        
         if (deleteBackward) {
-          if (selectionText.length) triggerEndIndex -= selectionText.length;
+          if (selectionLen) triggerEndIndex -= selectionLen;
           else if (startOffset === triggerStartIndex) cancelTrigger();
           else triggerEndIndex -= 1;
         } else if (startOffset < triggerEndIndex) triggerEndIndex -= 1;
