@@ -33,6 +33,7 @@ export const Mentions = defineSSRCustomElement({
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     const textareaRef = ref<HTMLTextAreaElement>();
+    const endRange = ref<Range>();
 
     let maxHeight: number;
     const adjustHeight = (el?: HTMLTextAreaElement) => {
@@ -65,7 +66,7 @@ export const Mentions = defineSSRCustomElement({
       });
     });
 
-    const { handlers, editRef, render } = useMentions(
+    const { handlers, editRef, render, state } = useMentions(
       computed(() => {
         return {
           ...props,
@@ -77,6 +78,10 @@ export const Mentions = defineSSRCustomElement({
           },
           onEnterDown(e) {
             emit('enterDown', e);
+          },
+          onTrigger(param) {
+            endRange.value = param.endRange;
+            emit('trigger', param);
           },
         };
       }),
@@ -158,14 +163,19 @@ export const Mentions = defineSSRCustomElement({
               contenteditable={editable ? contenteditable : 'false'}
               {...handlers}
             >
-              {render()}
+              {render.value}
             </div>
             {clearIcon.value}
           </span>
           <div class={ns.e('length-info')} part="length-info">
             {lengthInfo.value}
           </div>
-          {renderElement('popover', {})}
+          {renderElement('popover', {
+            showArrow: false,
+            open: state.lastTrigger,
+            content: 'test',
+            target: endRange,
+          })}
         </label>
       );
     };

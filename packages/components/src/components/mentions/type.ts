@@ -1,6 +1,7 @@
 import { ExtractPropTypes } from 'vue';
 import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropStrOrArr, PropString, Status, themeProps } from 'common';
 import { baseInputProps } from '../input/type';
+import { MentionsTriggerParam } from '@lun/core';
 
 export const mentionsProps = {
   ...baseInputProps,
@@ -24,6 +25,7 @@ export const mentionsProps = {
 
 export const mentionsEmits = {
   update: null,
+  trigger: (_param: MentionsTriggerParam) => null,
   enterDown: null,
 };
 
