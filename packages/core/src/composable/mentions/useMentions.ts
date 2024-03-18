@@ -150,17 +150,21 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const { inputType, data, dataTransfer } = _e as InputEvent;
       const isDelete = inputType.startsWith('delete');
       const range = getRangeInfo();
-      const { startContainer, startOffset, collapsed, startIndex, endIndex } = range;
+      const { startOffset, collapsed, startIndex, endIndex } = range;
       // we should get the index in beforeinput event, as in input event we can get wrong index in this way
       // for example, if we press enter, a new text node will be created, and at that time the index of endContainer will not be the correct index responding to content.value
       currentIndex = endIndex;
-      console.log('before input index', currentIndex, startContainer.textContent, inputType);
 
-      // if startIndex !== endIndex, there must be a mention block in the range
-      if (!collapsed && isDelete && startIndex !== endIndex) {
-        lastDeleteStartIndex = Math.min(startIndex, endIndex);
-        lastDeleteEndIndex = Math.max(startIndex, endIndex);
-        console.log('lastDeleteStartIndex', lastDeleteStartIndex, lastDeleteEndIndex);
+      if (isDelete) {
+        // if startIndex !== endIndex, there must be a mention block in the range being deleted
+        if (!collapsed && startIndex !== endIndex) {
+          lastDeleteStartIndex = Math.min(startIndex, endIndex);
+          lastDeleteEndIndex = Math.max(startIndex, endIndex);
+        } else if (collapsed && startOffset === 0) {
+          // if startOffset === 0, it means the cursor is at the beginning of a text node, and the previous node is a mention block
+          lastDeleteStartIndex = currentIndex - 2; // currentIndex === 0 won't bother it, lastDeleteStartIndex > -1 will be checked in onInput
+          lastDeleteEndIndex = currentIndex;
+        }
       } else lastDeleteStartIndex = -1;
 
       // below it's to updating triggerEndIndex
