@@ -4,10 +4,18 @@ import { useTempState } from '../../hooks/state';
 import { isEnterDown, isString, toArrayIfNotNil } from '@lun/utils';
 import { Ref, computed, h, reactive, ref, watchEffect } from 'vue';
 
+export type MentionsTriggerParam = {
+  trigger: string;
+  input: string;
+  textNode: Text;
+  startRange: Range;
+  endRange: Range;
+};
+
 export type UseMentionsOptions = UseInputOptions & {
   triggers?: string[] | string | null;
   suffix?: string;
-  onTrigger?: (param: { trigger: string; input: string; textNode: Text }) => void;
+  onTrigger?: (param: MentionsTriggerParam) => void;
 };
 
 export type MentionBlock = {
@@ -17,6 +25,13 @@ export type MentionBlock = {
   suffix: string;
   actualLength: number;
 };
+
+function getRangeOfText(textNode: Text, offset: number = 0) {
+  const range = document.createRange();
+  range.setStart(textNode, offset);
+  range.setEnd(textNode, offset);
+  return range;
+}
 
 export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, true>) {
   const info = computed(() => {
@@ -56,7 +71,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     return content;
   });
 
-  const render = () => {
+  // must cache, or it will be re-rendered when lastTrigger changes, the caret will be incorrect
+  const render = computed(() => {
     return content.value.map((item, index) => {
       if (isString(item) || !item) return item;
       return h(
@@ -73,7 +89,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         item.label,
       );
     });
-  };
+  });
 
   const editRef = ref<HTMLElement>();
   /** actually it's ShadowRoot | Document, but ShadowRoot.getSelection is not standard */
@@ -86,19 +102,17 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       | StaticRange
       | Range;
   };
-  const states = reactive({
-    isRTL: false,
+  const state = reactive({
     isComposing: false,
+    lastTrigger: undefined as string | undefined,
   });
   watchEffect(() => {
     const { value } = editRef;
     root.value = value?.getRootNode() as Document;
     localGetSelection = root.value?.getSelection?.bind(root.value) || document.getSelection.bind(document);
-    if (value) states.isRTL = getComputedStyle(value).direction === 'rtl';
   });
 
   let currentIndex = 0,
-    lastTrigger: string | undefined,
     triggerStartIndex = 0,
     triggerEndIndex = 0,
     /** length of current composition text */
@@ -107,7 +121,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     lastDeleteEndIndex = 0;
   const cancelTrigger = () => {
     console.log('canceled');
-    lastTrigger = undefined;
+    state.lastTrigger = undefined;
     triggerStartIndex = triggerEndIndex = 0;
   };
 
@@ -136,7 +150,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   };
 
   const checkIfCancelTrigger = (e: KeyboardEvent | MouseEvent | FocusEvent) => {
-    if (lastTrigger) {
+    if (state.lastTrigger) {
       const { focusOffset } = localGetSelection()!; // seems that endOffset is not always equal to focusOffset, startOffset counts
       let cancel = e.type === 'blur';
       cancel ||=
@@ -168,10 +182,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       } else lastDeleteStartIndex = -1;
 
       // below it's to updating triggerEndIndex
-      if (!lastTrigger) return;
+      if (!state.lastTrigger) return;
       const selectionLen = range.toString().length;
       // don't add the composition length to the triggerEndIndex here as text can be changed after composition ends, it needs to be handled in composition event
-      if (inputType.startsWith('insert') && !states.isComposing) {
+      if (inputType.startsWith('insert') && !state.isComposing) {
         const add = data?.length || dataTransfer?.getData('text').length || 0;
         if (add || selectionLen) {
           triggerEndIndex += add;
@@ -182,7 +196,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           deleteBackward = inputType === 'deleteContentBackward' || inputType === 'deleteByCut';
         // don't know what to do with other delete types, InputEvent.getTargetRanges always returns empty array in shadow DOM, don't know why, can only cancel trigger
         if (!deleteBackward && !isContentForward) return cancelTrigger();
-        
+
         if (deleteBackward) {
           if (selectionLen) triggerEndIndex -= selectionLen;
           else if (startOffset === triggerStartIndex) cancelTrigger();
@@ -195,11 +209,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
     },
     onInput(e: Event) {
-      const { startOffset, startContainer, endContainer, endOffset } = getRangeInfo();
-      console.log('startContainer', startContainer, startContainer.textContent, startOffset, endContainer, endOffset);
+      const range = getRangeInfo();
+      const { startOffset, startContainer } = range;
       const textNode = startContainer as Text,
         text = textNode.textContent!;
-      console.log('text', text, lastDeleteStartIndex);
 
       if (lastDeleteStartIndex > -1) {
         content.value[lastDeleteStartIndex] = text;
@@ -211,24 +224,31 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const { onTrigger } = unrefOrGet(options);
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
-      if (lastTrigger) {
-        const input = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
-        console.log({ trigger: lastTrigger, input, textNode, startOffset, triggerEndIndex });
-        if (!input) return;
-        onTrigger && onTrigger({ trigger: lastTrigger, input, textNode });
-      } else if ((lastTrigger = triggers.find((t) => leadingText.includes(t)))) {
+      if (!state.lastTrigger && (state.lastTrigger = triggers.find((t) => leadingText.includes(t)))) {
         triggerEndIndex = triggerStartIndex = startOffset;
+      }
+      if (state.lastTrigger) {
+        const input = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
+        console.log({ trigger: state.lastTrigger, input, textNode, startOffset, triggerEndIndex });
+        onTrigger &&
+          onTrigger({
+            trigger: state.lastTrigger,
+            input,
+            textNode,
+            startRange: getRangeOfText(textNode, triggerStartIndex),
+            endRange: getRangeOfText(textNode, triggerEndIndex),
+          });
       }
     },
     onCompositionstart() {
-      states.isComposing = true;
+      state.isComposing = true;
     },
     onCompositionupdate(e: CompositionEvent) {
       compositionLen = e.data?.length || 0;
     },
     onCompositionend() {
-      states.isComposing = false;
-      if (lastTrigger) {
+      state.isComposing = false;
+      if (state.lastTrigger) {
         triggerEndIndex += compositionLen;
       }
       compositionLen = 0;
@@ -236,7 +256,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     // can not be keydown, because range hasn't been updated yet in keydown
     onKeyup(e: KeyboardEvent) {
       checkIfCancelTrigger(e);
-      if (isEnterDown(e) && lastTrigger) {
+      if (isEnterDown(e) && state.lastTrigger) {
         e.preventDefault();
         cancelTrigger();
       }
@@ -250,5 +270,5 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
   };
 
-  return { render, handlers, editRef };
+  return { render, handlers, editRef, state };
 }
