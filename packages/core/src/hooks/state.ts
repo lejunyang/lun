@@ -8,9 +8,9 @@ import { unrefOrGet } from '../utils/ref';
  * @param options
  * @returns
  */
-export function useTempState<T>(getter: () => T, options?: WatchOptionsBase) {
+export function useTempState<T>(getter: () => T, options?: WatchOptionsBase & { deep?: boolean }) {
   let temp = getter();
-  const local = shallowRef<T>(temp);
+  const local = options?.deep ? ref<T>(temp) : shallowRef<T>(temp);
   const changed = computed(() => {
     if (local.value !== temp) {
       return (changedOnce.value = true);

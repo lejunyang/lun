@@ -6,16 +6,19 @@ import { Ref, computed, h, reactive, ref, watchEffect } from 'vue';
 
 export type MentionsTriggerParam = {
   trigger: string;
-  input: string;
-  textNode: Text;
+  search: string;
+  text: string;
   startRange: Range;
   endRange: Range;
+  startIndex: number;
+  endIndex: number;
 };
 
 export type UseMentionsOptions = UseInputOptions & {
   triggers?: string[] | string | null;
   suffix?: string;
   onTrigger?: (param: MentionsTriggerParam) => void;
+  onCommit?: () => [string | null | undefined, string | null | undefined];
 };
 
 export type MentionBlock = {
@@ -70,6 +73,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     }
     return content;
   });
+  // content is a shallowRef, needs to update it manually
+  const updateContent = () => (content.value = [...content.value]);
 
   // must cache, or it will be re-rendered when lastTrigger changes, the caret will be incorrect
   const render = computed(() => {
@@ -84,7 +89,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           'data-suffix': item.suffix,
           contenteditable: 'false',
           part: 'mention',
-          style: { color: 'red' },
         },
         item.label,
       );
@@ -118,7 +122,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     /** length of current composition text */
     compositionLen = 0,
     lastDeleteStartIndex = -1,
-    lastDeleteEndIndex = 0;
+    lastDeleteEndIndex = 0,
+    lastTriggerParam: MentionsTriggerParam;
   const cancelTrigger = () => {
     console.log('canceled');
     state.lastTrigger = undefined;
@@ -228,16 +233,18 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         triggerEndIndex = triggerStartIndex = startOffset;
       }
       if (state.lastTrigger) {
-        const input = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
-        console.log({ trigger: state.lastTrigger, input, textNode, startOffset, triggerEndIndex });
-        onTrigger &&
-          onTrigger({
-            trigger: state.lastTrigger,
-            input,
-            textNode,
-            startRange: getRangeOfText(textNode, triggerStartIndex),
-            endRange: getRangeOfText(textNode, triggerEndIndex),
-          });
+        const search = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
+        lastTriggerParam = {
+          trigger: state.lastTrigger,
+          search,
+          text,
+          startRange: getRangeOfText(textNode, triggerStartIndex),
+          endRange: getRangeOfText(textNode, triggerEndIndex),
+          startIndex: triggerStartIndex,
+          endIndex: triggerEndIndex,
+        };
+        console.log(lastTriggerParam);
+        onTrigger && onTrigger(lastTriggerParam);
       }
     },
     onCompositionstart() {
@@ -253,22 +260,47 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
       compositionLen = 0;
     },
+    onKeydown(e: KeyboardEvent) {
+      const { onCommit } = unrefOrGet(options);
+      if (isEnterDown(e) && state.lastTrigger) {
+        e.preventDefault();
+        const [value, label] = (onCommit && onCommit()) || [];
+        commit(value, label);
+      }
+    },
     // can not be keydown, because range hasn't been updated yet in keydown
     onKeyup(e: KeyboardEvent) {
       checkIfCancelTrigger(e);
-      if (isEnterDown(e) && state.lastTrigger) {
-        e.preventDefault();
-        cancelTrigger();
-      }
     },
     // can not be pointerdown, because it can be selection
     onClick(e: MouseEvent) {
       checkIfCancelTrigger(e);
     },
     onBlur(e: FocusEvent) {
+      console.log('blur');
       checkIfCancelTrigger(e);
     },
   };
 
-  return { render, handlers, editRef, state };
+  const commit = (value?: string | null, label?: string | null) => {
+    if (!state.lastTrigger || value == null) return cancelTrigger();
+    const { startIndex, endIndex, text, trigger } = lastTriggerParam!;
+    const suffix = unrefOrGet(options).suffix!;
+    const str1 = text.substring(0, startIndex - trigger.length),
+      block: MentionBlock = {
+        trigger,
+        value,
+        label: label ?? value,
+        suffix,
+        actualLength: trigger.length + value.length + suffix.length,
+      },
+      str2 = text.substring(endIndex);
+    cancelTrigger();
+    // even if str1 or str2 are empty string, they still need to be inserted between two blocks;
+    content.value.splice(currentIndex, 1, str1, block, str2);
+    updateContent();
+    console.log('commit content.value', content.value);
+  };
+
+  return { render, handlers, editRef, state, commit };
 }
