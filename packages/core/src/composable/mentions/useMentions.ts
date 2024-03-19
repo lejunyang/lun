@@ -109,6 +109,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const state = reactive({
     isComposing: false,
     lastTrigger: undefined as string | undefined,
+    ignoreNextBlur: false,
   });
   watchEffect(() => {
     const { value } = editRef;
@@ -175,7 +176,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       currentIndex = endIndex;
 
       if (isDelete) {
-        // if startIndex !== endIndex, there must be a mention block in the range being deleted
+        // if startIndex !== endIndex, there must be at least a mention block in the range being deleted
         if (!collapsed && startIndex !== endIndex) {
           lastDeleteStartIndex = Math.min(startIndex, endIndex);
           lastDeleteEndIndex = Math.max(startIndex, endIndex);
@@ -278,7 +279,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
     onBlur(e: FocusEvent) {
       console.log('blur');
-      checkIfCancelTrigger(e);
+      if (!state.ignoreNextBlur) checkIfCancelTrigger(e);
+      else state.ignoreNextBlur = false;
     },
   };
 
@@ -296,9 +298,34 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       },
       str2 = text.substring(endIndex);
     cancelTrigger();
-    // even if str1 or str2 are empty string, they still need to be inserted between two blocks;
-    content.value.splice(currentIndex, 1, str1, block, str2);
+    const append = [block, str2]; // even if str2 are empty string, it still needs to be inserted between two blocks;
+    if (str1) append.unshift(str1);
+    content.value.splice(currentIndex, 1, ...append);
     updateContent();
+    requestAnimationFrame(() => {
+      const { value } = editRef;
+      if (!value) return;
+      const newRange = document.createRange();
+      value.normalize();
+      const text = value.childNodes[currentIndex + +!!str1 + 1]; // text node responding to str2
+      console.log('next text', text);
+      if (!text) {
+        // if no text, means we added a block at the end, we need to add en empty text node so that we can focus the end(block is not focusable)
+        const emptyText = document.createTextNode('');
+        value.append(emptyText);
+        newRange.selectNodeContents(value);
+        newRange.collapse(false);
+        console.log('newRange', newRange);
+      } else {
+        newRange.setStart(text, 0);
+        newRange.setEnd(text, 0);
+      }
+      const selection = localGetSelection()!;
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    });
     console.log('commit content.value', content.value);
   };
 

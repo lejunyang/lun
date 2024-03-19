@@ -176,7 +176,7 @@ export const Input = defineSSRCustomElement({
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
-      const { multiple, placeholder, labelType, label, wrapTags } = props;
+      const { multiple, placeholder, labelType, label, wrapTags, spellcheck } = props;
       const { type } = validateProps.value;
       const inputType = type === 'number' ? type : 'text';
       const floatLabel = label || placeholder;
@@ -188,6 +188,7 @@ export const Input = defineSSRCustomElement({
       // autofocus
       const input = (
         <input
+          spellcheck={spellcheck}
           exportparts=""
           type={inputType}
           inputmode={type === 'number-string' ? 'numeric' : undefined}

@@ -120,7 +120,7 @@ export const Textarea = defineSSRCustomElement({
 
     return () => {
       const { disabled, readonly } = editComputed.value;
-      const { placeholder, labelType, label, rows, cols } = props;
+      const { placeholder, labelType, label, rows, cols, spellcheck } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (
@@ -134,6 +134,7 @@ export const Textarea = defineSSRCustomElement({
           <span class={ns.e('wrapper')} part="wrapper">
             <textarea
               {...attrs}
+              spellcheck={spellcheck}
               ref={textareaRef}
               part="textarea"
               class={ns.e('textarea')}
