@@ -132,7 +132,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     compositionLen = 0,
     lastDeleteStartIndex = -1,
     lastDeleteEndIndex = 0,
-    lastTriggerParam: MentionsTriggerParam;
+    lastTriggerParam: MentionsTriggerParam,
+    textAfterLastDelete = '';
   const cancelTrigger = () => {
     console.log('canceled');
     state.lastTrigger = undefined;
@@ -175,7 +176,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const { inputType, data, dataTransfer } = _e as InputEvent;
       const isDelete = inputType.startsWith('delete');
       const range = getRangeInfo();
-      const { startOffset, collapsed, startIndex, endIndex } = range;
+      const { startOffset, endOffset, endContainer, collapsed, startIndex, endIndex } = range;
 
       currentIndex = endIndex;
 
@@ -184,10 +185,12 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         if (!collapsed && startIndex !== endIndex) {
           lastDeleteStartIndex = Math.min(startIndex, endIndex);
           lastDeleteEndIndex = Math.max(startIndex, endIndex);
+          textAfterLastDelete = endContainer.textContent!.substring(endOffset);
         } else if (collapsed && startOffset === 0) {
           // if startOffset === 0, it means the cursor is at the beginning of a text node, and the previous node is a mention block
           lastDeleteStartIndex = currentIndex - 2; // currentIndex === 0 won't bother it, lastDeleteStartIndex > -1 will be checked in onInput
           lastDeleteEndIndex = currentIndex;
+          textAfterLastDelete = endContainer.textContent!;
         }
       } else lastDeleteStartIndex = -1;
 
@@ -225,8 +228,9 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         text = textNode.textContent!;
 
       if (lastDeleteStartIndex > -1) {
-        content.value[lastDeleteStartIndex] = text;
+        content.value[lastDeleteStartIndex] = text + textAfterLastDelete;
         content.value.splice(lastDeleteStartIndex + 1, lastDeleteEndIndex - lastDeleteStartIndex);
+        requestFocus(lastDeleteStartIndex, text.length);
       } else content.value[currentIndex] = text;
 
       console.log('content.value', content.value, text, startOffset);
@@ -287,6 +291,23 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
   };
 
+  const requestFocus = (index: number, offset: number = 0) => {
+    requestAnimationFrame(() => {
+      const { value } = editRef;
+      if (!value) return;
+      const newRange = document.createRange();
+      const el = value.children[index]?.firstChild as Text;
+      if (!el) return;
+      newRange.setStart(el, offset);
+      newRange.setEnd(el, offset);
+      const selection = localGetSelection()!;
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    });
+  }
+
   const commit = (value?: string | null, label?: string | null) => {
     if (!state.lastTrigger || value == null) return cancelTrigger();
     const { startIndex, endIndex, text, trigger } = lastTriggerParam!;
@@ -304,19 +325,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     // even if str1 or str2 are empty string, they still needs to be inserted between two blocks, so that we can edit between them
     content.value.splice(currentIndex, 1, str1, block, str2);
     // focus on the new added block
-    requestAnimationFrame(() => {
-      const { value } = editRef;
-      if (!value) return;
-      const newRange = document.createRange();
-      const text = value.children[currentIndex + 2]; // text node responding to str2
-      newRange.setStart(text, 0);
-      newRange.setEnd(text, 0);
-      const selection = localGetSelection()!;
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-      }
-    });
+    requestFocus(currentIndex + 2);
     console.log('commit content.value', content.value);
   };
 
