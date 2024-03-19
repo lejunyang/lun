@@ -89,7 +89,7 @@ export const Mentions = defineSSRCustomElement({
           onCommit() {
             const child = activateMethods.getActiveChild();
             return [child?.props.value as string, child?.props.label as string];
-          }
+          },
         };
       }),
     );
@@ -123,10 +123,9 @@ export const Mentions = defineSSRCustomElement({
       return +maxLength! >= 0 ? (valueLength || '0') + '/' + maxLength : valueLength;
     });
 
-    const rootOnPointerDown = () => {
-      requestAnimationFrame(() => {
-        if (editComputed.value.interactive) editRef.value?.focus();
-      });
+    const popOnPointerDown = () => {
+      state.ignoreNextBlur = true;
+      requestAnimationFrame(() => editRef.value!.focus());
     };
 
     const clearIcon = computed(
@@ -165,7 +164,7 @@ export const Mentions = defineSSRCustomElement({
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (
-        <label part="root" class={stateClass.value} onPointerdown={rootOnPointerDown}>
+        <label part="root" class={stateClass.value}>
           {hasFloatLabel && (
             <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
               {floatLabel}
@@ -183,6 +182,7 @@ export const Mentions = defineSSRCustomElement({
             />
             <div
               {...attrs}
+              spellcheck={props.spellcheck}
               // @ts-ignore if render.value changes, re-render this div to avoid DOM error when vue re-render its children(we remove some empty nodes during input, maybe that conflicts with vue)
               key={render.value}
               ref={editRef}
@@ -210,7 +210,7 @@ export const Mentions = defineSSRCustomElement({
               open: state.lastTrigger,
               target: endRange,
             },
-            <div class={ns.e('content')} part="content" slot="pop-content">
+            <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
               {!context.value.length && !options.value?.length ? (
                 <slot name="no-content">No content</slot> // TODO emptyText prop
               ) : (

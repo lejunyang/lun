@@ -18,6 +18,7 @@ import { Constructor } from '@lun/utils';
 export const baseInputProps = {
   ...editStateProps,
   value: PropString(),
+  spellcheck: PropBoolean(),
   placeholder: PropString(),
   required: PropBoolean(),
   type: PropString<InputType>(),
