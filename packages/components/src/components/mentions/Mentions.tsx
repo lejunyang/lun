@@ -183,8 +183,6 @@ export const Mentions = defineSSRCustomElement({
             <div
               {...attrs}
               spellcheck={props.spellcheck}
-              // @ts-ignore if render.value changes, re-render this div to avoid DOM error when vue re-render its children(we remove some empty nodes during input, maybe that conflicts with vue)
-              key={render.value}
               ref={editRef}
               part="textarea"
               class={ns.e('textarea')}
