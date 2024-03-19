@@ -1,16 +1,18 @@
-import { toNoneNilSet } from '@lun/utils';
+import { getFirstOfIterable, toNoneNilSet } from '@lun/utils';
 import { ToMaybeRefLike, unrefOrGet } from '../../utils';
 
-export type UseSelectOptions<T = any> = ToMaybeRefLike<{
-  multiple?: boolean;
-  value?: T;
-  valueSet?: Set<T>;
-  onChange: (value: T | T[]) => void;
-  allValues?: T[] | Set<T>;
-}, 'onChange'>;
+export type UseSelectOptions<T = any> = ToMaybeRefLike<
+  {
+    multiple?: boolean;
+    valueSet?: Set<T>;
+    onChange: (value: T | T[]) => void;
+    allValues?: T[] | Set<T>;
+  },
+  'onChange'
+>;
 
-export function useSelect(options: UseSelectOptions) {
-  const { multiple, value, valueSet, onChange, allValues } = options;
+export function useSelectMethods(options: UseSelectOptions) {
+  const { multiple, valueSet, onChange, allValues } = options;
   const isMultiple = () => !!unrefOrGet(multiple);
   const methods = {
     isSelected: (value: any) => !!unrefOrGet(valueSet)?.has(value),
@@ -33,7 +35,7 @@ export function useSelect(options: UseSelectOptions) {
         values.forEach((i) => result.delete(i));
         onChange(Array.from(result));
       } else {
-        if (values[0] === undefined || unrefOrGet(value) === values[0]) onChange(null);
+        if (values[0] === undefined || getFirstOfIterable(unrefOrGet(valueSet)!) === values[0]) onChange(null);
       }
     },
     reverse() {
@@ -45,7 +47,7 @@ export function useSelect(options: UseSelectOptions) {
           else result.add(i);
         });
         onChange(Array.from(result));
-      } else onChange(unrefOrGet(value) == null ? Array.from(all)[0] : null);
+      } else onChange(!unrefOrGet(valueSet)?.size ? Array.from(all)[0] : null);
     },
     toggle(value: any) {
       if (methods.isSelected(value)) methods.unselect(value);
@@ -55,8 +57,8 @@ export function useSelect(options: UseSelectOptions) {
   return methods;
 }
 
-export const useCheckbox = (options: UseSelectOptions) => {
-  const result = useSelect({ ...options, multiple: true });
+export const useCheckboxMethods = (options: UseSelectOptions) => {
+  const result = useSelectMethods({ ...options, multiple: true });
   return {
     isChecked: result.isSelected,
     checkAll: result.selectAll,

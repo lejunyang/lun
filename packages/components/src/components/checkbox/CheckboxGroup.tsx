@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { useCheckbox, useSetupEdit } from '@lun/core';
+import { useCheckboxMethods, useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
 import { CheckboxCollector } from './collector';
@@ -37,8 +37,7 @@ export const CheckboxGroup = defineSSRCustomElement({
           ),
         ),
     );
-    const methods = useCheckbox({
-      value: valueModel,
+    const methods = useCheckboxMethods({
       valueSet: checkedValueSet,
       allValues: childValueSet,
       onChange(value) {
@@ -100,6 +99,6 @@ export const CheckboxGroup = defineSSRCustomElement({
 });
 
 export type tCheckboxGroup = typeof CheckboxGroup;
-export type iCheckboxGroup = InstanceType<tCheckboxGroup> & ReturnType<typeof useCheckbox>;
+export type iCheckboxGroup = InstanceType<tCheckboxGroup> & ReturnType<typeof useCheckboxMethods>;
 
 export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup);
