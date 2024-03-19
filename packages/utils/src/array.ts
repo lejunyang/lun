@@ -33,7 +33,7 @@ export function toNoneNilSet<T extends (Iterable<any> | null | undefined)[]>(
   return result as any;
 }
 
-export function getFirstOfIterable<T>(iterable: Iterable<T>): T | undefined {
+export function getFirstOfIterable<T>(iterable?: Iterable<T>): T | undefined {
   if (!isIterable(iterable)) return;
   for (const value of iterable) {
     return value;
