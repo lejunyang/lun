@@ -2,10 +2,12 @@ import { ExtractPropTypes } from 'vue';
 import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropStrOrArr, PropString, Status, themeProps } from 'common';
 import { baseInputProps } from '../input/type';
 import { MentionsTriggerParam } from '@lun/core';
+import { createOptionProps } from 'hooks';
 
 export const mentionsProps = {
   ...baseInputProps,
   ...themeProps,
+  ...createOptionProps(false, true),
   triggers: PropStrOrArr(),
   suffix: PropString(),
   label: PropString(),

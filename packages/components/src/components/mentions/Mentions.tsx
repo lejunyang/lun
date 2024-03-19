@@ -10,6 +10,7 @@ import {
   useCEExpose,
   useCEStates,
   useNamespace,
+  useOptions,
   usePropsFromFormItem,
   useSetupContextEvent,
   useValueModel,
@@ -19,6 +20,8 @@ import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 import { mentionsEmits, mentionsProps } from './type';
 import { definePopover } from '../popover';
+import { defineSelectOption } from '../select';
+import { useSelect } from '../select/useSelect';
 
 const name = 'mentions';
 export const Mentions = defineSSRCustomElement({
@@ -66,7 +69,7 @@ export const Mentions = defineSSRCustomElement({
       });
     });
 
-    const { handlers, editRef, render, state } = useMentions(
+    const { handlers, editRef, render, state, commit } = useMentions(
       computed(() => {
         return {
           ...props,
@@ -83,6 +86,10 @@ export const Mentions = defineSSRCustomElement({
             endRange.value = param.endRange;
             emit('trigger', param);
           },
+          onCommit() {
+            const child = activateMethods.getActiveChild();
+            return [child?.props.value as string, child?.props.label as string];
+          }
         };
       }),
     );
@@ -128,6 +135,29 @@ export const Mentions = defineSSRCustomElement({
         renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
+    const selected = ref<string>();
+    const { context, activateHandlers, activateMethods } = useSelect(
+      {
+        get upDownToggle() {
+          return !!state.lastTrigger;
+        },
+        autoActivateFirst: true,
+      },
+      selected,
+    );
+    watchEffect(() => {
+      console.log('selected.value', selected.value);
+      if (selected.value) {
+        const child = activateMethods.getActiveChild();
+        console.log('child', child);
+        commit(child?.props.value as string, child?.props.label as string);
+        selected.value = undefined;
+      }
+    });
+    const { options, render: optionsRender } = useOptions(props, 'select-option', {
+      mapOptionKey: () => state.lastTrigger,
+    });
+
     const contenteditable = supportsPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
       const { editable } = editComputed.value;
@@ -153,6 +183,8 @@ export const Mentions = defineSSRCustomElement({
             />
             <div
               {...attrs}
+              // @ts-ignore if render.value changes, re-render this div to avoid DOM error when vue re-render its children(we remove some empty nodes during input, maybe that conflicts with vue)
+              key={render.value}
               ref={editRef}
               part="textarea"
               class={ns.e('textarea')}
@@ -162,6 +194,7 @@ export const Mentions = defineSSRCustomElement({
               }}
               contenteditable={editable ? contenteditable : 'false'}
               {...handlers}
+              {...activateHandlers}
             >
               {render.value}
             </div>
@@ -170,12 +203,21 @@ export const Mentions = defineSSRCustomElement({
           <div class={ns.e('length-info')} part="length-info">
             {lengthInfo.value}
           </div>
-          {renderElement('popover', {
-            showArrow: false,
-            open: state.lastTrigger,
-            content: 'test',
-            target: endRange,
-          })}
+          {renderElement(
+            'popover',
+            {
+              showArrow: false,
+              open: state.lastTrigger,
+              target: endRange,
+            },
+            <div class={ns.e('content')} part="content" slot="pop-content">
+              {!context.value.length && !options.value?.length ? (
+                <slot name="no-content">No content</slot> // TODO emptyText prop
+              ) : (
+                [optionsRender.value, <slot></slot>]
+              )}
+            </div>,
+          )}
         </label>
       );
     };
@@ -191,4 +233,5 @@ export type iMentions = InstanceType<tMentions> & {
 export const defineMentions = createDefineElement(name, Mentions, {
   icon: defineIcon,
   popover: definePopover,
+  'select-option': defineSelectOption,
 });
