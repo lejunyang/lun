@@ -43,47 +43,55 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     return { triggers: t, suffix, on: suffix && t.length };
   });
   //  valueNow = 'abc@he- i don +1- what'
-  const content = useTempState(() => {
-    const { on, triggers, suffix } = info.value;
-    const { value } = unrefOrGet(options);
-    const valueNow = String(unrefOrGet(value) || '');
-    if (!on) return [valueNow];
-    const regex = new RegExp(`(${triggers.join('|')})([^\\r\\n]+?)${suffix}`, 'g');
-    let lastIndex = 0,
-      match: RegExpExecArray | null;
-    const content: (string | MentionBlock)[] = [];
-    while ((match = regex.exec(valueNow)) !== null) {
-      // 添加前一个匹配项和当前匹配项之间的原始字符串
-      if (match.index > lastIndex) {
-        content.push(valueNow.substring(lastIndex, match.index));
+  const content = useTempState(
+    () => {
+      const { on, triggers, suffix } = info.value;
+      const { value } = unrefOrGet(options);
+      const valueNow = String(unrefOrGet(value) || '');
+      if (!on) return [valueNow];
+      const regex = new RegExp(`(${triggers.join('|')})([^\\r\\n]+?)${suffix}`, 'g');
+      let lastIndex = 0,
+        match: RegExpExecArray | null;
+      const content: (string | MentionBlock)[] = [];
+      while ((match = regex.exec(valueNow)) !== null) {
+        // 添加前一个匹配项和当前匹配项之间的原始字符串
+        if (match.index > lastIndex) {
+          content.push(valueNow.substring(lastIndex, match.index));
+        }
+        const trigger = match[1];
+        const label = match[2];
+        content.push({
+          trigger,
+          label,
+          value: label,
+          suffix,
+          actualLength: match[0].length,
+        } as MentionBlock);
+        lastIndex = regex.lastIndex;
       }
-      const trigger = match[1];
-      const label = match[2];
-      content.push({
-        trigger,
-        label,
-        value: label,
-        suffix,
-        actualLength: match[0].length,
-      } as MentionBlock);
-      lastIndex = regex.lastIndex;
-    }
-    if (lastIndex < valueNow.length) {
-      content.push(valueNow.substring(lastIndex));
-    }
-    return content;
-  });
-  // content is a shallowRef, needs to update it manually
-  const updateContent = () => (content.value = [...content.value]);
+      if (lastIndex < valueNow.length) {
+        content.push(valueNow.substring(lastIndex));
+      }
+      return content;
+    },
+    { deep: true },
+  );
 
   // must cache, or it will be re-rendered when lastTrigger changes, the caret will be incorrect
   const render = computed(() => {
-    return content.value.map((item, index) => {
-      if (isString(item) || !item) return item;
+    return content.value.map((item) => {
+      if (isString(item) || !item)
+        return h(
+          'span',
+          {
+            'data-is-text': '',
+            part: 'text',
+          },
+          item,
+        );
       return h(
         'span',
         {
-          'data-index': index,
           'data-is-mention': '',
           'data-trigger': item.trigger,
           'data-suffix': item.suffix,
@@ -132,26 +140,23 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   };
 
   const getRangeInfo = () => {
-    const parent = getRange().startContainer.parentNode!;
-    parent.normalize();
-    // reget range after normalize
+    const { value } = editRef;
     const range = getRange();
     const { startContainer, endContainer } = range;
     let startIndex = -1,
       endIndex = -1;
-    const children = Array.from(parent.childNodes);
+    const children = Array.from(value!.children);
     for (const i in children) {
-      const node = children[i];
-      if (node === startContainer) startIndex = +i;
-      if (node === endContainer) endIndex = +i;
+      const el = children[i];
+      if (el === startContainer.parentElement) startIndex = +i;
+      if (el === endContainer.parentElement) endIndex = +i;
       if (startIndex > -1 && endIndex > -1) break;
     }
     return Object.assign(range, {
-      /** index of startContainer in its parent */
+      /** index of startContainer's parent in editable div */
       startIndex,
-      /** index of endContainer in its parent */
+      /** index of endContainer's parent in editable div */
       endIndex,
-      currentNode: children[currentIndex],
     });
   };
 
@@ -171,8 +176,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const isDelete = inputType.startsWith('delete');
       const range = getRangeInfo();
       const { startOffset, collapsed, startIndex, endIndex } = range;
-      // we should get the index in beforeinput event, as in input event we can get wrong index in this way
-      // for example, if we press enter, a new text node will be created, and at that time the index of endContainer will not be the correct index responding to content.value
+
       currentIndex = endIndex;
 
       if (isDelete) {
@@ -278,7 +282,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       checkIfCancelTrigger(e);
     },
     onBlur(e: FocusEvent) {
-      console.log('blur');
       if (!state.ignoreNextBlur) checkIfCancelTrigger(e);
       else state.ignoreNextBlur = false;
     },
@@ -298,28 +301,16 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       },
       str2 = text.substring(endIndex);
     cancelTrigger();
-    const append = [block, str2]; // even if str2 are empty string, it still needs to be inserted between two blocks;
-    if (str1) append.unshift(str1);
-    content.value.splice(currentIndex, 1, ...append);
-    updateContent();
+    // even if str1 or str2 are empty string, they still needs to be inserted between two blocks, so that we can edit between them
+    content.value.splice(currentIndex, 1, str1, block, str2);
+    // focus on the new added block
     requestAnimationFrame(() => {
       const { value } = editRef;
       if (!value) return;
       const newRange = document.createRange();
-      value.normalize();
-      const text = value.childNodes[currentIndex + +!!str1 + 1]; // text node responding to str2
-      console.log('next text', text);
-      if (!text) {
-        // if no text, means we added a block at the end, we need to add en empty text node so that we can focus the end(block is not focusable)
-        const emptyText = document.createTextNode('');
-        value.append(emptyText);
-        newRange.selectNodeContents(value);
-        newRange.collapse(false);
-        console.log('newRange', newRange);
-      } else {
-        newRange.setStart(text, 0);
-        newRange.setEnd(text, 0);
-      }
+      const text = value.children[currentIndex + 2]; // text node responding to str2
+      newRange.setStart(text, 0);
+      newRange.setEnd(text, 0);
       const selection = localGetSelection()!;
       if (selection) {
         selection.removeAllRanges();
