@@ -1,13 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
-import { ComponentInternalInstance, computed, ref, toRef, mergeProps, nextTick } from 'vue';
+import { computed, ref, mergeProps, nextTick } from 'vue';
 import { createDefineElement, renderElement } from 'utils';
 import { selectEmits, selectProps, selectPropsOfPopover } from './type';
 import { definePopover, iPopover } from '../popover/Popover';
-import { refLikesToGetters, useSelect, useSetupEdit, useTempState } from '@lun/core';
-import { isFunction, isNilOrEmptyStr, objectKeys, pick, toArrayIfNotNil } from '@lun/utils';
+import { refLikesToGetters, useSelectMethods, useSetupEdit, useTempState } from '@lun/core';
+import { isFunction, isNilOrEmptyStr, objectKeys, pick } from '@lun/utils';
 import { defineInput, iInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
-import { SelectCollector } from './collector';
 import { defineSelectOptgroup } from './SelectOptgroup';
 import {
   CommonOption,
@@ -21,7 +20,7 @@ import {
 import { InputFocusOption, intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
 import { defineButton } from '../button/Button';
-import { useActivateOption } from './useActivateOption';
+import { useSelect } from './useSelect';
 
 const name = 'select';
 export const Select = defineSSRCustomElement({
@@ -47,61 +46,26 @@ export const Select = defineSSRCustomElement({
         }
       },
     });
-    const selectedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
     const inputRef = ref();
     const popoverRef = ref<any>();
 
-    const data = computed(() => {
-      const childrenValuesSet = new Set<any>();
-      const valueToChildMap = new Map<any, ComponentInternalInstance>();
-      context.value.forEach((child) => {
-        const { value } = child.props;
-        if (value != null) {
-          !child.exposed?.disabled && childrenValuesSet.add(value); // exclude disabled option from value set
-          valueToChildMap.set(value, child);
+    const { context, methods, activateHandlers, activateMethods, valueToChild } = useSelect(
+      props,
+      valueModel,
+      (option) => {
+        if ((option as any).hidden) return true;
+        const { hideOptionWhenSelected, multiple, filter } = props;
+        const isSelected = methods.isSelected(option.value);
+        let filterResult: boolean | undefined = true;
+        // only filter when input value changed once
+        if (inputValue.changedOnce) {
+          if (filter === true) {
+            filterResult = option.label?.toLowerCase().includes(inputValue.value?.toLowerCase() ?? '');
+          } else if (isFunction(filter)) filterResult = filter(inputValue.value, option);
         }
-      });
-      return { childrenValuesSet, valueToChildMap };
-    });
-    const valueToChild = (value: any) => data.value.valueToChildMap.get(value);
-
-    const methods = useSelect({
-      multiple: toRef(props, 'multiple'),
-      value: valueModel,
-      valueSet: selectedValueSet,
-      onChange(value) {
-        valueModel.value = value;
+        return (hideOptionWhenSelected && multiple && isSelected) || !filterResult;
       },
-      allValues: () => data.value.childrenValuesSet,
-    });
-    const context = SelectCollector.parent({
-      extraProvide: {
-        ...methods,
-        isHidden(option) {
-          if ((option as any).hidden) return true;
-          const { hideOptionWhenSelected, multiple, filter } = props;
-          const isSelected = methods.isSelected(option.value);
-          let filterResult: boolean | undefined = true;
-          // only filter when input value changed once
-          if (inputValue.changedOnce) {
-            if (filter === true) {
-              filterResult = option.label?.toLowerCase().includes(inputValue.value?.toLowerCase() ?? '');
-            } else if (isFunction(filter)) filterResult = filter(inputValue.value, option);
-          }
-          return (hideOptionWhenSelected && multiple && isSelected) || !filterResult;
-        },
-        isActive(vm) {
-          return activateMethods.isActive(vm);
-        },
-        activate(vm) {
-          activateMethods.activate(vm);
-        },
-        deactivate() {
-          activateMethods.deactivate();
-        },
-      },
-    });
-    const { methods: activateMethods, handlers: activateHandlers } = useActivateOption(context, () => props); // can not use props directly, as it has 'value' prop...
+    );
 
     const customTagProps = (value: any) => {
       const child = valueToChild(value);
@@ -209,7 +173,7 @@ export const Select = defineSSRCustomElement({
             hidden: !value || !inputValue.changedOnce || hasLabelSameAsInput || multiple,
             key: -1, // renderOption will use value as key by default, that will lead to rerender every time value changes
             onClick() {
-              createdOptions.value.unshift({ label: value, value });
+              createdOptions.value.unshift(value);
             },
           }),
       };
@@ -264,7 +228,7 @@ export const Select = defineSSRCustomElement({
               const child = valueToChild(value);
               if (child !== context.value[0]) return;
               methods.select(value);
-              createdOptions.value.unshift({ label: value, value });
+              createdOptions.value.unshift(value);
               inputValue.reset();
               nextTick(activateMethods.activateCurrentSelected);
             }
@@ -337,7 +301,7 @@ export const Select = defineSSRCustomElement({
 
 export type tSelect = typeof Select;
 export type iSelect = InstanceType<tSelect> &
-  ReturnType<typeof useSelect> & {
+  ReturnType<typeof useSelectMethods> & {
     blur: () => void;
     focus: (option?: InputFocusOption) => void;
     readonly input: iInput;
