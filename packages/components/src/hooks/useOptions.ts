@@ -6,7 +6,8 @@ import { ComponentKey } from '../components';
 import { PropObject, EditStateProps, editStateProps } from 'common';
 
 type Style = { class?: any; style?: StyleValue };
-export type CommonOption = ({ label?: string; value?: any } & Style & EditStateProps & Record<string, any>) | string;
+export type CommonProcessedOption = { label?: string; value?: any } & Style & EditStateProps & Record<string, any>;
+export type CommonOption = CommonProcessedOption | string;
 export type CommonOptionGroup = {
   label?: string;
   children?: CommonOption[];
@@ -26,12 +27,20 @@ export type CommonOptionNameMap = { label?: string; value?: string; children?: s
 export const createOptionProps = <
   T extends boolean = false,
   M extends object = T extends true ? CommonOptionNameMap : Omit<CommonOptionNameMap, 'children'>,
+  HasMapOption extends boolean = false,
 >(
   _hasChildren?: T,
+  _hasMapOption?: HasMapOption,
 ) => {
   return {
     ...editStateProps,
-    options: { type: [Array, Function] as PropType<MaybePromiseOrGetter<CommonOptions<T>>> },
+    options: {
+      type: [Function, Object] as PropType<
+        HasMapOption extends true
+          ? Record<string, MaybePromiseOrGetter<CommonOptions<T>>>
+          : MaybePromiseOrGetter<CommonOptions<T>>
+      >,
+    },
     optionNameMap: PropObject<M>(),
   };
 };
@@ -45,23 +54,45 @@ export const createOptionProps = <
  */
 export function useOptions<
   G extends ComponentKey | undefined = undefined,
+  MapOption extends string | undefined = undefined,
   HasChildren extends boolean = G extends undefined ? false : true,
 >(
-  props: { options?: MaybePromiseOrGetter<CommonOptions<HasChildren>>; optionNameMap?: CommonOptionNameMap },
+  props: {
+    options?: MapOption extends string
+      ? Record<string, MaybePromiseOrGetter<CommonOptions<HasChildren>>>
+      : MaybePromiseOrGetter<CommonOptions<HasChildren>>;
+    optionNameMap?: CommonOptionNameMap;
+  },
   optionName: ComponentKey,
-  params: {
+  {
+    groupOptionName,
+    context,
+    contextName,
+    mapOptionKey,
+  }: {
     groupOptionName?: G;
     context?: any;
     contextName?: string;
+    /**
+     * if mapOption exists, options will be considered as an object or an array.
+     * if options is an array, return it;
+     * if it's an object, return options[mapOption]
+     */
+    mapOptionKey?: () => MapOption;
   } = {},
 ) {
-  const { groupOptionName, context, contextName } = params;
-  const [options, loading] = usePromiseRef(toRef(props, 'options'), {
-    fallbackWhenReject: (err) => {
-      error(err);
-      return [];
+  const [options, loading] = usePromiseRef(
+    mapOptionKey
+      ? // @ts-ignore
+        () => (isArray(props.options) ? props.options : props.options?.[mapOptionKey()])
+      : toRef(props, 'options'),
+    {
+      fallbackWhenReject: (err) => {
+        error(err);
+        return [];
+      },
     },
-  }) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
+  ) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
   const processOption = (option: any, index?: number) => {
     if (isString(option)) option = { label: option, value: option };
     const { optionNameMap } = props;
