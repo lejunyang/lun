@@ -143,12 +143,11 @@ export const Mentions = defineSSRCustomElement({
         autoActivateFirst: true,
       },
       selected,
+      // TODO isHidden 可以过滤搜索的选项
     );
     watchEffect(() => {
-      console.log('selected.value', selected.value);
       if (selected.value) {
         const child = activateMethods.getActiveChild();
-        console.log('child', child);
         commit(child?.props.value as string, child?.props.label as string);
         selected.value = undefined;
       }
