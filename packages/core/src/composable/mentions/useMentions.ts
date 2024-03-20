@@ -1,8 +1,8 @@
 import { UseInputOptions, useInput } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { isEnterDown, isString, toArrayIfNotNil } from '@lun/utils';
-import { Ref, computed, h, reactive, ref, watchEffect } from 'vue';
+import { isEnterDown, isString, supportsPlaintextEditable, toArrayIfNotNil } from '@lun/utils';
+import { Ref, computed, h, mergeProps, reactive, ref, watchEffect } from 'vue';
 
 export type MentionsTriggerParam = {
   trigger: string;
@@ -24,7 +24,7 @@ export type UseMentionsOptions = UseInputOptions & {
 export type MentionBlock = {
   trigger: string;
   label: string;
-  value: any;
+  value: string;
   suffix: string;
   actualLength: number;
 };
@@ -42,7 +42,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     const t = toArrayIfNotNil(triggers).filter(Boolean);
     return { triggers: t, suffix, on: suffix && t.length };
   });
-  //  valueNow = 'abc@he- i don +1- what'
+  //  valueNow = 'abc@he what' => ['abc', { trigger: '@', value: 'he', label: 'he', suffix: ' ', actualLength: 4 }, 'what']
   const content = useTempState(
     () => {
       const { on, triggers, suffix } = info.value;
@@ -54,7 +54,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         match: RegExpExecArray | null;
       const content: (string | MentionBlock)[] = [];
       while ((match = regex.exec(valueNow)) !== null) {
-        // 添加前一个匹配项和当前匹配项之间的原始字符串
         if (match.index > lastIndex) {
           content.push(valueNow.substring(lastIndex, match.index));
         }
@@ -77,7 +76,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     { deep: true },
   );
 
-  // must cache, or it will be re-rendered when lastTrigger changes, the caret will be incorrect
   const render = computed(() => {
     return content.value.map((item) => {
       if (isString(item) || !item)
@@ -94,6 +92,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         {
           'data-is-mention': '',
           'data-trigger': item.trigger,
+          'data-value': item.value,
           'data-suffix': item.suffix,
           contenteditable: 'false',
           part: 'mention',
@@ -114,17 +113,17 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       | StaticRange
       | Range;
   };
-  const state = reactive({
-    isComposing: false,
-    lastTrigger: undefined as string | undefined,
-    ignoreNextBlur: false,
-  });
   watchEffect(() => {
     const { value } = editRef;
     root.value = value?.getRootNode() as Document;
     localGetSelection = root.value?.getSelection?.bind(root.value) || document.getSelection.bind(document);
   });
 
+  const state = reactive({
+    isComposing: false,
+    lastTrigger: undefined as string | undefined,
+    ignoreNextBlur: false,
+  });
   let currentIndex = 0,
     triggerStartIndex = 0,
     triggerEndIndex = 0,
@@ -133,6 +132,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     lastDeleteStartIndex = -1,
     lastDeleteEndIndex = 0,
     lastTriggerParam: MentionsTriggerParam,
+    textBeforeLastDelete = '',
     textAfterLastDelete = '';
   const cancelTrigger = () => {
     console.log('canceled');
@@ -171,34 +171,41 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     }
   };
 
-  const handlers = {
+  let handlers = {
     onBeforeinput(_e: Event) {
       const { inputType, data, dataTransfer } = _e as InputEvent;
-      const isDelete = inputType.startsWith('delete');
+      const isDelete = inputType.startsWith('delete'),
+        isInsert = inputType.startsWith('insert');
       const range = getRangeInfo();
-      const { startOffset, endOffset, endContainer, collapsed, startIndex, endIndex } = range;
+      const selectionLen = range.toString().length;
+      const { startOffset, startContainer, endOffset, endContainer, collapsed, startIndex, endIndex } = range;
 
       currentIndex = endIndex;
 
-      if (isDelete) {
+      // when there is a selection, insert will also delete text
+      if (isDelete || (isInsert && selectionLen)) {
         // if startIndex !== endIndex, there must be at least a mention block in the range being deleted
         if (!collapsed && startIndex !== endIndex) {
           lastDeleteStartIndex = Math.min(startIndex, endIndex);
           lastDeleteEndIndex = Math.max(startIndex, endIndex);
+          textBeforeLastDelete = startContainer.textContent!.substring(0, startOffset);
           textAfterLastDelete = endContainer.textContent!.substring(endOffset);
+          console.log('textAfterLastDelete', textAfterLastDelete);
         } else if (collapsed && startOffset === 0) {
           // if startOffset === 0, it means the cursor is at the beginning of a text node, and the previous node is a mention block
           lastDeleteStartIndex = currentIndex - 2; // currentIndex === 0 won't bother it, lastDeleteStartIndex > -1 will be checked in onInput
           lastDeleteEndIndex = currentIndex;
+          textBeforeLastDelete = '';
           textAfterLastDelete = endContainer.textContent!;
         }
       } else lastDeleteStartIndex = -1;
 
+      console.log('e', inputType, data, { startIndex, endIndex, collapsed });
+
       // below it's to updating triggerEndIndex
       if (!state.lastTrigger) return;
-      const selectionLen = range.toString().length;
       // don't add the composition length to the triggerEndIndex here as text can be changed after composition ends, it needs to be handled in composition event
-      if (inputType.startsWith('insert') && !state.isComposing) {
+      if (isInsert && !state.isComposing) {
         const add = data?.length || dataTransfer?.getData('text').length || 0;
         if (add || selectionLen) {
           triggerEndIndex += add;
@@ -227,10 +234,14 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const textNode = startContainer as Text,
         text = textNode.textContent!;
 
+      console.log('input currentIndex', currentIndex, text);
       if (lastDeleteStartIndex > -1) {
-        content.value[lastDeleteStartIndex] = text + textAfterLastDelete;
-        content.value.splice(lastDeleteStartIndex + 1, lastDeleteEndIndex - lastDeleteStartIndex);
-        requestFocus(lastDeleteStartIndex, text.length);
+        content.value.splice(
+          lastDeleteStartIndex,
+          lastDeleteEndIndex - lastDeleteStartIndex + 1,
+          textBeforeLastDelete + text + textAfterLastDelete,
+        );
+        requestFocus(lastDeleteStartIndex, (textBeforeLastDelete + text).length);
       } else content.value[currentIndex] = text;
 
       console.log('content.value', content.value, text, startOffset);
@@ -289,24 +300,67 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (!state.ignoreNextBlur) checkIfCancelTrigger(e);
       else state.ignoreNextBlur = false;
     },
+    onPaste(e: ClipboardEvent) {
+      e.preventDefault();
+      const range = getRangeInfo();
+      const selectionLen = range.toString().length;
+      const text = e.clipboardData?.getData('text/plain') || '';
+      const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex } = range;
+      if (!text && !selectionLen) return;
+      const textBefore = startContainer.textContent!.substring(0, startOffset),
+        textAfter = endContainer.textContent!.substring(endOffset);
+      console.log('paste', {
+        startOffset,
+        startContainer,
+        endOffset,
+        endContainer,
+        startIndex,
+        endIndex,
+        textBefore,
+        textAfter,
+      });
+      if (startIndex !== endIndex) {
+        content.value.splice(startIndex, endIndex - startIndex + 1, textBefore + text + textAfter);
+      } else {
+        content.value[startIndex] = textBefore + text + textAfter;
+      }
+      requestFocus(startIndex, (textBefore + text).length);
+    },
   };
+  if (!supportsPlaintextEditable()) {
+    handlers = mergeProps(handlers, {
+      onKeydown(e: KeyboardEvent) {
+        if (e.ctrlKey || e.metaKey) {
+          switch (e.key) {
+            case 'b': //ctrl+B or ctrl+b
+            case 'B':
+            case 'i': //ctrl+I or ctrl+i
+            case 'I':
+            case 'u': //ctrl+U or ctrl+u
+            case 'U': {
+              e.preventDefault();
+              break;
+            }
+          }
+        }
+      },
+    }) as any;
+  }
 
   const requestFocus = (index: number, offset: number = 0) => {
     requestAnimationFrame(() => {
       const { value } = editRef;
       if (!value) return;
-      const newRange = document.createRange();
       const el = value.children[index]?.firstChild as Text;
       if (!el) return;
-      newRange.setStart(el, offset);
-      newRange.setEnd(el, offset);
+      const newRange = getRangeOfText(el, offset);
       const selection = localGetSelection()!;
       if (selection) {
         selection.removeAllRanges();
         selection.addRange(newRange);
       }
     });
-  }
+  };
 
   const commit = (value?: string | null, label?: string | null) => {
     if (!state.lastTrigger || value == null) return cancelTrigger();
