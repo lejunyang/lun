@@ -31,6 +31,7 @@
     scrollbar-width: thin;
     outline: none;
     border: none;
+    cursor: text;
     padding-inline-end: calc(var(--padding-inline-start) * 1.2 + var(--icon-size));
     grid-area: 1 / 1;
     @include declareVars(
@@ -40,6 +41,16 @@
     &:focus {
       outline: 2px solid getFocusColor();
       outline-offset: -1px;
+    }
+  }
+
+  [data-is-mention] {
+    color: getAccentColor(9);
+    @include declareVarValues((
+      padding-inline: (mention-padding-inline, 0.5ch),
+    ));
+    & + & {
+      padding-inline-start: 0;
     }
   }
 
@@ -163,7 +174,7 @@
         font-size: getFontSizeValue(2),
         border-radius: getRadiusValue(2),
         // min-block-size: 150px,
-        // min-inline-size: 200px,
+        // min-inline-size: 200px,,,
       )
     );
   }
