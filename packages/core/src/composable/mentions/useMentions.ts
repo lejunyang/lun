@@ -161,7 +161,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       else if (el === endContainer) endIndex = +i + (isTextSpan(el) ? 0 : 1);
       if (startIndex > -1 && endIndex > -1) break;
     }
-    console.log('range', range, { startIndex, endIndex });
     return Object.assign(range, {
       /** index of startContainer's parent in editable div */
       startIndex,
@@ -172,10 +171,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     });
   };
 
-  const checkIfCancelTrigger = (e: KeyboardEvent | MouseEvent | FocusEvent) => {
+  const checkIfCancelTrigger = (e?: KeyboardEvent | MouseEvent | FocusEvent) => {
     if (state.lastTrigger) {
       const { focusOffset } = localGetSelection()!; // seems that endOffset is not always equal to focusOffset, startOffset counts
-      let cancel = e.type === 'blur';
+      let cancel = e?.type === 'blur';
       cancel ||=
         focusOffset < triggerStartIndex || focusOffset > triggerEndIndex || getRangeInfo().endIndex !== currentIndex;
       if (cancel) cancelTrigger();
@@ -199,8 +198,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
      * @returns whether this operation will delete mentions
      */
     const recordInsertOrDelete = (insertText?: string, isForward?: boolean) => {
-      const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } =
-        getRangeInfo();
+      const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } = getRangeInfo();
       // if startOffset === 0 && collapsed, it means the cursor is at the beginning of a text node, then if startIndex > 1, means the previous node is a mention span. it's about to delete the mention span
       // need a isForward flag because caret offset is not enough to determine whether is backward or forward when caret is between two mention spans
       const isBackDeleteMention = !isForward && !insertText && collapsed && startOffset === 0 && startIndex > 1,
@@ -312,22 +310,22 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         cancelTrigger();
       }
     },
-    onInput(e: Event) {
+    onInput() {
       const range = getRangeInfo();
-      const { startOffset, startContainer, endContainer, endOffset } = range;
+      let { startOffset, startContainer } = range;
       const textNode = startContainer as Text,
         text = textNode.parentNode!.textContent!; // need to get the text from parent span, as span may have multiple text nodes, especially when press Enter
 
-      console.log(
-        'input currentIndex',
-        currentIndex,
-        textNode,
-        // text,
-      );
-      // console.log('text', text, { startContainer, endContainer, startOffset, endOffset }, startContainer.previousSibling);
+      // it happens when press enter, there will be multiple text nodes in span
+      if (text !== startContainer.textContent) {
+        let temp: Node | null | undefined = startContainer;
+        while ((temp = temp?.previousSibling)) {
+          startOffset += temp.textContent!.length;
+        }
+      }
       content.value[currentIndex] = text;
+      requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
-      console.log('content.value', content.value, text, startOffset);
       const { triggers, on } = info.value;
       const { onTrigger } = unrefOrGet(options);
       if (!on) return;
@@ -346,7 +344,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           startIndex: triggerStartIndex,
           endIndex: triggerEndIndex,
         };
-        console.log(lastTriggerParam);
         onTrigger && onTrigger(lastTriggerParam);
       }
     },
@@ -417,12 +414,15 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const el = value.children[index],
         text = el?.firstChild as Text; // empty '' will render empty span with no firstChild
       if (!el) return;
-      
-      const newRange = getRangeWithOffset(text || el, text ? offset : 0);
       const selection = localGetSelection()!;
       if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(newRange);
+        // seems that add range in shadow DOM works in chrome, not in safari
+        // const newRange = getRangeWithOffset(text || el, text ? offset : 0);
+        // selection.removeAllRanges();
+        // selection.addRange(newRange);
+        const node = text || el;
+        if (!text) offset = 0;
+        selection.setBaseAndExtent(node, offset, node, offset);
       }
     });
   };

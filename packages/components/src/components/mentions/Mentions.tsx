@@ -3,7 +3,7 @@
  * 记录cursorIndexInTotal cursorIndexInArr
  */
 import { computed, nextTick, ref, watchEffect } from 'vue';
-import { useSetupEdit, refLikesToGetters, useInput, useInputElement, useMentions } from '@lun/core';
+import { useSetupEdit, refLikesToGetters, useInput, useInputElement, useMentions, VirtualElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -36,7 +36,7 @@ export const Mentions = defineSSRCustomElement({
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     const textareaRef = ref<HTMLTextAreaElement>();
-    const endRange = ref<Range>();
+    const target = ref<VirtualElement>();
 
     let maxHeight: number;
     const adjustHeight = (el?: HTMLTextAreaElement) => {
@@ -83,7 +83,12 @@ export const Mentions = defineSSRCustomElement({
             emit('enterDown', e);
           },
           onTrigger(param) {
-            endRange.value = param.endRange;
+            const rect = param.endRange.getBoundingClientRect();
+            // get the rect immediately to fix a bug. found that in safari if use the range as popover target, the position would be incorrect
+            // seems that the range endContainer is updated to span, not the text node, and at that time the rect is incorrect for unknown reason
+            target.value = {
+              getBoundingClientRect: () => rect,
+            };
             emit('trigger', param);
           },
           onCommit() {
@@ -152,7 +157,7 @@ export const Mentions = defineSSRCustomElement({
         selected.value = undefined;
       }
     });
-    const { options, render: optionsRender } = useOptions(props, 'select-option', {
+    const { options, render: optionsRender, isEmpty: isNoOptions } = useOptions(props, 'select-option', {
       mapOptionKey: () => state.lastTrigger,
     });
 
@@ -204,11 +209,11 @@ export const Mentions = defineSSRCustomElement({
             'popover',
             {
               showArrow: false,
-              open: state.lastTrigger,
-              target: endRange,
+              open: !!state.lastTrigger,
+              target,
             },
             <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
-              {!context.value.length && !options.value?.length ? (
+              {!context.value.length && isNoOptions() ? (
                 <slot name="no-content">No content</slot> // TODO emptyText prop
               ) : (
                 [optionsRender.value, <slot></slot>]
