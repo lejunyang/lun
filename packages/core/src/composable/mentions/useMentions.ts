@@ -3,6 +3,7 @@ import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
 import { isEnterDown, isHTMLElement, isString, supportsPlaintextEditable, toArrayIfNotNil } from '@lun/utils';
 import { Ref, computed, h, mergeProps, reactive, ref, watchEffect } from 'vue';
+import { rangeToString } from './utils';
 
 export type MentionsTriggerParam = {
   trigger: string;
@@ -112,7 +113,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   let localGetSelection: () => Selection | null;
   const getRange = () => {
     const selection = localGetSelection() as any;
-    return (selection.getComposedRanges ? selection.getComposedRanges()[0] : selection.getRangeAt(0)) as
+    return (selection.getComposedRanges ? selection.getComposedRanges(root.value)[0] : selection.getRangeAt(0)) as
       | StaticRange
       | Range;
   };
@@ -160,11 +161,14 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       else if (el === endContainer) endIndex = +i + (isTextSpan(el) ? 0 : 1);
       if (startIndex > -1 && endIndex > -1) break;
     }
+    console.log('range', range, { startIndex, endIndex });
     return Object.assign(range, {
       /** index of startContainer's parent in editable div */
       startIndex,
       /** index of endContainer's parent in editable div */
       endIndex,
+      // StaticRange doesn't have toString method...
+      selectText: rangeToString(range),
     });
   };
 
@@ -195,14 +199,14 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
      * @returns whether this operation will delete mentions
      */
     const recordInsertOrDelete = (insertText?: string, isForward?: boolean) => {
-      const range = getRangeInfo();
-      const select = range.toString();
-      const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } = getRangeInfo();
+      const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } =
+        getRangeInfo();
       // if startOffset === 0 && collapsed, it means the cursor is at the beginning of a text node, then if startIndex > 1, means the previous node is a mention span. it's about to delete the mention span
       // need a isForward flag because caret offset is not enough to determine whether is backward or forward when caret is between two mention spans
-      const isBackDeleteMention = !isForward && collapsed && startOffset === 0 && startIndex > 1,
+      const isBackDeleteMention = !isForward && !insertText && collapsed && startOffset === 0 && startIndex > 1,
         isForwardDeleteMention =
           !!isForward &&
+          !insertText &&
           collapsed &&
           endOffset === endContainer.textContent!.length &&
           endIndex < content.value.length - 2;
@@ -215,7 +219,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         endOffset,
         startContainer,
       });
-      if (!insertText && !select && !isBackDeleteMention && !isForwardDeleteMention) return (recorded = false);
+      if (!insertText && collapsed && !isBackDeleteMention && !isForwardDeleteMention) return (recorded = false);
       recorded = true;
       insertText ||= '';
       const textBefore = isBackDeleteMention
@@ -241,7 +245,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       } else {
         content.value[deleteStartIndex] = text;
       }
-      console.log('commitLastRecord content.value', content.value);
+      console.log('commitLastRecord content.value', content.value, 'focus', deleteStartIndex, focusOffset);
       requestFocus(deleteStartIndex, focusOffset);
       return true;
     };
@@ -254,9 +258,21 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const isDelete = inputType.startsWith('delete'),
         isInsert = inputType.startsWith('insert');
       const range = getRangeInfo();
-      const selectionLen = range.toString().length;
-      const { startOffset, startContainer, endOffset, endContainer, collapsed, startIndex, endIndex } = range;
+
+      const { startOffset, startContainer, endOffset, endContainer, collapsed, startIndex, endIndex, selectText } =
+        range;
+      const selectionLen = selectText.length;
       const insertText = data || dataTransfer?.getData('text');
+
+      console.log('e', inputType, data, {
+        startIndex,
+        endIndex,
+        collapsed,
+        startContainer,
+        endContainer,
+        startOffset,
+        endOffset,
+      });
 
       currentIndex = endIndex;
 
@@ -269,16 +285,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         e.preventDefault();
         commitLastRecord(true);
       }
-
-      console.log('e', inputType, data, {
-        startIndex,
-        endIndex,
-        collapsed,
-        startContainer,
-        endContainer,
-        startOffset,
-        endOffset,
-      });
 
       // below it's to updating triggerEndIndex
       if (!state.lastTrigger) return;
@@ -308,17 +314,18 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
     onInput(e: Event) {
       const range = getRangeInfo();
-      const { startOffset, startContainer } = range;
+      const { startOffset, startContainer, endContainer, endOffset } = range;
       const textNode = startContainer as Text,
-        text = textNode.textContent!;
+        text = textNode.parentNode!.textContent!; // need to get the text from parent span, as span may have multiple text nodes, especially when press Enter
 
       console.log(
         'input currentIndex',
         currentIndex,
-        text,
-        [...editRef.value!.children].map((i) => i.textContent),
+        textNode,
+        // text,
       );
-      if (!commitLastRecord()) content.value[currentIndex] = text;
+      // console.log('text', text, { startContainer, endContainer, startOffset, endOffset }, startContainer.previousSibling);
+      content.value[currentIndex] = text;
 
       console.log('content.value', content.value, text, startOffset);
       const { triggers, on } = info.value;
@@ -410,6 +417,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const el = value.children[index],
         text = el?.firstChild as Text; // empty '' will render empty span with no firstChild
       if (!el) return;
+      
       const newRange = getRangeWithOffset(text || el, text ? offset : 0);
       const selection = localGetSelection()!;
       if (selection) {
