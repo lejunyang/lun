@@ -21,7 +21,7 @@ export type UseMentionsOptions = UseInputOptions & {
   onCommit?: () => [string | null | undefined, string | null | undefined];
 };
 
-export type MentionBlock = {
+export type MentionSpan = {
   trigger: string;
   label: string;
   value: string;
@@ -29,10 +29,10 @@ export type MentionBlock = {
   actualLength: number;
 };
 
-function getRangeOfText(textNode: Text, offset: number = 0) {
+function getRangeWithOffset(node: Node, offset: number = 0) {
   const range = document.createRange();
-  range.setStart(textNode, offset);
-  range.setEnd(textNode, offset);
+  range.setStart(node, offset);
+  range.setEnd(node, offset);
   return range;
 }
 
@@ -52,7 +52,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const regex = new RegExp(`(${triggers.join('|')})([^\\r\\n]+?)${suffix}`, 'g');
       let lastIndex = 0,
         match: RegExpExecArray | null;
-      const content: (string | MentionBlock)[] = [];
+      const content: (string | MentionSpan)[] = [];
       while ((match = regex.exec(valueNow)) !== null) {
         // equal to make sure push an empty string between two mention span
         if (match.index >= lastIndex) {
@@ -66,7 +66,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           value: label,
           suffix,
           actualLength: match[0].length,
-        } as MentionBlock);
+        } as MentionSpan);
         lastIndex = regex.lastIndex;
       }
       // equal to make sure push an empty string if the last one is mention
@@ -148,9 +148,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     const children = Array.from(value!.children);
     for (const i in children) {
       const el = children[i];
-      // startContainer is Text node
-      if (el === startContainer.parentElement) startIndex = +i;
-      else if (el === startContainer) startIndex = +i;
+      // startContainer is Text node or span node
+      if (el === startContainer.parentElement || el === startContainer) startIndex = +i;
 
       // endContainer is Text node
       if (el === endContainer.parentElement) endIndex = +i;
@@ -187,21 +186,26 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       recorded = false,
       willDeleteMention = false;
     /**
-     * record some information when it's about to delete some mention blocks, it happens when:
-     * 1. caret is at the beginning of a text node, the previous node is a mention block, and press backspace key
-     * 2. caret is at the end of a text node, the next node is a mention block, and press delete key
+     * record some information when it's about to delete some mention spans, it happens when:
+     * 1. caret is at the beginning of a text node, the previous node is a mention span, and press backspace key
+     * 2. caret is at the end of a text node, the next node is a mention span, and press delete key
      * 3. there is a selection, and perform delete, input or paste something
      * @param insertText text to be inserted, if not provided, it means delete
+     * @param isForward whether this delete is forward
      * @returns whether this operation will delete mentions
      */
-    const recordInsertOrDelete = (insertText?: string) => {
+    const recordInsertOrDelete = (insertText?: string, isForward?: boolean) => {
       const range = getRangeInfo();
       const select = range.toString();
       const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } = getRangeInfo();
-      // if startOffset === 0 && collapsed, it means the cursor is at the beginning of a text node, then if startIndex > 1, means the previous node is a mention block. it's about to delete the mention block
-      const isBackDeleteMention = collapsed && startOffset === 0 && startIndex > 1,
+      // if startOffset === 0 && collapsed, it means the cursor is at the beginning of a text node, then if startIndex > 1, means the previous node is a mention span. it's about to delete the mention span
+      // need a isForward flag because caret offset is not enough to determine whether is backward or forward when caret is between two mention spans
+      const isBackDeleteMention = !isForward && collapsed && startOffset === 0 && startIndex > 1,
         isForwardDeleteMention =
-          collapsed && endOffset === endContainer.textContent!.length && endIndex < content.value.length - 2;
+          !!isForward &&
+          collapsed &&
+          endOffset === endContainer.textContent!.length &&
+          endIndex < content.value.length - 2;
       console.log({
         isBackDeleteMention,
         isForwardDeleteMention,
@@ -231,12 +235,13 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (!recorded || (commitOnlyDeleteMention && !willDeleteMention)) return false;
       recorded = false;
       console.log({ deleteStartIndex, deleteEndIndex, text });
-      // if deleteStartIndex !== deleteEndIndex, there must be at least a mention block in the range being deleted
+      // if deleteStartIndex !== deleteEndIndex, there must be at least a mention span in the range being deleted
       if (deleteStartIndex !== deleteEndIndex) {
         content.value.splice(deleteStartIndex, deleteEndIndex - deleteStartIndex + 1, text);
       } else {
         content.value[deleteStartIndex] = text;
       }
+      console.log('commitLastRecord content.value', content.value);
       requestFocus(deleteStartIndex, focusOffset);
       return true;
     };
@@ -256,7 +261,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       currentIndex = endIndex;
 
       // when there is a selection, insert will also delete text
-      if ((isDelete || (isInsert && selectionLen)) && recordInsertOrDelete(insertText)) {
+      if ((isDelete || (isInsert && selectionLen)) && recordInsertOrDelete(insertText, inputType.endsWith('Forward'))) {
         // originally I record it in beforeInput and commit it in input event, and I don't prevent beforeInput event, but it doesn't work in some cases
         // for example <span>text</span> <span>@mention1</span> <span>@mention2</span> <span>text2</span>
         // if select the mention1 and delete it, then both dom change and vue re-render happens, but result in <span>text</span> <span>text2</span> for unknown reason
@@ -329,8 +334,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           trigger: state.lastTrigger,
           search,
           text,
-          startRange: getRangeOfText(textNode, triggerStartIndex),
-          endRange: getRangeOfText(textNode, triggerEndIndex),
+          startRange: getRangeWithOffset(textNode, triggerStartIndex),
+          endRange: getRangeWithOffset(textNode, triggerEndIndex),
           startIndex: triggerStartIndex,
           endIndex: triggerEndIndex,
         };
@@ -402,9 +407,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     requestAnimationFrame(() => {
       const { value } = editRef;
       if (!value) return;
-      const el = value.children[index]?.firstChild as Text;
+      const el = value.children[index],
+        text = el?.firstChild as Text; // empty '' will render empty span with no firstChild
       if (!el) return;
-      const newRange = getRangeOfText(el, offset);
+      const newRange = getRangeWithOffset(text || el, text ? offset : 0);
       const selection = localGetSelection()!;
       if (selection) {
         selection.removeAllRanges();
@@ -418,7 +424,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     const { startIndex, endIndex, text, trigger } = lastTriggerParam!;
     const suffix = unrefOrGet(options).suffix!;
     const str1 = text.substring(0, startIndex - trigger.length),
-      block: MentionBlock = {
+      block: MentionSpan = {
         trigger,
         value,
         label: label ?? value,
@@ -427,11 +433,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       },
       str2 = text.substring(endIndex);
     cancelTrigger();
-    // even if str1 or str2 are empty string, they still needs to be inserted between two blocks, so that we can edit between them
+    // even if str1 or str2 are empty string, they still needs to be inserted between two mention spans
     content.value.splice(currentIndex, 1, str1, block, str2);
     // focus on the new added block
     requestFocus(currentIndex + 2);
-    console.log('commit content.value', content.value);
+    console.log('commit content.value', content.value, { currentIndex });
   };
 
   return { render, handlers, editRef, state, commit };
