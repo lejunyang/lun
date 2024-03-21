@@ -1,6 +1,6 @@
-import { isFunction, runIfFn } from '@lun/utils';
+import { isFunction, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { computed, ref, shallowRef, watchEffect, WatchOptionsBase, Ref, watch } from 'vue';
-import { unrefOrGet } from '../utils/ref';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 
 /**
  * create a temporary ref，which means ref value is initialized with getter and you can change it as you want, but it will reset the value when getter updates
@@ -49,9 +49,9 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase & { 
  */
 export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ? R : any>(
   maybeGetter: MT,
-  options?: { fallbackWhenReject?: (err: any) => T; onCancel?: () => void },
+  options?: { fallbackWhenReject?: (err: any) => T; onCancel?: () => void; fnArgs?: MaybeRefLikeOrGetter<any> },
 ) {
-  const { fallbackWhenReject, onCancel } = options || {};
+  const { fallbackWhenReject, onCancel, fnArgs } = options || {};
   const local = ref<T>();
   const pending = ref(false);
   const handlePromise = (maybePromise: any) => {
@@ -81,7 +81,7 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
         onCancel();
       }
     });
-    handlePromise(runIfFn(unrefOrGet(maybeGetter)));
+    handlePromise(runIfFn(unrefOrGet(maybeGetter), ...toArrayIfNotNil(unrefOrGet(fnArgs))));
   });
   return [result, pending] as const;
 }
