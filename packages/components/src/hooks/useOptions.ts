@@ -81,18 +81,18 @@ export function useOptions<
     mapOptionKey?: () => MapOption;
   } = {},
 ) {
-  const [options, loading] = usePromiseRef(
-    mapOptionKey
-      ? // @ts-ignore
-        () => (isArray(props.options) ? props.options : props.options?.[mapOptionKey()])
-      : toRef(props, 'options'),
-    {
-      fallbackWhenReject: (err) => {
-        error(err);
-        return [];
-      },
+  const [options, loading] = usePromiseRef(toRef(props, 'options'), {
+    fallbackWhenReject: (err) => {
+      error(err);
+      return [];
     },
-  ) as readonly [WritableComputedRef<CommonOptions<HasChildren> | undefined>, Ref<boolean>];
+    fnArgs: mapOptionKey,
+  }) as readonly [
+    MapOption extends string
+      ? WritableComputedRef<CommonOptions<HasChildren> | undefined>
+      : WritableComputedRef<CommonOptions<HasChildren> | undefined | Record<string, CommonOptions<HasChildren>>>,
+    Ref<boolean>,
+  ];
   const processOption = (option: any, index?: number) => {
     if (isString(option)) option = { label: option, value: option };
     const { optionNameMap } = props;
@@ -119,15 +119,29 @@ export function useOptions<
     const [option] = processOption(_option, index);
     return renderElement(optionName, option, option.label);
   };
-  const renderOptions = (options?: any[]) =>
-    isArray(options) &&
-    options.map((i: any, index) => {
-      const [option, children] = processOption(i, index);
-      if (groupOptionName && isArray(children)) {
-        return renderElement(groupOptionName, option, children.map(renderOption));
-      }
-      return renderElement(optionName, option, option.label);
-    });
+  const renderOptions = (options?: any) => {
+    return (
+      (isArray(options) || (mapOptionKey && isArray((options = options?.[mapOptionKey()])))) &&
+      options.map((i: any, index) => {
+        const [option, children] = processOption(i, index);
+        if (groupOptionName && isArray(children)) {
+          return renderElement(groupOptionName, option, children.map(renderOption));
+        }
+        return renderElement(optionName, option, option.label);
+      })
+    );
+  };
   const render = computed(() => renderOptions(options.value));
-  return { options, render, loading, renderOptions, renderOption };
+  return {
+    options,
+    render,
+    loading,
+    renderOptions,
+    renderOption,
+    isEmpty() {
+      let opts: any;
+      if (isArray(options.value)) return options.value.length;
+      else if (mapOptionKey && isArray((opts = options.value?.[mapOptionKey()]))) return opts.length;
+    },
+  };
 }
