@@ -1,8 +1,8 @@
 import { UseInputOptions, useInput } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { isEnterDown, isHTMLElement, isString, supportsPlaintextEditable, toArrayIfNotNil } from '@lun/utils';
-import { Ref, computed, h, mergeProps, reactive, ref, watchEffect } from 'vue';
+import { isEnterDown, isHTMLElement, isString, toArrayIfNotNil } from '@lun/utils';
+import { Ref, computed, h, reactive, ref, watchEffect } from 'vue';
 import { rangeToString } from './utils';
 
 export type MentionsTriggerParam = {
@@ -36,6 +36,29 @@ function getRangeWithOffset(node: Node, offset: number = 0) {
   range.setEnd(node, offset);
   return range;
 }
+
+const allowedInputTypes = new Set([
+  // insert
+  'insertParagraph', // enter
+  'insertLineBreak', // shift + enter
+  'insertText',
+  // 'insertReplacementText', // TODO insert or replace existing text by means of a spell checker, auto-correct, writing suggestions or similar
+  'insertCompositionText',
+  'insertFromPaste',
+  // 'insertFromDrop', // TODO also needs to check rich text for it
+  // delete
+  // 'deleteContent', // don't know how to trigger it
+  'deleteContentBackward', // win: backspace, mac: delete
+  'deleteContentForward', // win: delete, mac: fn + delete
+  'deleteWordBackward', // TODO test win: alt + backspace mac: option + delete
+  'deleteWordForward',
+  'deleteByCut', // ctrl + x or cmd + x
+  'deleteByDrag',
+  // how to support deleteSoftLineBackward deleteSoftLineForward
+  // history
+  'historyUndo', // ctrl + z or cmd + z
+  'historyRedo', // ctrl + shift + z or cmd + shift + z
+]);
 
 export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, true>) {
   const info = computed(() => {
@@ -134,6 +157,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     /** length of current composition text */
     compositionLen = 0,
     lastTriggerParam: MentionsTriggerParam;
+  const isBetweenTrigger = (index: number) => index >= triggerStartIndex && index <= triggerEndIndex;
   const cancelTrigger = () => {
     console.log('canceled');
     state.lastTrigger = undefined;
@@ -173,10 +197,15 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
 
   const checkIfCancelTrigger = (e?: KeyboardEvent | MouseEvent | FocusEvent) => {
     if (state.lastTrigger) {
-      const { focusOffset } = localGetSelection()!; // seems that endOffset is not always equal to focusOffset, startOffset counts
+      const { startIndex, endIndex, startOffset, endOffset } = getRangeInfo();
       let cancel = e?.type === 'blur';
+      // !isBetweenTrigger(focusOffset)
+      // can not use focusOffset of selection to determine is out of trigger, in safari, the selection will not pierce into shadow DOM
       cancel ||=
-        focusOffset < triggerStartIndex || focusOffset > triggerEndIndex || getRangeInfo().endIndex !== currentIndex;
+        endIndex !== currentIndex ||
+        startIndex !== currentIndex ||
+        !isBetweenTrigger(startOffset) ||
+        !isBetweenTrigger(endOffset);
       if (cancel) cancelTrigger();
     }
   };
@@ -253,29 +282,21 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   let handlers = {
     onBeforeinput(e: Event) {
       const { inputType, data, dataTransfer } = e as InputEvent;
+      console.log('e', inputType);
+      if (!allowedInputTypes.has(inputType)) return e.preventDefault();
       const isDelete = inputType.startsWith('delete'),
-        isInsert = inputType.startsWith('insert');
+        isInsert = inputType.startsWith('insert'),
+        isDeleteForward = inputType === 'deleteContentForward';
       const range = getRangeInfo();
 
-      const { startOffset, startContainer, endOffset, endContainer, collapsed, startIndex, endIndex, selectText } =
-        range;
+      const { startOffset, endIndex, selectText } = range;
       const selectionLen = selectText.length;
       const insertText = data || dataTransfer?.getData('text');
-
-      console.log('e', inputType, data, {
-        startIndex,
-        endIndex,
-        collapsed,
-        startContainer,
-        endContainer,
-        startOffset,
-        endOffset,
-      });
 
       currentIndex = endIndex;
 
       // when there is a selection, insert will also delete text
-      if ((isDelete || (isInsert && selectionLen)) && recordInsertOrDelete(insertText, inputType.endsWith('Forward'))) {
+      if ((isDelete || (isInsert && selectionLen)) && recordInsertOrDelete(insertText, isDeleteForward)) {
         // originally I record it in beforeInput and commit it in input event, and I don't prevent beforeInput event, but it doesn't work in some cases
         // for example <span>text</span> <span>@mention1</span> <span>@mention2</span> <span>text2</span>
         // if select the mention1 and delete it, then both dom change and vue re-render happens, but result in <span>text</span> <span>text2</span> for unknown reason
@@ -294,12 +315,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           triggerEndIndex -= selectionLen; // if there is a selection in insert, the selection text will be deleted, it won't trigger another delete beforeInput
         }
       } else if (isDelete) {
-        const isContentForward = inputType === 'deleteContentForward',
-          deleteBackward = inputType === 'deleteContentBackward' || inputType === 'deleteByCut';
+        const isDeleteBackward = inputType === 'deleteContentBackward' || inputType === 'deleteByCut';
         // don't know what to do with other delete types, InputEvent.getTargetRanges always returns empty array in shadow DOM, don't know why, can only cancel trigger
-        if (!deleteBackward && !isContentForward) return cancelTrigger();
+        if (!isDeleteBackward && !isDeleteForward) return cancelTrigger();
 
-        if (deleteBackward) {
+        if (isDeleteBackward) {
           if (selectionLen) triggerEndIndex -= selectionLen;
           else if (startOffset === triggerStartIndex) cancelTrigger();
           else triggerEndIndex -= 1;
@@ -324,6 +344,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         }
       }
       content.value[currentIndex] = text;
+      console.log('after input', content.value);
       requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
       const { triggers, on } = info.value;
@@ -387,25 +408,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       commitLastRecord();
     },
   };
-  if (!supportsPlaintextEditable()) {
-    handlers = mergeProps(handlers, {
-      onKeydown(e: KeyboardEvent) {
-        if (e.ctrlKey || e.metaKey) {
-          switch (e.key) {
-            case 'b': //ctrl+B or ctrl+b
-            case 'B':
-            case 'i': //ctrl+I or ctrl+i
-            case 'I':
-            case 'u': //ctrl+U or ctrl+u
-            case 'U': {
-              e.preventDefault();
-              break;
-            }
-          }
-        }
-      },
-    }) as any;
-  }
 
   const requestFocus = (index: number, offset: number = 0) => {
     requestAnimationFrame(() => {
@@ -414,7 +416,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const el = value.children[index],
         text = el?.firstChild as Text; // empty '' will render empty span with no firstChild
       if (!el) return;
-      const selection = localGetSelection()!;
+      const selection = localGetSelection();
       if (selection) {
         // seems that add range in shadow DOM works in chrome, not in safari
         // const newRange = getRangeWithOffset(text || el, text ? offset : 0);
