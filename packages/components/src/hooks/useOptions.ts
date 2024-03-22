@@ -138,7 +138,7 @@ export function useOptions<
     loading,
     renderOptions,
     renderOption,
-    isEmpty() {
+    hasOption() {
       let opts: any;
       if (isArray(options.value)) return options.value.length;
       else if (mapOptionKey && isArray((opts = options.value?.[mapOptionKey()]))) return opts.length;

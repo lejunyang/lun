@@ -1,7 +1,7 @@
 import { ExtractPropTypes } from 'vue';
 import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropStrOrArr, PropString, Status, themeProps } from 'common';
 import { baseInputProps } from '../input/type';
-import { MentionsTriggerParam } from '@lun/core';
+import { MentionSpan, MentionsTriggerParam } from '@lun/core';
 import { createOptionProps } from 'hooks';
 
 export const mentionsProps = {
@@ -26,12 +26,10 @@ export const mentionsProps = {
 };
 
 export const mentionsEmits = {
-  update: null,
+  update: (_param: { value: string | null; raw: readonly (string | MentionSpan)[] }) => null,
   trigger: (_param: MentionsTriggerParam) => null,
   enterDown: null,
 };
-
-
 
 export type MentionsSetupProps = ExtractPropTypes<typeof mentionsProps>;
 export type MentionsEvents = GetEventPropsFromEmits<typeof mentionsEmits>;

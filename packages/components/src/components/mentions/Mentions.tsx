@@ -32,7 +32,7 @@ export const Mentions = defineSSRCustomElement({
   setup(props, { emit, attrs }) {
     useSetupContextEvent();
     const ns = useNamespace(name);
-    const valueModel = useValueModel(props);
+    const valueModel = useValueModel(props, { shouldEmit: false });
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
     const textareaRef = ref<HTMLTextAreaElement>();
@@ -77,11 +77,12 @@ export const Mentions = defineSSRCustomElement({
           disabled: !editComputed.value.editable,
           value: valueModel,
           onChange(val) {
-            valueModel.value = val as string;
+            valueModel.value = val.value;
+            emit('update', val);
           },
-          onEnterDown(e) {
-            emit('enterDown', e);
-          },
+          // onEnterDown(e) {
+          //   emit('enterDown', e);
+          // },
           onTrigger(param) {
             const rect = param.endRange.getBoundingClientRect();
             // get the rect immediately to fix a bug. found that in safari if use the range as popover target, the position would be incorrect
@@ -157,7 +158,10 @@ export const Mentions = defineSSRCustomElement({
         selected.value = undefined;
       }
     });
-    const { options, render: optionsRender, isEmpty: isNoOptions } = useOptions(props, 'select-option', {
+    const {
+      render: optionsRender,
+      hasOption,
+    } = useOptions(props, 'select-option', {
       mapOptionKey: () => state.lastTrigger,
     });
 
@@ -213,7 +217,7 @@ export const Mentions = defineSSRCustomElement({
               target,
             },
             <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
-              {!context.value.length && isNoOptions() ? (
+              {!context.value.length && !hasOption() ? (
                 <slot name="no-content">No content</slot> // TODO emptyText prop
               ) : (
                 [optionsRender.value, <slot></slot>]
