@@ -22,6 +22,7 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   onTrigger?: (param: MentionsTriggerParam) => void;
   onCommit?: () => [string | null | undefined, string | null | undefined];
   onChange?: (param: { value: string; raw: readonly (string | MentionSpan)[] }) => void;
+  hasOptions?: boolean; // TODO if no options, check input if endsWith suffix when triggering
 };
 
 export type MentionSpan = {
@@ -179,24 +180,31 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const getRangeInfo = () => {
     const { value } = editRef;
     const range = getRange();
-    const { startContainer, endContainer } = range;
+    const { startContainer, endContainer, collapsed, startOffset } = range;
     let startIndex = -1,
       endIndex = -1;
-    const children = Array.from(value!.children);
-    for (const i in children) {
-      const el = children[i];
-      // startContainer is Text node or span node
-      if (el === startContainer.parentElement || el === startContainer) startIndex = +i;
+    if (startContainer === value && collapsed && !startOffset) {
+      // special case... if we delete all text in first text span, the range startContainer will be editRef itself for no reason.
+      // I try to reset selection and range to the first text span node, but it doesn't work, so just handle this case here
+      startIndex = endIndex = 0;
+    } else {
+      const children = Array.from(value!.children);
+      for (const i in children) {
+        const el = children[i];
+        // startContainer is Text node or span node
+        if (el === startContainer.parentElement || el === startContainer) startIndex = +i;
 
-      // endContainer is Text node
-      if (el === endContainer.parentElement) endIndex = +i;
-      // endContainer is span node
-      // this could happen when dom is like this <span>text</span><span>@mention</span><span>text</span>
-      // and then just select the mention span, the endContainer will be span.
-      // if the span is a mention span, we'll consider endIndex is next text node; if the span is an empty text span, endIndex is itself
-      else if (el === endContainer) endIndex = +i + (isTextSpan(el) ? 0 : 1);
-      if (startIndex > -1 && endIndex > -1) break;
+        // endContainer is Text node
+        if (el === endContainer.parentElement) endIndex = +i;
+        // endContainer is span node
+        // this could happen when dom is like this <span>text</span><span>@mention</span><span>text</span>
+        // and then just select the mention span, the endContainer will be span.
+        // if the span is a mention span, we'll consider endIndex is next text node; if the span is an empty text span, endIndex is itself
+        else if (el === endContainer) endIndex = +i + (isTextSpan(el) ? 0 : 1);
+        if (startIndex > -1 && endIndex > -1) break;
+      }
     }
+
     return Object.assign(range, {
       /** index of startContainer's parent in editable div */
       startIndex,
@@ -228,44 +236,48 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       deleteEndIndex = 0,
       focusOffset = 0,
       recorded = false,
-      willDeleteMention = false;
+      willDeleteSpan = false;
     /**
-     * record some information when it's about to delete some mention spans, it happens when:
-     * 1. caret is at the beginning of a text node, the previous node is a mention span, and press backspace key
-     * 2. caret is at the end of a text node, the next node is a mention span, and press delete key
-     * 3. there is a selection, and perform delete, input or paste something
+     * record some information when it's about to delete span, it happens when:
+     * 1. caret is at the beginning of a text node, the previous node is a mention span, then press backspace key, this is about to delete previous mention span
+     * 2. caret is at the end of a text node, the next node is a mention span, then press delete key, this is about to delete next mention span
+     * 3. there is a selection across many spans, then perform delete, input or paste something
+     * 4. empty current text span, in chromium it will remove the span DOM also as it's empty, but that will lead to startContainer of range is the editRef, make onInput behave abnormal, so prevent this also
      * @param insertText text to be inserted, if not provided, it means delete
      * @param isForward whether this delete is forward
      * @returns whether this operation will delete mentions
      */
     const recordInsertOrDelete = (insertText?: string, isForward?: boolean) => {
       const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } = getRangeInfo();
+      const endText = endContainer.textContent!,
+        endTextLen = endText.length,
+        isAcrossSpans = startIndex !== endIndex;
       // if startOffset === 0 && collapsed, it means the cursor is at the beginning of a text node, then if startIndex > 1, means the previous node is a mention span. it's about to delete the mention span
       // need a isForward flag because caret offset is not enough to determine whether is backward or forward when caret is between two mention spans
       const isBackDeleteMention = !isForward && !insertText && collapsed && startOffset === 0 && startIndex > 1,
         isForwardDeleteMention =
-          !!isForward &&
-          !insertText &&
-          collapsed &&
-          endOffset === endContainer.textContent!.length &&
-          endIndex < content.value.length - 2;
-      if (!insertText && collapsed && !isBackDeleteMention && !isForwardDeleteMention) return (recorded = false);
+          !!isForward && !insertText && collapsed && endOffset === endTextLen && endIndex < content.value.length - 2;
+      // it's about to empty the text span: isDelete && only one char left; isDelete && selectionLength === text's length
+      const isEmptySpan =
+        !insertText && (endTextLen === 1 || (!!endTextLen && endOffset - startOffset === endTextLen)) && !isAcrossSpans; // including selection case
+      if (!insertText && collapsed && !isBackDeleteMention && !isForwardDeleteMention && !isEmptySpan)
+        return (recorded = false);
+
       recorded = true;
       insertText ||= '';
+
       const textBefore = isBackDeleteMention
           ? content.value[startIndex - 2]
           : startContainer.textContent!.substring(0, startOffset),
-        textAfter = isForwardDeleteMention
-          ? content.value[endIndex + 2]
-          : endContainer.textContent!.substring(endOffset);
-      text = textBefore + insertText + textAfter;
+        textAfter = isForwardDeleteMention ? content.value[endIndex + 2] : endText.substring(endOffset);
+      text = isEmptySpan ? '' : textBefore + insertText + textAfter;
       deleteStartIndex = isBackDeleteMention ? startIndex - 2 : startIndex;
       deleteEndIndex = isForwardDeleteMention ? endIndex + 2 : endIndex;
-      focusOffset = (textBefore + insertText).length;
-      return (willDeleteMention = startIndex !== endIndex || isBackDeleteMention || isForwardDeleteMention);
+      focusOffset = isEmptySpan ? 0 : (textBefore + insertText).length;
+      return (willDeleteSpan = isAcrossSpans || isBackDeleteMention || isForwardDeleteMention || isEmptySpan);
     };
-    const commitLastRecord = (commitOnlyDeleteMention = false) => {
-      if (!recorded || (commitOnlyDeleteMention && !willDeleteMention)) return false;
+    const commitLastRecord = (commitOnlyDeleteSpan = false) => {
+      if (!recorded || (commitOnlyDeleteSpan && !willDeleteSpan)) return false;
       recorded = false;
       // if deleteStartIndex !== deleteEndIndex, there must be at least a mention span in the range being deleted
       if (deleteStartIndex !== deleteEndIndex) {
@@ -302,7 +314,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         // if select the mention1 and delete it, then both dom change and vue re-render happens, but result in <span>text</span> <span>text2</span> for unknown reason
         // so just prevent beforeInput if it's about to delete mention span, and commit it immediately
         e.preventDefault();
-        commitLastRecord(true);
+        commitLastRecord();
       }
 
       // below it's to updating triggerEndIndex
@@ -333,8 +345,12 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     onInput() {
       const range = getRangeInfo();
       let { startOffset, startContainer } = range;
-      const textNode = startContainer as Text,
-        text = textNode.parentNode!.textContent!; // need to get the text from parent span, as span may have multiple text nodes, especially when press Enter
+      let textNode = startContainer as Text,
+        text = textNode.wholeText; // need to use wholeText other than textContent, as span may have multiple text nodes, especially when press Enter
+      if (textNode.parentElement === editRef.value) {
+        // refer to the comments in getRangeInfo, this is for that special case. At that time, startContainer is the first text node before first text span, the parent is the editRef
+        textNode.textContent = ''; // clear current text node, will re-render it to the the first text span later
+      }
 
       // it happens when press enter, there will be multiple text nodes in span
       if (text !== startContainer.textContent) {
@@ -344,7 +360,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         }
       }
       content.value[currentIndex] = text;
-      console.log('after input', content.value);
       requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
       const { triggers, on } = info.value;
