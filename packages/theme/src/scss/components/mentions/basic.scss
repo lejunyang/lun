@@ -34,6 +34,8 @@
     cursor: text;
     padding-inline-end: calc(var(--padding-inline-start) * 1.2 + var(--icon-size));
     grid-area: 1 / 1;
+    overflow: hidden;
+    white-space: break-spaces;
     @include declareVars(
       (padding-block, padding-inline-start, line-height, letter-spacing, border-radius, min-inline-size, min-block-size)
     );
@@ -49,7 +51,7 @@
     @include declareVarValues((
       padding-inline: (mention-padding-inline, 0.5ch),
     ));
-    & + & {
+    & + &, &:first-child {
       padding-inline-start: 0;
     }
   }

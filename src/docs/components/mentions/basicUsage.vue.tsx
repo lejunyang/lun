@@ -1,9 +1,21 @@
-import { options } from "data";
+import { options } from 'data';
+import { ref } from 'vue';
 
+const data = ref({
+  value: 'test@me @ano what',
+});
 export default () => (
   <>
-    <l-mentions value="test@me what" options={options}></l-mentions>
-    <l-mentions value="test@me what" options={options} readonly></l-mentions>
-    <l-mentions value="test@me what" options={options} disabled></l-mentions>
+    <l-mentions
+      value={data.value.value}
+      options={options}
+      onUpdate={(e) => {
+        data.value = e.detail;
+        console.log('update', e.detail);
+      }}
+    ></l-mentions>
+    <l-mentions value={data.value.value} options={options} readonly></l-mentions>
+    <l-mentions value={data.value.value} options={options} disabled></l-mentions>
+    <pre class="w-full">{data.value.value}</pre>
   </>
 );
