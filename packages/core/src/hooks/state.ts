@@ -1,5 +1,5 @@
 import { isFunction, runIfFn, toArrayIfNotNil } from '@lun/utils';
-import { computed, ref, shallowRef, watchEffect, WatchOptionsBase, Ref, watch } from 'vue';
+import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 
 /**
@@ -8,9 +8,9 @@ import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
  * @param options
  * @returns
  */
-export function useTempState<T>(getter: () => T, options?: WatchOptionsBase & { deep?: boolean }) {
+export function useTempState<T>(getter: () => T, options?: WatchOptions & { deepRef?: boolean; shouldUpdate?: () => boolean }) {
   let temp = getter();
-  const local = options?.deep ? ref<T>(temp) : shallowRef<T>(temp);
+  const local = options?.deep || options?.deepRef ? ref<T>(temp) : shallowRef<T>(temp);
   const changed = computed(() => {
     if (local.value !== temp) {
       return (changedOnce.value = true);
@@ -21,7 +21,10 @@ export function useTempState<T>(getter: () => T, options?: WatchOptionsBase & { 
     changedOnce.value = false;
     return (local.value = temp = val || getter());
   };
-  watch(getter, reset, options);
+  watch(() => {
+    if (options?.shouldUpdate?.() === false) return temp;
+    return getter();
+  }, reset, options);
   Object.defineProperties(local, {
     changed: {
       get() {

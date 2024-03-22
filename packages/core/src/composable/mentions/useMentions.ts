@@ -1,9 +1,10 @@
-import { UseInputOptions, useInput } from '../input';
+import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
 import { isEnterDown, isHTMLElement, isString, toArrayIfNotNil } from '@lun/utils';
-import { Ref, computed, h, reactive, ref, watchEffect } from 'vue';
+import { computed, h, reactive, readonly, watch } from 'vue';
 import { rangeToString } from './utils';
+import { useShadowEditable } from './useShadowEditable';
 
 export type MentionsTriggerParam = {
   trigger: string;
@@ -15,11 +16,12 @@ export type MentionsTriggerParam = {
   endIndex: number;
 };
 
-export type UseMentionsOptions = UseInputOptions & {
+export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   triggers?: string[] | string | null;
   suffix?: string;
   onTrigger?: (param: MentionsTriggerParam) => void;
   onCommit?: () => [string | null | undefined, string | null | undefined];
+  onChange?: (param: { value: string; raw: readonly (string | MentionSpan)[] }) => void;
 };
 
 export type MentionSpan = {
@@ -66,6 +68,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     const t = toArrayIfNotNil(triggers).filter(Boolean);
     return { triggers: t, suffix, on: suffix && t.length };
   });
+  let currentValue: string;
   //  valueNow = 'abc@he what' => ['abc', { trigger: '@', value: 'he', label: 'he', suffix: ' ', actualLength: 4 }, 'what']
   const content = useTempState(
     () => {
@@ -99,6 +102,28 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
       return content;
     },
+    {
+      deepRef: true,
+      shouldUpdate() {
+        return unrefOrGet(unrefOrGet(options).value) !== currentValue;
+      },
+    },
+  );
+  watch(
+    content,
+    (val) => {
+      const { onChange } = unrefOrGet(options);
+      const raw = readonly(val);
+      const value = raw.reduce<string>((res, current) => {
+        if (isString(current)) return res + current;
+        else {
+          const { trigger, value, suffix } = current;
+          return res + trigger + value + suffix;
+        }
+      }, '');
+      onChange && onChange({ value, raw });
+      currentValue = value;
+    },
     { deep: true },
   );
 
@@ -129,30 +154,17 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   });
   const isTextSpan = (el: any) => isHTMLElement(el) && 'isText' in el.dataset;
 
-  const editRef = ref<HTMLElement>();
-  /** actually it's ShadowRoot | Document, but ShadowRoot.getSelection is not standard */
-  const root = ref() as Ref<Document>;
-  // https://stackoverflow.com/questions/62054839/shadowroot-getselection
-  let localGetSelection: () => Selection | null;
-  const getRange = () => {
-    const selection = localGetSelection() as any;
-    return (selection.getComposedRanges ? selection.getComposedRanges(root.value)[0] : selection.getRangeAt(0)) as
-      | StaticRange
-      | Range;
-  };
-  watchEffect(() => {
-    const { value } = editRef;
-    root.value = value?.getRootNode() as Document;
-    localGetSelection = root.value?.getSelection?.bind(root.value) || document.getSelection.bind(document);
-  });
+  const { editRef, requestFocus, getRange } = useShadowEditable();
 
   const state = reactive({
     isComposing: false,
     lastTrigger: undefined as string | undefined,
     ignoreNextBlur: false,
   });
-  let currentIndex = 0,
+  let /** index of current editing element in editable children */ currentIndex = 0,
+    /** trigger start caret index in the span's textContent */
     triggerStartIndex = 0,
+    /** trigger end caret index in the span's textContent */
     triggerEndIndex = 0,
     /** length of current composition text */
     compositionLen = 0,
@@ -237,15 +249,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           collapsed &&
           endOffset === endContainer.textContent!.length &&
           endIndex < content.value.length - 2;
-      console.log({
-        isBackDeleteMention,
-        isForwardDeleteMention,
-        startIndex,
-        endIndex,
-        startOffset,
-        endOffset,
-        startContainer,
-      });
       if (!insertText && collapsed && !isBackDeleteMention && !isForwardDeleteMention) return (recorded = false);
       recorded = true;
       insertText ||= '';
@@ -258,14 +261,12 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       text = textBefore + insertText + textAfter;
       deleteStartIndex = isBackDeleteMention ? startIndex - 2 : startIndex;
       deleteEndIndex = isForwardDeleteMention ? endIndex + 2 : endIndex;
-      console.log('text', text, deleteStartIndex, deleteEndIndex);
       focusOffset = (textBefore + insertText).length;
       return (willDeleteMention = startIndex !== endIndex || isBackDeleteMention || isForwardDeleteMention);
     };
     const commitLastRecord = (commitOnlyDeleteMention = false) => {
       if (!recorded || (commitOnlyDeleteMention && !willDeleteMention)) return false;
       recorded = false;
-      console.log({ deleteStartIndex, deleteEndIndex, text });
       // if deleteStartIndex !== deleteEndIndex, there must be at least a mention span in the range being deleted
       if (deleteStartIndex !== deleteEndIndex) {
         content.value.splice(deleteStartIndex, deleteEndIndex - deleteStartIndex + 1, text);
@@ -287,9 +288,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const isDelete = inputType.startsWith('delete'),
         isInsert = inputType.startsWith('insert'),
         isDeleteForward = inputType === 'deleteContentForward';
-      const range = getRangeInfo();
 
-      const { startOffset, endIndex, selectText } = range;
+      const { startOffset, endIndex, selectText } = getRangeInfo();
       const selectionLen = selectText.length;
       const insertText = data || dataTransfer?.getData('text');
 
@@ -398,6 +398,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       checkIfCancelTrigger(e);
     },
     onBlur(e: FocusEvent) {
+      // ignoreNextBlur is useful for pop content, as if we click the pop option, blur will definitely happen, so we need to ignore it once
       if (!state.ignoreNextBlur) checkIfCancelTrigger(e);
       else state.ignoreNextBlur = false;
     },
@@ -409,26 +410,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
   };
 
-  const requestFocus = (index: number, offset: number = 0) => {
-    requestAnimationFrame(() => {
-      const { value } = editRef;
-      if (!value) return;
-      const el = value.children[index],
-        text = el?.firstChild as Text; // empty '' will render empty span with no firstChild
-      if (!el) return;
-      const selection = localGetSelection();
-      if (selection) {
-        // seems that add range in shadow DOM works in chrome, not in safari
-        // const newRange = getRangeWithOffset(text || el, text ? offset : 0);
-        // selection.removeAllRanges();
-        // selection.addRange(newRange);
-        const node = text || el;
-        if (!text) offset = 0;
-        selection.setBaseAndExtent(node, offset, node, offset);
-      }
-    });
-  };
-
+  /** commit current trigger, update content value and generate new mention span */
   const commit = (value?: string | null, label?: string | null) => {
     if (!state.lastTrigger || value == null) return cancelTrigger();
     const { startIndex, endIndex, text, trigger } = lastTriggerParam!;
