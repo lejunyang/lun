@@ -27,6 +27,8 @@ export type ValidateMessages = {
   [key in RuleName]?: string | ((args: Rule) => string);
 };
 
+export type Condition = 'all-truthy' | 'some-truthy' | 'all-falsy' | 'some-falsy';
+
 export const formItemRuleProps = {
   type: PropString<InputType>(), // can it be auto detected?
   required: PropBoolOrFunc<boolean | ((formContext: FormProvideExtra) => boolean | undefined | null)>(),
@@ -88,17 +90,17 @@ export const formItemProps = {
   /** used to define the dependencies of current field, changing dependent values will trigger some actions, see `clearWhenDepChange` `disableWhenDepFalsy` `requireWhenDepTruthy` `validateWhen` */
   deps: PropStrOrArr(),
   clearWhenDepChange: PropBoolean(),
-  disableWhenDepFalsy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
+  disableWhenDep: PropStrOrArr<Condition>(),
   // ------------------ validation ------------------
   ...formItemRuleProps,
   /**
-   * to required when deps are required,
-   * 'all' means to required when all the dep values are truthy,
-   * 'some' means to required when some of dep values are truthy,
-   * 'none' means to required when none of dep values are truthy,
-   * boolean true equals to 'all'
+   * to required when deps match some conditions,
+   * 'all-truthy' means to required when all the dep values are truthy,
+   * 'some-truthy' means to required when some of dep values are truthy,
+   * 'all-falsy' means to required when all the dep values are falsy,
+   * 'some-falsy' means to required when some of dep values are falsy
    **/
-  requireWhenDepTruthy: PropBoolOrStr<'all' | 'some' | 'none' | boolean>(),
+  requireWhenDep: PropStrOrArr<Condition>(),
   validators: { type: [Array, Function] as PropType<Validator[] | Validator> },
   validateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
   revalidateWhen: PropStrOrArr<ValidateTrigger | ValidateTrigger[]>(),
