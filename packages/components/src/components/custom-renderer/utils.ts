@@ -9,6 +9,7 @@ export function generateWithTemplate(template: HTMLTemplateElement, props: Recor
     if (!val) return val;
     const match = val.match(/^{(\w+)}$/);
     if (match && match[1] in props) return props[match[1]];
+    else return val;
   };
 
   const elementName = getValue(element);

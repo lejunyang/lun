@@ -53,7 +53,7 @@ export default {
         states: 'CSS如何选中特定状态的组件',
       },
       other: {
-        menu: '其他',
+        menu: '功能组件',
         renderer: 'CustomRenderer 自定义渲染',
         contextConfig: 'ContextConfig 上下文配置',
         staticConfig: 'StaticConfig 静态配置',
@@ -132,7 +132,7 @@ export default {
         states: 'Select element with specific state in CSS',
       },
       other: {
-        menu: 'Other',
+        menu: 'Function',
         renderer: 'CustomRenderer',
         contextConfig: 'ContextConfig',
         staticConfig: 'StaticConfig',

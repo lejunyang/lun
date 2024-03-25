@@ -22,3 +22,9 @@ lang: zh-CN
 :::warning 注
 `triggers`以及`suffix`会被直接用于构造正则表达式，匹配字符串来提取特殊的高亮块，所以注意正则表达式中的特殊字符需要转义
 :::
+
+## 不弹选项
+
+当设置`noOptions`后，输入trigger便不会弹出选项，而是自由输入，当遇到suffix或输入回车后变为高亮块
+
+<!-- @Code:freeInput -->
