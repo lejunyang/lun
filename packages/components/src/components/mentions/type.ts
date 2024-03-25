@@ -8,6 +8,7 @@ export const mentionsProps = {
   ...baseInputProps,
   ...themeProps,
   ...createOptionProps(false, true),
+  noOptions: PropBoolean(),
   triggers: PropStrOrArr(),
   suffix: PropString(),
   label: PropString(),

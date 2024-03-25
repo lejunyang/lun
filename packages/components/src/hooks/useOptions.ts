@@ -140,8 +140,8 @@ export function useOptions<
     renderOption,
     hasOption() {
       let opts: any;
-      if (isArray(options.value)) return options.value.length;
-      else if (mapOptionKey && isArray((opts = options.value?.[mapOptionKey()]))) return opts.length;
+      if (isArray(options.value)) return !!options.value.length;
+      else if (mapOptionKey && isArray((opts = options.value?.[mapOptionKey()]))) return !!opts.length;
     },
   };
 }
