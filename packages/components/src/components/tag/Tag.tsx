@@ -33,7 +33,13 @@ export const Tag = defineSSRCustomElement({
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!removed.value && (
-            <span class={ns.t} part={ns.p('root')} ref={rootRef} tabindex={attrs.tabindex as any}>
+            <span
+              class={ns.t}
+              part={ns.p('root')}
+              ref={rootRef}
+              tabindex={attrs.tabindex as any}
+              style={attrs.style as any}
+            >
               <slot>{props.label}</slot>
               {props.removable &&
                 renderElement('icon', {

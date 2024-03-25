@@ -2,7 +2,7 @@ import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
 import { isEnterDown, isHTMLElement, isString, toArrayIfNotNil } from '@lun/utils';
-import { computed, h, reactive, readonly, watch } from 'vue';
+import { VNode, computed, h, reactive, readonly, watch } from 'vue';
 import { rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
 
@@ -23,7 +23,9 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   /** called when triggering and pressed Enter */
   onCommit?: () => [string | null | undefined, string | null | undefined] | [string | null | undefined];
   onChange?: (param: { value: string; raw: readonly (string | MentionSpan)[] }) => void;
+  onEnterDown?: (e: KeyboardEvent) => void;
   noOptions?: boolean;
+  mentionRenderer?: (item: MentionSpan, necessaryProps: Record<string, any>) => VNode;
 };
 
 export type MentionSpan = {
@@ -130,6 +132,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   );
 
   const render = computed(() => {
+    const { mentionRenderer } = unrefOrGet(options);
     return content.value.map((item) => {
       if (isString(item) || !item)
         return h(
@@ -140,15 +143,19 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           },
           item,
         );
+      const necessaryProps = {
+        'data-is-mention': '',
+        contenteditable: 'false',
+        part: 'mention',
+      };
+      if (mentionRenderer) return mentionRenderer(item, necessaryProps);
       return h(
         'span',
         {
-          'data-is-mention': '',
           'data-trigger': item.trigger,
           'data-value': item.value,
           'data-suffix': item.suffix,
-          contenteditable: 'false',
-          part: 'mention',
+          ...necessaryProps,
         },
         item.label,
       );
@@ -398,11 +405,15 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       compositionLen = 0;
     },
     onKeydown(e: KeyboardEvent) {
-      const { onCommit } = unrefOrGet(options);
-      if (isEnterDown(e) && state.lastTrigger) {
-        e.preventDefault();
-        const [value, label] = (onCommit && onCommit()) || [];
-        commit(value, label);
+      const { onCommit, onEnterDown } = unrefOrGet(options);
+      if (isEnterDown(e)) {
+        if (state.lastTrigger) {
+          e.preventDefault();
+          const [value, label] = (onCommit && onCommit()) || [];
+          commit(value, label);
+        } else if (!state.isComposing && onEnterDown) {
+          onEnterDown(e);
+        }
       }
     },
     // can not be keydown, because range hasn't been updated yet in keydown
