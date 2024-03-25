@@ -36,6 +36,7 @@
     grid-area: 1 / 1;
     overflow: hidden;
     white-space: break-spaces;
+    overflow-wrap: break-word; // contenteditable="true" has user-agent overflow-wrap: break-word, this is for readonly and disabled mentions
     @include declareVars(
       (padding-block, padding-inline-start, line-height, letter-spacing, border-radius, min-inline-size, min-block-size)
     );
@@ -49,10 +50,10 @@
   [data-is-mention] {
     color: getAccentColor(9);
     @include declareVarValues((
-      padding-inline: (mention-padding-inline, 0.5ch),
+      margin-inline: (mention-margin-inline, 0.5ch),
     ));
     & + &, &:first-child {
-      padding-inline-start: 0;
+      margin-inline-start: 0;
     }
   }
 
