@@ -1,13 +1,8 @@
-/**
- * 用类似str + { prefix, value, displayLen, actualLen, append, prepend }的数组存
- * 记录cursorIndexInTotal cursorIndexInArr
- */
-import { computed, nextTick, ref, watchEffect } from 'vue';
-import { useSetupEdit, refLikesToGetters, useInput, useInputElement, useMentions, VirtualElement } from '@lun/core';
+import { computed, ref, watchEffect } from 'vue';
+import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
-  useCEExpose,
   useCEStates,
   useNamespace,
   useOptions,
@@ -15,13 +10,14 @@ import {
   useSetupContextEvent,
   useValueModel,
 } from 'hooks';
-import { getHeight, isEmpty, supportsPlaintextEditable } from '@lun/utils';
+import { isEmpty, supportsPlaintextEditable, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 import { mentionsEmits, mentionsProps } from './type';
 import { definePopover } from '../popover';
 import { defineSelectOption } from '../select';
 import { useSelect } from '../select/useSelect';
+import { VCustomRenderer } from '../custom-renderer';
 
 const name = 'mentions';
 export const Mentions = defineSSRCustomElement({
@@ -35,56 +31,21 @@ export const Mentions = defineSSRCustomElement({
     const valueModel = useValueModel(props, { shouldEmit: false });
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
-    const textareaRef = ref<HTMLTextAreaElement>();
     const target = ref<VirtualElement>();
     const lastTriggerInput = ref<string>();
 
-    let maxHeight: number;
-    const adjustHeight = (el?: HTMLTextAreaElement) => {
-      if (!el) return;
-      el.style.height = 'auto';
-      el.style.minHeight = '';
-      const minHeight = getHeight(el)!;
-      if (maxHeight && minHeight > maxHeight) {
-        el.style.height = maxHeight + 'px';
-        // scroll to bottom
-        if (el.selectionEnd && el.selectionEnd === el.value.length) el.scrollTop = el.scrollHeight;
-      } else {
-        el.style.minHeight = minHeight + 'px';
-      }
-    };
-    watchEffect(() => {
-      const { maxRows } = props;
-      const textarea = textareaRef.value;
-      if (!maxRows || !textarea) return;
-      // scrollHeight is not available when first mount
-      nextTick(() => {
-        textarea.rows = maxRows as number;
-        const originalPlaceholder = textarea.placeholder;
-        textarea.placeholder = '';
-        // placeholder can affect scrollHeight, so we need to clear it first
-        maxHeight = getHeight(textarea)!;
-        textarea.rows = props.rows as number;
-        textarea.placeholder = originalPlaceholder;
-        adjustHeight(textarea); // there may be a long placeholder, we need to adjust height
-      });
-    });
-
     const { handlers, editRef, render, state, commit } = useMentions(
-      computed(() => {
-        return {
-          ...props,
-          ...validateProps.value,
-          disabled: !editComputed.value.editable,
+      virtualGetMerge(
+        {
           value: valueModel,
-          onChange(val) {
+          onChange(val: { value: string; raw: readonly (string | MentionSpan)[] }) {
             valueModel.value = val.value;
             emit('update', val);
           },
-          // onEnterDown(e) {
-          //   emit('enterDown', e);
-          // },
-          onTrigger(param) {
+          onEnterDown(e: KeyboardEvent) {
+            emit('enterDown', e);
+          },
+          onTrigger(param: MentionsTriggerParam) {
             const { endRange, search } = param;
             const rect = endRange.getBoundingClientRect();
             // get the rect immediately to fix a bug. found that in safari if use the range as popover target, the position would be incorrect
@@ -101,16 +62,18 @@ export const Mentions = defineSSRCustomElement({
               return [child.props.value as string, child.props.label as string];
             } else return [props.noOptions ? lastTriggerInput.value : undefined];
           },
-        };
-      }),
+          get mentionRenderer() {
+            const { mentionRenderer } = props;
+            if (!mentionRenderer) return;
+            else
+              return (item: MentionSpan, necessaryProps: Record<string, any>) => (
+                <VCustomRenderer content={mentionRenderer(item, necessaryProps)} />
+              );
+          },
+        },
+        props,
+      ),
     );
-
-    const extraHandlers = {
-      onInput() {
-        if (!props.autoRows) return;
-        adjustHeight(textareaRef.value); // need to limit the width of contenteditable, besides, contenteditable support autoRows
-      },
-    };
 
     const clearValue = () => {
       valueModel.value = null as any;
@@ -169,8 +132,8 @@ export const Mentions = defineSSRCustomElement({
 
     const contenteditable = supportsPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
-      const { editable } = editComputed.value;
-      const { placeholder, labelType, label, rows, cols, noOptions } = props;
+      const { editable, readonly } = editComputed.value;
+      const { placeholder, labelType, label, rows, cols, noOptions, resize } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (
@@ -192,13 +155,14 @@ export const Mentions = defineSSRCustomElement({
             />
             <div
               {...attrs}
+              tabindex={editable || readonly ? 0 : undefined}
               spellcheck={props.spellcheck}
               ref={editRef}
               part="textarea"
               class={ns.e('textarea')}
               placeholder={hasFloatLabel ? undefined : placeholder}
               style={{
-                resize: props.autoRows ? 'none' : props.resize,
+                resize,
               }}
               contenteditable={editable ? contenteditable : 'false'}
               {...handlers}

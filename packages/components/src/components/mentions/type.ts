@@ -1,5 +1,14 @@
 import { ExtractPropTypes } from 'vue';
-import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropStrOrArr, PropString, Status, themeProps } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropFunction,
+  PropNumber,
+  PropStrOrArr,
+  PropString,
+  Status,
+  themeProps,
+} from 'common';
 import { baseInputProps } from '../input/type';
 import { MentionSpan, MentionsTriggerParam } from '@lun/core';
 import { createOptionProps } from 'hooks';
@@ -21,9 +30,7 @@ export const mentionsProps = {
   rows: PropNumber(),
   cols: PropNumber(),
   resize: PropString<'none' | 'both' | 'horizontal' | 'vertical'>(),
-  autoRows: PropBoolean(),
-  /** max rows of mentions, must be used with autoRows */
-  maxRows: PropNumber(),
+  mentionRenderer: PropFunction<(item: MentionSpan, necessaryProps: Record<string, any>) => any>(),
 };
 
 export const mentionsEmits = {
