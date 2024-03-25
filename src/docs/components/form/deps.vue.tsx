@@ -1,13 +1,14 @@
-import { pick } from "@lun/utils";
+import { pick } from '@lun/utils';
 
-const props = ['disableWhenDepFalsy', 'clearWhenDepChange', 'requireWhenDepTruthy'];
+const props = ['disableWhenDep', 'clearWhenDepChange', 'requireWhenDep'];
+const options = ['all-truthy', 'some-truthy', 'all-falsy', 'some-falsy'];
 export default () => {
   return (
     <l-form
       defaultFormData={{
-        disableWhenDepFalsy: true,
+        disableWhenDep: ['all-falsy'],
         clearWhenDepChange: true,
-        requireWhenDepTruthy: true,
+        requireWhenDep: ['all-truthy'],
       }}
       itemProps={({ formContext, formItemProps }) => ({
         element: props.includes(formItemProps.name) ? 'switch' : 'input',
@@ -15,9 +16,19 @@ export default () => {
       })}
       cols={1}
     >
-      <l-form-item label="disableWhenDepFalsy" name="disableWhenDepFalsy" />
       <l-form-item label="clearWhenDepChange" name="clearWhenDepChange" />
-      <l-form-item label="requireWhenDepTruthy" name="requireWhenDepTruthy" />
+      <l-form-item
+        label="disableWhenDep"
+        name="disableWhenDep"
+        element="select"
+        elementProps={{ options, multiple: true }}
+      />
+      <l-form-item
+        label="requireWhenDep"
+        name="requireWhenDep"
+        element="select"
+        elementProps={{ options, multiple: true }}
+      />
 
       <l-form-item label="省" name="province" required />
       <l-form-item label="市" name="city" deps="province" />
@@ -29,7 +40,7 @@ export default () => {
         help="可选，但是输入了名字必须输入id"
         helpType="icon"
       />
-      <l-form-item label="id" name="user.id" deps="user.name" disableWhenDepFalsy={false} clearWhenDepChange={false} />
+      <l-form-item label="id" name="user.id" deps="user.name" disableWhenDep={null} clearWhenDepChange={false} />
     </l-form>
   );
 };

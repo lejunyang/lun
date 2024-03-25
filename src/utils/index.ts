@@ -123,7 +123,7 @@ export function transformVUpdateWithRegex(code: string) {
     (_match, prop1, prop2, expr) => {
       if (prop2) {
         // v-update-xxx:xxx
-        const prop = prop1.slice(1);
+        const prop = prop1?.slice(1) || 'value';
         const eventDetailMember = prop2.slice(1);
         return `${prop}={${expr}} onUpdate={(e) => ${expr} = e.detail.${eventDetailMember}}`;
       } else if (prop1) {
