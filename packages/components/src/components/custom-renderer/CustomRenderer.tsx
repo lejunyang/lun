@@ -3,15 +3,23 @@ import { GlobalStaticConfig } from 'config';
 import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick, defineComponent, h } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
-import { customRendererProps, CustomRendererProps } from './type';
+import { customRendererProps } from './type';
 import { isArray, isHTMLTemplateElement, isNode, runIfFn } from '@lun/utils';
+import { generateWithTemplate } from './utils';
 
 const name = 'custom-renderer';
 
 const options = {
   name,
   props: customRendererProps,
-  setup(props: CustomRendererProps, { attrs }: { attrs: Record<string, any> }) {
+  setup(
+    props: {
+      type?: string | undefined;
+      preferHtml?: boolean | undefined;
+      content?: unknown;
+    },
+    { attrs }: { attrs: Record<string, any> },
+  ) {
     const div = shallowRef<HTMLDivElement>();
     const vnode = shallowRef();
     let mounted = false;
@@ -59,7 +67,7 @@ const options = {
             updateHtml = () => {
               if (!div.value || cleared) return;
               div.value.innerHTML = '';
-              if (isHTMLTemplateElement(content)) content = document.importNode(content.content, true);
+              if (isHTMLTemplateElement(content)) content = generateWithTemplate(content, attrs);
               div.value.append(content);
             };
           } else {

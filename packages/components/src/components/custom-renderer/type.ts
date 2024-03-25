@@ -7,5 +7,5 @@ export const customRendererProps = {
   content: { required: true },
 };
 
-export type CustomRendererSetupProps = ExtractPropTypes<typeof customRendererProps>;
+export type CustomRendererSetupProps = ExtractPropTypes<typeof customRendererProps> & Record<string, any>;
 export type CustomRendererProps = Partial<CustomRendererSetupProps>;
