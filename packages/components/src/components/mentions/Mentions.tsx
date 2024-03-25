@@ -37,6 +37,7 @@ export const Mentions = defineSSRCustomElement({
     const [editComputed] = useSetupEdit();
     const textareaRef = ref<HTMLTextAreaElement>();
     const target = ref<VirtualElement>();
+    const lastTriggerInput = ref<string>();
 
     let maxHeight: number;
     const adjustHeight = (el?: HTMLTextAreaElement) => {
@@ -84,17 +85,21 @@ export const Mentions = defineSSRCustomElement({
           //   emit('enterDown', e);
           // },
           onTrigger(param) {
-            const rect = param.endRange.getBoundingClientRect();
+            const { endRange, search } = param;
+            const rect = endRange.getBoundingClientRect();
             // get the rect immediately to fix a bug. found that in safari if use the range as popover target, the position would be incorrect
             // seems that the range endContainer is updated to span, not the text node, and at that time the rect is incorrect for unknown reason
             target.value = {
               getBoundingClientRect: () => rect,
             };
+            lastTriggerInput.value = search;
             emit('trigger', param);
           },
           onCommit() {
             const child = activateMethods.getActiveChild();
-            return [child?.props.value as string, child?.props.label as string];
+            if (child) {
+              return [child.props.value as string, child.props.label as string];
+            } else return [props.noOptions ? lastTriggerInput.value : undefined];
           },
         };
       }),
@@ -149,7 +154,7 @@ export const Mentions = defineSSRCustomElement({
         autoActivateFirst: true,
       },
       selected,
-      // TODO isHidden 可以过滤搜索的选项
+      // TODO isHidden
     );
     watchEffect(() => {
       if (selected.value) {
@@ -158,17 +163,14 @@ export const Mentions = defineSSRCustomElement({
         selected.value = undefined;
       }
     });
-    const {
-      render: optionsRender,
-      hasOption,
-    } = useOptions(props, 'select-option', {
+    const { render: optionsRender, hasOption } = useOptions(props, 'select-option', {
       mapOptionKey: () => state.lastTrigger,
     });
 
     const contenteditable = supportsPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
       const { editable } = editComputed.value;
-      const { placeholder, labelType, label, rows, cols } = props;
+      const { placeholder, labelType, label, rows, cols, noOptions } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (
@@ -213,7 +215,7 @@ export const Mentions = defineSSRCustomElement({
             'popover',
             {
               showArrow: false,
-              open: !!state.lastTrigger,
+              open: !!state.lastTrigger && !noOptions,
               target,
             },
             <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>

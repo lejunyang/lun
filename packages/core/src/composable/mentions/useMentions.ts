@@ -20,9 +20,10 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   triggers?: string[] | string | null;
   suffix?: string;
   onTrigger?: (param: MentionsTriggerParam) => void;
-  onCommit?: () => [string | null | undefined, string | null | undefined];
+  /** called when triggering and pressed Enter */
+  onCommit?: () => [string | null | undefined, string | null | undefined] | [string | null | undefined];
   onChange?: (param: { value: string; raw: readonly (string | MentionSpan)[] }) => void;
-  hasOptions?: boolean; // TODO if no options, check input if endsWith suffix when triggering
+  noOptions?: boolean;
 };
 
 export type MentionSpan = {
@@ -67,7 +68,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const info = computed(() => {
     const { triggers, suffix } = unrefOrGet(options);
     const t = toArrayIfNotNil(triggers).filter(Boolean);
-    return { triggers: t, suffix, on: suffix && t.length };
+    return { triggers: t, suffix: suffix!, on: suffix && t.length };
   });
   let currentValue: string;
   //  valueNow = 'abc@he what' => ['abc', { trigger: '@', value: 'he', label: 'he', suffix: ' ', actualLength: 4 }, 'what']
@@ -172,7 +173,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     lastTriggerParam: MentionsTriggerParam;
   const isBetweenTrigger = (index: number) => index >= triggerStartIndex && index <= triggerEndIndex;
   const cancelTrigger = () => {
-    console.log('canceled');
     state.lastTrigger = undefined;
     triggerStartIndex = triggerEndIndex = 0;
   };
@@ -285,7 +285,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       } else {
         content.value[deleteStartIndex] = text;
       }
-      console.log('commitLastRecord content.value', content.value, 'focus', deleteStartIndex, focusOffset);
       requestFocus(deleteStartIndex, focusOffset);
       return true;
     };
@@ -295,7 +294,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   let handlers = {
     onBeforeinput(e: Event) {
       const { inputType, data, dataTransfer } = e as InputEvent;
-      console.log('e', inputType);
       if (!allowedInputTypes.has(inputType)) return e.preventDefault();
       const isDelete = inputType.startsWith('delete'),
         isInsert = inputType.startsWith('insert'),
@@ -362,15 +360,18 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       content.value[currentIndex] = text;
       requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
-      const { triggers, on } = info.value;
-      const { onTrigger } = unrefOrGet(options);
+      const { triggers, on, suffix } = info.value;
+      const { onTrigger, noOptions } = unrefOrGet(options);
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
-      if (!state.lastTrigger && (state.lastTrigger = triggers.find((t) => leadingText.includes(t)))) {
+      if (!state.lastTrigger && (state.lastTrigger = triggers.find((t) => leadingText.endsWith(t)))) {
         triggerEndIndex = triggerStartIndex = startOffset;
       }
       if (state.lastTrigger) {
         const search = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
+        if (noOptions && search.endsWith(suffix)) {
+          return commit(search.slice(0, -suffix.length));
+        }
         lastTriggerParam = {
           trigger: state.lastTrigger,
           search,
@@ -444,7 +445,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     content.value.splice(currentIndex, 1, str1, block, str2);
     // focus on the new added block
     requestFocus(currentIndex + 2);
-    console.log('commit content.value', content.value, { currentIndex });
   };
 
   return { render, handlers, editRef, state, commit };
