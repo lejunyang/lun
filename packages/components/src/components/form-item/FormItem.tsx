@@ -4,7 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector } from '../form/collector';
-import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch } from 'vue';
+import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { FormInputCollector } from './collector';
 import {
   AnyFn,
@@ -27,6 +27,7 @@ import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
 import { innerValidator } from './formItem.validate';
 import { defineTooltip } from '../tooltip/Tooltip';
+import { getConditionValue } from './utils';
 
 const name = 'form-item';
 export const FormItem = defineSSRCustomElement({
@@ -282,43 +283,24 @@ export const FormItem = defineSSRCustomElement({
 
     const localRequired = ref(false); // to required when depValues changed
 
-    watch(
-      depInfo,
-      (info, oldInfo, onCleanUp) => {
-        let { clearWhenDepChange, disableWhenDepFalsy, array, requireWhenDepTruthy } = props.value;
-        const { allFalsy, someFalsy, depValues, noneFalsy } = info;
-        const { depValues: oldDepValues } = oldInfo || {};
-        if (canValidate('depChange') && oldInfo) validate(onCleanUp);
-        if (
-          clearWhenDepChange &&
-          oldDepValues &&
-          (depValues.length !== oldDepValues.length || !simpleObjectEquals(depValues, oldDepValues))
-        ) {
-          setValue(path.value, array ? [] : null);
-        }
-        (() => {
-          if (requireWhenDepTruthy === true) requireWhenDepTruthy = 'all';
-          switch (requireWhenDepTruthy) {
-            case 'all':
-              return (localRequired.value = noneFalsy);
-            case 'some':
-              return (localRequired.value = someFalsy && !noneFalsy);
-            case 'none':
-              return (localRequired.value = allFalsy);
-          }
-        })();
-        if (disableWhenDepFalsy === true) disableWhenDepFalsy = 'all';
-        switch (disableWhenDepFalsy) {
-          case 'all':
-            return (editState.disabled = allFalsy);
-          case 'some':
-            return (editState.disabled = someFalsy);
-          case 'none':
-            return (editState.disabled = noneFalsy);
-        }
-      },
-      { immediate: true },
-    );
+    watch(depInfo, (info, oldInfo, onCleanUp) => {
+      let { clearWhenDepChange, array } = props.value;
+      const { depValues } = info;
+      const { depValues: oldDepValues } = oldInfo;
+      if (canValidate('depChange')) validate(onCleanUp);
+      if (
+        clearWhenDepChange &&
+        oldDepValues &&
+        (depValues.length !== oldDepValues.length || !simpleObjectEquals(depValues, oldDepValues))
+      ) {
+        setValue(path.value, array ? [] : null);
+      }
+    });
+    watchEffect(() => {
+      const { disableWhenDep, requireWhenDep } = props.value;
+      localRequired.value = getConditionValue(depInfo.value, requireWhenDep);
+      editState.disabled = getConditionValue(depInfo.value, disableWhenDep);
+    });
 
     const validateMessages = computed(() =>
       virtualGetMerge(props.value.validateMessages, formContext.parent!.props.validateMessages),
