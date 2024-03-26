@@ -21,5 +21,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+
+    "types": ["new-javascript/wicg/document-picture-in-picture"],
   },
 }

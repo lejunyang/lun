@@ -38,6 +38,7 @@ export default {
       feedback: {
         menu: '反馈展示',
         callout: 'Callout 提示框',
+        docPip: 'DocPip 画中画',
         progress: 'Progress 进度',
         spin: 'Spin 加载中',
         watermark: 'Watermark 水印',
@@ -117,6 +118,7 @@ export default {
       feedback: {
         menu: 'Feedback',
         callout: 'Callout',
+        docPip: 'Picture in Picture',
         progress: 'Progress',
         spin: 'Spin',
         watermark: 'Watermark',

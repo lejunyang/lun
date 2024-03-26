@@ -27,4 +27,6 @@ lang: zh-CN
 - `basicUsage.react.tsx` 代表 React 示例
 - `basicUsage.html` 代表 HTML 示例
 
-然后在 `index.md` 中，我们需要以`<!-- @Code:basicUsage -->`注释来引入这些示例
+然后在 `index.md` 中，我们需要以`<!-- @Code:basicUsage -->`注释来引入这些示例。
+
+注意，**必须编写Vue的代码示例**。由于esbuild加载需要时间，为避免明显的白屏时间，内部会直接引入这些Vue的代码示例作为组件占位，先把它们展示出来，当esbuild加载完毕后便展示动态生成的。因此你会发现，如果你在esbuild加载完成之间就交互组件，过一会会突然被重制，这就是esbuild加载完成并重新渲染了

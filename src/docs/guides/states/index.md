@@ -23,8 +23,8 @@ l-radio:state(checked)::part(root) {
   color: red
 }
 ```
-关于该特性其他文档可参考[这个](https://github.com/whatwg/html/pull/8467)，另外chrome准备在Dev Trial 122版本发布新语法试用，该特性状态可参考[这个](https://chromestatus.com/feature/5586433790443520)
+关于该特性其他文档可参考[这个](https://github.com/whatwg/html/pull/8467)，另外chrome准备在Dev Trial 122版本发布新语法试用，该特性状态可参考[Chrome Status](https://chromestatus.com/feature/5586433790443520)，safari已在17.4支持该特性，可参考[Can I Use](https://caniuse.com/?search=%3Astate())
 
-总的来说，这个特性还无法用于生产环境，目前组件库内部进行了适配，若支持该特性则会为组件添加自定义状态，并且额外添加'--'前缀来适配Chromium；如果不支持则选择在元素上添加data属性来达到类似的效果，如`data-checked`（该特性由`reflectStateToAttr`全局配置控制）
+总的来说，这个特性还无法用于生产环境，目前组件库内部进行了适配，若支持该特性则会为组件添加自定义状态，并且额外添加'--'前缀来适配Chromium；如果不支持则选择在元素上添加data属性来达到类似的效果，如`data-checked`（该特性由`reflectStateToAttr`全局配置控制，你也可以设置为`always`使之总是添加data属性）
 
-每个元素支持的state将会在文档上标明，也可以在控制台自行查看，shadowRoot下根元素所有带有`is-`的class均会反射到自定义状态上
+每个元素支持的state将会在文档上标明，也可以在控制台自行查看，shadowRoot下根元素大部分带有`is-`的class均会反射到自定义状态上
