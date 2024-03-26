@@ -54,3 +54,6 @@ export const supportsPlaintextEditable = cacheFunctionResult(() => {
   div.setAttribute('contenteditable', 'PLAINTEXT-ONLY');
   return div.contentEditable === 'plaintext-only';
 });
+
+export const supportCSSHighLight =
+  typeof Highlight === 'function' && typeof CSS === 'object' && typeof CSS.highlights === 'object';
