@@ -9,7 +9,7 @@ import { useCSSHighlight } from './useCSSHighlight';
 
 export type MentionsTriggerParam = {
   trigger: string;
-  search: string;
+  input: string;
   text: string;
   startRange: Range;
   endRange: Range;
@@ -195,7 +195,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     let startIndex = -1,
       endIndex = -1;
     if (startContainer === value && collapsed && !startOffset) {
-      // special case... if we delete all text in first text span, the range startContainer will be editRef itself for no reason.
+      // special case... if editRef is empty or we delete all text in first text span, the range startContainer will be editRef itself for no reason.
       // I try to reset selection and range to the first text span node, but it doesn't work, so just handle this case here
       startIndex = endIndex = 0;
     } else {
@@ -356,9 +356,13 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       let { startOffset, startContainer } = range;
       let textNode = startContainer as Text,
         text = textNode.wholeText; // need to use wholeText other than textContent, as span may have multiple text nodes, especially when press Enter
+
       if (textNode.parentElement === editRef.value) {
         // refer to the comments in getRangeInfo, this is for that special case. At that time, startContainer is the first text node before first text span, the parent is the editRef
         textNode.textContent = ''; // clear current text node, will re-render it to the the first text span later
+        const firstTextSpan = editRef.value.children[0];
+        firstTextSpan.append(text);
+        textNode = firstTextSpan.firstChild as Text; // must update textNode immediately, or later getRangeWithOffset will throw error
       }
 
       // it happens when press enter, there will be multiple text nodes in span
@@ -379,13 +383,13 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         triggerEndIndex = triggerStartIndex = startOffset;
       }
       if (state.lastTrigger) {
-        const search = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
-        if (noOptions && search.endsWith(suffix)) {
-          return commit(search.slice(0, -suffix.length));
+        const input = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
+        if (noOptions && input.endsWith(suffix)) {
+          return commit(input.slice(0, -suffix.length));
         }
         lastTriggerParam = {
           trigger: state.lastTrigger,
-          search,
+          input,
           text,
           startRange: getRangeWithOffset(textNode, triggerStartIndex),
           endRange: getRangeWithOffset(textNode, triggerEndIndex),
