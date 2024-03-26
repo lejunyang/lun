@@ -56,4 +56,9 @@ export const supportsPlaintextEditable = cacheFunctionResult(() => {
 });
 
 export const supportCSSHighLight =
-  typeof Highlight === 'function' && typeof CSS === 'object' && typeof CSS.highlights === 'object';
+  typeof Highlight === 'function' && typeof CSS === 'object' && CSS && typeof CSS.highlights === 'object';
+
+export const supportDocumentPictureInPicture =
+  typeof documentPictureInPicture === 'object' &&
+  documentPictureInPicture &&
+  typeof documentPictureInPicture.requestWindow === 'function';
