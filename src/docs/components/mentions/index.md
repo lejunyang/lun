@@ -3,7 +3,7 @@ title: Mentions 提及
 lang: zh-CN
 ---
 
-该组件基于`contenteditable`实现，但是目前`Selection in Shadow DOM`有问题，各浏览器实现各不相同，参考[这个](https://stackoverflow.com/questions/62054839/shadowroot-getselection)
+该组件基于`contenteditable`以及`Selection`实现，但是目前`Selection in Shadow DOM`有问题，各浏览器实现各不相同，参考[这个](https://stackoverflow.com/questions/62054839/shadowroot-getselection)
 
 - `Safari`: 17 版本之后 Safari 提供`Selection.getComposedRanges`，这也是[标准](https://w3c.github.io/selection-api/#dom-selection-getcomposedrange)正在推进的，但是其他浏览器并未跟进（[Can I Use](https://caniuse.com/?search=getComposedRanges)），目前连 MDN 文档都没有
 - `Chromium`: 通过`ShadowRoot.getSelection`可获取正确信息，但这并不是标准 API
@@ -36,3 +36,17 @@ lang: zh-CN
 通过`mentionRenderer`即可自定义渲染高亮块，返回的值由[`custom-renderer`](/components/custom-renderer/)进行渲染。需要注意的是，目前高亮块必须渲染为`contenteditable="false"`
 
 <!-- @Code:customRenderer -->
+
+## 高亮触发内容
+
+通过`triggerHighlight`属性设置高亮块的名称，当你的浏览器支持[CSS Highlight API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API)时，则会启用 trigger 内容高亮（即输入@之后，高亮它后面的内容），可参考下面的示例
+
+检测到当前浏览器{{ supportCSSHighLight ? '支持' : '不支持' }} CSS Highlight API
+
+值得注意的是，CSS highlight 可以穿透 Shadow DOM，所以不一定需要将样式定义在组件内部，在外面也是可以的。高亮样式注意仅支持部分 CSS 属性，可参考[::highlight](https://developer.mozilla.org/en-US/docs/Web/CSS/::highlight)
+
+<!-- @Code:highlight -->
+
+<script setup>
+import { supportCSSHighLight } from '@lun/utils';
+</script>

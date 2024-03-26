@@ -1,17 +1,19 @@
 # Web components based on Vue3
 
-- Based on custom elements ([Vue3 defineCustomElement](https://vuejs.org/guide/extras/web-components.html)) and shadow DOM, works with all frameworks(maybe)
+- Based on custom elements ([Vue3 defineCustomElement](https://vuejs.org/guide/extras/web-components.html)) and shadow DOM, works with all frameworks
 - Provides abundant global static and dynamic configurations, easy to customize not only CSS but also many internal behaviors
 - Provides a beautiful preset theme based on @radix/theme, out-of-box dark mode and responsive ui support
-
+- Attempt to use new Web APIs like Popover API, getComposedRanges, showOpenFilePicker, etc.
 
 ## Why
 
 There are plenty of powerful web libraries, why creating new one?
 
-Well, mainly for personal learning and summary. I'm also interested in cross-framework library, but I don't found any library based on shadow DOM that has lots of useful and out-of-box features like antd. 
+Well, mainly for personal learning and summary. I'm interested in cross-framework library as we could have great and unified DX in different frameworks with it. Shadow DOM is an option, but obviously it's not that convenient. It's complicate on customizing CSS, hard to manage its children nodes, no dynamic slots and so on. 
 
-We could have great and unified DX in different frameworks with shadow DOM. But obviously shadow DOM is not that convenient, it's complicate on customizing CSS, hard to manage its children nodes, no dynamic slots. I've brought a few ways to solve that, but I don't know if they're elegant or efficient, still a lot of work to do.
+I don't found any library based on shadow DOM that has both useful and out-of-box features and easy customization, maybe it's because of the limitation of shadow DOM. So I decided to think up some ways to make it work.
+
+Why Vue3? Most cross framework libraries use class oriented way to build themselves, I prefer hook and composition way so I chose Vue3's defineCustomElement.
 
 ## Development
 
