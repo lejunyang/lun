@@ -20,6 +20,7 @@ export const mentionsProps = {
   noOptions: PropBoolean(),
   triggers: PropStrOrArr(),
   suffix: PropString(),
+  triggerHighlight: PropString(),
   label: PropString(),
   labelType: PropString<'float'>(),
   showLengthInfo: PropBoolean(),

@@ -5,6 +5,7 @@ import { isEnterDown, isHTMLElement, isString, toArrayIfNotNil } from '@lun/util
 import { VNode, computed, h, reactive, readonly, watch } from 'vue';
 import { rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
+import { useCSSHighlight } from './useCSSHighlight';
 
 export type MentionsTriggerParam = {
   trigger: string;
@@ -26,6 +27,7 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   onEnterDown?: (e: KeyboardEvent) => void;
   noOptions?: boolean;
   mentionRenderer?: (item: MentionSpan, necessaryProps: Record<string, any>) => VNode;
+  triggerHighlight?: string;
 };
 
 export type MentionSpan = {
@@ -36,10 +38,10 @@ export type MentionSpan = {
   actualLength: number;
 };
 
-function getRangeWithOffset(node: Node, offset: number = 0) {
+function getRangeWithOffset(node: Node, start: number = 0, end?: number) {
   const range = document.createRange();
-  range.setStart(node, offset);
-  range.setEnd(node, offset);
+  range.setStart(node, start);
+  range.setEnd(node, end ?? start);
   return range;
 }
 
@@ -164,6 +166,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const isTextSpan = (el: any) => isHTMLElement(el) && 'isText' in el.dataset;
 
   const { editRef, requestFocus, getRange } = useShadowEditable();
+  const [setHighlight, removeHighlight] = useCSSHighlight(() => unrefOrGet(options).triggerHighlight);
 
   const state = reactive({
     isComposing: false,
@@ -180,6 +183,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     lastTriggerParam: MentionsTriggerParam;
   const isBetweenTrigger = (index: number) => index >= triggerStartIndex && index <= triggerEndIndex;
   const cancelTrigger = () => {
+    removeHighlight();
     state.lastTrigger = undefined;
     triggerStartIndex = triggerEndIndex = 0;
   };
@@ -388,6 +392,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           startIndex: triggerStartIndex,
           endIndex: triggerEndIndex,
         };
+        setHighlight(getRangeWithOffset(textNode, triggerStartIndex, triggerEndIndex));
         onTrigger && onTrigger(lastTriggerParam);
       }
     },
