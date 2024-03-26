@@ -30,6 +30,7 @@ import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
 import { once, supportCustomElement } from '@lun/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
+import { defineDocPip } from './doc-pip';
 
 export function importAllBasicStyles() {
   importIconStyle();
@@ -70,6 +71,7 @@ export function defineAllComponents() {
   defineProgress();
   defineTextarea();
   defineMentions();
+  defineDocPip();
 }
 
 export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];

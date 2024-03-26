@@ -18,6 +18,7 @@ export const openShadowComponents = Object.freeze([
   'checkbox-group',
   'dialog',
   'divider',
+  'doc-pip',
   'file-picker',
   'form',
   'form-item',
