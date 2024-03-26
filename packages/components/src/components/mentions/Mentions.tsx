@@ -46,14 +46,14 @@ export const Mentions = defineSSRCustomElement({
             emit('enterDown', e);
           },
           onTrigger(param: MentionsTriggerParam) {
-            const { endRange, search } = param;
+            const { endRange, input } = param;
             const rect = endRange.getBoundingClientRect();
             // get the rect immediately to fix a bug. found that in safari if use the range as popover target, the position would be incorrect
             // seems that the range endContainer is updated to span, not the text node, and at that time the rect is incorrect for unknown reason
             target.value = {
               getBoundingClientRect: () => rect,
             };
-            lastTriggerInput.value = search;
+            lastTriggerInput.value = input;
             emit('trigger', param);
           },
           onCommit() {
