@@ -2,26 +2,27 @@ import { toArrayIfNotNil } from '@lun/utils';
 import { Condition } from './type';
 
 export function getConditionValue(
-  { allFalsy, someFalsy, depValues }: { allFalsy: boolean; someFalsy: boolean; noneFalsy: boolean; depValues: any[] },
+  { allFalsy, someFalsy, noneFalsy }: { allFalsy: boolean; someFalsy: boolean; noneFalsy: boolean; depValues: any[] },
   condition?: Condition | Condition[],
 ) {
   const conditions = toArrayIfNotNil(condition);
-  let result = !!depValues.length;
+  let result = undefined;
   for (const c of conditions) {
     switch (c) {
       case 'all-truthy':
-        if (someFalsy) return false;
+        result = noneFalsy;
         break;
       case 'some-truthy':
-        if (allFalsy) return false;
+        result = someFalsy && !allFalsy;
         break;
       case 'all-falsy':
-        if (!allFalsy) return false;
+        result = allFalsy;
         break;
       case 'some-falsy':
-        if (!someFalsy) return false;
+        result = someFalsy;
         break;
     }
+    if (result === false) return false;
   }
-  return result;
+  return !!result;
 }
