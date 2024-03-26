@@ -29,7 +29,7 @@ import {
   VueElementConstructor,
 } from 'vue';
 import { hyphenate, preprocessComponentOptions } from '../utils';
-import { isSupportCSSStyleSheet, toNumberIfValid, isFunction } from '@lun/utils';
+import { toNumberIfValid, isFunction, isCSSStyleSheet } from '@lun/utils';
 import { createPlainEvent } from '../utils/event';
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
@@ -466,7 +466,7 @@ export class VueElement extends BaseClass {
     if (styles && this.shadowRoot) {
       const sheets: CSSStyleSheet[] = [];
       styles.forEach((css) => {
-        if (isSupportCSSStyleSheet() && css instanceof CSSStyleSheet) {
+        if (isCSSStyleSheet(css)) {
           sheets.push(css);
           return;
         }

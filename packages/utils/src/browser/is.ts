@@ -1,3 +1,5 @@
+import { isSupportCSSStyleSheet } from "./support";
+
 function is(
   node: unknown,
   type:
@@ -7,7 +9,8 @@ function is(
     | 'HTMLTemplateElement'
     | 'HTMLImageElement'
     | 'HTMLInputElement'
-    | 'ShadowRoot',
+    | 'ShadowRoot'
+    | 'HTMLStyleElement',
 ) {
   return (
     globalThis[type] &&
@@ -42,4 +45,12 @@ export function isHTMLInputElement(node: unknown): node is HTMLInputElement {
 
 export function isShadowRoot(node: unknown): node is ShadowRoot {
   return is(node, 'ShadowRoot');
+}
+
+export function isHTMLStyleElement(node: unknown): node is HTMLStyleElement {
+  return is(node, 'HTMLStyleElement');
+}
+
+export function isCSSStyleSheet(i: unknown): i is CSSStyleSheet {
+  return isSupportCSSStyleSheet() && i instanceof CSSStyleSheet;
 }
