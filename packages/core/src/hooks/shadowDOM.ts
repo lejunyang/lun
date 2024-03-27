@@ -1,4 +1,4 @@
-import { cloneCSSStyleSheets } from '@lun/utils';
+import { copyCSSStyleSheetsIfNeed } from '@lun/utils';
 
 /**
  * This hook provides two functions to store and restore the adoptedStyleSheets of an element and its descendants.\
@@ -13,7 +13,7 @@ export function useAdoptedSheetsSnapshot() {
      */
     function storeAdoptedStyleSheets(element: Element) {
       const sheets = element.shadowRoot?.adoptedStyleSheets;
-      if (sheets) {
+      if (sheets?.length) {
         elSheetsMap.set(element, [...sheets]); // must shallow copy
       }
       for (const child of element.children) {
@@ -21,16 +21,13 @@ export function useAdoptedSheetsSnapshot() {
       }
     },
     /**
-     * Restore the adoptedStyleSheets of the given element and its descendants.
-     * @param copy Whether to clone the CSSStyleSheet objects. Defaults to false. If the element has been moved to another document, it must be true to make the styles take effect.
+     * Restore the adoptedStyleSheets of the given element and its descendants.\
+     * Will check if the element has been moved to another document and copy the CSSStyleSheet objects if necessary.
      */
-    function restoreAdoptedStyleSheets(element: Element, copy?: boolean) {
+    function restoreAdoptedStyleSheets(element: Element) {
       const sheets = elSheetsMap.get(element);
       if (sheets && element.shadowRoot) {
-        element.shadowRoot.adoptedStyleSheets = copy
-          ? // must use target's window, or the new styleSheet may not take effect if the element has been moved to another document
-            cloneCSSStyleSheets(sheets, element.ownerDocument.defaultView || window)
-          : sheets;
+        element.shadowRoot.adoptedStyleSheets = copyCSSStyleSheetsIfNeed(sheets, element);
       }
       for (const child of element.children) {
         restoreAdoptedStyleSheets(child);

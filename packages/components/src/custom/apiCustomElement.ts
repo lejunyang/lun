@@ -29,7 +29,7 @@ import {
   VueElementConstructor,
 } from 'vue';
 import { hyphenate, preprocessComponentOptions } from '../utils';
-import { toNumberIfValid, isFunction, isCSSStyleSheet } from '@lun/utils';
+import { toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
 import { createPlainEvent } from '../utils/event';
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
@@ -478,7 +478,10 @@ export class VueElement extends BaseClass {
           (this._styles || (this._styles = [])).push(s);
         }
       });
-      if (sheets.length) this.shadowRoot.adoptedStyleSheets = sheets;
+      if (sheets.length)
+        // copyCSSStyleSheetsIfNeed is for doc-pip component. when custom-element is moved to another document, it will throw an error: Sharing constructed stylesheets in multiple documents is not allowed
+        // so we must check if the stylesheets are shared between documents, if so, we must clone them
+        this.shadowRoot.adoptedStyleSheets = copyCSSStyleSheetsIfNeed(sheets, this);
     }
   }
 }
