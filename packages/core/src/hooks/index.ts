@@ -1,5 +1,7 @@
 export * from './createUseModel';
 export * from './instance';
+export * from './lifecycle';
+export * from './shadowDOM';
 export * from './state';
 export * from './useClickOutside';
 export * from './useOverflowWatcher';

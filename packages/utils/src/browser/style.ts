@@ -41,3 +41,13 @@ export function getHeight(node: HTMLElement) {
   const { scrollHeight } = node;
   return scrollHeight + (boxSizing === 'border-box' ? borderY : -paddingY);
 }
+
+export function cloneCSSStyleSheets(sheets: CSSStyleSheet[], defaultWindow = globalThis) {
+  return sheets.map((s) => {
+    const cloned = new defaultWindow.CSSStyleSheet();
+    for (const rule of s.cssRules) {
+      cloned.insertRule(rule.cssText);
+    }
+    return cloned;
+  });
+}

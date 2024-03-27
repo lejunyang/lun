@@ -1,9 +1,17 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, error } from 'utils';
 import { DocPipAcceptStyle, docPipProps } from './type';
-import { isCSSStyleSheet, isHTMLStyleElement, supportDocumentPictureInPicture, toArrayIfNotNil, toNumberOrUndefined } from '@lun/utils';
+import {
+  cloneCSSStyleSheets,
+  isCSSStyleSheet,
+  isHTMLStyleElement,
+  supportDocumentPictureInPicture,
+  toArrayIfNotNil,
+  toNumberOrUndefined,
+} from '@lun/utils';
 import { useBreakpoint, useCEExpose, useShadowDom, useSlot } from 'hooks';
 import { onBeforeUnmount, watchEffect } from 'vue';
+import { useAdoptedSheetsSnapshot } from '@lun/core';
 
 const name = 'doc-pip';
 export const DocPip = defineSSRCustomElement({
@@ -15,38 +23,9 @@ export const DocPip = defineSSRCustomElement({
 
     let pipWindow: Window | undefined,
       slotEl: Element | undefined,
-      opening = false,
-      elSheetsMap = new WeakMap<Element, CSSStyleSheet[]>();
+      opening = false;
 
-    function storeAdoptedStyleSheets(element: Element) {
-      if (element.shadowRoot?.adoptedStyleSheets) {
-        elSheetsMap.set(element, [...element.shadowRoot.adoptedStyleSheets]); // must shallow copy
-      }
-      for (const child of element.children) {
-        storeAdoptedStyleSheets(child);
-      }
-    }
-
-    function restoreAdoptedStyleSheets(element: Element, copy?: boolean) {
-      const sheets = elSheetsMap.get(element);
-      if (sheets && element.shadowRoot) {
-        element.shadowRoot.adoptedStyleSheets = copy
-          ? sheets.map((s) => {
-              // must use CSSStyleSheet of target's window, or it won't take effect
-              const newSheet = new element.ownerDocument.defaultView!.CSSStyleSheet();
-              newSheet.replaceSync(
-                Array.from(s.cssRules)
-                  .map((rule) => rule.cssText)
-                  .join('\n'),
-              );
-              return newSheet;
-            })
-          : sheets;
-      }
-      for (const child of element.children) {
-        restoreAdoptedStyleSheets(child);
-      }
-    }
+    const [storeAdoptedStyleSheets, restoreAdoptedStyleSheets] = useAdoptedSheetsSnapshot();
 
     const width = useBreakpoint(props, 'width', toNumberOrUndefined),
       height = useBreakpoint(props, 'height', toNumberOrUndefined);
@@ -77,7 +56,7 @@ export const DocPip = defineSSRCustomElement({
 
         // copy StyleSheets
         if (shadowRoot.adoptedStyleSheets) {
-          document.adoptedStyleSheets = shadowRoot.adoptedStyleSheets;
+          document.adoptedStyleSheets = cloneCSSStyleSheets(shadowRoot.adoptedStyleSheets, pipWindow.window);
         }
         // copy style nodes
         const styleNodes = Array.from(shadowRoot.querySelectorAll('style')).map((n) => n.cloneNode(true));
@@ -87,8 +66,9 @@ export const DocPip = defineSSRCustomElement({
         const extraStyles = otherStyles.concat(toArrayIfNotNil(props.pipStyles));
         if (extraStyles.length) {
           extraStyles.forEach((i) => {
-            if (isHTMLStyleElement(i)) head.append(i);
-            else if (isCSSStyleSheet(i)) document.adoptedStyleSheets = [...document.adoptedStyleSheets, i];
+            if (isHTMLStyleElement(i)) head.append(i.cloneNode(true));
+            else if (isCSSStyleSheet(i))
+              document.adoptedStyleSheets.push(...cloneCSSStyleSheets([i], pipWindow!.window));
             else if (i) {
               const style = document.createElement('style');
               style.textContent = i;
@@ -99,7 +79,7 @@ export const DocPip = defineSSRCustomElement({
 
         // TODO copy theme-provider
         pipWindow.document.body.append(slotEl);
-        restoreAdoptedStyleSheets(slotEl, true);
+        restoreAdoptedStyleSheets(slotEl, true); // copy must be true as the element has been moved to another document
         opening = false;
       },
       closePip() {
