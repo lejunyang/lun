@@ -1,5 +1,3 @@
-import { isSupportCSSStyleSheet } from "./support";
-
 function is(
   node: unknown,
   type:
@@ -49,8 +47,4 @@ export function isShadowRoot(node: unknown): node is ShadowRoot {
 
 export function isHTMLStyleElement(node: unknown): node is HTMLStyleElement {
   return is(node, 'HTMLStyleElement');
-}
-
-export function isCSSStyleSheet(i: unknown): i is CSSStyleSheet {
-  return isSupportCSSStyleSheet() && i instanceof CSSStyleSheet;
 }

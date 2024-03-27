@@ -1,4 +1,6 @@
-import { isNumber } from '../is';
+import { getTypeTag, isNumber } from '../is';
+import { getWindow } from './dom';
+import { isSupportCSSStyleSheet } from './support';
 
 const styleCommentRE = /\/\*[^]*?\*\//g;
 
@@ -42,12 +44,26 @@ export function getHeight(node: HTMLElement) {
   return scrollHeight + (boxSizing === 'border-box' ? borderY : -paddingY);
 }
 
-export function cloneCSSStyleSheets(sheets: CSSStyleSheet[], defaultWindow = globalThis) {
-  return sheets.map((s) => {
-    const cloned = new defaultWindow.CSSStyleSheet();
-    for (const rule of s.cssRules) {
-      cloned.insertRule(rule.cssText);
-    }
-    return cloned;
-  });
+export function isCSSStyleSheet(i: unknown): i is CSSStyleSheet {
+  return isSupportCSSStyleSheet() && getTypeTag(i) === 'CSSStyleSheet'; // use getTypeTag to avoid i is a CSSStyleSheet in another window
+}
+
+/**
+ * determines whether the target style sheet needs to be copied if it's going to be applied to the window of current node
+ */
+export function needCopyCSSStyleSheet(targetSheet: CSSStyleSheet, currentNode?: Node | Window): boolean {
+  return !(targetSheet instanceof getWindow(currentNode).CSSStyleSheet);
+}
+
+export function copyCSSStyleSheet(sheet: CSSStyleSheet, defaultWindow?: typeof globalThis | null) {
+  const cloned = new (defaultWindow || globalThis).CSSStyleSheet();
+  for (const rule of sheet.cssRules) {
+    cloned.insertRule(rule.cssText);
+  }
+  return cloned;
+}
+
+export function copyCSSStyleSheetsIfNeed(sheets: CSSStyleSheet[], currentNode?: Node | Window) {
+  const win = getWindow(currentNode);
+  return sheets.map((s) => (needCopyCSSStyleSheet(s, currentNode) ? copyCSSStyleSheet(s, win) : s));
 }
