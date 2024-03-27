@@ -1,4 +1,4 @@
-import { isFunction, isSupportCSSStyleSheet, toArrayIfNotNil } from '@lun/utils';
+import { copyCSSStyleSheetsIfNeed, isFunction, isSupportCSSStyleSheet, toArrayIfNotNil } from '@lun/utils';
 import type { OpenShadowComponentKey } from 'config';
 import { GlobalStaticConfig, componentsWithTeleport, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
@@ -16,7 +16,7 @@ export function useContextStyles(name: OpenShadowComponentKey) {
   if (name === 'teleport-holder') {
     styles.push(...componentsWithTeleport.flatMap((name) => dynamicStyles[name]));
   }
-  const sheets: CSSStyleSheet[] = [];
+  let sheets: CSSStyleSheet[] = [];
   const textStyles: (() => string)[] = [];
   const adopt = isSupportCSSStyleSheet() && GlobalStaticConfig.preferCSSStyleSheet;
   styles.forEach((s) => {
@@ -34,7 +34,11 @@ export function useContextStyles(name: OpenShadowComponentKey) {
     }
   });
   onCEMount(({ shadowRoot }) => {
-    if (sheets.length) shadowRoot.adoptedStyleSheets = shadowRoot.adoptedStyleSheets.concat(sheets);
+    if (sheets.length) {
+      // copyCSSStyleSheetsIfNeed is for doc-pip component. when custom-element is moved to another document, it will throw an error: Sharing constructed stylesheets in multiple documents is not allowed
+      // so we must check if the stylesheets are shared between documents, if so, we must clone them
+      shadowRoot.adoptedStyleSheets.push(...copyCSSStyleSheetsIfNeed(sheets, shadowRoot));
+    }
   });
   return computed(() => textStyles.map((i) => h('style', { type: 'text/css' }, i())));
 }
