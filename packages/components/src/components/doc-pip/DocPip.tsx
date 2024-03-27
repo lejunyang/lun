@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, error } from 'utils';
+import { createDefineElement, error, getFirstThemeProvider } from 'utils';
 import { DocPipAcceptStyle, docPipProps } from './type';
 import {
-  cloneCSSStyleSheets,
+  copyCSSStyleSheetsIfNeed,
   isCSSStyleSheet,
   isHTMLStyleElement,
   supportDocumentPictureInPicture,
@@ -30,6 +30,12 @@ export const DocPip = defineSSRCustomElement({
     const width = useBreakpoint(props, 'width', toNumberOrUndefined),
       height = useBreakpoint(props, 'height', toNumberOrUndefined);
 
+    const getStyleNode = (text: string) => {
+      const style = document.createElement('style');
+      style.textContent = text;
+      return style;
+    };
+
     const methods = {
       async openPip(...otherStyles: DocPipAcceptStyle[]) {
         const { value } = slotRef,
@@ -38,6 +44,8 @@ export const DocPip = defineSSRCustomElement({
         [slotEl] = value.assignedElements();
         if (!slotEl || opening) return false;
         opening = true;
+
+        const { pipStyles, copyDocStyleSheets, wrapThemeProvider } = props;
 
         // iterate the slotEl, store the adoptedStyleSheets of itself and all its descendant children
         storeAdoptedStyleSheets(slotEl);
@@ -52,34 +60,50 @@ export const DocPip = defineSSRCustomElement({
             throw e;
           });
 
-        const { document } = pipWindow;
+        const { document: pipDocument } = pipWindow;
 
         // copy StyleSheets
-        if (shadowRoot.adoptedStyleSheets) {
-          document.adoptedStyleSheets = cloneCSSStyleSheets(shadowRoot.adoptedStyleSheets, pipWindow.window);
+        if (shadowRoot.adoptedStyleSheets?.length) {
+          pipDocument.adoptedStyleSheets = copyCSSStyleSheetsIfNeed(shadowRoot.adoptedStyleSheets, pipWindow);
         }
         // copy style nodes
         const styleNodes = Array.from(shadowRoot.querySelectorAll('style')).map((n) => n.cloneNode(true));
-        const { head } = document;
+        const { head } = pipDocument;
         head.append(...styleNodes);
 
-        const extraStyles = otherStyles.concat(toArrayIfNotNil(props.pipStyles));
+        if (copyDocStyleSheets) {
+          for (const { ownerNode } of document.styleSheets) {
+            if (ownerNode) {
+              head.append(ownerNode.cloneNode(true));
+            }
+          }
+        }
+
+        const extraStyles = otherStyles.concat(toArrayIfNotNil(pipStyles));
         if (extraStyles.length) {
           extraStyles.forEach((i) => {
             if (isHTMLStyleElement(i)) head.append(i.cloneNode(true));
             else if (isCSSStyleSheet(i))
-              document.adoptedStyleSheets.push(...cloneCSSStyleSheets([i], pipWindow!.window));
+              pipDocument.adoptedStyleSheets?.push(...copyCSSStyleSheetsIfNeed([i], pipWindow));
             else if (i) {
-              const style = document.createElement('style');
-              style.textContent = i;
-              head.append(style);
+              head.append(getStyleNode(i));
             }
           });
         }
 
-        // TODO copy theme-provider
-        pipWindow.document.body.append(slotEl);
-        restoreAdoptedStyleSheets(slotEl, true); // copy must be true as the element has been moved to another document
+        let appendNode = slotEl;
+        // copy theme-provider
+        if (wrapThemeProvider) {
+          let themeProvider = getFirstThemeProvider();
+          if (themeProvider) {
+            const newThemeProvider = document.createElement(themeProvider.tagName);
+            Object.assign(newThemeProvider, (themeProvider as any)._props);
+            newThemeProvider.append(slotEl);
+            appendNode = newThemeProvider;
+          }
+        }
+        pipDocument.body.append(appendNode);
+        restoreAdoptedStyleSheets(slotEl);
         opening = false;
       },
       closePip() {

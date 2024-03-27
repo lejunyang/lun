@@ -115,6 +115,10 @@ export const GlobalStaticConfig = new Proxy(
         maskTransition: 'bgFade',
       },
       divider: {},
+      'doc-pip': {
+        wrapThemeProvider: true,
+        copyDocStyleSheets: true,
+      },
       form: {
         plainName: undefined,
         layout: 'grid' as const,
