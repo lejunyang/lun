@@ -11,10 +11,12 @@ type BK = keyof B;
 let medias: Record<BK, MediaQueryList>;
 const breakpointStates = reactive({} as Record<BK, boolean>);
 
-export function useBreakpoint<P extends Record<string, Responsive<any>>, K extends keyof P = 'size'>(
-  props: P,
-  k?: K,
-): P[K] extends Responsive<infer T> ? ComputedRef<T> : ComputedRef<P[K]> {
+export function useBreakpoint<
+  P extends Record<string, Responsive<any>>,
+  K extends keyof P = 'size',
+  V = P[K] extends Responsive<infer T> ? T : P[K],
+  Trans extends (v: V) => any = (v: V) => V,
+>(props: P, k?: K, transform?: Trans): ComputedRef<ReturnType<Trans>> {
   if (!medias && inBrowser) {
     medias = {} as any;
     const { breakpoints } = GlobalStaticConfig;
@@ -28,6 +30,7 @@ export function useBreakpoint<P extends Record<string, Responsive<any>>, K exten
       medias[key] = media;
     });
   }
+  transform ||= ((v: V) => v) as Trans;
   return computed(() => {
     const value = props[k || 'size'];
     if (isObject(value)) {
@@ -35,8 +38,8 @@ export function useBreakpoint<P extends Record<string, Responsive<any>>, K exten
       const key = objectKeys(breakpointStates).find(
         (k, index, keys) => value[k] && breakpointStates[k] && !value[keys[index + 1]],
       );
-      return key ? value[key] : value.initial || value;
+      return transform(key ? value[key] : value.initial || value);
     }
-    return value;
+    return transform(value);
   }) as any;
 }

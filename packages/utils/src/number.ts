@@ -17,14 +17,23 @@ export function toNumberIfValid<T>(val: T, defaultVal?: number) {
   return val == null || Number.isNaN(num) ? (defaultVal != null ? defaultVal : val) : num;
 }
 
-export function toNumberOrNull(val: any) {
+export function toNumberOr<T>(val: any, defaultVal: T) {
   const num = +val;
-  return Number.isNaN(num) ? null : num;
+  return Number.isNaN(num) ? defaultVal : num;
+}
+
+export function toNumberOrNull(val: any) {
+  return toNumberOr(val, null);
+}
+
+export function toNumberOrUndefined(val: any) {
+  return toNumberOr(val, undefined);
 }
 
 export function ensureNumber(val: any, defaultVal: number) {
-  const num = +val;
-  return Number.isNaN(num) ? (defaultVal != null ? defaultVal : num) : num;
+  const num = toNumberOr(val, defaultVal);
+  if (!isNumber(num)) return NaN;
+  else return num;
 }
 
 export const numberRegex =

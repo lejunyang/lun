@@ -9,6 +9,7 @@ import {
   getCurrentInstance,
   onBeforeUnmount,
   onMounted,
+  readonly,
   shallowReactive,
   unref,
   watchEffect,
@@ -44,7 +45,12 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootNode exte
     Object.assign(state, s);
     if (isFunction(onMountCB)) onMountCB(s as any);
   });
-  return state;
+  onBeforeUnmount(() => {
+    state.rootChildNode = undefined;
+    state.shadowRoot = undefined;
+    state.CE = undefined;
+  });
+  return readonly(state) as Readonly<typeof state>;
 }
 
 /**
