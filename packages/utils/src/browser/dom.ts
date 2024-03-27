@@ -70,3 +70,7 @@ export const getNextMatchNodeInTree = createGetNodeInTree<Node>({
   },
   getParent: (e) => (e as Element).assignedSlot || e.parentNode || (e as ShadowRoot)?.host,
 });
+
+export function getWindow(nodeOrWindow?: Node | Window) {
+  return (nodeOrWindow as Window)?.window || (nodeOrWindow as Node)?.ownerDocument?.defaultView || window;
+}
