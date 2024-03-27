@@ -1,9 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement } from 'utils';
-import { docPipProps } from './type';
-import { isCSSStyleSheet, isHTMLStyleElement, supportDocumentPictureInPicture } from '@lun/utils';
-import { useCEExpose, useShadowDom, useSlot } from 'hooks';
-import { watchEffect } from 'vue';
+import { createDefineElement, error } from 'utils';
+import { DocPipAcceptStyle, docPipProps } from './type';
+import { isCSSStyleSheet, isHTMLStyleElement, supportDocumentPictureInPicture, toArrayIfNotNil, toNumberOrUndefined } from '@lun/utils';
+import { useBreakpoint, useCEExpose, useShadowDom, useSlot } from 'hooks';
+import { onBeforeUnmount, watchEffect } from 'vue';
 
 const name = 'doc-pip';
 export const DocPip = defineSSRCustomElement({
@@ -20,7 +20,7 @@ export const DocPip = defineSSRCustomElement({
 
     function storeAdoptedStyleSheets(element: Element) {
       if (element.shadowRoot?.adoptedStyleSheets) {
-        elSheetsMap.set(element, [...element.shadowRoot?.adoptedStyleSheets]); // must shallow copy
+        elSheetsMap.set(element, [...element.shadowRoot.adoptedStyleSheets]); // must shallow copy
       }
       for (const child of element.children) {
         storeAdoptedStyleSheets(child);
@@ -48,8 +48,11 @@ export const DocPip = defineSSRCustomElement({
       }
     }
 
+    const width = useBreakpoint(props, 'width', toNumberOrUndefined),
+      height = useBreakpoint(props, 'height', toNumberOrUndefined);
+
     const methods = {
-      async openPip(...otherStyles: (string | CSSStyleSheet | HTMLStyleElement)[]) {
+      async openPip(...otherStyles: DocPipAcceptStyle[]) {
         const { value } = slotRef,
           { shadowRoot } = shadow;
         if (!supportDocumentPictureInPicture || !value || !shadowRoot) return;
@@ -62,8 +65,8 @@ export const DocPip = defineSSRCustomElement({
 
         pipWindow = await documentPictureInPicture
           .requestWindow({
-            width: props.pipWidth as number,
-            height: props.pipHeight as number,
+            width: width.value,
+            height: height.value,
           })
           .catch((e) => {
             opening = false;
@@ -77,12 +80,13 @@ export const DocPip = defineSSRCustomElement({
           document.adoptedStyleSheets = shadowRoot.adoptedStyleSheets;
         }
         // copy style nodes
-        const styleNodes = Array.from(shadowRoot.querySelectorAll('style')).map((n) => n.cloneNode());
+        const styleNodes = Array.from(shadowRoot.querySelectorAll('style')).map((n) => n.cloneNode(true));
         const { head } = document;
         head.append(...styleNodes);
 
-        if (otherStyles.length) {
-          otherStyles.forEach((i) => {
+        const extraStyles = otherStyles.concat(toArrayIfNotNil(props.pipStyles));
+        if (extraStyles.length) {
+          extraStyles.forEach((i) => {
             if (isHTMLStyleElement(i)) head.append(i);
             else if (isCSSStyleSheet(i)) document.adoptedStyleSheets = [...document.adoptedStyleSheets, i];
             else if (i) {
@@ -110,9 +114,10 @@ export const DocPip = defineSSRCustomElement({
     };
 
     watchEffect(() => {
-      if (props.open) methods.openPip();
+      if (props.open) methods.openPip().catch(error);
       else methods.closePip();
     });
+    onBeforeUnmount(methods.closePip);
 
     useCEExpose(methods);
     return () => <slot ref={slotRef}></slot>;
