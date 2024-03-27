@@ -10,4 +10,6 @@ export const docPipProps = {
   width: sizeProp,
   height: sizeProp,
   pipStyles: PropObjOrStr<DocPipAcceptStyle | DocPipAcceptStyle[]>(),
+  wrapThemeProvider: PropBoolean(),
+  copyDocStyleSheets: PropBoolean(),
 };
