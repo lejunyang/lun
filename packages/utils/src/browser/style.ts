@@ -57,9 +57,8 @@ export function needCopyCSSStyleSheet(targetSheet: CSSStyleSheet, currentNode?: 
 
 export function copyCSSStyleSheet(sheet: CSSStyleSheet, defaultWindow?: typeof globalThis | null) {
   const cloned = new (defaultWindow || globalThis).CSSStyleSheet();
-  for (const rule of sheet.cssRules) {
-    cloned.insertRule(rule.cssText);
-  }
+  // must pass index to insertRule to keep the order, it defaults to 0
+  Array.from(sheet.cssRules).forEach((rule, index) => cloned.insertRule(rule.cssText, index));
   return cloned;
 }
 

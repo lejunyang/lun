@@ -12,11 +12,18 @@ export function useAdoptedSheetsSnapshot() {
      * Store the adoptedStyleSheets of the given element and its descendants.
      */
     function storeAdoptedStyleSheets(element: Element) {
-      const sheets = element.shadowRoot?.adoptedStyleSheets;
-      if (sheets?.length) {
-        elSheetsMap.set(element, [...sheets]); // must shallow copy
+      const { shadowRoot, children } = element;
+      if (shadowRoot) {
+        const sheets = [...shadowRoot.adoptedStyleSheets]; // must shallow copy
+        if (sheets.length) {
+          elSheetsMap.set(element, [...sheets]);
+        }
+        // need to process the shadowRoot's children too... as there may be some custom elements too
+        for (const child of shadowRoot.children) {
+          storeAdoptedStyleSheets(child);
+        }
       }
-      for (const child of element.children) {
+      for (const child of children) {
         storeAdoptedStyleSheets(child);
       }
     },
@@ -25,11 +32,15 @@ export function useAdoptedSheetsSnapshot() {
      * Will check if the element has been moved to another document and copy the CSSStyleSheet objects if necessary.
      */
     function restoreAdoptedStyleSheets(element: Element) {
+      const { shadowRoot, children } = element;
       const sheets = elSheetsMap.get(element);
-      if (sheets && element.shadowRoot) {
-        element.shadowRoot.adoptedStyleSheets = copyCSSStyleSheetsIfNeed(sheets, element);
+      if (shadowRoot) {
+        if (sheets) shadowRoot.adoptedStyleSheets = copyCSSStyleSheetsIfNeed(sheets, element);
+        for (const child of shadowRoot.children) {
+          restoreAdoptedStyleSheets(child);
+        }
       }
-      for (const child of element.children) {
+      for (const child of children) {
         restoreAdoptedStyleSheets(child);
       }
     },

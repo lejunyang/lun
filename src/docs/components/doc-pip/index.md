@@ -44,6 +44,24 @@ lang: zh-CN
 
 <!-- @Code:copyStyles -->
 
+## 自定义宽高
+
+通过`width`和`height`属性可自定义画中画窗口的宽度和高度，它们均为像素长度，必须同时指定或都不指定，否则浏览器会抛出异常。另外，如果指定的数值较大，浏览器可能会忽视
+
+这两个属性均为[响应式断点属性](/components/theme-provider/)，即它们也可以设置为如下的对象
+```ts
+{
+  initial?: number
+  xs?: number,
+  sm?: number,
+  md?: number,
+  lg?: number,
+  xl?: number,
+}
+```
+
+<!-- @Code:differentSize -->
+
 <script setup>
 import { supportDocumentPictureInPicture } from '@lun/utils';
 </script>
