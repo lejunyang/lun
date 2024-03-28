@@ -44,7 +44,7 @@ export const DocPip = defineSSRCustomElement({
           { shadowRoot } = shadow;
         if (!supportDocumentPictureInPicture || !value || !shadowRoot) return;
         slotEls = value.assignedElements();
-        if (!slotEls.length || opening) return false;
+        if (!slotEls.length || opening || opened.value) return false;
         opening = true;
 
         const { pipStyles, copyDocStyleSheets, wrapThemeProvider } = props;
@@ -108,8 +108,8 @@ export const DocPip = defineSSRCustomElement({
         pipDocument.body.append(...appendNodes);
         slotEls.forEach(restoreAdoptedStyleSheets);
         opening = false;
-        opened.value = true;
         emit('open');
+        return (opened.value = true);
       },
       closePip() {
         opened.value = false;
