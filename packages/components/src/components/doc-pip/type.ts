@@ -1,6 +1,7 @@
 import { Responsive } from 'hooks';
-import { PropBoolean, PropObjOrStr } from 'common';
+import { GetEventPropsFromEmits, PropBoolean, PropObjOrStr } from 'common';
 import { Constructor } from '@lun/utils';
+import { ExtractPropTypes } from 'vue';
 
 export type DocPipAcceptStyle = string | CSSStyleSheet | HTMLStyleElement;
 
@@ -13,3 +14,12 @@ export const docPipProps = {
   wrapThemeProvider: PropBoolean(),
   copyDocStyleSheets: PropBoolean(),
 };
+
+export const docPipEmits = {
+  open: null,
+  close: null,
+};
+
+export type DocPipSetupProps = ExtractPropTypes<typeof docPipProps>;
+export type DocPipEvents = GetEventPropsFromEmits<typeof docPipEmits>;
+export type DocPipProps = Partial<DocPipSetupProps> & DocPipEvents;

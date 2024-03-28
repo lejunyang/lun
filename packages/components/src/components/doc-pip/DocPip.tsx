@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, error, getFirstThemeProvider } from 'utils';
-import { DocPipAcceptStyle, docPipProps } from './type';
+import { DocPipAcceptStyle, docPipEmits, docPipProps } from './type';
 import {
   copyCSSStyleSheetsIfNeed,
   isCSSStyleSheet,
@@ -17,7 +17,8 @@ const name = 'doc-pip';
 export const DocPip = defineSSRCustomElement({
   name,
   props: docPipProps,
-  setup(props) {
+  emits: docPipEmits,
+  setup(props, { emit }) {
     const { slotRef } = useSlot();
     const shadow = useShadowDom();
 
@@ -60,6 +61,7 @@ export const DocPip = defineSSRCustomElement({
             opening = false;
             throw e;
           });
+        pipWindow.addEventListener('pagehide', methods.closePip);
 
         const { document: pipDocument } = pipWindow;
 
@@ -107,6 +109,7 @@ export const DocPip = defineSSRCustomElement({
         slotEls.forEach(restoreAdoptedStyleSheets);
         opening = false;
         opened.value = true;
+        emit('open');
       },
       closePip() {
         opened.value = false;
@@ -114,7 +117,10 @@ export const DocPip = defineSSRCustomElement({
           shadow.CE?.append(e);
           restoreAdoptedStyleSheets(e);
         });
-        pipWindow?.close();
+        if (pipWindow) {
+          pipWindow.close();
+          emit('close');
+        }
         slotEls = [];
         pipWindow = undefined;
       },
@@ -136,5 +142,10 @@ export const DocPip = defineSSRCustomElement({
 });
 
 export type tDocPip = typeof DocPip;
+export type iDocPip = InstanceType<tDocPip> & {
+  openPip: (...otherStyles: DocPipAcceptStyle[]) => Promise<boolean>;
+  closePip: () => void;
+  togglePip: () => void;
+};
 
 export const defineDocPip = createDefineElement(name, DocPip);
