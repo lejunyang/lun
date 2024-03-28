@@ -1,11 +1,11 @@
 <template>
   <ClientOnly>
     <div class="code-wrapper" v-show="!devHide" ref="wrapperRef">
-      <div class="code-container" v-if="!initialized">
+      <div class="code-container disabled" v-if="!initialized">
         <!-- this is to preventing long time white screen before initialized -->
         <slot></slot>
       </div>
-      <div class="code-container" v-show="initialized" :style="{ opacity: loading ? 0.7 : 1 }">
+      <div :class="`code-container ${loading ? 'disabled' : ''}`" v-show="initialized">
         <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
       </div>
       <div class="code-block-footer">
@@ -134,7 +134,6 @@ const rendererProps = reactive({
 });
 
 const handleCodeChange = debounce(async () => {
-  loading.value = true;
   try {
     const code = codesMap[lang.value];
     if (!code) {
@@ -183,6 +182,7 @@ watchEffect(() => {
     // collect dep
   }
   if (!inBrowser) return;
+  loading.value = true;
   handleCodeChange();
 });
 
@@ -209,6 +209,11 @@ main .code-container {
   gap: 5px;
   align-items: center;
   flex-wrap: wrap;
+
+  &.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
 
   .container {
     flex-basis: 100%;
