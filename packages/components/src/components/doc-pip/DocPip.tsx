@@ -10,7 +10,7 @@ import {
   toNumberOrUndefined,
 } from '@lun/utils';
 import { useBreakpoint, useCEExpose, useShadowDom, useSlot } from 'hooks';
-import { onBeforeUnmount, watchEffect } from 'vue';
+import { onBeforeUnmount, ref, watchEffect } from 'vue';
 import { useAdoptedSheetsSnapshot } from '@lun/core';
 
 const name = 'doc-pip';
@@ -22,8 +22,9 @@ export const DocPip = defineSSRCustomElement({
     const shadow = useShadowDom();
 
     let pipWindow: Window | undefined,
-      slotEl: Element | undefined,
+      slotEls: Element[] = [],
       opening = false;
+    const opened = ref(false);
 
     const [storeAdoptedStyleSheets, restoreAdoptedStyleSheets] = useAdoptedSheetsSnapshot();
 
@@ -41,14 +42,14 @@ export const DocPip = defineSSRCustomElement({
         const { value } = slotRef,
           { shadowRoot } = shadow;
         if (!supportDocumentPictureInPicture || !value || !shadowRoot) return;
-        [slotEl] = value.assignedElements();
-        if (!slotEl || opening) return false;
+        slotEls = value.assignedElements();
+        if (!slotEls.length || opening) return false;
         opening = true;
 
         const { pipStyles, copyDocStyleSheets, wrapThemeProvider } = props;
 
         // iterate the slotEl, store the adoptedStyleSheets of itself and all its descendant children
-        storeAdoptedStyleSheets(slotEl);
+        slotEls.forEach(storeAdoptedStyleSheets);
 
         pipWindow = await documentPictureInPicture
           .requestWindow({
@@ -91,29 +92,35 @@ export const DocPip = defineSSRCustomElement({
           });
         }
 
-        let appendNode = slotEl;
+        let appendNodes = slotEls;
         // copy theme-provider
         if (wrapThemeProvider) {
           let themeProvider = getFirstThemeProvider();
           if (themeProvider) {
             const newThemeProvider = document.createElement(themeProvider.tagName);
             Object.assign(newThemeProvider, (themeProvider as any)._props);
-            newThemeProvider.append(slotEl);
-            appendNode = newThemeProvider;
+            newThemeProvider.append(...slotEls);
+            appendNodes = [newThemeProvider];
           }
         }
-        pipDocument.body.append(appendNode);
-        restoreAdoptedStyleSheets(slotEl);
+        pipDocument.body.append(...appendNodes);
+        slotEls.forEach(restoreAdoptedStyleSheets);
         opening = false;
+        opened.value = true;
       },
       closePip() {
-        if (slotEl) {
-          shadow.CE?.append(slotEl);
-          restoreAdoptedStyleSheets(slotEl);
-        }
+        opened.value = false;
+        slotEls.forEach((e) => {
+          shadow.CE?.append(e);
+          restoreAdoptedStyleSheets(e);
+        });
         pipWindow?.close();
-        slotEl = undefined;
+        slotEls = [];
         pipWindow = undefined;
+      },
+      togglePip() {
+        if (opened.value) methods.closePip();
+        else methods.openPip().catch(error);
       },
     };
 
