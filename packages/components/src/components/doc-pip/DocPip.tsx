@@ -43,8 +43,9 @@ export const DocPip = defineSSRCustomElement({
         const { value } = slotRef,
           { shadowRoot } = shadow;
         if (!supportDocumentPictureInPicture || !value || !shadowRoot) return;
-        slotEls = value.assignedElements();
-        if (!slotEls.length || opening || opened.value) return false;
+        const temp = value.assignedElements();
+        if (!temp.length || opening || opened.value) return false;
+        slotEls = temp;
         opening = true;
 
         const { pipStyles, copyDocStyleSheets, wrapThemeProvider } = props;
