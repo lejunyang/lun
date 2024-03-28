@@ -32,22 +32,53 @@
   @return getVarValue(($gray-name, $level));
 }
 
+@function wrapThemeWhere($selector) {
+  @if map.get($with-where-map, 'theme-provider') {
+    @return ':where(' + $selector + ')';
+  } @else {
+    @return $selector;
+  }
+}
+
 @mixin lightTheme($isLight: true) {
   @if $isLight {
-    &:where([appearance='light']) {
+    &#{wrapThemeWhere('[appearance=light]')} {
       @content;
     }
     @media (prefers-color-scheme: light) {
-      &:where([root]:not([appearance='light'], [appearance='dark'])) {
+      &#{wrapThemeWhere('[root]:not([appearance=dark])')} {
         @content;
       }
     }
   } @else {
-    &:where([appearance='dark']) {
+    &#{wrapThemeWhere('[appearance=dark]')} {
       @content;
     }
     @media (prefers-color-scheme: dark) {
-      &:where([root]:not([appearance='light'], [appearance='dark'])) {
+      &#{wrapThemeWhere('[root]:not([appearance=light])')} {
+        @content;
+      }
+    }
+  }
+}
+
+// useless, it was for theme-provider inner style
+@mixin hostTheme($isLight: true) {
+  @if $isLight {
+    :host(#{wrapThemeWhere('[appearance=light]')}) {
+      @content;
+    }
+    @media (prefers-color-scheme: light) {
+      :host(#{wrapThemeWhere(':not([appearance=dark])')}) {
+        @content;
+      }
+    }
+  } @else {
+    :host(#{wrapThemeWhere('[appearance=dark]')}) {
+      @content;
+    }
+    @media (prefers-color-scheme: dark) {
+      :host(#{wrapThemeWhere(':not([appearance=light])')}) {
         @content;
       }
     }
@@ -184,6 +215,18 @@
     @include generateColorProperties($color);
   } @else {
     [#{$color-name + '=' + $color}] {
+      @include generateColorProperties($color);
+    }
+  }
+}
+
+// generate styles for theme-provider or elements with color="xxx"
+@mixin generateHostThemeColor($color, $noSelector: false) {
+  @if $noSelector {
+    @include generateColorProperties($color);
+  } @else {
+    :host(#{wrapThemeWhere('[' + $color-name + '=' + $color + ']')}),
+    ::slotted([#{$color-name + '=' + $color}]) {
       @include generateColorProperties($color);
     }
   }
