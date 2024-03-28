@@ -107,7 +107,7 @@ export async function runReactTSXCode(code: string) {
     jsxImportSource: 'react',
     globalName: 'result',
   });
-  const requireDep = buildDepRequire(res.code);
+  const requireDep = await buildDepRequire(res.code);
   if (!res.code.includes('var result')) throw new Error(errorMsg);
   const func = new Function('require', 'createElement', 'Fragment', res.code + ';return result;');
   if (isFunction(dependencies.react)) dependencies.react = await dependencies.react();
