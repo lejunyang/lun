@@ -5,12 +5,12 @@ import {
   PropBoolOrStr,
   PropBoolean,
   PropFunction,
-  PropNumber,
   PropObjOrStr,
   PropObject,
   PropString,
   createTransitionProps,
   editStateProps,
+  sizeProp,
   themeProps,
 } from 'common';
 
@@ -25,7 +25,7 @@ export const dialogProps = {
   maskClosable: PropBoolOrStr<boolean | 'click' | 'dblclick'>(),
   escapeClosable: PropBoolean(),
   movable: PropBoolean(),
-  width: PropNumber(),
+  width: sizeProp,
   title: PropObjOrStr(),
   noHeader: PropBoolean(),
   noCloseBtn: PropBoolean(),

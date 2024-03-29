@@ -1,11 +1,8 @@
-import { Responsive } from 'hooks';
-import { GetEventPropsFromEmits, PropBoolean, PropObjOrStr } from 'common';
-import { Constructor } from '@lun/utils';
+import { GetEventPropsFromEmits, PropBoolean, PropObjOrStr, sizeProp } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type DocPipAcceptStyle = string | CSSStyleSheet | HTMLStyleElement;
 
-const sizeProp = PropObjOrStr<Responsive<string>, Constructor<Responsive<number>>[]>(Number as any);
 export const docPipProps = {
   open: PropBoolean(),
   width: sizeProp,

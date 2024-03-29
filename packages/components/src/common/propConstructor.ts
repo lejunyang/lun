@@ -1,5 +1,6 @@
 import { PropType } from 'vue';
 import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun/utils';
+import { Responsive } from '../hooks/useBreakpoint';
 
 const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => {
   return <T extends UnwrapPrimitive<InstanceType<Presets[number]>>, C extends Constructor[] = []>(
@@ -29,6 +30,8 @@ export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array 
  * we need to add type Boolean to let vue transform the empty string to boolean true, and need to add default undefined in case it defaults to boolean false
  */
 export const valueProp = { ...PropBoolOrStr(Object, Number), default: undefined };
+
+export const sizeProp = PropObjOrStr<Responsive<string>, Constructor<Responsive<number>>[]>(Number as any);
 
 // const test = {
 //   str: PropString<'const'>(),

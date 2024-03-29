@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { DialogExpose, dialogEmits, dialogProps } from './type';
-import { useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
+import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
@@ -11,7 +11,7 @@ import { Transition, computed, ref, watch } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { toPxIfNum } from '@lun/utils';
+import { toNumberIfValid, toPxIfNum } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'dialog';
@@ -26,6 +26,7 @@ export const Dialog = Object.assign(
       const maskShow = ref(false);
       const dialogRef = ref<HTMLDialogElement>();
       const zIndex = useContextConfig('zIndex');
+      const width = useBreakpoint(props, 'width', (val) => toPxIfNum(toNumberIfValid(val)));
       const [editComputed, editState] = useSetupEdit({
         noInherit: true,
       });
@@ -107,12 +108,7 @@ export const Dialog = Object.assign(
                   <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
                 </Transition>
                 <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
-                  <div
-                    v-show={openModel.value}
-                    class={ns.e('panel')}
-                    part="panel"
-                    style={{ width: toPxIfNum(props.width) }}
-                  >
+                  <div v-show={openModel.value} class={ns.e('panel')} part="panel" style={{ width: width.value }}>
                     {!props.noCloseBtn &&
                       renderElement(
                         'button',
