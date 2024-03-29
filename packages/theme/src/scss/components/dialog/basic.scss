@@ -8,6 +8,12 @@
   padding: 0;
   background-color: transparent;
   outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 
   @include is(no-top-layer) {
     @include declareVars(z-index);
@@ -38,6 +44,7 @@
     background-color: getSemanticColor('mask');
     transition: background-color 0.25s;
     inset: 0px;
+    pointer-events: all;
   }
 
   @include e(panel) {
@@ -45,7 +52,14 @@
     z-index: 2;
     background-color: getSemanticColor('panel-solid');
     outline: none;
+    box-sizing: border-box;
+    pointer-events: all;
     @include declareVars((border-radius, padding));
+  }
+  @include is(no-mask) {
+    @include e(panel) {
+      box-shadow: getShadow(5); // requires the dialog has enough width and height, or the shadow will be clipped
+    }
   }
 
   @include e(close) {
