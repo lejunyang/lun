@@ -12,6 +12,7 @@ import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
 import { toPxIfNum } from '@lun/utils';
+import { useContextConfig } from 'config';
 
 const name = 'dialog';
 export const Dialog = Object.assign(
@@ -24,6 +25,7 @@ export const Dialog = Object.assign(
       const openModel = useOpenModel(props, { passive: true });
       const maskShow = ref(false);
       const dialogRef = ref<HTMLDialogElement>();
+      const zIndex = useContextConfig('zIndex');
       const [editComputed, editState] = useSetupEdit({
         noInherit: true,
       });
@@ -83,10 +85,11 @@ export const Dialog = Object.assign(
       const { render } = WatermarkContext.inject();
 
       const [stateClass] = useCEStates(
-        () => ({ 'no-top-layer': props.noTopLayer, confirm: props.isConfirm }),
+        () => ({ 'no-top-layer': props.noTopLayer, confirm: props.isConfirm, 'no-mask': props.noMask }),
         ns,
         editComputed,
       );
+      // TODO prevent background scrolling
       return () => {
         return (
           <dialog
@@ -94,9 +97,9 @@ export const Dialog = Object.assign(
             part="root"
             ref={dialogRef}
             {...dialogHandlers}
-            style={{ width: toPxIfNum(props.width) }}
             // title is a global HTMLAttributes, but we use it as prop. it will make the dialog show tooltip even if inheritAttrs is false, we need to set an empty title to prevent it
             title=""
+            style={{ zIndex: zIndex.dialog }}
           >
             {render(
               <>
@@ -104,7 +107,12 @@ export const Dialog = Object.assign(
                   <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
                 </Transition>
                 <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
-                  <div v-show={openModel.value} class={ns.e('panel')} part="panel">
+                  <div
+                    v-show={openModel.value}
+                    class={ns.e('panel')}
+                    part="panel"
+                    style={{ width: toPxIfNum(props.width) }}
+                  >
                     {!props.noCloseBtn &&
                       renderElement(
                         'button',

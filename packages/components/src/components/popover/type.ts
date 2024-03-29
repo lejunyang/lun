@@ -45,6 +45,7 @@ export const popoverProps = {
 
   /** used to make the pop content same width or height as the target element. */
   sync: PropString<'width' | 'height' | 'both'>(),
+  zIndex: PropNumber(),
   /** used to dynamically set styles of pop element */
   adjustPopStyle: PropFunction<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>(),
   /** determine whether to use transform to position, useful when has animation conflict. */

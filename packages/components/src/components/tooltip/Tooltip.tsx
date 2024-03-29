@@ -6,6 +6,7 @@ import { useOverflowWatcher } from '@lun/core';
 import { useShadowDom } from 'hooks';
 import { getInnerTextOfSlot, isFunction } from '@lun/utils';
 import { ref } from 'vue';
+import { useContextConfig } from 'config';
 
 const name = 'tooltip';
 const Tooltip = defineSSRCustomElement({
@@ -14,6 +15,7 @@ const Tooltip = defineSSRCustomElement({
   setup(props, { attrs }) {
     const shadow = useShadowDom();
     const slotRef = ref<HTMLSlotElement>();
+    const zIndex = useContextConfig('zIndex');
     const { isOverflow } = useOverflowWatcher({
       disable: () => !['enable', 'open'].includes(props.overflow!),
       elGetter: () => shadow.CE,
@@ -36,11 +38,12 @@ const Tooltip = defineSSRCustomElement({
           // so that overflow style can work on tooltip CE
           target: target !== undefined ? target : shadow.CE,
           style: `${attrs.style || ''}display: contents`,
+          zIndex: zIndex.tooltip,
         },
         <>
           <slot ref={slotRef}></slot>
           <slot name="tooltip" slot="pop-content"></slot>
-        </>
+        </>,
       );
     };
   },

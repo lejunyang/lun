@@ -10,6 +10,7 @@ import { autoUpdate, useFloating, arrow, offset, ElementRects, shift } from '@fl
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
+import { useContextConfig } from 'config';
 
 const name = 'popover';
 export const Popover = defineSSRCustomElement({
@@ -29,6 +30,7 @@ export const Popover = defineSSRCustomElement({
       if (popSupport[props.type!]) return props.type;
       else return objectKeys(popSupport).find((i) => popSupport[i]);
     });
+    const contextZIndex = useContextConfig('zIndex');
     const wrapTeleport = useTeleport(props);
 
     const show = () => {
@@ -150,8 +152,8 @@ export const Popover = defineSSRCustomElement({
     });
 
     const finalFloatingStyles = computed(() => {
-      let result: CSSProperties = { ...floatingStyles.value };
-      const { sync, adjustPopStyle } = props;
+      const { sync, adjustPopStyle, zIndex } = props;
+      let result: CSSProperties = { ...floatingStyles.value, zIndex: zIndex ?? contextZIndex.popover };
       const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
       if (width && (sync === 'width' || sync === 'both')) result.width = `${width}px`;
       if (height && (sync === 'height' || sync === 'both')) result.height = `${height}px`;

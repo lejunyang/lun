@@ -37,6 +37,7 @@ export const GlobalContextConfig = reactive({
   } as ThemeConfig,
   zIndex: {
     teleport: 1000,
+    dialog: 1000,
     popover: 1000,
     tooltip: 1010,
     message: 1020,
