@@ -62,3 +62,5 @@ export const supportDocumentPictureInPicture =
   typeof documentPictureInPicture === 'object' &&
   documentPictureInPicture &&
   typeof documentPictureInPicture.requestWindow === 'function';
+
+export const supportInert = inBrowser && 'inert' in document.body;

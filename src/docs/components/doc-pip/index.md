@@ -5,7 +5,7 @@ lang: zh-CN
 
 [Document Picture in Picture](https://developer.mozilla.org/en-US/docs/Web/API/Document_Picture-in-Picture_API)，即文档画中画，用于将某些内容用小窗的形式展现给用户，即使用户在不同的页面之间切换，小窗依然能置顶展示。以往画中画仅支持视频元素，而文档画中画允许任意元素
 
-- `l-doc-pip`作为容器默认会显示它的子元素，当请求画中画成功后，会将其子元素全部移入画中画，关闭后又移动回原位置
+- `l-doc-pip`作为容器默认会显示它的子元素，当请求画中画成功后，会将其子元素(Element)全部移入画中画，关闭后又移动回原位置
 - 该特性只能在 https 或 localhost 下使用，且目前仅 Chromium 浏览器>=116 支持，检测到**当前浏览器{{ supportDocumentPictureInPicture ? '支持该特性' : '不支持该特性，以下示例均无法工作' }}**
 
 ## 基本使用
@@ -59,7 +59,7 @@ lang: zh-CN
   xl?: number,
 }
 ```
-
+// FIXME：数字输入框一般没有问题，但是进入画中画之后就有问题了。。。
 <!-- @Code:differentSize -->
 
 <script setup>

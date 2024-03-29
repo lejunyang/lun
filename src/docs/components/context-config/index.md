@@ -16,6 +16,7 @@ declare const GlobalContextConfig: {
   },
   zIndex: {
     teleport: number,
+    dialog: number,
     popover: number,
     tooltip: number,
     message: number,
