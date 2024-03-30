@@ -10,10 +10,10 @@ export function* getActiveElements(activeElement: Element | null = document.acti
   }
 }
 
-export function getDeepestActiveElement(): Element | null {
+export function getDeepestActiveElement() {
   // @ts-ignore
   const activeElements = [...getActiveElements()];
-  return activeElements[activeElements.length - 1];
+  return activeElements[activeElements.length - 1] as HTMLElement | undefined;
 }
 
 export function getInnerTextOfSlot(slotEl?: HTMLSlotElement) {
