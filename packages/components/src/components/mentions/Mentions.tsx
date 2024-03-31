@@ -10,7 +10,7 @@ import {
   useSetupContextEvent,
   useValueModel,
 } from 'hooks';
-import { isEmpty, supportsPlaintextEditable, virtualGetMerge } from '@lun/utils';
+import { isEmpty, isSupportPlaintextEditable, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 import { mentionsEmits, mentionsProps } from './type';
@@ -130,7 +130,7 @@ export const Mentions = defineSSRCustomElement({
       mapOptionKey: () => state.lastTrigger,
     });
 
-    const contenteditable = supportsPlaintextEditable() ? 'plaintext-only' : 'true';
+    const contenteditable = isSupportPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
       const { editable, readonly } = editComputed.value;
       const { placeholder, labelType, label, rows, cols, noOptions, resize } = props;

@@ -57,8 +57,7 @@ lang: zh-CN
 <!-- @Code:differentSizes -->
 
 <script setup>
-  import { isSupportPopover } from '@lun/utils';
-  const supportPopover = isSupportPopover();
+  import { supportPopover } from '@lun/utils';
 </script>
 
 <style>

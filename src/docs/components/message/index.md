@@ -37,6 +37,5 @@ lang: zh-CN
 <!-- @Code:otherTypes -->
 
 <script setup>
-  import { isSupportPopover } from '@lun/utils';
-  const supportPopover = isSupportPopover();
+  import { supportPopover } from '@lun/utils';
 </script>

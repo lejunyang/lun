@@ -1,6 +1,6 @@
 import { renderElement } from 'utils';
 import { Status } from './type';
-import { isSupportPopover } from '@lun/utils';
+import { supportPopover } from '@lun/utils';
 
 export * from './editStateProps';
 export * from './intl';
@@ -35,7 +35,7 @@ export function renderStatusIcon(
 }
 
 export const popSupport = {
-  popover: isSupportPopover(),
+  popover: supportPopover,
   fixed: true,
   teleport: true,
 };

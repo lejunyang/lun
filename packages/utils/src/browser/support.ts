@@ -6,11 +6,9 @@ export const isSupportCSSStyleSheet = cacheFunctionResult(
 
 export const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
-export const isSupportPopover = cacheFunctionResult(() => inBrowser && 'popover' in document.body);
+export const supportPopover = inBrowser && 'popover' in HTMLElement.prototype;
 
-export const isSupportDialog = cacheFunctionResult(
-  () => typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype,
-);
+export const supportDialog = typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype;
 
 export const isSupportResizeObserver = cacheFunctionResult(() => typeof ResizeObserver === 'function');
 
@@ -47,7 +45,7 @@ export const isSupportCustomStateSet = cacheFunctionResult(
 
 export const supportCustomElement = typeof customElements === 'object' && customElements;
 
-export const supportsPlaintextEditable = cacheFunctionResult(() => {
+export const isSupportPlaintextEditable = cacheFunctionResult(() => {
   if (!inBrowser) return false;
   // https://stackoverflow.com/questions/10672081/how-to-detect-if-browser-supports-plaintext-only-value-in-contenteditable-para
   const div = document.createElement('div');
@@ -63,4 +61,4 @@ export const supportDocumentPictureInPicture =
   documentPictureInPicture &&
   typeof documentPictureInPicture.requestWindow === 'function';
 
-export const supportInert = inBrowser && 'inert' in document.body;
+export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);

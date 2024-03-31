@@ -8,7 +8,8 @@ function is(
     | 'HTMLImageElement'
     | 'HTMLInputElement'
     | 'ShadowRoot'
-    | 'HTMLStyleElement',
+    | 'HTMLStyleElement'
+    | 'HTMLSlotElement',
 ) {
   return (
     globalThis[type] &&
@@ -47,4 +48,8 @@ export function isShadowRoot(node: unknown): node is ShadowRoot {
 
 export function isHTMLStyleElement(node: unknown): node is HTMLStyleElement {
   return is(node, 'HTMLStyleElement');
+}
+
+export function isHTMLSlotElement(node: unknown): node is HTMLSlotElement {
+  return is(node, 'HTMLSlotElement');
 }
