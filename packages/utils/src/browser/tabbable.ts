@@ -139,6 +139,9 @@ function getSlottedChildrenOutsideRootElement(slotElement: HTMLSlotElement, root
   return (slotElement.getRootNode({ composed: true }) as ShadowRoot | null)?.host !== root;
 }
 
+/**
+ * @returns [tabbableElements, firstAutoFocusElement]
+ */
 export function getTabbableElements(root: HTMLElement): [HTMLElement[], HTMLElement | undefined] {
   const walkedEls = new WeakMap();
   const tabbableElements = new Set<HTMLElement>();

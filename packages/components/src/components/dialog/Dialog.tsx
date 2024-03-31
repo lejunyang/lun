@@ -33,7 +33,7 @@ export const Dialog = Object.assign(
       });
       const pending = ref(false);
 
-      const [initTrap, restoreFocus] = useFocusTrap();
+      const [initFocus, restoreFocus] = useFocusTrap();
       let lastActiveElement: HTMLElement | undefined;;
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
         virtualGetMerge(
@@ -73,7 +73,8 @@ export const Dialog = Object.assign(
 
       const panelTransitionHandlers = {
         onAfterEnter() {
-          const focus = initTrap(panelRef.value!, !props.noTopLayer, lastActiveElement);
+          const { alwaysTrapFocus, noTopLayer } = props;;
+          const focus = initFocus(panelRef.value!, !alwaysTrapFocus && !noTopLayer, lastActiveElement);
           focus();
           emit('afterOpen');
         },
@@ -100,6 +101,7 @@ export const Dialog = Object.assign(
       );
       // TODO prevent background scrolling
       return () => {
+        // TODO render div for those who don't support dialog
         return (
           <dialog
             class={stateClass.value}

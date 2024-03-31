@@ -22,6 +22,7 @@ export const dialogProps = {
   open: PropBoolean(),
   noMask: PropBoolean(),
   noTopLayer: PropBoolean(),
+  alwaysTrapFocus: PropBoolean(),
   maskClosable: PropBoolOrStr<boolean | 'click' | 'dblclick'>(),
   escapeClosable: PropBoolean(),
   movable: PropBoolean(),

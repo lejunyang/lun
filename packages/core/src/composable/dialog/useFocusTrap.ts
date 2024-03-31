@@ -33,10 +33,10 @@ export function useFocusTrap() {
   };
 
   /**
-   * init focus trap for the target element, return a function to perform the initial focus
+   * init focus for the target element, create a focus trap if `noTrap` is not true, return a function to perform the initial focus
    * @param target the element to trap focus
    * @param noTrap if true, the focus trap will not be activated
-   * @param lastActiveElement the last active element before the focus trap was activated, if init is called after dialog opens, it must be provided
+   * @param lastActiveElement the last active element before the focus trap was activated, if init is called after dialog opened, it must be provided
    */
   const init = (target: HTMLElement, noTrap?: boolean, lastActiveElement = getDeepestActiveElement()) => {
     focusIndex = 0;
