@@ -6,12 +6,12 @@ import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
-import { useNativeDialog, useSetupEdit } from '@lun/core';
-import { Transition, computed, ref, watch } from 'vue';
+import { useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
+import { Transition, ref, watch } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { toNumberIfValid, toPxIfNum } from '@lun/utils';
+import { getDeepestActiveElement, raf, toNumberIfValid, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'dialog';
@@ -24,22 +24,26 @@ export const Dialog = Object.assign(
       const ns = useNamespace(name);
       const openModel = useOpenModel(props, { passive: true });
       const maskShow = ref(false);
-      const dialogRef = ref<HTMLDialogElement>();
+      const dialogRef = ref<HTMLDialogElement>(),
+        panelRef = ref<HTMLElement>();
       const zIndex = useContextConfig('zIndex');
       const width = useBreakpoint(props, 'width', (val) => toPxIfNum(toNumberIfValid(val)));
       const [editComputed, editState] = useSetupEdit({
         noInherit: true,
       });
       const pending = ref(false);
+
+      const [initTrap, restoreFocus] = useFocusTrap();
+      let lastActiveElement: HTMLElement | undefined;;
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
-        computed(() => {
-          const { disabledAllWhenPending, noMask, noTopLayer } = props;
-          return {
-            ...props,
+        virtualGetMerge(
+          {
             native: true,
             isOpen: openModel,
             open() {
+              const { noMask, noTopLayer } = props;
               if (dialogRef.value) {
+                lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
                 dialogRef.value[noTopLayer ? 'show' : 'showModal']();
                 openModel.value = true;
                 maskShow.value = !noMask;
@@ -51,12 +55,13 @@ export const Dialog = Object.assign(
               }
             },
             isPending: pending,
-            onPending(_pending) {
+            onPending(_pending: boolean) {
               pending.value = _pending;
-              if (disabledAllWhenPending) editState.disabled = _pending;
+              if (props.disabledAllWhenPending) editState.disabled = _pending;
             },
-          };
-        }),
+          },
+          props,
+        ),
       );
 
       watch([openModel, dialogRef], ([open, dialog]) => {
@@ -68,10 +73,13 @@ export const Dialog = Object.assign(
 
       const panelTransitionHandlers = {
         onAfterEnter() {
+          const focus = initTrap(panelRef.value!, !props.noTopLayer, lastActiveElement);
+          focus();
           emit('afterOpen');
         },
         onAfterLeave() {
           dialogRef.value?.close();
+          restoreFocus();
           emit('afterClose');
         },
       };
@@ -108,7 +116,13 @@ export const Dialog = Object.assign(
                   <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
                 </Transition>
                 <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
-                  <div v-show={openModel.value} class={ns.e('panel')} part="panel" style={{ width: width.value }}>
+                  <div
+                    v-show={openModel.value}
+                    class={ns.e('panel')}
+                    ref={panelRef}
+                    part="panel"
+                    style={{ width: width.value }}
+                  >
                     {!props.noCloseBtn &&
                       renderElement(
                         'button',
@@ -145,12 +159,14 @@ export const Dialog = Object.assign(
                         <slot name="footer">
                           {!props.noCancelBtn &&
                             renderElement('button', {
+                              variant: 'ghost',
                               ...props.cancelBtnProps,
                               label: props.cancelText || intl('dialog.cancel').d('Cancel'),
                               asyncHandler: methods.close,
                             })}
                           {!props.noOkBtn &&
                             renderElement('button', {
+                              variant: 'ghost',
                               ...props.okBtnProps,
                               label: props.okText || intl('dialog.ok').d('OK'),
                               asyncHandler: methods.ok,

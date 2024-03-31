@@ -19,6 +19,7 @@ export const baseInputProps = {
   ...editStateProps,
   value: PropString(),
   spellcheck: PropBoolean(),
+  autofocus: PropBoolean(),
   placeholder: PropString(),
   required: PropBoolean(),
   type: PropString<InputType>(),
