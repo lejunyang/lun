@@ -1,4 +1,4 @@
-import { inBrowser, toArrayIfNotNil } from '@lun/utils';
+import { inBrowser, toArrayIfNotNil, on } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
@@ -33,8 +33,8 @@ export function useClickOutside(
       callback(e);
     },
   };
-  document.addEventListener('click', handler.documentClick);
-  cleanup.push(() => document.removeEventListener('click', handler.documentClick));
+  
+  cleanup.push(on(document, 'click', handler.documentClick));
 
   tryOnScopeDispose(() => {
     cleanup.forEach((i) => i());

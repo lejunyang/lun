@@ -1,4 +1,4 @@
-import { throttle } from '@lun/utils';
+import { throttle, on, off } from '@lun/utils';
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 
 const C = defineComponent({
@@ -18,10 +18,10 @@ const C = defineComponent({
       { trailing: true },
     );
     onMounted(() => {
-      document.addEventListener('mousemove', handleMouseMove);
+      on(document, 'mousemove', handleMouseMove);
     });
     onBeforeUnmount(() => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      off(document, 'mousemove', handleMouseMove);
     });
 
     const target = {

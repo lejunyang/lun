@@ -1,4 +1,4 @@
-import { debounce, isElement, toArrayIfNotNil } from '@lun/utils';
+import { debounce, isElement, toArrayIfNotNil, on, off } from '@lun/utils';
 import { computed, ref } from 'vue';
 import { VirtualElement, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
@@ -94,7 +94,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       });
       extraTargetsMap.value.set(target, targetHandlers);
       for (let [key, handler] of Object.entries(targetHandlers)) {
-        target.addEventListener(key.slice(2).toLowerCase(), handler);
+        on(target, key.slice(2).toLowerCase(), handler);
       }
     },
     detachTarget(target?: Element) {
@@ -102,7 +102,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       const targetHandlers = extraTargetsMap.value.get(target);
       if (!targetHandlers) return;
       for (let [key, handler] of Object.entries(targetHandlers)) {
-        target.removeEventListener(key.slice(2).toLowerCase(), handler);
+        off(target, key.slice(2).toLowerCase(), handler);
       }
       extraTargetsMap.value.delete(target);
     },

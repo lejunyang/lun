@@ -1,3 +1,4 @@
+export * from './alias';
 export * from './detect';
 export * from './dom';
 export * from './is';

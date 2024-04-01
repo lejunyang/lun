@@ -12,6 +12,7 @@ import {
 import { useBreakpoint, useCEExpose, useShadowDom, useSlot } from 'hooks';
 import { onBeforeUnmount, ref, watchEffect } from 'vue';
 import { useAdoptedSheetsSnapshot } from '@lun/core';
+import { on } from '@lun/utils';
 
 const name = 'doc-pip';
 export const DocPip = defineSSRCustomElement({
@@ -62,7 +63,7 @@ export const DocPip = defineSSRCustomElement({
             opening = false;
             throw e;
           });
-        pipWindow.addEventListener('pagehide', methods.closePip);
+        on(pipWindow, 'pagehide', methods.closePip);
 
         const { document: pipDocument } = pipWindow;
 

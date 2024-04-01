@@ -1,5 +1,5 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
-import { inBrowser, isFunction } from '@lun/utils';
+import { inBrowser, isFunction, on } from '@lun/utils';
 import * as data from './data';
 
 const allowedImport = new Set([
@@ -45,12 +45,11 @@ const initPromise = (async () => {
       await initialize({
         wasmURL: url,
       });
-      window.removeEventListener('load', load);
       if (isFunction(dependencies.vue)) dependencies.vue = await dependencies.vue();
       import('../components/Editor.vue'); // trigger load Editor but don't wait it
       resolve();
     };
-    window.addEventListener('load', load);
+    on(window, 'load', load, { once: true });
   });
 })();
 
