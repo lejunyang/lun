@@ -1,4 +1,5 @@
 import { cacheFunctionResult } from '../function';
+import { isFunction } from '../is';
 
 export const isSupportCSSStyleSheet = cacheFunctionResult(
   () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document,
@@ -53,12 +54,17 @@ export const isSupportPlaintextEditable = cacheFunctionResult(() => {
   return div.contentEditable === 'plaintext-only';
 });
 
-export const supportCSSHighLight =
-  typeof Highlight === 'function' && typeof CSS === 'object' && CSS && typeof CSS.highlights === 'object';
-
 export const supportDocumentPictureInPicture =
   typeof documentPictureInPicture === 'object' &&
   documentPictureInPicture &&
-  typeof documentPictureInPicture.requestWindow === 'function';
+  isFunction(documentPictureInPicture.requestWindow);
 
 export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);
+
+export const supportCSS = typeof CSS === 'object' && CSS;
+
+export const supportCSSHighLight = supportCSS && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
+
+export const supportCSSSupports = supportCSS && isFunction(CSS.supports);
+
+export const supportScrollbarGutter = supportCSSSupports && CSS.supports('scrollbar-gutter', 'stable');

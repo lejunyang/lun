@@ -1,3 +1,4 @@
+import { noop } from './function';
 import { ensureNumber } from './number';
 
 // lodash
@@ -141,7 +142,7 @@ export function raf(callback: FrameRequestCallback, frames = 1, needCancel?: () 
   needCancel ||= () => localCanceled;
   if (!frames || frames < 0) {
     !needCancel() && callback(0);
-    return () => {};
+    return noop;
   }
   const id = requestAnimationFrame(() => {
     if (needCancel()) return;

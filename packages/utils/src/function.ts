@@ -11,8 +11,8 @@ export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T
 
 /**
  * cache the result of function, cache depends on the length of arguments
- * @param fn 
- * @returns 
+ * @param fn
+ * @returns
  */
 export const cacheFunctionResult = <T extends (...args: any[]) => any>(fn: T) => {
   const cache: ReturnType<T>[] = [];
@@ -40,3 +40,5 @@ export function once<T extends AnyFn>(fn: T): T {
     return result;
   } as T;
 }
+
+export function noop() {}

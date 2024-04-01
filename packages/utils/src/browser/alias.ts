@@ -1,3 +1,5 @@
+import { noop } from "../function";
+
 export function on<T extends Event>(
   el: Element | Window | Document | undefined | null,
   event: string,
@@ -6,7 +8,7 @@ export function on<T extends Event>(
   },
   options?: boolean | AddEventListenerOptions,
 ) {
-  if (!el) return () => {};
+  if (!el) return noop;
   // @ts-ignore
   el.addEventListener(event, handler, options);
   return () => off(el, event, handler, options);
