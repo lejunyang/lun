@@ -31,6 +31,7 @@ export default {
       pop: {
         menu: '弹出组件',
         dialog: 'Dialog 弹窗',
+        docPip: 'DocPip 画中画',
         message: 'Message 消息',
         popover: 'Popover 弹出',
         tooltip: 'Tooltip 提示',
@@ -38,7 +39,6 @@ export default {
       feedback: {
         menu: '反馈展示',
         callout: 'Callout 提示框',
-        docPip: 'DocPip 画中画',
         progress: 'Progress 进度',
         spin: 'Spin 加载中',
         watermark: 'Watermark 水印',
@@ -111,6 +111,7 @@ export default {
       pop: {
         menu: 'Pop',
         dialog: 'Dialog',
+        docPip: 'DocPip',
         message: 'Message',
         popover: 'Popover',
         tooltip: 'Tooltip',
@@ -118,7 +119,6 @@ export default {
       feedback: {
         menu: 'Feedback',
         callout: 'Callout',
-        docPip: 'Picture in Picture',
         progress: 'Progress',
         spin: 'Spin',
         watermark: 'Watermark',

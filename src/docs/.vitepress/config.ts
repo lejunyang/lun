@@ -74,6 +74,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.pop.dialog, link: wrapLink('/components/dialog/', lang) },
+            { text: locales[lang].sidebar.pop.docPip, link: wrapLink('/components/doc-pip/', lang) },
             { text: locales[lang].sidebar.pop.message, link: wrapLink('/components/message/', lang) },
             { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/', lang) },
             { text: locales[lang].sidebar.pop.tooltip, link: wrapLink('/components/tooltip/', lang) },
@@ -84,7 +85,6 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.feedback.callout, link: wrapLink('/components/callout/', lang) },
-            { text: locales[lang].sidebar.feedback.docPip, link: wrapLink('/components/doc-pip/', lang) },
             { text: locales[lang].sidebar.feedback.progress, link: wrapLink('/components/progress/', lang) },
             { text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) },
             { text: locales[lang].sidebar.feedback.watermark, link: wrapLink('/components/watermark/', lang) },

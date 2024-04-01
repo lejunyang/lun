@@ -1,5 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { MaybePromise } from '../../hooks';
+import { useLockScroll } from './useLockScroll';
+import { noop } from '@lun/utils';
 
 export type UseDialogOptions = {
   isOpen: MaybeRefLikeOrGetter<boolean>;
@@ -11,21 +13,32 @@ export type UseDialogOptions = {
   isPending?: MaybeRefLikeOrGetter<boolean>;
   onPending?: (pending: boolean) => void;
   maskClosable?: boolean | 'click' | 'dblclick';
+  container?: MaybeRefLikeOrGetter<HTMLElement>;
 };
 
-export function useDialog(options: MaybeRefLikeOrGetter<UseDialogOptions, true>) {
+export function useDialog(options: UseDialogOptions) {
+  const [requestLock, requestUnlock] = useLockScroll();
+  let unlock = noop;
+  const lock = () => {
+    const el = unrefOrGet(options.container) || document.documentElement;
+    requestLock(el);
+    unlock = () => requestUnlock(el);
+  };
+
   const methods = {
     open() {
-      const { beforeOpen, open } = unrefOrGet(options);
+      const { beforeOpen, open } = options;
       if (beforeOpen && beforeOpen() === false) {
         return;
       }
+      lock();
       open();
     },
     async close() {
-      const { beforeClose, close, isPending, onPending, isOpen } = unrefOrGet(options);
+      const { beforeClose, close, isPending, onPending, isOpen } = options;
       if (unrefOrGet(isPending) || !unrefOrGet(isOpen)) return;
       if (!beforeClose) {
+        unlock();
         close();
         return;
       }
@@ -33,18 +46,19 @@ export function useDialog(options: MaybeRefLikeOrGetter<UseDialogOptions, true>)
       return Promise.resolve(beforeClose())
         .then((res) => {
           if (res !== false) {
+            unlock();
             close();
           }
         })
-        .catch(() => {})
+        .catch(noop)
         .finally(() => onPending && onPending(false));
     },
     toggle() {
-      if (unrefOrGet(unrefOrGet(options).isOpen)) return methods.close();
+      if (unrefOrGet(options.isOpen)) return methods.close();
       else methods.open();
     },
     async ok() {
-      const { beforeOk, isPending, onPending } = unrefOrGet(options);
+      const { beforeOk, isPending, onPending } = options;
       if (unrefOrGet(isPending)) return;
       if (!beforeOk) return methods.close();
       if (onPending) onPending(true);
@@ -52,19 +66,19 @@ export function useDialog(options: MaybeRefLikeOrGetter<UseDialogOptions, true>)
         .then((res) => {
           if (res !== false) methods.close();
         })
-        .catch(() => {})
+        .catch(noop)
         .finally(() => onPending && onPending(false));
     },
   };
   const maskHandlers = {
     onClick() {
-      const { maskClosable } = unrefOrGet(options);
+      const { maskClosable } = options;
       if (maskClosable === 'click' || maskClosable === true) {
         methods.close();
       }
     },
     onDblclick() {
-      if (unrefOrGet(options).maskClosable === 'dblclick') {
+      if (options.maskClosable === 'dblclick') {
         methods.close();
       }
     },

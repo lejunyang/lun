@@ -1,4 +1,4 @@
-import { getDeepestActiveElement, getTabbableElements } from '@lun/utils';
+import { getDeepestActiveElement, getTabbableElements, on, off } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 
 const activeFocusTrapEls: HTMLElement[] = [];
@@ -31,6 +31,10 @@ export function useFocusTrap() {
       else focusNextElement();
     }
   };
+  const handleFocusout = () => {
+    // reset focusIndex when focus leaves the focus trap
+    focusIndex = -1;
+  };
 
   /**
    * init focus for the target element, create a focus trap if `noTrap` is not true, return a function to perform the initial focus
@@ -46,7 +50,8 @@ export function useFocusTrap() {
 
     if (!noTrap) {
       activeFocusTrapEls.push((focusTrapEl = target));
-      document.addEventListener('keydown', handleKeyDown);
+      on(document, 'keydown', handleKeyDown);
+      on(target, 'focusout', handleFocusout);
     }
 
     return () => {
@@ -59,7 +64,8 @@ export function useFocusTrap() {
   };
 
   const clear = () => {
-    document.removeEventListener('keydown', handleKeyDown);
+    off(document, 'keydown', handleKeyDown);
+    off(focusTrapEl, 'focusout', handleFocusout);
     if (isActive(focusTrapEl)) activeFocusTrapEls.pop();
   };
 
