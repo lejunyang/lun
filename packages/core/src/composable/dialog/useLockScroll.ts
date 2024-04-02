@@ -44,13 +44,13 @@ export function useLockScroll() {
           left: '0',
           bottom: '0',
           right: '0',
+          overflowY: 'scroll', // use scroll bar to occupy the space, don't have to use right: y + 'px'
           transform: 'translate(0,0)', // to let it become parent of those fixed
         });
         storeAndSetStyle(body, {
           position: 'relative',
           top: `-${scrollY}px`,
           left: scrollX + 'px',
-          right: y + 'px',
         });
       } else {
         storeAndSetStyle(el, {
