@@ -1,3 +1,4 @@
+import { cacheStringFunction } from './function';
 import { isRegExp, isString } from './is';
 
 export function capitalize(str: string) {
@@ -31,3 +32,6 @@ export function toRegExp(pattern: string | RegExp, flags?: string) {
   if (isRegExp(pattern)) return pattern;
   else return new RegExp(pattern, flags);
 }
+
+const hyphenateRE = /\B([A-Z])/g;
+export const hyphenate = cacheStringFunction((str: string) => str.replace(hyphenateRE, '-$1').toLowerCase());

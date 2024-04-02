@@ -4,6 +4,7 @@ function is(
     | 'Node'
     | 'Element'
     | 'HTMLElement'
+    | 'SVGElement'
     | 'HTMLTemplateElement'
     | 'HTMLImageElement'
     | 'HTMLInputElement'
@@ -30,6 +31,10 @@ export function isHTMLElement(node: unknown): node is HTMLElement {
   return is(node, 'HTMLElement');
 }
 
+export function isSVGElement(node: unknown): node is SVGElement {
+  return is(node, 'SVGElement');
+}
+
 export function isHTMLTemplateElement(node: unknown): node is HTMLTemplateElement {
   return is(node, 'HTMLTemplateElement');
 }
@@ -52,4 +57,9 @@ export function isHTMLStyleElement(node: unknown): node is HTMLStyleElement {
 
 export function isHTMLSlotElement(node: unknown): node is HTMLSlotElement {
   return is(node, 'HTMLSlotElement');
+}
+
+export function isRootOrBody(node: unknown): node is HTMLBodyElement | HTMLHtmlElement {
+  const tag = (node as Element)?.tagName;
+  return tag === 'BODY' || tag === 'HTML';
 }

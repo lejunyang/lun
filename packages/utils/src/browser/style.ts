@@ -1,5 +1,7 @@
+import { hyphenate } from '../string';
 import { getTypeTag, isNumber } from '../is';
 import { getWindow } from './dom';
+import { isHTMLElement, isSVGElement } from './is';
 import { isSupportCSSStyleSheet } from './support';
 
 const styleCommentRE = /\/\*[^]*?\*\//g;
@@ -65,4 +67,19 @@ export function copyCSSStyleSheet(sheet: CSSStyleSheet, defaultWindow?: typeof g
 export function copyCSSStyleSheetsIfNeed(sheets: CSSStyleSheet[], currentNode?: Node | Window) {
   const win = getWindow(currentNode);
   return sheets.map((s) => (needCopyCSSStyleSheet(s, currentNode) ? copyCSSStyleSheet(s, win) : s));
+}
+
+export function setStyle(
+  node: HTMLElement | SVGElement | null | undefined,
+  style: Partial<CSSStyleDeclaration>,
+  importantMap?: boolean | Record<keyof CSSStyleDeclaration, boolean>,
+) {
+  if (!isHTMLElement(node) && !isSVGElement(node)) return;
+  for (const [key, value] of Object.entries(style)) {
+    node.style.setProperty(
+      hyphenate(key),
+      value as any,
+      importantMap === true || (importantMap as any)?.[key] ? 'important' : undefined,
+    );
+  }
 }

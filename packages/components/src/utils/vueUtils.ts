@@ -1,8 +1,6 @@
-import { cacheStringFunction } from '@lun/utils';
 import { ComponentObjectPropsOptions, ExtractPropTypes } from 'vue';
 
-const hyphenateRE = /\B([A-Z])/g;
-export const hyphenate = cacheStringFunction((str: string) => str.replace(hyphenateRE, '-$1').toLowerCase());
+
 
 type NativeType = null | number | string | boolean | symbol | Function;
 type InferDefault<P, T> = ((props: P) => T & {}) | (T extends NativeType ? T : never);

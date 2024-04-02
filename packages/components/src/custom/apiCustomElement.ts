@@ -28,8 +28,8 @@ import {
   ObjectEmitsOptions,
   VueElementConstructor,
 } from 'vue';
-import { hyphenate, preprocessComponentOptions } from '../utils';
-import { toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
+import { preprocessComponentOptions } from '../utils';
+import { hyphenate, toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
 import { createPlainEvent } from '../utils/event';
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
