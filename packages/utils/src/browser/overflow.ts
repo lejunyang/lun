@@ -1,3 +1,4 @@
+import { isRootOrBody } from './is';
 import { getCachedComputedStyle } from './style';
 import { measureTextWidth } from './text';
 
@@ -42,6 +43,7 @@ export function isTextOverflow(
 }
 
 export function isOverflow(el: HTMLElement): boolean {
+  if (!el.isConnected) return false;
   const computedStyle = getCachedComputedStyle(el);
   const { overflowY, overflowX } = computedStyle,
     yScroll = overflowY === 'scroll',
@@ -50,12 +52,15 @@ export function isOverflow(el: HTMLElement): boolean {
     xAuto = overflowX === 'auto';
 
   if (yScroll || xScroll) return true;
-  if (!yAuto || !xAuto) return false;
+  // overflow of html or body element is visible, but we still consider it can be overflow
+  const root = isRootOrBody(el);
+  if (root) el = el.ownerDocument!.documentElement;
+  if (!yAuto && !xAuto && !root) return false;
 
   // Always overflow === "auto" by this point
 
-  if (el.scrollHeight > el.clientHeight && yAuto) return true;
-  if (el.scrollWidth > el.clientWidth && xAuto) return true;
+  if (el.scrollHeight > el.clientHeight && (yAuto || root)) return true;
+  if (el.scrollWidth > el.clientWidth && (xAuto || root)) return true;
 
   return false;
 }

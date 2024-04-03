@@ -39,3 +39,13 @@ export function getFirstOfIterable<T>(iterable?: Iterable<T>): T | undefined {
     return value;
   }
 }
+
+export function at(arr: any[], index: number) {
+  if (arr.at) return arr.at(index);
+  const { length } = arr;
+  // Array.prototype.at will perform integer conversion, Infinity as it is, NaN as 0
+  index = Math.trunc(index) || 0;
+  if (index < 0) index += length;
+  if (index < 0 || index >= length) return undefined;
+  return arr[index];
+}

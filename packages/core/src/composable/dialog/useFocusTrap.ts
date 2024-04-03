@@ -1,8 +1,8 @@
-import { getDeepestActiveElement, getTabbableElements, on, off } from '@lun/utils';
+import { getDeepestActiveElement, getTabbableElements, on, off, at } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 
 const activeFocusTrapEls: HTMLElement[] = [];
-const isActive = (el: HTMLElement | undefined) => el && activeFocusTrapEls[activeFocusTrapEls.length - 1] === el;
+const isActive = (el: HTMLElement | undefined) => el && at(activeFocusTrapEls, -1) === el;
 
 export function useFocusTrap() {
   let tabbableEls: HTMLElement[] = [],
