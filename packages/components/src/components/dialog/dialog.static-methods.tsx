@@ -80,10 +80,22 @@ export const methods = {
   error: createStatusMethod('error'),
   warning: createStatusMethod('warning'),
   info: createStatusMethod('info'),
+  /**
+   * Destroy all opening dialogs opened by static methods.
+   * Remind that this will not trigger close or afterClose event.
+   */
   destroyAll() {
     for (const dialog of existSet) {
       dialog.remove();
     }
     existSet.clear();
+  },
+  /**
+   * Close all opening dialogs opened by static methods.
+   */
+  async closeAll() {
+    for (const dialog of existSet) {
+      await dialog.closeDialog();
+    }
   },
 };

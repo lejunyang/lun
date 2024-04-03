@@ -14,13 +14,16 @@ export type UseDialogOptions = {
   onPending?: (pending: boolean) => void;
   maskClosable?: boolean | 'click' | 'dblclick';
   container?: MaybeRefLikeOrGetter<HTMLElement>;
+  lockScroll?: MaybeRefLikeOrGetter<boolean>;
 };
 
 export function useDialog(options: UseDialogOptions) {
   const [requestLock, requestUnlock] = useLockScroll();
   let unlock = noop;
   const lock = () => {
-    const el = unrefOrGet(options.container) || document.documentElement;
+    const { container, lockScroll } = options;
+    if (!unrefOrGet(lockScroll)) return;
+    const el = unrefOrGet(container) || document.documentElement;
     requestLock(el);
     unlock = () => requestUnlock(el);
   };

@@ -23,8 +23,9 @@ export const Dialog = Object.assign(
     emits: dialogEmits,
     setup(props, { emit }) {
       const ns = useNamespace(name);
-      const openModel = useOpenModel(props, { passive: true });
-      const maskShow = ref(false);
+      const openModel = useOpenModel(props);
+      const maskShow = ref(false),
+        isOpen = ref(false);
       const dialogRef = ref<HTMLDialogElement>(),
         panelRef = ref<HTMLElement>(),
         maskRef = ref<HTMLElement>();
@@ -41,20 +42,20 @@ export const Dialog = Object.assign(
         virtualGetMerge(
           {
             native: true,
-            isOpen: openModel,
+            isOpen,
             open() {
               const { noMask, noTopLayer } = props;
               const dialog = dialogRef.value;
               if (dialog) {
                 lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
                 dialog[noTopLayer ? 'show' : 'showModal']();
-                openModel.value = true;
+                openModel.value = isOpen.value = true;
                 if ((maskShow.value = !noMask)) showing.value.push(dialog);
               }
             },
             close() {
               if (dialogRef.value) {
-                openModel.value = maskShow.value = false;
+                openModel.value = isOpen.value = maskShow.value = false;
                 showing.value = showing.value.filter((el) => el !== dialogRef.value);
               }
             },
@@ -62,6 +63,10 @@ export const Dialog = Object.assign(
             onPending(_pending: boolean) {
               pending.value = _pending;
               if (props.disabledAllWhenPending) editState.disabled = _pending;
+            },
+            lockScroll: () => {
+              const { noTopLayer, noMask } = props;
+              return !noTopLayer || !noMask;
             },
           },
           props,
@@ -97,6 +102,7 @@ export const Dialog = Object.assign(
         },
       };
 
+      // emit close event doesn't work in onBeforeUnmount
       onBeforeUnmount(methods.close);
 
       useCEExpose(
@@ -105,7 +111,7 @@ export const Dialog = Object.assign(
           closeDialog: methods.close,
           toggleDialog: methods.toggle,
         },
-        refLikeToDescriptors({ isOpen: openModel }),
+        refLikeToDescriptors({ isOpen }),
       );
 
       // if there is a parent watermark, wrap children with watermark render
@@ -143,7 +149,7 @@ export const Dialog = Object.assign(
                 </Transition>
                 <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
                   <div
-                    v-show={openModel.value}
+                    v-show={isOpen.value}
                     class={ns.e('panel')}
                     ref={panelRef}
                     part="panel"
