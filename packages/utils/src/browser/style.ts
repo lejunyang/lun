@@ -36,7 +36,7 @@ export function toPxIfNum(value: string | number | undefined) {
  * content-box => get scrollHeight - paddingY
  */
 export function getHeight(node: HTMLElement) {
-  const styles = getComputedStyle(node);
+  const styles = getCachedComputedStyle(node);
   // probably node is detached from DOM, can't read computed dimensions
   if (!styles || !styles.boxSizing) return;
   const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth, boxSizing } = styles;
@@ -82,4 +82,18 @@ export function setStyle(
       importantMap === true || (importantMap as any)?.[key] ? 'important' : undefined,
     );
   }
+}
+
+const computedStyleMap = new WeakMap<Element, CSSStyleDeclaration>();
+/**
+ * each call of getComputedStyle will return a new object,
+ * but it's a live CSS declaration, meaning it'll be updated when the element's style is changed
+ */
+export function getCachedComputedStyle(el: HTMLElement): CSSStyleDeclaration {
+  let computedStyle: undefined | CSSStyleDeclaration = computedStyleMap.get(el);
+  if (!computedStyle) {
+    computedStyle = getComputedStyle(el, null);
+    computedStyleMap.set(el, computedStyle);
+  }
+  return computedStyle;
 }

@@ -2,7 +2,7 @@ export * from './alias';
 export * from './detect';
 export * from './dom';
 export * from './is';
-export * from './isOverflow';
+export * from './overflow';
 export * from './keyboard';
 export * from './scroll';
 export * from './shadowDom';

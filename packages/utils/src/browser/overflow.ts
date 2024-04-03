@@ -1,3 +1,4 @@
+import { getCachedComputedStyle } from './style';
 import { measureTextWidth } from './text';
 
 export function getContentWidth(element: HTMLElement, computedStyle: CSSStyleDeclaration): number {
@@ -14,9 +15,9 @@ export function getContentWidth(element: HTMLElement, computedStyle: CSSStyleDec
   return contentWidth - pl - pr - bl - br;
 }
 
-export function isOverflow(
+export function isTextOverflow(
   element: HTMLElement,
-  options?: { getText?: (el: HTMLElement) => string; trim?: boolean; measure?: boolean }
+  options?: { getText?: (el: HTMLElement) => string; trim?: boolean; measure?: boolean },
 ) {
   const { getText, trim = true, measure = true } = options || {};
   const { innerText, ownerDocument } = element; // use innerText, textContent will get all text including hidden text(display: none, popover, etc.)
@@ -37,5 +38,24 @@ export function isOverflow(
       return textWidth > contentWidth && isNoWrap;
     }
   }
+  return false;
+}
+
+export function isOverflow(el: HTMLElement): boolean {
+  const computedStyle = getCachedComputedStyle(el);
+  const { overflowY, overflowX } = computedStyle,
+    yScroll = overflowY === 'scroll',
+    xScroll = overflowX === 'scroll',
+    yAuto = overflowY === 'auto',
+    xAuto = overflowX === 'auto';
+
+  if (yScroll || xScroll) return true;
+  if (!yAuto || !xAuto) return false;
+
+  // Always overflow === "auto" by this point
+
+  if (el.scrollHeight > el.clientHeight && yAuto) return true;
+  if (el.scrollWidth > el.clientWidth && xAuto) return true;
+
   return false;
 }

@@ -1,5 +1,5 @@
 import { ref, watchEffect } from 'vue';
-import { isSupportResizeObserver, isOverflow } from '@lun/utils';
+import { isSupportResizeObserver, isTextOverflow } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
@@ -20,7 +20,7 @@ export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
   const updateOverflow = () => {
     const el = elGetter();
     if (!el) return;
-    const temp = isOverflow(el, { getText });
+    const temp = isTextOverflow(el, { getText });
     if (temp !== overflow.value) {
       overflow.value = temp;
       onOverflowChange && onOverflowChange(temp);

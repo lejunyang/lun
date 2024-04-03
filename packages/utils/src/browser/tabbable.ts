@@ -1,66 +1,19 @@
 import { isHTMLElement, isHTMLSlotElement } from './is';
-import { isSupportInert } from './support';
+import { isOverflow } from './overflow';
+import { getCachedComputedStyle } from './style';
+import { isSupportCheckVisibility, isSupportInert } from './support';
 
 // derived from shoelace/internal/tabbable.ts
 
-// Cached compute style calls. This is specifically for browsers that don't support `checkVisibility()`.
-// computedStyle calls are "live" so they only need to be retrieved once for an element.
-const computedStyleMap = new WeakMap<Element, CSSStyleDeclaration>();
-
-function getCachedComputedStyle(el: HTMLElement): CSSStyleDeclaration {
-  let computedStyle: undefined | CSSStyleDeclaration = computedStyleMap.get(el);
-
-  if (!computedStyle) {
-    computedStyle = window.getComputedStyle(el, null);
-    computedStyleMap.set(el, computedStyle);
-  }
-
-  return computedStyle;
-}
-
-function isVisible(el: HTMLElement): boolean {
+export function isRendered(el: HTMLElement): boolean {
   // This is the fastest check, but isn't supported in Safari.
-  if (typeof el.checkVisibility === 'function') {
+  if (isSupportCheckVisibility()) {
     // Opacity is focusable, visibility is not.
     return el.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true });
   }
-
-  // Fallback "polyfill" for "checkVisibility"
-  const computedStyle = getCachedComputedStyle(el);
-
-  return computedStyle.visibility !== 'hidden' && computedStyle.display !== 'none';
-}
-
-// While this behavior isn't standard in Safari / Chrome yet, I think it's the most reasonable
-// way of handling tabbable overflow areas. Browser sniffing seems gross, and it's the most
-// accessible way of handling overflow areas. [Konnor]
-function isOverflowingAndTabbable(el: HTMLElement): boolean {
-  const computedStyle = getCachedComputedStyle(el);
-
-  const { overflowY, overflowX } = computedStyle;
-
-  if (overflowY === 'scroll' || overflowX === 'scroll') {
-    return true;
-  }
-
-  if (overflowY !== 'auto' || overflowX !== 'auto') {
-    return false;
-  }
-
-  // Always overflow === "auto" by this point
-  const isOverflowingY = el.scrollHeight > el.clientHeight;
-
-  if (isOverflowingY && overflowY === 'auto') {
-    return true;
-  }
-
-  const isOverflowingX = el.scrollWidth > el.clientWidth;
-
-  if (isOverflowingX && overflowX === 'auto') {
-    return true;
-  }
-
-  return false;
+  // Fallback "polyfill" for "checkVisibility".
+  const { visibility, display } = getCachedComputedStyle(el);
+  return visibility !== 'hidden' && display !== 'none';
 }
 
 /** Determines if the specified element is tabbable using heuristics inspired by https://github.com/focus-trap/tabbable */
@@ -90,7 +43,7 @@ function isTabbable(el: HTMLElement) {
     return false;
   }
 
-  if (!isVisible(el)) {
+  if (!isRendered(el)) {
     return false;
   }
 
@@ -127,7 +80,10 @@ function isTabbable(el: HTMLElement) {
   }
 
   // We save the overflow checks for last, because they're the most expensive
-  return isOverflowingAndTabbable(el);
+  // While this behavior isn't standard in Safari / Chrome yet, I think it's the most reasonable
+  // way of handling tabbable overflow areas. Browser sniffing seems gross, and it's the most
+  // accessible way of handling overflow areas. [Konnor]
+  return isOverflow(el);
 }
 
 /**

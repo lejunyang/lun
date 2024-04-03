@@ -1,3 +1,4 @@
+import { getCachedComputedStyle } from './style';
 import { inBrowser } from './support';
 
 export const copyText = (() => {
@@ -10,6 +11,7 @@ export const copyText = (() => {
     if (!document.execCommand) return;
     if (!textarea || !textarea.isConnected) {
       textarea = document.createElement('textarea');
+      textarea.ariaHidden = 'true';
       textarea.style.cssText = 'position:fixed;top:-100px;left:-100px;pointer-events:none;opacity:0;';
       document.body.appendChild(textarea);
     }
@@ -45,7 +47,7 @@ export const measureTextWidth = (() => {
     return _context;
   }
 
-  function getCanvasTextStyle(style: CSSStyleDeclaration = getComputedStyle(document.body)) {
+  function getCanvasTextStyle(style: CSSStyleDeclaration = getCachedComputedStyle(document.body)) {
     let font = '';
     const textStyle: Partial<{ [key in (typeof TEXT_STYLE_KEYS)[number]]: string | number }> = {};
     FONT_KEYS.forEach((k) => {
@@ -59,7 +61,7 @@ export const measureTextWidth = (() => {
   return (text: string, style?: CSSStyleDeclaration) => {
     let width = 0;
     if (typeof window !== undefined) {
-      const { tabSize = 8 } = style || getComputedStyle(document.body);
+      const { tabSize = 8 } = style || getCachedComputedStyle(document.body);
       const tabSpace = ' '.repeat(Number(tabSize));
       const ctx = getCanvasContext();
       Object.assign(ctx, getCanvasTextStyle(style));

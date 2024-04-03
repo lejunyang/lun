@@ -54,6 +54,10 @@ export const isSupportPlaintextEditable = cacheFunctionResult(() => {
   return div.contentEditable === 'plaintext-only';
 });
 
+export const isSupportCheckVisibility = cacheFunctionResult(
+  () => inBrowser && isFunction(HTMLElement.prototype.checkVisibility),
+);
+
 export const supportDocumentPictureInPicture =
   typeof documentPictureInPicture === 'object' &&
   documentPictureInPicture &&

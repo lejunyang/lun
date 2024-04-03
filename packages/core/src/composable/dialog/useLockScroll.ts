@@ -1,6 +1,8 @@
 import {
+  getCachedComputedStyle,
   getScrollbarWidth,
   getWindow,
+  isOverflow,
   isRootOrBody,
   objectKeys,
   pick,
@@ -24,6 +26,7 @@ export function useLockScroll() {
     const prevNum = lockNumMap.get(el);
     if (prevNum) lockNumMap.set(el, prevNum + 1);
     else {
+      if (!isOverflow(el)) return;
       lockNumMap.set(el, 1);
       const { y } = getScrollbarWidth(el);
 
@@ -56,7 +59,7 @@ export function useLockScroll() {
         storeAndSetStyle(el, {
           overflow: 'hidden',
           scrollbarGutter: supportScrollbarGutter ? 'stable' : undefined,
-          paddingRight: `calc(${getComputedStyle(el).paddingRight} + ${y}px)`,
+          paddingRight: `calc(${getCachedComputedStyle(el).paddingRight} + ${y}px)`,
         });
       }
     }
