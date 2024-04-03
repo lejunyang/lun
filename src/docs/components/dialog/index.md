@@ -17,3 +17,10 @@ lang: zh-CN
 `Dialog`有静态方法`open`，方便在js中直接创建并打开弹框
 
 <!-- @Code:staticMethods -->
+
+
+## 嵌套
+
+嵌套打开多个模态框，只会展示一个蒙层，防止多个蒙层而越来越黑
+
+<!-- @Code:nested -->

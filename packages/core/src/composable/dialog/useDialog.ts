@@ -1,7 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { MaybePromise } from '../../hooks';
 import { useLockScroll } from './useLockScroll';
-import { noop } from '@lun/utils';
+import { isFunction, noop } from '@lun/utils';
 
 export type UseDialogOptions = {
   isOpen: MaybeRefLikeOrGetter<boolean>;
@@ -27,8 +27,9 @@ export function useDialog(options: UseDialogOptions) {
 
   const methods = {
     open() {
-      const { beforeOpen, open } = options;
-      if (beforeOpen && beforeOpen() === false) {
+      const { beforeOpen, open, isOpen } = options;
+      if (unrefOrGet(isOpen)) return;
+      if (isFunction(beforeOpen) && beforeOpen() === false) {
         return;
       }
       lock();
@@ -37,7 +38,7 @@ export function useDialog(options: UseDialogOptions) {
     async close() {
       const { beforeClose, close, isPending, onPending, isOpen } = options;
       if (unrefOrGet(isPending) || !unrefOrGet(isOpen)) return;
-      if (!beforeClose) {
+      if (!isFunction(beforeClose)) {
         unlock();
         close();
         return;

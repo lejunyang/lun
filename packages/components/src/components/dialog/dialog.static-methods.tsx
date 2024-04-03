@@ -1,12 +1,11 @@
-import { getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
+import { assignProps, getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { DialogProps, dialogProps } from './type';
-import { mergeProps } from 'vue';
+import { HTMLAttributes, nextTick } from 'vue';
 import { objectKeys } from '@lun/utils';
 import { iDialog } from './Dialog';
 import { Status, renderStatusIcon } from 'common';
 import { VCustomRenderer } from '../custom-renderer';
 
-let commonDialog: iDialog;
 const initialDialogProps = objectKeys(dialogProps).reduce((acc, key) => {
   acc[key] = undefined;
   return acc;
@@ -15,7 +14,7 @@ const initialDialogProps = objectKeys(dialogProps).reduce((acc, key) => {
 export type DialogStaticMethodParams = Omit<DialogProps, 'open'> & {
   destroyOnClose?: boolean;
   getContainer?: () => Element | string;
-};
+} & { style?: string | Partial<CSSStyleDeclaration> } & Omit<HTMLAttributes, 'style' | 'title'>;
 
 const createStatusMethod = (status: Status) => {
   return ({ title, content, contentType, contentPreferHtml, ...others }: DialogStaticMethodParams = {}) =>
@@ -43,11 +42,10 @@ const createStatusMethod = (status: Status) => {
     });
 };
 
-const openSet = new Set<iDialog>();
+const existSet = new Set<iDialog>();
 
 export const methods = {
-  open({ getContainer, destroyOnClose, ...props }: DialogStaticMethodParams = {}) {
-    let dialog = destroyOnClose ? null : commonDialog;
+  open({ getContainer, destroyOnClose = true, ...props }: DialogStaticMethodParams = {}) {
     let container: Element | null = null;
     const args = [
       props,
@@ -55,26 +53,27 @@ export const methods = {
         open: undefined,
         onAfterClose() {
           if (destroyOnClose) {
-            dialog?.remove();
-            openSet.delete(dialog!);
+            dialog.remove();
+            existSet.delete(dialog);
           }
         },
       },
     ];
-    if (!dialog || !dialog.isConnected) {
-      container = (getContainer && toElement(getContainer())) || getFirstThemeProvider() || document.body;
-      const dialogName = getElementFirstName('dialog')!;
-      if (__DEV__ && !dialogName) throw new Error('dialog component is not registered, please register it first.');
-      dialog = document.createElement(dialogName) as iDialog;
-    }
+
+    container = (getContainer && toElement(getContainer())) || getFirstThemeProvider() || document.body;
+    const dialogName = getElementFirstName('dialog')!;
+    if (__DEV__ && !dialogName) throw new Error('dialog component is not registered, please register it first.');
+    const dialog = document.createElement(dialogName) as iDialog;
+
     if (!destroyOnClose) {
-      commonDialog = dialog;
       args.unshift(initialDialogProps); // add initial props so that previous props will be reset
     }
-    Object.assign(dialog, mergeProps(...args));
-    container && container.append(dialog);
-    dialog.openDialog();
-    openSet.add(dialog);
+    assignProps(dialog, ...args);
+    if (container) {
+      container.append(dialog);
+      existSet.add(dialog);
+      nextTick(dialog.openDialog);
+    }
     return dialog;
   },
   success: createStatusMethod('success'),
@@ -82,9 +81,9 @@ export const methods = {
   warning: createStatusMethod('warning'),
   info: createStatusMethod('info'),
   destroyAll() {
-    for (const dialog of openSet) {
-      dialog.remove(); // just remove, not triggering close event
+    for (const dialog of existSet) {
+      dialog.remove();
     }
-    openSet.clear();
+    existSet.clear();
   },
 };
