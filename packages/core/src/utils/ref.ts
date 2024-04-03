@@ -46,7 +46,7 @@ export function mergeRef(...args: ({ value: any } | { current: any } | ((r: any)
   };
 }
 
-export function refLikesToGetters<M extends Record<string | number | symbol, MaybeRefLikeOrGetter<any>>>(obj: M) {
+export function refLikeToDescriptors<M extends Record<string | number | symbol, MaybeRefLikeOrGetter<any>>>(obj: M) {
   const descriptors: PropertyDescriptorMap = {};
   for (const key in obj) {
     descriptors[key] = {
@@ -55,5 +55,11 @@ export function refLikesToGetters<M extends Record<string | number | symbol, May
       },
     };
   }
-  return Object.defineProperties({}, descriptors) as { readonly [k in keyof M]: ReturnType<typeof unrefOrGet<M[k]>> };
+  return descriptors as Record<keyof M, PropertyDescriptor>;
+}
+
+export function refLikesToGetters<M extends Record<string | number | symbol, MaybeRefLikeOrGetter<any>>>(obj: M) {
+  return Object.defineProperties({}, refLikeToDescriptors(obj)) as {
+    readonly [k in keyof M]: ReturnType<typeof unrefOrGet<M[k]>>;
+  };
 }

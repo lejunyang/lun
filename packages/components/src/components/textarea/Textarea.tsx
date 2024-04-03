@@ -1,5 +1,5 @@
 import { computed, nextTick, watchEffect } from 'vue';
-import { useSetupEdit, refLikesToGetters, useInput, useInputElement } from '@lun/core';
+import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -86,7 +86,7 @@ export const Textarea = defineSSRCustomElement({
       valueModel.value = null as any;
     };
 
-    useCEExpose(methods, refLikesToGetters({ textarea: textareaRef }));
+    useCEExpose(methods, refLikeToDescriptors({ textarea: textareaRef }));
 
     const [stateClass, states] = useCEStates(
       () => ({

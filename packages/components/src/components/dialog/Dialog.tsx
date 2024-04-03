@@ -6,12 +6,12 @@ import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
-import { useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
-import { Transition, ref, watch } from 'vue';
+import { refLikeToDescriptors, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
+import { Transition, onBeforeUnmount, ref, watch } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { getDeepestActiveElement, raf, toNumberIfValid, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import { getDeepestActiveElement, toNumberIfValid, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'dialog';
@@ -34,7 +34,7 @@ export const Dialog = Object.assign(
       const pending = ref(false);
 
       const [initFocus, restoreFocus] = useFocusTrap();
-      let lastActiveElement: HTMLElement | undefined;;
+      let lastActiveElement: HTMLElement | undefined;
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
         virtualGetMerge(
           {
@@ -73,7 +73,7 @@ export const Dialog = Object.assign(
 
       const panelTransitionHandlers = {
         onAfterEnter() {
-          const { alwaysTrapFocus, noTopLayer } = props;;
+          const { alwaysTrapFocus, noTopLayer } = props;
           const focus = initFocus(panelRef.value!, !alwaysTrapFocus && !noTopLayer, lastActiveElement);
           focus();
           emit('afterOpen');
@@ -85,11 +85,16 @@ export const Dialog = Object.assign(
         },
       };
 
-      useCEExpose({
-        openDialog: methods.open,
-        closeDialog: methods.close,
-        toggleDialog: methods.toggle,
-      });
+      onBeforeUnmount(methods.close);
+
+      useCEExpose(
+        {
+          openDialog: methods.open,
+          closeDialog: methods.close,
+          toggleDialog: methods.toggle,
+        },
+        refLikeToDescriptors({ isOpen: openModel }),
+      );
 
       // if there is a parent watermark, wrap children with watermark render
       const { render } = WatermarkContext.inject();

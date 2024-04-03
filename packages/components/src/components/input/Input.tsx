@@ -1,5 +1,5 @@
 import { computed, ref, mergeProps } from 'vue';
-import { useSetupEdit, useMultipleInput, refLikesToGetters, useInputElement } from '@lun/core';
+import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -100,7 +100,7 @@ export const Input = defineSSRCustomElement({
           return GlobalStaticConfig.math.toRawNum(valueModel.value);
         },
       },
-      refLikesToGetters({ input: inputRef }),
+      refLikeToDescriptors({ input: inputRef }),
     );
 
     const [stateClass, states] = useCEStates(
