@@ -69,4 +69,5 @@ export type DialogExpose = {
   openDialog: () => void;
   closeDialog: () => Promise<void>;
   toggleDialog: () => Promise<void> | undefined;
+  readonly isOpen: boolean;
 };

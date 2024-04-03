@@ -7,14 +7,15 @@ import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import { refLikeToDescriptors, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
-import { Transition, onBeforeUnmount, ref, watch } from 'vue';
+import { Transition, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { getDeepestActiveElement, toNumberIfValid, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import { at, getDeepestActiveElement, toNumberIfValid, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'dialog';
+const showing = ref<HTMLElement[]>([]);
 export const Dialog = Object.assign(
   defineSSRCustomElement({
     name,
@@ -25,7 +26,8 @@ export const Dialog = Object.assign(
       const openModel = useOpenModel(props, { passive: true });
       const maskShow = ref(false);
       const dialogRef = ref<HTMLDialogElement>(),
-        panelRef = ref<HTMLElement>();
+        panelRef = ref<HTMLElement>(),
+        maskRef = ref<HTMLElement>();
       const zIndex = useContextConfig('zIndex');
       const width = useBreakpoint(props, 'width', (val) => toPxIfNum(toNumberIfValid(val)));
       const [editComputed, editState] = useSetupEdit({
@@ -42,16 +44,18 @@ export const Dialog = Object.assign(
             isOpen: openModel,
             open() {
               const { noMask, noTopLayer } = props;
-              if (dialogRef.value) {
+              const dialog = dialogRef.value;
+              if (dialog) {
                 lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
-                dialogRef.value[noTopLayer ? 'show' : 'showModal']();
+                dialog[noTopLayer ? 'show' : 'showModal']();
                 openModel.value = true;
-                maskShow.value = !noMask;
+                if ((maskShow.value = !noMask)) showing.value.push(dialog);
               }
             },
             close() {
               if (dialogRef.value) {
                 openModel.value = maskShow.value = false;
+                showing.value = showing.value.filter((el) => el !== dialogRef.value);
               }
             },
             isPending: pending,
@@ -69,6 +73,14 @@ export const Dialog = Object.assign(
           if (open) methods.open();
           else methods.close();
         }
+      });
+
+      watchEffect(() => {
+        const el = dialogRef.value,
+          mask = maskRef.value!;
+        if (!el) return;
+        if (at(showing.value, -1) === el) mask.style.display = '';
+        else mask.style.display = 'none';
       });
 
       const panelTransitionHandlers = {
@@ -104,7 +116,7 @@ export const Dialog = Object.assign(
         ns,
         editComputed,
       );
-      // TODO prevent background scrolling
+
       return () => {
         // TODO render div for those who don't support dialog
         return (
@@ -120,7 +132,14 @@ export const Dialog = Object.assign(
             {render(
               <>
                 <Transition {...getTransitionProps(props, 'mask')}>
-                  <div v-show={maskShow.value} class={ns.e('mask')} part="mask" tabindex={-1} {...maskHandlers}></div>
+                  <div
+                    v-show={maskShow.value}
+                    class={ns.e('mask')}
+                    part="mask"
+                    ref={maskRef}
+                    tabindex={-1}
+                    {...maskHandlers}
+                  />
                 </Transition>
                 <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
                   <div
