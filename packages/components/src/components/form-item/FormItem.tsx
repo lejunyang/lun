@@ -4,7 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector } from '../form/collector';
-import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
+import { ComponentInternalInstance, computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { FormInputCollector } from './collector';
 import {
   AnyFn,
@@ -84,7 +84,7 @@ export const FormItem = defineSSRCustomElement({
       let msgs = itemErrors.value?.length ? itemErrors.value : [];
       if (!msgs.length) {
         if (tipType === 'tooltip' && tip) msgs = [tip];
-        else if (helpType === 'tooltip' && help) msgs = [help];
+        else if (helpType === 'tooltip' && help) msgs = [help]; // helpType='newLine' is processed in helpText
       }
       if (maxValidationMsg != null) msgs = msgs.slice(0, +maxValidationMsg);
       return {
@@ -99,6 +99,8 @@ export const FormItem = defineSSRCustomElement({
       ns,
       editComputed,
     );
+    const elementRef = ref();
+
     const render = () => {
       let {
         colonMark,
@@ -165,13 +167,18 @@ export const FormItem = defineSSRCustomElement({
               'tooltip',
               {
                 class: ns.e('tooltip'),
-                disabled: !(tips.value.tooltip as []).length,
+                // disabled: !(tips.value.tooltip as []).length,
+                disabled: true,
               },
               [
                 element ? (
-                  renderElement(element, runIfFn(elementProps, { formContext, formItemProps: props.value }), <slot />)
+                  renderElement(
+                    element,
+                    { ...runIfFn(elementProps, { formContext, formItemProps: props.value }), ref: elementRef },
+                    <slot />,
+                  )
                 ) : (
-                  <slot />
+                  <slot ref={elementRef} />
                 ),
                 <div slot="tooltip">{tips.value.tooltip}</div>,
               ],
@@ -186,7 +193,27 @@ export const FormItem = defineSSRCustomElement({
     const {
       form: { isPlainName, getValue, setValue, deletePath, hooks },
       form,
+      tooltipRef,
+      elTooltipMap,
     } = formContext;
+
+    onMounted(() => {
+      const tooltip = tooltipRef.value;
+      if (tooltip) {
+        tooltip.popover.attachTarget(elementRef.value);
+      }
+    });
+    onBeforeUnmount(() => {
+      const tooltip = tooltipRef.value;
+      if (tooltip) {
+        tooltip.popover.detachTarget(elementRef.value);
+      }
+      elTooltipMap.delete(elementRef.value);
+    });
+    watch(elementRef, (el, oldEl) => {
+      if (el) elTooltipMap.set(el, () => tips.value.tooltip);
+      if (oldEl) elTooltipMap.delete(oldEl);
+    });
 
     useSetupContextEvent({
       update: (val) => {

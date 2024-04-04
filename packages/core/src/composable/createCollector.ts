@@ -195,16 +195,15 @@ export function createCollector<
       provided: provideContext,
     };
   };
-  const child = (collect = true, defaultContext?: any) => {
+  const child = <T = undefined>(collect = true, defaultContext?: T) => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
     if (instance) instance = markRaw(instance);
-    let context = inject<
-      CollectorContext<
-        ParentProps,
-        ChildProps,
-        PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean }
-      >
-    >(COLLECTOR_KEY, defaultContext);
+    type C = CollectorContext<
+      ParentProps,
+      ChildProps,
+      PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean }
+    >;
+    let context = inject<T extends undefined ? C | undefined : C>(COLLECTOR_KEY, defaultContext as any);
     // @ts-ignore
     if (context?.[COLLECTOR_KEY] && collect) {
       const { getIndex, items } = context;

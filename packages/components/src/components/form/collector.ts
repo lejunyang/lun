@@ -1,10 +1,14 @@
-import { UseFormReturn, createCollector, getHostOfRootShadow } from "@lun/core";
-import { FormProps, FormSetupProps } from "./type";
-import { FormItemProps } from "../form-item/type";
+import { UseFormReturn, createCollector, getHostOfRootShadow } from '@lun/core';
+import { FormProps, FormSetupProps } from './type';
+import { FormItemProps } from '../form-item/type';
+import { iTooltip } from '../tooltip';
+import { Ref } from 'vue';
 
 export type FormProvideExtra = {
   form: UseFormReturn;
   formProps: FormSetupProps;
+  elTooltipMap: WeakMap<HTMLElement, () => any>;
+  tooltipRef: Ref<iTooltip>;
 };
 
 export const FormItemCollector = createCollector({

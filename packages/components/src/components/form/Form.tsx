@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from '../../custom/apiCustomElement';
 import { UseFormReturn, useForm, useSetupEdit } from '@lun/core';
-import { createDefineElement, warn } from 'utils';
+import { createDefineElement, renderElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
-import { getCurrentInstance, onBeforeUnmount, watch } from 'vue';
+import { getCurrentInstance, onBeforeUnmount, ref, watch } from 'vue';
 import { isObject, pick } from '@lun/utils';
 
 const name = 'form';
@@ -32,6 +32,7 @@ export const Form = defineSSRCustomElement({
       : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
 
     const vm = getCurrentInstance()!;
+    const tooltipRef = ref();
     const [editComputed] = useSetupEdit({
       adjust(state) {
         (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
@@ -49,10 +50,14 @@ export const Form = defineSSRCustomElement({
         emit('update', param);
       }),
     );
+
+    const elTooltipMap = new WeakMap();
     FormItemCollector.parent({
       extraProvide: {
         form,
         formProps: props,
+        tooltipRef,
+        elTooltipMap,
       },
     });
 
@@ -62,6 +67,10 @@ export const Form = defineSSRCustomElement({
       ns,
       editComputed,
     );
+
+    const tooltipContent = (el: HTMLElement) => elTooltipMap.get(el)?.();
+    // TODO beforeOpen add el param, return false when tooltipContent returns falsy
+    // TODO add elItemMap, get FormItem, if it's disabled, prevent open
     return () => {
       const { layout, cols, labelWidth } = props;
       return (
@@ -76,6 +85,12 @@ export const Form = defineSSRCustomElement({
           }}
         >
           <slot></slot>
+          {renderElement('tooltip', {
+            ref: tooltipRef,
+            contentType: 'vnode',
+            triggers: ['click', 'focus', 'hover'],
+            content: tooltipContent,
+          })}
         </form>
       );
     };
