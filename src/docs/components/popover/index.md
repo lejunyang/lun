@@ -9,11 +9,11 @@ lang: zh-CN
 
 ## 嵌套
 
-<l-popover triggers="hover" content="first">
+<l-popover triggers="hover">
   <l-button>悬浮触发</l-button>
-  <l-popover triggers="hover" slot="pop-content" content="second">
+  <l-popover triggers="hover" slot="pop-content">
     <l-button>再次悬浮触发</l-button>
-    <l-popover triggers="hover" slot="pop-content" content="third">
+    <l-popover triggers="hover" slot="pop-content">
       <div slot="pop-content">第三次悬浮内容</div>
       <l-button>第三次悬浮触发</l-button>
     </l-popover>
@@ -50,7 +50,15 @@ lang: zh-CN
 
 ## 虚拟元素
 
+通过`target`属性可以指定一个元素或虚拟元素，只需其拥有`getBoundingClientRect`方法，能够返回矩形代表位置即可。`target`优先于默认插槽
+
 <!-- @Code:virtualElement -->
+
+## 额外目标监听
+
+`l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了为每一个元素包裹一个popover
+
+<!-- @Code:extraTargets -->
 
 ## 不同大小
 

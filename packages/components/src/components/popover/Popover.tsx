@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { CSSProperties, computed, ref, toRef, watchEffect, Transition } from 'vue';
-import { unrefOrGet, usePopover } from '@lun/core';
+import { MaybeRefLikeOrGetter, unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, objectKeys, pick, runIfFn } from '@lun/utils';
@@ -36,7 +36,7 @@ export const Popover = defineSSRCustomElement({
     // ------------------ methods ------------------
     const open = () => {
       const { beforeOpen, disabled } = props;
-      if (disabled || (isFunction(beforeOpen) && beforeOpen() === false)) return;
+      if (disabled || runIfFn(beforeOpen, actualTarget.value) === false) return;
       const popover = popRef.value;
       const fixed = fixedRef.value;
       if (popover) popover.showPopover();
@@ -57,18 +57,21 @@ export const Popover = defineSSRCustomElement({
     // ------------------ methods ------------------
 
     const shadow = useShadowDom();
-    const actualPopRef = computed(() => popRef.value || fixedRef.value);
+    /** actual pop content element ref */
+    const actualPop = computed(() => popRef.value || fixedRef.value);
     const virtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
       return isFunction(target?.getBoundingClientRect) ? target : null;
     });
-    const actualTargetRef = computed(() => {
+    const innerTarget = computed(() => {
       return virtualTarget.value || slotRef.value;
     });
-    /** popover target, i.e. popover anchor */
-    const anchorRef = computed(() =>
+    const actualTarget = computed(() => activeTargetInExtra.value || virtualTarget.value || shadow.CE);
+
+    /** current popover target */
+    const currentTarget = computed(() =>
       // avoid update float position when not show
-      isOpen.value || isShow.value ? activeTargetInExtra.value || virtualTarget.value || shadow.CE : null,
+      isOpen.value || isShow.value ? actualTarget.value : null,
     );
 
     const { targetHandlers, popContentHandlers, options, activeTargetInExtra, methods } = usePopover(() => ({
@@ -77,8 +80,8 @@ export const Popover = defineSSRCustomElement({
       isShow,
       open,
       close,
-      target: actualTargetRef,
-      pop: actualPopRef,
+      target: innerTarget,
+      pop: actualPop,
     }));
 
     const placement = toRef(props, 'placement');
@@ -107,7 +110,7 @@ export const Popover = defineSSRCustomElement({
       update,
       placement: actualPlacement,
       isPositioned,
-    } = useFloating(anchorRef, actualPopRef as any, {
+    } = useFloating(currentTarget, actualPop as any, {
       whileElementsMounted: (...args) => {
         return autoUpdate(...args, {
           // TODO add props
@@ -177,7 +180,7 @@ export const Popover = defineSSRCustomElement({
         updatePosition: update,
         ...methods,
         get currentTarget() {
-          return anchorRef.value;
+          return currentTarget.value;
         },
       },
       toGetterDescriptors(options, {
@@ -198,7 +201,7 @@ export const Popover = defineSSRCustomElement({
 
     const getContent = (wrapSlot = true) => {
       const { content, contentType, preferHtml } = props;
-      const finalContent = runIfFn(content, anchorRef.value);
+      const finalContent = runIfFn(content, currentTarget.value);
       const contentNode = finalContent && (
         <VCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
       );
@@ -284,7 +287,7 @@ export type iPopover = InstanceType<tPopover> & {
   togglePopover: (force?: boolean) => void;
   isOpen: () => boolean;
   updatePosition: () => void;
-  attachTarget(target?: Element | undefined): void;
+  attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
   detachTarget(target?: Element | undefined): void;
   readonly currentTarget: any;
   delayOpenPopover: () => void;

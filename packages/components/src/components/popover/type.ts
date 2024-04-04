@@ -31,12 +31,11 @@ export const popoverProps = {
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
   to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
 
+  /** pop content, will use CustomRenderer to render it. can be a function, current popover target will be the first parameter  */
   content: {},
   contentType: PropString(),
   preferHtml: PropBoolean(),
   children: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(),
-  /** internal usage */
-  rootClass: PropStrOrArr(),
 
   placement: PropString<Placement>(),
   offset: PropNumber(),
@@ -56,10 +55,14 @@ export const popoverProps = {
   triggers: PropStrOrArr<PopoverTrigger | PopoverTrigger[]>(),
   /** it's only for click trigger, used to toggle open and close state when click. */
   toggleMode: PropBoolean(),
-  beforeOpen: PropFunction<() => boolean | void>(),
+  /** function that will be called before open the popover, return false to prevent open the popover */
+  beforeOpen: PropFunction<(target: Element | VirtualElement) => boolean | void>(),
 
   ...themeProps,
   variant: PropString<'styleless' | string>(),
+
+  /** @private internal usage */
+  rootClass: PropStrOrArr(),
 };
 
 export const popoverEmits = {
