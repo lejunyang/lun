@@ -43,10 +43,10 @@ export const Button = defineSSRCustomElement({
         if (props.hold && editComputed.value.interactive) holdShow.value = true;
       },
       onPointerup: hideHold,
-      // find that pointerout will be triggered when hold-on element grows to the pointer position, use pointerleave instead
+      // find that pointerout will be fired when hold-on element grows to the pointer position, use pointerleave instead
       onPointerleave: hideHold,
       onPointercancel: hideHold,
-      // In some mobile browsers, contextmenu and text selection will be triggered when long press, need to prevent it when hold is true
+      // In some mobile browsers, contextmenu and text selection will be fired when long press, need to prevent it when hold is true
       onContextmenu(e: MouseEvent) {
         if (holdShow.value) e.preventDefault();
       },

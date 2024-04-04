@@ -13,7 +13,7 @@ export function isRendered(el: HTMLElement): boolean {
   }
   // Fallback "polyfill" for "checkVisibility".
   const { visibility, display } = getCachedComputedStyle(el);
-  return visibility !== 'hidden' && display !== 'none';
+  return visibility !== 'hidden' && display !== 'none' && display !== 'contents';
 }
 
 /** Determines if the specified element is tabbable using heuristics inspired by https://github.com/focus-trap/tabbable */

@@ -4,7 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { definePopover, iPopover } from '../popover/Popover';
 import { refLikeToDescriptors, useOverflowWatcher } from '@lun/core';
 import { useCEExpose, useShadowDom } from 'hooks';
-import { getInnerTextOfSlot, isFunction } from '@lun/utils';
+import { getInnerTextOfSlot, isFunction, runIfFn } from '@lun/utils';
 import { ref } from 'vue';
 import { useContextConfig } from 'config';
 
@@ -35,7 +35,7 @@ const Tooltip = defineSSRCustomElement({
           ...props,
           open: open !== undefined ? open : overflowOpen,
           beforeOpen() {
-            if (isFunction(beforeOpen) && beforeOpen() === false) return false;
+            if (runIfFn(beforeOpen) === false) return false;
             if (overflow === 'enable' && !isOverflow.value) return false;
           },
           // make popover display: contents and set target to tooltip CE rather than popover CE
