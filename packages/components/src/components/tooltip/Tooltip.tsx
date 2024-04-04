@@ -1,9 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { tooltipProps } from './type';
 import { createDefineElement, renderElement } from 'utils';
-import { definePopover } from '../popover/Popover';
-import { useOverflowWatcher } from '@lun/core';
-import { useShadowDom } from 'hooks';
+import { definePopover, iPopover } from '../popover/Popover';
+import { refLikeToDescriptors, useOverflowWatcher } from '@lun/core';
+import { useCEExpose, useShadowDom } from 'hooks';
 import { getInnerTextOfSlot, isFunction } from '@lun/utils';
 import { ref } from 'vue';
 import { useContextConfig } from 'config';
@@ -14,15 +14,19 @@ const Tooltip = defineSSRCustomElement({
   props: tooltipProps,
   setup(props, { attrs }) {
     const shadow = useShadowDom();
-    const slotRef = ref<HTMLSlotElement>();
+    const slotRef = ref<HTMLSlotElement>(),
+      popoverRef = ref<iPopover>();
     const zIndex = useContextConfig('zIndex');
     const { isOverflow } = useOverflowWatcher({
       disable: () => !['enable', 'open'].includes(props.overflow!),
       elGetter: () => shadow.CE,
       getText: () => getInnerTextOfSlot(slotRef.value),
     });
+
+    useCEExpose({}, refLikeToDescriptors({ popover: popoverRef }));
+
     return () => {
-      const { open, overflow, beforeOpen, target } = props;
+      const { open, overflow, beforeOpen, target, content } = props;
       const overflowOpen = overflow === 'open' && isOverflow.value ? true : undefined;
       return renderElement(
         'popover',
@@ -39,10 +43,11 @@ const Tooltip = defineSSRCustomElement({
           target: target !== undefined ? target : shadow.CE,
           style: `${attrs.style || ''}display: contents`,
           zIndex: zIndex.tooltip,
+          ref: popoverRef,
         },
         <>
           <slot ref={slotRef}></slot>
-          <slot name="tooltip" slot="pop-content"></slot>
+          {!content && <slot name="tooltip" slot="pop-content"></slot>}
         </>,
       );
     };
@@ -50,6 +55,9 @@ const Tooltip = defineSSRCustomElement({
 });
 
 export type tTooltip = typeof Tooltip;
+export type iTooltip = InstanceType<tTooltip> & {
+  readonly popover: iPopover;
+};
 
 export const defineTooltip = createDefineElement(name, Tooltip, {
   popover: definePopover,

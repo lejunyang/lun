@@ -20,10 +20,10 @@ export const Popover = defineSSRCustomElement({
   emits: popoverEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const popRef = ref<HTMLDivElement>();
-    const slotRef = ref<HTMLSlotElement>();
-    const fixedRef = ref<HTMLDivElement>();
-    const arrowRef = ref();
+    const /** pop content element with type=popover */ popRef = ref<HTMLDivElement>(),
+      slotRef = ref<HTMLSlotElement>(),
+      /** pop content element when type=fixed or teleport fixed */ fixedRef = ref<HTMLDivElement>(),
+      arrowRef = ref();
     const isOpen = ref(false);
     const isShow = ref(false); // after animation ends, it will be false
     const type = computed(() => {
@@ -33,7 +33,8 @@ export const Popover = defineSSRCustomElement({
     const contextZIndex = useContextConfig('zIndex');
     const wrapTeleport = useTeleport(props);
 
-    const show = () => {
+    // ------------------ methods ------------------
+    const open = () => {
       const { beforeOpen, disabled } = props;
       if (disabled || (isFunction(beforeOpen) && beforeOpen() === false)) return;
       const popover = popRef.value;
@@ -42,18 +43,20 @@ export const Popover = defineSSRCustomElement({
       isOpen.value = !!(popover || fixed);
       isShow.value = isOpen.value;
     };
-    const hide = () => {
+    const close = () => {
       isOpen.value = false;
     };
     const toggle = (force?: boolean) => {
       if (props.disabled) return;
-      options.value.cancelShowOrHide();
+      options.value.cancelOpenOrClose();
       const { value } = popRef;
       if (value) value.togglePopover(force);
       isOpen.value = force !== undefined ? force : !isOpen.value;
       if (isOpen.value) isShow.value = true;
     };
+    // ------------------ methods ------------------
 
+    const shadow = useShadowDom();
     const actualPopRef = computed(() => popRef.value || fixedRef.value);
     const virtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
@@ -62,19 +65,22 @@ export const Popover = defineSSRCustomElement({
     const actualTargetRef = computed(() => {
       return virtualTarget.value || slotRef.value;
     });
+    /** popover target, i.e. popover anchor */
+    const anchorRef = computed(() =>
+      // avoid update float position when not show
+      isOpen.value || isShow.value ? activeTargetInExtra.value || virtualTarget.value || shadow.CE : null,
+    );
 
     const { targetHandlers, popContentHandlers, options, activeTargetInExtra, methods } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
       manual: props.open !== undefined,
       isShow,
-      show,
-      hide,
+      open,
+      close,
       target: actualTargetRef,
       pop: actualPopRef,
     }));
 
-    const shadow = useShadowDom();
-    const ceRef = computed(() => (isOpen.value ? activeTargetInExtra.value || virtualTarget.value || shadow.CE : null)); // avoid update float position when not show
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
       const { shift: pShift, showArrow } = props;
@@ -101,9 +107,10 @@ export const Popover = defineSSRCustomElement({
       update,
       placement: actualPlacement,
       isPositioned,
-    } = useFloating(ceRef, actualPopRef as any, {
+    } = useFloating(anchorRef, actualPopRef as any, {
       whileElementsMounted: (...args) => {
         return autoUpdate(...args, {
+          // TODO add props
           // elementResize: false, // 这个也会影响target的resize， select需要同步target的宽度
         });
       },
@@ -117,16 +124,17 @@ export const Popover = defineSSRCustomElement({
     // handle manual visibility control by external
     watchEffect(() => {
       if (props.open !== undefined) {
-        if (props.open) show();
-        else hide();
+        if (props.open) open();
+        else close();
       }
     });
 
+    // make virtual target auto update
     watchEffect(() => {
       const target = unrefOrGet(props.target);
-      // if target is a virtual element, watch it to auto update
+      // have getBoundingClientRect but not a element, it's virtual
       if (isFunction(target?.getBoundingClientRect) && !isElement(target)) {
-        target?.getBoundingClientRect();
+        target?.getBoundingClientRect(); // collect dep
         if (isPositioned.value) update();
       }
     });
@@ -168,12 +176,15 @@ export const Popover = defineSSRCustomElement({
         isOpen: () => (props.open !== undefined ? !!props.open : isOpen.value),
         updatePosition: update,
         ...methods,
+        get currentTarget() {
+          return anchorRef.value;
+        },
       },
       toGetterDescriptors(options, {
-        show: 'delayOpenPopover',
-        hide: 'delayClosePopover',
-        showNow: 'openPopover',
-        hideNow: 'closePopover',
+        open: 'delayOpenPopover',
+        close: 'delayClosePopover',
+        openNow: 'openPopover',
+        closeNow: 'closePopover',
       }),
     );
 
@@ -186,13 +197,15 @@ export const Popover = defineSSRCustomElement({
     ];
 
     const getContent = (wrapSlot = true) => {
-      const content = props.content && (
-        <VCustomRenderer {...pick(props, ['content', 'preferHtml'])} type={props.contentType} />
+      const { content, contentType, preferHtml } = props;
+      const finalContent = runIfFn(content, anchorRef.value);
+      const contentNode = finalContent && (
+        <VCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
       );
       return (
         <>
           {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value} class={ns.e('arrow')}></div>}
-          {wrapSlot ? <slot name="pop-content">{content}</slot> : content}
+          {wrapSlot && !contentNode ? <slot name="pop-content"></slot> : contentNode}
         </>
       );
     };
@@ -271,6 +284,9 @@ export type iPopover = InstanceType<tPopover> & {
   togglePopover: (force?: boolean) => void;
   isOpen: () => boolean;
   updatePosition: () => void;
+  attachTarget(target?: Element | undefined): void;
+  detachTarget(target?: Element | undefined): void;
+  readonly currentTarget: any;
   delayOpenPopover: () => void;
   delayClosePopover: () => void;
   openPopover: () => void;
