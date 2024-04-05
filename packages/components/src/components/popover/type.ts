@@ -55,6 +55,8 @@ export const popoverProps = {
   triggers: PropStrOrArr<PopoverTrigger | PopoverTrigger[]>(),
   /** it's only for click trigger, used to toggle open and close state when click. */
   toggleMode: PropBoolean(),
+  /** it's for multiple targets(manually attachTarget) */
+  preventSwitchWhen: PropString<'focus' | 'edit'>(),
   /** function that will be called before open the popover, return false to prevent open the popover */
   beforeOpen: PropFunction<(target: Element | VirtualElement) => boolean | void>(),
 

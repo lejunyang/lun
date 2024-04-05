@@ -66,7 +66,7 @@ export const Popover = defineSSRCustomElement({
     const innerTarget = computed(() => {
       return virtualTarget.value || slotRef.value;
     });
-    const actualTarget = computed(() => activeTargetInExtra.value || virtualTarget.value || shadow.CE);
+    const actualTarget = computed(() => activeExtraTarget.value || virtualTarget.value || shadow.CE);
 
     /** current popover target */
     const currentTarget = computed(() =>
@@ -74,8 +74,8 @@ export const Popover = defineSSRCustomElement({
       isOpen.value || isShow.value ? actualTarget.value : null,
     );
 
-    const { targetHandlers, popContentHandlers, options, activeTargetInExtra, methods } = usePopover(() => ({
-      ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode']),
+    const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods } = usePopover(() => ({
+      ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode', 'preventSwitchWhen']),
       manual: props.open !== undefined,
       isShow,
       open,
@@ -289,6 +289,7 @@ export type iPopover = InstanceType<tPopover> & {
   updatePosition: () => void;
   attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
   detachTarget(target?: Element | undefined): void;
+  detachAll(): void;
   readonly currentTarget: any;
   delayOpenPopover: () => void;
   delayClosePopover: () => void;

@@ -96,16 +96,19 @@ export function debounce<T extends (...args: any[]) => any>(
       timerId = setTimeout(timerExpired, wait);
     }
     return result;
-  } as T & { flush: () => ReturnType<T>; cancel: () => void };
+  } as T & { flush: () => ReturnType<T>; cancel: () => void; isScheduling: () => boolean };
+
+  const isScheduling = () => timerId !== undefined;
   Object.assign(debounced, {
     flush() {
-      return timerId === undefined ? result : trailingEdge(Date.now());
+      return !isScheduling() ? result : trailingEdge(Date.now());
     },
     cancel() {
-      if (timerId !== undefined) clearTimeout(timerId);
+      if (isScheduling()) clearTimeout(timerId);
       lastInvokeTime = 0;
       lastCallTime = (lastArgs = lastThis = timerId = undefined) as any;
     },
+    isScheduling,
   });
 
   return debounced;

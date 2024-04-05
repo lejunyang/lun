@@ -26,7 +26,7 @@ export type UsePopoverOptions = {
   closeDelay?: number | string;
   toggleMode?: boolean;
   targetFocusThreshold?: number;
-  // TODO add focusPrior to prevent switching targets
+  preventSwitchWhen?: 'focus' | 'edit';
 };
 
 export function usePopover(optionsGetter: () => UsePopoverOptions) {
@@ -64,6 +64,9 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
         cancelOpenOrClose();
         close();
       },
+      get isClosing() {
+        return tClose.isScheduling();
+      },
     };
   });
 
@@ -89,24 +92,38 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   /** focusing elements inside popover target, or popover target itself */
   const focusSet = new WeakSet<EventTarget>();
 
+  /** determine whether to prevent closing pop content(checkTrigger=true) or prevent switching pop target(checkTrigger=false) when has focus */
+  const needPrevent = (e: Event, checkTrigger = true) => {
+    const { triggers, preventSwitchWhen, isShow } = options.value;
+    const deepEl = getDeepestActiveElement()!;
+    return (
+      unrefOrGet(isShow) &&
+      (popFocusIn || [e.target!, document.activeElement!, deepEl].some((i) => focusSet.has(i))) &&
+      ((checkTrigger ? triggers.has('focus') : preventSwitchWhen === 'focus') ||
+        ((checkTrigger ? triggers.has('edit') : preventSwitchWhen === 'edit') && isEditElement(deepEl)))
+    );
+  };
+
   // ------------------ extra targets ------------------
   // it's to support attaching events of triggering popover on other elements in an imperative manner
   const extraTargetsMap = ref(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
     extraTargetsDisabledMap = new WeakMap<Element, MaybeRefLikeOrGetter<boolean> | undefined>();
-  const activeTargetInExtra = ref();
+  const activeExtraTarget = ref();
   const methods = {
     attachTarget(target?: Element, { isDisabled }: { isDisabled?: MaybeRefLikeOrGetter<boolean> } = {}) {
       if (!isElement(target) || extraTargetsMap.value.has(target)) return;
-      const targetHandlers = createTargetHandlers((_e, method) => {
+      const targetHandlers = createTargetHandlers((e, method) => {
         if (method === 'open') {
           if (unrefOrGet(extraTargetsDisabledMap.get(target))) return false;
-          activeTargetInExtra.value = target;
+          // consider pointerdown also as focusin, or pointerdown can be prevented because of needPrevent when switching targets
+          if (e.type !== 'focusin' && e.type !== 'pointerdown' && needPrevent(e, false)) return false;
+          activeExtraTarget.value = target;
         }
         // no need to clear activeTarget when close, as every open will reset activeTarget
       });
       extraTargetsMap.value.set(target, targetHandlers);
       extraTargetsDisabledMap.set(target, isDisabled);
-      for (let [key, handler] of Object.entries(targetHandlers)) {
+      for (const [key, handler] of Object.entries(targetHandlers)) {
         on(target, key.slice(2).toLowerCase(), handler);
       }
     },
@@ -114,11 +131,20 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       if (!isElement(target)) return;
       const targetHandlers = extraTargetsMap.value.get(target);
       if (!targetHandlers) return;
-      for (let [key, handler] of Object.entries(targetHandlers)) {
+      for (const [key, handler] of Object.entries(targetHandlers)) {
         off(target, key.slice(2).toLowerCase(), handler);
       }
       extraTargetsMap.value.delete(target);
       extraTargetsDisabledMap.delete(target);
+      if (target === activeExtraTarget.value) {
+        options.value.closeNow();
+        activeExtraTarget.value = null;
+      }
+    },
+    detachAll() {
+      for (const target of extraTargetsMap.value.keys()) {
+        methods.detachTarget(target);
+      }
     },
   };
   tryOnScopeDispose(() => {
@@ -128,15 +154,6 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     extraTargetsMap.value.clear();
   });
   // ------------------ extra targets ------------------
-
-  /** determine whether to prevent closing pop content when has focus */
-  const needPrevent = (e: Event) => {
-    const { triggers } = options.value;
-    return (
-      (popFocusIn || focusSet.has(e.target!)) &&
-      (triggers.has('focus') || (triggers.has('edit') && isEditElement(getDeepestActiveElement())))
-    );
-  };
 
   const createTargetHandlers = (onTrigger: (e: Event, actualMethod: 'open' | 'close') => void | boolean = noop) => {
     let targetFocusInTime = 0,
@@ -168,9 +185,10 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
         focusSet.add(e.currentTarget!); // also consider the popover target itself focusing, so that we can prevent close when mouse leave
 
         // if we click suffix icon when input is focused and toggleMode is true, it will fire pointerdown(toggle close) -> focusout -> focusin(open). close will be canceled
-        // so we need a focus threshold to prevent this
-        const { targetFocusThreshold } = options.value;
-        if (targetFocusInTime - pointerDownTime < targetFocusThreshold) return false;
+        // we need to prevent this
+        // if (targetFocusInTime - pointerDownTime < options.value.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
+        // if (unrefOrGet(options.value.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
+        if (options.value.isClosing && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
         return onTrigger(e, m);
       }),
       onFocusout: createTrigger('focus', 'close', (e, m) => {
@@ -201,6 +219,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     // need use pointerdown instead of click, because if we press the pop content and don't release, popover target will fire focusout and then close, click will not be triggered on pop content
     onPointerdown(e: Event) {
       ignoreTargetFocusout = true;
+      // to make sure it's after focusout
       setTimeout(() => {
         handlePopShow(e);
       });
@@ -210,7 +229,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const cleanup = useClickOutside(
     computed(() =>
       // Array.from(extraTargetsMap.value.keys()).concat(options.value.target as any, options.value.pop as any),
-      [activeTargetInExtra.value, options.value.target, options.value.pop],
+      [activeExtraTarget.value, options.value.target, options.value.pop],
     ),
     () => {
       options.value.close();
@@ -224,12 +243,12 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   cleanup.push(() => extraTargetsMap.value.clear());
   return {
     targetHandlers: createTargetHandlers((_, method) => {
-      if (method === 'open') activeTargetInExtra.value = null;
+      if (method === 'open') activeExtraTarget.value = null;
     }),
     popContentHandlers,
     options,
     cleanup,
     methods,
-    activeTargetInExtra,
+    activeExtraTarget,
   };
 }
