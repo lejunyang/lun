@@ -1,6 +1,7 @@
 export * from './alias';
 export * from './detect';
 export * from './dom';
+export * from './edit';
 export * from './is';
 export * from './overflow';
 export * from './keyboard';

@@ -1,12 +1,14 @@
 import { getCachedComputedStyle } from './style';
 import { inBrowser } from './support';
+import { isFunction } from '../is';
 
 export const copyText = (() => {
   let textarea: HTMLTextAreaElement;
   return (text: string) => {
     if (!inBrowser) return;
     try {
-      if (typeof navigator?.clipboard?.writeText === 'function') return navigator.clipboard.writeText(text);
+      const write = navigator.clipboard?.writeText;
+      if (isFunction(write)) return write(text);
     } catch {}
     if (!document.execCommand) return;
     if (!textarea || !textarea.isConnected) {
@@ -60,7 +62,7 @@ export const measureTextWidth = (() => {
   }
   return (text: string, style?: CSSStyleDeclaration) => {
     let width = 0;
-    if (typeof window !== undefined) {
+    if (inBrowser) {
       const { tabSize = 8 } = style || getCachedComputedStyle(document.body);
       const tabSpace = ' '.repeat(Number(tabSize));
       const ctx = getCanvasContext();
