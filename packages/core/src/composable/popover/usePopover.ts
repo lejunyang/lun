@@ -7,12 +7,16 @@ import {
   noop,
   isEditElement,
   getDeepestActiveElement,
+  inBrowser,
+  getWindow,
+  isNode,
+  toHostIfSlot,
 } from '@lun/utils';
 import { computed, ref } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
-export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu';
+export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select';
 
 export type UsePopoverOptions = {
   manual?: boolean;
@@ -75,15 +79,19 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     (
       trigger: PopoverTrigger | null,
       method: 'open' | 'close' | 'toggle',
-      extraHandle?: (e: Event, actualMethod: 'open' | 'close') => void | boolean,
+      /** return false to prevent trigger; return open or close to change the default method */
+      extraHandle?: (e: Event, actualMethod: 'open' | 'close') => void | boolean | 'open' | 'close',
     ) =>
     (e: Event) => {
       const { triggers, manual, toggleMode, isShow } = options.value;
       // 'edit' same as 'focus'
       if ((!trigger || triggers.has(trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
-        const actualMethod = method === 'toggle' ? (toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
-        if (extraHandle && extraHandle(e, actualMethod) === false) return;
-        options.value[actualMethod]();
+        let actualMethod = method === 'toggle' ? (toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
+        let temp: any = '';
+        if (extraHandle && (temp = extraHandle(e, actualMethod)) === false) return;
+        const finalMethod = (options.value as any)[temp] || options.value[actualMethod];
+        if (trigger !== 'select' && finalMethod === 'open') range.value = null;
+        finalMethod();
       }
     };
 
@@ -147,12 +155,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       }
     },
   };
-  tryOnScopeDispose(() => {
-    for (const target of extraTargetsMap.value.keys()) {
-      methods.detachTarget(target);
-    }
-    extraTargetsMap.value.clear();
-  });
+  tryOnScopeDispose(methods.detachAll);
   // ------------------ extra targets ------------------
 
   const createTargetHandlers = (onTrigger: (e: Event, actualMethod: 'open' | 'close') => void | boolean = noop) => {
@@ -226,6 +229,28 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     },
   };
 
+  // ------------------ select ------------------
+  const range = ref<VirtualElement | null>();
+  const handleSelect = createTrigger('select', 'open', (e) => {
+    const selection = getWindow(e.target as any).getSelection();
+    if (!selection || selection.type !== 'Range') {
+      // range.value = null; // do not clear range here, if we clear it, actual pop target will update and then position shifts. we delay it to next open in createTrigger.
+      return 'close';
+    }
+    // options.value.target is a slot element, seems that slot element is always false when calling containsNode, so we need to get the host element
+    const target = [toHostIfSlot(unrefOrGet(options.value.target)), ...extraTargetsMap.value.keys()].find(
+      (e) => isNode(e) && selection.containsNode(e, true),
+    );
+    if (target) {
+      range.value = selection.getRangeAt(0);
+    } else {
+      // range.value = null;
+      return 'close';
+    }
+  });
+  inBrowser && tryOnScopeDispose(on(document, 'selectionchange', handleSelect));
+  // ------------------ select ------------------
+
   const cleanup = useClickOutside(
     computed(() =>
       // Array.from(extraTargetsMap.value.keys()).concat(options.value.target as any, options.value.pop as any),
@@ -240,7 +265,6 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       return unrefOrGet(isShow) && !manual;
     },
   );
-  cleanup.push(() => extraTargetsMap.value.clear());
   return {
     targetHandlers: createTargetHandlers((_, method) => {
       if (method === 'open') activeExtraTarget.value = null;
@@ -250,5 +274,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     cleanup,
     methods,
     activeExtraTarget,
+    /** current valid selection range ref */
+    range,
   };
 }

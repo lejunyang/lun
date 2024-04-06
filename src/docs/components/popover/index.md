@@ -3,7 +3,20 @@ title: Popover 弹出
 lang: zh-CN
 ---
 
+`l-popover`作为父元素包裹目标元素，默认渲染子元素，通过`pop-content`插槽或`content`属性设置弹出内容（`content`优先级更高，通过[`CustomRenderer`](/components/custom-renderer/)渲染），通过设定的触发方式来自动展示弹出内容，也可以通过`open`属性或元素上的方法手动控制是否展示
+
 ## 基本使用
+
+通过`triggers`属性可设置触发方式，可同时设置多个：
+
+- 悬浮触发`hover`：鼠标移入时触发，鼠标移出后关闭
+- 点击触发`click`：点击目标后(pointerdown)触发，点击目标和弹出框以外的地方关闭；若开启点击切换`toggleMode`，则点击目标时切换开启/关闭状态
+- 聚焦触发`focus`：目标获得焦点后触发，失去焦点后关闭，当目标或弹出内容存在焦点时，鼠标移出不会关闭
+- 编辑触发`edit`：与`focus`相同，但仅在聚焦元素为可编辑元素时才触发，失去焦点后关闭，可编辑元素指`input`, `textarea`, `isContenteditable=true`或存在关联的[`editContext`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/editContext)，存在可编辑聚焦元素时，鼠标移出不会关闭
+- 右键触发`contextmenu`：右键时触发，点击其他地方关闭
+- 选中触发`select`：选中文本且选中内容与`l-popover`的目标有交集时触发，此时弹框的位置与选中区域有关，失去选中或其他方式触发均会关闭
+
+设置多个值则它们的触发和关闭方式共同生效，默认值为`[hover, click, edit]`
 
 <!-- @Code:basicUsage -->
 
@@ -18,16 +31,6 @@ lang: zh-CN
       <l-button>第三次悬浮触发</l-button>
     </l-popover>
   </l-popover>
-</l-popover>
-
-## 弹出内容聚焦时不会隐藏
-
-<l-popover>
-  <div slot="pop-content">
-    <l-input value="value" />
-    test
-  </div>
-  <l-button>悬浮触发</l-button>
 </l-popover>
 
 ## 弹出位置
@@ -52,13 +55,23 @@ lang: zh-CN
 
 通过`target`属性可以指定一个元素或虚拟元素，只需其拥有`getBoundingClientRect`方法，能够返回矩形代表位置即可。`target`优先于默认插槽
 
+<!-- TODO add selection virtual element case -->
 <!-- @Code:virtualElement -->
 
 ## 额外目标监听
 
-`l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了为每一个元素包裹一个popover
+`l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了为每一个元素包裹一个 popover
 
 <!-- @Code:extraTargets -->
+
+## 聚焦时阻止目标切换
+
+当额外监听多个目标时，在某个目标聚焦或编辑时，如果我们想要阻止 popover 因为非聚焦的方式（例如鼠标移入）切换到其他的目标，我们可以使用`preventSwitchWhen`属性，可选值有：
+
+- `focus`：聚焦时阻止切换目标
+- `edit`：编辑时阻止切换目标
+
+<!-- @Code:preventSwitch -->
 
 ## 不同大小
 

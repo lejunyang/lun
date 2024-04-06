@@ -37,3 +37,7 @@ export function shadowContains(el?: Element | null, target?: Element | null) {
 export function isInShadowRoot(node?: Node) {
   return isNode(node) && isShadowRoot(node.getRootNode());
 }
+
+export function toHostIfSlot(node: any) {
+  return (isNode(node) && (node.getRootNode() as ShadowRoot)?.host) || node;
+}
