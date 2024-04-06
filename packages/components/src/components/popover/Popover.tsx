@@ -6,7 +6,15 @@ import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, objectKeys, pick, runIfFn } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
-import { autoUpdate, useFloating, arrow, offset, ElementRects, shift } from '@floating-ui/vue';
+import {
+  autoUpdate,
+  useFloating,
+  arrow,
+  offset as pluginOffset,
+  ElementRects,
+  shift as pluginShift,
+  inline as pluginInline,
+} from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
@@ -66,15 +74,15 @@ export const Popover = defineSSRCustomElement({
     const innerTarget = computed(() => {
       return virtualTarget.value || slotRef.value;
     });
-    const actualTarget = computed(() => activeExtraTarget.value || virtualTarget.value || shadow.CE);
+    const actualTarget = computed(() => range.value || activeExtraTarget.value || virtualTarget.value || shadow.CE);
 
     /** current popover target */
     const currentTarget = computed(() =>
       // avoid update float position when not show
-      isOpen.value || isShow.value ? actualTarget.value : null,
+      isOpen.value ? actualTarget.value : null,
     );
 
-    const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods } = usePopover(() => ({
+    const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods, range } = usePopover(() => ({
       ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode', 'preventSwitchWhen']),
       manual: props.open !== undefined,
       isShow,
@@ -86,16 +94,18 @@ export const Popover = defineSSRCustomElement({
 
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
-      const { shift: pShift, showArrow } = props;
+      const { shift, showArrow, inline, offset } = props;
       return [
-        pShift && shift(pShift === true ? undefined : pShift),
+        // selection range needs inline
+        (inline || options.value.triggers.has('select')) && pluginInline(Object(inline)),
+        shift && pluginShift(Object(shift)),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
-        offset(() => {
+        pluginOffset(() => {
           const arrowLen = arrowRef.value?.offsetWidth || 0;
           // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
           // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
           const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
-          return floatingOffset + (+props.offset! || 0);
+          return floatingOffset + (+offset! || 0);
         }),
         showArrow &&
           arrow({
@@ -119,7 +129,7 @@ export const Popover = defineSSRCustomElement({
       },
       strategy: 'fixed',
       placement,
-      open: isShow,
+      open: isOpen,
       middleware,
       transform: toRef(props, 'useTransform'),
     });

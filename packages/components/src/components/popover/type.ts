@@ -13,7 +13,7 @@ import {
   themeProps,
 } from 'common';
 import type { Placement, ShiftOptions } from '@floating-ui/vue';
-import type { Derivable } from '@floating-ui/core';
+import type { Derivable, InlineOptions } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
 import { Constructor } from '@lun/utils';
@@ -38,9 +38,13 @@ export const popoverProps = {
   children: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(),
 
   placement: PropString<Placement>(),
+  /** @link https://floating-ui.com/docs/offset */
   offset: PropNumber(),
   showArrow: PropBoolean(),
+  /** @link https://floating-ui.com/docs/shift */
   shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
+  /** @link https://floating-ui.com/docs/inline */
+  inline: PropObjOrBool<boolean | InlineOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
 
   /** used to make the pop content same width or height as the target element. */
   sync: PropString<'width' | 'height' | 'both'>(),
