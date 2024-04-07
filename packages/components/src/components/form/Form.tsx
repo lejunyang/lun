@@ -6,6 +6,7 @@ import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
 import { getCurrentInstance, onBeforeUnmount, ref, watch } from 'vue';
 import { isObject, pick } from '@lun/utils';
+import { defineTooltip } from '../tooltip';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -69,8 +70,6 @@ export const Form = defineSSRCustomElement({
     );
 
     const tooltipContent = (el: HTMLElement) => elTooltipMap.get(el)?.();
-    // TODO beforeOpen add el param, return false when tooltipContent returns falsy
-    // TODO add elItemMap, get FormItem, if it's disabled, prevent open
     return () => {
       const { layout, cols, labelWidth } = props;
       return (
@@ -86,9 +85,11 @@ export const Form = defineSSRCustomElement({
         >
           <slot></slot>
           {renderElement('tooltip', {
+            class: ns.e('tooltip'),
             ref: tooltipRef,
             contentType: 'vnode',
-            triggers: ['click', 'focus', 'hover'],
+            // triggers: ['edit', 'hover', 'click'], // literal array will make tooltip re-render, result in preventSwitchWhen not working...
+            preventSwitchWhen: 'edit',
             content: tooltipContent,
           })}
         </form>
@@ -100,4 +101,6 @@ export const Form = defineSSRCustomElement({
 export type tForm = typeof Form;
 export type iForm = InstanceType<tForm> & UseFormReturn;
 
-export const defineForm = createDefineElement(name, Form);
+export const defineForm = createDefineElement(name, Form, {
+  tooltip: defineTooltip,
+});

@@ -26,7 +26,6 @@ import {
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
 import { innerValidator } from './formItem.validate';
-import { defineTooltip } from '../tooltip/Tooltip';
 import { getConditionValue } from './utils';
 
 const name = 'form-item';
@@ -163,25 +162,14 @@ export const FormItem = defineSSRCustomElement({
             data-status={status.value}
             {...(formContext && contentHandlers)}
           >
-            {renderElement(
-              'tooltip',
-              {
-                class: ns.e('tooltip'),
-                // disabled: !(tips.value.tooltip as []).length,
-                disabled: true,
-              },
-              [
-                element ? (
-                  renderElement(
-                    element,
-                    { ...runIfFn(elementProps, { formContext, formItemProps: props.value }), ref: elementRef },
-                    <slot />,
-                  )
-                ) : (
-                  <slot ref={elementRef} />
-                ),
-                <div slot="tooltip">{tips.value.tooltip}</div>,
-              ],
+            {element ? (
+              renderElement(
+                element,
+                { ...runIfFn(elementProps, { formContext, formItemProps: props.value }), ref: elementRef },
+                <slot />,
+              )
+            ) : (
+              <slot ref={elementRef} />
             )}
             {helpText.value.newLine}
             {tips.value.newLine}
@@ -200,7 +188,7 @@ export const FormItem = defineSSRCustomElement({
     onMounted(() => {
       const tooltip = tooltipRef.value;
       if (tooltip) {
-        tooltip.popover.attachTarget(elementRef.value);
+        tooltip.popover.attachTarget(elementRef.value, { isDisabled: () => !(tips.value.tooltip as []).length });
       }
     });
     onBeforeUnmount(() => {
@@ -395,8 +383,8 @@ export const FormItem = defineSSRCustomElement({
 });
 
 export type tFormItem = typeof FormItem;
+export type iFormItem = InstanceType<tFormItem>;
 
 export const defineFormItem = createDefineElement(name, FormItem, {
   icon: defineIcon,
-  tooltip: defineTooltip,
 });

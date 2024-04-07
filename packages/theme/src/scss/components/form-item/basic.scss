@@ -36,10 +36,6 @@
     );
   }
 
-  @include e(tooltip) {
-    display: contents;
-  }
-
   @include size(1) {
     @include setVars(
       (
