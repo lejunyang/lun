@@ -98,7 +98,8 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   let popFocusIn = false,
     ignoreTargetFocusout = false;
   /** focusing elements inside popover target, or popover target itself */
-  const focusSet = new WeakSet<EventTarget>();
+  const focusSet = new WeakSet<EventTarget>(),
+    focusDeepestElMap = new WeakMap<Element, Element>();
 
   /** determine whether to prevent closing pop content(checkTrigger=true) or prevent switching pop target(checkTrigger=false) when has focus */
   const needPrevent = (e: Event, checkTrigger = true) => {
@@ -106,7 +107,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     const deepEl = getDeepestActiveElement()!;
     return (
       unrefOrGet(isShow) &&
-      (popFocusIn || [e.target!, document.activeElement!, deepEl].some((i) => focusSet.has(i))) &&
+      (popFocusIn || focusSet.has(e.target!) || focusSet.has(deepEl)) &&
       ((checkTrigger ? triggers.has('focus') : preventSwitchWhen === 'focus') ||
         ((checkTrigger ? triggers.has('edit') : preventSwitchWhen === 'edit') && isEditElement(deepEl)))
     );
@@ -124,7 +125,9 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
         if (method === 'open') {
           if (unrefOrGet(extraTargetsDisabledMap.get(target))) return false;
           // consider pointerdown also as focusin, or pointerdown can be prevented because of needPrevent when switching targets
-          if (e.type !== 'focusin' && e.type !== 'pointerdown' && needPrevent(e, false)) return false;
+          if (e.type !== 'focusin' && e.type !== 'pointerdown' && needPrevent(e, false)) {
+            return false;
+          }
           activeExtraTarget.value = target;
         }
         // no need to clear activeTarget when close, as every open will reset activeTarget
@@ -184,20 +187,31 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       }),
       onFocusin: createTrigger('focus', 'open', (e, m) => {
         targetFocusInTime = e.timeStamp;
-        focusSet.add(e.target!);
-        focusSet.add(e.currentTarget!); // also consider the popover target itself focusing, so that we can prevent close when mouse leave
+        const target = e.target as Element,
+          cur = e.currentTarget as Element,
+          deep = getDeepestActiveElement()!;
+        focusSet.add(target);
+        focusSet.add(cur); // it's to prevent hiding in other events like mouseleave. their target may differ, but currentTarget is always the popover target
+        focusSet.add(deep); // it's to prevent switching when focus or edit, use deepest element because custom-element can be inside another custom-element
+        focusDeepestElMap.set(target, deep);
 
         // if we click suffix icon when input is focused and toggleMode is true, it will fire pointerdown(toggle close) -> focusout -> focusin(open). close will be canceled
         // we need to prevent this
         // if (targetFocusInTime - pointerDownTime < options.value.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
         // if (unrefOrGet(options.value.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
-        if (options.value.isClosing && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
+        if (options.value.isClosing && !extraTargetsMap.value.has(cur)) {
+          return false;
+        }
         return onTrigger(e, m);
       }),
       onFocusout: createTrigger('focus', 'close', (e, m) => {
         targetFocusOutTime = e.timeStamp;
-        focusSet.delete(e.target!);
-        focusSet.delete(e.currentTarget!);
+        const target = e.target as Element,
+          cur = e.currentTarget as Element,
+          deep = focusDeepestElMap.get(target)!;
+        focusSet.delete(target);
+        focusSet.delete(deep);
+        focusSet.delete(cur);
         const { targetFocusThreshold } = options.value;
         if (ignoreTargetFocusout || targetFocusOutTime - pointerDownTime < targetFocusThreshold) return false;
         return onTrigger(e, m);

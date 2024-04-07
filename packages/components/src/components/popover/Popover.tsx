@@ -79,7 +79,7 @@ export const Popover = defineSSRCustomElement({
     /** current popover target */
     const currentTarget = computed(() =>
       // avoid update float position when not show
-      isOpen.value ? actualTarget.value : null,
+      isOpen.value || isShow.value ? actualTarget.value : null,
     );
 
     const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods, range } = usePopover(() => ({
