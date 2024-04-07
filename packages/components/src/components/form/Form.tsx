@@ -7,6 +7,7 @@ import { FormItemCollector } from '.';
 import { getCurrentInstance, onBeforeUnmount, ref, watch } from 'vue';
 import { isObject, pick } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
+import { provideHelpTooltip } from './collector';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -70,6 +71,10 @@ export const Form = defineSSRCustomElement({
     );
 
     const tooltipContent = (el: HTMLElement) => elTooltipMap.get(el)?.();
+
+    const renderHelpTooltip = provideHelpTooltip({
+      class: ns.e('tooltip'),
+    });
     return () => {
       const { layout, cols, labelWidth } = props;
       return (
@@ -92,6 +97,7 @@ export const Form = defineSSRCustomElement({
             preventSwitchWhen: 'edit',
             content: tooltipContent,
           })}
+          {renderHelpTooltip()}
         </form>
       );
     };

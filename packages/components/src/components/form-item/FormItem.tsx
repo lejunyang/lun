@@ -3,7 +3,7 @@ import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
-import { FormItemCollector } from '../form/collector';
+import { FormItemCollector, useHelpTooltip } from '../form/collector';
 import { ComponentInternalInstance, computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { FormInputCollector } from './collector';
 import {
@@ -64,26 +64,13 @@ export const FormItem = defineSSRCustomElement({
         if (canValidate('blur')) validate();
       },
     };
-    const helpText = computed(() => {
-      const { help, helpType } = props.value;
-      return {
-        icon:
-          helpType === 'icon' &&
-          help &&
-          renderElement('tooltip', {}, [renderElement('icon', { name: 'help' }), <span slot="tooltip">{help}</span>]),
-        newLine: helpType === 'newLine' && help && (
-          <div class={ns.e('help-line')} part="help-line">
-            {help}
-          </div>
-        ),
-      };
-    });
+
     const tips = computed(() => {
       const { tip, tipType, help, helpType, maxValidationMsg } = props.value;
       let msgs = itemErrors.value?.length ? itemErrors.value : [];
       if (!msgs.length) {
         if (tipType === 'tooltip' && tip) msgs = [tip];
-        else if (helpType === 'tooltip' && help) msgs = [help]; // helpType='newLine' is processed in helpText
+        else if (helpType === 'tooltip' && help) msgs = [help]; // helpType='newLine' is processed and displayed in the content
       }
       if (maxValidationMsg != null) msgs = msgs.slice(0, +maxValidationMsg);
       return {
@@ -116,6 +103,8 @@ export const FormItem = defineSSRCustomElement({
         label,
         labelAlign,
         noLabel,
+        help,
+        helpType,
       } = props.value;
       const { required } = states.value;
       if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
@@ -141,7 +130,7 @@ export const FormItem = defineSSRCustomElement({
               <slot name="label-start"></slot>
               <slot name="label">{label}</slot>
               {requiredMarkAlign === 'end' && rMark}
-              {helpText.value.icon}
+              {!helpIconDisabled.value && renderElement('icon', { name: 'help', ref: helpIconRef })}
               {colonMark && (
                 <span class={ns.e('colon')} part={ns.p('colon')}>
                   {colonMark}
@@ -171,7 +160,11 @@ export const FormItem = defineSSRCustomElement({
             ) : (
               <slot ref={elementRef} />
             )}
-            {helpText.value.newLine}
+            {helpType === 'newLine' && help && (
+              <div class={ns.e('help-line')} part="help-line">
+                {help}
+              </div>
+            )}
             {tips.value.newLine}
           </span>
         </div>
@@ -184,6 +177,14 @@ export const FormItem = defineSSRCustomElement({
       tooltipRef,
       elTooltipMap,
     } = formContext;
+
+    const helpIconDisabled = computed(() => {
+      const { help, helpType } = props.value;
+      return helpType !== 'icon' || !help;
+    });
+    const helpIconRef = useHelpTooltip(() => props.value.help, {
+      isDisabled: helpIconDisabled,
+    });
 
     onMounted(() => {
       const tooltip = tooltipRef.value;

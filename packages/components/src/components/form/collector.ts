@@ -3,6 +3,7 @@ import { FormProps, FormSetupProps } from './type';
 import { FormItemProps } from '../form-item/type';
 import { iTooltip } from '../tooltip';
 import { Ref } from 'vue';
+import { useTooltipManage } from 'hooks';
 
 export type FormProvideExtra = {
   form: UseFormReturn;
@@ -19,3 +20,6 @@ export const FormItemCollector = createCollector({
   parentExtra: null as any as FormProvideExtra,
   getChildEl: getHostOfRootShadow,
 });
+
+export const [provideErrorTooltip, useErrorTooltip] = useTooltipManage();
+export const [provideHelpTooltip, useHelpTooltip] = useTooltipManage();
