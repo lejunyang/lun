@@ -3,8 +3,8 @@ import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
-import { FormItemCollector, useHelpTooltip } from '../form/collector';
-import { ComponentInternalInstance, computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
+import { FormItemCollector, useErrorTooltip, useHelpTooltip } from '../form/collector';
+import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { FormInputCollector } from './collector';
 import {
   AnyFn,
@@ -85,7 +85,10 @@ export const FormItem = defineSSRCustomElement({
       ns,
       editComputed,
     );
-    const elementRef = ref();
+
+    const elementRef = useErrorTooltip(() => tips.value.tooltip, {
+      isDisabled: () => !(tips.value.tooltip as []).length,
+    });
 
     const render = () => {
       let {
@@ -174,8 +177,6 @@ export const FormItem = defineSSRCustomElement({
     const {
       form: { isPlainName, getValue, setValue, deletePath, hooks },
       form,
-      tooltipRef,
-      elTooltipMap,
     } = formContext;
 
     const helpIconDisabled = computed(() => {
@@ -184,24 +185,6 @@ export const FormItem = defineSSRCustomElement({
     });
     const helpIconRef = useHelpTooltip(() => props.value.help, {
       isDisabled: helpIconDisabled,
-    });
-
-    onMounted(() => {
-      const tooltip = tooltipRef.value;
-      if (tooltip) {
-        tooltip.popover.attachTarget(elementRef.value, { isDisabled: () => !(tips.value.tooltip as []).length });
-      }
-    });
-    onBeforeUnmount(() => {
-      const tooltip = tooltipRef.value;
-      if (tooltip) {
-        tooltip.popover.detachTarget(elementRef.value);
-      }
-      elTooltipMap.delete(elementRef.value);
-    });
-    watch(elementRef, (el, oldEl) => {
-      if (el) elTooltipMap.set(el, () => tips.value.tooltip);
-      if (oldEl) elTooltipMap.delete(oldEl);
     });
 
     useSetupContextEvent({

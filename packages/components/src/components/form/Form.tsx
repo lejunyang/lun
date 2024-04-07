@@ -1,13 +1,13 @@
 import { defineSSRCustomElement } from '../../custom/apiCustomElement';
 import { UseFormReturn, useForm, useSetupEdit } from '@lun/core';
-import { createDefineElement, renderElement, warn } from 'utils';
+import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
 import { getCurrentInstance, onBeforeUnmount, ref, watch } from 'vue';
 import { isObject, pick } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
-import { provideHelpTooltip } from './collector';
+import { provideErrorTooltip, provideHelpTooltip } from './collector';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -34,7 +34,6 @@ export const Form = defineSSRCustomElement({
       : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
 
     const vm = getCurrentInstance()!;
-    const tooltipRef = ref();
     const [editComputed] = useSetupEdit({
       adjust(state) {
         (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
@@ -53,13 +52,10 @@ export const Form = defineSSRCustomElement({
       }),
     );
 
-    const elTooltipMap = new WeakMap();
     FormItemCollector.parent({
       extraProvide: {
         form,
         formProps: props,
-        tooltipRef,
-        elTooltipMap,
       },
     });
 
@@ -70,10 +66,12 @@ export const Form = defineSSRCustomElement({
       editComputed,
     );
 
-    const tooltipContent = (el: HTMLElement) => elTooltipMap.get(el)?.();
-
+    const renderErrorTooltip = provideErrorTooltip({
+      class: [ns.e('tooltip'), ns.m('error')],
+      preventSwitchWhen: 'edit',
+    });
     const renderHelpTooltip = provideHelpTooltip({
-      class: ns.e('tooltip'),
+      class: [ns.e('tooltip'), ns.m('help')],
     });
     return () => {
       const { layout, cols, labelWidth } = props;
@@ -89,14 +87,7 @@ export const Form = defineSSRCustomElement({
           }}
         >
           <slot></slot>
-          {renderElement('tooltip', {
-            class: ns.e('tooltip'),
-            ref: tooltipRef,
-            contentType: 'vnode',
-            // triggers: ['edit', 'hover', 'click'], // literal array will make tooltip re-render, result in preventSwitchWhen not working...
-            preventSwitchWhen: 'edit',
-            content: tooltipContent,
-          })}
+          {renderErrorTooltip()}
           {renderHelpTooltip()}
         </form>
       );
