@@ -1,9 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { CSSProperties, computed, ref, toRef, watchEffect, Transition } from 'vue';
-import { MaybeRefLikeOrGetter, unrefOrGet, usePopover } from '@lun/core';
+import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
-import { isElement, isFunction, objectKeys, pick, runIfFn } from '@lun/utils';
+import { isElement, isFunction, objectKeys, runIfFn, virtualGetMerge } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
@@ -32,37 +32,12 @@ export const Popover = defineSSRCustomElement({
       slotRef = ref<HTMLSlotElement>(),
       /** pop content element when type=fixed or teleport fixed */ fixedRef = ref<HTMLDivElement>(),
       arrowRef = ref();
-    const isOpen = ref(false);
-    const isShow = ref(false); // after animation ends, it will be false
     const type = computed(() => {
       if (popSupport[props.type!]) return props.type;
       else return objectKeys(popSupport).find((i) => popSupport[i]);
     });
     const contextZIndex = useContextConfig('zIndex');
     const wrapTeleport = useTeleport(props);
-
-    // ------------------ methods ------------------
-    const open = () => {
-      const { beforeOpen, disabled } = props;
-      if (disabled || runIfFn(beforeOpen, actualTarget.value) === false) return;
-      const popover = popRef.value;
-      const fixed = fixedRef.value;
-      if (popover) popover.showPopover();
-      isOpen.value = !!(popover || fixed);
-      isShow.value = isOpen.value;
-    };
-    const close = () => {
-      isOpen.value = false;
-    };
-    const toggle = (force?: boolean) => {
-      if (props.disabled) return;
-      options.value.cancelOpenOrClose();
-      const { value } = popRef;
-      if (value) value.togglePopover(force);
-      isOpen.value = force !== undefined ? force : !isOpen.value;
-      if (isOpen.value) isShow.value = true;
-    };
-    // ------------------ methods ------------------
 
     const shadow = useShadowDom();
     /** actual pop content element ref */
@@ -82,15 +57,25 @@ export const Popover = defineSSRCustomElement({
       isOpen.value || isShow.value ? actualTarget.value : null,
     );
 
-    const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods, range } = usePopover(() => ({
-      ...pick(props, ['openDelay', 'closeDelay', 'triggers', 'toggleMode', 'preventSwitchWhen']),
-      manual: props.open !== undefined,
-      isShow,
-      open,
-      close,
-      target: innerTarget,
-      pop: actualPop,
-    }));
+    const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods, range, isOpen, isShow } =
+      usePopover(
+        virtualGetMerge(
+          {
+            beforeOpen() {
+              return runIfFn(props.beforeOpen, actualTarget.value);
+            },
+            onOpen() {
+              const popover = popRef.value;
+              const fixed = fixedRef.value;
+              if (popover) popover.showPopover();
+              return !!(popover || fixed);
+            },
+            target: innerTarget,
+            pop: actualPop,
+          },
+          props,
+        ),
+      );
 
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
@@ -132,14 +117,6 @@ export const Popover = defineSSRCustomElement({
       open: isOpen,
       middleware,
       transform: toRef(props, 'useTransform'),
-    });
-
-    // handle manual visibility control by external
-    watchEffect(() => {
-      if (props.open !== undefined) {
-        if (props.open) open();
-        else close();
-      }
     });
 
     // make virtual target auto update
@@ -185,20 +162,25 @@ export const Popover = defineSSRCustomElement({
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
     useCEExpose(
       {
-        togglePopover: toggle,
-        isOpen: () => (props.open !== undefined ? !!props.open : isOpen.value),
         updatePosition: update,
         ...methods,
         get currentTarget() {
           return currentTarget.value;
         },
       },
-      toGetterDescriptors(options, {
-        open: 'delayOpenPopover',
-        close: 'delayClosePopover',
-        openNow: 'openPopover',
-        closeNow: 'closePopover',
-      }),
+      {
+        ...toGetterDescriptors(options, {
+          open: 'delayOpenPopover',
+          close: 'delayClosePopover',
+          openNow: 'openPopover',
+          closeNow: 'closePopover',
+          toggleNow: 'togglePopover',
+        }),
+        ...refLikeToDescriptors({
+          isOpen,
+          isShow,
+        }),
+      },
     );
 
     const getRootClass = (type: string) => [

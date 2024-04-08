@@ -11,18 +11,20 @@ import {
   getWindow,
   isNode,
   toHostIfSlot,
+  runIfFn,
 } from '@lun/utils';
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select';
 
 export type UsePopoverOptions = {
-  manual?: boolean;
-  isShow: MaybeRefLikeOrGetter<boolean>;
-  open: () => void;
-  close: () => void;
+  /** manually control the open state of popover */
+  open?: boolean;
+  disabled?: MaybeRefLikeOrGetter<boolean>;
+  onOpen: () => void | boolean;
+  beforeOpen?: () => void | boolean;
   target: MaybeRefLikeOrGetter<Element | VirtualElement>;
   pop: MaybeRefLikeOrGetter<Element>;
   triggers?: PopoverTrigger | PopoverTrigger[];
@@ -33,45 +35,68 @@ export type UsePopoverOptions = {
   preventSwitchWhen?: 'focus' | 'edit';
 };
 
-export function usePopover(optionsGetter: () => UsePopoverOptions) {
+export function usePopover(_options: UsePopoverOptions) {
+  const isOpen = ref(false),
+    /** it's for animation; isOpen: false => animation ends => isShow: false */ isShow = ref(false);
+
   const options = computed(() => {
-    const _options = optionsGetter();
-    let { openDelay = 0, closeDelay = 120, open, close, triggers } = _options;
-    const tOpen = debounce(open, openDelay),
-      tClose = debounce(close, closeDelay);
+    let { openDelay = 0, closeDelay = 120, onOpen, triggers, disabled, beforeOpen } = _options;
+    const performOpen = () => {
+      if (unrefOrGet(disabled) || unrefOrGet(isOpen) || runIfFn(beforeOpen) === false) return;
+      const result = onOpen();
+      if (result !== undefined) isShow.value = isOpen.value = result;
+    };
+    const performClose = () => (isOpen.value = false);
+
+    const dOpen = debounce(performOpen, openDelay),
+      dClose = debounce(performClose, closeDelay);
     triggers = toArrayIfNotNil(triggers!);
     if (!triggers.length) triggers = ['hover', 'click', 'edit'];
     const cancelOpenOrClose = () => {
-      tOpen.cancel();
-      tClose.cancel();
+      dOpen.cancel();
+      dClose.cancel();
     };
     return {
       targetFocusThreshold: 20,
-      ..._options,
-      openDelay,
-      closeDelay: +closeDelay,
-      cancelOpenOrClose,
+      get manual() {
+        return _options.open !== undefined;
+      },
       triggers: new Set<PopoverTrigger>(triggers),
+      cancelOpenOrClose,
       open() {
-        tClose.cancel();
-        tOpen();
+        dClose.cancel();
+        dOpen();
       },
       close() {
-        tOpen.cancel();
-        tClose();
+        dOpen.cancel();
+        dClose();
       },
       openNow() {
         cancelOpenOrClose();
-        open();
+        performOpen();
       },
       closeNow() {
         cancelOpenOrClose();
-        close();
+        performClose();
+      },
+      toggleNow(force?: boolean) {
+        cancelOpenOrClose();
+        if (!isOpen.value || (!force && force !== undefined)) performOpen();
+        else if (isOpen.value || force) performClose();
       },
       get isClosing() {
-        return tClose.isScheduling();
+        return dClose.isScheduling();
       },
     };
+  });
+
+  // handle manual open control by external
+  watchEffect(() => {
+    const { manual, openNow, closeNow } = options.value;
+    if (manual) {
+      if (_options.open) openNow();
+      else closeNow();
+    }
   });
 
   /** create a event handler representing a pop trigger with action method */
@@ -83,10 +108,11 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       extraHandle?: (e: Event, actualMethod: 'open' | 'close') => void | boolean | 'open' | 'close',
     ) =>
     (e: Event) => {
-      const { triggers, manual, toggleMode, isShow } = options.value;
+      const { triggers, manual } = options.value;
       // 'edit' same as 'focus'
       if ((!trigger || triggers.has(trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
-        let actualMethod = method === 'toggle' ? (toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
+        let actualMethod =
+          method === 'toggle' ? (_options.toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
         let temp: any = '';
         if (extraHandle && (temp = extraHandle(e, actualMethod)) === false) return;
         const finalMethod = (options.value as any)[temp] || options.value[actualMethod];
@@ -103,7 +129,8 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
 
   /** determine whether to prevent closing pop content(checkTrigger=true) or prevent switching pop target(checkTrigger=false) when has focus */
   const needPrevent = (e: Event, checkTrigger = true) => {
-    const { triggers, preventSwitchWhen, isShow } = options.value;
+    const { triggers } = options.value,
+      { preventSwitchWhen } = _options;
     const deepEl = getDeepestActiveElement()!;
     return (
       unrefOrGet(isShow) &&
@@ -252,7 +279,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
       return 'close';
     }
     // options.value.target is a slot element, seems that slot element is always false when calling containsNode, so we need to get the host element
-    const target = [toHostIfSlot(unrefOrGet(options.value.target)), ...extraTargetsMap.value.keys()].find(
+    const target = [toHostIfSlot(unrefOrGet(_options.target)), ...extraTargetsMap.value.keys()].find(
       (e) => isNode(e) && selection.containsNode(e, true),
     );
     if (target) {
@@ -268,14 +295,14 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
   const cleanup = useClickOutside(
     computed(() =>
       // Array.from(extraTargetsMap.value.keys()).concat(options.value.target as any, options.value.pop as any),
-      [activeExtraTarget.value, options.value.target, options.value.pop],
+      [activeExtraTarget.value, _options.target, _options.pop],
     ),
     () => {
       options.value.close();
       ignoreTargetFocusout = false;
     },
     () => {
-      const { isShow, manual } = options.value;
+      const { manual } = options.value;
       return unrefOrGet(isShow) && !manual;
     },
   );
@@ -290,5 +317,7 @@ export function usePopover(optionsGetter: () => UsePopoverOptions) {
     activeExtraTarget,
     /** current valid selection range ref */
     range,
+    isOpen,
+    isShow,
   };
 }

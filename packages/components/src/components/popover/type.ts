@@ -21,7 +21,7 @@ import { Constructor } from '@lun/utils';
 export const popoverProps = {
   ...createTransitionProps(),
   /** note that it will not inherit edit state's disabled */
-  disabled: PropBoolean(),
+  disabled: PropObjOrBool<MaybeRefLikeOrGetter<boolean>>(),
   /** used to manually set the open state of popover */
   open: PropBoolean(),
   /** used to manually set the anchor target of popover */
