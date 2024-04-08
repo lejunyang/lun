@@ -24,6 +24,8 @@ export const popoverProps = {
   disabled: PropObjOrBool<MaybeRefLikeOrGetter<boolean>>(),
   /** used to manually set the open state of popover */
   open: PropBoolean(),
+  /** determine whether to freeze content update when pop is closing */
+  freezeWhenClosing: PropBoolean(),
   /** used to manually set the anchor target of popover */
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   /** determine the implementation type of popover */

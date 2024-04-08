@@ -37,7 +37,9 @@ export type UsePopoverOptions = {
 
 export function usePopover(_options: UsePopoverOptions) {
   const isOpen = ref(false),
-    /** it's for animation; isOpen: false => animation ends => isShow: false */ isShow = ref(false);
+    /** it's for animation; isOpen: false => animation ends => isShow: false */ isShow = ref(false),
+    isCloseScheduling = ref(false);
+  const isClosing = computed(() => isCloseScheduling.value || (!isOpen.value && isShow.value));
 
   const options = computed(() => {
     let { openDelay = 0, closeDelay = 120, onOpen, triggers, disabled, beforeOpen } = _options;
@@ -49,7 +51,7 @@ export function usePopover(_options: UsePopoverOptions) {
     const performClose = () => (isOpen.value = false);
 
     const dOpen = debounce(performOpen, openDelay),
-      dClose = debounce(performClose, closeDelay);
+      dClose = debounce(performClose, closeDelay, { onSchedulingUpdate: (v) => (isCloseScheduling.value = v) });
     triggers = toArrayIfNotNil(triggers!);
     if (!triggers.length) triggers = ['hover', 'click', 'edit'];
     const cancelOpenOrClose = () => {
@@ -83,9 +85,6 @@ export function usePopover(_options: UsePopoverOptions) {
         cancelOpenOrClose();
         if (!isOpen.value || (!force && force !== undefined)) performOpen();
         else if (isOpen.value || force) performClose();
-      },
-      get isClosing() {
-        return dClose.isScheduling();
       },
     };
   });
@@ -226,7 +225,7 @@ export function usePopover(_options: UsePopoverOptions) {
         // we need to prevent this
         // if (targetFocusInTime - pointerDownTime < options.value.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
         // if (unrefOrGet(options.value.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
-        if (options.value.isClosing && !extraTargetsMap.value.has(cur)) {
+        if (isClosing.value && !extraTargetsMap.value.has(cur)) {
           return false;
         }
         return onTrigger(e, m);
@@ -319,5 +318,6 @@ export function usePopover(_options: UsePopoverOptions) {
     range,
     isOpen,
     isShow,
+    isClosing,
   };
 }

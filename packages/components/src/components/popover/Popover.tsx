@@ -57,25 +57,34 @@ export const Popover = defineSSRCustomElement({
       isOpen.value || isShow.value ? actualTarget.value : null,
     );
 
-    const { targetHandlers, popContentHandlers, options, activeExtraTarget, methods, range, isOpen, isShow } =
-      usePopover(
-        virtualGetMerge(
-          {
-            beforeOpen() {
-              return runIfFn(props.beforeOpen, actualTarget.value);
-            },
-            onOpen() {
-              const popover = popRef.value;
-              const fixed = fixedRef.value;
-              if (popover) popover.showPopover();
-              return !!(popover || fixed);
-            },
-            target: innerTarget,
-            pop: actualPop,
+    const {
+      targetHandlers,
+      popContentHandlers,
+      options,
+      activeExtraTarget,
+      methods,
+      range,
+      isOpen,
+      isShow,
+      isClosing,
+    } = usePopover(
+      virtualGetMerge(
+        {
+          beforeOpen() {
+            return runIfFn(props.beforeOpen, actualTarget.value);
           },
-          props,
-        ),
-      );
+          onOpen() {
+            const popover = popRef.value;
+            const fixed = fixedRef.value;
+            if (popover) popover.showPopover();
+            return !!(popover || fixed);
+          },
+          target: innerTarget,
+          pop: actualPop,
+        },
+        props,
+      ),
+    );
 
     const placement = toRef(props, 'placement');
     const middleware = computed(() => {
@@ -191,12 +200,16 @@ export const Popover = defineSSRCustomElement({
       ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
     ];
 
+    let cacheContent: any;
     const getContent = (wrapSlot = true) => {
-      const { content, contentType, preferHtml } = props;
-      const finalContent = runIfFn(content, currentTarget.value);
-      const contentNode = finalContent && (
-        <VCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
-      );
+      const { content, contentType, preferHtml, freezeWhenClosing } = props;
+      let finalContent: any;
+      const contentNode =
+        freezeWhenClosing && isClosing.value
+          ? cacheContent
+          : (cacheContent = (finalContent = runIfFn(content, currentTarget.value)) && (
+              <VCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
+            ));
       return (
         <>
           {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value} class={ns.e('arrow')}></div>}

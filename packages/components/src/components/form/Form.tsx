@@ -69,6 +69,7 @@ export const Form = defineSSRCustomElement({
     const renderErrorTooltip = provideErrorTooltip({
       class: [ns.e('tooltip'), ns.m('error')],
       preventSwitchWhen: 'edit',
+      freezeWhenClosing: true,
     });
     const renderHelpTooltip = provideHelpTooltip({
       class: [ns.e('tooltip'), ns.m('help')],
