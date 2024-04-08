@@ -10,13 +10,15 @@ export function debounce<T extends (...args: any[]) => any>(
     leading?: boolean;
     trailing?: boolean;
     maxWait?: number | string;
+    onSchedulingUpdate?: (isScheduling: boolean) => void;
   },
 ) {
   let timerId: ReturnType<typeof setTimeout> | undefined,
     /** last time when debounced func called */ lastCallTime: number,
     /** last time when original func invoked */ lastInvokeTime: number = 0;
   let lastArgs: IArguments | undefined, lastThis: ThisType<T> | undefined, result: ReturnType<T> | undefined;
-  let { leading, trailing = true, maxWait: _maxWait } = options || {};
+  let { leading, trailing = true, maxWait: _maxWait, onSchedulingUpdate } = options || {};
+  onSchedulingUpdate ||= noop;
   const wait = ensureNumber(_wait, 0);
   const maxWait = _maxWait !== undefined ? Math.max(ensureNumber(_maxWait, 0), wait) : null;
 
@@ -48,6 +50,7 @@ export function debounce<T extends (...args: any[]) => any>(
   function leadingEdge(time: number) {
     lastInvokeTime = time;
     timerId = setTimeout(timerExpired, wait);
+    onSchedulingUpdate!(true);
     return leading ? invokeFunc(time) : result;
   }
 
@@ -58,6 +61,7 @@ export function debounce<T extends (...args: any[]) => any>(
    */
   function trailingEdge(time: number) {
     timerId = undefined;
+    onSchedulingUpdate!(false);
     if (trailing && lastArgs) {
       return invokeFunc(time);
     }
@@ -75,6 +79,7 @@ export function debounce<T extends (...args: any[]) => any>(
       timeWaiting = wait - timeSinceLastCall;
     const remainingWait = maxWait !== null ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke) : timeWaiting;
     timerId = setTimeout(timerExpired, remainingWait); // Restart the `timerExpired` timer
+    onSchedulingUpdate!(true);
   }
 
   const debounced = function (this: ThisType<T>) {
@@ -89,11 +94,13 @@ export function debounce<T extends (...args: any[]) => any>(
       // if time is defined and set maxWait, invoke
       if (maxWait !== null) {
         timerId = setTimeout(timerExpired, wait);
+        onSchedulingUpdate!(true);
         return invokeFunc(lastCallTime);
       }
     }
     if (timerId === undefined) {
       timerId = setTimeout(timerExpired, wait);
+      onSchedulingUpdate!(true);
     }
     return result;
   } as T & { flush: () => ReturnType<T>; cancel: () => void; isScheduling: () => boolean };
@@ -107,6 +114,7 @@ export function debounce<T extends (...args: any[]) => any>(
       if (isScheduling()) clearTimeout(timerId);
       lastInvokeTime = 0;
       lastCallTime = (lastArgs = lastThis = timerId = undefined) as any;
+      onSchedulingUpdate!(false);
     },
     isScheduling,
   });
@@ -120,12 +128,13 @@ export const throttle = function <T extends (...args: any[]) => any>(
   options?: {
     leading?: boolean;
     trailing?: boolean;
+    onSchedulingUpdate?: (isScheduling: boolean) => void;
   },
 ) {
   return debounce(func, wait, {
+    ...options,
     maxWait: wait,
     leading: options?.leading === undefined ? true : options?.leading,
-    trailing: options?.trailing,
   });
 };
 
