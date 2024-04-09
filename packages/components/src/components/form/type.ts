@@ -41,7 +41,8 @@ export const formProps = {
   validateMessages: PropObject<ValidateMessages>(),
 
   layout: PropString<'flex' | 'grid' | 'inline-flex' | 'inline-grid'>(),
-  labelLayout: PropString<'horizontal' | 'vertical'>(),
+  preferSubgrid: PropBoolean(),
+  labelLayout: PropString<'horizontal' | 'vertical' | 'float' | 'placeholder' | 'none'>(),
   labelWidth: PropString(),
   cols: PropNumber(),
   // TODO responsive props for above four

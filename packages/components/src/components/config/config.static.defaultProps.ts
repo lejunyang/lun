@@ -3,14 +3,14 @@ import { ComponentKey } from './config.static';
 export const defaultProps = {
   button: {
     showLoading: true,
-    iconPosition: 'start' as const,
+    iconPosition: 'start',
     variant: 'surface',
   },
   callout: {
     transition: 'scaleOut',
   },
   checkbox: {
-    labelPosition: 'end' as const,
+    labelPosition: 'end',
   },
   'checkbox-group': {},
   'custom-renderer': {},
@@ -27,9 +27,11 @@ export const defaultProps = {
   },
   form: {
     plainName: undefined,
-    layout: 'grid' as const,
+    layout: 'grid',
     cols: '1',
+    preferSubgrid: true,
     labelWidth: 'max-content',
+    labelLayout: 'horizontal',
   },
   'form-item': {
     plainName: undefined,
@@ -43,13 +45,13 @@ export const defaultProps = {
     validateWhen: ['blur', 'depChange'],
   },
   icon: {
-    library: 'default' as const,
+    library: 'default',
   },
   'file-picker': {
     preferFileApi: true,
   },
   input: {
-    waitType: 'debounce' as const,
+    waitType: 'debounce',
     trim: true,
     updateWhen: 'auto',
     restrictWhen: 'not-composing',
@@ -80,7 +82,7 @@ export const defaultProps = {
   },
   progress: { type: 'wave' },
   radio: {
-    labelPosition: 'end' as const,
+    labelPosition: 'end',
     noIndicator: undefined, // virtualMerge requires undefined as default
   },
   'radio-group': {},
@@ -92,7 +94,7 @@ export const defaultProps = {
   'select-option': {},
   'select-optgroup': {},
   spin: {
-    type: 'circle' as const,
+    type: 'circle',
     strokeWidth: 4,
     spinning: true,
   },

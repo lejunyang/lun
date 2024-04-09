@@ -72,3 +72,5 @@ export const supportCSSHighLight = supportCSS && typeof Highlight === 'function'
 export const supportCSSSupports = supportCSS && isFunction(CSS.supports);
 
 export const supportScrollbarGutter = supportCSSSupports && CSS.supports('scrollbar-gutter', 'stable');
+
+export const supportSubgrid = supportCSSSupports && CSS.supports('grid-template-rows', 'subgrid');

@@ -4,10 +4,10 @@ import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
-import { getCurrentInstance, onBeforeUnmount, ref, watch } from 'vue';
-import { isObject, pick } from '@lun/utils';
+import { computed, getCurrentInstance, onBeforeUnmount, watch } from 'vue';
+import { ensureNumber, isObject, pick, supportSubgrid } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
-import { provideErrorTooltip, provideHelpTooltip } from './collector';
+import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
 
 const name = 'form';
 export const Form = defineSSRCustomElement({
@@ -52,19 +52,81 @@ export const Form = defineSSRCustomElement({
       }),
     );
 
+    const layoutInfo = computed(() => {
+      const { layout, labelLayout, cols, labelWidth, preferSubgrid } = props;
+      const isGrid = layout === 'grid' || layout === 'inline-grid',
+        hasLabel = !['none', 'float', 'placeholder'].includes(labelLayout!),
+        isHorizontal = labelLayout === 'horizontal',
+        isVertical = labelLayout === 'vertical';
+      return {
+        isGrid,
+        hasLabel,
+        formStyle: {
+          display: layout,
+          gridTemplateColumns: isGrid ? `repeat(${cols}, ${isHorizontal ? labelWidth : ''} 1fr)` : '',
+        },
+        itemState: {
+          'horizontal-label': isHorizontal,
+          'vertical-label': isVertical,
+        },
+        getItemStyles({ fullLine, newLine, rowSpan, colSpan }) {
+          let rootStyle = {},
+            labelStyle = {},
+            contentStyle = {},
+            hostStyle = '';
+          colSpan = ensureNumber(fullLine ? cols : colSpan, 1);
+          const gridRowStart = rowSpan && `span ${rowSpan}`,
+            gridColumnStart = newLine || fullLine ? 1 : '',
+            span = colSpan && `span ${isHorizontal ? colSpan * 2 - 1 : colSpan}`,
+            gridColumnEnd = fullLine ? -1 : span;
+          if (isGrid) {
+            hostStyle = `:host{display:contents}`; // :host-context() is not supported in firefox, use this style manually
+            if (isVertical) {
+              rootStyle = {
+                gridRowStart,
+                gridColumnStart,
+                gridColumnEnd,
+              };
+            } else if (isHorizontal) {
+              if (supportSubgrid && preferSubgrid) {
+                const fullSpan = `span ${colSpan * 2}`;
+                rootStyle = {
+                  display: 'grid',
+                  gridTemplate: 'subgrid/subgrid',
+                  gridColumn: fullLine ? '1/-1' : newLine ? `1/${fullSpan}` : fullSpan,
+                };
+              } else rootStyle = { display: 'contents' };
+              labelStyle = {
+                gridRowStart,
+                gridColumnStart,
+              };
+              contentStyle = {
+                gridRowStart,
+                gridColumnStart: span,
+                gridColumnEnd,
+              };
+            }
+          }
+          return {
+            hostStyle,
+            rootStyle,
+            labelStyle,
+            contentStyle,
+          };
+        },
+      };
+    }) as FormProvideExtra['layoutInfo'];
+
     FormItemCollector.parent({
       extraProvide: {
         form,
         formProps: props,
+        layoutInfo,
       },
     });
 
     useCEExpose(form);
-    const [stateClass, states] = useCEStates(
-      () => ({ 'layout-grid': props.layout?.includes('grid') }),
-      ns,
-      editComputed,
-    );
+    const [stateClass] = useCEStates(() => ({}), ns, editComputed);
 
     const renderErrorTooltip = provideErrorTooltip({
       class: [ns.e('tooltip'), ns.m('error')],
@@ -75,18 +137,8 @@ export const Form = defineSSRCustomElement({
       class: [ns.e('tooltip'), ns.m('help')],
     });
     return () => {
-      const { layout, cols, labelWidth } = props;
       return (
-        <form
-          class={stateClass.value}
-          part={ns.p('root')}
-          style={{
-            display: layout,
-            gridTemplateColumns: states.value['layout-grid']
-              ? `repeat(${cols}, [label-start] ${labelWidth} [content-start] 1fr)`
-              : undefined,
-          }}
-        >
+        <form class={stateClass.value} part={ns.p('root')} style={layoutInfo.value.formStyle}>
           <slot></slot>
           {renderErrorTooltip()}
           {renderHelpTooltip()}
