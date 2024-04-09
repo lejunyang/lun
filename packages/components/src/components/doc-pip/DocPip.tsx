@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, error, getFirstThemeProvider } from 'utils';
+import { createDefineElement, error, getElementFirstName } from 'utils';
 import { DocPipAcceptStyle, docPipEmits, docPipProps } from './type';
 import {
   copyCSSStyleSheetsIfNeed,
@@ -11,8 +11,9 @@ import {
 } from '@lun/utils';
 import { useBreakpoint, useCEExpose, useShadowDom, useSlot } from 'hooks';
 import { onBeforeUnmount, ref, watchEffect } from 'vue';
-import { useAdoptedSheetsSnapshot } from '@lun/core';
+import { useAdoptedSheetsSnapshot, useSetupEdit } from '@lun/core';
 import { on } from '@lun/utils';
+import { useContextConfig } from '../config/config.context';
 
 const name = 'doc-pip';
 export const DocPip = defineSSRCustomElement({
@@ -38,6 +39,9 @@ export const DocPip = defineSSRCustomElement({
       style.textContent = text;
       return style;
     };
+
+    const [editComputed] = useSetupEdit();
+    const theme = useContextConfig('theme');
 
     const methods = {
       async openPip(...otherStyles: DocPipAcceptStyle[]) {
@@ -99,10 +103,10 @@ export const DocPip = defineSSRCustomElement({
         let appendNodes = slotNodes;
         // copy theme-provider
         if (wrapThemeProvider) {
-          let themeProvider = getFirstThemeProvider();
-          if (themeProvider) {
-            const newThemeProvider = document.createElement(themeProvider.tagName);
-            Object.assign(newThemeProvider, (themeProvider as any)._props);
+          const tagName = getElementFirstName('theme-provider');
+          if (tagName) {
+            const newThemeProvider = document.createElement(tagName);
+            Object.assign(newThemeProvider, theme, editComputed.value);
             newThemeProvider.append(...slotNodes);
             appendNodes = [newThemeProvider];
           }

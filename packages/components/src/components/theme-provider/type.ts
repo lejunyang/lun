@@ -1,8 +1,9 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { GrayColors, PropString, ThemeProps, themeProps } from 'common';
+import { editStateProps, GrayColors, PropString, ThemeProps, themeProps } from 'common';
 import { OpenShadowComponentKey } from '../config/config.static';
 
 export const themeProviderProps = {
+  ...editStateProps,
   ...Object.keys(themeProps).reduce(
     (acc, key) => {
       acc[key as keyof ThemeProps] = {} as any;

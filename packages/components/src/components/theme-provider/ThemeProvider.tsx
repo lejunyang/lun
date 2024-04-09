@@ -3,6 +3,7 @@ import { createDefineElement } from 'utils';
 import { themeProviderProps } from './type';
 import { provideContextConfig } from '../config';
 import { provide } from 'vue';
+import { useSetupEdit } from '@lun/core';
 
 export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
 
@@ -20,6 +21,7 @@ export const ThemeProvider = defineSSRCustomElement({
     provideContextConfig({
       theme: props,
     });
+    useSetupEdit();
     // return () => undefined;
     return () => <slot></slot>;
   },

@@ -1,9 +1,10 @@
-import { GetEventPropsFromEmits, PropBoolean, PropObjOrStr, sizeProp } from 'common';
+import { editStateProps, GetEventPropsFromEmits, PropBoolean, PropObjOrStr, sizeProp } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type DocPipAcceptStyle = string | CSSStyleSheet | HTMLStyleElement;
 
 export const docPipProps = {
+  ...editStateProps,
   open: PropBoolean(),
   width: sizeProp,
   height: sizeProp,
