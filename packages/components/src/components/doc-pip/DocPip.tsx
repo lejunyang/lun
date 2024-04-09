@@ -24,7 +24,7 @@ export const DocPip = defineSSRCustomElement({
     const shadow = useShadowDom();
 
     let pipWindow: Window | undefined,
-      slotEls: Element[] = [],
+      slotNodes: Node[] = [],
       opening = false;
     const opened = ref(false);
 
@@ -44,15 +44,15 @@ export const DocPip = defineSSRCustomElement({
         const { value } = slotRef,
           { shadowRoot } = shadow;
         if (!supportDocumentPictureInPicture || !value || !shadowRoot) return;
-        const temp = value.assignedElements();
+        const temp = value.assignedNodes();
         if (!temp.length || opening || opened.value) return false;
-        slotEls = temp;
+        slotNodes = temp;
         opening = true;
 
         const { pipStyles, copyDocStyleSheets, wrapThemeProvider } = props;
 
         // iterate the slotEl, store the adoptedStyleSheets of itself and all its descendant children
-        slotEls.forEach(storeAdoptedStyleSheets);
+        slotNodes.forEach(storeAdoptedStyleSheets);
 
         pipWindow = await documentPictureInPicture
           .requestWindow({
@@ -96,26 +96,26 @@ export const DocPip = defineSSRCustomElement({
           });
         }
 
-        let appendNodes = slotEls;
+        let appendNodes = slotNodes;
         // copy theme-provider
         if (wrapThemeProvider) {
           let themeProvider = getFirstThemeProvider();
           if (themeProvider) {
             const newThemeProvider = document.createElement(themeProvider.tagName);
             Object.assign(newThemeProvider, (themeProvider as any)._props);
-            newThemeProvider.append(...slotEls);
+            newThemeProvider.append(...slotNodes);
             appendNodes = [newThemeProvider];
           }
         }
         pipDocument.body.append(...appendNodes);
-        slotEls.forEach(restoreAdoptedStyleSheets);
+        slotNodes.forEach(restoreAdoptedStyleSheets);
         opening = false;
         emit('open');
         return (opened.value = true);
       },
       closePip() {
         opened.value = false;
-        slotEls.forEach((e) => {
+        slotNodes.forEach((e) => {
           shadow.CE?.append(e);
           restoreAdoptedStyleSheets(e);
         });
@@ -123,7 +123,7 @@ export const DocPip = defineSSRCustomElement({
           pipWindow.close();
           emit('close');
         }
-        slotEls = [];
+        slotNodes = [];
         pipWindow = undefined;
       },
       togglePip() {
