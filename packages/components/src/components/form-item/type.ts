@@ -55,20 +55,9 @@ export const formItemProps = {
     | ((param: { formContext: CollectorContext<any, any, FormProvideExtra> | undefined; formItemProps: any }) => any)
   >(),
 
-  // props for layout
-  rowSpan: PropNumber(),
-  colSpan: PropNumber(),
-  newLine: PropBoolean(),
-  fullLine: PropBoolean(),
-  labelWrapperStyle: PropObject(),
-  contentWrapperStyle: PropObject(),
-
   // props for extra info
   label: PropString(),
   noLabel: PropBoolean(),
-  labelWidth: PropString(),
-  labelAlign: PropString<LogicalPosition>(),
-  requiredMarkAlign: PropString<LogicalPosition>(),
   colonMark: PropString(),
   requiredMark: PropString(),
   /** used to set tip text for the input, note that if there is any validation error, validation message will take precedence */
@@ -81,9 +70,19 @@ export const formItemProps = {
    * icon: will render an icon in label, help text will be the icon's tooltip
    */
   helpType: PropString<'newLine' | 'tooltip' | 'icon'>(),
-  /** if both helpType and tipType are 'tooltip', show tip as tooltip */
   tipType: PropString<'newLine' | 'tooltip'>(),
   maxValidationMsg: PropNumber(),
+
+  // props for layout
+  rowSpan: PropNumber(),
+  colSpan: PropNumber(),
+  newLine: PropBoolean(),
+  fullLine: PropBoolean(),
+  labelWidth: PropString(),
+  labelAlign: PropString<LogicalPosition>(),
+  requiredMarkAlign: PropString<LogicalPosition>(),
+  labelWrapperStyle: PropObject(),
+  contentWrapperStyle: PropObject(),
 
   /** used to delete or set current field value null when form-item unmounting */
   unmountBehavior: PropString<'delete' | 'toNull' | 'toUndefined'>(),

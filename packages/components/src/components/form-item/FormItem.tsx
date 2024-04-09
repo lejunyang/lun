@@ -81,6 +81,7 @@ export const FormItem = defineSSRCustomElement({
     const [stateClass, states] = useCEStates(
       () => ({
         required: formContext ? validateProps.value.required : props.value.required,
+        ...formContext?.layoutInfo.value.itemState,
       }),
       ns,
       editComputed,
@@ -89,16 +90,23 @@ export const FormItem = defineSSRCustomElement({
     const elementRef = useErrorTooltip(() => tips.value.tooltip, {
       isDisabled: () => !(tips.value.tooltip as []).length,
     });
+    const helpIconDisabled = computed(() => {
+      const { help, helpType } = props.value;
+      return helpType !== 'icon' || !help;
+    });
+    const helpIconRef = useHelpTooltip(() => props.value.help, {
+      isDisabled: helpIconDisabled,
+    });
+
+    const styles = computed(() => {
+      return formContext?.layoutInfo.value.getItemStyles(props.value);
+    });
 
     const render = () => {
-      let {
+      const {
         colonMark,
         requiredMark,
         requiredMarkAlign,
-        colSpan,
-        rowSpan,
-        newLine,
-        fullLine,
         labelWrapperStyle,
         contentWrapperStyle,
         element,
@@ -110,21 +118,23 @@ export const FormItem = defineSSRCustomElement({
         helpType,
       } = props.value;
       const { required } = states.value;
-      if (fullLine && formContext?.parent) colSpan = ensureNumber(formContext.parent.props.cols, 1);
+      let { hasLabel } = formContext?.layoutInfo.value || {};
+      hasLabel &&= !noLabel;
       const rMark = required && requiredMark && (
         <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
           {requiredMark}
         </span>
       );
+      const { rootStyle, labelStyle, contentStyle, hostStyle } = styles.value || {};
       return (
-        <div class={stateClass.value} part={ns.p('root')}>
-          {!noLabel && (
+        <div class={stateClass.value} part={ns.p('root')} style={rootStyle}>
+          {hostStyle && <style>{hostStyle}</style>}
+          {hasLabel && (
             <span
               part={ns.p('label')}
               class={[ns.e('label')]}
               style={{
-                gridColumnStart: newLine || fullLine ? 1 : undefined,
-                gridRowStart: rowSpan && `span ${rowSpan}`,
+                ...labelStyle,
                 textAlign: labelAlign,
                 ...labelWrapperStyle,
               }}
@@ -146,9 +156,7 @@ export const FormItem = defineSSRCustomElement({
             class={ns.e('content')}
             part={ns.p('content')}
             style={{
-              gridColumnStart: colSpan && `span ${(colSpan as number) * 2 - 1}`,
-              gridColumnEnd: fullLine ? -1 : undefined,
-              gridRowStart: rowSpan && `span ${rowSpan}`,
+              ...contentStyle,
               ...contentWrapperStyle,
             }}
             data-status={status.value}
@@ -161,7 +169,10 @@ export const FormItem = defineSSRCustomElement({
                 <slot />,
               )
             ) : (
-              <slot ref={elementRef} />
+              // can not set elementRef on slot, popover requires an element with bounding rect to attach to, so wrap slot with a span
+              <span ref={elementRef} part={ns.p('wrapper')}>
+                <slot />
+              </span>
             )}
             {helpType === 'newLine' && help && (
               <div class={ns.e('help-line')} part="help-line">
@@ -178,14 +189,6 @@ export const FormItem = defineSSRCustomElement({
       form: { isPlainName, getValue, setValue, deletePath, hooks },
       form,
     } = formContext;
-
-    const helpIconDisabled = computed(() => {
-      const { help, helpType } = props.value;
-      return helpType !== 'icon' || !help;
-    });
-    const helpIconRef = useHelpTooltip(() => props.value.help, {
-      isDisabled: helpIconDisabled,
-    });
 
     useSetupContextEvent({
       update: (val) => {
