@@ -30,13 +30,19 @@ export const FilePicker = defineSSRCustomElement({
       return (maxCount as number) >= 0 ? files.slice(0, maxCount as number) : files;
     };
     const useOverSizeCheck = () => {
-      const files: File[] = [];
+      const oversizeFiles: File[] = [],
+        files: File[] = [];
+      let totalSize = 0;
       return [
         (file: File) => {
-          return isFileSizeValid(file) || (files.push(file), false);
+          totalSize += file.size;
+          files.push(file);
+          return isFileSizeValid(file) || (oversizeFiles.push(file), false);
         },
+        /** check if needs to emit events */
         () => {
-          if (files.length) emit('exceedMaxSize', files);
+          if (oversizeFiles.length) emit('exceedMaxSize', oversizeFiles);
+          if (totalSize > (props.maxTotalSize as number)) emit('exceedMaxTotalSize', files);
         },
       ] as const;
     };
@@ -153,7 +159,6 @@ export const FilePicker = defineSSRCustomElement({
       },
     };
 
-    // TODO useCEStates?  useCEExpose?
     useCEExpose({
       pickFile,
     });

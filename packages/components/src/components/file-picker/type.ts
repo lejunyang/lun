@@ -21,8 +21,13 @@ export const filePickerProps = {
   ...editStateProps,
   value: PropObject<File | File[]>(),
   multiple: PropBoolean(),
+  // TODO directory capture
+  /** max size of a single file */
   maxSize: PropNumber(),
+  /** max count of picked files when it's multiple */
   maxCount: PropNumber(),
+  /** max size of total picked files */
+  maxTotalSize: PropNumber(),
   strictAccept: PropBoolean(),
   preferFileApi: PropBoolean(),
   mimeTypes: PropStrOrArr(),
@@ -37,6 +42,7 @@ export const filePickerEmits = {
   update: (_value: File | File[]) => true,
   exceedMaxCount: (_value: File[]) => true,
   exceedMaxSize: (_value: File[]) => true,
+  exceedMaxTotalSize: (_value: File[]) => true,
   // TODO cancel
   // TODO typeMismatch
 };
