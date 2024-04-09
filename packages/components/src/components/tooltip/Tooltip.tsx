@@ -4,7 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { definePopover, iPopover } from '../popover/Popover';
 import { refLikeToDescriptors, useOverflowWatcher } from '@lun/core';
 import { useCEExpose, useShadowDom } from 'hooks';
-import { getInnerTextOfSlot, isFunction, runIfFn } from '@lun/utils';
+import { getInnerTextOfSlot, runIfFn } from '@lun/utils';
 import { ref } from 'vue';
 import { useContextConfig } from 'config';
 
@@ -17,6 +17,7 @@ const Tooltip = defineSSRCustomElement({
     const slotRef = ref<HTMLSlotElement>(),
       popoverRef = ref<iPopover>();
     const zIndex = useContextConfig('zIndex');
+    // TODO attachTarget like popover, multiple targets
     const { isOverflow } = useOverflowWatcher({
       disable: () => !['enable', 'open'].includes(props.overflow!),
       elGetter: () => shadow.CE,

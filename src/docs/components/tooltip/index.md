@@ -3,10 +3,12 @@ title: Tooltip 提示
 lang: zh-CN
 ---
 
+Tooltip基于Popover，但是比其多了一个功能，即检测overflow并决定是否展示
+
 ## 溢出行为
 通过设置`overflow`属性，Tooltip可配置内容溢出后的表现，可选值有：
 - `open`: 当内容溢出后始终展示tooltip
-- `enable`: 当内容溢出后`trigger`才生效
+- `enable`: 当内容溢出后启用tooltip，通过`triggers`来设定触发方式
 
 <div style="display: flex; gap: 10px">
   <l-input :value="state.overflowInput" @update="state.overflowInput = $event.detail" />

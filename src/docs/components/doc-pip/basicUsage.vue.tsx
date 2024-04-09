@@ -40,6 +40,6 @@ export default () => (
       <CountDown seconds={count.value} />
     </l-doc-pip>
     <l-button onClick={() => (open.value = !open.value)}>toggle Pip</l-button>
-    <l-button onClick={() => (count.value = Date.now() % 1000)}>reset</l-button>
+    <l-button onClick={() => (count.value = Date.now() % 1000)}>reset timer</l-button>
   </>
 );

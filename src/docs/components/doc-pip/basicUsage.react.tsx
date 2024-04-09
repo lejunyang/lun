@@ -39,7 +39,7 @@ const C = () => {
         <CountDown seconds={count} />
       </l-doc-pip>
       <l-button onClick={() => pip.current?.togglePip()}>toggle Pip</l-button>
-      <l-button onClick={() => setCount(Date.now() % 1000)}>reset</l-button>
+      <l-button onClick={() => setCount(Date.now() % 1000)}>reset timer</l-button>
     </>
   );
 };
