@@ -77,6 +77,7 @@ export const formItemProps = {
   rowSpan: PropNumber(),
   colSpan: PropNumber(),
   newLine: PropBoolean(),
+  endLine: PropBoolean(),
   fullLine: PropBoolean(),
   labelWidth: PropString(),
   labelAlign: PropString<LogicalPosition>(),

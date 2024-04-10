@@ -8,7 +8,6 @@ import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watch
 import { FormInputCollector } from './collector';
 import {
   AnyFn,
-  ensureNumber,
   isArray,
   isEmpty,
   isFunction,

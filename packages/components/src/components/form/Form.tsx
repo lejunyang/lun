@@ -77,16 +77,18 @@ export const Form = defineSSRCustomElement({
           'horizontal-label': isHorizontal,
           'vertical-label': isVertical,
         },
-        getItemStyles({ fullLine, newLine, rowSpan, colSpan }) {
+        getItemStyles({ fullLine, newLine, endLine, rowSpan, colSpan }) {
           let rootStyle = {},
             labelStyle = {},
             contentStyle = {},
             hostStyle = '';
           colSpan = ensureNumber(fullLine ? cols : colSpan, 1);
-          const gridRowStart = rowSpan && `span ${rowSpan}`,
-            gridColumnStart = newLine || fullLine ? 1 : '',
-            span = colSpan && `span ${isHorizontal ? colSpan * 2 - 1 : colSpan}`,
-            gridColumnEnd = fullLine ? -1 : span;
+          const spanNum = isHorizontal ? colSpan * 2 - 1 : colSpan,
+            gridRowStart = rowSpan && `span ${rowSpan}`,
+            backStart = endLine ? (isHorizontal ? -spanNum - 2 : -spanNum - 1) : '',
+            gridColumnStart = newLine || fullLine ? 1 : backStart,
+            span = colSpan && `span ${spanNum}`,
+            gridColumnEnd = fullLine || endLine ? -1 : span;
           if (isGrid) {
             hostStyle = `:host{display:contents}`; // :host-context() is not supported in firefox, use this style manually
             if (isVertical) {
@@ -97,11 +99,15 @@ export const Form = defineSSRCustomElement({
               };
             } else if (isHorizontal) {
               if (supportSubgrid && props.preferSubgrid) {
-                const fullSpan = `span ${colSpan * 2}`;
+                let fullSpan = `span ${colSpan * 2}`,
+                  gridColumn: [any, any] = [fullSpan, fullSpan];
+                if (fullLine || (newLine && fullLine)) gridColumn = [1, -1];
+                else if (newLine) gridColumn[0] = 1;
+                else if (endLine) gridColumn[1] = -1;
                 rootStyle = {
                   display: 'grid',
                   gridTemplate: 'subgrid/subgrid',
-                  gridColumn: fullLine ? '1/-1' : newLine ? `1/${fullSpan}` : fullSpan,
+                  gridColumn: gridColumn.join('/'),
                 };
               } else rootStyle = { display: 'contents' };
               labelStyle = {

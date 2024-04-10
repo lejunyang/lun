@@ -15,6 +15,7 @@ export type FormProvideExtra = {
     getItemStyles: (params: {
       fullLine?: boolean;
       newLine?: boolean;
+      endLine?: boolean;
       rowSpan?: string | number;
       colSpan?: string | number;
     }) => {
