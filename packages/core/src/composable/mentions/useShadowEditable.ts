@@ -1,4 +1,4 @@
-import { inBrowser } from '@lun/utils';
+import { inBrowser, raf } from '@lun/utils';
 import { Ref, ref, watchEffect } from 'vue';
 
 export function useShadowEditable() {
@@ -25,7 +25,7 @@ export function useShadowEditable() {
 
   /** request focus for the corresponding index of editRef's child element with offset */
   const requestFocus = (index: number, offset: number = 0) => {
-    requestAnimationFrame(() => {
+    raf(() => {
       const { value } = editRef;
       if (!value) return;
       const el = value.children[index],

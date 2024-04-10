@@ -4,7 +4,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { selectEmits, selectProps, selectPropsOfPopover } from './type';
 import { definePopover, iPopover } from '../popover/Popover';
 import { refLikeToDescriptors, useSelectMethods, useSetupEdit, useTempState } from '@lun/core';
-import { isFunction, isNilOrEmptyStr, objectKeys, pick } from '@lun/utils';
+import { isFunction, isNilOrEmptyStr, objectKeys, pick, raf } from '@lun/utils';
 import { defineInput, iInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
 import { defineSelectOptgroup } from './SelectOptgroup';
@@ -95,7 +95,7 @@ export const Select = defineSSRCustomElement({
     });
 
     const contentOnPointerDown = () => {
-      requestAnimationFrame(() => {
+      raf(() => {
         inputRef.value?.focus();
       });
     };

@@ -12,7 +12,7 @@ import {
   useValueModel,
 } from 'hooks';
 import { inputEmits, inputProps } from './type';
-import { isEmpty, isArray, runIfFn, virtualGetMerge } from '@lun/utils';
+import { isEmpty, isArray, runIfFn, virtualGetMerge, raf } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
@@ -151,7 +151,7 @@ export const Input = defineSSRCustomElement({
 
     const rootOnPointerDown = () => {
       // input will gain focus after we click anything inside label, but it's not immediate. We need to focus the input to show focus styles as soon as possible
-      requestAnimationFrame(() => {
+      raf(() => {
         if (editComputed.value.interactive) inputRef.value?.focus();
       });
     };

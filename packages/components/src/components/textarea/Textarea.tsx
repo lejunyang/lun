@@ -11,7 +11,7 @@ import {
   useValueModel,
 } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
-import { getHeight, isEmpty } from '@lun/utils';
+import { getHeight, isEmpty, raf } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 
@@ -107,7 +107,7 @@ export const Textarea = defineSSRCustomElement({
     });
 
     const rootOnPointerDown = () => {
-      requestAnimationFrame(() => {
+      raf(() => {
         if (editComputed.value.interactive) textareaRef.value?.focus();
       });
     };

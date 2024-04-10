@@ -10,7 +10,7 @@ import {
   useSetupContextEvent,
   useValueModel,
 } from 'hooks';
-import { isEmpty, isSupportPlaintextEditable, virtualGetMerge } from '@lun/utils';
+import { isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 import { mentionsEmits, mentionsProps } from './type';
@@ -99,7 +99,7 @@ export const Mentions = defineSSRCustomElement({
 
     const popOnPointerDown = () => {
       state.ignoreNextBlur = true;
-      requestAnimationFrame(() => editRef.value!.focus());
+      raf(() => editRef.value!.focus());
     };
 
     const clearIcon = computed(

@@ -7,16 +7,15 @@ import {
   PropString,
   PropFunction,
   PropObject,
-  PropObjOrStr,
   PropBoolean,
   PropNumber,
+  PropResponsive,
 } from 'common';
-import { Responsive } from 'hooks';
 
 export const buttonProps = {
   ...editStateProps,
   ...themeProps,
-  size: PropObjOrStr<Responsive<'1' | '2' | '3' | '4'>[]>(),
+  size: PropResponsive<'1' | '2' | '3' | '4'>(),
   label: PropString(),
   asyncHandler: PropFunction<(e?: MouseEvent) => void>(),
   spinProps: PropObject(),
