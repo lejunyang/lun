@@ -44,6 +44,13 @@
         content-line-height: getSpaceValue(5),
       )
     );
+    @include is(vertical-label) {
+      @include setVars(
+        (
+          label-line-height: getSpaceValue(4),
+        )
+      );
+    }
   }
   @include size(2) {
     @include setVars(
@@ -53,6 +60,13 @@
         content-line-height: getSpaceValue(6),
       )
     );
+    @include is(vertical-label) {
+      @include setVars(
+        (
+          label-line-height: getSpaceValue(5),
+        )
+      );
+    }
   }
   @include size(3) {
     @include setVars(
@@ -62,16 +76,12 @@
         content-line-height: getSpaceValue(7),
       )
     );
-  }
-}
-
-:host-context(#{getIs(layout-grid)}) {
-  display: contents;
-  @include b(form-item) {
-    display: contents;
-
-    @include e(label) {
-      display: inline-block;
+    @include is(vertical-label) {
+      @include setVars(
+        (
+          label-line-height: getSpaceValue(6),
+        )
+      );
     }
   }
 }
