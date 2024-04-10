@@ -31,7 +31,11 @@ export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array 
  */
 export const valueProp = { ...PropBoolOrStr(Object, Number), default: undefined };
 
-export const sizeProp = PropObjOrStr<Responsive<string>, Constructor<Responsive<number>>[]>(Number as any);
+export const PropResponsive = cacheFunctionResult(createPropFactory(Object, Number, String)) as <T>() => {
+  type: PropType<Responsive<T>>;
+};
+
+export const sizeProp = PropResponsive<string | number>();
 
 // const test = {
 //   str: PropString<'const'>(),

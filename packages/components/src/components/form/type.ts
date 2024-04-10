@@ -8,7 +8,8 @@ import {
   PropObject,
   PropBoolean,
   PropString,
-  PropNumber,
+  sizeProp,
+  PropResponsive,
 } from 'common';
 import { CollectorContext, UseFormReturn } from '@lun/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
@@ -40,12 +41,11 @@ export const formProps = {
   scrollToFirstError: PropBoolean(),
   validateMessages: PropObject<ValidateMessages>(),
 
-  layout: PropString<'flex' | 'grid' | 'inline-flex' | 'inline-grid'>(),
+  layout: PropResponsive<'flex' | 'grid' | 'inline-flex' | 'inline-grid'>(),
   preferSubgrid: PropBoolean(),
-  labelLayout: PropString<'horizontal' | 'vertical' | 'float' | 'placeholder' | 'none'>(),
-  labelWidth: PropString(),
-  cols: PropNumber(),
-  // TODO responsive props for above four
+  labelLayout: PropResponsive<'horizontal' | 'vertical' | 'float' | 'placeholder' | 'none'>(),
+  labelWidth: PropResponsive<string>(),
+  cols: sizeProp,
 
   /**
    * set common props for children form-items.

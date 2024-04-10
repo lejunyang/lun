@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from '../../custom/apiCustomElement';
 import { UseFormReturn, useForm, useSetupEdit } from '@lun/core';
 import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
-import { useCEExpose, useCEStates, useNamespace } from 'hooks';
+import { useBreakpoint, useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
 import { computed, getCurrentInstance, onBeforeUnmount, watch } from 'vue';
 import { ensureNumber, isObject, pick, supportSubgrid } from '@lun/utils';
@@ -52,12 +52,20 @@ export const Form = defineSSRCustomElement({
       }),
     );
 
+    const colsRef = useBreakpoint(props, 'cols', (v) => ensureNumber(v, 1));
+    const layoutRef = useBreakpoint(props, 'layout');
+    const labelLayoutRef = useBreakpoint(props, 'labelLayout');
+    const labelWidthRef = useBreakpoint(props, 'labelWidth');
+
     const layoutInfo = computed(() => {
-      const { layout, labelLayout, cols, labelWidth, preferSubgrid } = props;
+      const cols = colsRef.value,
+        layout = layoutRef.value,
+        label = labelLayoutRef.value,
+        labelWidth = labelWidthRef.value;
       const isGrid = layout === 'grid' || layout === 'inline-grid',
-        hasLabel = !['none', 'float', 'placeholder'].includes(labelLayout!),
-        isHorizontal = labelLayout === 'horizontal',
-        isVertical = labelLayout === 'vertical';
+        hasLabel = !['none', 'float', 'placeholder'].includes(label!),
+        isHorizontal = label === 'horizontal',
+        isVertical = label === 'vertical';
       return {
         isGrid,
         hasLabel,
@@ -88,7 +96,7 @@ export const Form = defineSSRCustomElement({
                 gridColumnEnd,
               };
             } else if (isHorizontal) {
-              if (supportSubgrid && preferSubgrid) {
+              if (supportSubgrid && props.preferSubgrid) {
                 const fullSpan = `span ${colSpan * 2}`;
                 rootStyle = {
                   display: 'grid',
