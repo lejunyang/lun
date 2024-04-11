@@ -5,7 +5,7 @@
 
 // ----------------- type=number -----------------
 @include b(input) {
-  @include m((number, number-string)) {
+  @include m((number, number-text)) {
     @include e(inner-input) {
       // hide number input's arrow
       &::-webkit-inner-spin-button,

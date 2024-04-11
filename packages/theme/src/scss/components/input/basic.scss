@@ -3,7 +3,8 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
-@use './basic.number.scss';
+@use './basic.number.scss' as *;
+@use './basic.password.scss' as *;
 
 :host {
   display: inline-flex;
