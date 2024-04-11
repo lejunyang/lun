@@ -1,48 +1,85 @@
-import { ref, watchEffect } from 'vue';
-import { isSupportResizeObserver, isTextOverflow } from '@lun/utils';
+import { reactive, watchEffect } from 'vue';
+import { isElement, isSupportResizeObserver, isTextOverflow } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
 export type UseOverflowWatcherOptions = {
-  disable?: MaybeRefLikeOrGetter<boolean>;
-  elGetter: () => HTMLElement | undefined | null;
-  onOverflowChange?: (isOverflow: boolean) => void;
+  isDisabled?: MaybeRefLikeOrGetter<boolean>;
+  onOverflowChange?: (param: { isOverflow: boolean; target: Element }) => void;
   box?: ResizeObserverBoxOptions;
-  getText?: (el: HTMLElement) => string;
+  onAttach?: (el: Element, options?: UseOverflowWatcherAttachOptions) => void;
+  onDetach?: (el: Element) => void;
+};
+
+export type UseOverflowWatcherAttachOptions = Parameters<typeof isTextOverflow>[1] & {
+  isDisabled?: MaybeRefLikeOrGetter<boolean>;
+  overflow?: MaybeRefLikeOrGetter<'enable' | 'open'>;
 };
 
 export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
-  const { elGetter, onOverflowChange, box, disable, getText } = options;
-  const overflow = ref(false);
+  const { onOverflowChange, box, isDisabled, onAttach, onDetach } = options;
+  const targetOptionMap = new WeakMap<Element, UseOverflowWatcherAttachOptions | undefined>(),
+    overflowStateMap = reactive(new WeakMap<Element, boolean>()),
+    openSet = reactive(new Set<Element>());
 
   let observer: ResizeObserver | null = null;
 
-  const updateOverflow = () => {
-    const el = elGetter();
-    if (!el) return;
-    const temp = isTextOverflow(el, { getText });
-    if (temp !== overflow.value) {
-      overflow.value = temp;
-      onOverflowChange && onOverflowChange(temp);
+  const updateOverflow: ResizeObserverCallback = (entries) => {
+    for (const e of entries) {
+      const { target } = e;
+      const options = targetOptionMap.get(target);
+      const { isDisabled, overflow } = options || {};
+      if (unrefOrGet(isDisabled)) {
+        overflowStateMap.delete(target);
+        openSet.delete(target);
+        continue;
+      }
+      const temp = isTextOverflow(target as HTMLElement, options),
+        original = overflowStateMap.get(target);
+      if (temp !== original) {
+        overflowStateMap.set(target, temp);
+        if (temp && unrefOrGet(overflow) === 'open') openSet.add(target);
+        else openSet.delete(target);
+        onOverflowChange?.({ target, isOverflow: temp });
+      }
     }
   };
 
   const clean = () => {
+    openSet.clear();
     if (observer) {
       observer.disconnect();
       observer = null;
     }
   };
 
-  const stopWatch = watchEffect(() => {
+  const init = () => {
     clean();
-    const element = elGetter();
-    const disabled = unrefOrGet(disable);
-    if (element && isSupportResizeObserver() && !disabled) {
+    const disabled = unrefOrGet(isDisabled);
+    if (isSupportResizeObserver() && !disabled) {
       observer = new ResizeObserver(updateOverflow);
-      observer.observe(element, { box });
     }
-  });
+  };
+  const stopWatch = watchEffect(init);
+
+  const attachTarget = (el: Element, options?: UseOverflowWatcherAttachOptions) => {
+    if (!isElement(el)) return;
+    if (!observer) init();
+    if (observer && options?.overflow && !targetOptionMap.has(el)) {
+      targetOptionMap.set(el, options);
+      observer.observe(el, { box });
+    }
+    onAttach?.(el, options);
+  };
+
+  const detachTarget = (el: Element) => {
+    if (!isElement(el)) return;
+    if (observer) observer.unobserve(el);
+    targetOptionMap.delete(el);
+    overflowStateMap.delete(el);
+    openSet.delete(el);
+    onDetach?.(el);
+  };
 
   const stop = () => {
     stopWatch();
@@ -52,7 +89,16 @@ export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
   tryOnScopeDispose(stop);
 
   return {
-    isOverflow: overflow,
-    stop,
+    methods: {
+      stop,
+      attachTarget,
+      detachTarget,
+      isOverflow(el: any) {
+        return overflowStateMap.get(el) || false;
+      },
+    },
+    targetOptionMap,
+    /** A set contains overflowing elements with overflow option 'open' */
+    openSet,
   };
 }
