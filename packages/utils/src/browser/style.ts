@@ -3,6 +3,7 @@ import { getTypeTag, isNumber } from '../is';
 import { getWindow } from './dom';
 import { isHTMLElement, isSVGElement } from './is';
 import { isSupportCSSStyleSheet } from './support';
+import { toNumberIfValid } from '../number';
 
 const styleCommentRE = /\/\*[^]*?\*\//g;
 
@@ -28,6 +29,7 @@ export function getValuesFromStyle<K extends string[]>(style: string, ...keys: K
 }
 
 export function toPxIfNum(value: string | number | undefined) {
+  value = toNumberIfValid(value);
   return isNumber(value) ? `${value}px` : value;
 }
 

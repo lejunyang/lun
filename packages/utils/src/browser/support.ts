@@ -74,3 +74,6 @@ export const supportCSSSupports = supportCSS && isFunction(CSS.supports);
 export const supportScrollbarGutter = supportCSSSupports && CSS.supports('scrollbar-gutter', 'stable');
 
 export const supportSubgrid = supportCSSSupports && CSS.supports('grid-template-rows', 'subgrid');
+
+// css layer can not be checked by CSS.supports, but we can use CSSOM to check it
+export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';

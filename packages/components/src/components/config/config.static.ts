@@ -1,4 +1,4 @@
-import { isSupportCSSStyleSheet } from '@lun/utils';
+import { isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { error } from '../../utils';
 import {
   getInitialDefaultAnimationRegistry,
@@ -97,6 +97,8 @@ export const GlobalStaticConfig = new Proxy(
     /** define default props of every component */
     defaultProps,
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
+    /** whether wrap &#64;layer for components' styles. will use it as layer name if it's truthy string, or use 'lun' as default */
+    wrapCSSLayer: supportCSSLayer as boolean | string,
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
     computedStyles: new Proxy(styles, {
