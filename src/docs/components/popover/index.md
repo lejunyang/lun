@@ -58,7 +58,7 @@ lang: zh-CN
 <!-- TODO add selection virtual element case -->
 <!-- @Code:virtualElement -->
 
-## 额外目标监听
+## 单例监听多个目标
 
 `l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了为每一个元素包裹一个 popover
 
