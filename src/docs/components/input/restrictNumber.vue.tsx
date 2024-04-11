@@ -4,7 +4,7 @@ import { ref } from 'vue';
 const form = useForm({
   defaultFormData: {
     replaceChPeriodMark: true,
-    type: 'number-string',
+    type: 'number-text',
   },
 });
 const v = ref(null);
@@ -20,7 +20,7 @@ export default () => {
           elementProps={{
             options: [
               { value: 'number', label: 'number' },
-              { value: 'number-string', label: 'number-string' },
+              { value: 'number-text', label: 'number-text' },
             ],
           }}
         />

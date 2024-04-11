@@ -36,7 +36,6 @@ defineAllComponents();
 - 全局静态配置需要在组件被使用前修改，但最好在定义前就统一修改，因为`namespace`在定义时就会使用
 - 如果你使用了主题，则必须在根节点包裹`l-theme-provider`
 
-
 ## 动态引入
 
 ```js
@@ -72,14 +71,14 @@ defineButton('my-button', {
 ```
 
 :::warning 注
-自定义引入需要注意组件的引入顺序，这在SSR场景下尤为重要，**最先使用的组件需要最先定义**，例如你可能需要在其他组件定义前先调用`defineThemeProvider`和`defineTeleportHolder()`，有明显父子关系的组件也需要注意，例如`form`和`form-item`
+自定义引入需要注意组件的引入顺序，这在 SSR 场景下尤为重要，**最先使用的组件需要最先定义**，例如你可能需要在其他组件定义前先调用`defineThemeProvider`和`defineTeleportHolder()`，有明显父子关系的组件也需要注意，例如`form`和`form-item`
 
-需要这么做的原因是，大部分组件都有继承关系，部分状态由父组件提供。在SSR场景下，页面上的元素已经存在，如果子组件先被定义，此时它无法探测到父组件（组件未被定义时是无效组件），等父组件再被定义时子组件也不会被更新，便会出现问题
+需要这么做的原因是，大部分组件都有继承关系，部分状态由父组件提供。在 SSR 场景下，页面上的元素已经存在，如果子组件先被定义，此时它无法探测到父组件（组件未被定义时是无效组件），等父组件再被定义时子组件也不会被更新，便会出现问题
 :::
 
 ## 兼容性
 
-至少需要兼容`customElement`, 列出的其他特性为所需版本大于`customElement`的, 若不支持可考虑 polyfill 或移除某些特性
+至少需要兼容`customElement`, 列出的其他特性为所需版本大于`customElement`的, 若不支持需考虑 polyfill 或移除某些特性
 
 - [customElement](https://caniuse.com/?search=customElement) (chrome>=54, edge>=79, firefox>=63, safari>=10.3)
 - [BigInt](https://caniuse.com/?search=BigInt) (firefox>=68, safari>=14)
@@ -90,12 +89,14 @@ defineButton('my-button', {
 - [CSS :where :is](https://caniuse.com/?search=where) (chrome>=88, edge>=88, firefox>=78, safari>=14)
 - [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) (chrome>=89, edge>=89, firefox>=66, safari>=15)
 
-某些特性需要的版本较高, 但它们在内部有做兼容处理, 如下
+某些特性需要的版本较高, 但它们在内部有做部分兼容处理, 如下
 
 - [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets)
 - [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges)
 - [popover](https://caniuse.com/?search=popover)
 - [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)
+- [CSS Layer](https://caniuse.com/?search=layer)
+- [CSS Subgrid](https://caniuse.com/?search=Subgrid)
 - [CSS color()](https://caniuse.com/?search=display%20p3)
 
 某些特性无法做兼容，但它们影响不大，只是出于技术探索添加了那些特性，不使用那些功能即可

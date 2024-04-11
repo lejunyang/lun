@@ -11,7 +11,7 @@ import { Transition, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { at, getDeepestActiveElement, toNumberIfValid, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import { at, getDeepestActiveElement, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'dialog';
@@ -30,7 +30,7 @@ export const Dialog = Object.assign(
         panelRef = ref<HTMLElement>(),
         maskRef = ref<HTMLElement>();
       const zIndex = useContextConfig('zIndex');
-      const width = useBreakpoint(props, 'width', (val) => toPxIfNum(toNumberIfValid(val)));
+      const width = useBreakpoint(props, 'width', toPxIfNum);
       const [editComputed, editState] = useSetupEdit({
         noInherit: true,
       });

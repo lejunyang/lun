@@ -61,8 +61,6 @@ Custom Element在不同 document 之间移动时，其`adoptedStyleSheets`会被
 }
 ```
 
-// FIXME：数字输入框一般没有问题，但是进入画中画之后就有问题了。。。
-
 <!-- @Code:differentSize -->
 
 <script setup>

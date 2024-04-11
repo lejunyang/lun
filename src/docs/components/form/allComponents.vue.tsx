@@ -23,7 +23,7 @@ export default function () {
           console.log('form update', e.detail);
         }}
       >
-        <l-form-item name="cols" label="列数">
+        <l-form-item name="cols" label="列数" type="number">
           <l-input />
         </l-form-item>
         <l-form-item name="array" array label="数组">
