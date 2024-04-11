@@ -103,7 +103,7 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
     const { plus, isNaN, getZero, negate, toNumber, toRawNum } = presets.math;
     let { step, value: v, onChange, type, multiple, clampToRange, strict } = options.value;
     const isN = type === 'number',
-      isNS = type === 'number-string';
+      isNS = type === 'number-text';
     if ((!isN && !isNS) || multiple) return;
     let value = toNumber(unrefOrGet(v));
     const valueIsOutOfRange = clampToRange(value) !== value;

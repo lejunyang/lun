@@ -19,7 +19,7 @@ import { handleNumberBeforeInput, isNumberInputType, nextValueAfterInput } from 
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
-export type InputType = 'string' | 'number' | 'number-string';
+export type InputType = 'text' | 'number' | 'number-text' | 'password';
 
 export type UseInputOptions = {
   value?: MaybeRefLikeOrGetter<string | number>;
@@ -53,7 +53,7 @@ export type UseInputOptions = {
   strict?: boolean;
   noExponent?: boolean;
   /**
-   * if it's true and type is 'number-string', will replace '。' with '.', so that users can input dot mark directly under chinese input method
+   * if it's true and type is 'number-text', will replace '。' with '.', so that users can input dot mark directly under chinese input method
    */
   replaceChPeriodMark?: boolean;
   /** will normalize number in change event, meaning 1.2E2 => 120, 1.20 => 1.2 */
@@ -75,12 +75,12 @@ type TransformedOption = {
   transformWhen: Set<InputPeriod>;
   notAllowedNumReg: RegExp;
   adjustPrecision: <T extends string | number | null | BigIntDecimal>(value: T) => T;
-  makeDivisibleByStep: <T extends string | number | null | BigIntDecimal>(
-    value: T,
-    isAdd?: boolean,
-  ) => T;
+  makeDivisibleByStep: <T extends string | number | null | BigIntDecimal>(value: T, isAdd?: boolean) => T;
   clampToRange: <T extends string | number | null | BigIntDecimal>(value: T) => T;
-  processNum: <T extends string | number | null | BigIntDecimal>(value?: T, greater?: boolean) => number | null | BigIntDecimal;
+  processNum: <T extends string | number | null | BigIntDecimal>(
+    value?: T,
+    greater?: boolean,
+  ) => number | null | BigIntDecimal;
 };
 export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & TransformedOption;
 
@@ -162,7 +162,7 @@ export function useInput(
       if (!transformWhen.has(actionNow)) return value;
       let newValue = value;
       if (isFunction(transform)) newValue = transform(newValue);
-      // if it's number type, force to null when empty(type=number, value is NaN, type=number-string, value is '')
+      // if it's number type, force to null when empty(type=number, value is NaN, type=number-text, value is '')
       return !isTruthyOrZero(newValue) && (toNullWhenEmpty || isNumberInputType(type)) ? null : newValue;
     },
     handleEvent(actionNow: InputPeriod, e: Event) {
@@ -181,7 +181,7 @@ export function useInput(
       const target = e.target as HTMLInputElement;
       let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
       if (restrictWhen.has(actionNow)) {
-        if (type === 'number-string') {
+        if (type === 'number-text') {
           // native input[type="number"] will eliminate all spaces when pasting or inputting, we follow that
           value = value.replace(/\s/g, '');
           if (replaceChPeriodMark) value = value.replace(/。/g, '.');
@@ -237,7 +237,7 @@ export function useInput(
       if ((updateWhen.has(actionNow) || value !== target.value) && state.prevValue === null) {
         let transformedVal = utils.transformValue(actionNow, type === 'number' ? target.valueAsNumber : target.value);
         transformedVal = extraHandlers?.transform ? extraHandlers.transform(transformedVal, e) : transformedVal;
-        if (type === 'number-string' && transformedVal != null && !isArray(transformedVal)) {
+        if (type === 'number-text' && transformedVal != null && !isArray(transformedVal)) {
           if (isNaN(toNumber(transformedVal))) {
             // if it's NaN, means it's something like 1e, don't call onChange until the value is valid
             return;

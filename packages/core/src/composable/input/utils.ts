@@ -1,7 +1,7 @@
 import { numberRegex } from '@lun/utils';
 import { UseInputOptions, UseInputState } from './useInput';
 
-export const isNumberInputType = (type: any) => type === 'number' || type === 'number-string';
+export const isNumberInputType = (type: any) => type === 'number' || type === 'number-text';
 
 export const nextValueAfterInput = (target: HTMLInputElement, e: InputEvent) => {
   const { value, selectionStart, selectionEnd } = target;
@@ -22,7 +22,7 @@ export function handleNumberBeforeInput(e: InputEvent, state: UseInputState<UseI
 
   const cancel = () => {
     if (e.cancelable) e.preventDefault();
-    else if (type === 'number-string' && state.prevValue === null) {
+    else if (type === 'number-text' && state.prevValue === null) {
       // if not cancelable(like composition event), store the value, selectionStart and selectionEnd so that we can restore them in later update
       // need to do this when state.prevValue is null, as beforeInput will trigger twice, one is before input, one is before composition end
       state.prevValue = target.value;

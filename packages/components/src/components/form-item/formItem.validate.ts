@@ -52,7 +52,7 @@ export const innerValidator = (value: any, _data: any, rule: Rule, msgs: Validat
   if (isNumberInputType(type)) {
     if (type === 'number' && !isNumber(value))
       return processStringWithParams(msgs.type, rule) || intl('validation.number.type', rule).d('Must be a number');
-    else if (type === 'number-string' && isNaN((value = toNumber(value))))
+    else if (type === 'number-text' && isNaN((value = toNumber(value))))
       return processStringWithParams(msgs.type, rule) || intl('validation.number.type', rule).d('Must be a number');
 
     if (greaterThan !== undefined && lessThanOrEqual(value, greaterThan))

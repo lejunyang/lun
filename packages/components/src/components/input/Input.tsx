@@ -1,5 +1,5 @@
 import { computed, ref, mergeProps } from 'vue';
-import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement } from '@lun/core';
+import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement, isNumberInputType } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -18,6 +18,7 @@ import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
 import { InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
 import { GlobalStaticConfig } from 'config';
+import usePassword from './Input.password';
 
 const name = 'input';
 export const Input = defineSSRCustomElement({
@@ -124,8 +125,7 @@ export const Input = defineSSRCustomElement({
 
     const numberStepIcons = computed(() => {
       const { stepControl, multiple } = props;
-      const { type } = validateProps.value;
-      if ((type !== 'number' && type !== 'number-string') || multiple) return;
+      if (!isNumberInputType(validateProps.value.type) || multiple) return;
       const step = ns.e('step'),
         arrow = ns.e('arrow'),
         slot = ns.e('slot');
@@ -162,6 +162,8 @@ export const Input = defineSSRCustomElement({
     const appendSlot = useSlot({ name: 'append' });
     const rendererSlot = useSlot({ name: 'renderer' });
 
+    const [passwordIcon, localType] = usePassword(() => validateProps.value.type, editComputed, ns);
+
     const clearIcon = computed(
       () =>
         props.showClearIcon &&
@@ -177,8 +179,8 @@ export const Input = defineSSRCustomElement({
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
       const { multiple, placeholder, labelType, label, wrapTags, spellcheck, autofocus } = props;
-      const { type } = validateProps.value;
-      const inputType = type === 'number' ? type : 'text';
+      const type = localType.value;
+      const inputType = type === 'number' || type === 'password' ? type : 'text';
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       const { empty } = states.value;
@@ -191,7 +193,7 @@ export const Input = defineSSRCustomElement({
           spellcheck={spellcheck}
           exportparts=""
           type={inputType}
-          inputmode={type === 'number-string' ? 'numeric' : undefined}
+          inputmode={type === 'number-text' ? 'numeric' : undefined}
           ref={inputRef}
           part="inner-input"
           class={[ns.e('inner-input')]}
@@ -283,11 +285,15 @@ export const Input = defineSSRCustomElement({
                 ns.e('slot'),
                 ns.e('suffix'),
                 props.showClearIcon && ns.is('with-clear'),
-                ns.isOr('empty', suffixSlot.empty.value && !clearIcon.value && !statusIcon.value),
+                ns.isOr(
+                  'empty',
+                  suffixSlot.empty.value && !clearIcon.value && !statusIcon.value && !passwordIcon.value,
+                ),
               ]}
               part="suffix"
             >
               {clearIcon.value}
+              {passwordIcon.value}
               <slot {...suffixSlot.slotProps}></slot>
               {statusIcon.value}
             </span>
