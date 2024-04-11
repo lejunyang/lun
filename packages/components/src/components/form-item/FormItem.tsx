@@ -2,9 +2,9 @@ import { defineSSRCustomElement } from 'custom';
 import { isNumberInputType, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
-import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
+import { useBreakpoint, useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
 import { FormItemCollector, useErrorTooltip, useHelpTooltip } from '../form/collector';
-import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
+import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect, normalizeStyle } from 'vue';
 import { FormInputCollector } from './collector';
 import {
   AnyFn,
@@ -20,6 +20,7 @@ import {
   toArrayIfNotNil,
   toArrayIfTruthy,
   toNoneNilSet,
+  toPxIfNum,
   virtualGetMerge,
 } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
@@ -32,15 +33,16 @@ export const FormItem = defineSSRCustomElement({
   name,
   props: formItemProps,
   emits: formItemEmits,
-  setup(itemProps, { emit }) {
+  setup(itemProps, { emit, attrs }) {
     const formContext = FormItemCollector.child();
+    const { parent, layoutInfo } = formContext || {};
     const props = computed(() =>
       virtualGetMerge(
         itemProps,
-        runIfFn(formContext?.parent?.props.itemProps, { formContext, formItemProps: itemProps }),
+        runIfFn(parent?.props.itemProps, { formContext, formItemProps: itemProps }),
       ),
     );
-    const ns = useNamespace(name, { parent: formContext?.parent });
+    const ns = useNamespace(name, { parent });
     const [editComputed, editState] = useSetupEdit();
     const itemErrors = computed(() => {
       return formContext?.form.getError(path.value);
@@ -80,7 +82,7 @@ export const FormItem = defineSSRCustomElement({
     const [stateClass, states] = useCEStates(
       () => ({
         required: formContext ? validateProps.value.required : props.value.required,
-        ...formContext?.layoutInfo.value.itemState,
+        ...layoutInfo?.value.itemState,
       }),
       ns,
       editComputed,
@@ -97,8 +99,9 @@ export const FormItem = defineSSRCustomElement({
       isDisabled: helpIconDisabled,
     });
 
+    const labelWidth = useBreakpoint(props.value, 'labelWidth', toPxIfNum);
     const styles = computed(() => {
-      return formContext?.layoutInfo.value.getItemStyles(props.value);
+      return layoutInfo?.value.getItemStyles({ ...props.value, labelWidth: labelWidth.value });
     });
 
     const render = () => {
@@ -126,7 +129,7 @@ export const FormItem = defineSSRCustomElement({
       );
       const { rootStyle, labelStyle, contentStyle, hostStyle } = styles.value || {};
       return (
-        <div class={stateClass.value} part={ns.p('root')} style={rootStyle}>
+        <div class={stateClass.value} part={ns.p('root')} style={normalizeStyle([rootStyle, attrs.style])}>
           {hostStyle && <style>{hostStyle}</style>}
           {hasLabel && (
             <span

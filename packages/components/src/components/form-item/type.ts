@@ -3,7 +3,6 @@ import {
   GetEventPropsFromEmits,
   LogicalPosition,
   PropBoolOrFunc,
-  PropBoolOrStr,
   PropBoolean,
   PropNumber,
   PropObjOrFunc,
@@ -12,6 +11,7 @@ import {
   PropString,
   Status,
   editStateProps,
+  sizeProp,
   themeProps,
 } from 'common';
 import { MaybePromise, CollectorContext, InputType } from '@lun/core';
@@ -79,7 +79,7 @@ export const formItemProps = {
   newLine: PropBoolean(),
   endLine: PropBoolean(),
   fullLine: PropBoolean(),
-  labelWidth: PropString(),
+  labelWidth: sizeProp,
   labelAlign: PropString<LogicalPosition>(),
   requiredMarkAlign: PropString<LogicalPosition>(),
   labelWrapperStyle: PropObject(),
