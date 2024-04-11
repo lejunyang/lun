@@ -4,7 +4,7 @@ import { renderElement } from 'utils';
 import { computed, ref, watch } from 'vue';
 
 /**
- * @returns [passwordIconRef, localType, isPasswordShow]
+ * @returns [passwordIconRef, localType, togglePassword]
  */
 export default function (
   type: () => InputType | undefined,
@@ -30,6 +30,8 @@ export default function (
         }),
     ),
     localType,
-    show,
+    (force?: boolean) => {
+      show.value = force ?? !show.value;
+    },
   ] as const;
 }

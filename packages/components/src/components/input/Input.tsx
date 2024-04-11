@@ -93,17 +93,6 @@ export const Input = defineSSRCustomElement({
       } else valueModel.value = null;
     };
 
-    useCEExpose(
-      {
-        ...methods,
-        ...numberMethods,
-        get valueAsNumber() {
-          return GlobalStaticConfig.math.toRawNum(valueModel.value);
-        },
-      },
-      refLikeToDescriptors({ input: inputRef }),
-    );
-
     const [stateClass, states] = useCEStates(
       () => ({
         empty: isEmpty(valueModel.value) && !valueForMultiple.value,
@@ -162,7 +151,7 @@ export const Input = defineSSRCustomElement({
     const appendSlot = useSlot({ name: 'append' });
     const rendererSlot = useSlot({ name: 'renderer' });
 
-    const [passwordIcon, localType] = usePassword(() => validateProps.value.type, editComputed, ns);
+    const [passwordIcon, localType, togglePassword] = usePassword(() => validateProps.value.type, editComputed, ns);
 
     const clearIcon = computed(
       () =>
@@ -175,6 +164,18 @@ export const Input = defineSSRCustomElement({
       if (!props.showStatusIcon) return;
       return renderStatusIcon(status.value);
     });
+
+    useCEExpose(
+      {
+        ...methods,
+        ...numberMethods,
+        get valueAsNumber() {
+          return GlobalStaticConfig.math.toRawNum(valueModel.value);
+        },
+        togglePassword,
+      },
+      refLikeToDescriptors({ input: inputRef }),
+    );
 
     return () => {
       const { disabled, readonly, editable } = editComputed.value;
