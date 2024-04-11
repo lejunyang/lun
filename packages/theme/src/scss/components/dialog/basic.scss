@@ -22,10 +22,10 @@
         z-index: 1000,
       )
     );
-    // copy from user agent dialog:-internal-dialog-in-top-layer
+    // copy from user agent dialog:-internal-dialog-in-top-layer and dialog
     position: fixed;
-    inset-block-start: 0px;
-    inset-block-end: 0px;
+    inset: 0px;
+    margin: auto;
     max-width: calc(100% - 6px - 2em);
     max-height: calc(100% - 6px - 2em);
   }

@@ -11,11 +11,13 @@ import { Transition, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { at, getDeepestActiveElement, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import { at, getDeepestActiveElement, supportDialog, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'dialog';
+/** global current showing dialogs */
 const showing = ref<HTMLElement[]>([]);
+
 export const Dialog = Object.assign(
   defineSSRCustomElement({
     name,
@@ -26,7 +28,7 @@ export const Dialog = Object.assign(
       const openModel = useOpenModel(props);
       const maskShow = ref(false),
         isOpen = ref(false);
-      const dialogRef = ref<HTMLDialogElement>(),
+      const dialogRef = ref<HTMLDialogElement | HTMLDivElement>(),
         panelRef = ref<HTMLElement>(),
         maskRef = ref<HTMLElement>();
       const zIndex = useContextConfig('zIndex');
@@ -41,14 +43,14 @@ export const Dialog = Object.assign(
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
         virtualGetMerge(
           {
-            native: true,
+            native: supportDialog,
             isOpen,
             open() {
               const { noMask, noTopLayer } = props;
               const dialog = dialogRef.value;
               if (dialog) {
                 lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
-                dialog[noTopLayer ? 'show' : 'showModal']();
+                supportDialog && (dialog as HTMLDialogElement)[noTopLayer ? 'show' : 'showModal']();
                 openModel.value = isOpen.value = true;
                 if ((maskShow.value = !noMask)) showing.value.push(dialog);
               }
@@ -96,7 +98,7 @@ export const Dialog = Object.assign(
           emit('afterOpen');
         },
         onAfterLeave() {
-          dialogRef.value?.close();
+          supportDialog && (dialogRef.value as HTMLDialogElement)?.close();
           restoreFocus();
           emit('afterClose');
         },
@@ -118,15 +120,19 @@ export const Dialog = Object.assign(
       const { render } = WatermarkContext.inject();
 
       const [stateClass] = useCEStates(
-        () => ({ 'no-top-layer': props.noTopLayer, confirm: props.isConfirm, 'no-mask': props.noMask }),
+        () => ({
+          'no-top-layer': props.noTopLayer || !supportDialog,
+          confirm: props.isConfirm,
+          'no-mask': props.noMask,
+        }),
         ns,
         editComputed,
       );
 
+      const Tag = supportDialog ? 'dialog' : 'div';
       return () => {
-        // TODO render div for those who don't support dialog
         return (
-          <dialog
+          <Tag
             class={stateClass.value}
             part="root"
             ref={dialogRef}
@@ -211,7 +217,7 @@ export const Dialog = Object.assign(
                 </Transition>
               </>,
             )}
-          </dialog>
+          </Tag>
         );
       };
     },
