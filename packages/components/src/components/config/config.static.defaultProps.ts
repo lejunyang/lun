@@ -30,7 +30,6 @@ export const defaultProps = {
     layout: 'grid',
     cols: '1',
     preferSubgrid: true,
-    labelWidth: 'max-content',
     labelLayout: 'horizontal',
   },
   'form-item': {

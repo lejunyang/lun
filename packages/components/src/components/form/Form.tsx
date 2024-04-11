@@ -4,8 +4,8 @@ import { createDefineElement, warn } from 'utils';
 import { formEmits, formProps } from './type';
 import { useBreakpoint, useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
-import { computed, getCurrentInstance, onBeforeUnmount, watch } from 'vue';
-import { ensureNumber, isObject, pick, supportSubgrid } from '@lun/utils';
+import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, watch } from 'vue';
+import { ensureNumber, getCachedComputedStyle, isObject, pick, supportSubgrid, toPxIfNum } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
 
@@ -14,7 +14,7 @@ export const Form = defineSSRCustomElement({
   name,
   props: formProps,
   emits: formEmits,
-  setup(props, { emit }) {
+  setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
 
     if (__DEV__) {
@@ -34,6 +34,7 @@ export const Form = defineSSRCustomElement({
       : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
 
     const vm = getCurrentInstance()!;
+    const formRef = ref<HTMLFormElement>();
     const [editComputed] = useSetupEdit({
       adjust(state) {
         (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
@@ -55,29 +56,36 @@ export const Form = defineSSRCustomElement({
     const colsRef = useBreakpoint(props, 'cols', (v) => ensureNumber(v, 1));
     const layoutRef = useBreakpoint(props, 'layout');
     const labelLayoutRef = useBreakpoint(props, 'labelLayout');
-    const labelWidthRef = useBreakpoint(props, 'labelWidth');
+    const labelWidthRef = useBreakpoint(props, 'labelWidth', toPxIfNum);
 
     const layoutInfo = computed(() => {
-      const cols = colsRef.value,
+      let cols = colsRef.value,
         layout = layoutRef.value,
         label = labelLayoutRef.value,
-        labelWidth = labelWidthRef.value;
+        formLabelWidth = labelWidthRef.value;
       const isGrid = layout === 'grid' || layout === 'inline-grid',
+        isFlex = layout === 'flex' || layout === 'inline-flex',
         hasLabel = !['none', 'float', 'placeholder'].includes(label!),
         isHorizontal = label === 'horizontal',
         isVertical = label === 'vertical';
+      if (!formLabelWidth) {
+        if (isGrid) formLabelWidth = 'max-content';
+        else if (isFlex) formLabelWidth = '33.33%';
+      }
       return {
         isGrid,
+        isFlex,
         hasLabel,
         formStyle: {
           display: layout,
-          gridTemplateColumns: isGrid ? `repeat(${cols}, ${isHorizontal ? labelWidth : ''} 1fr)` : '',
+          gridTemplateColumns: isGrid ? `repeat(${cols}, ${isHorizontal ? formLabelWidth : ''} 1fr)` : '',
+          flexWrap: 'wrap',
         },
         itemState: {
           'horizontal-label': isHorizontal,
           'vertical-label': isVertical,
         },
-        getItemStyles({ fullLine, newLine, endLine, rowSpan, colSpan }) {
+        getItemStyles({ fullLine, newLine, endLine, rowSpan, colSpan, labelWidth }) {
           let rootStyle = {},
             labelStyle = {},
             contentStyle = {},
@@ -120,6 +128,28 @@ export const Form = defineSSRCustomElement({
                 gridColumnEnd,
               };
             }
+          } else if (isFlex) {
+            hostStyle = `:host{display:contents}`;
+            const gapNum = cols - colSpan,
+              form = formRef.value;
+            rootStyle = {
+              flex: `1 1 calc((100% - ${
+                form ? getCachedComputedStyle(form).columnGap : '0px'
+              } * ${gapNum}) * ${colSpan} / ${cols})`,
+              display: 'flex',
+              flexDirection: isVertical ? 'column' : 'row',
+            };
+            if (isHorizontal) {
+              labelStyle = {
+                flex: `0 0 ${labelWidth || formLabelWidth}`,
+                maxWidth: labelWidth,
+              };
+              contentStyle = {
+                flex: '1 1 0',
+                minWidth: 0,
+                maxWidth: `calc(100% - ${labelWidth})`,
+              };
+            }
           }
           return {
             hostStyle,
@@ -152,7 +182,12 @@ export const Form = defineSSRCustomElement({
     });
     return () => {
       return (
-        <form class={stateClass.value} part={ns.p('root')} style={layoutInfo.value.formStyle}>
+        <form
+          ref={formRef}
+          class={stateClass.value}
+          part={ns.p('root')}
+          style={normalizeStyle([layoutInfo.value.formStyle, attrs.style])}
+        >
           <slot></slot>
           {renderErrorTooltip()}
           {renderHelpTooltip()}

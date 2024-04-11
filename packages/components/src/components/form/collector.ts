@@ -9,6 +9,7 @@ export type FormProvideExtra = {
   formProps: FormSetupProps;
   layoutInfo: ComputedRef<{
     isGrid: boolean;
+    isFlex: boolean;
     hasLabel: boolean;
     formStyle: Record<string, any>;
     itemState: Record<string, any>;
@@ -18,6 +19,7 @@ export type FormProvideExtra = {
       endLine?: boolean;
       rowSpan?: string | number;
       colSpan?: string | number;
+      labelWidth?: string;
     }) => {
       hostStyle: string;
       rootStyle: Record<string, any>;
