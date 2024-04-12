@@ -2,12 +2,12 @@ import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy, stringToPath,
 import { ProcessedFormParams, UseFormOptions } from './useForm';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
-  const { formData, formState, hooks, getDefaultFormState, nameToFormItemVmMap, formItemVmToFormVmMap } = params;
+  const { formData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
   const methods = {
     isPlainName(name?: string) {
       if (!name) return false;
-      const formItem = nameToFormItemVmMap.value.get(name);
-      const parent = formItemVmToFormVmMap.get(formItem!);
+      const formItem = nameToItemMap.get(name);
+      const parent = itemToFormMap.get(formItem!);
       return !!(formItem?.props.plainName ?? parent?.props.plainName);
     },
     getValue(path: string | string[] | null | undefined) {

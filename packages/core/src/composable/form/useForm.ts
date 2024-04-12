@@ -23,8 +23,8 @@ export type ProcessedFormParams<Data extends CommonObject = CommonObject> = {
   formState: Ref<FormState>;
   hooks: FormHooks;
   getDefaultFormState(): FormState;
-  nameToFormItemVmMap: Ref<Map<string | string[], ComponentInternalInstance>>;
-  formItemVmToFormVmMap: WeakMap<ComponentInternalInstance, ComponentInternalInstance>;
+  nameToItemMap: Map<string | string[], ComponentInternalInstance>;
+  itemToFormMap: WeakMap<ComponentInternalInstance, ComponentInternalInstance>;
 };
 
 export function useForm<
@@ -41,10 +41,10 @@ export function useForm<
   const formState = ref(getDefaultFormState());
   const hooks = createFormHooks(options);
   const forms = new Set<ComponentInternalInstance>();
-  const formItemVmToFormVmMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance>();
-  // need ts as, no idea why
-  const nameToFormItemVmMap = ref(new Map<string | string[], ComponentInternalInstance>()) as Ref<
-    Map<string | string[], ComponentInternalInstance>
+  const itemToFormMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance>();
+  const nameToItemMap = reactive(new Map<string | string[], ComponentInternalInstance>()) as Map<
+    string | string[],
+    ComponentInternalInstance
   >;
   const param = {
     options,
@@ -52,8 +52,8 @@ export function useForm<
     formState,
     hooks,
     getDefaultFormState,
-    nameToFormItemVmMap,
-    formItemVmToFormVmMap,
+    nameToItemMap,
+    itemToFormMap,
   };
   const methods = useFormMethods(param, options);
 
@@ -66,14 +66,14 @@ export function useForm<
   hooks.onFormItemSetup.use(({ item, form }) => {
     if (!item) return;
     const { name } = item.props;
-    if (name) nameToFormItemVmMap.value.set(name as any, item);
-    formItemVmToFormVmMap.set(item, form);
+    if (name) nameToItemMap.set(name as any, item);
+    itemToFormMap.set(item, form);
   });
   hooks.onFormItemUnmount.use(({ item }) => {
     if (!item) return;
     const { name } = item.props;
-    if (name) nameToFormItemVmMap.value.delete(name as any);
-    formItemVmToFormVmMap.delete(item);
+    if (name) nameToItemMap.delete(name as any);
+    itemToFormMap.delete(item);
   });
 
   const result = {

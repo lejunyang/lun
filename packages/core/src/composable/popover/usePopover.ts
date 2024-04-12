@@ -13,7 +13,7 @@ import {
   toHostIfSlot,
   runIfFn,
 } from '@lun/utils';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
@@ -141,12 +141,12 @@ export function usePopover(_options: UsePopoverOptions) {
 
   // ------------------ extra targets ------------------
   // it's to support attaching events of triggering popover on other elements in an imperative manner
-  const extraTargetsMap = ref(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
+  const extraTargetsMap = reactive(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
     extraTargetsDisabledMap = new WeakMap<Element, MaybeRefLikeOrGetter<boolean> | undefined>();
   const activeExtraTarget = ref();
   const methods = {
     attachTarget(target?: Element, { isDisabled }: { isDisabled?: MaybeRefLikeOrGetter<boolean> } = {}) {
-      if (!isElement(target) || extraTargetsMap.value.has(target)) return;
+      if (!isElement(target) || extraTargetsMap.has(target)) return;
       const targetHandlers = createTargetHandlers((e, method) => {
         if (method === 'open') {
           if (unrefOrGet(extraTargetsDisabledMap.get(target))) return false;
@@ -158,7 +158,7 @@ export function usePopover(_options: UsePopoverOptions) {
         }
         // no need to clear activeTarget when close, as every open will reset activeTarget
       });
-      extraTargetsMap.value.set(target, targetHandlers);
+      extraTargetsMap.set(target, targetHandlers);
       extraTargetsDisabledMap.set(target, isDisabled);
       for (const [key, handler] of Object.entries(targetHandlers)) {
         on(target, key.slice(2).toLowerCase(), handler);
@@ -166,12 +166,12 @@ export function usePopover(_options: UsePopoverOptions) {
     },
     detachTarget(target?: Element) {
       if (!isElement(target)) return;
-      const targetHandlers = extraTargetsMap.value.get(target);
+      const targetHandlers = extraTargetsMap.get(target);
       if (!targetHandlers) return;
       for (const [key, handler] of Object.entries(targetHandlers)) {
         off(target, key.slice(2).toLowerCase(), handler);
       }
-      extraTargetsMap.value.delete(target);
+      extraTargetsMap.delete(target);
       extraTargetsDisabledMap.delete(target);
       if (target === activeExtraTarget.value) {
         options.value.closeNow();
@@ -179,7 +179,7 @@ export function usePopover(_options: UsePopoverOptions) {
       }
     },
     detachAll() {
-      for (const target of extraTargetsMap.value.keys()) {
+      for (const target of extraTargetsMap.keys()) {
         methods.detachTarget(target);
       }
     },
@@ -225,7 +225,7 @@ export function usePopover(_options: UsePopoverOptions) {
         // we need to prevent this
         // if (targetFocusInTime - pointerDownTime < options.value.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
         // if (unrefOrGet(options.value.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
-        if (isClosing.value && !extraTargetsMap.value.has(cur)) {
+        if (isClosing.value && !extraTargetsMap.has(cur)) {
           return false;
         }
         return onTrigger(e, m);
@@ -278,7 +278,7 @@ export function usePopover(_options: UsePopoverOptions) {
       return 'close';
     }
     // options.value.target is a slot element, seems that slot element is always false when calling containsNode, so we need to get the host element
-    const target = [toHostIfSlot(unrefOrGet(_options.target)), ...extraTargetsMap.value.keys()].find(
+    const target = [toHostIfSlot(unrefOrGet(_options.target)), ...extraTargetsMap.keys()].find(
       (e) => isNode(e) && selection.containsNode(e, true),
     );
     if (target) {
