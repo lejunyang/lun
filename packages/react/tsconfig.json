@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "include": [
+    "./index.ts",
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.tsx",
+    "../../global.d.ts"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declarationDir": "dist",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "paths": {
+      "@lun/components": ["../components/index.ts"],
+      "@lun/core": ["../core/index.ts"],
+      "@lun/theme": ["../theme/index.ts"],
+      "@lun/utils": ["../utils/index.ts"]
+    }
+  }
+}

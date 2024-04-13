@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["./index.ts", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "../../global.d.ts"],
+  "exclude": ["src/__test__/**/*", "src/main.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "common": ["src/common"],
+      "config": ["src/components/config"],
+      "custom": ["src/custom"],
+      "utils": ["src/utils"],
+      "hooks": ["src/hooks"],
+      // [vite:dts] Internal Error: Unable to determine semantic information for declaration
+      // related issue https://github.com/qmhc/vite-plugin-dts/issues/281, but relative path is not working
+      // replace it with LUNCOER and then perform string replace manually, see generateModuleTypes.js
+      "@lun/components": ["LUNCOMPONENTS"],
+      "@lun/core": ["LUNCOER"],
+      "@lun/utils": ["LUNUTILS"]
+    }
+  }
+}

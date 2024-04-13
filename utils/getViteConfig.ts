@@ -47,7 +47,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       minify: dev ? false : 'esbuild',
       emptyOutDir: dev,
       rollupOptions: {
-        external: ['vue', /@lun\/.+/],
+        external: ['vue', /@lun\/.+/, 'react'],
         output: {
           ...viteConfig?.build?.rollupOptions?.output,
           globals: {
@@ -57,6 +57,8 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
             '@lun/theme': 'LunTheme',
             '@lun/utils': 'LunUtils',
             '@lun/plugins': 'LunPlugins',
+            '@lun/react': 'LunReact',
+            react: 'React',
           },
         },
       },

@@ -1,0 +1,49 @@
+{
+  "name": "@lun/react",
+  "version": "0.0.1-alpha.0",
+  "description": "",
+  "type": "module",
+  "files": [
+    "./dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build:dev": "cross-env NODE_ENV=development vite build",
+    "build:prod": "cross-env NODE_ENV=production vite build",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && node ./afterBuild.js",
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build"
+  },
+  "dependencies": {
+    "@lun/components": "workspace:^"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^5.0.5",
+    "@types/react": ">=16.8",
+    "@types/react-dom": ">=16.8",
+    "@vitejs/plugin-react": "^4.2.1",
+    "cross-env": "^7.0.3",
+    "react": ">=16.8",
+    "react-dom": ">=16.8",
+    "rimraf": "^5.0.5",
+    "vite-plugin-dts": "^3.8.2",
+    "vitest": "^1.3.1"
+  },
+  "peerDependencies": {
+    "react": ">=16.8",
+    "react-dom": ">=16.8"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
