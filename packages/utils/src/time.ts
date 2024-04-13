@@ -157,7 +157,7 @@ export function raf(callback: FrameRequestCallback, frames = 1, needCancel?: () 
     return noop;
   }
   const id = requestAnimationFrame(() => {
-    if (needCancel()) return;
+    if (needCancel!()) return;
     raf(callback, frames - 1, needCancel);
   });
   return () => {

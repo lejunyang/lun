@@ -17,28 +17,14 @@
     "baseUrl": ".",
     "declarationDir": "dist",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "common": [
-        "src/common"
-      ],
-      "config": [
-        "src/components/config"
-      ],
-      "custom": [
-        "src/custom"
-      ],
-      "utils": [
-        "src/utils"
-      ],
-      "hooks": [
-        "src/hooks"
-      ],
+      "common": ["src/common"],
+      "config": ["src/components/config"],
+      "custom": ["src/custom"],
+      "utils": ["src/utils"],
+      "hooks": ["src/hooks"],
       "@lun/core": ["../core/index.ts"],
-      "@lun/theme": ["../theme/index.ts"],
       "@lun/utils": ["../utils/index.ts"],
       "@vue/runtime-dom": ["../../node_modules/@vue/runtime-dom"]
-    },
+    }
   }
 }

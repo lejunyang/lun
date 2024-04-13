@@ -13,7 +13,8 @@ export const innerValidator = (value: any, _data: any, rule: Rule, msgs: Validat
       : undefined;
 
   // ------------------ string ------------------
-  if (type === 'string') {
+  if (type === 'string' || type === 'text') {
+    // type === 'text' is for input element
     if (!isString(value))
       return processStringWithParams(msgs.type, rule) || intl('validation.string.type', rule).d('Must be a string');
     if (min !== undefined && value.length < min)

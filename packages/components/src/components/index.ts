@@ -132,6 +132,7 @@ export * from './config';
 export * from './custom-renderer';
 export * from './dialog';
 export * from './divider';
+export * from './doc-pip';
 export * from './file-picker';
 export * from './form';
 export * from './form-item';

@@ -19,7 +19,7 @@ import { handleNumberBeforeInput, isNumberInputType, nextValueAfterInput } from 
 
 export type InputPeriod = 'change' | 'input' | 'not-composing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
-export type InputType = 'text' | 'number' | 'number-text' | 'password';
+export type InputType = 'string' | 'text' | 'number' | 'number-text' | 'password';
 
 export type UseInputOptions = {
   value?: MaybeRefLikeOrGetter<string | number>;
