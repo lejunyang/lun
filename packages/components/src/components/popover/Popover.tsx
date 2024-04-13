@@ -297,7 +297,10 @@ export type iPopover = InstanceType<tPopover> & {
   detachAll(): void;
   readonly currentTarget: any;
   delayOpenPopover: () => void;
-  delayClosePopover: () => void;
+  /**
+   * @param ensure delayed close may be canceled if delayOpenPopover is invoked. if ensure is true, it will not be canceled
+   */
+  delayClosePopover: (ensure?: boolean) => void;
   openPopover: () => void;
   closePopover: () => void;
 };

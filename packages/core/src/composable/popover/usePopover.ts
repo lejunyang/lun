@@ -41,6 +41,7 @@ export function usePopover(_options: UsePopoverOptions) {
     isCloseScheduling = ref(false);
   const isClosing = computed(() => isCloseScheduling.value || (!isOpen.value && isShow.value));
 
+  let ensureClose: boolean | undefined = false; // flag used to ensure delayed close
   const options = computed(() => {
     let { openDelay = 0, closeDelay = 120, onOpen, triggers, disabled, beforeOpen } = _options;
     const performOpen = () => {
@@ -48,7 +49,10 @@ export function usePopover(_options: UsePopoverOptions) {
       const result = onOpen();
       if (result !== undefined) isShow.value = isOpen.value = result;
     };
-    const performClose = () => (isOpen.value = false);
+    const performClose = () => {
+      isOpen.value = false;
+      ensureClose = false;
+    };
 
     const dOpen = debounce(performOpen, openDelay),
       dClose = debounce(performClose, closeDelay, { onSchedulingUpdate: (v) => (isCloseScheduling.value = v) });
@@ -66,12 +70,14 @@ export function usePopover(_options: UsePopoverOptions) {
       triggers: new Set<PopoverTrigger>(triggers),
       cancelOpenOrClose,
       open() {
+        if (ensureClose === true) return;
         dClose.cancel();
         dOpen();
       },
-      close() {
+      close(ensure?: boolean) {
         dOpen.cancel();
         dClose();
+        ensureClose = ensure;
       },
       openNow() {
         cancelOpenOrClose();

@@ -1,4 +1,5 @@
 import {
+  CommonProps,
   GetEventPropsFromEmits,
   PropBoolean,
   PropFunction,
@@ -16,9 +17,9 @@ import type { Placement, ShiftOptions } from '@floating-ui/vue';
 import type { Derivable, InlineOptions } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
-import { Constructor } from '@lun/utils';
+import { Constructor, freeze } from '@lun/utils';
 
-export const popoverProps = {
+export const popoverProps = freeze({
   ...createTransitionProps(),
   /** note that it will not inherit edit state's disabled */
   disabled: PropObjOrBool<MaybeRefLikeOrGetter<boolean>>(),
@@ -71,15 +72,15 @@ export const popoverProps = {
 
   /** @private internal usage */
   rootClass: PropStrOrArr(),
-};
+});
 
-export const popoverEmits = {
+export const popoverEmits = freeze({
   open: null,
   afterOpen: null,
   close: null,
   afterClose: null,
-};
+});
 
-export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps>;
+export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps> & CommonProps;
 export type PopoverEvents = GetEventPropsFromEmits<typeof popoverEmits>;
 export type PopoverProps = Partial<PopoverSetupProps>;
