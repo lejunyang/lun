@@ -1,4 +1,4 @@
-import { isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
+import { freeze, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { error } from '../../utils';
 import {
   getInitialDefaultAnimationRegistry,
@@ -9,10 +9,10 @@ import { presets } from '@lun/core';
 import { defaultProps } from './config.static.defaultProps';
 
 const holderName = 'teleport-holder';
-export const componentsWithTeleport = Object.freeze(['message', 'popover', 'select'] as const);
-export const noShadowComponents = Object.freeze(['custom-renderer'] as const);
-export const closedShadowComponents = Object.freeze(['watermark'] as const);
-export const openShadowComponents = Object.freeze([
+export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
+export const noShadowComponents = freeze(['custom-renderer'] as const);
+export const closedShadowComponents = freeze(['watermark'] as const);
+export const openShadowComponents = freeze([
   'button',
   'callout',
   'checkbox',
@@ -42,7 +42,7 @@ export const openShadowComponents = Object.freeze([
   'theme-provider',
   'tooltip',
 ] as const);
-export const components = Object.freeze([
+export const components = freeze([
   ...openShadowComponents,
   ...noShadowComponents,
   ...closedShadowComponents,

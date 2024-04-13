@@ -139,5 +139,6 @@ export const CustomRenderer = defineSSRCustomElement({
 });
 
 export type tCustomRenderer = typeof CustomRenderer;
+export type iCustomRenderer = InstanceType<tCustomRenderer>;
 
 export const defineCustomRenderer = createDefineElement(name, CustomRenderer);

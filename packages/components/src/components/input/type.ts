@@ -1,6 +1,7 @@
 import { InputPeriod, InputPeriodWithAuto, InputType } from '@lun/core';
 import { ExtractPropTypes } from 'vue';
 import {
+  CommonProps,
   GetEventPropsFromEmits,
   PropBoolean,
   PropFunction,
@@ -13,7 +14,7 @@ import {
   themeProps,
 } from 'common';
 import { TagProps } from '../tag/type';
-import { Constructor } from '@lun/utils';
+import { Constructor, freeze } from '@lun/utils';
 
 export const baseInputProps = {
   ...editStateProps,
@@ -41,7 +42,7 @@ export const baseInputProps = {
 export type BaseInputSetupProps = ExtractPropTypes<typeof baseInputProps>;
 export type BaseInputProps = Partial<BaseInputSetupProps>;
 
-export const inputProps = {
+export const inputProps = freeze({
   ...baseInputProps,
   ...themeProps,
   value: PropStrOrArr(Number as any as Constructor<number | number[]>),
@@ -75,17 +76,17 @@ export const inputProps = {
   /** will normalize number in change event, meaning 1.2E2 => 120, 1.20 => 1.2 */
   normalizeNumber: PropBoolean(),
   // ------------------ input number ------------------
-};
+});
 
-export const inputEmits = {
+export const inputEmits = freeze({
   update: null,
   /** only for multiple input, emit when value of inner input updates */
   tagsComposing: null,
   tagsAdd: (_addedTags: string[] | number[]) => null,
   tagsRemove: (_removedTags: string[] | number[]) => null,
   enterDown: null,
-};
+});
 
-export type InputSetupProps = ExtractPropTypes<typeof inputProps>;
+export type InputSetupProps = ExtractPropTypes<typeof inputProps> & CommonProps;
 export type InputEvents = GetEventPropsFromEmits<typeof inputEmits>;
 export type InputProps = Partial<InputSetupProps> & InputEvents;

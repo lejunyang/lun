@@ -1,7 +1,12 @@
+import { freeze } from "@lun/utils";
+import { CommonProps, GetEventPropsFromEmits } from "common";
 import { ExtractPropTypes } from "vue";
 
-export const teleportHolderProps = {
-}
+export const teleportHolderProps = freeze({
+});
 
-export type TeleportHolderSetupProps = ExtractPropTypes<typeof teleportHolderProps>;
+export const teleportHolderEmits = freeze({});
+
+export type TeleportHolderSetupProps = ExtractPropTypes<typeof teleportHolderProps> & CommonProps;
+export type TeleportHolderEvents = GetEventPropsFromEmits<typeof teleportHolderEmits>;
 export type TeleportHolderProps = Partial<TeleportHolderSetupProps>;

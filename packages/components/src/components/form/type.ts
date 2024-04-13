@@ -10,16 +10,18 @@ import {
   PropString,
   sizeProp,
   PropResponsive,
+  CommonProps,
 } from 'common';
 import { CollectorContext, UseFormReturn } from '@lun/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
 import { FormProvideExtra } from '.';
+import { freeze } from '@lun/utils';
 
 export interface FormValidators {
   [key: string]: Validator[] | Validator | FormValidators;
 }
 
-export const formProps = {
+export const formProps = freeze({
   ...editStateProps,
   ...themeProps,
   // intent to use prop `form` originally, but found `form` will be considered as a string attribute. It's vue's behavior, see vuejs/core/packages/runtime-dom/src/patchProp.ts. use `instance` instead
@@ -58,13 +60,13 @@ export const formProps = {
         formItemProps: FormItemSetupProps;
       }) => Partial<FormItemSetupProps>)
   >(),
-};
+});
 
-export const formEmits = {
+export const formEmits = freeze({
   update: emitConstructor<{ formData: Record<string, any>; path: string[] | string; value: any; isDelete?: boolean }>(),
-};
+});
 
-export type FormSetupProps = ExtractPropTypes<typeof formProps>;
+export type FormSetupProps = ExtractPropTypes<typeof formProps> & CommonProps;
 export type FormEvents = GetEventPropsFromEmits<typeof formEmits>;
 export type FormProps = Omit<Partial<FormSetupProps>, 'itemProps'> & {
   itemProps?:

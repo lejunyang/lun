@@ -68,6 +68,7 @@ export const Switch = defineSSRCustomElement({
 });
 
 export type tSwitch = typeof Switch;
+export type iSwitch = InstanceType<tSwitch>;
 
 export const defineSwitch = createDefineElement(name, Switch, {
   spin: defineSpin,

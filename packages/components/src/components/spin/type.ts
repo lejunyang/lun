@@ -1,7 +1,8 @@
-import { PropBoolean, PropNumber, PropString, themeProps } from "common";
-import { ExtractPropTypes } from "vue";
+import { freeze } from '@lun/utils';
+import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropString, themeProps } from 'common';
+import { ExtractPropTypes } from 'vue';
 
-export const spinProps = {
+export const spinProps = freeze({
   ...themeProps,
   type: PropString<'circle'>(),
   strokeWidth: PropNumber(),
@@ -9,7 +10,10 @@ export const spinProps = {
   delay: PropNumber(),
   asContainer: PropBoolean(),
   tip: PropString(),
-};
+});
 
-export type SpinSetupProps = ExtractPropTypes<typeof spinProps>;
+export const spinEmits = freeze({});
+
+export type SpinSetupProps = ExtractPropTypes<typeof spinProps> & CommonProps;
+export type SpinEvents = GetEventPropsFromEmits<typeof spinEmits>;
 export type SpinProps = Partial<SpinSetupProps>;

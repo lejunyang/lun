@@ -1,8 +1,18 @@
-import { editStateProps, themeProps, LogicalPosition, GetEventPropsFromEmits, valueProp, PropString, PropBoolean } from 'common';
+import {
+  editStateProps,
+  themeProps,
+  LogicalPosition,
+  GetEventPropsFromEmits,
+  valueProp,
+  PropString,
+  PropBoolean,
+  CommonProps,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
+import { freeze } from '@lun/utils';
 
-export const radioProps = {
+export const radioProps = freeze({
   ...editStateProps,
   ...themeProps,
   value: valueProp,
@@ -13,30 +23,30 @@ export const radioProps = {
 
   start: PropBoolean(),
   end: PropBoolean(),
-};
+});
 
-export const radioEmits = {
+export const radioEmits = freeze({
   update: (_detail: any) => null,
-};
+});
 
 export type RadioSetupProps = ExtractPropTypes<typeof radioProps>;
 export type RadioEvents = GetEventPropsFromEmits<typeof radioEmits>;
 export type RadioProps = Partial<RadioSetupProps> & RadioEvents;
 
-export const radioGroupProps = {
+export const radioGroupProps = freeze({
   ...createOptionProps(false),
   ...themeProps,
   value: {}, // TODO use valueProp or not?
   type: PropString<'radio' | 'button'>(),
-  
+
   noIndicator: PropBoolean(),
   labelPosition: PropString<LogicalPosition>(),
-};
+});
 
-export const radioGroupEmits = {
+export const radioGroupEmits = freeze({
   update: (_detail: any) => null,
-};
+});
 
-export type RadioGroupSetupProps = ExtractPropTypes<typeof radioGroupProps>;
+export type RadioGroupSetupProps = ExtractPropTypes<typeof radioGroupProps> & CommonProps;
 export type RadioGroupEvents = GetEventPropsFromEmits<typeof radioGroupEmits>;
 export type RadioGroupProps = Partial<RadioGroupSetupProps> & RadioGroupEvents;

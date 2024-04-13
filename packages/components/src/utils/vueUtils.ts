@@ -1,6 +1,5 @@
+import { isFunction, isObject } from '@lun/utils';
 import { ComponentObjectPropsOptions, ExtractPropTypes } from 'vue';
-
-
 
 type NativeType = null | number | string | boolean | symbol | Function;
 type InferDefault<P, T> = ((props: P) => T & {}) | (T extends NativeType ? T : never);
@@ -17,19 +16,19 @@ type Prettify<T> = {
 export function setDefaultsForPropOptions<
   PO extends ComponentObjectPropsOptions,
   T extends Prettify<Readonly<ExtractPropTypes<PO>>>,
-  Defaults extends InferDefaults<T>
+  Defaults extends InferDefaults<T>,
 >(
   props: PO,
-  defaults: Defaults
+  defaults: Defaults,
 ): Omit<PO, keyof Defaults> & { [k in keyof Defaults]: k extends keyof PO ? PO[k] & { default: Defaults[k] } : never } {
   const result: any = { ...props };
   Object.entries(defaults).forEach(([k, v]) => {
     if (k in result) {
       const propOption = result[k];
-      if (propOption instanceof Function) {
+      if (isFunction(propOption)) {
         // type constructor prop option
         result[k] = { type: propOption, default: v };
-      } else if (typeof propOption === 'object') {
+      } else if (isObject(propOption)) {
         result[k] = { ...propOption, default: v };
       }
     }

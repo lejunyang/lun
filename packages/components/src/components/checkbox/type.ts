@@ -7,11 +7,13 @@ import {
   PropString,
   PropArray,
   valueProp,
+  CommonProps,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
+import { freeze } from '@lun/utils';
 
-export const checkboxProps = {
+export const checkboxProps = freeze({
   ...editStateProps,
   ...themeProps,
   value: valueProp,
@@ -28,7 +30,7 @@ export const checkboxProps = {
   checkForAll: PropBoolean(),
   onlyFor: PropString(),
   excludeFromGroup: PropBoolean(),
-};
+});
 
 export type CheckboxUpdateDetail = {
   value: any;
@@ -38,18 +40,18 @@ export type CheckboxUpdateDetail = {
   excludeFromGroup?: boolean;
 };
 
-export const checkboxEmits = {
+export const checkboxEmits = freeze({
   update: (_detail: CheckboxUpdateDetail) => null,
-};
+});
 
-export const checkboxGroupProps = {
+export const checkboxGroupProps = freeze({
   ...createOptionProps(false),
   ...themeProps,
   value: PropArray(),
   /** used to define an id for current checkbox group, with that, only checkbox with same onlyFor prop will be managed by this group */
   onlyFor: PropString(),
   vertical: PropBoolean(),
-};
+});
 
 export type CheckboxGroupUpdateDetail = {
   value: any[];
@@ -57,13 +59,13 @@ export type CheckboxGroupUpdateDetail = {
   intermediate: boolean;
 };
 
-export const checkboxGroupEmits = {
+export const checkboxGroupEmits = freeze({
   update: (_detail: CheckboxGroupUpdateDetail) => null,
-};
+});
 
-export type CheckboxSetupProps = ExtractPropTypes<typeof checkboxProps>;
+export type CheckboxSetupProps = ExtractPropTypes<typeof checkboxProps> & CommonProps;
 export type CheckboxEvents = GetEventPropsFromEmits<typeof checkboxEmits>;
 export type CheckboxProps = Partial<CheckboxSetupProps> & CheckboxEvents;
-export type CheckboxGroupSetupProps = ExtractPropTypes<typeof checkboxGroupProps>;
+export type CheckboxGroupSetupProps = ExtractPropTypes<typeof checkboxGroupProps> & CommonProps;
 export type CheckboxGroupEvents = GetEventPropsFromEmits<typeof checkboxGroupEmits>;
 export type CheckboxGroupProps = Partial<CheckboxGroupSetupProps> & CheckboxGroupEvents;

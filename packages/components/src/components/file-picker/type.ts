@@ -1,5 +1,6 @@
 import { ExtractPropTypes } from 'vue';
 import {
+  CommonProps,
   GetEventPropsFromEmits,
   PropBoolean,
   PropNumber,
@@ -9,6 +10,7 @@ import {
   PropString,
   editStateProps,
 } from 'common';
+import { freeze } from '@lun/utils';
 
 export type WellKnownDirectory = 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos';
 
@@ -17,7 +19,7 @@ export type FileOpenTypeOption = {
   description?: string;
 };
 
-export const filePickerProps = {
+export const filePickerProps = freeze({
   ...editStateProps,
   value: PropObject<File | File[]>(),
   multiple: PropBoolean(),
@@ -36,17 +38,17 @@ export const filePickerProps = {
   startIn: PropObjOrStr<WellKnownDirectory | FileSystemHandle>(),
   /** for showOpenFilePicker. By specifying an ID, the user agent can remember different directories for different IDs. */
   rememberId: PropString(),
-};
+});
 
-export const filePickerEmits = {
+export const filePickerEmits = freeze({
   update: (_value: File | File[]) => true,
   exceedMaxCount: (_value: File[]) => true,
   exceedMaxSize: (_value: File[]) => true,
   exceedMaxTotalSize: (_value: File[]) => true,
   // TODO cancel
   // TODO typeMismatch
-};
+});
 
-export type FilePickerSetupProps = ExtractPropTypes<typeof filePickerProps>;
+export type FilePickerSetupProps = ExtractPropTypes<typeof filePickerProps> & CommonProps;
 export type FilePickerEvents = GetEventPropsFromEmits<typeof filePickerEmits>;
 export type FilePickerProps = Partial<FilePickerSetupProps> & FilePickerEvents;

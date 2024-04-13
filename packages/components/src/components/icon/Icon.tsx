@@ -119,6 +119,7 @@ export const Icon = defineSSRCustomElement({
 });
 
 export type tIcon = typeof Icon;
+export type iIcon = InstanceType<tIcon>;
 
 export const defineIcon = createDefineElement(name, Icon);
 export const importIconStyle = createImportStyle(name, styles);

@@ -1,8 +1,17 @@
 import { AppearanceColor } from 'hooks';
-import { PropBoolean, PropNumber, PropObjOrStr, PropObject, PropStrOrArr, PropString } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropNumber,
+  PropObjOrStr,
+  PropObject,
+  PropStrOrArr,
+  PropString,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
+import { freeze } from '@lun/utils';
 
-export const watermarkProps = {
+export const watermarkProps = freeze({
   content: PropStrOrArr(),
   /** image src or image element, could also be 'none' */
   image: PropObjOrStr<string | HTMLImageElement>(),
@@ -32,7 +41,10 @@ export const watermarkProps = {
   reuse: PropBoolean(),
   /** used to make the props of watermark mutable, note that it can not be dynamically changed, only valid when it's set before mount */
   mutable: PropBoolean(),
-};
+});
+
+export const watermarkEmits = freeze({});
 
 export type WatermarkSetupProps = ExtractPropTypes<typeof watermarkProps>;
+export type WatermarkEvents = GetEventPropsFromEmits<typeof watermarkEmits>;
 export type WatermarkProps = Partial<WatermarkSetupProps>;

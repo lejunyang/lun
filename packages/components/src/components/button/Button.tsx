@@ -99,6 +99,7 @@ export const Button = defineSSRCustomElement({
 });
 
 export type tButton = typeof Button;
+export type iButton = InstanceType<tButton>;
 
 export const defineButton = createDefineElement(name, Button, {
   spin: defineSpin,

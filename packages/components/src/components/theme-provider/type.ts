@@ -1,8 +1,17 @@
 import { ExtractPropTypes, PropType } from 'vue';
-import { editStateProps, GrayColors, PropString, ThemeProps, themeProps } from 'common';
+import {
+  CommonProps,
+  editStateProps,
+  GetEventPropsFromEmits,
+  GrayColors,
+  PropString,
+  ThemeProps,
+  themeProps,
+} from 'common';
 import { OpenShadowComponentKey } from '../config/config.static';
+import { freeze } from '@lun/utils';
 
-export const themeProviderProps = {
+export const themeProviderProps = freeze({
   ...editStateProps,
   ...Object.keys(themeProps).reduce(
     (acc, key) => {
@@ -18,7 +27,10 @@ export const themeProviderProps = {
   ),
   grayColor: PropString<GrayColors>(),
   scale: PropString(),
-};
+});
 
-export type ThemeProviderSetupProps = ExtractPropTypes<typeof themeProviderProps>;
+export const themeProviderEmits = freeze({});
+
+export type ThemeProviderSetupProps = ExtractPropTypes<typeof themeProviderProps> & CommonProps;
+export type ThemeProviderEvents = GetEventPropsFromEmits<typeof themeProviderEmits>;
 export type ThemeProviderProps = Partial<ThemeProviderSetupProps>;

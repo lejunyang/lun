@@ -1,5 +1,6 @@
 import { PropType, ExtractPropTypes } from 'vue';
 import {
+  CommonProps,
   GetEventPropsFromEmits,
   LogicalPosition,
   PropBoolOrFunc,
@@ -18,6 +19,7 @@ import { MaybePromise, CollectorContext, InputType } from '@lun/core';
 import { ComponentKey } from 'config';
 import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
+import { freeze } from '@lun/utils';
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | undefined>;
 
@@ -42,7 +44,7 @@ export const formItemRuleProps = {
   precision: PropNumber(),
 };
 
-export const formItemProps = {
+export const formItemProps = freeze({
   ...editStateProps,
   ...themeProps,
   name: PropString(),
@@ -107,13 +109,13 @@ export const formItemProps = {
   status: PropString<Status>(),
 
   validateMessages: PropObject<ValidateMessages>(),
-};
+});
 
-export const formItemEmits = {
+export const formItemEmits = freeze({
   update: (_val: any) => null,
-};
+});
 
-export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps>;
+export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps> & CommonProps;
 export type FormItemEvents = GetEventPropsFromEmits<typeof formItemEmits>;
 export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> &
   FormItemEvents & {

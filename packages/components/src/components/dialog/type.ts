@@ -1,6 +1,7 @@
 import { MaybePromise } from '@lun/core';
 import { ExtractPropTypes } from 'vue';
 import {
+  CommonProps,
   GetEventPropsFromEmits,
   PropBoolOrStr,
   PropBoolean,
@@ -13,8 +14,9 @@ import {
   sizeProp,
   themeProps,
 } from 'common';
+import { freeze } from '@lun/utils';
 
-export const dialogProps = {
+export const dialogProps = freeze({
   ...editStateProps,
   ...themeProps,
   ...createTransitionProps('panel'),
@@ -51,17 +53,17 @@ export const dialogProps = {
 
   /** internal usage */
   isConfirm: PropBoolean(),
-};
+});
 
-export const dialogEmits = {
+export const dialogEmits = freeze({
   update: (_detail: boolean) => null,
   open: null,
   afterOpen: null,
   close: null,
   afterClose: null,
-};
+});
 
-export type DialogSetupProps = ExtractPropTypes<typeof dialogProps>;
+export type DialogSetupProps = ExtractPropTypes<typeof dialogProps> & CommonProps;
 export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>;
 export type DialogProps = Partial<DialogSetupProps> & DialogEvents;
 

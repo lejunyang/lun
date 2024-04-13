@@ -1,7 +1,8 @@
-import { PropBoolean, PropNumber, PropString, Status, themeProps } from 'common';
+import { freeze } from '@lun/utils';
+import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropString, Status, themeProps } from 'common';
 import { ExtractPropTypes } from 'vue';
 
-export const progressProps = {
+export const progressProps = freeze({
   ...themeProps,
   value: PropNumber(),
   type: PropString<'wave' | 'ring' | 'line' | 'steps'>(),
@@ -12,7 +13,10 @@ export const progressProps = {
   trailerColor: PropString(),
   width: PropNumber(),
   height: PropNumber(),
-};
+});
 
-export type ProgressSetupProps = ExtractPropTypes<typeof progressProps>;
+export const progressEmits = freeze({});
+
+export type ProgressSetupProps = ExtractPropTypes<typeof progressProps> & CommonProps;
+export type ProgressEvents = GetEventPropsFromEmits<typeof progressEmits>;
 export type ProgressProps = Partial<ProgressSetupProps>;

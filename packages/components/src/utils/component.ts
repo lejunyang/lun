@@ -87,8 +87,8 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     });
     options.inheritAttrs ||= false;
     const noShadow = options.shadowOptions === null || options.shadowOptions?.mode === 'closed';
-    if (!noShadow) options.props.innerStyle = PropString();
     options.props = setDefaultsForPropOptions(options.props, GlobalStaticConfig.defaultProps[compKey]);
+    if (!noShadow) options.props.innerStyle = PropString(); // after setDefaultsForPropOptions, because original options.props is freezed by me
     const originalSetup = options.setup;
     options.setup = (props: any, ctx: any) => {
       const setupResult = originalSetup?.(props, ctx);

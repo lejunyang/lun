@@ -1,11 +1,14 @@
-import { noop } from "../function";
+import { noop } from '../function';
 
 export function on<T extends Event>(
   el: Element | Window | Document | undefined | null,
   event: string,
-  handler: (event: T) => void | {
-    handleEvent(object: T): void;
-  },
+  handler:
+    | ((event: T) => void)
+    | {
+        handleEvent(object: T): void;
+      }
+    | EventListenerObject,
   options?: boolean | AddEventListenerOptions,
 ) {
   if (!el) return noop;
@@ -17,12 +20,16 @@ export function on<T extends Event>(
 export function off<T extends Event>(
   el: Element | Window | Document | undefined | null,
   event: string,
-  handler: (event: T) => void | {
-    handleEvent(object: T): void;
-  },
+  handler:
+    | ((event: T) => void)
+    | {
+        handleEvent(object: T): void;
+      },
   options?: boolean | AddEventListenerOptions,
 ) {
   if (!el) return;
   // @ts-ignore
   el.removeEventListener(event, handler, options);
 }
+
+export const freeze = Object.freeze;

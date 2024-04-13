@@ -176,7 +176,9 @@ export const FilePicker = defineSSRCustomElement({
 });
 
 export type tFilePicker = typeof FilePicker;
-export type iFilePicker = InstanceType<tFilePicker>;
+export type iFilePicker = InstanceType<tFilePicker> & {
+  pickFile(): Promise<void>;
+};
 
 export const defineFilePicker = createDefineElement(name, FilePicker, {
   spin: defineSpin,

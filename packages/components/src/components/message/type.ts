@@ -1,10 +1,11 @@
 import { Side } from '@floating-ui/vue';
-import { GetEventPropsFromEmits, PropBoolean, PropNumber, PropObjOrStr, PropString, Status, createTransitionProps } from 'common';
+import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropObjOrStr, PropString, Status, createTransitionProps } from 'common';
 import { ExtractPropTypes, HTMLAttributes, ReservedProps } from 'vue';
 import { CalloutProps, calloutProps } from '../callout/type';
 import { MaybeRefLikeOrGetter } from '@lun/core';
+import { freeze } from '@lun/utils';
 
-export const messageProps = {
+export const messageProps = freeze({
   ...calloutProps,
   ...createTransitionProps('callout'),
   /** determine the implementation type of popover */
@@ -17,12 +18,12 @@ export const messageProps = {
   /** define the common duration, could be number or string 'none'. if duration is 'none' or null, the callout won't be auto closed) */
   duration: PropNumber<number | 'none'>(),
   resetDurationOnHover: PropBoolean(),
-};
+});
 
-export const messageEmits = {
+export const messageEmits = freeze({
   close: null,
   afterClose: null,
-};
+});
 
 export type MessageOpenConfig = {
   key?: string | number;
@@ -33,7 +34,7 @@ export type MessageOpenConfig = {
   HTMLAttributes &
   Omit<ReservedProps, 'key'>;
 
-export type MessageSetupProps = ExtractPropTypes<typeof messageProps>;
+export type MessageSetupProps = ExtractPropTypes<typeof messageProps> & CommonProps;
 export type MessageEvents = GetEventPropsFromEmits<typeof messageEmits>;
 export type MessageProps = Partial<MessageSetupProps> & MessageEvents;
 

@@ -1,7 +1,17 @@
-import { GetEventPropsFromEmits, PropBoolean, PropObject, PropString, Status, createTransitionProps, themeProps } from "common";
-import { ExtractPropTypes } from "vue";
+import { freeze } from '@lun/utils';
+import {
+  CommonProps,
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropObject,
+  PropString,
+  Status,
+  createTransitionProps,
+  themeProps,
+} from 'common';
+import { ExtractPropTypes } from 'vue';
 
-export const calloutProps = {
+export const calloutProps = freeze({
   ...themeProps,
   ...createTransitionProps(),
   message: PropString(Error),
@@ -12,13 +22,13 @@ export const calloutProps = {
   closable: PropBoolean(),
   closeIconProps: PropObject(),
   status: PropString<Status>(),
-};
+});
 
-export const calloutEmits = {
+export const calloutEmits = freeze({
   close: null,
   afterClose: null,
-};
+});
 
-export type CalloutSetupProps = ExtractPropTypes<typeof calloutProps>;
+export type CalloutSetupProps = ExtractPropTypes<typeof calloutProps> & CommonProps;
 export type CalloutEvents = GetEventPropsFromEmits<typeof calloutEmits>;
 export type CalloutProps = Partial<CalloutSetupProps> & CalloutEvents;

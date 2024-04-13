@@ -1,5 +1,6 @@
 import { ExtractPropTypes } from 'vue';
 import {
+  CommonProps,
   GetEventPropsFromEmits,
   PropBoolean,
   PropFunction,
@@ -12,8 +13,9 @@ import {
 import { baseInputProps } from '../input/type';
 import { MentionSpan, MentionsTriggerParam } from '@lun/core';
 import { createOptionProps } from 'hooks';
+import { freeze } from '@lun/utils';
 
-export const mentionsProps = {
+export const mentionsProps = freeze({
   ...baseInputProps,
   ...themeProps,
   ...createOptionProps(false, true),
@@ -32,14 +34,14 @@ export const mentionsProps = {
   cols: PropNumber(),
   resize: PropString<'none' | 'both' | 'horizontal' | 'vertical'>(),
   mentionRenderer: PropFunction<(item: MentionSpan, necessaryProps: Record<string, any>) => any>(),
-};
+});
 
-export const mentionsEmits = {
+export const mentionsEmits = freeze({
   update: (_param: { value: string | null; raw: readonly (string | MentionSpan)[] }) => null,
   trigger: (_param: MentionsTriggerParam) => null,
   enterDown: null,
-};
+});
 
-export type MentionsSetupProps = ExtractPropTypes<typeof mentionsProps>;
+export type MentionsSetupProps = ExtractPropTypes<typeof mentionsProps> & CommonProps;
 export type MentionsEvents = GetEventPropsFromEmits<typeof mentionsEmits>;
 export type MentionsProps = Partial<MentionsSetupProps> & MentionsEvents;

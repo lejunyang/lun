@@ -77,6 +77,7 @@ export const Progress = defineSSRCustomElement({
 });
 
 export type tProgress = typeof Progress;
+export type iProgress = InstanceType<typeof Progress>;
 
 export const defineProgress = createDefineElement(name, Progress, {
   icon: defineIcon,

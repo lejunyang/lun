@@ -29,3 +29,7 @@ export const emitConstructor =
 export type Status = 'success' | 'warning' | 'error' | 'info';
 
 export type InputFocusOption = { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' };
+
+export type CommonProps = {
+  innerStyle?: string;
+};

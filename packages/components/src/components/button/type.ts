@@ -10,9 +10,11 @@ import {
   PropBoolean,
   PropNumber,
   PropResponsive,
+  CommonProps,
 } from 'common';
+import { freeze } from '@lun/utils';
 
-export const buttonProps = {
+export const buttonProps = freeze({
   ...editStateProps,
   ...themeProps,
   size: PropResponsive<'1' | '2' | '3' | '4'>(),
@@ -26,10 +28,10 @@ export const buttonProps = {
   hold: PropNumber(),
   iconName: PropString(),
   iconLibrary: PropString(),
-};
+});
 
-export const buttonEmits = { validClick: null };
+export const buttonEmits = freeze({ validClick: null });
 
-export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps>;
+export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps> & CommonProps;
 export type ButtonEvents = GetEventPropsFromEmits<typeof buttonEmits>;
 export type ButtonProps = Partial<ButtonSetupProps> & ButtonEvents;

@@ -39,5 +39,6 @@ export const Divider = defineSSRCustomElement({
 });
 
 export type tDivider = typeof Divider;
+export type iDivider = InstanceType<tDivider>;
 
 export const defineDivider = createDefineElement(name, Divider);
