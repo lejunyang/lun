@@ -5,8 +5,8 @@ export const editStateProps = Object.freeze({
 	disabled: defaultBoolean,
 	readonly: defaultBoolean,
 	loading: defaultBoolean,
-	forceInheritDisabled: defaultBoolean,
-	forceInheritReadonly: defaultBoolean,
-	forceInheritLoading: defaultBoolean,
+	mergeDisabled: defaultBoolean,
+	mergeReadonly: defaultBoolean,
+	mergeLoading: defaultBoolean,
 });
 export type EditStateProps = ExtractPropTypes<typeof editStateProps>;

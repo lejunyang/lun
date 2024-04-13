@@ -5,9 +5,9 @@ export type EditState = {
   disabled?: boolean;
   readonly?: boolean;
   loading?: boolean;
-  forceInheritDisabled?: boolean;
-  forceInheritReadonly?: boolean;
-  forceInheritLoading?: boolean;
+  mergeDisabled?: boolean;
+  mergeReadonly?: boolean;
+  mergeLoading?: boolean;
   readonly interactive: boolean;
   readonly editable: boolean;
 };
@@ -28,27 +28,27 @@ export function useSetupEdit(options?: {
   const localState = reactive({ disabled: false, readonly: false, loading: false, ...initialLocalState });
   const currentEditComputed = computed(() => {
     let finalState: EditState;
-    let { disabled, readonly, loading, forceInheritDisabled, forceInheritLoading, forceInheritReadonly } =
+    let { disabled, readonly, loading, mergeDisabled, mergeLoading, mergeReadonly } =
       ctx.props as EditState;
-    forceInheritDisabled ||= parentEditComputed?.value.forceInheritDisabled;
-    forceInheritLoading ||= parentEditComputed?.value.forceInheritLoading;
-    forceInheritReadonly ||= parentEditComputed?.value.forceInheritReadonly;
+    mergeDisabled ||= parentEditComputed?.value.mergeDisabled;
+    mergeLoading ||= parentEditComputed?.value.mergeLoading;
+    mergeReadonly ||= parentEditComputed?.value.mergeReadonly;
     finalState = {
       disabled:
         localState.disabled ||
         disabled ||
-        ((forceInheritDisabled || disabled == null) && parentEditComputed?.value.disabled),
+        ((mergeDisabled || disabled == null) && parentEditComputed?.value.disabled),
       readonly:
         localState.readonly ||
         readonly ||
-        ((forceInheritReadonly || readonly == null) && parentEditComputed?.value.readonly),
+        ((mergeReadonly || readonly == null) && parentEditComputed?.value.readonly),
       loading:
         localState.loading ||
         loading ||
-        ((forceInheritLoading || loading == null) && parentEditComputed?.value.loading),
-      forceInheritDisabled,
-      forceInheritLoading,
-      forceInheritReadonly,
+        ((mergeLoading || loading == null) && parentEditComputed?.value.loading),
+      mergeDisabled,
+      mergeLoading,
+      mergeReadonly,
       get interactive() {
         return !this.disabled && !this.loading;
       },
