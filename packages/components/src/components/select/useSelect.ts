@@ -8,7 +8,13 @@ import { toArrayIfNotNil } from '@lun/utils';
 export function useSelect(
   props: { upDownToggle?: boolean; autoActivateFirst?: boolean; multiple?: boolean },
   valueModel: WritableComputedRef<string | string[] | null | undefined> | Ref<string | string[] | null | undefined>,
-  isHidden?: (option: CommonProcessedOption) => boolean,
+  {
+    isHidden,
+    onSingleSelect,
+  }: {
+    isHidden?: (option: CommonProcessedOption) => boolean;
+    onSingleSelect?: (value: string) => void;
+  } = {},
 ) {
   const selectedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
   const childrenInfo = computed(() => {
@@ -30,6 +36,7 @@ export function useSelect(
     valueSet: selectedValueSet,
     onChange(value) {
       valueModel.value = value;
+      if (onSingleSelect && !props.multiple) onSingleSelect(value);
     },
     allValues: () => childrenInfo.value.childrenValuesSet,
   });

@@ -31,5 +31,6 @@ export const SelectOptgroup = defineSSRCustomElement({
 });
 
 export type tSelectOptgroup = typeof SelectOptgroup;
+export type iSelectOptgroup = InstanceType<tSelectOptgroup>;
 
 export const defineSelectOptgroup = createDefineElement(name, SelectOptgroup);

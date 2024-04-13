@@ -40,7 +40,8 @@ export const SelectOption = defineSSRCustomElement({
     const handlers = {
       onClick() {
         if (disabled()) return;
-        selectContext.toggle(props.value);
+        const { clickOption, multiple } = selectContext.parent!.props;
+        selectContext[clickOption === 'select' && !multiple ? 'select' : 'toggle'](props.value);
       },
       onPointerenter() {
         if (disabled()) return;
@@ -71,6 +72,7 @@ export const SelectOption = defineSSRCustomElement({
 });
 
 export type tSelectOption = typeof SelectOption;
+export type iSelectOption = InstanceType<typeof SelectOption>;
 
 export const defineSelectOption = createDefineElement(name, SelectOption, {
   icon: defineIcon,

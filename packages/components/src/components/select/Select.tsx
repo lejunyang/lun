@@ -34,25 +34,15 @@ export const Select = defineSSRCustomElement({
     const valueModel = useValueModel(props, {
       emit: (name, value) => {
         emit(name as any, value);
-        const { autoClose, multiple } = props;
         // if it's multiple, keep focus after input change
-        if (multiple) {
-          inputRef.value?.focus();
-        } else if (autoClose && !isNilOrEmptyStr(value)) {
-          // it has to be after rootOnPointerDown rAF, or focus will reopen popover
-          setTimeout(() => {
-            popoverRef.value?.closePopover();
-          }, 20);
-        }
+        if (props.multiple) inputRef.value?.focus();
       },
     });
     const inputRef = ref();
     const popoverRef = ref<any>();
 
-    const { context, methods, activateHandlers, activateMethods, valueToChild } = useSelect(
-      props,
-      valueModel,
-      (option) => {
+    const { context, methods, activateHandlers, activateMethods, valueToChild } = useSelect(props, valueModel, {
+      isHidden: (option) => {
         if ((option as any).hidden) return true;
         const { hideOptionWhenSelected, multiple, filter } = props;
         const isSelected = methods.isSelected(option.value);
@@ -65,7 +55,10 @@ export const Select = defineSSRCustomElement({
         }
         return (hideOptionWhenSelected && multiple && isSelected) || !filterResult;
       },
-    );
+      onSingleSelect(value) {
+        if (props.autoClose && !isNilOrEmptyStr(value)) popoverRef.value?.delayClosePopover(true);
+      },
+    });
 
     const customTagProps = (value: any) => {
       const child = valueToChild(value);
