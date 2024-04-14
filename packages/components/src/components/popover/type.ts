@@ -38,7 +38,7 @@ export const popoverProps = freeze({
   content: {},
   contentType: PropString(),
   preferHtml: PropBoolean(),
-  children: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(),
+  defaultChildren: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(), // it was named as 'children', but 'children' is a reserved prop in react
 
   placement: PropString<Placement>(),
   /** @link https://floating-ui.com/docs/offset */

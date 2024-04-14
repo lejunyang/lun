@@ -279,7 +279,7 @@ export const Popover = defineSSRCustomElement({
               )
             : getFixed()}
           <slot {...targetHandlers} ref={slotRef}>
-            {runIfFn(props.children, { isOpen: isOpen.value, isShow: isShow.value })}
+            {runIfFn(props.defaultChildren, { isOpen: isOpen.value, isShow: isShow.value })}
           </slot>
         </>
       );

@@ -25,7 +25,7 @@ export const selectPropsOfPopover = {
     'sync',
     'triggers',
     'showArrow',
-    'children',
+    'defaultChildren',
     'toggleMode',
     'useTransform',
     'placement',
