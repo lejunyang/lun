@@ -18,6 +18,7 @@
     "@lun/core": "workspace:^",
     "@lun/theme": "workspace:^",
     "@lun/utils": "workspace:^",
+    "@lun/react": "workspace:^",
     "@vueuse/core": "^10.9.0",
     "esbuild-wasm": "^0.20.1",
     "monaco-editor": "^0.47.0",

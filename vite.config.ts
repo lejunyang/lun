@@ -47,6 +47,7 @@ export default defineConfig({
             '@lun/core': fileURLToPath(new URL('./packages/core/index', import.meta.url)),
             '@lun/utils': fileURLToPath(new URL('./packages/utils/index', import.meta.url)),
             '@lun/theme': fileURLToPath(new URL('./packages/theme/src', import.meta.url)),
+            '@lun/react': fileURLToPath(new URL('./packages/react/index', import.meta.url)),
             ...commonAlias,
           }
         : { ...commonAlias },

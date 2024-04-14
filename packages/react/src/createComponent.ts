@@ -1,6 +1,6 @@
 import { ComponentKey, getElementFirstName } from '@lun/components';
-import { forwardRef, createElement, useRef, useImperativeHandle, useLayoutEffect } from 'react';
-import { on, off, inBrowser, capitalize } from '@lun/utils';
+import { forwardRef, createElement, useRef, useImperativeHandle, useLayoutEffect, ReactNode } from 'react';
+import { on, off, inBrowser, capitalize, objectKeys } from '@lun/utils';
 
 /** element => (eventName, objectEventHandler) */
 const listenedEvents = new WeakMap<Element, Map<string, EventListenerObject>>();
@@ -33,8 +33,8 @@ export default function <Props extends Record<string, any>, Instance extends HTM
   emits?: Record<string, any>,
 ) {
   /** onValidClick => validClick */
-  const eventMap = new Map(emits ? Object.entries(emits).map(([k, v]) => ['on' + capitalize(k), v]) : []);
-  return forwardRef<Instance, Props>((reactProps, ref) => {
+  const eventMap = new Map(emits ? objectKeys(emits).map((k) => ['on' + capitalize(k), k]) : []);
+  return forwardRef<Instance, Props & { children?: ReactNode }>((reactProps, ref) => {
     defineFunc();
     const name = getElementFirstName(compName) as string;
     if (!name) throw new Error(__DEV__ ? 'Invalid component name' : '');
@@ -73,9 +73,13 @@ export default function <Props extends Record<string, any>, Instance extends HTM
         prevPropKeySet.current = newPropKeySet;
       });
 
-    return createElement(name, {
-      ...remainProps,
-      ref,
-    });
+    return createElement(
+      name,
+      {
+        ...remainProps,
+        ref: compRef,
+      },
+      reactProps.children,
+    );
   });
 }

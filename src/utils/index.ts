@@ -11,6 +11,7 @@ const allowedImport = new Set([
   '@lun/core',
   '@lun/theme',
   '@lun/utils',
+  '@lun/react',
   'data',
 ]);
 
@@ -23,6 +24,7 @@ const dependencies = {
   '@lun/core': () => import('@lun/core'),
   '@lun/theme': () => import('@lun/theme'),
   '@lun/utils': () => import('@lun/utils'),
+  '@lun/react': () => import('@lun/react'),
   data,
 } as any as {
   vue: typeof import('vue');
@@ -33,6 +35,7 @@ const dependencies = {
   '@lun/core': typeof import('@lun/core');
   '@lun/theme': typeof import('@lun/theme');
   '@lun/utils': typeof import('@lun/utils');
+  '@lun/react': typeof import('@lun/react');
   data: typeof data;
 };
 
