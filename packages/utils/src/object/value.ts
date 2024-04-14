@@ -87,3 +87,28 @@ export function pickNonNil<
 export const objectKeys = <T extends object>(obj: T) => {
   return Object.keys(obj) as Array<keyof T>;
 };
+
+export function toGetterDescriptors<
+  O extends object,
+  K extends keyof O = keyof O,
+  PM extends Partial<Record<K, string | number | symbol>> = Record<K, K>,
+  PMK extends keyof PM = keyof PM,
+  RemappedKey extends string | number | symbol = PM[PMK] extends string | number | symbol ? PM[PMK] : never,
+>(
+  obj: O,
+  propertiesMap?: PM,
+  get: (obj: O, k: K) => any = (obj, k) => obj[k],
+): {
+  [k in RemappedKey | Exclude<K, PMK>]: PropertyDescriptor;
+} {
+  const descriptors = {} as any;
+  for (const key in obj) {
+    const newKey = (propertiesMap as any)?.[key] || key;
+    descriptors[newKey] = {
+      get() {
+        return get(obj, key as any);
+      },
+    };
+  }
+  return descriptors;
+}

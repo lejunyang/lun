@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { CSSProperties, computed, ref, toRef, watchEffect, Transition } from 'vue';
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
-import { createDefineElement, toGetterDescriptors } from 'utils';
+import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, objectKeys, runIfFn, virtualGetMerge } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
@@ -178,7 +178,7 @@ export const Popover = defineSSRCustomElement({
         },
       },
       {
-        ...toGetterDescriptors(options, {
+        ...toUnrefGetterDescriptors(options, {
           open: 'delayOpenPopover',
           close: 'delayClosePopover',
           openNow: 'openPopover',
