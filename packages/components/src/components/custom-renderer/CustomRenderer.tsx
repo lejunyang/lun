@@ -25,17 +25,26 @@ const options = {
     let mounted = false;
     let lastRenderer: CustomRendererRegistry | undefined;
     let renderer: CustomRendererRegistry | undefined;
-    let lastType: 'html' | 'vnode';
+    let lastType: 'html' | 'vnode' | undefined;
 
-    const isRawType = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
+    const isSupportedType = (type: any) => ['vnode', 'html', 'text'].includes(type);
+    const isRaw = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
 
     watchEffect((onCleanup) => {
       let cleared = false;
       onCleanup(() => (cleared = true));
-      let { type } = props;
+      let { type, preferHtml } = props;
       let content = runIfFn(props.content, { h }) as any; // if it's a function, consider it as a getter
+      let nextType: 'html' | 'vnode' | undefined,
+        updateHtml = () => undefined;
       renderer = undefined; // clear before and get new renderer
-      if (type !== 'html' && type !== 'vnode') {
+      if (isSupportedType(type)) {
+        nextType = type as any;
+        if (type === 'text') {
+          nextType = 'vnode';
+          content = String(content);
+        }
+      } else {
         if (type) {
           const temp = GlobalStaticConfig.customRendererMap[type];
           if (temp?.isValidContent(content)) renderer = temp;
@@ -49,26 +58,25 @@ const options = {
           }
         }
       }
-      let nextType: 'html' | 'vnode' = 'html',
-        updateHtml = () => undefined;
+
       // renderer changed, should trigger onBeforeUnmount of the last one
       if (lastRenderer !== renderer && lastRenderer?.onBeforeUnmount && mounted) {
         lastRenderer.onBeforeUnmount(content, div.value!);
       }
       // no valid renderer, check the content if it is string, number or vnode, render it if yes
       if (!renderer) {
-        if (type === 'html') nextType = 'html';
-        else {
-          const isValidArray = isArray(content) && (isRawType(content[0]) || isVNode(content[0])); // if it's an array and the first item is valid as a vnode, render it
-          nextType = isValidArray || (isRawType(content) && !props.preferHtml) || isVNode(content) ? 'vnode' : 'html';
+        if (!nextType) {
+          const isValidArray = isArray(content) && (isRaw(content[0]) || isVNode(content[0])); // if it's an array and the first item is valid as a vnode, render it
+          nextType = isValidArray || (isRaw(content) && !preferHtml) || isVNode(content) ? 'vnode' : 'html';
         }
         if (nextType === 'html') {
           if (isNode(content)) {
             updateHtml = () => {
-              if (!div.value || cleared) return;
-              div.value.innerHTML = '';
+              const d = div.value;
+              if (!d || cleared) return;
+              d.innerHTML = '';
               if (isHTMLTemplateElement(content)) content = generateWithTemplate(content, attrs);
-              div.value.append(content);
+              d.append(content);
             };
           } else {
             updateHtml = () => {
