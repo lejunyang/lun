@@ -38,7 +38,7 @@ function writeToFile(directory, component, code) {
 
 const directory = './src/components';
 
-let exportStatements = ``;
+let exportStatements = `export * from './src/hooks';\n`;
 components.forEach((component) => {
   const Comp = toPascalCase(component);
   exportStatements += `export { L${Comp} } from './src/components/${Comp}';\n`;
