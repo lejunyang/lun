@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from '../../custom/apiCustomElement';
-import { UseFormReturn, useForm, useSetupEdit } from '@lun/core';
-import { createDefineElement, warn } from 'utils';
+import { UseFormReturn, unrefOrGet, useForm, useSetupEdit } from '@lun/core';
+import { createDefineElement } from 'utils';
 import { formEmits, formProps } from './type';
-import { useBreakpoint, useCEExpose, useCEStates, useNamespace } from 'hooks';
+import { useBreakpoint, useCEStates, useNamespace, useShadowDom } from 'hooks';
 import { FormItemCollector } from '.';
-import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, watch } from 'vue';
-import { ensureNumber, getCachedComputedStyle, isObject, pick, supportSubgrid, toPxIfNum } from '@lun/utils';
+import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, shallowReactive, watch } from 'vue';
+import { ensureNumber, getCachedComputedStyle, noop, pick, supportSubgrid, toPxIfNum } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
 
@@ -16,42 +16,7 @@ export const Form = defineSSRCustomElement({
   emits: formEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
-
-    if (__DEV__) {
-      if (props.instance && isObject(props.instance) && !(props.instance as any)[Symbol.for('use-form')]) {
-        throw new Error(`Prop 'instance' should be a useForm instance`);
-      }
-      watch(
-        () => props.instance,
-        () => {
-          warn(`Prop 'instance' cannot be dynamically changed, should be set before form mount`);
-        },
-      );
-    }
-
-    const form = isObject(props.instance)
-      ? props.instance
-      : useForm(pick(props, ['defaultFormData', 'defaultFormState']));
-
     const vm = getCurrentInstance()!;
-    const formRef = ref<HTMLFormElement>();
-    const [editComputed] = useSetupEdit({
-      adjust(state) {
-        (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
-          if (form.formState[key] !== undefined) state[key] = form.formState[key];
-        });
-      },
-    });
-    form.hooks.onFormSetup.exec(vm);
-    onBeforeUnmount(() => {
-      form.hooks.onFormUnmount.exec(vm);
-    });
-
-    onBeforeUnmount(
-      form.hooks.onUpdateValue.use((param) => {
-        emit('update', param);
-      }),
-    );
 
     const colsRef = useBreakpoint(props, 'cols', (v) => ensureNumber(v, 1));
     const layoutRef = useBreakpoint(props, 'layout');
@@ -161,15 +126,63 @@ export const Form = defineSSRCustomElement({
       };
     }) as FormProvideExtra['layoutInfo'];
 
-    FormItemCollector.parent({
-      extraProvide: {
-        form,
-        formProps: props,
-        layoutInfo,
+    let currentForm: UseFormReturn;
+    const provide = shallowReactive({
+      form: undefined as any as UseFormReturn, // update it later in watch
+      formProps: props,
+      layoutInfo,
+    });
+    const expose = (CE: HTMLElement) => Object.defineProperties(CE, Object.getOwnPropertyDescriptors(currentForm));
+    const shadow = useShadowDom(({ CE }) => {
+      expose(CE);
+    });
+    const onUpdate = (param: any) => {
+      emit('update', param);
+    };
+    let cleanOnUpdate = noop;
+    onBeforeUnmount(() => cleanOnUpdate()); // no onBeforeUnmount(cleanOnUpdate); it'll updated
+    watch(
+      () => unrefOrGet(props.instance),
+      (newForm, oldForm) => {
+        if (oldForm) {
+          oldForm.hooks.onUpdateValue.eject(onUpdate);
+          oldForm.hooks.onFormDisconnected.exec(vm);
+        }
+        if (__DEV__) {
+          if (newForm && !(newForm as any)[Symbol.for('use-form')]) {
+            throw new Error(`Prop 'instance' should be a useForm instance`);
+          }
+        }
+        if (!newForm) {
+          newForm = useForm(pick(props, ['defaultFormData', 'defaultFormState']));
+        }
+        newForm.hooks.onFormConnected.exec(vm);
+        cleanOnUpdate = newForm.hooks.onUpdateValue.use(onUpdate);
+        currentForm = newForm;
+        provide.form = newForm;
+        if (shadow.CE) {
+          expose(shadow.CE);
+        }
+      },
+      { immediate: true },
+    );
+
+    const formRef = ref<HTMLFormElement>();
+    const [editComputed] = useSetupEdit({
+      adjust(state) {
+        (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
+          if (currentForm.formState[key] !== undefined) state[key] = currentForm.formState[key];
+        });
       },
     });
+    onBeforeUnmount(() => {
+      currentForm.hooks.onFormDisconnected.exec(vm);
+    });
 
-    useCEExpose(form);
+    FormItemCollector.parent({
+      extraProvide: provide,
+    });
+
     const [stateClass] = useCEStates(() => ({}), ns, editComputed);
 
     const renderErrorTooltip = provideErrorTooltip({

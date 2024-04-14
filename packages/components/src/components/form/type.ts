@@ -12,7 +12,7 @@ import {
   PropResponsive,
   CommonProps,
 } from 'common';
-import { CollectorContext, UseFormReturn } from '@lun/core';
+import { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
 import { FormProvideExtra } from '.';
 import { freeze } from '@lun/utils';
@@ -25,7 +25,7 @@ export const formProps = freeze({
   ...editStateProps,
   ...themeProps,
   // intent to use prop `form` originally, but found `form` will be considered as a string attribute. It's vue's behavior, see vuejs/core/packages/runtime-dom/src/patchProp.ts. use `instance` instead
-  instance: PropObject<UseFormReturn>(),
+  instance: PropObject<MaybeRefLikeOrGetter<UseFormReturn>>(),
   defaultFormData: PropObject(),
   defaultFormState: PropObject(),
   /**

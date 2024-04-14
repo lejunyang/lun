@@ -11,14 +11,12 @@ type UpdateValueParam = {
 };
 export const getHooks = () => ({
   // form lifecycle
-  onFormSetup: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
-  onFormMount: createSyncHook<() => void>(),
-  onFormUnmount: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
+  onFormConnected: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
+  onFormDisconnected: createSyncHook<(formInstance: ComponentInternalInstance) => void>(),
   // form-item lifecycle
-  onFormItemSetup:
+  onFormItemConnected:
     createSyncHook<(vms: { item: ComponentInternalInstance; form: ComponentInternalInstance }) => void>(),
-  onFormItemMount: createSyncHook<() => void>(),
-  onFormItemUnmount:
+  onFormItemDisconnected:
     createSyncHook<(vms: { item: ComponentInternalInstance; form: ComponentInternalInstance }) => void>(),
   // value updated
   /** trigger when value of one field updates */

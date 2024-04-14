@@ -57,19 +57,19 @@ export function useForm<
   };
   const methods = useFormMethods(param, options);
 
-  hooks.onFormSetup.use((form) => {
+  hooks.onFormConnected.use((form) => {
     if (form) forms.add(form);
   });
-  hooks.onFormUnmount.use((form) => {
+  hooks.onFormDisconnected.use((form) => {
     forms.delete(form);
   });
-  hooks.onFormItemSetup.use(({ item, form }) => {
+  hooks.onFormItemConnected.use(({ item, form }) => {
     if (!item) return;
     const { name } = item.props;
     if (name) nameToItemMap.set(name as any, item);
     itemToFormMap.set(item, form);
   });
-  hooks.onFormItemUnmount.use(({ item }) => {
+  hooks.onFormItemDisconnected.use(({ item }) => {
     if (!item) return;
     const { name } = item.props;
     if (name) nameToItemMap.delete(name as any);

@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { isNumberInputType, useSetupEdit } from '@lun/core';
+import { isNumberInputType, UseFormReturn, useSetupEdit } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
@@ -13,6 +13,7 @@ import {
   isFunction,
   isObject,
   isPlainString,
+  noop,
   objectGet,
   runIfFn,
   simpleObjectEquals,
@@ -37,10 +38,7 @@ export const FormItem = defineSSRCustomElement({
     const formContext = FormItemCollector.child();
     const { parent, layoutInfo } = formContext || {};
     const props = computed(() =>
-      virtualGetMerge(
-        itemProps,
-        runIfFn(parent?.props.itemProps, { formContext, formItemProps: itemProps }),
-      ),
+      virtualGetMerge(itemProps, runIfFn(parent?.props.itemProps, { formContext, formItemProps: itemProps })),
     );
     const ns = useNamespace(name, { parent });
     const [editComputed, editState] = useSetupEdit();
@@ -187,10 +185,6 @@ export const FormItem = defineSSRCustomElement({
       );
     };
     if (!formContext) return render;
-    const {
-      form: { isPlainName, getValue, setValue, deletePath, hooks },
-      form,
-    } = formContext;
 
     useSetupContextEvent({
       update: (val) => {
@@ -202,7 +196,7 @@ export const FormItem = defineSSRCustomElement({
     const path = computed(() => {
       const { name } = props.value;
       if (!name) return;
-      return isPlainName(name) ? name : stringToPath(name);
+      return formContext.form.isPlainName(name) ? name : stringToPath(name);
     });
 
     const validateProps = computed(() => {
@@ -225,6 +219,7 @@ export const FormItem = defineSSRCustomElement({
     });
 
     const getOrSetValue = (vm?: ComponentInternalInstance, value?: any) => {
+      const { setValue, getValue } = formContext.form;
       const { array } = props.value;
       if (!path.value) return;
       const getOrSet = value !== undefined ? setValue : getValue;
@@ -240,11 +235,12 @@ export const FormItem = defineSSRCustomElement({
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
+        const { hooks, getValue, formData } = formContext.form;
         if (!array || !path.value) return;
         const value = getValue(path.value);
         if (isArray(value)) {
           value.splice(index, 1);
-          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, formData: form.formData });
+          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, formData });
         }
       },
     });
@@ -257,7 +253,7 @@ export const FormItem = defineSSRCustomElement({
     const transform = (val: any, type?: string | null) => {
       if (!type || typeof val === type) return val;
       if (!isPlainString(val)) return;
-      const valueOfOtherField = getValue(val);
+      const valueOfOtherField = formContext.form.getValue(val);
       switch (type) {
         case 'number':
           const { isNaN, toNumber, isNumber } = GlobalStaticConfig.math;
@@ -277,7 +273,7 @@ export const FormItem = defineSSRCustomElement({
       let allFalsy = !!temp.length,
         someFalsy = false;
       const depValues = temp.map((name) => {
-        const val = getValue(name);
+        const val = formContext.form.getValue(name);
         if (val) allFalsy = false;
         else someFalsy = true;
         return val;
@@ -297,7 +293,7 @@ export const FormItem = defineSSRCustomElement({
         oldDepValues &&
         (depValues.length !== oldDepValues.length || !simpleObjectEquals(depValues, oldDepValues))
       ) {
-        setValue(path.value, array ? [] : null);
+        formContext.form.setValue(path.value, array ? [] : null);
       }
     });
     watchEffect(() => {
@@ -311,15 +307,19 @@ export const FormItem = defineSSRCustomElement({
     );
 
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
+      const {
+        form: { getValue, formData, setError },
+        parent,
+      } = formContext;
       const value = getValue(path.value);
-      const { stopValidate, validators: formValidators } = formContext.parent!.props;
+      const { stopValidate, validators: formValidators } = parent!.props;
       const stopEarly = stopValidate === 'first';
       const { validators } = props.value;
       const errors = toArrayIfNotNil(
-        innerValidator(value, formContext.form.formData, validateProps.value, validateMessages.value),
+        innerValidator(value, formData, validateProps.value, validateMessages.value),
       ) as string[];
       if (stopEarly && errors.length) {
-        formContext.form.setError(path.value, errors);
+        setError(path.value, errors);
         return errors;
       }
       const finalValidators = toArrayIfNotNil(validators).concat(
@@ -336,27 +336,35 @@ export const FormItem = defineSSRCustomElement({
       await Promise.allSettled(
         finalValidators.map(async (validator) => {
           if (!isFunction(validator) || stopped) return;
-          return Promise.resolve(validator(value, formContext.form.formData, validateProps.value))
-            .then(collect)
-            .catch(collect);
+          return Promise.resolve(validator(value, formData, validateProps.value)).then(collect).catch(collect);
         }),
       );
-      !aborted && errors.length && formContext.form.setError(path.value, errors);
+      !aborted && errors.length && setError(path.value, errors);
       return errors;
     };
 
     const param = { item: inputContext.vm!, form: formContext.parent! };
-    formContext.form.hooks.onFormItemSetup.exec(param);
-
-    onBeforeUnmount(
-      formContext.form.hooks.onValidate.use(async (_, { stopExec }) => {
-        const errors = await validate();
-        if (errors.length && formContext.parent?.props.stopValidate === 'form-item') stopExec();
-      }),
+    const onValidate: Parameters<UseFormReturn['hooks']['onValidate']['use']>[0] = async (_, { stopExec }) => {
+      const errors = await validate();
+      if (errors.length && formContext.parent?.props.stopValidate === 'form-item') stopExec();
+    };
+    let cleanFn: AnyFn = noop;
+    watch(
+      () => formContext.form,
+      (newForm, oldForm) => {
+        if (oldForm) oldForm.hooks.onValidate.eject(onValidate);
+        if (newForm) {
+          newForm.hooks.onFormItemConnected.exec(param);
+          cleanFn = newForm.hooks.onValidate.use(onValidate);
+        } else cleanFn = noop;
+      },
+      { immediate: true },
     );
+    onBeforeUnmount(() => cleanFn());
 
     onBeforeUnmount(() => {
-      formContext.form.hooks.onFormItemUnmount.exec(param);
+      const { deletePath, setValue, hooks } = formContext.form;
+      hooks.onFormItemDisconnected.exec(param);
       switch (props.value.unmountBehavior) {
         case 'delete':
           return deletePath(path.value);
