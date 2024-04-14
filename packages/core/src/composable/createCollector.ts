@@ -17,7 +17,7 @@ import {
   onUnmounted,
   shallowReactive,
 } from 'vue';
-import { getPreviousMatchElInTree } from '@lun/utils';
+import { getPreviousMatchElInTree, toGetterDescriptors } from '@lun/utils';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
@@ -115,8 +115,7 @@ export function createCollector<
       return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
     };
 
-    const provideContext = {
-      ...extraProvide,
+    const provideContext = Object.assign(extraProvide || {}, {
       [COLLECTOR_KEY]: true,
       parent: instance,
       items,
@@ -181,7 +180,7 @@ export function createCollector<
         }
       },
       getIndex: getChildVmIndex,
-    } as CollectorContext<ParentProps, ChildProps>;
+    } as CollectorContext<ParentProps, ChildProps>) as CollectorContext<ParentProps, ChildProps, PE>;
     provide(COLLECTOR_KEY, provideContext);
     return {
       get value() {
@@ -207,8 +206,9 @@ export function createCollector<
     // @ts-ignore
     if (context?.[COLLECTOR_KEY] && collect) {
       const { getIndex, items } = context;
+      // create a new context with index and isStart/isEnd props for every child
       context = Object.defineProperties({} as any, {
-        ...Object.getOwnPropertyDescriptors(context),
+        ...toGetterDescriptors(context),
         index: {
           get: () => getIndex(instance) ?? -1,
         },
