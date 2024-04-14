@@ -130,7 +130,7 @@ const rendererProps = reactive({
   content: undefined as any,
   type: undefined as any,
   preferHtml: true,
-  key: 1,
+  key: undefined,
 });
 
 const handleCodeChange = debounce(async () => {
