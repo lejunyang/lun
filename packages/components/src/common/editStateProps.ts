@@ -1,12 +1,13 @@
+import { freeze } from "@lun/utils";
 import { ExtractPropTypes } from "vue";
+import { undefBoolProp } from "./propConstructor";
 
-const defaultBoolean = { type: Boolean, default: undefined };
-export const editStateProps = Object.freeze({
-	disabled: defaultBoolean,
-	readonly: defaultBoolean,
-	loading: defaultBoolean,
-	mergeDisabled: defaultBoolean,
-	mergeReadonly: defaultBoolean,
-	mergeLoading: defaultBoolean,
+export const editStateProps = freeze({
+	disabled: undefBoolProp,
+	readonly: undefBoolProp,
+	loading: undefBoolProp,
+	mergeDisabled: undefBoolProp,
+	mergeReadonly: undefBoolProp,
+	mergeLoading: undefBoolProp,
 });
 export type EditStateProps = ExtractPropTypes<typeof editStateProps>;

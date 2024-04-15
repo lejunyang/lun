@@ -30,9 +30,9 @@ export function useSetupEdit(options?: {
     let finalState: EditState;
     let { disabled, readonly, loading, mergeDisabled, mergeLoading, mergeReadonly } =
       ctx.props as EditState;
-    mergeDisabled ||= parentEditComputed?.value.mergeDisabled;
-    mergeLoading ||= parentEditComputed?.value.mergeLoading;
-    mergeReadonly ||= parentEditComputed?.value.mergeReadonly;
+    mergeDisabled ??= parentEditComputed?.value.mergeDisabled;
+    mergeLoading ??= parentEditComputed?.value.mergeLoading;
+    mergeReadonly ??= parentEditComputed?.value.mergeReadonly;
     finalState = {
       disabled:
         localState.disabled ||

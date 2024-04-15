@@ -37,6 +37,8 @@ export const PropResponsive = cacheFunctionResult(createPropFactory(Object, Numb
 
 export const sizeProp = PropResponsive<string | number>();
 
+export const undefBoolProp = { type: Boolean, default: undefined };
+
 // const test = {
 //   str: PropString<'const'>(),
 //   strRegex: PropString(RegExp),

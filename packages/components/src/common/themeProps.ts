@@ -1,7 +1,7 @@
-import { ExtractPropTypes, PropType } from 'vue';
+import { ExtractPropTypes } from 'vue';
 import { OpenShadowComponentKey } from '../components';
-import { pick } from '@lun/utils';
-import { Responsive } from 'hooks';
+import { objectKeys, pick } from '@lun/utils';
+import { PropResponsive, PropString, undefBoolProp } from './propConstructor';
 
 export const themeColors = [
   'gray',
@@ -34,15 +34,16 @@ export const themeColors = [
 
 export const grayColors = ['gray', 'mauve', 'slate', 'sage', 'olive', 'sand'] as const;
 
-export const themeVariants = Object.freeze(['solid', 'soft', 'surface', 'outline', 'classic', 'ghost'] as const);
+export const themeVariants = ['solid', 'soft', 'surface', 'outline', 'classic', 'ghost'] as const;
 
 export const themeProps = {
-  size: { type: [String, Object] as PropType<Responsive<'1' | '2' | '3'>> },
-  color: { type: String as PropType<ThemeColors> },
-  variant: { type: String as PropType<ThemeVariants | string> },
-  radius: { type: String as PropType<'none' | 'small' | 'medium' | 'large' | 'full'> },
-  highContrast: { type: Boolean, default: undefined },
-  appearance: { type: String as PropType<'light' | 'dark'> },
+  size: PropResponsive<'1' | '2' | '3'>(),
+  color: PropString<ThemeColors>(),
+  variant: PropString<ThemeVariants | string>(),
+  radius: PropString<'none' | 'small' | 'medium' | 'large' | 'full'>(),
+  highContrast: undefBoolProp,
+  appearance: PropString<'light' | 'dark'>(),
+  scale: PropString<'0.9' | '0.95' | '1' | '1.05' | '1.1'>(),
 };
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
@@ -53,4 +54,4 @@ export type ThemeColors = (typeof themeColors)[number];
 export type GrayColors = (typeof grayColors)[number];
 export type ThemeVariants = (typeof themeVariants)[number];
 
-export const pickThemeProps = (props: ThemeProps) => pick(props, Object.keys(themeProps) as (keyof ThemeProps)[]);
+export const pickThemeProps = (props: ThemeProps) => pick(props, objectKeys(themeProps));
