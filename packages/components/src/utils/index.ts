@@ -1,5 +1,5 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
-import { toGetterDescriptors } from '@lun/utils';
+import { createVirtualMerge, toGetterDescriptors } from '@lun/utils';
 
 export * from './component';
 export * from './console';
@@ -15,3 +15,12 @@ export function toUnrefGetterDescriptors<
   // @ts-ignore
   return toGetterDescriptors(propertiesMap, propertiesMap, (_, k) => unrefOrGet(obj)?.[k]);
 }
+
+export const virtualUnrefGetMerge = createVirtualMerge<true>(
+  () => ({
+    set() {
+      return false;
+    },
+  }),
+  (t) => unrefOrGet(t),
+);

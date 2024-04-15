@@ -204,7 +204,7 @@ export function createCollector<
     >;
     let context = inject<T extends undefined ? C | undefined : C>(COLLECTOR_KEY, defaultContext as any);
     // @ts-ignore
-    if (context?.[COLLECTOR_KEY] && collect) {
+    if (context?.[COLLECTOR_KEY]) {
       const { getIndex, items } = context;
       // create a new context with index and isStart/isEnd props for every child
       context = Object.defineProperties({} as any, {
@@ -219,8 +219,10 @@ export function createCollector<
           get: () => getIndex(instance) === items.value.length - 1,
         },
       });
-      onMounted(() => context!.addItem(instance));
-      onBeforeUnmount(() => context!.removeItem(instance));
+      if (collect) {
+        onMounted(() => context!.addItem(instance));
+        onBeforeUnmount(() => context!.removeItem(instance));
+      }
     }
     return context;
   };

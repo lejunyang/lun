@@ -1,7 +1,7 @@
 import { computed, ref, mergeProps } from 'vue';
 import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement, isNumberInputType } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils';
 import {
   useCEExpose,
   useCEStates,
@@ -12,7 +12,7 @@ import {
   useValueModel,
 } from 'hooks';
 import { inputEmits, inputProps } from './type';
-import { isEmpty, isArray, runIfFn, virtualGetMerge, raf } from '@lun/utils';
+import { isEmpty, isArray, runIfFn, raf } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
@@ -40,7 +40,7 @@ export const Input = defineSSRCustomElement({
     const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers, state } =
       useMultipleInput(
         // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
-        virtualGetMerge(
+        virtualUnrefGetMerge(
           {
             value: valueModel,
             get disabled() {
@@ -67,7 +67,7 @@ export const Input = defineSSRCustomElement({
               emit('tagsRemove', removedTags);
             },
           },
-          validateProps.value,
+          validateProps,
           props,
         ),
       );
