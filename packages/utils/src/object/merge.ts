@@ -223,44 +223,45 @@ const getOwnPropertyDescriptor = () => {
   };
 };
 
-export function virtualMerge<T extends Record<string | symbol, any>[]>(...targets: T) {
-  const keys = getKeys(...targets);
-  return new Proxy(
-    {},
-    {
-      get(_target, key) {
-        return targets.find((i) => i?.[key] !== undefined)?.[key];
+export function createVirtualMerge<ReadOnly extends boolean = false>(
+  handlerGetter: (...targets: any[]) => Omit<ProxyHandler<any>, 'get' | 'ownKeys' | 'getOwnPropertyDescriptor'>,
+  transformTarget: (target: any) => any = (i) => i,
+  match = (v: any) => v !== undefined,
+) {
+  return <T extends (Record<string | symbol, any> | null | undefined)[]>(...targets: T) => {
+    const keys = getKeys(...targets);
+    return new Proxy(
+      {},
+      {
+        ...handlerGetter(...targets),
+        get(_, key) {
+          for (const t of targets) {
+            const value = transformTarget(t)?.[key];
+            if (match(value)) return value;
+          }
+          return undefined;
+        },
+        ownKeys() {
+          return keys;
+        },
+        // the result can be spread only when using getOwnPropertyDescriptor and ownKeys together
+        getOwnPropertyDescriptor,
       },
-      set(_, key, value) {
-        const target = targets.find((i) => i && key in i);
-        if (target === undefined) return false;
-        target[key] = value;
-        return true;
-      },
-      ownKeys() {
-        return keys;
-      },
-      // the result can be spread only when using getOwnPropertyDescriptor and ownKeys together
-      getOwnPropertyDescriptor,
-    },
-  ) as MergeObjects<T>;
+    ) as ReadOnly extends true ? Readonly<MergeObjects<T>> : MergeObjects<T>;
+  };
 }
 
-export function virtualGetMerge<T extends (Record<string | symbol, any> | null | undefined)[]>(...targets: T) {
-  const keys = getKeys(...targets);
-  return new Proxy(
-    {},
-    {
-      get(_target, key) {
-        return targets.find((i) => i?.[key] !== undefined)?.[key];
-      },
-      set() {
-        return false;
-      },
-      ownKeys() {
-        return keys;
-      },
-      getOwnPropertyDescriptor,
-    },
-  ) as Readonly<MergeObjects<T>>;
-}
+export const virtualMerge = createVirtualMerge((targets) => ({
+  set(_, key, value) {
+    const target = targets.find((i: any) => i && key in i);
+    if (target === undefined) return false;
+    target[key] = value;
+    return true;
+  },
+}));
+
+export const virtualGetMerge = createVirtualMerge<true>(() => ({
+  set() {
+    return false;
+  },
+}));
