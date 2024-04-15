@@ -29,6 +29,14 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           link: wrapLink('/guides/docs/', lang),
         },
         {
+          text: locales[lang].sidebar.guides.inherit,
+          link: wrapLink('/guides/inherit/', lang),
+        },
+        {
+          text: locales[lang].sidebar.guides.breakpoints,
+          link: wrapLink('/guides/breakpoints/', lang),
+        },
+        {
           text: locales[lang].sidebar.guides.styles,
           link: wrapLink('/guides/styles/', lang),
         },
