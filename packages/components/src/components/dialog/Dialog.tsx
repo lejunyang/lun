@@ -131,6 +131,22 @@ export const Dialog = Object.assign(
 
       const Tag = supportDialog ? 'dialog' : 'div';
       return () => {
+        const {
+          noCloseBtn,
+          closeBtnProps,
+          noHeader,
+          title,
+          content,
+          contentType,
+          contentPreferHtml,
+          noFooter,
+          noCancelBtn,
+          cancelBtnProps,
+          cancelText,
+          noOkBtn,
+          okBtnProps,
+          okText,
+        } = props;
         return (
           <Tag
             class={stateClass.value}
@@ -161,52 +177,48 @@ export const Dialog = Object.assign(
                     part="panel"
                     style={{ width: width.value }}
                   >
-                    {!props.noCloseBtn &&
+                    {!noCloseBtn &&
                       renderElement(
                         'button',
                         {
                           class: ns.e('close'),
                           variant: 'ghost',
-                          ...props.closeBtnProps,
+                          ...closeBtnProps,
                           asyncHandler: methods.close,
                           part: 'close',
                         },
                         renderElement('icon', { name: 'x', slot: 'icon' }),
                       )}
-                    {!props.noHeader && (
+                    {!noHeader && (
                       <header class={[ns.e('header')]} part="header">
                         <slot name="header-start"></slot>
-                        <slot name="header">{props.title}</slot>
+                        <slot name="header">{title}</slot>
                         <slot name="header-end"></slot>
                       </header>
                     )}
                     <div class={[ns.e('content')]} part="content">
                       <slot>
-                        {props.content && (
-                          <VCustomRenderer
-                            content={props.content}
-                            type={props.contentType}
-                            preferHtml={props.contentPreferHtml}
-                          />
+                        {content && (
+                          <VCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />
                         )}
                       </slot>
                     </div>
-                    {!props.noFooter && (
+                    {!noFooter && (
                       <footer class={[ns.e('footer')]} part="footer">
                         <slot name="footer-start"></slot>
                         <slot name="footer">
-                          {!props.noCancelBtn &&
+                          {!noCancelBtn &&
                             renderElement('button', {
                               variant: 'ghost',
-                              ...props.cancelBtnProps,
-                              label: props.cancelText || intl('dialog.cancel').d('Cancel'),
+                              ...cancelBtnProps,
+                              label: cancelText || intl('dialog.cancel').d('Cancel'),
                               asyncHandler: methods.close,
                             })}
-                          {!props.noOkBtn &&
+                          {!noOkBtn &&
                             renderElement('button', {
-                              variant: 'ghost',
-                              ...props.okBtnProps,
-                              label: props.okText || intl('dialog.ok').d('OK'),
+                              variant: 'solid',
+                              ...okBtnProps,
+                              label: okText || intl('dialog.ok').d('OK'),
                               asyncHandler: methods.ok,
                             })}
                         </slot>

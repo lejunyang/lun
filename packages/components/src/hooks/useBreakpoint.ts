@@ -11,6 +11,12 @@ type BK = keyof B;
 let medias: Record<BK, MediaQueryList>;
 const breakpointStates = reactive({} as Record<BK, boolean>);
 
+export const activeBreakpoint = computed(() => {
+  return objectKeys(breakpointStates).find(
+    (k, index, keys) => breakpointStates[k] && !breakpointStates[keys[index + 1]],
+  );
+});
+
 export function useBreakpoint<
   P extends Record<string, Responsive<any>>,
   K extends keyof P = 'size',
@@ -36,7 +42,7 @@ export function useBreakpoint<
     if (isObject(value)) {
       // find the largest active breakpoint
       const key = objectKeys(breakpointStates).find(
-        (k, index, keys) => value[k] && breakpointStates[k] && !value[keys[index + 1]],
+        (k, index, keys) => value[k] && breakpointStates[k] && !breakpointStates[keys[index + 1]],
       );
       return transform(key ? value[key] : value.initial || value);
     }
