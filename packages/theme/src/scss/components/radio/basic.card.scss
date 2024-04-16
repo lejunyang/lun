@@ -1,0 +1,59 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(radio) {
+  @include is(card) {
+    @include e(indicator) {
+      display: none;
+    }
+    @include declareVars(
+      (
+        padding-block: card-padding-block,
+        padding-inline: card-padding-inline,
+        border-radius: card-border-radius,
+      )
+    );
+
+    @include size(1, false) {
+      @include setVars(
+        (
+          card-padding-block: calc(getSpaceValue(3) / 1.2),
+          card-padding-inline: getSpaceValue(3),
+          card-border-radius: getRadiusValue(3),
+        )
+      );
+    }
+    @include size(2, false) {
+      @include setVars(
+        (
+          card-padding-block: calc(getSpaceValue(4) * 0.875),
+          card-padding-inline: getSpaceValue(4),
+          card-border-radius: getRadiusValue(3),
+        )
+      );
+    }
+    @include size(3, false) {
+      @include setVars(
+        (
+          card-padding-block: calc(getSpaceValue(3) / 1.2),
+          card-padding-inline: getSpaceValue(5),
+          card-border-radius: getRadiusValue(4),
+        )
+      );
+    }
+  }
+
+  @include is((card, checked)) {
+    outline: 2px solid getAccentColor(9);
+    outline-offset: -1px;
+  }
+
+  @include is((card, disabled)) {
+    cursor: getDisabledCursor();
+    color: getGrayColor(a9);
+    background-image: linear-gradient(getGrayColor(a2), getGrayColor(a2));
+    outline-color: getGrayColor(8);
+  }
+}

@@ -1,0 +1,16 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(radio) {
+  @include variant(surface) {
+    @include is(card) {
+      box-shadow: 0 0 0 1px getGrayColor(a5);
+      background-color: getSemanticColor(surface);
+      @include hover(getIs(disabled)) {
+        box-shadow: 0 0 0 1px getGrayColor(a5), getShadowSpread(3);
+      }
+    }
+  }
+}
