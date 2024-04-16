@@ -182,6 +182,10 @@
   @return getVarValue((shadow, $level));
 }
 
+@function getShadowSpread($level) {
+  @return getVarValue((shadow, spread, $level));
+}
+
 // ------------------ color mixins ------------------
 
 // color level 9 contrast color
