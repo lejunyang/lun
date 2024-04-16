@@ -36,8 +36,8 @@ export type RadioProps = Partial<RadioSetupProps> & RadioEvents;
 export const radioGroupProps = freeze({
   ...createOptionProps(false),
   ...themeProps,
-  value: {}, // TODO use valueProp or not?
-  type: PropString<'radio' | 'button'>(),
+  value: valueProp,
+  type: PropString<'radio' | 'button' | 'card'>(),
 
   noIndicator: PropBoolean(),
   labelPosition: PropString<LogicalPosition>(),

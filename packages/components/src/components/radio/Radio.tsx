@@ -33,10 +33,13 @@ export const Radio = defineSSRCustomElement({
 
     const [stateClass] = useCEStates(
       () => {
-        const button = radioContext?.parent?.props.type === 'button';
+        const { type } = radioContext?.parent?.props || {};
+        const button = type === 'button',
+          card = type === 'card';
         return {
           checked,
           button,
+          card,
           start: button && (props.start || radioContext?.isStart),
           end: button && (props.end || radioContext?.isEnd),
         };

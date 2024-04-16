@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useOptions, useSetupContextEvent, useValueModel } from 'hooks';
+import { useCEStates, useNamespace, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioGroupProps } from './type';
 
@@ -12,22 +12,26 @@ export const RadioGroup = defineSSRCustomElement({
   emits: radioEmits,
   formAssociated: true,
   setup(props) {
+    const ns = useNamespace(name);
     const valueModel = useValueModel(props);
     useSetupContextEvent({
       update(value) {
         valueModel.value = value;
       },
     });
-    useSetupEdit();
+    const [editComputed] = useSetupEdit();
     RadioCollector.parent({ extraProvide: { valueModel } });
 
     const { render } = useOptions(props, 'radio');
+
+    const [stateClass] = useCEStates(() => ({}), ns, editComputed);
+
     // TODO arrow move to check prev/next active radio
     return () => (
-      <>
+      <div class={[stateClass.value, ns.m(props.type)]} part={ns.p('root')}>
         {render.value}
         <slot></slot>
-      </>
+      </div>
     );
   },
 });
