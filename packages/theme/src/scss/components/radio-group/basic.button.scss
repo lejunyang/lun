@@ -1,0 +1,32 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(radio-group) {
+  @include m(button) {
+    gap: 0px;
+    flex-wrap: nowrap;
+    @include size(1, false) {
+      @include setVars(
+        (
+          gap: getSpaceValue(3),
+        )
+      );
+    }
+    @include size(2, false) {
+      @include setVars(
+        (
+          gap: 0px,
+        )
+      );
+    }
+    @include size(3, false) {
+      @include setVars(
+        (
+          gap: getSpaceValue(5),
+        )
+      );
+    }
+  }
+}

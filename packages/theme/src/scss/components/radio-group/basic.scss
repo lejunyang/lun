@@ -1,0 +1,35 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+@use './basic.card.scss' as *;
+@use './basic.button.scss' as *;
+
+@include b(radio-group) {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  @include declareVars((gap, line-height, font-size));
+
+  @include size(1) {
+    @include setVars(
+      (
+        gap: getSpaceValue(1),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        gap: getSpaceValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        gap: getSpaceValue(3),
+      )
+    );
+  }
+}

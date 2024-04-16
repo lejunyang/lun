@@ -16,7 +16,7 @@ import {
   importInputSoftTheme,
   importInputSurfaceTheme,
 } from './input/index.ts';
-import { importRadioBasicTheme } from './radio/index.ts';
+import { importRadioBasicTheme, importRadioSurfaceTheme } from './radio/index.ts';
 import { importSwitchBasicTheme, importSwitchSurfaceTheme } from './switch/index.ts';
 import {
   importTagBasicTheme,
@@ -45,6 +45,7 @@ import { __internal_defineSubscriber, createImportStyle } from '@lun/components'
 import commonStyles from '../common/index.scss?inline';
 import { once } from '@lun/utils';
 import { importMentionsBasicTheme, importMentionsSurfaceTheme } from './mentions/index.ts';
+import { importRadioGroupBasicTheme } from './radio-group/index.ts';
 
 export * from './button';
 export * from './callout';
@@ -82,6 +83,7 @@ export const importBasicTheme = once(() => {
   importPopoverBasicTheme();
   importProgressBasicTheme();
   importRadioBasicTheme();
+  importRadioGroupBasicTheme();
   importSelectBasicTheme();
   importSelectOptgroupBasicTheme();
   importSelectOptionBasicTheme();
@@ -120,6 +122,7 @@ export const importSurfaceTheme = once(() => {
   importTagSurfaceTheme();
   importTextareaSurfaceTheme();
   importMentionsSurfaceTheme();
+  importRadioSurfaceTheme();
 });
 
 export const importGhostTheme = once(() => {
