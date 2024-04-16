@@ -2,6 +2,8 @@
 @use '../../mixins/theme' as *;
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
+@use './basic.card.scss' as *;
+@use './basic.button.scss' as *;
 
 @include b(radio) {
   $size: getVarName((switch, 'size'));
@@ -45,57 +47,6 @@
       box-shadow: $disabledBorder, inset 0 0 0 calc(var(#{$size}) * 0.3) getGrayColor(3);
     }
   }
-
-  // ------------------------------radio button------------------------------
-  @include is(button) {
-    @include declareVars(
-      (
-        padding-inline: button-padding-inline,
-        line-height: button-line-height,
-        height: button-height,
-      )
-    );
-    border: 1px solid getGrayColor(a6);
-    border-inline-end: none;
-    @include e(indicator) {
-      display: none;
-    }
-    @include hover {
-      background-color: getAccentColor(a4);
-    }
-  }
-  @include is(start) {
-    @include declareVars(
-      (
-        border-start-start-radius: button-border-radius,
-        border-end-start-radius: button-border-radius,
-      )
-    );
-  }
-  @include is(end) {
-    border-inline-end: 1px solid getGrayColor(a6);
-    @include declareVars(
-      (
-        border-start-end-radius: button-border-radius,
-        border-end-end-radius: button-border-radius,
-      )
-    );
-  }
-  @include is((button, disabled)) {
-    color: getGrayColor(a8);
-    background-color: getGrayColor(a3);
-  }
-
-  @include is((button, checked)) {
-    background-color: getAccentColor(a5); // button soft
-    border: 1px solid getAccentColor(7);
-    position: relative; // set this to let the border of the checked one overlap the unchecked one, so that the border color won't be mixed
-    &:not(#{getIs(end)}) {
-      // to avoid two borders
-      margin-inline-end: -1px;
-    }
-  }
-  // ------------------------------radio button------------------------------
 
   @include size(1) {
     #{$size}: calc(#{getSpaceValue(4)} * 0.875);
@@ -144,5 +95,18 @@
     @include e(indicator) {
       border-radius: getRadiusValue(2, false);
     }
+  }
+}
+
+:host([data-disabled]),
+:host(--disabled) {
+  &::selection {
+    background-color: getGrayColor(a5);
+  }
+}
+// state selector should be alone, in case browser does't support it and all the selectors fail
+:host(:state(disabled)) {
+  &::selection {
+    background-color: getGrayColor(a5);
   }
 }

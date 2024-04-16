@@ -1,0 +1,17 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(radio) {
+  @include is(button) {
+    @include hover(getIs(disabled)) {
+      color: getAccentColor(9);
+    }
+  }
+
+  @include is((button, checked)) {
+    background-color: getSemanticColor(surface);
+    color: getAccentColor(a11);
+  }
+}
