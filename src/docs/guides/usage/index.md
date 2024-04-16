@@ -13,7 +13,7 @@ lang: zh-CN
 
 React 是目前流行 web 框架唯一不支持`customElement`的，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
 
-React 19 即将支持`customElement`，但目前还处于实验阶段，静待 2024 年中，目前我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在useLayoutEffect中将属性和事件绑定到元素上，使之能够正常工作。
+React 19 即将支持`customElement`，但目前还处于实验阶段，静待 2024 年中，目前我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
 
 ```tsx
 import { LInput } from '@lun/react';
@@ -25,12 +25,12 @@ export default function () {
 
 ## 安装
 
-暂未发布到npm
+暂未发布到 npm
 
 ::: tip 注
 - 如果只需要组件，样式完全自定义的话，直接安装`@lun/components`即可
 - 如果需要主题，只需安装`@lun/theme`（其依赖于`@lun/components`）
-- React中需额外安装`@lun/react`，使用其导出的组件
+- React 中需额外安装`@lun/react`，使用其导出的组件
 :::
 
 ## 全量引入
@@ -77,7 +77,7 @@ autoImportTheme();
 autoDefine();
 ```
 
-动态引入会自动检测页面上的元素并自动加载引入，动态引入无法Tree Shaking，但会动态加载需要的脚本
+动态引入会自动检测页面上的元素并自动加载引入，动态引入无法 Tree Shaking，但会动态加载需要的脚本
 
 ## 自定义引入
 
@@ -122,6 +122,7 @@ defineButton('my-button', {
 
 - [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets)
 - [Dialog](https://caniuse.com/?search=Dialog)
+- [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel)
 - [popover](https://caniuse.com/?search=popover)
 - [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)
 - [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges)

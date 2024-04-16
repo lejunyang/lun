@@ -5,8 +5,11 @@ import { useCEExpose, useSetupContextEvent, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { computed, ref } from 'vue';
-import { isArray, isInputSupportPicker, isString, isSupportFileSystem } from '@lun/utils';
+import { AnyFn, isArray, isInputSupportPicker, isString, isSupportFileSystem, on, onOnce, runIfFn } from '@lun/utils';
+import { VCustomRenderer } from '../custom-renderer';
+import { isAbort } from './utils';
 
+// TODO drop support
 const name = 'file-picker';
 export const FilePicker = defineSSRCustomElement({
   name,
@@ -15,10 +18,11 @@ export const FilePicker = defineSSRCustomElement({
   formAssociated: true,
   setup(props, { emit }) {
     useSetupContextEvent();
-    const [editComputed] = useSetupEdit();
+    const [editComputed, editState] = useSetupEdit();
     const valueModel = useValueModel(props);
     const inputRef = ref<HTMLInputElement>();
     let picking = false;
+    const isMultiple = () => props.multiple || props.directory;
 
     const isFileSizeValid = (file: File) => {
       const { maxSize } = props;
@@ -47,31 +51,67 @@ export const FilePicker = defineSSRCustomElement({
       ] as const;
     };
 
+    const processFiles = (files: File[]) => {
+      const { strictAccept } = props;
+      const mimes = mimeTypes.value,
+        exts = extensions.value;
+      const needCheckFileType = strictAccept && (mimes.size || exts.size) && !mimes.has('*/*');
+      const [checkSize, checkEmit] = useOverSizeCheck();
+      files = toLimitCount(
+        files.filter((file) => {
+          const fileExt = file.name.split('.').pop()?.toLowerCase();
+          return (
+            (!needCheckFileType ||
+              mimes.has(file.type) ||
+              (fileExt && exts.has(fileExt)) ||
+              mimes.has(file.type.replace(/\/.+/, '/*'))) &&
+            checkSize(file)
+          );
+        }),
+      );
+      checkEmit();
+      valueModel.value = isMultiple() ? files : files[0];
+    };
+
+    const finishPicking = () => {
+      picking = false;
+      editState.loading = false;
+    };
+
+    // check if file select is canceled for type=file input, it's for browser which does not support input cancel event
+    let toClear: AnyFn[] = [];
+    const clean = (cancel: any = true) => {
+      toClear.forEach((i) => i());
+      finishPicking();
+      if (cancel) emit('cancel');
+      toClear = [];
+    };
+    const listenIfCancel = () => {
+      // focus does's work, use pointer check instead
+      let lastTime = 0;
+      toClear.push(
+        // pointermove will still be fired when file dialog opens... but only be fired when pointer moves from file dialog to browser window, so check the event timeStamp to detect if it's continuous move
+        on(window, 'pointermove', (e) => {
+          const gap = e.timeStamp - lastTime;
+          if (gap < 50) clean();
+          lastTime = e.timeStamp;
+        }),
+        onOnce(window, 'pointerdown', clean),
+        onOnce(window, 'keydown', clean),
+        // TODO mobile visibility change
+      );
+    };
+    // check if file select is canceled for type=file input, it's for browser which does not support input cancel event
+
     const inputHandlers = {
       onChange(e: Event) {
-        const { multiple, strictAccept } = props;
-        let files = Array.from((e.target as HTMLInputElement).files!);
-        const mimes = mimeTypes.value,
-          exts = extensions.value;
-        const needCheckFileType = strictAccept && (mimes.size || exts.size) && !mimes.has('*/*');
-        const [checkSize, checkEmit] = useOverSizeCheck();
-        files = toLimitCount(
-          files.filter((file) => {
-            const fileExt = file.name.split('.').pop()?.toLowerCase();
-            return (
-              (!needCheckFileType ||
-                mimes.has(file.type) ||
-                (fileExt && exts.has(fileExt)) ||
-                mimes.has(file.type.replace(/\/.+/, '/*'))) &&
-              checkSize(file)
-            );
-          }),
-        );
-        checkEmit();
-        console.log('onChange files', files);
-        valueModel.value = multiple ? files : files[0];
-        picking = false;
+        const input = e.target as HTMLInputElement;
+        const f = Array.from(input.files!);
+        clean(!f.length);
+        processFiles(f);
+        input.value = ''; // clear files
       },
+      onCancel: clean,
     };
 
     const getProcessedProp = (key: 'mimeTypes' | 'extensions') =>
@@ -90,68 +130,97 @@ export const FilePicker = defineSSRCustomElement({
       return Array.from(mimeTypes.value).concat(Array.from(extensions.value)).join(',');
     });
 
+    async function pickDir() {
+      const files: File[] = [];
+      async function read(directory: FileSystemDirectoryHandle) {
+        for await (const entry of directory.values()) {
+          if (entry.kind === 'file') {
+            files.push(await (entry as FileSystemFileHandle).getFile());
+          } else if (entry.kind === 'directory') {
+            await read(entry as FileSystemDirectoryHandle);
+          }
+        }
+      }
+      await showDirectoryPicker({
+        mode: 'read',
+      })
+        .then(read)
+        .catch((e) => {
+          if (isAbort(e)) emit('cancel');
+          return files;
+        });
+      return files;
+    }
+
     const pickFile = async () => {
       const { value: input } = inputRef;
       if (!input || !editComputed.value.editable || picking) return;
+      const { directory, strictAccept, preferFileApi, startIn, rememberId, loadingWhenPick } = props;
+
       picking = true;
+      if (loadingWhenPick) editState.loading = true;
       let needFallback = false;
 
-      const { multiple, strictAccept, preferFileApi, startIn, rememberId } = props;
       if (preferFileApi && isSupportFileSystem()) {
-        const mimes = mimeTypes.value,
-          exts = Array.from(extensions.value);
-        const types: FileOpenTypeOption[] = [];
-        if (mimes.size) {
-          let i = 0;
-          mimes.forEach((mime) => {
-            types[i++] = {
-              accept: {
-                [mime || '*/*']: exts,
-              },
-            };
-          });
+        if (directory) {
+          const files = await pickDir();
+          processFiles(files);
         } else {
-          types.push({ accept: { '*/*': exts } });
-        }
-        const options = {
-          types,
-          multiple,
-          excludeAcceptAllOption: strictAccept,
-          startIn,
-          id: rememberId,
-        };
-        const picker = (window as any).showOpenFilePicker(options);
-        await picker
-          .then(async (handles: any) => {
-            console.log('handle', handles);
-            let files = await Promise.all(handles.map((h: any) => h.getFile()));
-            console.log('file', files);
-            const [checkSize, checkEmit] = useOverSizeCheck();
-            files = toLimitCount(files.filter((f) => checkSize(f)));
-            checkEmit();
-            valueModel.value = multiple ? files : files[0];
-          })
-          .catch((e: any) => {
-            needFallback = e instanceof TypeError;
-            if (__DEV__) {
-              if (needFallback) {
-                error(
-                  e.stack?.replace(
-                    '\n',
-                    '\nWill fall back to input file picker, please check the props "mimeTypes" and "extensions" and make sure they are correct.\n',
-                  ) || e,
-                );
+          const mimes = mimeTypes.value,
+            exts = Array.from(extensions.value);
+          const types: FileOpenTypeOption[] = [];
+          if (mimes.size) {
+            let i = 0;
+            mimes.forEach((mime) => {
+              types[i++] = {
+                accept: {
+                  [mime || '*/*']: exts,
+                },
+              };
+            });
+          } else {
+            types.push({ accept: { '*/*': exts } });
+          }
+          const options = {
+            types,
+            multiple: isMultiple(),
+            excludeAcceptAllOption: strictAccept,
+            startIn,
+            id: rememberId,
+          };
+          const picker = showOpenFilePicker(options);
+          await picker
+            .then(async (handles: any) => {
+              let files = await Promise.all(handles.map((h: any) => h.getFile()));
+              const [checkSize, checkEmit] = useOverSizeCheck();
+              files = toLimitCount(files.filter((f) => checkSize(f)));
+              checkEmit();
+              valueModel.value = isMultiple() ? files : files[0];
+            })
+            .catch((e: any) => {
+              if (isAbort(e)) emit('cancel');
+              needFallback = e instanceof TypeError;
+              if (__DEV__) {
+                if (needFallback) {
+                  error(
+                    e.stack?.replace(
+                      '\n',
+                      '\nWill fall back to input file picker, please check the props "mimeTypes" and "extensions" and make sure they are correct.\n',
+                    ) || e,
+                  );
+                }
               }
-            }
-          });
+            });
+        }
+
         if (!needFallback) {
-          picking = false;
-          return;
+          return finishPicking();
         }
       }
 
       if (isInputSupportPicker()) input.showPicker();
       else input.click();
+      listenIfCancel();
     };
     const slotHandlers = {
       onClick() {
@@ -165,10 +234,24 @@ export const FilePicker = defineSSRCustomElement({
 
     return () => {
       const { disabled } = editComputed.value;
+      const { directory, multiple, filesRenderer, filesRendererType } = props;
+      const content = runIfFn(filesRenderer, valueModel.value);
       return (
         <>
-          <input ref={inputRef} accept={inputAccept.value} type="file" hidden disabled={disabled} {...inputHandlers} />
+          <input
+            ref={inputRef}
+            accept={inputAccept.value}
+            // @ts-ignore
+            webkitdirector={directory}
+            multiple={multiple}
+            type="file"
+            aria-hidden="true"
+            hidden
+            disabled={disabled}
+            {...inputHandlers}
+          />
           <slot {...slotHandlers}></slot>
+          {content && <VCustomRenderer content={content} type={filesRendererType} />}
         </>
       );
     };

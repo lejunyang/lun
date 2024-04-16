@@ -3,6 +3,7 @@ import {
   CommonProps,
   GetEventPropsFromEmits,
   PropBoolean,
+  PropFunction,
   PropNumber,
   PropObjOrStr,
   PropObject,
@@ -23,7 +24,8 @@ export const filePickerProps = freeze({
   ...editStateProps,
   value: PropObject<File | File[]>(),
   multiple: PropBoolean(),
-  // TODO directory capture
+  // TODO add directory add capture
+  directory: PropBoolean(),
   /** max size of a single file */
   maxSize: PropNumber(),
   /** max count of picked files when it's multiple */
@@ -38,6 +40,9 @@ export const filePickerProps = freeze({
   startIn: PropObjOrStr<WellKnownDirectory | FileSystemHandle>(),
   /** for showOpenFilePicker. By specifying an ID, the user agent can remember different directories for different IDs. */
   rememberId: PropString(),
+  filesRenderer: PropFunction<(files: File | File[] | null | undefined) => any>(),
+  filesRendererType: PropString(),
+  loadingWhenPick: PropBoolean(),
 });
 
 export const filePickerEmits = freeze({
@@ -45,7 +50,7 @@ export const filePickerEmits = freeze({
   exceedMaxCount: (_value: File[]) => true,
   exceedMaxSize: (_value: File[]) => true,
   exceedMaxTotalSize: (_value: File[]) => true,
-  // TODO cancel
+  cancel: null,
   // TODO typeMismatch
 });
 

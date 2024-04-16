@@ -48,6 +48,7 @@ export const defaultProps = {
   },
   'file-picker': {
     preferFileApi: true,
+    loadingWhenPick: true,
   },
   input: {
     waitType: 'debounce',

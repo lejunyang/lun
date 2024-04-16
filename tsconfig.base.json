@@ -22,6 +22,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "types": ["new-javascript/wicg/document-picture-in-picture"],
-  },
+    "types": ["new-javascript/wicg/document-picture-in-picture", "new-javascript/wicg/file-system-access"]
+  }
 }
