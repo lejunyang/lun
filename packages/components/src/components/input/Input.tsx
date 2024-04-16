@@ -37,7 +37,7 @@ export const Input = defineSSRCustomElement({
     const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
-    const { inputHandlers, wrapperHandlers, numberMethods, nextStepHandlers, prevStepHandlers, state } =
+    const { inputHandlers, wrapperHandlers, numberMethods, stepUpHandlers, stepDownHandlers, state } =
       useMultipleInput(
         // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
         virtualUnrefGetMerge(
@@ -121,18 +121,18 @@ export const Input = defineSSRCustomElement({
       return {
         arrow: stepControl === 'up-down' && (
           <span class={ns.e('steps-wrapper')} part="steps-wrapper">
-            {renderElement('icon', { class: [step, arrow], name: 'up', part: 'up', ...nextStepHandlers })}
-            {renderElement('icon', { class: [step, arrow], name: 'down', part: 'down', ...prevStepHandlers })}
+            {renderElement('icon', { class: [step, arrow], name: 'up', part: 'up', ...stepUpHandlers })}
+            {renderElement('icon', { class: [step, arrow], name: 'down', part: 'down', ...stepDownHandlers })}
           </span>
         ),
         plus: stepControl === 'plus-minus' && (
           <div class={[slot, ns.e('plus')]}>
-            {renderElement('icon', { class: step, name: 'plus', part: 'plus', ...nextStepHandlers })}
+            {renderElement('icon', { class: step, name: 'plus', part: 'plus', ...stepUpHandlers })}
           </div>
         ),
         minus: stepControl === 'plus-minus' && (
           <div class={[slot, ns.e('minus')]}>
-            {renderElement('icon', { class: step, name: 'minus', part: 'minus', ...prevStepHandlers })}
+            {renderElement('icon', { class: step, name: 'minus', part: 'minus', ...stepDownHandlers })}
           </div>
         ),
       };

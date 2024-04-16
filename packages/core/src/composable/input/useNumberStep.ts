@@ -118,10 +118,10 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
   };
 
   const methods = {
-    nextStep() {
+    stepUp() {
       return performStep(true);
     },
-    prevStep() {
+    stepDown() {
       return performStep(false);
     },
   };
@@ -131,10 +131,10 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
       if (options.value.disabled) return;
       if (e.key === 'ArrowDown') {
         e.preventDefault(); // prevent native type=number
-        methods.prevStep();
+        methods.stepDown();
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        methods.nextStep();
+        methods.stepUp();
       }
     },
   };
@@ -148,7 +148,7 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
     return {
       onPointerdown() {
         if (options.value.disabled) return;
-        const method = isNext ? methods.nextStep : methods.prevStep;
+        const method = isNext ? methods.stepUp : methods.stepDown;
         method();
         firstTimer = setTimeout(() => {
           method();
@@ -164,7 +164,7 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
   return {
     numberHandlers,
     numberMethods: methods,
-    nextStepHandlers: createStepHandlers(true),
-    prevStepHandlers: createStepHandlers(false),
+    stepUpHandlers: createStepHandlers(true),
+    stepDownHandlers: createStepHandlers(false),
   };
 }
