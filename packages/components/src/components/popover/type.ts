@@ -62,6 +62,11 @@ export const popoverProps = freeze({
   triggers: PropStrOrArr<PopoverTrigger | PopoverTrigger[]>(),
   /** it's only for click trigger, used to toggle open and close state when click. */
   toggleMode: PropBoolean(),
+  /** 
+   * it's only for click and contextmenu trigger, it's to determine the pop target.
+   * If is's rect(which is default), pop target is popover element itself; if it's coord, pop target is the pointer coordinate when clicking 
+   */
+  pointerTarget: PropString<'rect' | 'coord'>(),
   /** it's for multiple targets(manually attachTarget) */
   preventSwitchWhen: PropString<'focus' | 'edit'>(),
   /** function that will be called before open the popover, return false to prevent open the popover */

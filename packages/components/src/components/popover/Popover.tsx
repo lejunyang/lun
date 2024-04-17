@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { CSSProperties, computed, ref, toRef, watchEffect, Transition } from 'vue';
+import { CSSProperties, computed, ref, toRef, watchEffect, Transition, BaseTransitionProps } from 'vue';
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
@@ -42,14 +42,14 @@ export const Popover = defineSSRCustomElement({
     const shadow = useShadowDom();
     /** actual pop content element ref */
     const actualPop = computed(() => popRef.value || fixedRef.value);
-    const virtualTarget = computed(() => {
+    const propVirtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
       return isFunction(target?.getBoundingClientRect) ? target : null;
     });
     const innerTarget = computed(() => {
-      return virtualTarget.value || slotRef.value;
+      return propVirtualTarget.value || shadow.CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
     });
-    const actualTarget = computed(() => range.value || activeExtraTarget.value || virtualTarget.value || shadow.CE);
+    const actualTarget = computed(() => virtualTarget.value || activeExtraTarget.value || innerTarget.value);
 
     /** current popover target */
     const currentTarget = computed(() =>
@@ -63,7 +63,7 @@ export const Popover = defineSSRCustomElement({
       options,
       activeExtraTarget,
       methods,
-      range,
+      virtualTarget,
       isOpen,
       isShow,
       isClosing,
@@ -160,7 +160,10 @@ export const Popover = defineSSRCustomElement({
 
     const finalFloatingStyles = computed(() => {
       const { sync, adjustPopStyle, zIndex } = props;
-      let result: CSSProperties = { ...floatingStyles.value, zIndex: zIndex ?? contextZIndex.popover };
+      let result: CSSProperties = {
+        ...floatingStyles.value,
+        zIndex: zIndex ?? contextZIndex.popover,
+      };
       const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
       if (width && (sync === 'width' || sync === 'both')) result.width = `${width}px`;
       if (height && (sync === 'height' || sync === 'both')) result.height = `${height}px`;
@@ -201,6 +204,7 @@ export const Popover = defineSSRCustomElement({
     ];
 
     let cacheContent: any;
+    const prevent = (e: Event) => e.preventDefault();
     const getContent = (wrapSlot = true) => {
       const { content, contentType, preferHtml, freezeWhenClosing } = props;
       let finalContent: any;
@@ -212,7 +216,16 @@ export const Popover = defineSSRCustomElement({
             ));
       return (
         <>
-          {props.showArrow && <div part="arrow" ref={arrowRef} style={arrowStyles.value} class={ns.e('arrow')}></div>}
+          {props.showArrow && (
+            <div
+              part="arrow"
+              ref={arrowRef}
+              // always prevent it for pointerTarget=coord, trigger=contextmenu
+              onContextmenu={prevent}
+              style={arrowStyles.value}
+              class={ns.e('arrow')}
+            ></div>
+          )}
           {wrapSlot && !contentNode ? <slot name="pop-content"></slot> : contentNode}
         </>
       );
@@ -240,10 +253,12 @@ export const Popover = defineSSRCustomElement({
       onEnter() {
         emit('open');
       },
-      onAfterEnter() {
+      onAfterEnter(el) {
+        (el as HTMLElement).classList.add(ns.is('entered')); // it's for transition; transition should only be set when entered, or initial left/top change can cause unexpected shift
         emit('afterOpen');
       },
-      onLeave() {
+      onLeave(el) {
+        (el as HTMLElement).classList.remove(ns.is('entered'));
         emit('close');
       },
       onAfterLeave() {
@@ -251,7 +266,7 @@ export const Popover = defineSSRCustomElement({
         isShow.value = false;
         emit('afterClose');
       },
-    };
+    } satisfies BaseTransitionProps;
 
     const wrapTransition = (node: any) => (
       <Transition {...getTransitionProps(props)} {...transitionHandler}>

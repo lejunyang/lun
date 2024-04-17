@@ -13,6 +13,10 @@
   box-shadow: getShadow(5);
   box-sizing: border-box;
 
+  @include is(entered) {
+    transition: all 0.2s;
+  }
+
   @include e(arrow) {
     width: var(#{$arrowHypot});
     height: var(#{$arrowHypot});
