@@ -79,17 +79,28 @@ export const FilePicker = defineSSRCustomElement({
     };
 
     // check if file select is canceled for type=file input, it's for browser which does not support input cancel event
-    let toClear: AnyFn[] = [];
+    let toClear: AnyFn[] = [],
+      picked = false;
     const clean = (cancel: any = true) => {
+      picked = true; // prevent clean in visibilitychange if browser support cancel event
       toClear.forEach((i) => i());
       finishPicking();
       if (cancel) emit('cancel');
       toClear = [];
     };
     const listenIfCancel = () => {
-      // focus does's work, use pointer check instead
+      picked = false;
       let lastTime = 0;
       toClear.push(
+        // in mobile, browser will be in background when picking files; it's ok to listen to visibility change on PC as it won't be fired when picking
+        on(document, 'visibilitychange', () => {
+          // once document is show, check if picked any file
+          if (!document.hidden)
+            setTimeout(() => {
+              if (!picked) clean();
+            }, 20); // wait for change event, not sure 20ms is too fast or not on some devices // TODO
+        }),
+        // focus does's work, use pointer check instead
         // pointermove will still be fired when file dialog opens... but only be fired when pointer moves from file dialog to browser window, so check the event timeStamp to detect if it's continuous move
         on(window, 'pointermove', (e) => {
           const gap = e.timeStamp - lastTime;
@@ -98,13 +109,13 @@ export const FilePicker = defineSSRCustomElement({
         }),
         onOnce(window, 'pointerdown', clean),
         onOnce(window, 'keydown', clean),
-        // TODO mobile visibility change
       );
     };
     // check if file select is canceled for type=file input, it's for browser which does not support input cancel event
 
     const inputHandlers = {
       onChange(e: Event) {
+        picked = true;
         const input = e.target as HTMLInputElement;
         const f = Array.from(input.files!);
         clean(!f.length);
@@ -141,13 +152,15 @@ export const FilePicker = defineSSRCustomElement({
           }
         }
       }
+      const { startIn, rememberId } = props;
       await showDirectoryPicker({
         mode: 'read',
+        startIn,
+        id: rememberId,
       })
         .then(read)
         .catch((e) => {
           if (isAbort(e)) emit('cancel');
-          return files;
         });
       return files;
     }
@@ -218,8 +231,13 @@ export const FilePicker = defineSSRCustomElement({
         }
       }
 
-      if (isInputSupportPicker()) input.showPicker();
-      else input.click();
+      if (isInputSupportPicker()) {
+        try {
+          input.showPicker();
+        } catch {
+          clean(false);
+        }
+      } else input.click();
       listenIfCancel();
     };
     const slotHandlers = {
@@ -242,10 +260,9 @@ export const FilePicker = defineSSRCustomElement({
             ref={inputRef}
             accept={inputAccept.value}
             // @ts-ignore
-            webkitdirector={directory}
+            webkitdirectory={directory}
             multiple={multiple}
             type="file"
-            aria-hidden="true"
             hidden
             disabled={disabled}
             {...inputHandlers}
