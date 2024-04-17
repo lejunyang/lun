@@ -29,7 +29,8 @@ export default function () {
         <l-button>多个触发方式</l-button>
       </l-popover>
       <l-popover triggers="select" content="选中文字触发">
-        <div>选中文字触发：{text}</div>
+        {/* it's to prevent edge mini menu after selection */}
+        <div onMouseup={(e) => e.preventDefault()}>选中文字触发：{text}</div>
       </l-popover>
     </>
   );

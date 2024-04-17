@@ -20,6 +20,12 @@ lang: zh-CN
 
 <!-- @Code:basicUsage -->
 
+## 鼠标点击处弹出
+
+对于`click`和`contextmenu`这两种点击触发方式，它们默认以 popover 元素本身的矩形为目标进行定位，如果需要在点击处弹出，则需要设置`pointerTarget`属性为`coord`(默认为`rect`)，这在想要实现菜单时非常有用
+
+<!-- @Code:pointerTarget -->
+
 ## 嵌套
 
 <l-popover triggers="hover">
@@ -75,7 +81,7 @@ lang: zh-CN
 
 ## 关闭时停止更新
 
-一般来说不会在关闭popover的时候更新内容，如果很难避免这种情况（例如在表单里面，字段失焦时触发校验，校验失败的信息在popover关闭时就更新上去了，造成闪烁），可以使用`freezeWhenClosing`属性。当开启时，如果popover正在关闭，停止`content`属性的更新（`pop-content`插槽不受影响）
+一般来说不会在关闭 popover 的时候更新内容，如果很难避免这种情况（例如在表单里面，字段失焦时触发校验，校验失败的信息在 popover 关闭时就更新上去了，造成闪烁），可以使用`freezeWhenClosing`属性。当开启时，如果 popover 正在关闭，停止`content`属性的更新（`pop-content`插槽不受影响）
 
 <!-- @Code:freezeUpdate -->
 
