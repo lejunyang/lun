@@ -5,7 +5,7 @@ import { useCEExpose, useSetupContextEvent, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { computed, ref } from 'vue';
-import { AnyFn, isArray, isInputSupportPicker, isString, isSupportFileSystem, on, onOnce, runIfFn } from '@lun/utils';
+import { AnyFn, isArray, isString, isSupportFileSystem, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer';
 import { isAbort } from './utils';
 
@@ -79,29 +79,34 @@ export const FilePicker = defineSSRCustomElement({
     };
 
     // check if file select is canceled for type=file input, it's for browser which does not support input cancel event
-    let toClear: AnyFn[] = [],
+    let toClear: (AnyFn | false)[] = [],
       picked = false;
     const clean = (cancel: any = true) => {
-      picked = true; // prevent clean in visibilitychange if browser support cancel event
-      toClear.forEach((i) => i());
+      toClear.forEach((i) => i && i());
       finishPicking();
-      if (cancel) emit('cancel');
+      if (cancel && !picked) emit('cancel');
+      picked = true; // prevent clean in visibilitychange if browser support cancel event
       toClear = [];
     };
     const listenIfCancel = () => {
       picked = false;
       let lastTime = 0;
       toClear.push(
-        // in mobile, browser will be in background when picking files; it's ok to listen to visibility change on PC as it won't be fired when picking
-        on(document, 'visibilitychange', () => {
-          // once document is show, check if picked any file
-          if (!document.hidden)
-            setTimeout(() => {
-              if (!picked) clean();
-            }, 20); // wait for change event, not sure 20ms is too fast or not on some devices // TODO
-        }),
+        // in mobile, browser will be in background when picking files, listen to visibility change to detect if canceled (In Android, file pick will be cancel if we switch to other app)
+        // it's also ok to do this in PC chromium or firefox, as it won't be fired when picking(BUT Safari does!!!)
+        // so only do this when supportTouch and not in ios
+        // not tested in PC touching devices
+        supportTouch &&
+          !navigator.userAgent.includes('Mac') &&
+          on(document, 'visibilitychange', () => {
+            // once document is show, check if picked any file
+            if (!document.hidden)
+              setTimeout(() => {
+                if (!picked) clean();
+              }, 20); // wait for change event, not sure 20ms is too fast or not on some devices // TODO
+          }),
         // focus does's work, use pointer check instead
-        // pointermove will still be fired when file dialog opens... but only be fired when pointer moves from file dialog to browser window, so check the event timeStamp to detect if it's continuous move
+        // In Mac chromium, pointermove will still be fired when file dialog opens... but only be fired when pointer moves from file dialog to browser window, so check the event timeStamp to detect if it's continuous move
         on(window, 'pointermove', (e) => {
           const gap = e.timeStamp - lastTime;
           if (gap < 50) clean();
@@ -114,6 +119,9 @@ export const FilePicker = defineSSRCustomElement({
     // check if file select is canceled for type=file input, it's for browser which does not support input cancel event
 
     const inputHandlers = {
+      onClick() {
+        if (picking) listenIfCancel();
+      },
       onChange(e: Event) {
         picked = true;
         const input = e.target as HTMLInputElement;
@@ -231,14 +239,14 @@ export const FilePicker = defineSSRCustomElement({
         }
       }
 
-      if (isInputSupportPicker()) {
-        try {
-          input.showPicker();
-        } catch {
-          clean(false);
-        }
-      } else input.click();
-      listenIfCancel();
+      // if (isInputSupportPicker()) {
+      //   try {
+      //     input.showPicker();
+      //   } catch {
+      //     clean(false);
+      //   }
+      // } else
+      input.click();
     };
     const slotHandlers = {
       onClick() {
