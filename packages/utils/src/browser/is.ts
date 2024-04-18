@@ -10,7 +10,8 @@ function is(
     | 'HTMLInputElement'
     | 'ShadowRoot'
     | 'HTMLStyleElement'
-    | 'HTMLSlotElement',
+    | 'HTMLSlotElement'
+    | 'Text',
 ) {
   return (
     globalThis[type] &&
@@ -62,4 +63,8 @@ export function isHTMLSlotElement(node: unknown): node is HTMLSlotElement {
 export function isRootOrBody(node: unknown): node is HTMLBodyElement | HTMLHtmlElement {
   const tag = (node as Element)?.tagName;
   return tag === 'BODY' || tag === 'HTML';
+}
+
+export function isText(node: unknown): node is Text {
+  return is(node, 'Text');
 }

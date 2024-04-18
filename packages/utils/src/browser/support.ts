@@ -78,4 +78,6 @@ export const supportSubgrid = supportCSSSupports && CSS.supports('grid-template-
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
 
-export const supportTouch = inBrowser && 'ontouchstart' in document.body ;
+export const supportTouch = inBrowser && 'ontouchstart' in document.body;
+
+export const isSupportSlotAssign = cacheFunctionResult(() => isFunction(HTMLSlotElement.prototype.assign));

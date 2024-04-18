@@ -68,7 +68,7 @@ export function defineCustomElement<
 >(
   options: ComponentOptionsWithoutProps<Props, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
-    shadowOptions?: ShadowRootInit | null;
+    shadowOptions?: Partial<ShadowRootInit> | null;
     formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
@@ -93,7 +93,7 @@ export function defineCustomElement<
 >(
   options: ComponentOptionsWithArrayProps<PropNames, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
-    shadowOptions?: ShadowRootInit | null;
+    shadowOptions?: Partial<ShadowRootInit> | null;
     formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
@@ -118,7 +118,7 @@ export function defineCustomElement<
 >(
   options: ComponentOptionsWithObjectProps<PropsOptions, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: Style[];
-    shadowOptions?: ShadowRootInit | null;
+    shadowOptions?: Partial<ShadowRootInit> | null;
     formAssociated?: boolean;
     customEventInit?: EventInitMap;
     onPropUpdate?: PropUpdateCallback;
@@ -156,7 +156,7 @@ const BaseClass = (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) 
 
 type InnerComponentDef = ConcreteComponent & {
   styles?: Style[];
-  shadowOptions?: ShadowRootInit | null;
+  shadowOptions?: Partial<ShadowRootInit> | null;
   formAssociated?: boolean;
   customEventInit?: EventInitMap;
   onPropUpdate?: PropUpdateCallback;

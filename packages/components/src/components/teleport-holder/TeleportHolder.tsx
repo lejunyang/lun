@@ -7,10 +7,13 @@ const name = 'teleport-holder';
 export const TeleportHolder = defineSSRCustomElement({
   name,
   props: teleportHolderProps,
+  shadowOptions: {
+    slotAssignment: 'manual',
+  },
   setup() {
     const zIndex = useContextConfig('zIndex');
     return () => (
-      <style type="text/css">{`:host{position:fixed;inset:0;pointer-events:none;z-index:${zIndex.teleport};}:host *{pointer-events:auto}`}</style>
+      <style>{`:host{position:fixed;inset:0;pointer-events:none;z-index:${zIndex.teleport};}:host *{pointer-events:auto}`}</style>
     );
   },
 });
