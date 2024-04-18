@@ -13,7 +13,7 @@ import {
   createTransitionProps,
   themeProps,
 } from 'common';
-import type { Placement, ShiftOptions } from '@floating-ui/vue';
+import type { AutoUpdateOptions, Placement, ShiftOptions } from '@floating-ui/vue';
 import type { Derivable, InlineOptions } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
@@ -30,7 +30,7 @@ export const popoverProps = freeze({
   /** used to manually set the anchor target of popover */
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   /** determine the implementation type of popover */
-  type: PropString<'popover' | 'fixed' | 'teleport'>(),
+  type: PropString<'popover' | 'position' | 'teleport'>(),
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
   to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
 
@@ -40,6 +40,7 @@ export const popoverProps = freeze({
   preferHtml: PropBoolean(),
   defaultChildren: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(), // it was named as 'children', but 'children' is a reserved prop in react
 
+  strategy: PropString<'fixed' | 'absolute'>(),
   placement: PropString<Placement>(),
   /** @link https://floating-ui.com/docs/offset */
   offset: PropNumber(),
@@ -48,6 +49,8 @@ export const popoverProps = freeze({
   shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
   /** @link https://floating-ui.com/docs/inline */
   inline: PropObjOrBool<boolean | InlineOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
+  /** @link https://floating-ui.com/docs/autoUpdate */
+  autoUpdateOptions: PropObject<AutoUpdateOptions>(),
 
   /** used to make the pop content same width or height as the target element. */
   sync: PropString<'width' | 'height' | 'both'>(),
@@ -62,9 +65,9 @@ export const popoverProps = freeze({
   triggers: PropStrOrArr<PopoverTrigger | PopoverTrigger[]>(),
   /** it's only for click trigger, used to toggle open and close state when click. */
   toggleMode: PropBoolean(),
-  /** 
+  /**
    * it's only for click and contextmenu trigger, it's to determine the pop target.
-   * If is's rect(which is default), pop target is popover element itself; if it's coord, pop target is the pointer coordinate when clicking 
+   * If is's rect(which is default), pop target is popover element itself; if it's coord, pop target is the pointer coordinate when clicking
    */
   pointerTarget: PropString<'rect' | 'coord'>(),
   /** it's for multiple targets(manually attachTarget) */

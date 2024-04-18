@@ -30,18 +30,18 @@ export const Popover = defineSSRCustomElement({
     const ns = useNamespace(name);
     const /** pop content element with type=popover */ popRef = ref<HTMLDivElement>(),
       slotRef = ref<HTMLSlotElement>(),
-      /** pop content element when type=fixed or teleport fixed */ fixedRef = ref<HTMLDivElement>(),
+      /** pop content element when type=position or teleport */ positionedRef = ref<HTMLDivElement>(),
       arrowRef = ref();
     const type = computed(() => {
-      if (popSupport[props.type!]) return props.type;
-      else return objectKeys(popSupport).find((i) => popSupport[i]);
+      if (popSupport[props.type!]) return props.type!;
+      else return objectKeys(popSupport).find((i) => popSupport[i])!;
     });
     const contextZIndex = useContextConfig('zIndex');
     const wrapTeleport = useTeleport(props);
 
     const shadow = useShadowDom();
     /** actual pop content element ref */
-    const actualPop = computed(() => popRef.value || fixedRef.value);
+    const actualPop = computed(() => popRef.value || positionedRef.value);
     const propVirtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
       return isFunction(target?.getBoundingClientRect) ? target : null;
@@ -75,9 +75,9 @@ export const Popover = defineSSRCustomElement({
           },
           onOpen() {
             const popover = popRef.value;
-            const fixed = fixedRef.value;
+            const p = positionedRef.value;
             if (popover) popover.showPopover();
-            return !!(popover || fixed);
+            return !!(popover || p);
           },
           target: innerTarget,
           pop: actualPop,
@@ -108,6 +108,13 @@ export const Popover = defineSSRCustomElement({
         referenceRect(),
       ].filter(Boolean) as any;
     });
+    const strategy = computed(() => {
+      const { strategy } = props;
+      if (strategy === 'fixed' || strategy === 'absolute') return strategy;
+      const { value } = type;
+      return value === 'popover' || !actualTarget.value?.assignedSlot ? 'absolute' : 'fixed';
+    });
+    // TODO copy useFloating, we need to change platform implementation to support strategy absolute
     const {
       floatingStyles,
       middlewareData,
@@ -116,12 +123,9 @@ export const Popover = defineSSRCustomElement({
       isPositioned,
     } = useFloating(currentTarget, actualPop as any, {
       whileElementsMounted: (...args) => {
-        return autoUpdate(...args, {
-          // TODO add props
-          // elementResize: false, // 这个也会影响target的resize， select需要同步target的宽度
-        });
+        return autoUpdate(...args, props.autoUpdateOptions);
       },
-      strategy: 'fixed',
+      strategy,
       placement,
       open: isOpen,
       middleware,
@@ -218,7 +222,7 @@ export const Popover = defineSSRCustomElement({
         <>
           {props.showArrow && (
             <div
-              part="arrow"
+              part={ns.p('arrow')}
               ref={arrowRef}
               // always prevent it for pointerTarget=coord, trigger=contextmenu
               onContextmenu={prevent}
@@ -231,17 +235,17 @@ export const Popover = defineSSRCustomElement({
       );
     };
 
-    const getFixed = () => {
-      const { value } = type;
-      const isTeleport = value === 'teleport';
+    const getPositionContent = () => {
+      const { value } = strategy;
+      const isTeleport = type.value === 'teleport';
       const result = wrapTransition(
         <div
           {...popContentHandlers}
-          part={isTeleport ? '' : 'fixed content'}
+          part={isTeleport ? '' : ns.p([value, 'content'])}
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
-          ref={fixedRef}
-          class={getRootClass('fixed')}
+          ref={positionedRef}
+          class={getRootClass(value)}
         >
           {getContent(!isTeleport)}
         </div>,
@@ -254,11 +258,14 @@ export const Popover = defineSSRCustomElement({
         emit('open');
       },
       onAfterEnter(el) {
-        (el as HTMLElement).classList.add(ns.is('entered')); // it's for transition; transition should only be set when entered, or initial left/top change can cause unexpected shift
+        // it's for transition; transition should only be set when entered, or initial left/top change can cause unexpected shift
+        (el as HTMLElement).classList.add(ns.is('entered'));
         emit('afterOpen');
       },
-      onLeave(el) {
+      onBeforeLeave(el) {
         (el as HTMLElement).classList.remove(ns.is('entered'));
+      },
+      onLeave() {
         emit('close');
       },
       onAfterLeave() {
@@ -292,7 +299,7 @@ export const Popover = defineSSRCustomElement({
                   {getContent()}
                 </div>,
               )
-            : getFixed()}
+            : getPositionContent()}
           <slot {...targetHandlers} ref={slotRef}>
             {runIfFn(props.defaultChildren, { isOpen: isOpen.value, isShow: isShow.value })}
           </slot>
