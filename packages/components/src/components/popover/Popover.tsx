@@ -4,7 +4,7 @@ import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } fr
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, objectKeys, runIfFn, virtualGetMerge } from '@lun/utils';
-import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
+import { useCEExpose, useManualSlot, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
   autoUpdate,
@@ -36,8 +36,10 @@ export const Popover = defineSSRCustomElement({
       if (popSupport[props.type!]) return props.type!;
       else return objectKeys(popSupport).find((i) => popSupport[i])!;
     });
+    const isTeleport = () => type.value === 'teleport';
+
     const contextZIndex = useContextConfig('zIndex');
-    const wrapTeleport = useTeleport(props);
+    const [wrapTeleport, teleportTarget] = useTeleport(props);
 
     const shadow = useShadowDom();
     /** actual pop content element ref */
@@ -207,9 +209,10 @@ export const Popover = defineSSRCustomElement({
       ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
     ];
 
+    const renderContentSlot = useManualSlot(teleportTarget, 'pop-content', isTeleport);
     let cacheContent: any;
     const prevent = (e: Event) => e.preventDefault();
-    const getContent = (wrapSlot = true) => {
+    const getContent = () => {
       const { content, contentType, preferHtml, freezeWhenClosing } = props;
       let finalContent: any;
       const contentNode =
@@ -230,27 +233,26 @@ export const Popover = defineSSRCustomElement({
               class={ns.e('arrow')}
             ></div>
           )}
-          {wrapSlot && !contentNode ? <slot name="pop-content"></slot> : contentNode}
+          {!contentNode ? renderContentSlot() : contentNode}
         </>
       );
     };
 
     const getPositionContent = () => {
       const { value } = strategy;
-      const isTeleport = type.value === 'teleport';
       const result = wrapTransition(
         <div
           {...popContentHandlers}
-          part={isTeleport ? '' : ns.p([value, 'content'])}
+          part={isTeleport() ? '' : ns.p([value, 'content'])}
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
           ref={positionedRef}
           class={getRootClass(value)}
         >
-          {getContent(!isTeleport)}
+          {getContent()}
         </div>,
       );
-      return wrapTeleport(result, isTeleport);
+      return wrapTeleport(result, isTeleport());
     };
 
     const transitionHandler = {

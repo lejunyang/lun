@@ -139,7 +139,7 @@ export const Message = Object.assign(
 
       useCEExpose(methods);
 
-      const wrapTeleport = useTeleport(props);
+      const [wrapTeleport] = useTeleport(props);
 
       return () => {
         const { placement } = props;

@@ -10,5 +10,8 @@ export function useTeleport<
 >(props: P, key?: K) {
   key ||= 'to' as K;
   const teleportTarget = computed(() => getTeleportHolderInstance(unrefOrGet(props[key])));
-  return (node: VNode, when: boolean) => (when ? h(Teleport, { to: teleportTarget.value?.shadowRoot }, node) : node);
+  return [
+    (node: VNode, when: boolean) => (when ? h(Teleport, { to: teleportTarget.value?.shadowRoot }, node) : node),
+    teleportTarget,
+  ] as const;
 }
