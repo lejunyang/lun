@@ -63,14 +63,15 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, reactive, watchEffect, defineAsyncComponent, computed } from 'vue';
-import { debounce, objectKeys, runIfFn } from '@lun/utils';
+import { ref, reactive, watchEffect, defineAsyncComponent, computed, h } from 'vue';
+import { debounce, objectKeys, runIfFn, isFunction } from '@lun/utils';
 import { VCustomRenderer } from '@lun/components';
 import { runVueTSXCode, runReactTSXCode } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
 import { Ref } from 'vue';
+import { createElement } from 'react';
 
 const data = useData();
 const userLang = data.lang as any as Ref<keyof typeof locales>;
@@ -148,7 +149,8 @@ const handleCodeChange = debounce(async () => {
     }
     switch (lang.value) {
       case 'vueJSX':
-        rendererProps.content = await runVueTSXCode(code);
+        const vContent = await runVueTSXCode(code);
+        rendererProps.content = isFunction(vContent) ? h(vContent) : vContent;
         rendererProps.type = 'vnode';
         break;
       case 'html':
@@ -156,7 +158,8 @@ const handleCodeChange = debounce(async () => {
         rendererProps.content = code;
         break;
       case 'react':
-        rendererProps.content = await runReactTSXCode(code);
+        const rContent = await runReactTSXCode(code);
+        rendererProps.content = isFunction(rContent) ? createElement(rContent) : rContent;
         rendererProps.type = 'react';
         break;
     }

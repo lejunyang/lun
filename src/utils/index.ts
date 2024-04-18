@@ -1,5 +1,5 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
-import { inBrowser, isFunction, on } from '@lun/utils';
+import { inBrowser, isFunction, onOnce } from '@lun/utils';
 import * as data from './data';
 
 const allowedImport = new Set([
@@ -52,7 +52,7 @@ const initPromise = (async () => {
       import('../components/Editor.vue'); // trigger load Editor but don't wait it
       resolve();
     };
-    on(window, 'load', load, { once: true });
+    onOnce(window, 'load', load);
   });
 })();
 

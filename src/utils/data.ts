@@ -1,5 +1,5 @@
 import { themeColors } from '@lun/components';
-import { delay } from '@lun/utils';
+import { delay, toArrayIfNotNil } from '@lun/utils';
 import { ref } from 'vue';
 
 // data for some code cases
@@ -73,3 +73,8 @@ setInterval(() => {
   if (growingProgress.value >= 100) growingProgress.value = 0;
   else growingProgress.value += 10;
 }, 1500);
+
+export const filesRenderer = (files) =>
+  toArrayIfNotNil(files)
+    .map((file) => file.name)
+    .join(', ');

@@ -6,6 +6,17 @@ const files2 = ref([]);
 export default () => (
   <>
     <div class="w-full">
+      <l-file-picker multiple v-update={files1.value} preferFileApi={false}>
+        <l-button>选择多个文件</l-button>
+      </l-file-picker>
+      <div>
+        已选择：
+        {files1.value.map((file) => (
+          <l-tag>{file.name}</l-tag>
+        ))}
+      </div>
+    </div>
+    <div class="w-full">
       <l-file-picker multiple v-update={files1.value}>
         <l-button>选择多个文件</l-button>
       </l-file-picker>
