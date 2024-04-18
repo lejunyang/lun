@@ -9,7 +9,7 @@ export const messageProps = freeze({
   ...calloutProps,
   ...createTransitionProps('callout'),
   /** determine the implementation type of popover */
-  type: PropString<'popover' | 'fixed' | 'teleport'>(),
+  type: PropString<'popover' | 'position' | 'teleport'>(),
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
   to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
   placement: PropString<Side | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' | 'center'>(),

@@ -29,7 +29,7 @@ export const Message = Object.assign(
       const show = computed(() => showCount.value > 0);
       const zIndex = useContextConfig('zIndex');
       const isPopover = computed(() => type.value === 'popover');
-      const isFixed = computed(() => type.value === 'fixed' || type.value === 'teleport');
+      const isFixed = computed(() => type.value === 'position' || type.value === 'teleport');
 
       const placementMarginMap = {
         'top-start': '0 auto auto 0',
