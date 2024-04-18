@@ -3,6 +3,10 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+// :host {
+//   position: relative; // 会影响position+absolute时那个嵌套的宽度
+// }
+
 @include b(popover) {
   $contentPadding: getVarName((popover, content, padding));
   $arrowSize: getVarName((popover, arrow, size));
@@ -13,8 +17,15 @@
   box-shadow: getShadow(5);
   box-sizing: border-box;
 
+  // @include declareVars((transition));
   @include is(entered) {
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.23, 0.64, 0.34, 1);
+    // do not use below way... found it will make nested popover transition abnormal... no idea why
+    // @include setVars(
+    //   (
+    //     // transition: all 0.2s cubic-bezier(0.23, 0.64, 0.34, 1),
+    //   )
+    // );
   }
 
   @include e(arrow) {
