@@ -116,7 +116,9 @@ export const FormItem = defineSSRCustomElement({
         noLabel,
         help,
         helpType,
+        hideWhen,
       } = props.value;
+      if (formContext && runIfFn(hideWhen, { formContext, formItemProps: props.value })) return;
       const { required } = states.value;
       let { hasLabel } = formContext?.layoutInfo.value || {};
       hasLabel &&= !noLabel;

@@ -5,6 +5,7 @@ import {
   LogicalPosition,
   PropBoolOrFunc,
   PropBoolean,
+  PropFunction,
   PropNumber,
   PropObjOrFunc,
   PropObject,
@@ -53,9 +54,14 @@ export const formItemProps = freeze({
 
   element: PropString<ComponentKey>(),
   elementProps: PropObjOrFunc<
-    | object
-    | ((param: { formContext: CollectorContext<any, any, FormProvideExtra> | undefined; formItemProps: any }) => any)
+    object | ((param: { formContext: CollectorContext<any, any, any> | undefined; formItemProps: any }) => any)
   >(),
+
+  /** used to dynamically hide the form-item */
+  hideWhen:
+    PropFunction<
+      (param: { formContext: CollectorContext<any, any, any> | undefined; formItemProps: any }) => boolean
+    >(),
 
   // props for extra info
   label: PropString(),
