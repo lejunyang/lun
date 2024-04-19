@@ -7,7 +7,7 @@
   @include variant(surface) {
     @include e(indicator) {
       background-color: getSemanticColor(surface);
-      box-shadow: inset 0 0 0 1px getGrayColor(a7);
+      border: 1px solid getGrayColor(a7);
     }
     @include is(on) {
       @include e(indicator) {
@@ -25,7 +25,7 @@
     @include is(disabled) {
       @include e(indicator) {
         color: getGrayColor(a8);
-        box-shadow: inset 0 0 0 1px getGrayColor(a6);
+        border: 1px solid getGrayColor(a6);
         background-color: getGrayColor(a3);
       }
     }
