@@ -3,7 +3,7 @@
 @use '../mixins/theme' as *;
 @use 'sass:math';
 
-#{$theme-provider-el-name}:where([root]:not([scale])) {
+#{$theme-provider-el-name} {
   @for $num from 1 through 4 {
     // need concat empty string to convert, or sass would throw error...
     #{getVarName(($space-name, '' + $num))}: calc(#{4 * $num}px * #{getScaleValue()});

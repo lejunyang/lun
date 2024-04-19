@@ -4,6 +4,7 @@ import {
   editStateProps,
   GetEventPropsFromEmits,
   GrayColors,
+  PropNumber,
   PropString,
   ThemeProps,
   themeProps,
@@ -26,7 +27,7 @@ export const themeProviderProps = freeze({
     },
   ),
   grayColor: PropString<GrayColors>(),
-  scale: PropString(),
+  scale: PropNumber(),
 });
 
 export const themeProviderEmits = freeze({});
