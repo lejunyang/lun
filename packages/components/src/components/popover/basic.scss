@@ -1,17 +1,4 @@
-:host {
-  display: inline-block;
-}
-[popover] {
-  margin: initial;
-  padding: initial;
-  border: initial;
-  outline: initial;
-  background-color: initial;
-}
-[popover] {
-  // important!! If don't set overflow unset, the arrow will not show. Maybe it's due to top layer popover, no idea why
-  overflow: unset;
-}
+
 
 @keyframes slideDownIn {
   0% {

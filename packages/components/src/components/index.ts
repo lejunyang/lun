@@ -7,7 +7,7 @@ import { defineDialog } from './dialog/Dialog';
 import { defineDivider } from './divider/Divider';
 import { defineForm } from './form/Form';
 import { defineFormItem } from './form-item/FormItem';
-import { defineIcon, importIconStyle } from './icon/Icon';
+import { defineIcon } from './icon/Icon';
 import { defineInput } from './input/Input';
 import { defineMessage } from './message/Message';
 import { definePopover } from './popover/Popover';
@@ -23,7 +23,6 @@ import { defineThemeProvider } from './theme-provider/ThemeProvider';
 import { defineTooltip } from './tooltip/Tooltip';
 import { defineFilePicker } from './file-picker/FilePicker';
 import { defineWatermark } from './watermark/Watermark';
-import { importPopoverStyle } from './popover';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
@@ -31,11 +30,6 @@ import { once, supportCustomElement } from '@lun/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
-
-export function importAllBasicStyles() {
-  importIconStyle();
-  importPopoverStyle();
-}
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;

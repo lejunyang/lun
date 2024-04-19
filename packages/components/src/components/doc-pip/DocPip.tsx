@@ -118,6 +118,9 @@ export const DocPip = defineSSRCustomElement({
         return (opened.value = true);
       },
       closePip() {
+        if (__DEV__ && opening) {
+          return error('The picture-in-picture window is opening, please wait for it to finish.');
+        }
         opened.value = false;
         slotNodes.forEach((e) => {
           shadow.CE?.append(e);
@@ -132,7 +135,7 @@ export const DocPip = defineSSRCustomElement({
       },
       togglePip() {
         if (opened.value) methods.closePip();
-        else methods.openPip().catch(error);
+        else return methods.openPip().catch(error);
       },
     };
 
@@ -149,9 +152,9 @@ export const DocPip = defineSSRCustomElement({
 
 export type tDocPip = typeof DocPip;
 export type iDocPip = InstanceType<tDocPip> & {
-  openPip: (...otherStyles: DocPipAcceptStyle[]) => Promise<boolean>;
+  openPip: (...otherStyles: DocPipAcceptStyle[]) => Promise<boolean | undefined>;
   closePip: () => void;
-  togglePip: () => void;
+  togglePip: () => Promise<boolean | undefined> | undefined;
 };
 
 export const defineDocPip = createDefineElement(name, DocPip);

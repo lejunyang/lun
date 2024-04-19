@@ -27,7 +27,7 @@ export const ThemeProvider = defineSSRCustomElement({
     // return () => undefined;
     return () => (
       <>
-        <style>{`:host{${ns.vn('scale', false)}:${props.scale}`}</style>
+        <style>{`:host{${ns.vn('scale', false)}:${props.scale}}`}</style>
         <slot></slot>
       </>
     );

@@ -66,13 +66,13 @@ export const Button = defineSSRCustomElement({
     const [stateClass] = useCEStates(() => ({ 'hold-show': holdShow }), ns, editComputed);
 
     return () => {
-      const { iconName, iconLibrary, size } = props;
+      const { iconName, iconLibrary, size, spinProps, showLoading, hold, label, iconPosition } = props;
       const { interactive, loading } = editComputed.value;
       const finalDisabled = !interactive;
-      const spinProps = { size, ...props.spinProps, part: 'spin' };
+      const finalSpinProps = { size, ...spinProps, part: 'spin' };
       const loadingPart =
-        loading && props.showLoading ? (
-          renderElement('spin', spinProps)
+        loading && showLoading ? (
+          renderElement('spin', finalSpinProps)
         ) : (
           <slot name="icon">{iconName && renderElement('icon', { name: iconName, library: iconLibrary })}</slot>
         );
@@ -83,15 +83,15 @@ export const Button = defineSSRCustomElement({
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handleClick.value}
-          part="button"
-          style={ns.v({ hold: props.hold && `${props.hold}ms` })}
+          part={ns.p('root')}
+          style={ns.v({ hold: hold && `${hold}ms` })}
         >
           <Transition name="hold" {...holdTransitionHandlers}>
-            {holdShow.value && <div class="hold-enter-active" part="hold"></div>}
+            {holdShow.value && <div part="hold"></div>}
           </Transition>
-          {props.iconPosition === 'start' && loadingPart}
-          <slot>{props.label}</slot>
-          {props.iconPosition === 'end' && loadingPart}
+          {iconPosition === 'start' && loadingPart}
+          <slot>{label}</slot>
+          {iconPosition === 'end' && loadingPart}
         </button>
       );
     };
