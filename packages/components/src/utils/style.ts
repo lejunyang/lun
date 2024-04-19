@@ -3,10 +3,11 @@ import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
 export function processStringStyle(style: string) {
-  const { wrapCSSLayer, preferCSSStyleSheet } = GlobalStaticConfig;
+  const { wrapCSSLayer, preferCSSStyleSheet, stylePreprocessor } = GlobalStaticConfig;
   if (supportCSSLayer && wrapCSSLayer) {
     style = `@layer ${isString(wrapCSSLayer) ? wrapCSSLayer : 'lun'} {${style}}`;
   }
+  style = stylePreprocessor(style);
   if (isSupportCSSStyleSheet() && preferCSSStyleSheet) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(style);

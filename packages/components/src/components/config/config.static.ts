@@ -42,11 +42,7 @@ export const openShadowComponents = freeze([
   'theme-provider',
   'tooltip',
 ] as const);
-export const components = freeze([
-  ...openShadowComponents,
-  ...noShadowComponents,
-  ...closedShadowComponents,
-] as const);
+export const components = freeze([...openShadowComponents, ...noShadowComponents, ...closedShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
 export type OpenShadowComponentKey = (typeof openShadowComponents)[number];
 
@@ -99,6 +95,7 @@ export const GlobalStaticConfig = new Proxy(
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** whether wrap &#64;layer for components' styles. will use it as layer name if it's truthy string, or use 'lun' as default */
     wrapCSSLayer: supportCSSLayer as boolean | string,
+    stylePreprocessor: (css: string) => css,
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
     computedStyles: new Proxy(styles, {
