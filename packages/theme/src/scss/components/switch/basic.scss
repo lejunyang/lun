@@ -94,7 +94,7 @@
     @include setVars(
       (
         children-padding: 0 calc(#{getSpaceValue(1)} / 2),
-        border-radius: getRadiusValue(1, false),
+        border-radius: getRadiusValue(1, 'thumb'),
         height: getSpaceValue(4),
         children-font-size: getFontSizeValue(1),
       )
@@ -104,7 +104,7 @@
     @include setVars(
       (
         children-padding: 0 #{getSpaceValue(1)},
-        border-radius: getRadiusValue(2, false),
+        border-radius: getRadiusValue(2, 'thumb'),
         height: calc(#{getSpaceValue(5)} * 5 / 6),
         children-font-size: getFontSizeValue(2),
       )
@@ -114,7 +114,7 @@
     @include setVars(
       (
         children-padding: 0 #{getSpaceValue(2)},
-        border-radius: getRadiusValue(2, false),
+        border-radius: getRadiusValue(2, 'thumb'),
         height: getSpaceValue(5),
         children-font-size: getFontSizeValue(3),
       )

@@ -355,7 +355,7 @@
   @include size(1) {
     @include setVars(
       (
-        border-radius: getRadiusValue(2),
+        border-radius: getRadiusValue(2, 'full'),
         font-size: getFontSizeValue(1),
         block-size: getSpaceValue(5),
         line-height: getSpaceValue(5),
@@ -379,7 +379,7 @@
   @include size(2) {
     @include setVars(
       (
-        border-radius: getRadiusValue(2),
+        border-radius: getRadiusValue(2, 'full'),
         block-size: getSpaceValue(6),
         font-size: getFontSizeValue(2),
         line-height: getSpaceValue(6),
@@ -403,7 +403,7 @@
   @include size(3) {
     @include setVars(
       (
-        border-radius: getRadiusValue(3),
+        border-radius: getRadiusValue(3, 'full'),
         block-size: getSpaceValue(7),
         font-size: getFontSizeValue(3),
         line-height: getSpaceValue(7),

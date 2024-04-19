@@ -134,16 +134,18 @@
 }
 
 // radius
-@function getRadiusValue($level, $isFull: true) {
-  $name: $radius-full-name;
-  @if not $isFull {
-    $name: $radius-thumb-name;
+/// $canBe can be 'full' or 'thumb'. 'full' means it will get full border-radius when radius=full, 'thumb' means it will get full border-radius when radius>=medium
+@function getRadiusValue($level, $canBe: null) {
+  @if $canBe == 'full' {
+    @return max(getVarValue(($radius-name, $level)), getVarValue(($radius-full-name)));
   }
-  @return max(getVarValue(($radius-name, $level)), getVarValue(($name)));
+  @if $canBe == 'thumb' {
+    @return max(getVarValue(($radius-name, $level)), getVarValue(($radius-thumb-name)));
+  }
+  @return getVarValue(($radius-name, $level));
 }
 
 // cursor
-
 @function getDisabledCursor() {
   @return var(--#{$namespace}-cursor-disabled, not-allowed);
 }

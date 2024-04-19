@@ -12,6 +12,6 @@
 
   @include is((button, checked)) {
     background-color: getSemanticColor(surface);
-    color: getAccentColor(a11);
+    color: getAccentColor(11);
   }
 }

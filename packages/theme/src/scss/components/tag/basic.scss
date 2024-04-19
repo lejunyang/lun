@@ -23,7 +23,7 @@
     letter-spacing: getLetterSpacingValue(1);
     padding: calc(getSpaceValue(1) / 2) getSpaceValue(2);
     gap: calc(getSpaceValue(1) * 0.5);
-    border-radius: getRadiusValue(1);
+    border-radius: getRadiusValue(1, 'full');
   }
 
   @include size(2) {
@@ -32,7 +32,7 @@
     letter-spacing: getLetterSpacingValue(2);
     padding: calc(getSpaceValue(1)) getSpaceValue(3);
     gap: getSpaceValue(1);
-    border-radius: getRadiusValue(2);
+    border-radius: getRadiusValue(2, 'full');
   }
 
   @include size(3) {
@@ -41,7 +41,7 @@
     letter-spacing: getLetterSpacingValue(2);
     padding: calc(getSpaceValue(1) * 1.5) getSpaceValue(4);
     gap: calc(getSpaceValue(2) * 0.75);
-    border-radius: getRadiusValue(2);
+    border-radius: getRadiusValue(2, 'full');
   }
 
   @include e(icon) {

@@ -54,14 +54,14 @@
       (
         gap: getSpaceValue(1),
         font-size: getFontSizeValue(1),
-        button-border-radius: getRadiusValue(1),
+        button-border-radius: getRadiusValue(1, 'full'),
         button-padding-inline: getSpaceValue(2),
         button-line-height: getLineHeightValue(1),
         button-height: getSpaceValue(5),
       )
     );
     @include e(indicator) {
-      border-radius: getRadiusValue(1, false);
+      border-radius: getRadiusValue(1, 'thumb');
     }
   }
   @include size(2) {
@@ -70,14 +70,14 @@
       (
         gap: getSpaceValue(1),
         font-size: getFontSizeValue(2),
-        button-border-radius: getRadiusValue(2),
+        button-border-radius: getRadiusValue(2, 'full'),
         button-padding-inline: getSpaceValue(3),
         button-line-height: getLineHeightValue(2),
         button-height: getSpaceValue(6),
       )
     );
     @include e(indicator) {
-      border-radius: getRadiusValue(2, false);
+      border-radius: getRadiusValue(2, 'thumb');
     }
   }
   @include size(3) {
@@ -86,14 +86,14 @@
       (
         gap: getSpaceValue(1),
         font-size: getFontSizeValue(3),
-        button-border-radius: getRadiusValue(3),
+        button-border-radius: getRadiusValue(3, 'full'),
         button-padding-inline: getSpaceValue(4),
         button-line-height: getLineHeightValue(3),
         button-height: getSpaceValue(7),
       )
     );
     @include e(indicator) {
-      border-radius: getRadiusValue(2, false);
+      border-radius: getRadiusValue(2, 'thumb');
     }
   }
 }

@@ -18,8 +18,7 @@
       display: none;
     }
     @include hover {
-      // background-color: getAccentColor(a4);
-      color: getAccentColor(a11);
+      color: getAccentColor(a9);
     }
   }
   @include is(start) {
