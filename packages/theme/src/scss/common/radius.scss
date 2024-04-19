@@ -1,0 +1,49 @@
+@use '../mixins/theme' as *;
+@use '../mixins/config' as *;
+@use '../mixins/function' as *;
+
+:host {
+  $factor: getVarName(($radius-name, factor));
+  $full: getVarName($radius-full-name);
+  $thumb: getVarName($radius-thumb-name);
+
+  @at-root {
+    :host(:is([#{$radius-name}='none'], [data-#{$radius-name}='none'])) {
+      #{$factor}: 0;
+      #{$full}: 0px;
+      #{$thumb}: 0.5px;
+    }
+
+    :host(:is([#{$radius-name}='small'], [data-#{$radius-name}='small'])) {
+      #{$factor}: 0.75;
+      #{$full}: 0px;
+      #{$thumb}: 0.5px;
+    }
+
+    :host(:is([#{$radius-name}='medium'], [data-#{$radius-name}='medium'])) {
+      #{$factor}: 1;
+      #{$full}: 0px;
+      #{$thumb}: 9999px;
+    }
+
+    :host(:is([#{$radius-name}='large'], [data-#{$radius-name}='large'])) {
+      #{$factor}: 1.5;
+      #{$full}: 0px;
+      #{$thumb}: 9999px;
+    }
+
+    :host(:is([#{$radius-name}='full'], [data-#{$radius-name}='full'])) {
+      #{$factor}: 1.5;
+      #{$full}: 9999px;
+      #{$thumb}: 9999px;
+    }
+
+    // needs to be set on every element with a radius attribute, or it will just inherit the value from the theme-provider
+    :host(:is([#{$radius-name}], [data-#{$radius-name}])) {
+      @for $i from 1 through length($radius-list) {
+        $size: nth($radius-list, $i);
+        #{getVarName(($radius-name, $i))}: calc(#{$size} * #{getScaleValue()} * var(#{$factor}));
+      }
+    }
+  }
+}

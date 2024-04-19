@@ -1,13 +1,19 @@
-@use './transitions.scss';
-@use './keyframes.scss';
+@use './transitions.scss' as *;
+@use './keyframes.scss' as *;
 @use '../mixins/config.scss' as *;
 @use '../mixins/theme.scss' as *;
+@use './radius.scss' as *;
+@use './space.scss' as *;
 
 :host([hidden]) {
   display: none;
 }
 
 @each $color in $color-list {
-  @include generateThemeColor($color);
+  @include generateHostThemeColor($color);
+}
+// map gray colors
+@each $color in $gray-color-list {
+  @include generateHostGrayColor($color);
 }
 @include generateStatusColor(false);

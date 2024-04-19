@@ -46,6 +46,8 @@ import commonStyles from '../common/index.scss?inline';
 import { once } from '@lun/utils';
 import { importMentionsBasicTheme, importMentionsSurfaceTheme } from './mentions/index.ts';
 import { importRadioGroupBasicTheme } from './radio-group/index.ts';
+import { importThemeProviderBasicTheme } from './theme-provider/index.ts';
+import { importIconBasicTheme } from './icon/index.ts';
 
 export * from './button';
 export * from './callout';
@@ -70,7 +72,9 @@ export * from './tag';
 export * from './textarea';
 
 export const importBasicTheme = once(() => {
+  importThemeProviderBasicTheme();
   importButtonBasicTheme();
+  importIconBasicTheme();
   importCalloutBasicTheme();
   importCheckboxBasicTheme();
   importCheckboxGroupBasicTheme();
@@ -130,10 +134,10 @@ export const importGhostTheme = once(() => {
   importInputGhostTheme();
 });
 
-export const importCommonStyle = once(createImportStyle('common', commonStyles));
+export const importCommonTheme = once(createImportStyle('common', commonStyles));
 
 export const autoImportTheme = once(() => {
-  importCommonStyle();
+  importCommonTheme();
   __internal_defineSubscriber.push((comp) => {
     import(`./${comp}/index.ts`)
       .then((m) => {

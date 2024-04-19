@@ -226,13 +226,13 @@
   }
 }
 
-// generate styles for theme-provider or elements with color="xxx"
+// generate color styles for custom element itself or children elements with color="xxx"
 @mixin generateHostThemeColor($color, $noSelector: false) {
   @if $noSelector {
     @include generateColorProperties($color);
   } @else {
     :host(#{wrapThemeWhere('[' + $color-name + '=' + $color + ']')}),
-    ::slotted([#{$color-name + '=' + $color}]) {
+    [#{$color-name + '=' + $color}] {
       @include generateColorProperties($color);
     }
   }
@@ -263,6 +263,23 @@
     }
   } @else {
     &:where([#{$gray-color-name + '=' + $target}]) {
+      @for $num from 1 through 12 {
+        #{getVarName(($gray-name, $num))}: var(#{getVarName(($target, $num))});
+        #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($target, 'a' + $num))});
+      }
+    }
+  }
+}
+
+@mixin generateHostGrayColor($target, $noSelector: false) {
+  @if $noSelector {
+    @for $num from 1 through 12 {
+      #{getVarName(($gray-name, $num))}: var(#{getVarName(($target, $num))});
+      #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($target, 'a' + $num))});
+    }
+  } @else {
+    // do not wrap :where, or gray-color can not override default gray color's declaration(one with support display p3)
+    :host([#{$gray-color-name + '=' + $target}]) {
       @for $num from 1 through 12 {
         #{getVarName(($gray-name, $num))}: var(#{getVarName(($target, $num))});
         #{getVarName(($gray-name, 'a' + $num))}: var(#{getVarName(($target, 'a' + $num))});
