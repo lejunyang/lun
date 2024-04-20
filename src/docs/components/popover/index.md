@@ -57,11 +57,15 @@ lang: zh-CN
 
 检测到当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
 
+:::details Shadow DOM对offsetParent的限制
+被 slotted 的元素通过 offsetParent 无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent。在嵌套strategy=absolute时有可能导致定位错误，但内部对这种情况做了兼容，当`l-popover`为定位元素时优先取其作为内部offsetParent（**故其默认`position: relative`，请勿修改为static**）
+:::
+
 :::warning 严格注意 type 和 strategy 的组合
 
-- `strategy=absolute`：相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色。但是由于 shadow DOM 的限制，被 slotted 的元素通过 offsetParent 无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent，这会导致定位错误。由于内部 popover target 默认取的就是`l-popover`元素本身，所以**l-popover 没有被其他自定义元素 slotted 时，absolute 可以正常工作**。
+- `strategy=absolute`：相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色，但祖先为 fixed 时表现不佳。并且由于 shadow DOM 的限制，被 slotted 的元素通过 offsetParent 无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent，这会导致定位错误。由于内部 popover target 默认取的就是`l-popover`元素本身，所以**l-popover 没有被其他自定义元素 slotted 时，absolute 可以正常工作**。
   另外，top layer 下会直接以 window 计算定位，所以**当使用`type=popover`可以正常使用 absolute**
-- `strategy=fixed`：相对于最近块级祖先进行定位（通常为视口），当 target 为 fixed 时较为有用，它也可以用于防止被父级 overflow: hidden，最为重要的是，它对 shadow DOM 兼容性最好。但是页面滚动时，重新计算位置会有一定的视觉延迟
+- `strategy=fixed`：相对于最近块级祖先进行定位（通常为视口），当 target 为 fixed 时较为有用，它也可以用于防止被父级裁剪或遮挡，最为重要的是，它对 shadow DOM 兼容性最好。但是页面滚动时，重新计算位置会有一定的视觉延迟
 
 因此，内部对于 strategy 的取值逻辑为：
 

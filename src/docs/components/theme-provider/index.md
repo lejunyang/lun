@@ -20,13 +20,14 @@ export type ThemeProps = {
   color?: ThemeColor;
   // 变体
   variant?: string;
-  // 圆角
+  // 圆角，某些组件在到达某个值之后就不再变化
+  // 例如对于弹出面板large和full是一样的效果，对于switch组件，medium之后都是一样的效果
   radius?: 'none' | 'small' | 'medium' | 'large' | 'full';
   // 是否高对比
   highContrast?: boolean;
   // 夜间模式
   appearance?: 'light' | 'dark';
-  // 缩放
-  scale?: '0.9' | '0.95' | '1' | '1.05' | '1.1',
+  // 缩放，正数，建议在0.9~1.1之间选择。会影响间距、字体大小、圆角等的数值，并不是transform: scale
+  scale?: number;
 };
 ```

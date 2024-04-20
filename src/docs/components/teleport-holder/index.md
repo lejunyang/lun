@@ -12,5 +12,5 @@ type Props = {
 }
 ```
 - 其默认为 fixed 定位，`z-index`可在`GlobalContextConfig`中配置
-- 对于那些被`Teleport`的组件，`teleport-holder`只提供了它们在全局静态/动态配置中的样式，它们原节点本身的`innerStyle`无法生效
-- 需要注意的是，被Teleported的节点如果包含slot，则**该组件的这个插槽将无法使用**，具体有哪些请参考各个组件
+- 对于那些被Teleport的组件，`teleport-holder`只提供了它们在全局静态/动态配置中的样式，它们原节点本身的`innerStyle`无法生效
+- 需要注意的是，被Teleport的节点如果包含slot，则**该组件的这个插槽将无法使用**，具体有哪些请参考各个组件。但是某些组件可能针对插槽做了特殊处理，例如`popover`在被Teleport时仍可以使用插槽，但这是以克隆所有节点加MutationObserver的方式实现的，并且还需要浏览器支持HTMLSlotElement.assign，所以这种情况尽可能不要再使用插槽了

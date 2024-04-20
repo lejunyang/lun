@@ -28,9 +28,11 @@ export default function () {
 暂未发布到 npm
 
 ::: tip 注
+
 - 如果只需要组件，样式完全自定义的话，直接安装`@lun/components`即可
 - 如果需要主题，只需安装`@lun/theme`（其依赖于`@lun/components`）
 - React 中需额外安装`@lun/react`，使用其导出的组件
+
 :::
 
 ## 全量引入
@@ -39,7 +41,7 @@ export default function () {
 import { GlobalStaticConfig, defineAllComponents } from '@lun/components';
 import '@lun/theme/public.css'; // 引入公共主题样式
 import {
-  importCommonStyle,
+  importCommonTheme,
   importBasicTheme,
   importSurfaceTheme,
   importOutlineTheme,
@@ -50,7 +52,7 @@ import {
 // 定义组件前设置想要更改的全局静态配置
 GlobalStaticConfig.xx = xx;
 // 引入组件内部公共样式
-importCommonStyle();
+importCommonTheme();
 // 引入所有组件的基础主题
 importBasicTheme();
 // 引入所有其他主题
@@ -118,10 +120,11 @@ defineButton('my-button', {
 - [CSS :where :is](https://caniuse.com/?search=where) (chrome>=88, edge>=88, firefox>=78, safari>=14)
 - [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) (chrome>=89, edge>=89, firefox>=66, safari>=15)
 
-某些特性需要的版本较高, 但它们在内部有做兼容处理, 如下
+某些特性需要的版本较高, 但它们在内部有做兼容处理或替代方案, 如下
 
 - [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets)
 - [Dialog](https://caniuse.com/?search=Dialog)
+- [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign)
 - [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel)
 - [popover](https://caniuse.com/?search=popover)
 - [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)

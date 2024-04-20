@@ -1,5 +1,6 @@
 <template>
-  <l-popover triggers="click" class="theme-popover" shift size="2">
+  <!-- TODO change strategy to absolute when max-width: 768px -->
+  <l-popover triggers="click" class="theme-popover" shift size="2" strategy="fixed">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="20"
@@ -17,13 +18,13 @@
     </svg>
     <div slot="pop-content" class="theme-panel">
       <strong>{{ locales[lang]?.components.color }}</strong>
-      <l-radio-group size="3" :value="theme.color" @update="theme.color = $event.detail">
+      <l-radio-group size="3" v-update="theme.color">
         <l-radio v-for="color in themeColors" :key="color" :value="color" :color="color" no-indicator :title="color">
           <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
         </l-radio>
       </l-radio-group>
       <strong>{{ locales[lang]?.components.grayColor }}</strong>
-      <l-radio-group size="3" :value="theme['gray-color']" @update="theme['gray-color'] = $event.detail">
+      <l-radio-group size="3" v-update="theme['gray-color']">
         <l-radio v-for="color in grayColors" :key="color" :value="color" :color="color" no-indicator :title="color">
           <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
         </l-radio>
@@ -31,7 +32,7 @@
       <strong>{{ locales[lang]?.components.appearance }}</strong>
       <VPSwitchAppearance id="switch-appearance" />
       <strong>{{ locales[lang]?.components.size }}</strong>
-      <l-radio-group :value="theme.size" @update="theme.size = $event.detail">
+      <l-radio-group v-update="theme.size">
         <l-radio value="1" size="1"
           ><span class="size-radio-label">{{ locales[lang]?.components.small }}</span></l-radio
         >
@@ -43,16 +44,16 @@
         >
       </l-radio-group>
       <strong>{{ locales[lang]?.components.radius }}</strong>
-      <l-radio-group
-        size="3"
-        :value="theme.radius"
-        @update="theme.radius = $event.detail"
-        no-indicator
-        style="row-gap: 0"
-      >
-        <l-radio class="radius-radio" v-for="radius in radiuses" :value="radius" :key="radius">
-          <div class="wrapper"><div :class="`radius-image radius-${radius}`" :radius="radius"></div></div>
+      <l-radio-group size="3" v-update="theme.radius" no-indicator style="row-gap: 0">
+        <l-radio class="radius-radio" v-for="radius in radiuses" :value="radius" :key="radius" :radius="radius">
+          <div class="wrapper"><div :class="`radius-image radius-${radius}`"></div></div>
           <div class="radius-text">{{ radius }}</div>
+        </l-radio>
+      </l-radio-group>
+      <strong>{{ locales[lang]?.components.scale }}</strong>
+      <l-radio-group size="2" v-update="theme.scale" type="card" style="--l-radio-group-gap: 12px">
+        <l-radio v-for="scale in scales" :value="scale" :key="scale">
+          {{ (+scale * 100).toFixed(0) + '%' }}
         </l-radio>
       </l-radio-group>
     </div>
@@ -70,35 +71,29 @@ const props = defineProps<{
     'gray-color': string;
     size: string;
     radius: string;
+    scale: string;
   };
   lang?: string;
 }>();
 
 const radiuses = ['none', 'small', 'medium', 'large', 'full'];
+const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
 </script>
 
 <style lang="scss">
-l-theme-provider {
-  --outline-color: black;
-}
-l-theme-provider[appearance='dark'] {
-  --outline-color: white;
-}
 // hide vitepress's default appearance switcher
-.VPNavBarAppearance.appearance {
+.VPNavBarAppearance.appearance,
+.VPNavScreenAppearance.appearance {
   display: none;
 }
 .theme-popover {
+  margin-inline-start: 15px;
   svg {
     cursor: pointer;
   }
 }
 @media (max-width: 768px) {
-  .VPNavBarExtra.extra {
-    margin-inline: 0px;
-  }
   .theme-popover {
-    margin-inline-start: 15px;
     margin-inline-end: 10px;
   }
 }
@@ -125,13 +120,13 @@ l-theme-provider[appearance='dark'] {
     }
     // cannot use ',' for these three selectors, as they would all fail if one of them is not supported
     &[data-checked] .circle {
-      outline: 2px solid var(--outline-color);
+      outline: 2px solid var(--l-accent-9);
     }
     &:--checked .circle {
-      outline: 2px solid var(--outline-color);
+      outline: 2px solid var(--l-accent-9);
     }
     &:state(checked) .circle {
-      outline: 2px solid var(--outline-color);
+      outline: 2px solid var(--l-accent-9);
     }
   }
   .size-radio-label {
@@ -139,13 +134,13 @@ l-theme-provider[appearance='dark'] {
   }
   .radius-radio {
     &[data-checked] .wrapper {
-      outline: 2px solid var(--outline-color);
+      outline: 2px solid var(--l-accent-9);
     }
     &:--checked .wrapper {
-      outline: 2px solid var(--outline-color);
+      outline: 2px solid var(--l-accent-9);
     }
     &:state(checked) .wrapper {
-      outline: 2px solid var(--outline-color);
+      outline: 2px solid var(--l-accent-9);
     }
     .wrapper {
       outline: 1px solid var(---l-gray-7);
@@ -170,6 +165,12 @@ l-theme-provider[appearance='dark'] {
   }
 }
 .VPSocialLinks.VPNavBarSocialLinks {
-  margin-inline-end: 10px;
+  margin-inline-end: 0px;
+}
+.VPFlyout.VPNavBarExtra.extra {
+  margin-inline-end: 0px;
+  .group.translations + .group {
+    display: none;
+  }
 }
 </style>

@@ -5,12 +5,11 @@ import {
   GlobalStaticConfig,
   GlobalContextConfig,
   defineAllComponents,
-  importAllBasicStyles,
   registerCustomRenderer,
 } from '@lun/components';
-import '@lun/theme/scss/public/index.scss';
+// import '@lun/theme/scss/public/index.scss';
 import {
-  importCommonStyle,
+  importCommonTheme,
   importBasicTheme,
   importSurfaceTheme,
   importOutlineTheme,
@@ -39,8 +38,7 @@ export default {
       console.warn(msg);
     };
 
-    importCommonStyle();
-    importAllBasicStyles();
+    importCommonTheme();
     importBasicTheme();
     importOutlineTheme();
     importSoftTheme();

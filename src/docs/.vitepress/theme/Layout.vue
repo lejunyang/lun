@@ -43,6 +43,7 @@ const theme = reactive({
   'gray-color': 'slate',
   size: '2',
   radius: 'medium',
+  scale: '1',
 });
 
 const { isDark, lang, page } = useData();
