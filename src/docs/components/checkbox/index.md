@@ -23,6 +23,10 @@ import { themeColors } from '@lun/components';
 没有 value 的选项无法进行选择，其只会跟随该 group 的全选状态而改变
 :::
 
+## 卡片选项组
+
+<!-- @Code:card -->
+
 ## 纵向选项组
 
 <!-- @Code:verticalGroup -->

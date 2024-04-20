@@ -2,6 +2,7 @@
 @use '../../mixins/theme' as *;
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
+@use './surface.card.scss' as *;
 
 @include b(checkbox) {
   @include variant(surface) {

@@ -2,6 +2,7 @@
 @use '../../mixins/theme' as *;
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
+@use './basic.card.scss' as *;
 
 :host {
   display: inline-flex;

@@ -69,8 +69,11 @@ export const Checkbox = defineSSRCustomElement({
       },
     };
 
+    const type = computed(() => props.type || checkboxContext?.parent!.props.type);
+
     const [stateClass] = useCEStates(
       () => ({
+        card: type.value === 'card',
         checked,
         intermediate,
         on: checked.value || intermediate.value,

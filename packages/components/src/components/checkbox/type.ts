@@ -30,6 +30,7 @@ export const checkboxProps = freeze({
   checkForAll: PropBoolean(),
   onlyFor: PropString(),
   excludeFromGroup: PropBoolean(),
+  type: PropString<'checkbox' | 'card'>(),
 });
 
 export type CheckboxUpdateDetail = {
@@ -51,6 +52,7 @@ export const checkboxGroupProps = freeze({
   /** used to define an id for current checkbox group, with that, only checkbox with same onlyFor prop will be managed by this group */
   onlyFor: PropString(),
   vertical: PropBoolean(),
+  type: PropString<'checkbox' | 'card'>(),
 });
 
 export type CheckboxGroupUpdateDetail = {
