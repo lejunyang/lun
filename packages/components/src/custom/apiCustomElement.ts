@@ -31,6 +31,7 @@ import {
 import { preprocessComponentOptions } from '../utils';
 import { hyphenate, toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
 import { createPlainEvent } from '../utils/event';
+import { virtualParentMap } from './virtualParent';
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
 type EventInit = {
@@ -165,6 +166,12 @@ type InnerComponentDef = ConcreteComponent & {
 
 declare module 'vue' {
   interface ComponentInternalInstance {
+    /**
+     * used to access custom element when setup
+     * @internal
+     * @private
+     */
+    CE: VueElement;
     event: ReturnType<typeof createPlainEvent>;
     /**
      * resolved emits options
@@ -227,7 +234,7 @@ export class VueElement extends BaseClass {
     Object.freeze(_def);
     if (_def.shadowOptions === null) {
       if (__DEV__ && _def.styles) {
-        warn(`styles option in the custom components will not be ignored when shadowOptions is null`);
+        warn(`'styles' option in defineCustomElement will be ignored when shadowOptions is null`);
       }
     }
     if (this.shadowRoot && hydrate) {
@@ -408,6 +415,7 @@ export class VueElement extends BaseClass {
     if (!this._instance) {
       vnode.ce = (instance) => {
         this._instance = instance;
+        instance.CE = this;
         instance.isCE = true;
         instance.event = createPlainEvent(); // add Event Manager
         // HMR
@@ -449,6 +457,8 @@ export class VueElement extends BaseClass {
         let parent: Node | null = this;
         // parentNode of shadowRoot is null, use host to get parentNode
         while ((parent = parent && (parent.parentNode || (parent as ShadowRoot).host))) {
+          const virtual = virtualParentMap.get(parent) as VueElement;
+          if (virtual) parent = virtual;
           if (parent instanceof VueElement) {
             instance.parent = parent._instance;
             instance.provides = parent._instance!.provides;

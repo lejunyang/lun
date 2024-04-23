@@ -1,0 +1,1 @@
+export const virtualParentMap = new WeakMap<Node, Element>();
