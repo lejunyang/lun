@@ -139,7 +139,7 @@ export const Message = Object.assign(
 
       useCEExpose(methods);
 
-      const [wrapTeleport] = useTeleport(props);
+      const [wrapTeleport, vnodeHandlers] = useTeleport(props, () => type.value === 'teleport');
 
       return () => {
         const { placement } = props;
@@ -150,6 +150,7 @@ export const Message = Object.assign(
             part={ns.p('root')}
             {...rootProps.value}
             v-show={show.value}
+            {...vnodeHandlers}
           >
             <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
               {objectKeys(calloutMap).flatMap((key) => {
@@ -166,7 +167,7 @@ export const Message = Object.assign(
             </TransitionGroup>
           </div>
         );
-        return wrapTeleport(content, type.value === 'teleport');
+        return wrapTeleport(content);
       };
     },
   }),

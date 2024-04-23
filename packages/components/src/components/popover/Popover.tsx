@@ -8,17 +8,19 @@ import { useCEExpose, useManualSlot, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
   autoUpdate,
-  useFloating,
   arrow,
   offset as pluginOffset,
   ElementRects,
   shift as pluginShift,
   inline as pluginInline,
+  useFloating,
 } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
+import { virtualParentMap } from '../../custom/virtualParent';
+// import { useFloating } from './useFloating';
 
 const name = 'popover';
 export const Popover = defineSSRCustomElement({
@@ -36,12 +38,13 @@ export const Popover = defineSSRCustomElement({
       if (popSupport[props.type!]) return props.type!;
       else return objectKeys(popSupport).find((i) => popSupport[i])!;
     });
-    const isTeleport = () => type.value === 'teleport';
+    const isTeleport = () => type.value === 'teleport',
+      isTopLayer = () => type.value === 'popover';
 
     const contextZIndex = useContextConfig('zIndex');
-    const [wrapTeleport, teleportTarget] = useTeleport(props);
-
     const shadow = useShadowDom();
+    const [wrapTeleport, vnodeHandlers, teleportTarget] = useTeleport(props, isTeleport);
+
     /** actual pop content element ref */
     const actualPop = computed(() => popRef.value || positionedRef.value);
     const propVirtualTarget = computed(() => {
@@ -83,6 +86,12 @@ export const Popover = defineSSRCustomElement({
           },
           target: innerTarget,
           pop: actualPop,
+          onPopContentClose(e: Event) {
+            // it's for nested type=teleport popover
+            // if pop content is about to close, dispatch the event to its virtual parent, so that its parent can handle the event to determine to close or not
+            const vParent = virtualParentMap.get(e.target as HTMLElement);
+            if (vParent) vParent.dispatchEvent(e);
+          },
         },
         props,
       ),
@@ -113,8 +122,7 @@ export const Popover = defineSSRCustomElement({
     const strategy = computed(() => {
       const { strategy } = props;
       if (strategy === 'fixed' || strategy === 'absolute') return strategy;
-      const { value } = type;
-      return value === 'popover' || !actualTarget.value?.assignedSlot ? 'absolute' : 'fixed';
+      return isTopLayer() || !actualTarget.value?.assignedSlot ? 'absolute' : 'fixed';
     });
     // TODO copy useFloating, we need to change platform implementation to support strategy absolute
     const {
@@ -182,9 +190,6 @@ export const Popover = defineSSRCustomElement({
       {
         updatePosition: update,
         ...methods,
-        get currentTarget() {
-          return currentTarget.value;
-        },
       },
       {
         ...toUnrefGetterDescriptors(options, {
@@ -197,6 +202,8 @@ export const Popover = defineSSRCustomElement({
         ...refLikeToDescriptors({
           isOpen,
           isShow,
+          currentTarget,
+          isTopLayer,
         }),
       },
     );
@@ -248,11 +255,12 @@ export const Popover = defineSSRCustomElement({
           v-show={isOpen.value}
           ref={positionedRef}
           class={getRootClass(value)}
+          {...vnodeHandlers}
         >
           {getContent()}
         </div>,
       );
-      return wrapTeleport(result, isTeleport());
+      return wrapTeleport(result);
     };
 
     const transitionHandler = {
@@ -284,10 +292,9 @@ export const Popover = defineSSRCustomElement({
     );
 
     return () => {
-      const { value } = type;
       return (
         <>
-          {value === 'popover'
+          {isTopLayer()
             ? wrapTransition(
                 <div
                   {...popContentHandlers}
@@ -314,12 +321,10 @@ export const Popover = defineSSRCustomElement({
 export type tPopover = typeof Popover;
 export type iPopover = InstanceType<tPopover> & {
   togglePopover: (force?: boolean) => void;
-  isOpen: () => boolean;
   updatePosition: () => void;
   attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
   detachTarget(target?: Element | undefined): void;
   detachAll(): void;
-  readonly currentTarget: any;
   delayOpenPopover: () => void;
   /**
    * @param ensure delayed close may be canceled if delayOpenPopover is invoked. if ensure is true, it will not be canceled
@@ -327,6 +332,10 @@ export type iPopover = InstanceType<tPopover> & {
   delayClosePopover: (ensure?: boolean) => void;
   openPopover: () => void;
   closePopover: () => void;
+  readonly currentTarget: any;
+  readonly isTopLayer: boolean;
+  readonly isOpen: boolean;
+  readonly isShow: boolean;
 };
 
 export const definePopover = createDefineElement(name, Popover, {

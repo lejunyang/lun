@@ -193,7 +193,7 @@ export const Select = defineSSRCustomElement({
           unique: true,
           onInput() {
             const pop = popoverRef.value;
-            if (!pop?.isOpen()) pop.openPopover();
+            if (!pop?.isOpen) pop.openPopover();
           },
           onUpdate: (e: CustomEvent) => {
             const value = e.detail;
