@@ -3,7 +3,7 @@ import { CSSProperties, computed, ref, toRef, watchEffect, Transition, BaseTrans
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
-import { isElement, isFunction, objectKeys, runIfFn, virtualGetMerge } from '@lun/utils';
+import { isElement, isFunction, objectKeys, runIfFn, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
@@ -90,7 +90,7 @@ export const Popover = defineSSRCustomElement({
             // it's for nested type=teleport popover
             // if pop content is about to close, dispatch the event to its virtual parent, so that its parent can handle the event to determine to close or not
             const vParent = virtualParentMap.get(e.target as HTMLElement);
-            if (vParent) vParent.dispatchEvent(e);
+            if (vParent) vParent.dispatchEvent(new Event(e.type, { bubbles: true })); // bubbles must be true
           },
         },
         props,
@@ -169,14 +169,14 @@ export const Popover = defineSSRCustomElement({
     });
 
     const finalFloatingStyles = computed(() => {
-      const { sync, adjustPopStyle, zIndex } = props;
+      const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
+      const { adjustPopStyle, zIndex, popWidth, popHeight } = props;
       let result: CSSProperties = {
+        width: toPxIfNum(popWidth === 'anchor' ? width : popWidth),
+        height: toPxIfNum(popHeight === 'anchor' ? height : popHeight),
         ...floatingStyles.value,
         zIndex: zIndex ?? contextZIndex.popover,
       };
-      const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
-      if (width && (sync === 'width' || sync === 'both')) result.width = `${width}px`;
-      if (height && (sync === 'height' || sync === 'both')) result.height = `${height}px`;
       if (adjustPopStyle) result = adjustPopStyle(result, middlewareData.value) || result;
       return result;
     });

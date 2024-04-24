@@ -52,8 +52,10 @@ export const popoverProps = freeze({
   /** @link https://floating-ui.com/docs/autoUpdate */
   autoUpdateOptions: PropObject<AutoUpdateOptions>(),
 
-  /** used to make the pop content same width or height as the target element. */
-  sync: PropString<'width' | 'height' | 'both'>(),
+  /** used to set the width of pop content, can be css width value or special value 'anchor', which will make the pop content same width as the target element */
+  popWidth: PropNumber(),
+  /** used to set the height of pop content, can be css height value or special value 'anchor', which will make the pop content same height as the target element */
+  popHeight: PropNumber(),
   zIndex: PropNumber(),
   /** used to dynamically set styles of pop element */
   adjustPopStyle: PropFunction<(result: CSSProperties, middlewareData: Record<string, any>) => CSSProperties | void>(),

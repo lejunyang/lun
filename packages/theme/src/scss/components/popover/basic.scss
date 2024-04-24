@@ -5,7 +5,7 @@
 
 :host {
   display: inline-block;
-  position: relative; // 会影响position+absolute时那个嵌套的宽度
+  position: relative; 
 }
 [popover] {
   margin: initial;
@@ -18,10 +18,6 @@
   // important!! If don't set overflow unset, the arrow will not show. Maybe it's due to top layer popover, no idea why
   overflow: unset;
 }
-
-// :host {
-//   position: relative; // 会影响position+absolute时那个嵌套的宽度
-// }
 
 @include b(popover) {
   $contentPadding: getVarName((popover, content, padding));

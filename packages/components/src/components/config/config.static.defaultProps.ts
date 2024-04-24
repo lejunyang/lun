@@ -79,6 +79,7 @@ export const defaultProps = {
     showArrow: true,
     useTransform: false,
     transition: 'fade',
+    popWidth: 'max-content',
   },
   progress: { type: 'wave' },
   radio: {

@@ -273,7 +273,7 @@ export const Select = defineSSRCustomElement({
           open: editComputed.value.editable ? undefined : false,
           class: stateClass.value,
           triggers: ['click', 'focus'],
-          sync: 'width',
+          popWidth: 'anchor',
           showArrow: false,
           ref: popoverRef,
           toggleMode: true,

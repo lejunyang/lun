@@ -22,7 +22,7 @@ export const selectPropsOfPopover = {
     'open',
     'content',
     'contentType',
-    'sync',
+    'popWidth',
     'triggers',
     'showArrow',
     'defaultChildren',
