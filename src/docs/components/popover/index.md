@@ -45,35 +45,23 @@ lang: zh-CN
 
 ## 实现方式
 
-通过`strategy`属性指定 Popover 定位方式，可选值为`absolute`和`fixed`
+通过`strategy`属性指定 Popover 定位方式，可选值为：
+- `absolute`：默认值，相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色，但祖先为 fixed 时滚动会有一定的视觉延迟。另外，它在某些时候会受到shadow DOM的限制，详细见下面的折叠块说明
+- `fixed`：相对于最近 Containing block 进行定位（通常为视口），当 target 也是 fixed 时较为有用，它也可以用于防止被父级裁剪或遮挡，它对 shadow DOM 兼容性更好。但是页面滚动时，重新计算位置会有一定的视觉延迟
+
+:::details 当 strategy=absolute 时 Shadow DOM 对 offsetParent 的限制
+strategy=absolute时是通过offsetParent获取祖先元素，但是，被 slotted 的元素无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent。在嵌套 strategy=absolute 时这个限制有可能导致定位错误，但内部对这种情况做了兼容，当`l-popover`为定位元素时优先取其作为内部 offsetParent（**故其默认`position: relative`，请勿修改为 static**）
+:::
 
 通过`type`属性指定 Popover 实现方式, 目前支持以下方式：
 
 - `popover`: 默认值，会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现
 - `position`: 当前位置渲染
-- `teleport`: 将弹出内容渲染到[`teleport-holder`](/components/teleport-holder/)（默认在第一个[`theme-provider`](/components/theme-provider/)下），此时主题的继承可能不符合预期，通过`to`属性可调整渲染位置，**此时建议通过 `content` 属性来指定弹出框渲染内容，而不是通过`pop-content`插槽**，内部对插槽做了兼容，但消耗非常大
+- `teleport`: 将弹出内容渲染到[`teleport-holder`](/components/teleport-holder/)（默认在第一个[`theme-provider`](/components/theme-provider/)下），通过`to`属性可调整渲染位置，**此时`pop-content`插槽将失效，必须通过 `content` 属性来指定弹出框渲染内容**
 
 需要注意的是，若浏览器不支持 Popover，手动指定的 `type` 会被无视，将采用备选方案实现
 
 检测到当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
-
-:::details Shadow DOM对offsetParent的限制
-被 slotted 的元素通过 offsetParent 无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent。在嵌套strategy=absolute时有可能导致定位错误，但内部对这种情况做了兼容，当`l-popover`为定位元素时优先取其作为内部offsetParent（**故其默认`position: relative`，请勿修改为static**）
-:::
-
-:::warning 严格注意 type 和 strategy 的组合
-
-- `strategy=absolute`：相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色，但祖先为 fixed 时表现不佳。并且由于 shadow DOM 的限制，被 slotted 的元素通过 offsetParent 无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent，这会导致定位错误。由于内部 popover target 默认取的就是`l-popover`元素本身，所以**l-popover 没有被其他自定义元素 slotted 时，absolute 可以正常工作**。
-  另外，top layer 下会直接以 window 计算定位，所以**当使用`type=popover`可以正常使用 absolute**
-- `strategy=fixed`：相对于最近块级祖先进行定位（通常为视口），当 target 为 fixed 时较为有用，它也可以用于防止被父级裁剪或遮挡，最为重要的是，它对 shadow DOM 兼容性最好。但是页面滚动时，重新计算位置会有一定的视觉延迟
-
-因此，内部对于 strategy 的取值逻辑为：
-
-- 若外部指定了有效 strategy，则取外部
-- 若`l-popover`没有 assignedNode，或者支持 Top Layer Popover 且 type=popover，则取 absolute
-- 否则取 fixed
-
-:::
 
 <!-- @Code:otherTypes -->
 

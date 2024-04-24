@@ -75,7 +75,7 @@ lang: zh-CN
 'open',
 'content',
 'contentType',
-'sync',
+'popWidth',
 'triggers',
 'showArrow',
 'children',
