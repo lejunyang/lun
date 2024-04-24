@@ -4,7 +4,7 @@ import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } fr
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, objectKeys, runIfFn, virtualGetMerge } from '@lun/utils';
-import { useCEExpose, useManualSlot, useNamespace, useShadowDom } from 'hooks';
+import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
   autoUpdate,
@@ -43,7 +43,7 @@ export const Popover = defineSSRCustomElement({
 
     const contextZIndex = useContextConfig('zIndex');
     const shadow = useShadowDom();
-    const [wrapTeleport, vnodeHandlers, teleportTarget] = useTeleport(props, isTeleport);
+    const [wrapTeleport, vnodeHandlers] = useTeleport(props, isTeleport);
 
     /** actual pop content element ref */
     const actualPop = computed(() => popRef.value || positionedRef.value);
@@ -119,12 +119,8 @@ export const Popover = defineSSRCustomElement({
         referenceRect(),
       ].filter(Boolean) as any;
     });
-    const strategy = computed(() => {
-      const { strategy } = props;
-      if (strategy === 'fixed' || strategy === 'absolute') return strategy;
-      return isTopLayer() || !actualTarget.value?.assignedSlot ? 'absolute' : 'fixed';
-    });
-    // TODO copy useFloating, we need to change platform implementation to support strategy absolute
+
+    const strategy = toRef(props, 'strategy');
     const {
       floatingStyles,
       middlewareData,
@@ -216,7 +212,6 @@ export const Popover = defineSSRCustomElement({
       ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
     ];
 
-    const renderContentSlot = useManualSlot(teleportTarget, 'pop-content', isTeleport);
     let cacheContent: any;
     const prevent = (e: Event) => e.preventDefault();
     const getContent = () => {
@@ -240,13 +235,14 @@ export const Popover = defineSSRCustomElement({
               class={ns.e('arrow')}
             ></div>
           )}
-          {!contentNode ? renderContentSlot() : contentNode}
+          {!contentNode && !isTeleport() ? <slot name="pop-content" /> : contentNode}
         </>
       );
     };
 
     const getPositionContent = () => {
-      const { value } = strategy;
+      let { value } = strategy;
+      value ||= 'absolute';
       const result = wrapTransition(
         <div
           {...popContentHandlers}
