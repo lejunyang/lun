@@ -16,4 +16,4 @@
 @each $color in $gray-color-list {
   @include generateHostGrayColor($color);
 }
-@include generateStatusColor(false);
+@include generateStatusColor();

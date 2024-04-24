@@ -7,7 +7,10 @@
 $color: $default-accent-color;
 
 :host {
-  // @include generateStatusColor();
+  // success warning error info color
+  @each $name, $value in $status-color-map {
+    @include semanticColor($name, getColor($value, 9));
+  }
 
   // map gray colors
   // @each $color in $gray-color-list {

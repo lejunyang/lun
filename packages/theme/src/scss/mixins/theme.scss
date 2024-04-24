@@ -238,15 +238,11 @@
   }
 }
 
-@mixin generateStatusColor($declareVar: true) {
-  // success warning error info color
+@mixin generateStatusColor() {
   @each $name, $value in $status-color-map {
-    @if $declareVar {
-      @include semanticColor($name, getColor($value, 9));
-    }
     // status color will override accent color
-    [#{$status-attr-name + '=' + $name}],
-    [data-#{$status-attr-name + '=' + $name}] {
+    :host([#{$status-attr-name + '=' + $name}]),
+    :host([data-#{$status-attr-name + '=' + $name}]) {
       @include generateColorProperties($value);
     }
     [data-is-#{$status-attr-name + '-' + $name}='true'] {
