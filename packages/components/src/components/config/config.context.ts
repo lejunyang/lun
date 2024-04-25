@@ -38,6 +38,7 @@ export const GlobalContextConfig = reactive({
       sm: '2',
       xl: '3',
     },
+    scale: 1,
   } as ThemeConfig,
   zIndex: {
     teleport: 1000,

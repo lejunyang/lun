@@ -41,13 +41,13 @@ import { importMessageBasicTheme } from './message/index.ts';
 import { importSpinBasicTheme } from './spin/index.ts';
 import { importProgressBasicTheme } from './progress/index.ts';
 import { importTextareaBasicTheme, importTextareaSurfaceTheme } from './textarea/index.ts';
-import { __internal_defineSubscriber, createImportStyle } from '@lun/components';
-import commonStyles from '../common/index.scss?inline';
+import { __internal_defineSubscriber } from '@lun/components';
 import { once } from '@lun/utils';
 import { importMentionsBasicTheme, importMentionsSurfaceTheme } from './mentions/index.ts';
 import { importRadioGroupBasicTheme } from './radio-group/index.ts';
 import { importThemeProviderBasicTheme } from './theme-provider/index.ts';
 import { importIconBasicTheme } from './icon/index.ts';
+import { importCommonTheme } from '../common/index.ts';
 
 export * from './button';
 export * from './callout';
@@ -133,8 +133,6 @@ export const importGhostTheme = once(() => {
   importButtonGhostTheme();
   importInputGhostTheme();
 });
-
-export const importCommonTheme = once(createImportStyle('common', commonStyles));
 
 export const autoImportTheme = once(() => {
   importCommonTheme();

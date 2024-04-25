@@ -3,7 +3,6 @@
 @use '../mixins/config.scss' as *;
 @use '../mixins/theme.scss' as *;
 @use './radius.scss' as *;
-@use './space.scss' as *;
 
 :host([hidden]) {
   display: none;

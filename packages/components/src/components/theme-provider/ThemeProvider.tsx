@@ -4,7 +4,6 @@ import { themeProviderProps } from './type';
 import { provideContextConfig } from '../config';
 import { provide } from 'vue';
 import { useSetupEdit } from '@lun/core';
-import { useNamespace } from 'hooks';
 
 export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
 
@@ -23,11 +22,9 @@ export const ThemeProvider = defineSSRCustomElement({
       theme: props,
     });
     useSetupEdit();
-    const ns = useNamespace(name);
     // return () => undefined;
     return () => (
       <>
-        <style>{`:host{${ns.vn('scale', false)}:${props.scale}}`}</style>
         <slot></slot>
       </>
     );
