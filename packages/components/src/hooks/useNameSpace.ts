@@ -110,14 +110,17 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const getSizeClass = () => m('size') + '-' + (size.value || 2);
 
   const themeClass = computed(() => {
-    const variant = getActualThemeValue('variant');
-    const highContrast = getActualThemeValue<boolean>('highContrast');
+    const variant = getActualThemeValue('variant'),
+      highContrast = getActualThemeValue<boolean>('highContrast'),
+      color = getActualThemeValue('color')
+    const { value } = namespace;
     return [
       b(),
       variant && m(`variant-${variant}`),
       getSizeClass(),
       is('high-contrast', highContrast),
       is('dark', isDark()),
+      color && _bem(value, 'color', '', '', color),
     ];
   });
 

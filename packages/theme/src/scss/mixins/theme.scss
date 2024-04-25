@@ -232,7 +232,8 @@
     @include generateColorProperties($color);
   } @else {
     :host(#{wrapThemeWhere('[' + $color-name + '=' + $color + ']')}),
-    [#{$color-name + '=' + $color}] {
+    [#{$color-name + '=' + $color}],
+    .#{getBEM('color', '', $color)} {
       @include generateColorProperties($color);
     }
   }
