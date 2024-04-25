@@ -14,8 +14,12 @@ export const GlobalContextConfig = reactive({
     const original = openShadowComponents.reduce((result, name) => {
       result[name] = [];
       return result;
-    }, {} as Record<'common' | OpenShadowComponentKey, ((vm: ComponentInternalInstance) => string)[]>);
-    const commonStyles = [] as ((vm: ComponentInternalInstance) => string)[];
+    }, {} as Record<'common' | OpenShadowComponentKey, ((vm: ComponentInternalInstance, compName: OpenShadowComponentKey, context: any) => string)[]>);
+    const commonStyles = [] as ((
+      vm: ComponentInternalInstance,
+      compName: OpenShadowComponentKey,
+      context: any,
+    ) => string)[];
     return new Proxy(original, {
       get(target, p, receiver) {
         if (p === 'common') return commonStyles;

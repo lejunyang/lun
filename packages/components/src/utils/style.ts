@@ -2,15 +2,20 @@ import { isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
-export function processStringStyle(style: string) {
+export function processStringStyle<B extends boolean>(
+  style: string,
+  noSheet?: B,
+): B extends true ? string : string | CSSStyleSheet {
+  style = String(style || '');
   const { wrapCSSLayer, preferCSSStyleSheet, stylePreprocessor } = GlobalStaticConfig;
   if (supportCSSLayer && wrapCSSLayer) {
     style = `@layer ${isString(wrapCSSLayer) ? wrapCSSLayer : 'lun'} {${style}}`;
   }
   style = stylePreprocessor(style);
-  if (isSupportCSSStyleSheet() && preferCSSStyleSheet) {
+  if (isSupportCSSStyleSheet() && preferCSSStyleSheet && !noSheet) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(style);
+    // @ts-ignore
     return sheet;
   } else return style;
 }
