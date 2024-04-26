@@ -107,7 +107,7 @@
     @include e(content) {
       display: flex;
     }
-    [data-status-icon] {
+    [data-status-icon='true'] {
       font-size: calc(var(--header-font-size) * 1.5);
       @include declareVars(
         (

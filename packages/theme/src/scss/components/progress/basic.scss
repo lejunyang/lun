@@ -50,7 +50,7 @@
         ),
       )
     );
-    [data-status-icon] {
+    [data-status-icon='true'] {
       @include declareVars(
         (
           font-size: icon-font-size,

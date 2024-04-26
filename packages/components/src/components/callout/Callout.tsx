@@ -4,7 +4,7 @@ import { calloutEmits, calloutProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useNamespace } from 'hooks';
-import { getTransitionProps } from 'common';
+import { getTransitionProps, renderStatusIcon } from 'common';
 
 const name = 'callout';
 export const Callout = defineSSRCustomElement({
@@ -36,21 +36,18 @@ export const Callout = defineSSRCustomElement({
         stack = <pre>{lines.map((i) => '  ' + i.trimStart() + '\n')}</pre>;
         message = message.message;
       }
-      const finalIconName = iconName || status;
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!closed.value && (
             <span class={ns.t} part="root" data-status={status}>
               <slot name="icon">
-                {finalIconName &&
-                  renderElement('icon', {
-                    ...iconProps,
-                    name: finalIconName,
-                    library: iconLibrary,
-                    part: 'icon',
-                    class: ns.e('icon'),
-                    'data-status': status,
-                  })}
+                {renderStatusIcon(status, {
+                  name: iconName,
+                  library: iconLibrary,
+                  ...iconProps,
+                  part: 'icon',
+                  class: ns.e('icon'),
+                })}
               </slot>
               <div class={ns.e('content')} part="content">
                 <div class={ns.e('message')} part="message">

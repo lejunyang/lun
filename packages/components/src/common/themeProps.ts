@@ -2,6 +2,7 @@ import { ExtractPropTypes } from 'vue';
 import { OpenShadowComponentKey } from '../components';
 import { objectKeys, pick } from '@lun/utils';
 import { PropNumber, PropResponsive, PropString, undefBoolProp } from './propConstructor';
+import { Status } from './type';
 
 export const themeColors = [
   'gray',
@@ -39,11 +40,13 @@ export const themeVariants = ['solid', 'soft', 'surface', 'outline', 'classic', 
 export const themeProps = {
   size: PropResponsive<'1' | '2' | '3'>(),
   color: PropString<ThemeColors>(),
+  status: PropString<Status>(),
   variant: PropString<ThemeVariants | string>(),
   radius: PropString<'none' | 'small' | 'medium' | 'large' | 'full'>(),
   highContrast: undefBoolProp,
   appearance: PropString<'light' | 'dark'>(),
   scale: PropNumber(),
+  // TODO grayColor
 };
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;

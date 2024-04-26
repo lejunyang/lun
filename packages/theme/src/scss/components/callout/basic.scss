@@ -28,9 +28,6 @@
   @include e(icon) {
     font-size: calc(var(--message-font-size) * 1.4);
     flex-shrink: 0;
-    &[data-status] {
-      color: getAccentColor(9);
-    }
   }
   @include e(close-icon) {
     cursor: pointer;

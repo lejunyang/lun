@@ -246,7 +246,7 @@
     :host([data-#{$status-attr-name + '=' + $name}]) {
       @include generateColorProperties($value);
     }
-    [data-is-#{$status-attr-name + '-' + $name}='true'] {
+    [data-#{$name}-icon='true'] {
       color: getSemanticColor($name);
     }
   }

@@ -22,13 +22,14 @@ export function renderStatusIcon(
     [key: string]: any;
   } = {},
 ) {
-  const { noCircle, noAccentColor, ...others } = iconProps;
+  let { noCircle, noAccentColor, name, ...others } = iconProps;
+  name = isStatus(status) ? status : name;
   return (
-    isStatus(status) &&
+    name &&
     renderElement('icon', {
-      'data-status-icon': true,
-      [`data-is-status-${status}`]: !noAccentColor,
-      name: noCircle ? status + '-no-circle' : status,
+      'data-status-icon': isStatus(status),
+      [`data-${name}-icon`]: !noAccentColor,
+      name: noCircle ? status + '-no-circle' : name,
       ...others,
     })
   );

@@ -2,7 +2,7 @@
 import { ComponentInternalInstance, computed, getCurrentInstance, unref } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
-import { ThemeProps, themeProps } from 'common';
+import { isStatus, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
 
@@ -91,7 +91,7 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
 
   const contextConfig = useContextConfig();
-  const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme']) => {
+  const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme'] | 'status') => {
     const theme = contextConfig?.theme[key];
     return (getThemeValueFromInstance(vm, key) || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
   };
@@ -112,7 +112,9 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant'),
       highContrast = getActualThemeValue<boolean>('highContrast'),
-      color = getActualThemeValue('color')
+      color = getActualThemeValue('color'),
+      status = getActualThemeValue('status');
+    const finalColor = isStatus(status) ? status : color;
     const { value } = namespace;
     return [
       b(),
@@ -120,7 +122,7 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
       getSizeClass(),
       is('high-contrast', highContrast),
       is('dark', isDark()),
-      color && _bem(value, 'color', '', '', color),
+      finalColor && _bem(value, 'color', '', '', finalColor),
     ];
   });
 
