@@ -2,9 +2,8 @@ import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { OpenShadowComponentKey, openShadowComponents } from './config.static';
 import { ThemeConfig } from 'common';
-import { virtualGetMerge } from '@lun/utils';
 
-export const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
+const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
 export const GlobalContextConfig = reactive({
   namespace: 'l',
@@ -54,12 +53,12 @@ export type kTGlobalContextConfig = keyof TGlobalContextConfig;
 
 export function provideContextConfig(config: Partial<TGlobalContextConfig>) {
   const parentConfig = useContextConfig();
-  provide(CONTEXT_CONFIG_KEY, {
-    ...parentConfig,
-    ...config,
-    // theme-provider provides props as theme, actual merge will make it lose reactivity, so need a virtual merge
-    theme: config.theme ? virtualGetMerge(config.theme, parentConfig.theme) : parentConfig.theme,
-  });
+  for (const [key, value] of Object.entries(config)) {
+    // @ts-ignore
+    Object.setPrototypeOf(value, parentConfig[key]);
+  }
+  Object.setPrototypeOf(config, parentConfig); // config is partial, so we also need to set parent as its prototype
+  provide(CONTEXT_CONFIG_KEY, config);
 }
 
 export function useContextConfig(): TGlobalContextConfig;

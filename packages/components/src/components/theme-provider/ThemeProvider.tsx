@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { themeProviderProps } from './type';
 import { provideContextConfig } from '../config';
-import { provide } from 'vue';
+import { provide, reactive, watchEffect } from 'vue';
 import { useSetupEdit } from '@lun/core';
 
 export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
@@ -18,8 +18,17 @@ export const ThemeProvider = defineSSRCustomElement({
   },
   setup(props) {
     provide(ThemeProviderKey, true);
+
+    const theme = reactive({}) as any;
+    watchEffect(() => {
+      for (const [key, value] of Object.entries(props)) {
+        if (value != null) theme[key] = value;
+        // need to delete the key when it's nil, as provideContextConfig relies on object prototype. If we don't delete the key, it will always use it, not the parent's
+        else delete theme[key];
+      }
+    });
     provideContextConfig({
-      theme: props,
+      theme,
     });
     useSetupEdit();
     // return () => undefined;
