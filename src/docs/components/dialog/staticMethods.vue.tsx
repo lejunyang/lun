@@ -16,7 +16,7 @@ export default () => {
       />
       {statuses.concat(statuses).map((s, i) => (
         <l-button
-          data-status={s}
+          status={s}
           onClick={() =>
             Dialog[s]({
               title: i > 3 ? '' : s,

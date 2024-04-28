@@ -27,50 +27,49 @@ export const Input = defineSSRCustomElement({
   formAssociated: true,
   emits: inputEmits,
   setup(props, { emit }) {
-    const ns = useNamespace(name);
     const valueModel = useValueModel(props);
     // when type=number, valueModel is a number, but we need to avoid update input's value when it's '1.'
     const strValModel = ref('');
     const { status, validateProps } = usePropsFromFormItem(props);
+    const ns = useNamespace(name, { status });
     const [editComputed] = useSetupEdit();
     useSetupContextEvent();
     const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 
-    const { inputHandlers, wrapperHandlers, numberMethods, stepUpHandlers, stepDownHandlers, state } =
-      useMultipleInput(
-        // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
-        virtualUnrefGetMerge(
-          {
-            value: valueModel,
-            get disabled() {
-              return !editComputed.value.editable;
-            },
-            onChange(val: string | number | string[] | number[], targetVal?: string) {
-              valueModel.value = val;
-              targetVal != null && (strValModel.value = targetVal);
-            },
-            onInputUpdate(val: string | number) {
-              // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
-              // and that will cause input composition issue when input is empty
-              if (!props.multiple) return;
-              valueForMultiple.value = val ? String(val) : '';
-              emit('tagsComposing', val);
-            },
-            onEnterDown(e: KeyboardEvent) {
-              emit('enterDown', e);
-            },
-            onTagsAdd(addedTags: string[]) {
-              emit('tagsAdd', addedTags);
-            },
-            onTagsRemove(removedTags: string[]) {
-              emit('tagsRemove', removedTags);
-            },
+    const { inputHandlers, wrapperHandlers, numberMethods, stepUpHandlers, stepDownHandlers, state } = useMultipleInput(
+      // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
+      virtualUnrefGetMerge(
+        {
+          value: valueModel,
+          get disabled() {
+            return !editComputed.value.editable;
           },
-          validateProps,
-          props,
-        ),
-      );
+          onChange(val: string | number | string[] | number[], targetVal?: string) {
+            valueModel.value = val;
+            targetVal != null && (strValModel.value = targetVal);
+          },
+          onInputUpdate(val: string | number) {
+            // MUST return when it's not multiple, seems that updating valueForMultiple will make input rerender
+            // and that will cause input composition issue when input is empty
+            if (!props.multiple) return;
+            valueForMultiple.value = val ? String(val) : '';
+            emit('tagsComposing', val);
+          },
+          onEnterDown(e: KeyboardEvent) {
+            emit('enterDown', e);
+          },
+          onTagsAdd(addedTags: string[]) {
+            emit('tagsAdd', addedTags);
+          },
+          onTagsRemove(removedTags: string[]) {
+            emit('tagsRemove', removedTags);
+          },
+        },
+        validateProps,
+        props,
+      ),
+    );
 
     const finalInputVal = computed(() => {
       if (props.multiple) return valueForMultiple.value;

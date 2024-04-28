@@ -243,7 +243,8 @@
   @each $name, $value in $status-color-map {
     // status color will override accent color
     :host([#{$status-attr-name + '=' + $name}]),
-    :host([data-#{$status-attr-name + '=' + $name}]) {
+    :host([data-#{$status-attr-name + '=' + $name}]),
+    .#{getBEM('color', '', $name)} {
       @include generateColorProperties($value);
     }
     [data-#{$name}-icon='true'] {

@@ -2,9 +2,11 @@
 import { ComponentInternalInstance, computed, getCurrentInstance, unref } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
-import { isStatus, ThemeProps, themeProps } from 'common';
+import { isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
+import { MaybeRefLikeOrGetter } from '@lun/core';
+import { unrefOrGet } from '../../../core/src/utils/ref';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -38,8 +40,11 @@ export const getAllThemeValuesFromInstance = (vm: ComponentInternalInstance | nu
   }, {} as Record<keyof ThemeProps, any>);
 };
 
-export const useNamespace = (block: string, other?: { parent?: ComponentInternalInstance | null }) => {
-  let { parent } = other || {};
+export const useNamespace = (
+  block: string,
+  other?: { parent?: ComponentInternalInstance | null; status?: MaybeRefLikeOrGetter<Status> },
+) => {
+  let { parent, status } = other || {};
   const vm = getCurrentInstance();
   const context = FormInputCollector.child(false); // form-item will be theme parent for all its children
   if (!parent && context) parent = context.parent;
@@ -113,8 +118,8 @@ export const useNamespace = (block: string, other?: { parent?: ComponentInternal
     const variant = getActualThemeValue('variant'),
       highContrast = getActualThemeValue<boolean>('highContrast'),
       color = getActualThemeValue('color'),
-      status = getActualThemeValue('status');
-    const finalColor = isStatus(status) ? status : color;
+      statusVal = unrefOrGet(status) || getActualThemeValue('status');
+    const finalColor = isStatus(statusVal) ? statusVal : color;
     const { value } = namespace;
     return [
       b(),

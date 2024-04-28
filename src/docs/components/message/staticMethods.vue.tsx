@@ -13,7 +13,7 @@ export default () => {
         label="点击展示"
       />
       {statuses.map((s) => (
-        <l-button data-status={s} onClick={() => Message[s](s)}>{s}</l-button>
+        <l-button status={s} onClick={() => Message[s](s)}>{s}</l-button>
       ))}
     </>
   );

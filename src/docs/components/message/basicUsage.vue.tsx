@@ -4,7 +4,7 @@ export default () => (
     <l-button onClick={() => (document.getElementById('basic') as any)?.open()}>open</l-button>
     {statuses.map((status) => (
       <l-button
-        data-status={status}
+        status={status}
         onClick={() =>
           (document.getElementById('basic') as any)?.open({
             type: status,
