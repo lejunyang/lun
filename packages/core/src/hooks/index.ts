@@ -7,3 +7,4 @@ export * from './useClickOutside';
 export * from './useOverflowWatcher';
 export * from './useRefs';
 export * from './useSetupEdit';
+export * from './useSetupEvent';
