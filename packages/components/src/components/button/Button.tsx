@@ -78,7 +78,10 @@ export const Button = defineSSRCustomElement({
         editState.loading = true;
         countdownTxt.value = getCountdownTxt(timeout);
         timer = setInterval(() => {
-          if ((timeout -= interval) <= 0) clear();
+          if ((timeout -= interval) <= 0) {
+            clear();
+            emit('timeout');
+          }
           countdownTxt.value = getCountdownTxt(timeout);
         }, interval);
       },

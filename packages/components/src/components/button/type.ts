@@ -30,7 +30,7 @@ export const buttonProps = freeze({
   iconLibrary: PropString(),
 });
 
-export const buttonEmits = freeze({ validClick: null });
+export const buttonEmits = freeze({ validClick: null, timeout: null });
 
 export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps> & CommonProps;
 export type ButtonEvents = GetEventPropsFromEmits<typeof buttonEmits>;
