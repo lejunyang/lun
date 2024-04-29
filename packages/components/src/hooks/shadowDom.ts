@@ -57,23 +57,9 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootNode exte
  * expose something to Custom Element
  */
 export function useCEExpose(expose: Record<string | symbol, any>, extraDescriptors?: PropertyDescriptorMap) {
-  onCEMount(({ CE }) => {
-    // if (__DEV__) {
-    //   const existKeys = Object.keys(expose).filter(
-    //     (k) => Object.prototype.hasOwnProperty.call(expose, k) && (CE as any)[k] != null
-    //   );
-    //   const existDescriptors =
-    //     descriptors && Object.keys(descriptors).filter((d) => Object.getOwnPropertyDescriptor(CE, d));
-    //   if (existKeys.length || existDescriptors?.length)
-    //     warn(
-    //       `keys '${existKeys.concat(existDescriptors || [])}' have already existed on`,
-    //       CE,
-    //       'their values will be override'
-    //     );
-    // }
-    Object.defineProperties(CE, Object.getOwnPropertyDescriptors(expose));
-    if (extraDescriptors) Object.defineProperties(CE, extraDescriptors);
-  });
+  const { CE } = getCurrentInstance()!;
+  Object.defineProperties(CE, Object.getOwnPropertyDescriptors(expose));
+  if (extraDescriptors) Object.defineProperties(CE, extraDescriptors);
 }
 
 let mustAddPrefixForCustomState: boolean | null = null; // in chromium 90~X, need to add '--' prefix for custom state or it will throw an error
@@ -95,6 +81,7 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
     ...(editComputed?.value &&
       pick(editComputed.value, ['disabled', 'editable', 'interactive', 'loading', 'readonly'])),
   }));
+  // must in mount, form-item need to be set on mount
   onCEMount(({ CE }) => {
     const stateSet = (CE as any)._internals?.states as Set<string>;
     const { reflectStateToAttr } = GlobalStaticConfig;

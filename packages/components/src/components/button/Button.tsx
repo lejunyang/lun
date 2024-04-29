@@ -3,7 +3,7 @@ import { useSetupEdit } from '@lun/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
-import { useCEStates, useNamespace } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce, isFunction, throttle } from '@lun/utils';
 
@@ -65,6 +65,27 @@ export const Button = defineSSRCustomElement({
 
     const [stateClass] = useCEStates(() => ({ 'hold-show': holdShow }), ns, editComputed);
 
+    let timer: ReturnType<typeof setInterval>,
+      countdownTxt = ref<string | null>();
+    const clear = () => {
+      clearInterval(timer);
+      countdownTxt.value = null;
+      editState.loading = false;
+    };
+    const timeoutMethods = {
+      setTimeout(timeout: number, getCountdownTxt = (remain: number) => `(${remain / 1000}s)`, interval = 1000) {
+        clear();
+        editState.loading = true;
+        countdownTxt.value = getCountdownTxt(timeout);
+        timer = setInterval(() => {
+          if ((timeout -= interval) <= 0) clear();
+          countdownTxt.value = getCountdownTxt(timeout);
+        }, interval);
+      },
+      clearTimeout: clear,
+    };
+    useCEExpose(timeoutMethods);
+
     return () => {
       const { iconName, iconLibrary, size, spinProps, showLoading, hold, label, iconPosition } = props;
       const { interactive, loading } = editComputed.value;
@@ -72,7 +93,7 @@ export const Button = defineSSRCustomElement({
       const finalSpinProps = { size, ...spinProps, part: 'spin' };
       const loadingPart =
         loading && showLoading ? (
-          renderElement('spin', finalSpinProps)
+          countdownTxt.value || renderElement('spin', finalSpinProps)
         ) : (
           <slot name="icon">{iconName && renderElement('icon', { name: iconName, library: iconLibrary })}</slot>
         );
@@ -99,7 +120,10 @@ export const Button = defineSSRCustomElement({
 });
 
 export type tButton = typeof Button;
-export type iButton = InstanceType<tButton>;
+export type iButton = InstanceType<tButton> & {
+  setTimeout(timeout: number, getCountdownTxt?: (remain: number) => string, interval?: number): void;
+  clearTimeout(): void;
+};
 
 export const defineButton = createDefineElement(name, Button, {
   spin: defineSpin,
