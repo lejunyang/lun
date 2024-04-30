@@ -56,6 +56,7 @@ export const FormItem = defineSSRCustomElement({
       onInput() {
         if (canValidate('input')) validate();
       },
+      // FIXME change event doesn't work, its composed is false
       onChange: () => {
         if (canValidate('change')) validate();
       },
@@ -66,15 +67,20 @@ export const FormItem = defineSSRCustomElement({
 
     const tips = computed(() => {
       const { tip, tipType, help, helpType, maxValidationMsg } = props.value;
-      let msgs = itemErrors.value?.length ? itemErrors.value : [];
-      if (!msgs.length) {
+      let msgs = itemErrors.value?.length ? itemErrors.value : [],
+        noError = !msgs.length;
+      if (noError) {
         if (tipType === 'tooltip' && tip) msgs = [tip];
         else if (helpType === 'tooltip' && help) msgs = [help]; // helpType='newLine' is processed and displayed in the content
       }
       if (maxValidationMsg != null) msgs = msgs.slice(0, +maxValidationMsg);
       return {
         tooltip: tipType === 'tooltip' && msgs.map((msg) => <div>{String(msg)}</div>),
-        newLine: tipType === 'newLine' && msgs.map((msg) => <div>{String(msg)}</div>),
+        newLine:
+          tipType === 'newLine' &&
+          msgs.map((msg) => (
+            <div class={[ns.e('tooltip'), ns.e('line-tip'), ns.is('error', !noError)]}>{String(msg)}</div>
+          )),
       };
     });
     const [stateClass, states] = useCEStates(
@@ -177,7 +183,7 @@ export const FormItem = defineSSRCustomElement({
               </span>
             )}
             {helpType === 'newLine' && help && (
-              <div class={ns.e('help-line')} part="help-line">
+              <div class={[ns.e('help'), ns.e('line-tip')]} part="help-line">
                 {help}
               </div>
             )}
@@ -190,7 +196,6 @@ export const FormItem = defineSSRCustomElement({
 
     useSetupEvent({
       update: (val) => {
-        console.log('update', val);
         if (canValidate('update')) validate();
         emit('update', val);
       },
@@ -342,7 +347,7 @@ export const FormItem = defineSSRCustomElement({
           return Promise.resolve(validator(value, formData, validateProps.value)).then(collect).catch(collect);
         }),
       );
-      !aborted && errors.length && setError(path.value, errors);
+      !aborted && setError(path.value, errors);
       return errors;
     };
 
