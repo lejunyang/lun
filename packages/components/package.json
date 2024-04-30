@@ -35,8 +35,9 @@
     "version": "npm version"
   },
   "dependencies": {
-    "@floating-ui/utils": "^0.1.6",
+    "@floating-ui/utils": "^0.2.1",
     "@floating-ui/vue": "^1.0.6",
+    "@floating-ui/dom": "^1.6.3",
     "@lun/core": "workspace:^",
     "@lun/utils": "workspace:^"
   },

@@ -68,6 +68,11 @@ const allowedInputTypes = new Set([
   'historyRedo', // ctrl + shift + z or cmd + shift + z
 ]);
 
+
+// FIXME 在第一个例子中，使用箭头往右，在中间的时候按右却会往左。上下箭头表现不正常
+// it's like https://issues.chromium.org/issues/41147311, 
+// 在自定义渲染中，左右箭头无法在不同的编辑块中移动 Chrome
+// FIXME firefox 最后位置输入trigger
 export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, true>) {
   const info = computed(() => {
     const { triggers, suffix } = unrefOrGet(options);
@@ -136,12 +141,15 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const render = computed(() => {
     const { mentionRenderer } = unrefOrGet(options);
     return content.value.map((item) => {
+      // TODO try add &zwj; for last empty span, add padding-inline to fix firefox and safari cursor issue
       if (isString(item) || !item)
         return h(
           'span',
           {
             'data-is-text': '',
             part: 'text',
+            // this is to fix cursor jump issue in chrome when using keyboard arrow to move cursor,
+            style: 'display:inline-block',
           },
           item,
         );
