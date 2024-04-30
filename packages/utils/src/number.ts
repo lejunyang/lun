@@ -52,6 +52,7 @@ export type BigIntDecimalConstructParam =
       expNegative?: boolean;
       infinite?: boolean;
       nan?: boolean;
+      empty?: boolean;
     };
 
 // derived from react-component/mini-decimal
@@ -73,20 +74,18 @@ export class BigIntDecimal {
         negative: value.negative,
         infinite: value.infinite,
         nan: value.nan,
+        empty: value.empty,
       });
     } else if (isNumber(value) || isString(value)) {
       return this.initStrOrNum(value)!;
     }
-    let { integer = '', decimal = '', negative, exp, expNegative, infinite, nan } = (value || {}) as any;
+    let { integer = '', decimal = '', negative, exp, expNegative, infinite, nan, empty } = (value || {}) as any;
     this.negative = negative;
     if (nan || (!integer && !decimal)) {
       this.nan = true;
       return;
     }
-    if (infinite) {
-      this.infinite = true;
-      return;
-    }
+    if ((this.empty = empty) || (this.infinite = infinite)) return;
     decimal = decimal.replace(/0+$/, ''); // remove trailing zeros of decimal
     let decimalLen = decimal.length;
     const e = +exp!;
