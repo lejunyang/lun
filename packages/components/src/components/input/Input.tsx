@@ -1,15 +1,15 @@
 import { computed, ref, mergeProps } from 'vue';
-import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement, isNumberInputType, useSetupEvent } from '@lun/core';
+import {
+  useSetupEdit,
+  useMultipleInput,
+  refLikeToDescriptors,
+  useInputElement,
+  isNumberInputType,
+  useSetupEvent,
+} from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils';
-import {
-  useCEExpose,
-  useCEStates,
-  useNamespace,
-  usePropsFromFormItem,
-  useSlot,
-  useValueModel,
-} from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn, raf } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -26,13 +26,13 @@ export const Input = defineSSRCustomElement({
   formAssociated: true,
   emits: inputEmits,
   setup(props, { emit }) {
+    useSetupEvent();
     const valueModel = useValueModel(props);
     // when type=number, valueModel is a number, but we need to avoid update input's value when it's '1.'
     const strValModel = ref('');
     const { status, validateProps } = usePropsFromFormItem(props);
     const ns = useNamespace(name, { status });
     const [editComputed] = useSetupEdit();
-    useSetupEvent();
     const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 

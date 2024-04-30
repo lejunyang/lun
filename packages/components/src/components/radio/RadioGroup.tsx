@@ -13,12 +13,12 @@ export const RadioGroup = defineSSRCustomElement({
   formAssociated: true,
   setup(props) {
     const ns = useNamespace(name);
-    const valueModel = useValueModel(props);
     useSetupEvent({
       update(value) {
         valueModel.value = value;
       },
     });
+    const valueModel = useValueModel(props);
     const [editComputed] = useSetupEdit();
     RadioCollector.parent({ extraProvide: { valueModel } });
 

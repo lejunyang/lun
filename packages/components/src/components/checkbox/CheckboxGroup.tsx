@@ -15,6 +15,19 @@ export const CheckboxGroup = defineSSRCustomElement({
   formAssociated: true,
   setup(props, { emit }) {
     const ns = useNamespace(name);
+    useSetupEvent({
+      update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
+        if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
+        if (isCheckForAll) {
+          if (checked) methods.checkAll();
+          else methods.uncheckAll();
+        } else {
+          if (value == null) return;
+          if (checked) methods.check(value);
+          else methods.uncheck(value);
+        }
+      },
+    });
     const valueModel = useValueModel(props, {
       emit: (name, value) => {
         emit(name as any, {
@@ -47,19 +60,6 @@ export const CheckboxGroup = defineSSRCustomElement({
 
     useCEExpose(methods);
 
-    useSetupEvent({
-      update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
-        if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
-        if (isCheckForAll) {
-          if (checked) methods.checkAll();
-          else methods.uncheckAll();
-        } else {
-          if (value == null) return;
-          if (checked) methods.check(value);
-          else methods.uncheck(value);
-        }
-      },
-    });
     const [editComputed] = useSetupEdit();
     const radioState = computed(() => {
       let allChecked: boolean | null = null,

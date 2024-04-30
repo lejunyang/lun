@@ -2,13 +2,7 @@ import { computed, nextTick, watchEffect } from 'vue';
 import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement, useSetupEvent } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import {
-  useCEExpose,
-  useCEStates,
-  useNamespace,
-  usePropsFromFormItem,
-  useValueModel,
-} from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useValueModel } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
 import { getHeight, isEmpty, raf } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
@@ -22,10 +16,10 @@ export const Textarea = defineSSRCustomElement({
   emits: textareaEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
+    useSetupEvent();
     const valueModel = useValueModel(props);
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
-    useSetupEvent();
     const [textareaRef, methods] = useInputElement<HTMLTextAreaElement>();
 
     let maxHeight: number;

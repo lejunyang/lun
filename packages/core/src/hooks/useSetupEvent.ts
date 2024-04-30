@@ -20,6 +20,7 @@ declare module 'vue' {
 /**
  * Inherit parent's event context. When current component emits an event, it will trigger parent's listener.
  * Also Create an event context to listen to children's event emits
+ * It must be called before emit is used(like useValueModel)
  * @param events
  */
 export function useSetupEvent(events?: Events, options?: { toParentWhen?: () => boolean; bubbles?: boolean }) {
