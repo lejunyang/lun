@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
-import { refLikesToGetters, useSetupEdit } from '@lun/core';
+import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useNamespace } from 'hooks';
 import { selectOptionProps } from './type';
 import { SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
@@ -22,7 +22,7 @@ export const SelectOption = defineSSRCustomElement({
     const vm = getCurrentInstance()!;
     const ns = useNamespace(name, { parent: optgroup || selectContext.parent });
 
-    useSetupContextEvent();
+    useSetupEvent();
     const [editComputed] = useSetupEdit();
 
     const selected = computed(() => {

@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useNamespace } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioProps } from './type';
 import { virtualGetMerge } from '@lun/utils';
@@ -14,7 +14,7 @@ export const Radio = defineSSRCustomElement({
   emits: radioEmits,
   formAssociated: true,
   setup(props, { emit }) {
-    useSetupContextEvent();
+    useSetupEvent();
     const [editComputed] = useSetupEdit();
     const radioContext = RadioCollector.child();
     const ns = useNamespace(name, { parent: radioContext?.parent });

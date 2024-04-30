@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
-import { isNumberInputType, UseFormReturn, useSetupEdit } from '@lun/core';
+import { isNumberInputType, UseFormReturn, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
-import { useBreakpoint, useCEStates, useNamespace, useSetupContextEvent } from 'hooks';
+import { useBreakpoint, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector, useErrorTooltip, useHelpTooltip } from '../form/collector';
 import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect, normalizeStyle } from 'vue';
 import { FormInputCollector } from './collector';
@@ -188,8 +188,9 @@ export const FormItem = defineSSRCustomElement({
     };
     if (!formContext) return render;
 
-    useSetupContextEvent({
+    useSetupEvent({
       update: (val) => {
+        console.log('update', val);
         if (canValidate('update')) validate();
         emit('update', val);
       },

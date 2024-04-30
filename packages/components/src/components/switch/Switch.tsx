@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEStates, useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useCheckedModel, useNamespace } from 'hooks';
 import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { Transition } from 'vue';
@@ -14,7 +14,7 @@ export const Switch = defineSSRCustomElement({
   formAssociated: true,
   setup(props) {
     const ns = useNamespace(name);
-    useSetupContextEvent();
+    useSetupEvent();
     const checkedModel = useCheckedModel(props);
     const [editComputed] = useSetupEdit();
 

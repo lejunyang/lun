@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
-import { useCheckboxMethods, useSetupEdit } from '@lun/core';
+import { useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useCEExpose, useCEStates, useNamespace, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
@@ -47,7 +47,7 @@ export const CheckboxGroup = defineSSRCustomElement({
 
     useCEExpose(methods);
 
-    useSetupContextEvent({
+    useSetupEvent({
       update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
         if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
         if (isCheckForAll) {

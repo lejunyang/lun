@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, error } from 'utils';
-import { useCEExpose, useSetupContextEvent, useValueModel } from 'hooks';
+import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { computed, ref } from 'vue';
@@ -17,7 +17,7 @@ export const FilePicker = defineSSRCustomElement({
   emits: filePickerEmits,
   formAssociated: true,
   setup(props, { emit }) {
-    useSetupContextEvent();
+    useSetupEvent();
     const [editComputed, editState] = useSetupEdit();
     const valueModel = useValueModel(props);
     const inputRef = ref<HTMLInputElement>();

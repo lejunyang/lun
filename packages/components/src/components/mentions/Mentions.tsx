@@ -1,5 +1,5 @@
 import { computed, ref, watchEffect } from 'vue';
-import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam } from '@lun/core';
+import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam, useSetupEvent } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -7,7 +7,6 @@ import {
   useNamespace,
   useOptions,
   usePropsFromFormItem,
-  useSetupContextEvent,
   useValueModel,
 } from 'hooks';
 import { isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
@@ -26,7 +25,7 @@ export const Mentions = defineSSRCustomElement({
   props: mentionsProps,
   emits: mentionsEmits,
   setup(props, { emit, attrs }) {
-    useSetupContextEvent();
+    useSetupEvent();
     const ns = useNamespace(name);
     const valueModel = useValueModel(props, { shouldEmit: false });
     const { validateProps } = usePropsFromFormItem(props);

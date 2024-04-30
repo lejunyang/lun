@@ -1,5 +1,5 @@
 import { computed, ref, mergeProps } from 'vue';
-import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement, isNumberInputType } from '@lun/core';
+import { useSetupEdit, useMultipleInput, refLikeToDescriptors, useInputElement, isNumberInputType, useSetupEvent } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils';
 import {
@@ -7,7 +7,6 @@ import {
   useCEStates,
   useNamespace,
   usePropsFromFormItem,
-  useSetupContextEvent,
   useSlot,
   useValueModel,
 } from 'hooks';
@@ -33,7 +32,7 @@ export const Input = defineSSRCustomElement({
     const { status, validateProps } = usePropsFromFormItem(props);
     const ns = useNamespace(name, { status });
     const [editComputed] = useSetupEdit();
-    useSetupContextEvent();
+    useSetupEvent();
     const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
 

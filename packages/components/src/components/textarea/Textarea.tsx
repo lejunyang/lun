@@ -1,5 +1,5 @@
 import { computed, nextTick, watchEffect } from 'vue';
-import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement } from '@lun/core';
+import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement, useSetupEvent } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import {
@@ -7,7 +7,6 @@ import {
   useCEStates,
   useNamespace,
   usePropsFromFormItem,
-  useSetupContextEvent,
   useValueModel,
 } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
@@ -26,7 +25,7 @@ export const Textarea = defineSSRCustomElement({
     const valueModel = useValueModel(props);
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();
-    useSetupContextEvent();
+    useSetupEvent();
     const [textareaRef, methods] = useInputElement<HTMLTextAreaElement>();
 
     let maxHeight: number;

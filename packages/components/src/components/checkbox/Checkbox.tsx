@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
-import { refLikesToGetters, useSetupEdit } from '@lun/core';
+import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
-import { useCEStates, useCheckedModel, useNamespace, useSetupContextEvent } from 'hooks';
+import { useCEStates, useCheckedModel, useNamespace } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -17,7 +17,7 @@ export const Checkbox = defineSSRCustomElement({
   setup(props, { emit, expose }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
-    useSetupContextEvent();
+    useSetupEvent();
     const [editComputed] = useSetupEdit();
     // if it's under CheckboxGroup, it will not be considered as a model
     const checkedModel = checkboxContext

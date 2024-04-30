@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useCEStates, useNamespace, useOptions, useSetupContextEvent, useValueModel } from 'hooks';
+import { useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioGroupProps } from './type';
 
@@ -14,7 +14,7 @@ export const RadioGroup = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const valueModel = useValueModel(props);
-    useSetupContextEvent({
+    useSetupEvent({
       update(value) {
         valueModel.value = value;
       },
