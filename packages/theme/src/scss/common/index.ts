@@ -25,8 +25,12 @@ export const importCommonDynamicTheme = once(() => {
             `${getVarName('space', 'hypot', i + 1)}:calc(${toPxIfNum(Math.hypot(s, s))} * ${scaleVar});`,
         )
         .join('')}}`;
+    const fontSizes = [12, 14, 16, 18, 20, 24, 28, 35, 60],
+      fontSizeStyle = `:host{${fontSizes
+        .map((f, i) => `${getVarName('font-size', i + 1)}:calc(${toPxIfNum(f)} * ${scaleVar});`)
+        .join('')}}`;
     // TODO font-size line-height... radius
-    return scaleStyle + spaceStyle;
+    return scaleStyle + spaceStyle + fontSizeStyle;
   });
 });
 

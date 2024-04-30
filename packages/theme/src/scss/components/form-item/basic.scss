@@ -29,11 +29,29 @@
 
   @include e(content) {
     display: flex;
+    flex-wrap: wrap;
     @include declareVars(
       (
         line-height: content-line-height,
       )
     );
+  }
+
+  @include e(line-tip) {
+    flex: 1 0 100%;
+    color: getGrayColor(11);
+    @include declareVars(
+      (
+        line-height: line-tip-line-height,
+        font-size: line-tip-font-size,
+      )
+    );
+  }
+
+  @include e(tooltip) {
+    @include is(error) {
+      color: getSemanticColor(error);
+    }
   }
 
   @include size(1) {
@@ -42,6 +60,8 @@
         label-font-size: getFontSizeValue(1),
         label-line-height: getSpaceValue(5),
         content-line-height: getSpaceValue(5),
+        line-tip-line-height: getLineHeightValue(1),
+        line-tip-font-size: getFontSizeValue(1),
       )
     );
     @include is(vertical-label) {
@@ -58,6 +78,8 @@
         label-font-size: getFontSizeValue(2),
         label-line-height: getSpaceValue(6),
         content-line-height: getSpaceValue(6),
+        line-tip-line-height: getLineHeightValue(2),
+        line-tip-font-size: getFontSizeValue(2),
       )
     );
     @include is(vertical-label) {
@@ -74,6 +96,8 @@
         label-font-size: getFontSizeValue(3),
         label-line-height: getSpaceValue(7),
         content-line-height: getSpaceValue(7),
+        line-tip-line-height: getLineHeightValue(3),
+        line-tip-font-size: getFontSizeValue(3),
       )
     );
     @include is(vertical-label) {
