@@ -7,6 +7,9 @@ A web components library based on Vue3
 - Provides a beautiful preset theme based on @radix/theme, out-of-box dark mode and responsive ui support
 - Ready to use new Web APIs (Popover API, getComposedRanges, showOpenFilePicker...), provide reasonable fallbacks
 
+## How to use
+Please refer to [docs](https://lejunyang.github.io/lun/guides/usage/)
+
 ## Why
 
 There are plenty of powerful web libraries, why creating new one?

@@ -75,6 +75,7 @@ onMounted(() => {
     minimap: {
       enabled: false,
     },
+    scrollBeyondLastLine: false, // if it's true, the editor will have a one-screen size blank space at the bottom
   });
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());

@@ -7,7 +7,8 @@ export default () => (
       <l-tag
         size="1"
         {...necessaryProps}
-        // FIXME found that can't focus to end without display: inline
+        // found that can't focus to end without display: inline
+        // FIXME arrow left/right can't move cursor across span
         style="margin-inline: 0.5ch; display: inline;"
         color={item.trigger === '#' ? 'red' : undefined}
       >

@@ -3,11 +3,11 @@ title: 如何使用
 lang: zh-CN
 ---
 
-- @lun/utils：js 工具函数库
-- @lun/core：提供组件功能的钩子函数库
-- @lun/components：组件库
-- @lun/theme：主题库
-- @lun/react：为 react 封装的组件库，详细见下文
+- `@lun/utils`：js 工具函数库
+- `@lun/core`：提供组件功能的钩子函数库
+- `@lun/components`：组件库
+- `@lun/theme`：主题库
+- `@lun/react`：为 react 封装的组件库，详细见下文
 
 ## React 中使用
 

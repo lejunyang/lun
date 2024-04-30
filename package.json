@@ -56,6 +56,8 @@
     "@vueuse/core": "^10.9.0",
     "postcss": "^8.4.30",
     "typescript": "^5.4.5",
-    "vue": "^3.4.21"
+    "vue": "^3.4.21",
+    "@floating-ui/utils": "^0.2.1",
+    "@floating-ui/dom": "^1.6.3"
   }
 }
