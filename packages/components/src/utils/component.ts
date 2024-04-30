@@ -12,6 +12,10 @@ export function getElementFirstName(comp: ComponentKey) {
   return getFirstOfIterable(GlobalStaticConfig.actualNameMap[comp]);
 }
 
+export function isLunComponent(el: Element, comp: ComponentKey) {
+  return GlobalStaticConfig.actualNameMap[comp]?.has(el.tagName.toLowerCase());
+}
+
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
   const name = getElementFirstName(comp);
   if (!name) {
@@ -54,6 +58,7 @@ export function createDefineElement(
       }
     }
     name ||= GlobalStaticConfig.nameMap[compKey];
+    name = name.toLowerCase();
     if (!customElements.get(name)) {
       GlobalStaticConfig.actualNameMap[compKey].add(name);
       customElements.define(name, Component);

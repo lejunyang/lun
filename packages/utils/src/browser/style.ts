@@ -91,7 +91,7 @@ const computedStyleMap = new WeakMap<Element, CSSStyleDeclaration>();
  * each call of getComputedStyle will return a new object,
  * but it's a live CSS declaration, meaning it'll be updated when the element's style is changed
  */
-export function getCachedComputedStyle(el: HTMLElement): CSSStyleDeclaration {
+export function getCachedComputedStyle(el: Element): CSSStyleDeclaration {
   let computedStyle: undefined | CSSStyleDeclaration = computedStyleMap.get(el);
   if (!computedStyle) {
     computedStyle = getComputedStyle(el, null);
