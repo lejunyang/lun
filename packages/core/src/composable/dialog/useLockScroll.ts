@@ -7,7 +7,7 @@ import {
   objectKeys,
   pick,
   setStyle,
-  supportScrollbarGutter,
+  supportCSSScrollbarGutter,
 } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 
@@ -58,7 +58,7 @@ export function useLockScroll() {
       } else {
         storeAndSetStyle(el, {
           overflow: 'hidden',
-          scrollbarGutter: supportScrollbarGutter ? 'stable' : undefined,
+          scrollbarGutter: supportCSSScrollbarGutter ? 'stable' : undefined,
           paddingRight: `calc(${getCachedComputedStyle(el).paddingRight} + ${y}px)`,
         });
       }

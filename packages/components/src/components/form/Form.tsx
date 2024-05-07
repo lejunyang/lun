@@ -5,7 +5,7 @@ import { formEmits, formProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace, useShadowDom } from 'hooks';
 import { FormItemCollector } from '.';
 import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, shallowReactive, watch } from 'vue';
-import { ensureNumber, getCachedComputedStyle, noop, pick, supportSubgrid, toPxIfNum } from '@lun/utils';
+import { ensureNumber, getCachedComputedStyle, noop, pick, supportCSSSubgrid, toPxIfNum } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
 
@@ -71,7 +71,7 @@ export const Form = defineSSRCustomElement({
                 gridColumnEnd,
               };
             } else if (isHorizontal) {
-              if (supportSubgrid && props.preferSubgrid) {
+              if (supportCSSSubgrid && props.preferSubgrid) {
                 let fullSpan = `span ${colSpan * 2}`,
                   gridColumn: [any, any] = [fullSpan, fullSpan];
                 if (fullLine || (newLine && fullLine)) gridColumn = [1, -1];

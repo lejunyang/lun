@@ -65,15 +65,17 @@ export const supportDocumentPictureInPicture =
 
 export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);
 
-export const supportCSS = typeof CSS === 'object' && CSS;
+export const supportCSSApi = typeof CSS === 'object' && CSS;
 
-export const supportCSSHighLight = supportCSS && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
+export const supportCSSHighLight = supportCSSApi && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
 
-export const supportCSSSupports = supportCSS && isFunction(CSS.supports);
+export const supportCSSSupports = supportCSSApi && isFunction(CSS.supports);
 
-export const supportScrollbarGutter = supportCSSSupports && CSS.supports('scrollbar-gutter', 'stable');
+export const supportCSSScrollbarGutter = supportCSSSupports && CSS.supports('scrollbar-gutter', 'stable');
 
-export const supportSubgrid = supportCSSSupports && CSS.supports('grid-template-rows', 'subgrid');
+export const supportCSSSubgrid = supportCSSSupports && CSS.supports('grid-template-rows', 'subgrid');
+
+export const supportCSSAnchor = supportCSSSupports && CSS.supports('anchor-name:--x');
 
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
