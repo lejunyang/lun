@@ -37,5 +37,8 @@ export default () => (
     >
       <l-button>teleport + absolute实现</l-button>
     </l-popover>
+    <l-popover anchorName="host" content="anchorName=host" triggers="click">
+      <l-button>Anchor实现</l-button>
+    </l-popover>
   </>
 );

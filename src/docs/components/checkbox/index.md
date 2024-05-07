@@ -18,9 +18,9 @@ import { themeColors } from '@lun/components';
 <!-- @Code:checkboxGroup -->
 
 :::warning 注
-全选会无视 disabled 选项，但是 readonly 选项会被改变（该行为存疑）
+全选会无视 disabled 选项，但是 readonly 选项会被改变
 
-没有 value 的选项无法进行选择，其只会跟随该 group 的全选状态而改变
+没有 value 的选项无法进行选择，其只会跟随所在 group 的全选状态而改变
 :::
 
 ## 卡片选项组
