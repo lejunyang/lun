@@ -1,10 +1,19 @@
 import { defineSSRCustomElement } from 'custom';
-import { CSSProperties, computed, ref, toRef, watchEffect, Transition, BaseTransitionProps } from 'vue';
+import {
+  CSSProperties,
+  computed,
+  ref,
+  toRef,
+  watchEffect,
+  Transition,
+  BaseTransitionProps,
+  getCurrentInstance,
+} from 'vue';
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import { isElement, isFunction, objectKeys, runIfFn, toPxIfNum, virtualGetMerge } from '@lun/utils';
-import { useCEExpose, useNamespace, useShadowDom } from 'hooks';
+import { useCEExpose, useNamespace } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
   autoUpdate,
@@ -20,6 +29,7 @@ import { getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
+import { insetReverseMap, useAnchorPosition } from './popover.anchor-position';
 // import { useFloating } from './useFloating';
 
 const name = 'popover';
@@ -42,7 +52,7 @@ export const Popover = defineSSRCustomElement({
       isTopLayer = () => type.value === 'popover';
 
     const contextZIndex = useContextConfig('zIndex');
-    const shadow = useShadowDom();
+    const { CE } = getCurrentInstance()!;
     const [wrapTeleport, vnodeHandlers] = useTeleport(props, isTeleport);
 
     /** actual pop content element ref */
@@ -52,7 +62,7 @@ export const Popover = defineSSRCustomElement({
       return isFunction(target?.getBoundingClientRect) ? target : null;
     });
     const innerTarget = computed(() => {
-      return propVirtualTarget.value || shadow.CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
+      return propVirtualTarget.value || CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
     });
     const actualTarget = computed(() => virtualTarget.value || activeExtraTarget.value || innerTarget.value);
 
@@ -98,20 +108,22 @@ export const Popover = defineSSRCustomElement({
     );
 
     const placement = toRef(props, 'placement');
+    // offset can not be computed, because it depends on offsetWidth(display: none)
+    const offset = () => {
+      const arrowLen = arrowRef.value?.offsetWidth || 0;
+      // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
+      // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
+      const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
+      return floatingOffset + (+props.offset! || 0);
+    };
     const middleware = computed(() => {
-      const { shift, showArrow, inline, offset } = props;
+      const { shift, showArrow, inline } = props;
       return [
         // selection range needs inline
         (inline || options.value.triggers.has('select')) && pluginInline(Object(inline)),
         shift && pluginShift(Object(shift)),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
-        pluginOffset(() => {
-          const arrowLen = arrowRef.value?.offsetWidth || 0;
-          // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
-          // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
-          const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
-          return floatingOffset + (+offset! || 0);
-        }),
+        pluginOffset(offset),
         showArrow &&
           arrow({
             element: arrowRef,
@@ -148,16 +160,18 @@ export const Popover = defineSSRCustomElement({
       }
     });
 
+    const anchor = useAnchorPosition({
+      name: () => props.anchorName,
+      on: () => actualTarget.value === CE,
+      offset,
+      placement,
+      strategy,
+    });
+
     const arrowStyles = computed(() => {
       const { x, y } = middlewareData.value.arrow || {};
       const side = placement.value?.split('-')[0] || 'bottom';
-      const staticSide =
-        {
-          top: 'bottom',
-          right: 'left',
-          bottom: 'top',
-          left: 'right',
-        }[side] || 'top';
+      const staticSide = insetReverseMap[side] || 'top';
       return {
         position: 'absolute' as const,
         left: x != null ? `${x}px` : '',
@@ -174,7 +188,7 @@ export const Popover = defineSSRCustomElement({
       let result: CSSProperties = {
         width: toPxIfNum(popWidth === 'anchor' ? width : popWidth),
         height: toPxIfNum(popHeight === 'anchor' ? height : popHeight),
-        ...floatingStyles.value,
+        ...(anchor.popStyle || floatingStyles.value),
         zIndex: zIndex ?? contextZIndex.popover,
       };
       if (adjustPopStyle) result = adjustPopStyle(result, middlewareData.value) || result;
@@ -290,6 +304,7 @@ export const Popover = defineSSRCustomElement({
     return () => {
       return (
         <>
+          {anchor.render()}
           {isTopLayer()
             ? wrapTransition(
                 <div

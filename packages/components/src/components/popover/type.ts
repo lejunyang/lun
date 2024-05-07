@@ -31,6 +31,8 @@ export const popoverProps = freeze({
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   /** determine the implementation type of popover */
   type: PropString<'popover' | 'position' | 'teleport'>(),
+  /** used to turn on CSS anchor positioning and specify the anchor-name for custom element itself */
+  anchorName: PropString(),
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
   to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
 
@@ -45,6 +47,7 @@ export const popoverProps = freeze({
   /** @link https://floating-ui.com/docs/offset */
   offset: PropNumber(),
   showArrow: PropBoolean(),
+  arrowOffset: PropNumber(), // [x,y]
   /** @link https://floating-ui.com/docs/shift */
   shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
   /** @link https://floating-ui.com/docs/inline */
