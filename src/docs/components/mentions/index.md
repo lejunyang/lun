@@ -5,9 +5,9 @@ lang: zh-CN
 
 该组件基于`contenteditable`以及`Selection`实现，但是目前`Selection in Shadow DOM`有问题，各浏览器实现各不相同，参考[这个](https://stackoverflow.com/questions/62054839/shadowroot-getselection)
 
-- `Safari`: 17 版本之后 Safari 提供`Selection.getComposedRanges`，这也是[标准](https://w3c.github.io/selection-api/#dom-selection-getcomposedrange)正在推进的，但是其他浏览器并未跟进（[Can I Use](https://caniuse.com/?search=getComposedRanges)），目前连 MDN 文档都没有
+- `Safari`: 通过`Window.getSelection`无法获取Shadow DOM内的节点。17 版本之后 Safari 提供[`Selection.getComposedRanges`](https://developer.mozilla.org/en-US/docs/Web/API/Selection/getComposedRanges)，这也是[标准](https://w3c.github.io/selection-api/#dom-selection-getcomposedrange)正在推进的，但是兼容性堪忧（[Can I Use](https://caniuse.com/?search=getComposedRanges)）
 - `Chromium`: 通过`ShadowRoot.getSelection`可获取正确信息，但这并不是标准 API
-- `FireFox`：正常通过`Window.getSelection`或`Document.getSelection`即可获取正确信息
+- `FireFox`：正常通过`Window.getSelection`或`Document.getSelection`即可获取正确信息(128 Nightly 版本之后也支持 getComposedRanges)
 
 :::warning 注
 这意味着目前来说 Safari17 之前都无法使用，17 之后或其他浏览器可兼容使用。如果必须在 Safari17 之前使用该组件，则需要考虑[polyfill](https://github.com/GoogleChromeLabs/shadow-selection-polyfill/issues/11)
