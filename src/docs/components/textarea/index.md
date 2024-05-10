@@ -21,12 +21,12 @@ lang: zh-CN
 
 ## 自动高度
 
-`autoRows`能够让文本域在高度上跟随内容自动变化，`rows`指定最小行数，`maxRows`指定最大行数。`rows`在不使用自动高度时也能使用，但是`maxRows`不行
+`autoRows`能够让文本域在高度上跟随内容自动变化，此时通过`rows`指定最小行数，`maxRows`指定最大行数。`rows`在不使用自动高度时也能使用，用于设置固定的高度
 
 <!-- @Code:autoRows -->
 
 ## 浮动标签
 
-与placeholder不同，浮动标签只能为一行，超出会隐藏
+与 placeholder 不同，浮动标签只能为一行，超出会隐藏
 
 <!-- @Code:floatLabel -->

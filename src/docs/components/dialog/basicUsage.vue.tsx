@@ -33,8 +33,8 @@ export default function () {
         <l-form-item name="escapeClosable" label="escapeClosable" help="是否可以通过Esc来关闭Dialog" />
         <l-form-item name="alwaysTrapFocus" label="alwaysTrapFocus" />
         <l-form-item
-          name="disabledAllWhenPending"
-          label="disabledAllWhenPending"
+          name="disableWhenPending"
+          label="disableWhenPending"
           help="是否在pending时禁用，pending指Dialog自带的按钮进入加载状态，当回调返回Promise时会如此"
         />
       </l-form>

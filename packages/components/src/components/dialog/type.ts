@@ -49,7 +49,7 @@ export const dialogProps = freeze({
   beforeOk: PropFunction<() => MaybePromise<boolean | void>>(),
   /** function that will be called before closing dialog, if it returns false/Promise.resolve(false)/Promise.reject(), prevent closing dialog */
   beforeClose: PropFunction<() => MaybePromise<boolean | void>>(),
-  disabledAllWhenPending: PropBoolean(),
+  disableWhenPending: PropBoolean(),
 
   /** internal usage */
   isConfirm: PropBoolean(),

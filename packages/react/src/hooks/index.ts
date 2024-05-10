@@ -5,7 +5,7 @@ import { EffectScope, effectScope } from 'vue';
 export const useReactForm = (
   params?: Parameters<typeof useForm>[0],
   options?: {
-    reRenderOnUpdate?: boolean;
+    renderOnUpdate?: boolean;
   },
 ) => {
   const [_, update] = useState(0);
@@ -17,7 +17,7 @@ export const useReactForm = (
   if (!ref.current) {
     effectRef.current.run(() => {
       const form = useForm(params);
-      if (options?.reRenderOnUpdate) {
+      if (options?.renderOnUpdate) {
         form.hooks.onUpdateValue.use(() => update(Date.now()));
       }
       ref.current = form;

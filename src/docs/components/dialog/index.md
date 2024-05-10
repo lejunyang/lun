@@ -8,9 +8,9 @@ lang: zh-CN
 <!-- @Code:basicUsage -->
 
 :::warning 注
-- 默认情况下会组件使用Top Layer Dialog，此时即使不渲染mask，也会阻止弹框之外元素的交互
-- 浏览器默认会将焦点限制在Top Layer Dialog内部，但需要注意的是，在聚焦到最后一个元素后，再使用Tab导航并不会跳回第一个可聚焦元素。然而在开启`noTopLayer`时，内部模拟的focus trap则会在弹框内部循环聚焦。如果需要Top Layer Dialog也遵循这个行为，请使用`alwaysTrapFocus`属性。
-- 如果弹框为Top Layer或存在蒙层，内部会将锁定页面滚动，直至最后一个锁定页面滚动的弹框关闭
+- 默认情况下会组件使用Top Layer Dialog（若支持），此时即使不渲染mask，也无法与弹框之外元素的交互。若需要在无mask时与其他元素交互，请设置`noTopLayer`
+- 浏览器默认会将焦点限制在Top Layer Dialog内部，但需要注意的是在聚焦到最后一个元素后，再使用Tab导航并不会跳回第一个可聚焦元素。然而在开启`noTopLayer`时，内部模拟的focus trap则会在弹框内部循环聚焦。如果需要Top Layer Dialog也遵循这个行为，请使用`alwaysTrapFocus`属性。
+- 如果弹框为Top Layer或存在蒙层，内部将会锁定页面滚动，直至最后一个锁定页面滚动的弹框关闭
 :::
 
 ## 静态方法
@@ -26,6 +26,6 @@ lang: zh-CN
 
 ## 嵌套
 
-嵌套打开多个模态框，只会展示一个蒙层，防止多个蒙层而越来越黑
+嵌套打开多个模态框时只会展示一个蒙层，防止因为多个蒙层而越来越黑
 
 <!-- @Code:nested -->

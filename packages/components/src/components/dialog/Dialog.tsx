@@ -64,7 +64,7 @@ export const Dialog = Object.assign(
             isPending: pending,
             onPending(_pending: boolean) {
               pending.value = _pending;
-              if (props.disabledAllWhenPending) editState.disabled = _pending;
+              if (props.disableWhenPending) editState.disabled = _pending;
             },
             lockScroll: () => {
               const { noTopLayer, noMask } = props;

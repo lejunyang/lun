@@ -12,7 +12,7 @@ const C = () => {
         },
       },
     },
-    { reRenderOnUpdate: true },
+    { renderOnUpdate: true },
   );
   return (
     <>

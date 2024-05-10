@@ -1,9 +1,12 @@
+import { ref } from "vue";
+
+const text = ref();
 export default function () {
   return (
     <>
-      <l-textarea showClearIcon />
-      <l-textarea showClearIcon readonly />
-      <l-textarea showClearIcon disabled />
+      <l-textarea showClearIcon v-update={text.value} />
+      <l-textarea showClearIcon readonly v-update={text.value} />
+      <l-textarea showClearIcon disabled v-update={text.value} />
     </>
   );
 }

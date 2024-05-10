@@ -1,12 +1,15 @@
 import { statuses } from '@lun/components';
+import { ref } from 'vue';
+
+const msg = ref();
 export default () => (
   <>
-    <l-button onClick={() => (document.getElementById('basic') as any)?.open()}>open</l-button>
+    <l-button onClick={() => msg.value?.open()}>open</l-button>
     {statuses.map((status) => (
       <l-button
         status={status}
         onClick={() =>
-          (document.getElementById('basic') as any)?.open({
+          msg.value?.open({
             type: status,
           })
         }
@@ -14,6 +17,6 @@ export default () => (
         open {status}
       </l-button>
     ))}
-    <l-message id="basic" message="This is a message"></l-message>
+    <l-message ref={msg} message="This is a message"></l-message>
   </>
 );

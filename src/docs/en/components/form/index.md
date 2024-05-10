@@ -6,7 +6,7 @@ lang: zh-CN
 
 ## 基本使用
 
-表单有三部分组成，表单由若干表单项（`l-form-item`）和表单项下的输入组件构成，每一个表单项代表一个字段，由`name`属性指定字段名称，支持链式路径（如`a.b.c`, `d[0]`）和数组（`['a', 'b', 'c']`）
+表单由若干表单项（`l-form-item`）和表单项下的输入组件构成，每一个表单项代表一个字段，由`name`属性指定字段名称，支持链式路径（如`a.b.c`, `d[0]`）和数组（`['a', 'b', 'c']`）
 
 `l-form-item`下放置输入组件，目前仅支持内部的输入组件。只要表单项设置了`name`，输入组件的值将由表单管控，无需手动设置。部分属性既在表单项存在也在输入组件上存在，如`type`, `min`, `max`等等，可以直接在表单项上设置，无需在输入组件上重复设置
 
@@ -17,7 +17,7 @@ lang: zh-CN
 <!-- @Code:useForm -->
 
 :::info 注
-React 中推荐使用`useReactForm`，通过`reRenderOnUpdate`选项，使得在组件外部使用 formData 和 formState 也可以响应式更新
+React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在React中渲染 formData 和 formState 也可以响应式更新
 :::
 
 ## 表单布局
