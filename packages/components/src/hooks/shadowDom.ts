@@ -9,6 +9,7 @@ import {
   getCurrentInstance,
   onBeforeUnmount,
   onMounted,
+  onUnmounted,
   readonly,
   shallowReactive,
   unref,
@@ -45,7 +46,7 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootNode exte
     Object.assign(state, s);
     if (isFunction(onMountCB)) onMountCB(s as any);
   });
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     state.rootChildNode = undefined;
     state.shadowRoot = undefined;
     state.CE = undefined;

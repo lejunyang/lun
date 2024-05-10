@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
 import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName, renderElement } from 'utils';
-import { useNamespace, useShadowDom } from 'hooks';
-import { VNode, computed, inject, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue';
+import { useNamespace } from 'hooks';
+import { VNode, computed, getCurrentInstance, inject, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue';
 import { useWatermark } from '@lun/core';
 import { isTruthyOrZero } from '@lun/utils';
 
@@ -26,7 +26,7 @@ export const Watermark = defineSSRCustomElement({
     const { getColor } = useNamespace(name);
     const { mutable } = props;
     const freezedProps = mutable ? props : reactive({ ...props });
-    const shadow = useShadowDom();
+    const { CE } = getCurrentInstance()!;
     const markDiv = ref<HTMLDivElement>();
     let shadowRoot: ShadowRoot, lastStyle: string;
 
@@ -49,7 +49,7 @@ export const Watermark = defineSSRCustomElement({
     const ceObserver = new MutationObserver((mutations) => {
       for (const m of mutations) {
         const removedSet = new Set(m.removedNodes);
-        if (m.type === 'childList' && removedSet.has(shadow.CE!) && m.nextSibling) {
+        if (m.type === 'childList' && removedSet.has(CE) && m.nextSibling) {
           CENext = m.nextSibling;
         }
       }
@@ -71,7 +71,6 @@ export const Watermark = defineSSRCustomElement({
     let CEParent: HTMLElement,
       CENext: Node | null = null;
     onMounted(() => {
-      const CE = shadow.CE!;
       CE.style.cssText = ceStyle;
       CEParent = CE.parentElement!;
       shadowRoot = markDiv.value!.parentNode as ShadowRoot;
@@ -87,7 +86,6 @@ export const Watermark = defineSSRCustomElement({
     onBeforeUnmount(() => {
       ceObserver.disconnect();
       shadowRootObserver.disconnect();
-      const CE = shadow.CE!;
       const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
       Object.assign(newEl, freezedProps);
       if (CE.childNodes.length) newEl.append(...CE.childNodes);

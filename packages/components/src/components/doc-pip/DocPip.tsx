@@ -9,8 +9,8 @@ import {
   toArrayIfNotNil,
   toNumberOrUndefined,
 } from '@lun/utils';
-import { useBreakpoint, useCEExpose, useShadowDom, useSlot } from 'hooks';
-import { onBeforeUnmount, ref, watchEffect } from 'vue';
+import { useBreakpoint, useCEExpose, useSlot } from 'hooks';
+import { getCurrentInstance, onBeforeUnmount, ref, watchEffect } from 'vue';
 import { useAdoptedSheetsSnapshot, useSetupEdit } from '@lun/core';
 import { on } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
@@ -22,7 +22,7 @@ export const DocPip = defineSSRCustomElement({
   emits: docPipEmits,
   setup(props, { emit }) {
     const { slotRef } = useSlot();
-    const shadow = useShadowDom();
+    const { CE } = getCurrentInstance()!;
 
     let pipWindow: Window | undefined,
       slotNodes: Node[] = [],
@@ -46,7 +46,7 @@ export const DocPip = defineSSRCustomElement({
     const methods = {
       async openPip(...otherStyles: DocPipAcceptStyle[]) {
         const { value } = slotRef,
-          { shadowRoot } = shadow;
+          { shadowRoot } = CE;
         if (!supportDocumentPictureInPicture || !value || !shadowRoot) return;
         const temp = value.assignedNodes();
         if (!temp.length || opening || opened.value) return false;
@@ -123,7 +123,7 @@ export const DocPip = defineSSRCustomElement({
         }
         opened.value = false;
         slotNodes.forEach((e) => {
-          shadow.CE?.append(e);
+          CE.append(e);
           restoreAdoptedStyleSheets(e);
         });
         if (pipWindow) {
