@@ -12,7 +12,15 @@ import {
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
-import { isElement, isFunction, objectKeys, runIfFn, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import {
+  getCachedComputedStyle,
+  isElement,
+  isFunction,
+  objectKeys,
+  runIfFn,
+  toPxIfNum,
+  virtualGetMerge,
+} from '@lun/utils';
 import { useCEExpose, useNamespace } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
@@ -77,7 +85,6 @@ export const Popover = defineSSRCustomElement({
       popContentHandlers,
       options,
       activeExtraTarget,
-      activeExtraTargetOptions,
       methods,
       virtualTarget,
       isOpen,
@@ -161,11 +168,20 @@ export const Popover = defineSSRCustomElement({
       }
     });
 
-    const extraAnchorName = () => activeExtraTargetOptions.value?.anchorName;
     const anchor = useAnchorPosition({
-      name: () => extraAnchorName() || props.anchorName,
-      noStyle: extraAnchorName,
-      on: () => actualTarget.value === CE,
+      name: () => {
+        const { value } = actualTarget;
+        if (value === CE) {
+          const { anchorName } = props;
+          return anchorName && '--' + anchorName;
+        } else if (isElement(value)) {
+          // @ts-ignore
+          const { anchorName } = getCachedComputedStyle(value);
+          // anchorName defaults to none
+          return (anchorName as string)?.startsWith('--') && anchorName;
+        }
+      },
+      inner: () => actualTarget.value === CE,
       offset,
       placement,
       strategy,
@@ -216,6 +232,7 @@ export const Popover = defineSSRCustomElement({
           isOpen,
           isShow,
           currentTarget,
+          actualTarget,
           isTopLayer,
         }),
       },

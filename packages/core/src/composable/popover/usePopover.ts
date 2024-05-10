@@ -22,7 +22,6 @@ export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu
 
 export interface PopoverAttachTargetOptions {
   isDisabled?: MaybeRefLikeOrGetter<boolean>;
-  anchorName?: string;
 }
 
 export type UsePopoverOptions = {
