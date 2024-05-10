@@ -2,6 +2,7 @@ import { reactive, watchEffect } from 'vue';
 import { isElement, isSupportResizeObserver, isTextOverflow } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
+import { PopoverAttachTargetOptions } from '../composable';
 
 export type UseOverflowWatcherOptions = {
   isDisabled?: MaybeRefLikeOrGetter<boolean>;
@@ -11,10 +12,10 @@ export type UseOverflowWatcherOptions = {
   onDetach?: (el: Element) => void;
 };
 
-export type UseOverflowWatcherAttachOptions = Parameters<typeof isTextOverflow>[1] & {
-  isDisabled?: MaybeRefLikeOrGetter<boolean>;
-  overflow?: MaybeRefLikeOrGetter<'enable' | 'open'>;
-};
+export type UseOverflowWatcherAttachOptions = Parameters<typeof isTextOverflow>[1] &
+  PopoverAttachTargetOptions & {
+    overflow?: MaybeRefLikeOrGetter<'enable' | 'open'>;
+  };
 
 export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
   const { onOverflowChange, box, isDisabled, onAttach, onDetach } = options;
