@@ -77,6 +77,7 @@ export const Popover = defineSSRCustomElement({
       popContentHandlers,
       options,
       activeExtraTarget,
+      activeExtraTargetOptions,
       methods,
       virtualTarget,
       isOpen,
@@ -160,8 +161,10 @@ export const Popover = defineSSRCustomElement({
       }
     });
 
+    const extraAnchorName = () => activeExtraTargetOptions.value?.anchorName;
     const anchor = useAnchorPosition({
-      name: () => props.anchorName,
+      name: () => extraAnchorName() || props.anchorName,
+      noStyle: extraAnchorName,
       on: () => actualTarget.value === CE,
       offset,
       placement,

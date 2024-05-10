@@ -12,12 +12,14 @@ export const insetReverseMap: Record<string, string> = {
 
 export function useAnchorPosition({
   name,
+  noStyle,
   on,
   offset,
   placement,
   strategy,
 }: {
   name: MaybeRefLikeOrGetter<string>;
+  noStyle?: MaybeRefLikeOrGetter<boolean | string>;
   on: MaybeRefLikeOrGetter<boolean>;
   offset?: MaybeRefLikeOrGetter<number>;
   placement?: MaybeRefLikeOrGetter<Placement>;
@@ -30,7 +32,7 @@ export function useAnchorPosition({
   const isOn = computed(() => anchorName.value && supportCSSAnchor && unrefOrGet(on));
   return {
     render() {
-      return isOn.value && <style>{`:host{anchor-name:${anchorName.value}}`}</style>;
+      return isOn.value && !unrefOrGet(noStyle) && <style>{`:host{anchor-name:${anchorName.value}}`}</style>;
     },
     get popStyle() {
       const [side, align] = (unrefOrGet(placement) || 'bottom').split('-');

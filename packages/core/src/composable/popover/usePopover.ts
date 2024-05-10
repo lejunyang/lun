@@ -20,6 +20,11 @@ import { useListen } from './useListen';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select';
 
+export interface PopoverAttachTargetOptions {
+  isDisabled?: MaybeRefLikeOrGetter<boolean>;
+  anchorName?: string;
+}
+
 export type UsePopoverOptions = {
   /** manually control the open state of popover */
   open?: boolean;
@@ -171,14 +176,15 @@ export function usePopover(_options: UsePopoverOptions) {
   // ------------------ extra targets ------------------
   // it's to support attaching events of triggering popover on other elements in an imperative manner
   const extraTargetsMap = reactive(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
-    extraTargetsDisabledMap = new WeakMap<Element, MaybeRefLikeOrGetter<boolean> | undefined>();
-  const activeExtraTarget = ref();
+    extraTargetsOptionMap = new WeakMap<Element, PopoverAttachTargetOptions>();
+  const activeExtraTarget = ref(),
+    activeExtraTargetOptions = computed(() => extraTargetsOptionMap.get(activeExtraTarget.value));
   const methods = {
-    attachTarget(target?: Element, { isDisabled }: { isDisabled?: MaybeRefLikeOrGetter<boolean> } = {}) {
+    attachTarget(target?: Element, options: PopoverAttachTargetOptions = {}) {
       if (!isElement(target) || extraTargetsMap.has(target)) return;
       const targetHandlers = createTargetHandlers((e, method) => {
         if (method === 'open') {
-          if (unrefOrGet(extraTargetsDisabledMap.get(target))) return false;
+          if (unrefOrGet(options.isDisabled)) return false;
           // consider pointerdown also as focusin, or pointerdown can be prevented because of needPrevent when switching targets
           if (e.type !== 'focusin' && e.type !== 'pointerdown' && needPrevent(e, false)) {
             return false;
@@ -188,7 +194,7 @@ export function usePopover(_options: UsePopoverOptions) {
         // no need to clear activeTarget when close, as every open will reset activeTarget
       });
       extraTargetsMap.set(target, targetHandlers);
-      extraTargetsDisabledMap.set(target, isDisabled);
+      extraTargetsOptionMap.set(target, options);
       for (const [key, handler] of Object.entries(targetHandlers)) {
         on(target, key.slice(2).toLowerCase(), handler);
       }
@@ -201,7 +207,7 @@ export function usePopover(_options: UsePopoverOptions) {
         off(target, key.slice(2).toLowerCase(), handler);
       }
       extraTargetsMap.delete(target);
-      extraTargetsDisabledMap.delete(target);
+      extraTargetsOptionMap.delete(target);
       if (target === activeExtraTarget.value) {
         options.value.closeNow();
         activeExtraTarget.value = null;
@@ -375,6 +381,7 @@ export function usePopover(_options: UsePopoverOptions) {
     cleanup,
     methods,
     activeExtraTarget,
+    activeExtraTargetOptions,
     /** current valid selection range or pointer target ref */
     virtualTarget,
     isOpen,
