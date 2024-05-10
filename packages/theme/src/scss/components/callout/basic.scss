@@ -3,6 +3,10 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+pre {
+  margin: 0;
+}
+
 @include b(callout) {
   display: flex;
   @include declareVars((padding, border-radius, gap));

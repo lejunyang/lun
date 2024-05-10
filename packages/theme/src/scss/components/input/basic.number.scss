@@ -27,20 +27,18 @@
         )
       );
     }
-    @include is(disabled) {
-      @include e(steps-wrapper) {
-        color: getGrayColor(a8);
-        #{getE(step)} {
-          cursor: getDisabledCursor();
-          transform: none;
-        }
-      }
-    }
     @include e(step) {
       cursor: pointer;
       @include hover {
         transform: scale(1.2);
         transition: scale 0.2s ease;
+      }
+    }
+    @include is(disabled) {
+      @include e(step) {
+        color: getGrayColor(a8);
+        cursor: getDisabledCursor();
+        transform: none;
       }
     }
     @include e(arrow) {
