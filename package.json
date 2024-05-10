@@ -7,7 +7,8 @@
     "dev": "vitepress dev src/docs",
     "build:noType": "pnpm --filter \"./packages/**\" run build:noType",
     "build": "pnpm --filter \"./packages/**\" run build",
-    "docs:build": "node ./buildDoc.js",
+    "docs:gen": "node ./utils/generateAndLinkDocs.js no-symlink",
+    "docs:build": "node ./utils/generateAndLinkDocs.js && node ./buildDoc.js",
     "docs:preview": "vitepress preview src/docs",
     "test": "vitest",
     "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha"
