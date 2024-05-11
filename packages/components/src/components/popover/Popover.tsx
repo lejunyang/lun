@@ -182,6 +182,7 @@ export const Popover = defineSSRCustomElement({
         }
       },
       inner: () => actualTarget.value === CE,
+      off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
       offset,
       placement,
       strategy,

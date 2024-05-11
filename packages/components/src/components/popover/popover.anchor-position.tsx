@@ -10,6 +10,18 @@ export const insetReverseMap: Record<string, string> = {
   left: 'right',
 };
 
+const logicalReverseMap: Record<string, string> = {
+  start: 'end',
+  end: 'start',
+};
+
+const insetLogicalMap: Record<string, string> = {
+  top: 'block-start',
+  bottom: 'block-end',
+  left: 'inline-start',
+  right: 'inline-end',
+};
+
 export function useAnchorPosition({
   name,
   inner,
@@ -32,7 +44,15 @@ export function useAnchorPosition({
     },
     get popStyle() {
       const [side, align] = (unrefOrGet(placement) || 'bottom').split('-');
-      const insetArea = align ? side + ' span-' + align : side;
+      let insetArea = side,
+        rAlign = logicalReverseMap[align];
+      if (rAlign) {
+        let span = ` span-`;
+        if (side === 'top' || side === 'bottom') span += `inline-` + rAlign;
+        else span += `block-` + rAlign;
+        // if span is logical value, side must be logical value too
+        insetArea = insetLogicalMap[side] + span;
+      }
       return isOn.value
         ? ({
             positionAnchor: unrefOrGet(inner) ? unrefOrGet(name) : null, // anchor-name can not cross shadow tree... we only set positionAnchor when it's inner anchorName
