@@ -82,36 +82,49 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
     ...(editComputed?.value &&
       pick(editComputed.value, ['disabled', 'editable', 'interactive', 'loading', 'readonly'])),
   }));
+  let lastStatesKey = new Set<string>();
   // must in mount, form-item need to be set on mount
   onCEMount(({ CE }) => {
     const stateSet = (CE as any)._internals?.states as Set<string>;
     const { reflectStateToAttr } = GlobalStaticConfig;
     const setAttr = reflectStateToAttr === 'always' || (reflectStateToAttr === 'auto' && !stateSet);
-    stop = watchEffect(() => {
-      for (let [k, v] of Object.entries(states.value)) {
-        v = unref(v);
-        if (stateSet) {
-          if (v) {
-            if (mustAddPrefixForCustomState === null) {
-              try {
-                stateSet.add(k);
-                mustAddPrefixForCustomState = false;
-              } catch {
-                mustAddPrefixForCustomState = true;
-              }
-            } else if (!mustAddPrefixForCustomState) stateSet.add(k);
-            stateSet.add('--' + k); // always add prefix for chromium
-          } else {
-            stateSet.delete('--' + k);
-            stateSet.delete(k);
-          }
-        }
-        if (setAttr) {
-          k = camelize(k); // must, because dataset only accepts camelCase
-          if (v) CE.dataset[k] = '';
-          else delete CE.dataset[k];
+
+    const handleState = (k: string, v: any, addState = true) => {
+      k = camelize(k); // dataset only accepts camelCase
+      if (stateSet) {
+        if (v && addState) {
+          if (mustAddPrefixForCustomState === null) {
+            try {
+              stateSet.add(k);
+              mustAddPrefixForCustomState = false;
+            } catch {
+              mustAddPrefixForCustomState = true;
+            }
+          } else if (!mustAddPrefixForCustomState) stateSet.add(k);
+          stateSet.add('--' + k); // always add prefix for chromium
+        } else {
+          stateSet.delete('--' + k);
+          stateSet.delete(k);
         }
       }
+      if (setAttr) {
+        if (v) CE.dataset[k] = '';
+        delete CE.dataset[k];
+      }
+    };
+
+    stop = watchEffect(() => {
+      const newStatesKey = new Set<string>();
+      for (const [k, v] of Object.entries(states.value)) {
+        lastStatesKey.delete(k);
+        newStatesKey.add(k);
+        handleState(k, unref(v));
+      }
+      for (const k of lastStatesKey) {
+        handleState(k, false, false);
+      }
+
+      lastStatesKey = newStatesKey;
     });
   });
   onBeforeUnmount(() => stop?.());
