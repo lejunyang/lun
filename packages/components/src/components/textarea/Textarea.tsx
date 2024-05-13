@@ -85,7 +85,7 @@ export const Textarea = defineSSRCustomElement({
       () => ({
         empty: isEmpty(valueModel.value),
         required: validateProps.value.required,
-        'with-clear-icon': props.showClearIcon && editComputed.value.editable,
+        withClearIcon: props.showClearIcon && editComputed.value.editable,
       }),
       ns,
       editComputed,
@@ -107,7 +107,7 @@ export const Textarea = defineSSRCustomElement({
 
     const clearIcon = computed(
       () =>
-        states.value['with-clear-icon'] &&
+        states.value.withClearIcon &&
         renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 

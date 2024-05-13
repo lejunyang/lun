@@ -47,8 +47,8 @@ export const Form = defineSSRCustomElement({
           flexWrap: 'wrap',
         },
         itemState: {
-          'horizontal-label': isHorizontal,
-          'vertical-label': isVertical,
+          horizontalLabel: isHorizontal,
+          verticalLabel: isVertical,
         },
         getItemStyles({ fullLine, newLine, endLine, rowSpan, colSpan, labelWidth }) {
           let rootStyle = {},

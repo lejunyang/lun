@@ -121,9 +121,9 @@ export const Dialog = Object.assign(
 
       const [stateClass] = useCEStates(
         () => ({
-          'no-top-layer': props.noTopLayer || !supportDialog,
+          noTopLayer: props.noTopLayer || !supportDialog,
           confirm: props.isConfirm,
-          'no-mask': props.noMask,
+          noMask: props.noMask,
         }),
         ns,
         editComputed,

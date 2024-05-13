@@ -96,9 +96,9 @@ export const Input = defineSSRCustomElement({
         empty: isEmpty(valueModel.value) && !valueForMultiple.value,
         multiple: props.multiple,
         required: validateProps.value.required,
-        'with-prepend': !prependSlot.empty.value,
-        'with-append': !appendSlot.empty.value,
-        'with-renderer': !rendererSlot.empty.value,
+        'withPrepend': !prependSlot.empty.value,
+        'withAppend': !appendSlot.empty.value,
+        'withRenderer': !rendererSlot.empty.value,
       }),
       ns,
       editComputed,
@@ -182,10 +182,8 @@ export const Input = defineSSRCustomElement({
       const inputType = type === 'number' || type === 'password' ? type : 'text';
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
-      const { empty } = states.value;
+      const { empty, withPrepend, withAppend } = states.value;
       const hidePlaceholderForMultiple = multiple && !empty;
-      const withPrepend = !prependSlot.empty.value;
-      const withAppend = !appendSlot.empty.value;
       const input = (
         <input
           autofocus={autofocus}

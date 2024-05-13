@@ -63,7 +63,7 @@ export const Button = defineSSRCustomElement({
       },
     };
 
-    const [stateClass] = useCEStates(() => ({ 'hold-show': holdShow }), ns, editComputed);
+    const [stateClass] = useCEStates(() => ({ holdShow }), ns, editComputed);
 
     let timer: ReturnType<typeof setInterval>,
       countdownTxt = ref<string | null>();

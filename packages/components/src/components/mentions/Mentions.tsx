@@ -2,13 +2,7 @@ import { computed, ref, watchEffect } from 'vue';
 import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam, useSetupEvent } from '@lun/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
-import {
-  useCEStates,
-  useNamespace,
-  useOptions,
-  usePropsFromFormItem,
-  useValueModel,
-} from 'hooks';
+import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
 import { isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
@@ -82,7 +76,7 @@ export const Mentions = defineSSRCustomElement({
       () => ({
         empty: isEmpty(valueModel.value),
         required: validateProps.value.required,
-        'with-clear-icon': props.showClearIcon && editComputed.value.editable,
+        withClearIcon: props.showClearIcon && editComputed.value.editable,
       }),
       ns,
       editComputed,
@@ -103,7 +97,7 @@ export const Mentions = defineSSRCustomElement({
 
     const clearIcon = computed(
       () =>
-        states.value['with-clear-icon'] &&
+        states.value.withClearIcon &&
         renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
