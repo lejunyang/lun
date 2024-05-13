@@ -1,11 +1,11 @@
 <template>
   <ClientOnly>
     <div class="code-wrapper" v-show="!devHide" ref="wrapperRef">
-      <div class="code-container disabled" v-if="!initialized">
+      <div :class="`code-container`" v-if="!showGenerated || !initialized">
         <!-- this is to preventing long time white screen before initialized -->
         <slot></slot>
       </div>
-      <div :class="`code-container ${loading ? 'disabled' : ''}`" v-show="initialized">
+      <div :class="`code-container ${loading ? 'disabled' : ''}`" v-if="showGenerated && initialized">
         <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
       </div>
       <div class="code-block-footer">
@@ -15,6 +15,7 @@
           :options="selectOptions"
           size="1"
           style="flex-grow: 0; width: 100px"
+          :title="locales[userLang]?.components.codeSelect"
         />
         <div class="code-block-actions">
           <svg
@@ -108,6 +109,7 @@ const lang = ref('vueJSX');
 const showEditor = ref(false);
 const loading = ref(true);
 const initialized = ref(false);
+const showGenerated = ref(false);
 const selectOptions = [
   { label: 'Vue TSX', value: 'vueJSX' },
   { label: 'React TSX', value: 'react' },
@@ -180,11 +182,13 @@ const handleCodeChange = debounce(async () => {
   }
 }, 1000);
 
+const preCode = codesMap[lang.value];
 watchEffect(() => {
-  if (codesMap[lang.value]) {
-    // collect dep
-  }
   if (!inBrowser) return;
+  const nowCode = codesMap[lang.value];
+  if (nowCode !== preCode) {
+    showGenerated.value = true;
+  }
   loading.value = true;
   handleCodeChange();
 });

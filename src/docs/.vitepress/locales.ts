@@ -80,6 +80,7 @@ export default {
       resetCode: '重置代码',
       showCode: '查看代码',
       hideCode: '隐藏代码',
+      codeSelect: '点击切换示例代码所用语言',
       noUseCase: '暂未编写用例，你可以点击右下角编辑自行尝试',
     },
   },
@@ -164,7 +165,8 @@ export default {
       resetCode: 'Reset code',
       showCode: 'Show code',
       hideCode: 'Hide code',
-      noUseCase: 'No use case yet, you can click the bottom right icon to edit and try it yourself',
+      codeSelect: 'Click to change the code of this use case',
+      noUseCase: 'No use case founded, you can click the bottom right icon to edit and try it yourself',
     },
   },
 };
