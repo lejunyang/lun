@@ -1,7 +1,7 @@
 import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { isEnterDown, isHTMLElement, isObject, isString, toArrayIfNotNil } from '@lun/utils';
+import { isEnterDown, isHTMLElement, isObject, isString, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly, watch } from 'vue';
 import { rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
@@ -29,6 +29,7 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   mentionRenderer?: (item: MentionSpan, necessaryProps: Record<string, any>) => VNode;
   triggerHighlight?: string;
   mentionReadonly?: boolean;
+  valueToLabel?: (value: string) => string | undefined,
 };
 
 export type MentionSpan = {
@@ -84,7 +85,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const content = useTempState(
     () => {
       const { on, triggers, suffix } = info.value;
-      const { value } = unrefOrGet(options);
+      const { value, valueToLabel } = unrefOrGet(options);
       const valueNow = String(unrefOrGet(value) || '');
       if (!on) return [valueNow];
       const regex = new RegExp(`(${triggers.join('|')})([^\\r\\n]+?)${suffix}`, 'g');
@@ -97,11 +98,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           content.push(valueNow.substring(lastIndex, match.index));
         }
         const trigger = match[1];
-        const label = match[2];
+        const value = match[2];
         content.push({
           trigger,
-          label, // FIXME find label in options
-          value: label,
+          label: runIfFn(valueToLabel, value) || value,
+          value,
           suffix,
           actualLength: match[0].length,
         } as MentionSpan);
@@ -180,6 +181,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     isComposing: false,
     lastTrigger: undefined as string | undefined,
     ignoreNextBlur: false,
+    activeMentionValue: undefined as string | undefined,
   });
   let /** index of current editing element in editable children */ currentIndex = 0,
     /** trigger start caret index in the span's textContent */
@@ -194,6 +196,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const cancelTrigger = () => {
     removeHighlight();
     state.lastTrigger = undefined;
+    state.activeMentionValue = undefined;
     triggerStartIndex = triggerEndIndex = 0;
   };
   const getTriggerInput = (text: string) => {
@@ -255,6 +258,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     let cancel = e?.type === 'blur';
     if (collapsed && isObject(item) && !cancel) {
       state.lastTrigger = item.trigger;
+      state.activeMentionValue = item.value;
       triggerEndIndex = triggerStartIndex = startOffset;
       currentIndex = startIndex;
       updateLastTriggerParam(startContainer, startContainer.textContent!);
