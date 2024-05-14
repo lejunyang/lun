@@ -27,10 +27,27 @@ export const Mentions = defineSSRCustomElement({
     const target = ref<VirtualElement>();
     const lastTriggerInput = ref<string>();
 
+    const selected = ref<string>();
+    const { context, activateHandlers, activateMethods, valueToLabel } = useSelect(
+      {
+        get upDownToggle() {
+          return !!state.lastTrigger;
+        },
+        autoActivateFirst: true,
+      },
+      selected,
+      {
+        onSingleSelect(value) {
+          commit(value, valueToLabel(value));
+        },
+      },
+    );
+
     const { handlers, editRef, render, state, commit } = useMentions(
       virtualGetMerge(
         {
           value: valueModel,
+          valueToLabel,
           onChange(val: { value: string; raw: readonly (string | MentionSpan)[] }) {
             valueModel.value = val.value;
             emit('update', val);
@@ -68,6 +85,10 @@ export const Mentions = defineSSRCustomElement({
       ),
     );
 
+    watchEffect(() => {
+      selected.value = state.activeMentionValue;
+    });
+
     const clearValue = () => {
       valueModel.value = null as any;
     };
@@ -101,24 +122,6 @@ export const Mentions = defineSSRCustomElement({
         renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
-    const selected = ref<string>();
-    const { context, activateHandlers, activateMethods } = useSelect(
-      {
-        get upDownToggle() {
-          return !!state.lastTrigger;
-        },
-        autoActivateFirst: true,
-      },
-      selected,
-      // TODO isHidden
-    );
-    watchEffect(() => {
-      if (selected.value) {
-        const child = activateMethods.getActiveChild();
-        commit(child?.props.value as string, child?.props.label as string);
-        selected.value = undefined;
-      }
-    });
     const { render: optionsRender, hasOption } = useOptions(props, 'select-option', {
       mapOptionKey: () => state.lastTrigger,
     });

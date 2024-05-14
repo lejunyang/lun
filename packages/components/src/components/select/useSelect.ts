@@ -30,6 +30,7 @@ export function useSelect(
     return { childrenValuesSet, valueToChildMap };
   });
   const valueToChild = (value: any) => childrenInfo.value.valueToChildMap.get(value);
+  const valueToLabel = (value: any) => valueToChild(value)?.props.label as string | undefined;
 
   const methods = useSelectMethods({
     multiple: toRef(props, 'multiple'),
@@ -64,6 +65,7 @@ export function useSelect(
     activateMethods,
     activateHandlers,
     valueToChild,
+    valueToLabel,
     context,
   };
 }

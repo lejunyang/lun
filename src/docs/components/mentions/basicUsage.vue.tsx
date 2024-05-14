@@ -2,7 +2,7 @@ import { options } from 'data';
 import { ref } from 'vue';
 
 const data = ref({
-  value: 'test@me @ano what',
+  value: 'test@value1 @value4 what',
 });
 export default () => (
   <>

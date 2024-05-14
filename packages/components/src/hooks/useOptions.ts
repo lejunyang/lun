@@ -37,7 +37,7 @@ export const createOptionProps = <
     options: {
       type: [Function, Object] as PropType<
         HasMapOption extends true
-          ? Record<string, MaybePromiseOrGetter<CommonOptions<T>>>
+          ? Record<string, MaybePromiseOrGetter<CommonOptions<T>>> | MaybePromiseOrGetter<CommonOptions<T>>
           : MaybePromiseOrGetter<CommonOptions<T>>
       >,
     },
@@ -59,7 +59,9 @@ export function useOptions<
 >(
   props: {
     options?: MapOption extends string
-      ? Record<string, MaybePromiseOrGetter<CommonOptions<HasChildren>>>
+      ?
+          | Record<string, MaybePromiseOrGetter<CommonOptions<HasChildren>>>
+          | MaybePromiseOrGetter<CommonOptions<HasChildren>>
       : MaybePromiseOrGetter<CommonOptions<HasChildren>>;
     optionNameMap?: CommonOptionNameMap;
   },
