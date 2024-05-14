@@ -1,7 +1,7 @@
 import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { isEnterDown, isHTMLElement, isString, toArrayIfNotNil } from '@lun/utils';
+import { isEnterDown, isHTMLElement, isObject, isString, toArrayIfNotNil } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly, watch } from 'vue';
 import { rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
@@ -28,6 +28,7 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   noOptions?: boolean;
   mentionRenderer?: (item: MentionSpan, necessaryProps: Record<string, any>) => VNode;
   triggerHighlight?: string;
+  mentionReadonly?: boolean;
 };
 
 export type MentionSpan = {
@@ -68,9 +69,8 @@ const allowedInputTypes = new Set([
   'historyRedo', // ctrl + shift + z or cmd + shift + z
 ]);
 
-
 // FIXME 在第一个例子中，使用箭头往右，在中间的时候按右却会往左。上下箭头表现不正常
-// it's like https://issues.chromium.org/issues/41147311, 
+// it's like https://issues.chromium.org/issues/41147311,
 // 在自定义渲染中，左右箭头无法在不同的编辑块中移动 Chrome
 // FIXME firefox 最后位置输入trigger
 export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, true>) {
@@ -100,7 +100,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         const label = match[2];
         content.push({
           trigger,
-          label,
+          label, // FIXME find label in options
           value: label,
           suffix,
           actualLength: match[0].length,
@@ -139,7 +139,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   );
 
   const render = computed(() => {
-    const { mentionRenderer } = unrefOrGet(options);
+    const { mentionRenderer, mentionReadonly } = unrefOrGet(options);
     return content.value.map((item) => {
       // TODO try add &zwj; for last empty span, add padding-inline to fix firefox and safari cursor issue
       if (isString(item) || !item)
@@ -153,11 +153,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           },
           item,
         );
-      const necessaryProps = {
+      const necessaryProps: Record<string, any> = {
         'data-is-mention': '',
-        contenteditable: 'false',
         part: 'mention',
       };
+      if (mentionReadonly) necessaryProps.contenteditable = 'false';
       if (mentionRenderer) return mentionRenderer(item, necessaryProps);
       return h(
         'span',
@@ -190,10 +190,25 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     compositionLen = 0,
     lastTriggerParam: MentionsTriggerParam;
   const isBetweenTrigger = (index: number) => index >= triggerStartIndex && index <= triggerEndIndex;
+  const isCurrentMentionSpan = () => isObject(content.value[currentIndex]);
   const cancelTrigger = () => {
     removeHighlight();
     state.lastTrigger = undefined;
     triggerStartIndex = triggerEndIndex = 0;
+  };
+  const getTriggerInput = (text: string) => {
+    return text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
+  };
+  const updateLastTriggerParam = (textNode: Node, text: string) => {
+    lastTriggerParam = {
+      trigger: state.lastTrigger!,
+      input: getTriggerInput(text),
+      text,
+      startRange: getRangeWithOffset(textNode, triggerStartIndex),
+      endRange: getRangeWithOffset(textNode, triggerEndIndex),
+      startIndex: triggerStartIndex,
+      endIndex: triggerEndIndex,
+    };
   };
 
   const getRangeInfo = () => {
@@ -234,10 +249,16 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     });
   };
 
-  const checkIfCancelTrigger = (e?: KeyboardEvent | MouseEvent | FocusEvent) => {
-    if (state.lastTrigger) {
-      const { startIndex, endIndex, startOffset, endOffset } = getRangeInfo();
-      let cancel = e?.type === 'blur';
+  const checkTrigger = (e?: KeyboardEvent | MouseEvent | FocusEvent) => {
+    const { startIndex, endIndex, startOffset, endOffset, startContainer, collapsed } = getRangeInfo();
+    const item = content.value[endIndex] as MentionSpan;
+    let cancel = e?.type === 'blur';
+    if (collapsed && isObject(item) && !cancel) {
+      state.lastTrigger = item.trigger;
+      triggerEndIndex = triggerStartIndex = startOffset;
+      currentIndex = startIndex;
+      updateLastTriggerParam(startContainer, startContainer.textContent!);
+    } else if (state.lastTrigger) {
       // !isBetweenTrigger(focusOffset)
       // can not use focusOffset of selection to determine is out of trigger, in safari, the selection will not pierce into shadow DOM
       cancel ||=
@@ -391,19 +412,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         triggerEndIndex = triggerStartIndex = startOffset;
       }
       if (state.lastTrigger) {
-        const input = text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
+        const input = getTriggerInput(text);
         if (noOptions && input.endsWith(suffix)) {
           return commit(input.slice(0, -suffix.length));
         }
-        lastTriggerParam = {
-          trigger: state.lastTrigger,
-          input,
-          text,
-          startRange: getRangeWithOffset(textNode, triggerStartIndex),
-          endRange: getRangeWithOffset(textNode, triggerEndIndex),
-          startIndex: triggerStartIndex,
-          endIndex: triggerEndIndex,
-        };
+        updateLastTriggerParam(textNode, text);
         setHighlight(getRangeWithOffset(textNode, triggerStartIndex, triggerEndIndex));
         onTrigger && onTrigger(lastTriggerParam);
       }
@@ -435,15 +448,15 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
     // can not be keydown, because range hasn't been updated yet in keydown
     onKeyup(e: KeyboardEvent) {
-      checkIfCancelTrigger(e);
+      checkTrigger(e);
     },
     // can not be pointerdown, because it can be selection
     onClick(e: MouseEvent) {
-      checkIfCancelTrigger(e);
+      checkTrigger(e);
     },
     onBlur(e: FocusEvent) {
       // ignoreNextBlur is useful for pop content, as if we click the pop option, blur will definitely happen, so we need to ignore it once
-      if (!state.ignoreNextBlur) checkIfCancelTrigger(e);
+      if (!state.ignoreNextBlur) checkTrigger(e);
       else state.ignoreNextBlur = false;
     },
     onPaste(e: ClipboardEvent) {
@@ -469,8 +482,12 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       },
       str2 = text.substring(endIndex);
     cancelTrigger();
-    // even if str1 or str2 are empty string, they still needs to be inserted between two mention spans
-    content.value.splice(currentIndex, 1, str1, block, str2);
+    if (isCurrentMentionSpan()) {
+      content.value.splice(currentIndex, 1, block);
+    } else {
+      // even if str1 or str2 are empty string, they still needs to be inserted between two mention spans
+      content.value.splice(currentIndex, 1, str1, block, str2);
+    }
     // focus on the new added block
     requestFocus(currentIndex + 2);
   };
