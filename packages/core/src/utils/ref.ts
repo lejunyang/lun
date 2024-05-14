@@ -1,4 +1,4 @@
-import { isFunction, isObjectByTag } from '@lun/utils';
+import { isArray, isFunction, isObjectByTag } from '@lun/utils';
 import { isRef } from 'vue';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =
@@ -29,6 +29,31 @@ export function unrefOrGet<
   } else if (isFunction(target)) return target();
   if (defaultValue !== undefined) return defaultValue;
   return target as any;
+}
+
+/**
+ * unref or get first truthy value in targets
+ */
+export function unrefOrGetMulti<Targets extends MaybeRefLikeOrGetter<any>[]>(
+  ...targets: Targets
+): (Targets[number] extends MaybeRefLikeOrGetter<infer A> ? A : never) | undefined {
+  for (const t of targets) {
+    const v = unrefOrGet(t);
+    if (v) return v;
+  }
+}
+
+export function unrefOrGetState<T extends MaybeRefLikeOrGetter<any>[] | MaybeRefLikeOrGetter<any>>(
+  target: T,
+): (T extends MaybeRefLikeOrGetter<any>[]
+  ? T[number] extends MaybeRefLikeOrGetter<infer A>
+    ? A
+    : never
+  : T extends MaybeRefLikeOrGetter<infer A>
+  ? A
+    : never) | undefined {
+  // @ts-ignore
+  return isArray(target) ? unrefOrGetMulti(...target) : unrefOrGet(target);
 }
 
 export type ToRefLike<T extends {}> = { [k in keyof T]: MaybeRefLikeOrGetter<T[k]> };
