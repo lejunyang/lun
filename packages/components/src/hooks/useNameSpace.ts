@@ -1,12 +1,11 @@
 // derived from element-plus
-import { ComponentInternalInstance, computed, getCurrentInstance, unref } from 'vue';
+import { ComponentInternalInstance, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
 import { isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
-import { MaybeRefLikeOrGetter } from '@lun/core';
-import { unrefOrGet } from '../../../core/src/utils/ref';
+import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun/core';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -68,14 +67,14 @@ export const useNamespace = (
     (name: string, state: any): string;
     (name: string): string;
     (nameMap: Record<string, any>): string;
-  } = (name: string | Record<string, any>, ...args: [boolean | undefined] | []) => {
+  } = (name: string | Record<string, any>, ...args: any) => {
     if (isString(name)) {
-      const state = args.length >= 1 ? args[0]! : true;
-      return name && unref(state) ? `${GlobalStaticConfig.statePrefix}${name}` : '';
+      const state = args.length >= 1 ? args[0] : true;
+      return name && unrefOrGetState(state) ? `${GlobalStaticConfig.statePrefix}${name}` : '';
     } else {
       let cls = '';
       for (const key in name) {
-        if (unref(name[key])) cls += `${GlobalStaticConfig.statePrefix}${key} `;
+        if (unrefOrGetState(name[key])) cls += `${GlobalStaticConfig.statePrefix}${key} `;
       }
       return cls;
     }
@@ -160,7 +159,7 @@ export const useNamespace = (
     is,
     /** similar to 'is', but add prefix 'not-' when state is falsy */
     isOr(name: string, state: any) {
-      return is(state ? name : `not-${name}`);
+      return is(unrefOrGetState(state) ? name : `not-${name}`);
     },
     // css
     /** css var */

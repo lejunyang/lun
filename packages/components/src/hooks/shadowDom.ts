@@ -1,4 +1,4 @@
-import { useSetupEdit } from '@lun/core';
+import { unrefOrGetState, useSetupEdit } from '@lun/core';
 import { isFunction, isHTMLElement, pick } from '@lun/utils';
 import { warn } from 'utils';
 import {
@@ -12,7 +12,6 @@ import {
   onUnmounted,
   readonly,
   shallowReactive,
-  unref,
   watchEffect,
 } from 'vue';
 import { useNamespace } from './useNameSpace';
@@ -68,7 +67,7 @@ let mustAddPrefixForCustomState: boolean | null = null; // in chromium 90~X, nee
  * update custom element's states automatically.
  * this depends on the ElementInternals property '_internals'.
  * if no CustomStateSet, expose states to dataset.
- * @param states
+ * @param states {() => Record<string, MaybeRef | MaybeRef[]>}
  * @returns computed state class of root element
  */
 export function useCEStates<T extends Record<string, MaybeRef> | null | undefined>(
@@ -118,7 +117,7 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
       for (const [k, v] of Object.entries(states.value)) {
         lastStatesKey.delete(k);
         newStatesKey.add(k);
-        handleState(k, unref(v));
+        handleState(k, unrefOrGetState(v));
       }
       for (const k of lastStatesKey) {
         handleState(k, false, false);
