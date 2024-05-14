@@ -23,7 +23,7 @@ export const Divider = defineSSRCustomElement({
             ns.m(type),
             ns.is({
               dashed,
-              slotted: slotted.value,
+              slotted,
               'custom-indent': textIndent || numIndent === 0,
             }),
           ]}

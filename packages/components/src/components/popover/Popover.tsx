@@ -9,7 +9,7 @@ import {
   BaseTransitionProps,
   getCurrentInstance,
 } from 'vue';
-import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, usePopover } from '@lun/core';
+import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, unrefOrGetMulti, usePopover } from '@lun/core';
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import {
@@ -64,7 +64,7 @@ export const Popover = defineSSRCustomElement({
     const [wrapTeleport, vnodeHandlers] = useTeleport(props, isTeleport);
 
     /** actual pop content element ref */
-    const actualPop = computed(() => popRef.value || positionedRef.value);
+    const actualPop = computed(() => unrefOrGetMulti(popRef, positionedRef));
     const propVirtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
       return isFunction(target?.getBoundingClientRect) ? target : null;
@@ -72,12 +72,12 @@ export const Popover = defineSSRCustomElement({
     const innerTarget = computed(() => {
       return propVirtualTarget.value || CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
     });
-    const actualTarget = computed(() => virtualTarget.value || activeExtraTarget.value || innerTarget.value);
+    const actualTarget = computed(() => unrefOrGetMulti(virtualTarget, activeExtraTarget, innerTarget));
 
     /** current popover target */
     const currentTarget = computed(() =>
       // avoid update float position when not show
-      isOpen.value || isShow.value ? actualTarget.value : null,
+      unrefOrGetMulti(isOpen, isShow) ? actualTarget.value : null,
     );
 
     const {

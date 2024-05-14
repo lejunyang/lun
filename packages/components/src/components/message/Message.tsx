@@ -145,7 +145,7 @@ export const Message = Object.assign(
         const { placement } = props;
         const content = (
           <div
-            class={[ns.t, ns.m(placement), ns.is('fixed', isFixed.value)]}
+            class={[ns.t, ns.m(placement), ns.is('fixed', isFixed)]}
             ref={rootRef}
             part={ns.p('root')}
             {...rootProps.value}

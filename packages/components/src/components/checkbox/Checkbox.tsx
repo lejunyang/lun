@@ -76,7 +76,7 @@ export const Checkbox = defineSSRCustomElement({
         card: type.value === 'card',
         checked,
         intermediate,
-        on: checked.value || intermediate.value,
+        on: [checked, intermediate],
       }),
       ns,
       editComputed,

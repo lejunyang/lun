@@ -215,7 +215,7 @@ export const Input = defineSSRCustomElement({
               </div>
             )}
             {numberStepIcons.value?.minus}
-            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty.value)]} part="prefix">
+            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty)]} part="prefix">
               <slot {...prefixSlot.slotProps}></slot>
             </div>
             <span class={ns.e('wrapper')} part="wrapper">
