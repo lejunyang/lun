@@ -17,7 +17,7 @@ export type MentionsTriggerParam = {
   endIndex: number;
 };
 
-export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
+export type UseMentionsOptions = Pick<UseInputOptions, 'value' | 'disabled'> & {
   triggers?: string[] | string | null;
   suffix?: string;
   onTrigger?: (param: MentionsTriggerParam) => void;
@@ -29,7 +29,7 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value'> & {
   mentionRenderer?: (item: MentionSpan, necessaryProps: Record<string, any>) => VNode;
   triggerHighlight?: string;
   mentionReadonly?: boolean;
-  valueToLabel?: (value: string) => string | undefined,
+  valueToLabel?: (value: string) => string | undefined;
 };
 
 export type MentionSpan = {
@@ -256,7 +256,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     const { startIndex, endIndex, startOffset, endOffset, startContainer, collapsed } = getRangeInfo();
     const item = content.value[endIndex] as MentionSpan;
     let cancel = e?.type === 'blur';
-    if (collapsed && isObject(item) && !cancel) {
+    const { disabled } = unrefOrGet(options);
+    if (collapsed && isObject(item) && !cancel && !disabled) {
       state.lastTrigger = item.trigger;
       state.activeMentionValue = item.value;
       triggerEndIndex = triggerStartIndex = startOffset;

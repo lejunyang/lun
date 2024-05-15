@@ -48,6 +48,9 @@ export const Mentions = defineSSRCustomElement({
         {
           value: valueModel,
           valueToLabel,
+          get disabled() {
+            return !editComputed.value.editable;
+          },
           onChange(val: { value: string; raw: readonly (string | MentionSpan)[] }) {
             valueModel.value = val.value;
             emit('update', val);
@@ -87,6 +90,7 @@ export const Mentions = defineSSRCustomElement({
 
     watchEffect(() => {
       selected.value = state.activeMentionValue;
+      activateMethods.activateCurrentSelected();
     });
 
     const clearValue = () => {
@@ -125,6 +129,12 @@ export const Mentions = defineSSRCustomElement({
     const { render: optionsRender, hasOption } = useOptions(props, 'select-option', {
       mapOptionKey: () => state.lastTrigger,
     });
+
+    const popoverProps = {
+      showArrow: false,
+      target,
+      beforeOpen: activateMethods.initIndex,
+    };
 
     const contenteditable = isSupportPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
@@ -174,9 +184,8 @@ export const Mentions = defineSSRCustomElement({
           {renderElement(
             'popover',
             {
-              showArrow: false,
+              ...popoverProps,
               open: !!state.lastTrigger && !noOptions,
-              target,
             },
             <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
               {!context.value.length && !hasOption() ? (
