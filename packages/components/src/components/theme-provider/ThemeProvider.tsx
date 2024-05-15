@@ -14,7 +14,7 @@ export const ThemeProvider = defineSSRCustomElement({
   // shadowOptions: null, // it will cause Hydration children mismatch as it will render a comment node on client side, so render a slot instead of render undefine
   onCE(_, el, parent) {
     const isRoot = !parent || !parent._instance?.provides[ThemeProviderKey];
-    el.toggleAttribute('root', isRoot);
+    el.toggleAttribute('data-root-' + name, isRoot);
   },
   setup(props) {
     provide(ThemeProviderKey, true);

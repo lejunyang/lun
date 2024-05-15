@@ -465,7 +465,7 @@ export class VueElement extends BaseClass {
             break;
           }
         }
-
+        if (!parent) this.setAttribute('data-root', '');
         if (isFunction(this._def.onCE)) this._def.onCE(instance, this, parent);
       };
     }
