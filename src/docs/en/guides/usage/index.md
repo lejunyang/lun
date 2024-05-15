@@ -40,7 +40,6 @@ export default function () {
 
 ```js
 import { GlobalStaticConfig, defineAllComponents } from '@lun/components';
-import '@lun/theme/public.css'; // 引入公共主题样式
 import {
   importCommonTheme,
   importBasicTheme,

@@ -1,0 +1,50 @@
+@use '../mixins/theme' as *;
+@use '../mixins/config' as *;
+@use '../mixins/function' as *;
+
+@include hostTheme(true) {
+  #{getVarName((shadow, spread, 1))}: inset 0 1.5px 2px 0 getGrayColor(a2), inset 0 1.5px 2px 0 getColor('black', a2);
+  #{getVarName((shadow, 1))}: inset 0 0 0 1px getGrayColor(a5), getVarValue((shadow, spread, 1));
+
+  #{getVarName((shadow, spread, 2))}: 0 0 0 0.5px getColor('black', a1), 0 1px 1px 0 getGrayColor(a4),
+    0 2px 1px -1px getColor('black', a1), 0 1px 3px 0 getColor('black', a1);
+  #{getVarName((shadow, 2))}: 0 0 0 1px getGrayColor(a3), getVarValue((shadow, spread, 2));
+
+  #{getVarName((shadow, spread, 3))}: 0 2px 3px -2px getGrayColor(a3), 0 3px 12px -4px getColor('black', a2),
+    0 4px 16px -8px getColor('black', a2);
+  #{getVarName((shadow, 3))}: 0 0 0 1px getGrayColor(a3), getVarValue((shadow, spread, 3));
+
+  #{getVarName((shadow, spread, 4))}: 0 8px 40px getColor('black', a1), 0 12px 32px -16px getGrayColor(a3);
+  #{getVarName((shadow, 4))}: 0 0 0 1px getGrayColor(a3), getVarValue((shadow, spread, 4));
+
+  #{getVarName((shadow, spread, 5))}: 0 12px 60px getColor('black', a3), 0 12px 32px -16px getGrayColor(a5);
+  #{getVarName((shadow, 5))}: 0 0 0 1px getGrayColor(a3), getVarValue((shadow, spread, 5));
+
+  #{getVarName((shadow, spread, 6))}: 0 12px 60px getColor('black', a3), 0 16px 64px getColor('black', a2),
+    0 16px 36px -20px getGrayColor(a7);
+  #{getVarName((shadow, 6))}: 0 0 0 1px getGrayColor(a3), getVarValue((shadow, spread, 6));
+}
+
+@include hostTheme(false) {
+  #{getVarName((shadow, spread, 1))}: inset 0 0 0 1px getGrayColor(a3), inset 0 3px 4px 0 getColor('black', a5),
+    inset 0 0 0 1px getGrayColor(a4);
+  #{getVarName((shadow, 1))}: inset 0 -1px 1px 0 getGrayColor(a3), getVarValue((shadow, spread, 1));
+
+  #{getVarName((shadow, spread, 2))}: 0 0 0 0.5px getColor('black', a3), 0 1px 1px 0 getColor('black', a6),
+    0 2px 1px -1px getColor('black', a6), 0 1px 3px 0 getColor('black', a8);
+  #{getVarName((shadow, 2))}: 0 0 0 1px getGrayColor(a6), getVarValue((shadow, spread, 2));
+
+  #{getVarName((shadow, spread, 3))}: 0 2px 3px -2px getColor('black', a3), 0 3px 8px -2px getColor('black', a6),
+    0 4px 12px -4px getColor('black', a7);
+  #{getVarName((shadow, 3))}: 0 0 0 1px getGrayColor(a6), getVarValue((shadow, spread, 3));
+
+  #{getVarName((shadow, spread, 4))}: 0 8px 40px getColor('black', a3), 0 12px 32px -16px getColor('black', a5);
+  #{getVarName((shadow, 4))}: 0 0 0 1px getGrayColor(a6), getVarValue((shadow, spread, 4));
+
+  #{getVarName((shadow, spread, 5))}: 0 12px 60px getColor('black', a5), 0 12px 32px -16px getColor('black', a7);
+  #{getVarName((shadow, 5))}: 0 0 0 1px getGrayColor(a6), getVarValue((shadow, spread, 5));
+
+  #{getVarName((shadow, spread, 6))}: 0 12px 60px getColor('black', a4), 0 16px 64px getColor('black', a6),
+    0 16px 36px -20px getColor('black', a11);
+  #{getVarName((shadow, 6))}: 0 0 0 1px getGrayColor(a6), getVarValue((shadow, spread, 6));
+}

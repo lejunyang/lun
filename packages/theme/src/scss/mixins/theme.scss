@@ -46,7 +46,7 @@
       @content;
     }
     @media (prefers-color-scheme: light) {
-      &#{wrapThemeWhere('[root]:not([appearance=dark])')} {
+      &#{wrapThemeWhere('[data-root]:not([appearance=dark])')} {
         @content;
       }
     }
@@ -55,7 +55,7 @@
       @content;
     }
     @media (prefers-color-scheme: dark) {
-      &#{wrapThemeWhere('[root]:not([appearance=light])')} {
+      &#{wrapThemeWhere('[data-root]:not([appearance=light])')} {
         @content;
       }
     }
@@ -68,7 +68,7 @@
       @content;
     }
     @media (prefers-color-scheme: light) {
-      :host(#{wrapThemeWhere(':not([appearance=dark])')}) {
+      :host(#{wrapThemeWhere('[data-root]:not([appearance=dark])')}) {
         @content;
       }
     }
@@ -77,7 +77,7 @@
       @content;
     }
     @media (prefers-color-scheme: dark) {
-      :host(#{wrapThemeWhere(':not([appearance=light])')}) {
+      :host(#{wrapThemeWhere('[data-root]:not([appearance=light])')}) {
         @content;
       }
     }

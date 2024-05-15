@@ -2,7 +2,6 @@
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
 import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents, registerCustomRenderer } from '@lun/components';
-// import '@lun/theme/scss/public/index.scss';
 import {
   importCommonTheme,
   importBasicTheme,

@@ -1,8 +1,13 @@
-@use './transitions.scss' as *;
-@use './keyframes.scss' as *;
 @use '../mixins/config.scss' as *;
 @use '../mixins/theme.scss' as *;
+
+@use './colors.scss' as *;
+@use './keyframes.scss' as *;
 @use './radius.scss' as *;
+@use './shadow.scss' as *;
+@use './theme-colors.scss' as *;
+@use './transitions.scss' as *;
+@use './typography.scss' as *;
 
 :host([hidden]) {
   display: none;

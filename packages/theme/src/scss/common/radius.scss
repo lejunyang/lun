@@ -8,6 +8,13 @@
   $thumb: getVarName($radius-thumb-name);
 
   @at-root {
+    // default value for root element without radius attr
+    :host([data-root]:not([#{$radius-name}])) {
+      #{$factor}: 1;
+      #{$full}: 0px;
+      #{$thumb}: 9999px;
+    }
+
     :host(:is([#{$radius-name}='none'], [data-#{$radius-name}='none'])) {
       #{$factor}: 0;
       #{$full}: 0px;

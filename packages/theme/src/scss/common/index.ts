@@ -18,19 +18,15 @@ export const importCommonDynamicTheme = once(() => {
 
     const scaleStyle = scale > 0 ? `:host{${getVarName('scale')}:${scale}}` : '';
     const spaces = [4, 8, 12, 16, 24, 32, 40, 48, 64],
-      spaceStyle = `:host([scale]),:host([root]){${spaces
+      spaceStyle = `:host([scale]),:host([data-root]){${spaces
         .map(
           (s, i) =>
             `${getVarName('space', i + 1)}:calc(${toPxIfNum(s)} * ${scaleVar});` +
             `${getVarName('space', 'hypot', i + 1)}:calc(${toPxIfNum(Math.hypot(s, s))} * ${scaleVar});`,
         )
         .join('')}}`;
-    const fontSizes = [12, 14, 16, 18, 20, 24, 28, 35, 60],
-      fontSizeStyle = `:host{${fontSizes
-        .map((f, i) => `${getVarName('font-size', i + 1)}:calc(${toPxIfNum(f)} * ${scaleVar});`)
-        .join('')}}`;
-    // TODO font-size line-height... radius
-    return scaleStyle + spaceStyle + fontSizeStyle;
+    // TODO add styles for root element, root element have no explicit theme props, but theme values can be set in GlobalContextConfig
+    return scaleStyle + spaceStyle;
   });
 });
 
