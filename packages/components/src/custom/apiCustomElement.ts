@@ -25,12 +25,10 @@ import {
   hydrate,
   render,
   camelize,
-  ObjectEmitsOptions,
   VueElementConstructor,
 } from 'vue';
 import { preprocessComponentOptions } from '../utils';
 import { hyphenate, toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
-import { createPlainEvent } from '../utils/event';
 import { virtualParentMap } from './virtualParent';
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
@@ -172,20 +170,11 @@ declare module 'vue' {
      * @private
      */
     CE: VueElement;
-    event: ReturnType<typeof createPlainEvent>;
     /**
      * resolved emits options
      * @internal
      */
-    emitsOptions: ObjectEmitsOptions | null;
-  }
-  interface VNode {
-    /**
-     * @internal custom element interception hook
-     */
-    ce?: (instance: ComponentInternalInstance) => void;
-  }
-  interface ComponentInternalInstance {
+    emitsOptions: import('vue').ObjectEmitsOptions | null; // must use import, "import { ObjectEmitsOptions } from 'vue'" is not included in dts build result
     /**
      * is custom element?
      * @internal
@@ -201,6 +190,12 @@ declare module 'vue' {
      * @internal
      */
     provides: Record<string | symbol, unknown>;
+  }
+  interface VNode {
+    /**
+     * @internal custom element interception hook
+     */
+    ce?: (instance: ComponentInternalInstance) => void;
   }
 }
 
@@ -417,7 +412,6 @@ export class VueElement extends BaseClass {
         this._instance = instance;
         instance.CE = this;
         instance.isCE = true;
-        instance.event = createPlainEvent(); // add Event Manager
         // HMR
         if (__DEV__) {
           instance.appContext.config.warnHandler = warnHandler;
@@ -434,7 +428,6 @@ export class VueElement extends BaseClass {
         }
 
         const dispatch = (event: string, ...args: any[]) => {
-          instance.event.emit(event, ...args);
           this.dispatchEvent(
             new CustomEvent(event, {
               ...this._def.customEventInit?.[event],

@@ -1,10 +1,11 @@
 import { createEventManager, isFunction } from '@lun/utils';
-import { inject, getCurrentInstance, provide, onBeforeUnmount, ObjectEmitsOptions } from 'vue';
+import { inject, getCurrentInstance, provide, onBeforeUnmount } from 'vue';
 
 export const EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-event-provider-key' : '');
 const ctxKey = Symbol();
 
 export type Events = Record<string, (...args: any[]) => void>;
+type EventManager = ReturnType<typeof createEventManager>;
 
 declare module 'vue' {
   interface ComponentInternalInstance {
@@ -12,8 +13,8 @@ declare module 'vue' {
      * resolved emits options
      * @internal
      */
-    emitsOptions: ObjectEmitsOptions | null;
-    [ctxKey]: ReturnType<typeof createEventManager> | undefined;
+    emitsOptions: import('vue').ObjectEmitsOptions | null;
+    [ctxKey]: EventManager | undefined;
   }
 }
 
