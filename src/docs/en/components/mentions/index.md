@@ -34,7 +34,7 @@ lang: zh-CN
 
 ## 自定义渲染
 
-通过`mentionRenderer`即可自定义渲染高亮块，返回的值由[`custom-renderer`](/components/custom-renderer/)进行渲染。需要注意的是，目前高亮块必须渲染为`contenteditable="false"`
+通过`mentionRenderer`即可自定义渲染高亮块，返回的值由[`custom-renderer`](/components/custom-renderer/)进行渲染
 
 <!-- @Code:customRenderer -->
 

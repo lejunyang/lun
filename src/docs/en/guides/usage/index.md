@@ -111,7 +111,13 @@ defineButton('my-button', {
 
 ## 兼容性
 
-至少需要兼容`customElement`, 列出的其他特性为所需版本大于`customElement`的, 若不支持需考虑 polyfill 或移除某些特性
+:::info 注
+<Support :is="true" /> 当前浏览器支持该特性
+<Support :is="false" style="margin-left: 10px;" /> 当前浏览器不支持该特性
+<l-icon name="help" style="margin-left: 10px;" /> 无法检测
+:::
+
+至少需要兼容`customElement`, 以下列出的其他特性为所需版本大于`customElement`的, 若不支持需考虑 polyfill 或移除某些特性
 
 - [customElement](https://caniuse.com/?search=customElement) (chrome>=54, edge>=79, firefox>=63, safari>=10.3)
 - [BigInt](https://caniuse.com/?search=BigInt) (firefox>=68, safari>=14)
@@ -121,20 +127,29 @@ defineButton('my-button', {
 - [CSS :where :is](https://caniuse.com/?search=where) (chrome>=88, edge>=88, firefox>=78, safari>=14)
 - [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) (chrome>=89, edge>=89, firefox>=66, safari>=15)
 
+:::details 当前用户代理信息
+{{ browserInfo }}
+:::
+
 某些特性需要的版本较高, 但它们在内部有做兼容处理或替代方案, 如下
 
-- [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets)
-- [Dialog](https://caniuse.com/?search=Dialog)
-- [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign)
-- [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel)
-- [popover](https://caniuse.com/?search=popover)
-- [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)
-- [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges)
-- [CSS Layer](https://caniuse.com/?search=layer)
-- [CSS Subgrid](https://caniuse.com/?search=Subgrid)
-- [CSS color()](https://caniuse.com/?search=display%20p3)
+- <Support is="adoptedStyleSheets" /> [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets)
+- <Support is="Dialog" /> [Dialog](https://caniuse.com/?search=Dialog)
+- <Support is="slotAssign" /> [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign)
+- <Support is="inputCancel" /> [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel)
+- <Support is="popover" /> [popover](https://caniuse.com/?search=popover)
+- <Support is="showOpenFilePicker" /> [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)
+- <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges)(注：未对 Safari17 之前做兼容，详见[`Mentions`](/components/mentions/))
+- <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer)
+- <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid)
+- <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>)
 
 某些特性无法做兼容，但它们影响不大，只是出于技术探索添加了那些特性，不使用那些功能即可
 
-- `doc-pip`: [DocumentPictureInPicture](https://caniuse.com/?search=DocumentPictureInPicture)
-- `mentions`: [CSS highlight](https://caniuse.com/?search=highlight)
+- <Support is="docPip" /> [`doc-pip`](/components/doc-pip/): [DocumentPictureInPicture](https://caniuse.com/?search=DocumentPictureInPicture)
+- <Support is="highlight" /> [`mentions`](/components/mentions/): [CSS highlight](https://caniuse.com/?search=highlight)
+
+<script setup>
+  import { inBrowser } from '@lun/utils';
+  const browserInfo = inBrowser ? navigator.userAgent : '';
+</script>

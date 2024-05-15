@@ -1,12 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
-import {
-  GlobalStaticConfig,
-  GlobalContextConfig,
-  defineAllComponents,
-  registerCustomRenderer,
-} from '@lun/components';
+import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents, registerCustomRenderer } from '@lun/components';
 // import '@lun/theme/scss/public/index.scss';
 import {
   importCommonTheme,
@@ -20,6 +15,7 @@ import {
 import { inBrowser } from 'vitepress';
 import Layout from './Layout.vue';
 import Code from '../../../components/Code.vue';
+import Support from '../../../components/Support.vue';
 import './style.css';
 
 let once = false;
@@ -32,6 +28,7 @@ export default {
     once = true;
 
     app.component('Code', Code);
+    app.component('Support', Support);
     app.config.warnHandler = (msg, _vm, _trace) => {
       // ignore injection not found warning
       if (msg.includes('injection') && msg.includes('not found')) return;
@@ -45,7 +42,7 @@ export default {
     importSolidTheme();
     importSurfaceTheme();
     importGhostTheme();
-    
+
     // lazy import react
     (async () => {
       const {
