@@ -15,21 +15,18 @@
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
-    "./public.css": "./dist/public.css",
     "./scss/common/*.scss": "./src/scss/common/*.scss",
     "./scss/mixins/*.scss": "./src/scss/mixins/*.scss",
-    "./scss/public/*.scss": "./src/scss/public/*.scss",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",
-    "scss": "sass ./src/scss/public/index.scss ./dist/public.css",
     "build:dev": "cross-env NODE_ENV=development vite build",
-    "build:prod": "cross-env NODE_ENV=production vite build && pnpm scss",
+    "build:prod": "cross-env NODE_ENV=production vite build",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
-    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build && pnpm scss",
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview",
     "version": "npm version"
   },
