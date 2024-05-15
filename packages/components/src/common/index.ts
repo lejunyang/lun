@@ -28,7 +28,7 @@ export function renderStatusIcon(
     name &&
     renderElement('icon', {
       'data-status-icon': isStatus(status),
-      [`data-${name}-icon`]: !noAccentColor,
+      [`data-${name}-color`]: !noAccentColor,
       name: noCircle ? status + '-no-circle' : name,
       ...others,
     })

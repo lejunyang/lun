@@ -62,7 +62,6 @@
   }
 }
 
-// useless, it was for theme-provider inner style
 @mixin hostTheme($isLight: true) {
   @if $isLight {
     :host(#{wrapThemeWhere('[appearance=light]')}) {
@@ -247,7 +246,8 @@
     .#{getBEM('color', '', $name)} {
       @include generateColorProperties($value);
     }
-    [data-#{$name}-icon='true'] {
+    [data-#{$name}-color='true'],
+    :host([data-#{$name}-color='true']) {
       color: getSemanticColor($name);
     }
   }
