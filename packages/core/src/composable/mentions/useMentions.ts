@@ -38,6 +38,8 @@ export type MentionSpan = {
   value: string;
   suffix: string;
   actualLength: number;
+  /** this is for editable mention span, stands fo inputting value when editing existing mention, will be cleared after commit or cancel */
+  temp?: string;
 };
 
 function getRangeWithOffset(node: Node, start: number = 0, end?: number) {
@@ -88,7 +90,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     () => {
       const { on, triggers, suffix } = info.value;
       infoDirty = false;
-      const { value, valueToLabel } = unrefOrGet(options);
+      const { value, valueToLabel, noOptions } = unrefOrGet(options);
       const valueNow = String(unrefOrGet(value) || '');
       if (lastValue === undefined) lastValue = valueNow;
       if (!on) return [valueNow];
@@ -107,7 +109,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           trigger,
           // need to use getter, valueToLabel is not able to be used initially
           get label() {
-            return runIfFn(valueToLabel, value) || value;
+            return runIfFn(!noOptions && valueToLabel, this.value) || this.value; // if noOptions, return value
           },
           value,
           suffix,
@@ -128,24 +130,22 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       },
     },
   );
-  watch(
-    content,
-    (val, old) => {
-      const { onChange } = unrefOrGet(options);
-      const raw = readonly(val);
-      const value = raw.reduce<string>((res, current) => {
-        if (isString(current)) return res + current;
-        else {
-          const { trigger, value, suffix } = current;
-          return res + trigger + value + suffix;
-        }
-      }, '');
-      lastValue = value;
-      // val !== old can happens when prop.value changes, then content.value changes
-      if (val === old && onChange) onChange({ value, raw });
-    },
-    { deep: true },
-  );
+
+  // don't using deep watch on content, using manually update. This is because deep watch will watch label field, and result of valueToLabel will change after mounted, leading to accident onChange triggered
+  const emitUpdate = () => {
+    const val = content.value;
+    const { onChange } = unrefOrGet(options);
+    const raw = readonly(val);
+    const value = raw.reduce<string>((res, current) => {
+      if (isString(current)) return res + current;
+      else {
+        const { trigger, value, suffix } = current;
+        return res + trigger + value + suffix;
+      }
+    }, '');
+    lastValue = value;
+    if (onChange) onChange({ value, raw });
+  };
 
   const render = computed(() => {
     const { mentionRenderer, mentionReadonly } = unrefOrGet(options);
@@ -177,7 +177,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           'data-suffix': item.suffix,
           ...necessaryProps,
         },
-        item.label,
+        item.temp || item.label,
       );
     });
   });
@@ -201,12 +201,21 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     compositionLen = 0,
     lastTriggerParam: MentionsTriggerParam;
   const isBetweenTrigger = (index: number) => index >= triggerStartIndex && index <= triggerEndIndex;
-  const isCurrentMentionSpan = () => isObject(content.value[currentIndex]);
+  /** if current editing item is a mention span, return it, otherwise return null */
+  const currentMentionItem = () => {
+    const i = content.value[currentIndex];
+    return isObject(i) ? (i as MentionSpan) : null;
+  };
   const cancelTrigger = () => {
     removeHighlight();
     state.lastTrigger = undefined;
     state.activeMentionValue = undefined;
     triggerStartIndex = triggerEndIndex = 0;
+    const item = currentMentionItem();
+    if (item) {
+      console.log('current item span canceled');
+      item.temp = undefined;
+    }
   };
   const getTriggerInput = (text: string) => {
     return text.substring(triggerStartIndex, triggerEndIndex + compositionLen);
@@ -270,7 +279,9 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     const { disabled } = unrefOrGet(options);
     if (collapsed && isObject(item) && !cancel && !disabled) {
       state.lastTrigger = item.trigger;
-      state.activeMentionValue = item.value;
+      if (item.temp) state.activeMentionValue = undefined;
+      // if temp is truthy, it means we are modifying a mention span, clear it
+      else state.activeMentionValue = item.value;
       triggerEndIndex = triggerStartIndex = startOffset;
       currentIndex = startIndex;
       updateLastTriggerParam(startContainer, getText(startContainer));
@@ -341,6 +352,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       } else {
         content.value[deleteStartIndex] = text;
       }
+      emitUpdate();
       requestFocus(deleteStartIndex, focusOffset);
       return true;
     };
@@ -397,6 +409,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
     },
     onInput() {
+      const { noOptions } = unrefOrGet(options);
       const range = getRangeInfo();
       let { startOffset, startContainer } = range;
       let textNode = startContainer as Text,
@@ -417,11 +430,15 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           startOffset += getText(temp).length;
         }
       }
-      content.value[currentIndex] = text;
+      const currentItem = currentMentionItem();
+      if (currentItem) {
+        console.log('in input update', text);
+        currentItem[noOptions ? 'value' : 'temp'] = text;
+      } else content.value[currentIndex] = text;
+      emitUpdate();
       requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
       const { triggers, on, suffix } = info.value;
-      const { noOptions } = unrefOrGet(options);
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
       if (!state.lastTrigger && (state.lastTrigger = triggers.find((t) => leadingText.endsWith(t)))) {
@@ -497,12 +514,13 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       },
       str2 = text.substring(endIndex);
     cancelTrigger();
-    if (isCurrentMentionSpan()) {
+    if (currentMentionItem()) {
       content.value.splice(currentIndex, 1, block);
     } else {
       // even if str1 or str2 are empty string, they still needs to be inserted between two mention spans
       content.value.splice(currentIndex, 1, str1, block, str2);
     }
+    emitUpdate();
     // focus on the new added block
     requestFocus(currentIndex + 2);
   };
