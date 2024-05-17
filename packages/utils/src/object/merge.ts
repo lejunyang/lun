@@ -265,3 +265,7 @@ export const virtualGetMerge = createVirtualMerge<true>(() => ({
     return false;
   },
 }));
+
+export function inherit<C extends Object, P extends Object>(child: C, parent: P): C & P {
+  return Object.setPrototypeOf(child, parent);
+}

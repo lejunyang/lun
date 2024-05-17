@@ -37,7 +37,8 @@ export const mentionsProps = freeze({
 });
 
 export const mentionsEmits = freeze({
-  update: (_param: { value: string | null; raw: readonly (string | MentionSpan)[] }) => null,
+  update: (_val: string | null) => null,
+  updateRaw: (_raw: readonly (string | MentionSpan)[]) => null,
   trigger: (_param: MentionsTriggerParam) => null,
   enterDown: null,
 });

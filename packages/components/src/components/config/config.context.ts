@@ -2,6 +2,7 @@ import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { OpenShadowComponentKey, openShadowComponents } from './config.static';
 import { ThemeConfig } from 'common';
+import { inherit, isObject } from '@lun/utils';
 
 const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
@@ -54,10 +55,10 @@ export type kTGlobalContextConfig = keyof TGlobalContextConfig;
 export function provideContextConfig(config: Partial<TGlobalContextConfig>) {
   const parentConfig = useContextConfig();
   for (const [key, value] of Object.entries(config)) {
-    // @ts-ignore
-    Object.setPrototypeOf(value, parentConfig[key]);
+    if (isObject(value)) inherit(value, parentConfig[key as keyof typeof parentConfig]);
   }
-  Object.setPrototypeOf(config, parentConfig); // config is partial, so we also need to set parent as its prototype
+  // TODO test which one is fast, prototype or virtualMerge
+  inherit(config, parentConfig); // config is partial, so we also need to set parent as its prototype
   provide(CONTEXT_CONFIG_KEY, config);
 }
 

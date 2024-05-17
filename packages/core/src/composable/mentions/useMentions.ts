@@ -124,7 +124,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     {
       deepRef: true,
       shouldUpdate() {
-        return unrefOrGet(unrefOrGet(options).value) !== lastValue || infoDirty
+        return unrefOrGet(unrefOrGet(options).value) !== lastValue || infoDirty;
       },
     },
   );
@@ -221,6 +221,8 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       startIndex: triggerStartIndex,
       endIndex: triggerEndIndex,
     };
+    const { onTrigger } = unrefOrGet(options);
+    onTrigger && onTrigger(lastTriggerParam);
   };
 
   const getRangeInfo = () => {
@@ -419,7 +421,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
       const { triggers, on, suffix } = info.value;
-      const { onTrigger, noOptions } = unrefOrGet(options);
+      const { noOptions } = unrefOrGet(options);
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
       if (!state.lastTrigger && (state.lastTrigger = triggers.find((t) => leadingText.endsWith(t)))) {
@@ -432,7 +434,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         }
         updateLastTriggerParam(textNode, text);
         setHighlight(getRangeWithOffset(textNode, triggerStartIndex, triggerEndIndex));
-        onTrigger && onTrigger(lastTriggerParam);
       }
     },
     onCompositionstart() {

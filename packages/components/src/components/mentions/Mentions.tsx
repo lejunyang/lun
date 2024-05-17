@@ -51,9 +51,12 @@ export const Mentions = defineSSRCustomElement({
           get disabled() {
             return !editComputed.value.editable;
           },
-          onChange(val: { value: string; raw: readonly (string | MentionSpan)[] }) {
-            valueModel.value = val.value;
-            emit('update', val);
+          onChange({ value, raw }: { value: string; raw: readonly (string | MentionSpan)[] }) {
+            if (value !== valueModel.value) {
+              valueModel.value = value;
+              emit('update', value);
+            }
+            emit('updateRaw', raw);
           },
           onEnterDown(e: KeyboardEvent) {
             emit('enterDown', e);
