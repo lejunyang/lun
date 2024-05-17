@@ -3,7 +3,7 @@ import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
 import { isEnterDown, isHTMLElement, isObject, isString, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly, watch } from 'vue';
-import { rangeToString } from './utils';
+import { getText, rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
 import { useCSSHighlight } from './useCSSHighlight';
 
@@ -34,7 +34,7 @@ export type UseMentionsOptions = Pick<UseInputOptions, 'value' | 'disabled'> & {
 
 export type MentionSpan = {
   trigger: string;
-  label: string;
+  readonly label: string;
   value: string;
   suffix: string;
   actualLength: number;
@@ -75,18 +75,22 @@ const allowedInputTypes = new Set([
 // 在自定义渲染中，左右箭头无法在不同的编辑块中移动 Chrome
 // FIXME firefox 最后位置输入trigger
 export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, true>) {
+  let infoDirty = false;
   const info = computed(() => {
     const { triggers, suffix } = unrefOrGet(options);
     const t = toArrayIfNotNil(triggers).filter(Boolean);
+    infoDirty = true;
     return { triggers: t, suffix: suffix!, on: suffix && t.length };
   });
-  let currentValue: string;
+  let lastValue: string;
   //  valueNow = 'abc@he what' => ['abc', { trigger: '@', value: 'he', label: 'he', suffix: ' ', actualLength: 4 }, 'what']
   const content = useTempState(
     () => {
       const { on, triggers, suffix } = info.value;
+      infoDirty = false;
       const { value, valueToLabel } = unrefOrGet(options);
       const valueNow = String(unrefOrGet(value) || '');
+      if (lastValue === undefined) lastValue = valueNow;
       if (!on) return [valueNow];
       const regex = new RegExp(`(${triggers.join('|')})([^\\r\\n]+?)${suffix}`, 'g');
       let lastIndex = 0,
@@ -101,7 +105,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         const value = match[2];
         content.push({
           trigger,
-          label: runIfFn(valueToLabel, value) || value,
+          // need to use getter, valueToLabel is not able to be used initially
+          get label() {
+            return runIfFn(valueToLabel, value) || value;
+          },
           value,
           suffix,
           actualLength: match[0].length,
@@ -117,13 +124,13 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     {
       deepRef: true,
       shouldUpdate() {
-        return unrefOrGet(unrefOrGet(options).value) !== currentValue;
+        return unrefOrGet(unrefOrGet(options).value) !== lastValue || infoDirty
       },
     },
   );
   watch(
     content,
-    (val) => {
+    (val, old) => {
       const { onChange } = unrefOrGet(options);
       const raw = readonly(val);
       const value = raw.reduce<string>((res, current) => {
@@ -133,8 +140,9 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           return res + trigger + value + suffix;
         }
       }, '');
-      onChange && onChange({ value, raw });
-      currentValue = value;
+      lastValue = value;
+      // val !== old can happens when prop.value changes, then content.value changes
+      if (val === old && onChange) onChange({ value, raw });
     },
     { deep: true },
   );
@@ -142,15 +150,16 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const render = computed(() => {
     const { mentionRenderer, mentionReadonly } = unrefOrGet(options);
     return content.value.map((item) => {
-      // TODO try add &zwj; for last empty span, add padding-inline to fix firefox and safari cursor issue
+      // try add &zwj; for last empty span, add padding-inline to fix firefox and safari cursor issue
       if (isString(item) || !item)
         return h(
           'span',
           {
             'data-is-text': '',
             part: 'text',
-            // this is to fix cursor jump issue in chrome when using keyboard arrow to move cursor,
-            style: 'display:inline-block',
+            // inline-block is to fix cursor jump issue in chrome when using keyboard arrow to move caret
+            // min-size is to make sure it has bounding rect, so that we can focus and edit in this empty span(browser seems to skip empty span with size 0 when moving caret)
+            style: `${!item ? `min-width:0.5px;min-height:0.5px;vertical-align:top;` : ''}display:inline-block`,
           },
           item,
         );
@@ -262,7 +271,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       state.activeMentionValue = item.value;
       triggerEndIndex = triggerStartIndex = startOffset;
       currentIndex = startIndex;
-      updateLastTriggerParam(startContainer, startContainer.textContent!);
+      updateLastTriggerParam(startContainer, getText(startContainer));
     } else if (state.lastTrigger) {
       // !isBetweenTrigger(focusOffset)
       // can not use focusOffset of selection to determine is out of trigger, in safari, the selection will not pierce into shadow DOM
@@ -294,7 +303,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
      */
     const recordInsertOrDelete = (insertText?: string, isForward?: boolean) => {
       const { startOffset, startContainer, endOffset, endContainer, startIndex, endIndex, collapsed } = getRangeInfo();
-      const endText = endContainer.textContent!,
+      const endText = getText(endContainer),
         endTextLen = endText.length,
         isAcrossSpans = startIndex !== endIndex;
       // if startOffset === 0 && collapsed, it means the cursor is at the beginning of a text node, then if startIndex > 1, means the previous node is a mention span. it's about to delete the mention span
@@ -313,7 +322,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
 
       const textBefore = isBackDeleteMention
           ? content.value[startIndex - 2]
-          : startContainer.textContent!.substring(0, startOffset),
+          : getText(startContainer).substring(0, startOffset),
         textAfter = isForwardDeleteMention ? content.value[endIndex + 2] : endText.substring(endOffset);
       text = isEmptySpan ? '' : textBefore + insertText + textAfter;
       deleteStartIndex = isBackDeleteMention ? startIndex - 2 : startIndex;
@@ -389,7 +398,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const range = getRangeInfo();
       let { startOffset, startContainer } = range;
       let textNode = startContainer as Text,
-        text = textNode.wholeText; // need to use wholeText other than textContent, as span may have multiple text nodes, especially when press Enter
+        text = getText(textNode); // need to use wholeText other than textContent, as span may have multiple text nodes, especially when press Enter
 
       if (textNode.parentElement === editRef.value) {
         // refer to the comments in getRangeInfo, this is for that special case. At that time, startContainer is the first text node before first text span, the parent is the editRef
@@ -400,10 +409,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
 
       // it happens when press enter, there will be multiple text nodes in span
-      if (text !== startContainer.textContent) {
+      if (text !== getText(startContainer)) {
         let temp: Node | null | undefined = startContainer;
         while ((temp = temp?.previousSibling)) {
-          startOffset += temp.textContent!.length;
+          startOffset += getText(temp).length;
         }
       }
       content.value[currentIndex] = text;

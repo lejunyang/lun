@@ -8,9 +8,13 @@ import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
  * @param options
  * @returns
  */
-export function useTempState<T>(getter: () => T, options?: WatchOptions & { deepRef?: boolean; shouldUpdate?: () => boolean }) {
+export function useTempState<T>(
+  getter: () => T,
+  options?: WatchOptions & { deepRef?: boolean; shouldUpdate?: () => boolean },
+) {
+  const { deep, deepRef, shouldUpdate } = options || {};
   let temp = getter();
-  const local = options?.deep || options?.deepRef ? ref<T>(temp) : shallowRef<T>(temp);
+  const local = deep || deepRef ? ref<T>(temp) : shallowRef<T>(temp);
   const changed = computed(() => {
     if (local.value !== temp) {
       return (changedOnce.value = true);
@@ -21,10 +25,14 @@ export function useTempState<T>(getter: () => T, options?: WatchOptions & { deep
     changedOnce.value = false;
     return (local.value = temp = val || getter());
   };
-  watch(() => {
-    if (options?.shouldUpdate?.() === false) return temp;
-    return getter();
-  }, reset, options);
+  watch(
+    () => {
+      if (shouldUpdate?.() === false) return temp;
+      return (temp = getter());
+    },
+    reset,
+    options,
+  );
   Object.defineProperties(local, {
     changed: {
       get() {
