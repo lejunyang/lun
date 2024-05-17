@@ -193,9 +193,9 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     activeMentionValue: undefined as string | undefined,
   });
   let /** index of current editing element in editable children */ currentIndex = 0,
-    /** trigger start caret index in the span's textContent */
+    /** trigger start caret index of current editing span's textContent */
     triggerStartIndex = 0,
-    /** trigger end caret index in the span's textContent */
+    /** trigger end caret index of current editing span's textContent */
     triggerEndIndex = 0,
     /** length of current composition text */
     compositionLen = 0,
@@ -213,7 +213,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     triggerStartIndex = triggerEndIndex = 0;
     const item = currentMentionItem();
     if (item) {
-      console.log('current item span canceled');
       item.temp = undefined;
     }
   };
@@ -282,9 +281,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (item.temp) state.activeMentionValue = undefined;
       // if temp is truthy, it means we are modifying a mention span, clear it
       else state.activeMentionValue = item.value;
-      triggerEndIndex = triggerStartIndex = startOffset;
+      const text = getText(startContainer);
+      triggerStartIndex = 0;
+      triggerEndIndex = text.length;
       currentIndex = startIndex;
-      updateLastTriggerParam(startContainer, getText(startContainer));
+      updateLastTriggerParam(startContainer, text);
     } else if (state.lastTrigger) {
       // !isBetweenTrigger(focusOffset)
       // can not use focusOffset of selection to determine is out of trigger, in safari, the selection will not pierce into shadow DOM
@@ -309,7 +310,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
      * 1. caret is at the beginning of a text node, the previous node is a mention span, then press backspace key, this is about to delete previous mention span
      * 2. caret is at the end of a text node, the next node is a mention span, then press delete key, this is about to delete next mention span
      * 3. there is a selection across many spans, then perform delete, input or paste something
-     * 4. empty current text span, in chromium it will remove the span DOM also as it's empty, but that will lead to startContainer of range is the editRef, make onInput behave abnormal, so prevent this also
+     * 4. empty current span(delete the last char), in chromium it will remove the span DOM also as it's empty, but that will lead to startContainer of range is the editRef, make onInput behave abnormal, so prevent this also
      * @param insertText text to be inserted, if not provided, it means delete
      * @param isForward whether this delete is forward
      * @returns whether this operation will delete mentions
@@ -350,7 +351,10 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       if (deleteStartIndex !== deleteEndIndex) {
         content.value.splice(deleteStartIndex, deleteEndIndex - deleteStartIndex + 1, text);
       } else {
-        content.value[deleteStartIndex] = text;
+        if (currentMentionItem() && !text) {
+          // deleting mention span
+          content.value.splice(deleteStartIndex, 2);
+        } else content.value[deleteStartIndex] = text;
       }
       emitUpdate();
       requestFocus(deleteStartIndex, focusOffset);
@@ -402,7 +406,11 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
           else if (startOffset === triggerStartIndex) cancelTrigger();
           else triggerEndIndex -= 1;
         } else if (startOffset < triggerEndIndex) triggerEndIndex -= 1;
-        if (triggerEndIndex < startOffset) cancelTrigger();
+        // 在末尾删除，triggerEndIndex-1肯定会小于startOffset，之前为什么加这个。。
+        // if (triggerEndIndex < startOffset) {
+        //   console.log('triggerEndIndex', { triggerEndIndex, startOffset, triggerStartIndex });
+        //   cancelTrigger();
+        // }
       } else if (inputType.startsWith('history')) {
         // don't know what to do with historyUndo and historyRedo, just cancel trigger
         cancelTrigger();
@@ -410,8 +418,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
     },
     onInput() {
       const { noOptions } = unrefOrGet(options);
-      const range = getRangeInfo();
-      let { startOffset, startContainer } = range;
+      let { startOffset, startContainer } = getRangeInfo();
       let textNode = startContainer as Text,
         text = getText(textNode); // need to use wholeText other than textContent, as span may have multiple text nodes, especially when press Enter
 
@@ -432,7 +439,6 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       }
       const currentItem = currentMentionItem();
       if (currentItem) {
-        console.log('in input update', text);
         currentItem[noOptions ? 'value' : 'temp'] = text;
       } else content.value[currentIndex] = text;
       emitUpdate();
