@@ -38,7 +38,9 @@ export function useAnchorPosition({
   strategy?: MaybeRefLikeOrGetter<'absolute' | 'fixed'>;
 }) {
   const isOn = computed(() => unrefOrGet(name) && supportCSSAnchor && !unrefOrGet(off));
+  const anchorName = '--p';
   return {
+    isOn,
     render() {
       return isOn.value && unrefOrGet(inner) && <style>{`:host{anchor-name:${unrefOrGet(name)}}`}</style>;
     },
@@ -59,7 +61,17 @@ export function useAnchorPosition({
             insetArea,
             [insetReverseMap[side] || 'top']: toPxIfNum(unrefOrGet(offset) || 0),
             position: unrefOrGet(strategy) || 'absolute',
+            anchorName,
           } as any as CSSProperties)
+        : null; // TODO add { anchorName }
+    },
+    get arrowStyle() {
+      return supportCSSAnchor
+        ? {
+            positionAnchor: anchorName,
+            position: 'absolute',
+            insetArea: 'top',
+          } as any as CSSProperties
         : null;
     },
   };

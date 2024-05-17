@@ -11,13 +11,9 @@ import {
   watch,
   watchEffect,
 } from 'vue';
-
 import type { UseFloatingOptions, UseFloatingReturn } from '@floating-ui/vue';
-import { getCachedComputedStyle, getDPR, getWindow, roundByDPR } from '@lun/utils';
+import { getDPR, roundByDPR } from '@lun/utils';
 import { MaybeRefLikeOrGetter, unrefOrGet, VirtualElement } from '@lun/core';
-import { platform } from '@floating-ui/dom';
-import { isLunComponent } from 'utils';
-import { getContainingBlock } from '@floating-ui/utils/dom';
 
 /**
  * Computes the `x` and `y` coordinates that will place the floating element next to a reference element when it is given a certain CSS positioning strategy.
@@ -29,12 +25,10 @@ import { getContainingBlock } from '@floating-ui/utils/dom';
 export function useFloating(
   reference: MaybeRefLikeOrGetter<Element | VirtualElement>,
   floating: MaybeRefLikeOrGetter<HTMLElement>,
-  arrow: MaybeRefLikeOrGetter<HTMLElement>,
-  options: UseFloatingOptions<ReferenceElement> = {},
+  options: UseFloatingOptions<ReferenceElement> & { off?: MaybeRefLikeOrGetter<boolean> } = {},
 ): UseFloatingReturn {
-  const whileElementsMountedOption = options.whileElementsMounted;
+  const { whileElementsMounted, off, middleware } = options;
   const openOption = computed(() => unref(options.open) ?? true);
-  const middlewareOption = computed(() => unref(options.middleware));
   const placementOption = computed(() => unref(options.placement) ?? 'bottom');
   const strategyOption = computed(() => unref(options.strategy) ?? 'absolute');
   const transformOption = computed(() => unref(options.transform) ?? true);
@@ -82,32 +76,10 @@ export function useFloating(
       return;
     }
 
-    const original = platform.getOffsetParent;
     computePosition(refEl, floatEl, {
-      middleware: middlewareOption.value,
+      middleware: unref(middleware),
       placement: placementOption.value,
       strategy: strategyOption.value,
-      platform: {
-        ...platform,
-        getOffsetParent: (el) => {
-          if (el === unrefOrGet(arrow)) return original(el);
-          const elStyle = getCachedComputedStyle(el),
-            elWindow = getWindow(el);
-          if (elStyle.position === 'fixed') {
-            return getContainingBlock(el) || elWindow;
-          }
-          const parent = (el.getRootNode() as ShadowRoot).host;
-          // special logic for popover
-          if (parent && isLunComponent(parent, 'popover')) {
-            if ((parent as any).isTopLayer) return elWindow;
-            const { position } = getCachedComputedStyle(parent);
-            if (position !== 'fixed' && position !== 'static') {
-              return parent;
-            }
-          }
-          return original(el);
-        },
-      },
     }).then((position) => {
       x.value = position.x;
       y.value = position.y;
@@ -127,8 +99,9 @@ export function useFloating(
 
   function attach() {
     cleanup();
+    if (unrefOrGet(off)) return;
 
-    if (whileElementsMountedOption === undefined) {
+    if (!whileElementsMounted) {
       update();
       return;
     }
@@ -136,7 +109,7 @@ export function useFloating(
       refEl = unrefOrGet(reference);
 
     if (refEl && floatEl) {
-      whileElementsMountedCleanup = whileElementsMountedOption(refEl, floatEl, update);
+      whileElementsMountedCleanup = whileElementsMounted(refEl, floatEl, update);
     }
   }
 
@@ -146,7 +119,7 @@ export function useFloating(
     }
   }
 
-  watch([middlewareOption, placementOption, strategyOption], update, {
+  watch([middleware, placementOption, strategyOption], update, {
     flush: 'sync',
   });
   watchEffect(attach, { flush: 'sync' });

@@ -30,7 +30,6 @@ import {
   ElementRects,
   shift as pluginShift,
   inline as pluginInline,
-  useFloating,
 } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps, popSupport } from 'common';
@@ -38,7 +37,7 @@ import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
 import { insetReverseMap, useAnchorPosition } from './popover.anchor-position';
-// import { useFloating } from './useFloating';
+import { useFloating } from './useFloating';
 
 const name = 'popover';
 export const Popover = defineSSRCustomElement({
@@ -141,33 +140,6 @@ export const Popover = defineSSRCustomElement({
     });
 
     const strategy = toRef(props, 'strategy');
-    const {
-      floatingStyles,
-      middlewareData,
-      update,
-      placement: actualPlacement,
-      isPositioned,
-    } = useFloating(currentTarget, actualPop as any, {
-      whileElementsMounted: (...args) => {
-        return autoUpdate(...args, props.autoUpdateOptions);
-      },
-      strategy,
-      placement,
-      open: isOpen,
-      middleware,
-      transform: toRef(props, 'useTransform'),
-    });
-
-    // make virtual target auto update
-    watchEffect(() => {
-      const target = unrefOrGet(props.target);
-      // have getBoundingClientRect but not a element, it's virtual
-      if (isFunction(target?.getBoundingClientRect) && !isElement(target)) {
-        target?.getBoundingClientRect(); // collect dep
-        if (isPositioned.value) update();
-      }
-    });
-
     const anchor = useAnchorPosition({
       name: () => {
         const { value } = actualTarget;
@@ -187,19 +159,48 @@ export const Popover = defineSSRCustomElement({
       placement,
       strategy,
     });
+    const {
+      floatingStyles,
+      middlewareData,
+      update,
+      placement: actualPlacement,
+      isPositioned,
+    } = useFloating(currentTarget, actualPop as any, {
+      whileElementsMounted: (...args) => {
+        return autoUpdate(...args, props.autoUpdateOptions);
+      },
+      strategy,
+      placement,
+      open: isOpen,
+      middleware,
+      transform: toRef(props, 'useTransform'),
+      off: () => !!anchor.isOn.value,
+    });
+
+    // make virtual target auto update
+    watchEffect(() => {
+      const target = unrefOrGet(props.target);
+      // have getBoundingClientRect but not a element, it's virtual
+      if (isFunction(target?.getBoundingClientRect) && !isElement(target)) {
+        target?.getBoundingClientRect(); // collect dep
+        if (isPositioned.value) update();
+      }
+    });
 
     const arrowStyles = computed(() => {
       const { x, y } = middlewareData.value.arrow || {};
       const side = placement.value?.split('-')[0] || 'bottom';
       const staticSide = insetReverseMap[side] || 'top';
-      return {
-        position: 'absolute' as const,
-        left: x != null ? `${x}px` : '',
-        top: y != null ? `${y}px` : '',
-        right: '',
-        bottom: '',
-        [staticSide]: `${-arrowRef.value?.offsetWidth}px`,
-      };
+      return (
+        anchor.arrowStyle || {
+          position: 'absolute' as const,
+          left: x != null ? `${x}px` : '',
+          top: y != null ? `${y}px` : '',
+          right: '',
+          bottom: '',
+          [staticSide]: `${-arrowRef.value?.offsetWidth}px`,
+        }
+      );
     });
 
     const finalFloatingStyles = computed(() => {
