@@ -50,7 +50,7 @@ export const Popover = defineSSRCustomElement({
     const /** pop content element with type=popover */ popRef = ref<HTMLDivElement>(),
       slotRef = ref<HTMLSlotElement>(),
       /** pop content element when type=position or teleport */ positionedRef = ref<HTMLDivElement>(),
-      arrowRef = ref();
+      arrowRef = ref<HTMLElement>();
     const type = computed(() => {
       if (popSupport[props.type!]) return props.type!;
       else return objectKeys(popSupport).find((i) => popSupport[i])!;
@@ -117,7 +117,10 @@ export const Popover = defineSSRCustomElement({
     const placement = toRef(props, 'placement');
     // offset can not be computed, because it depends on offsetWidth(display: none)
     const offset = () => {
-      const arrowLen = arrowRef.value?.offsetWidth || 0;
+      const { value } = arrowRef;
+      // when it's css anchor position, offset is called and cached in computed(at that time offsetWidth is 0), need to use computedStyle instead
+      const arrowLen = !value ? 0 : value.offsetWidth || +getCachedComputedStyle(value).width.slice(0, -2);
+      // const arrowLen = value && isShow.value ? value.offsetWidth : 0;
       // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
       // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
       const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
@@ -198,7 +201,7 @@ export const Popover = defineSSRCustomElement({
           top: y != null ? `${y}px` : '',
           right: '',
           bottom: '',
-          [staticSide]: `${-arrowRef.value?.offsetWidth}px`,
+          [staticSide]: `${-arrowRef.value?.offsetWidth!}px`,
         }
       );
     });
@@ -207,7 +210,7 @@ export const Popover = defineSSRCustomElement({
       const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
       const { adjustPopStyle, zIndex, popWidth, popHeight } = props;
       let result: CSSProperties = {
-        width: toPxIfNum(popWidth === 'anchor' ? width : popWidth),
+        width: toPxIfNum(popWidth === 'anchor' ? width : popWidth), // TODO anchor-size
         height: toPxIfNum(popHeight === 'anchor' ? height : popHeight),
         ...(anchor.popStyle || floatingStyles.value),
         zIndex: zIndex ?? contextZIndex.popover,

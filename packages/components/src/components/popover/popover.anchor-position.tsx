@@ -36,8 +36,13 @@ export function useAnchorPosition({
   offset?: MaybeRefLikeOrGetter<number>;
   placement?: MaybeRefLikeOrGetter<Placement>;
   strategy?: MaybeRefLikeOrGetter<'absolute' | 'fixed'>;
+  arrowPosition?: MaybeRefLikeOrGetter<'start' | 'end' | 'center'>;
 }) {
   const isOn = computed(() => unrefOrGet(name) && supportCSSAnchor && !unrefOrGet(off));
+  const sideAndAlign = computed(() => {
+    const [side, align] = (unrefOrGet(placement) || 'bottom').split('-');
+    return [side, align, side === 'top' || side === 'bottom' ? 'inline-' : 'block-'];
+  });
   const anchorName = '--p';
   return {
     isOn,
@@ -45,15 +50,12 @@ export function useAnchorPosition({
       return isOn.value && unrefOrGet(inner) && <style>{`:host{anchor-name:${unrefOrGet(name)}}`}</style>;
     },
     get popStyle() {
-      const [side, align] = (unrefOrGet(placement) || 'bottom').split('-');
+      const [side, align, inset] = sideAndAlign.value;
       let insetArea = side,
         rAlign = logicalReverseMap[align];
       if (rAlign) {
-        let span = ` span-`;
-        if (side === 'top' || side === 'bottom') span += `inline-` + rAlign;
-        else span += `block-` + rAlign;
         // if span is logical value, side must be logical value too
-        insetArea = insetLogicalMap[side] + span;
+        insetArea = insetLogicalMap[side] + ` span-` + inset + rAlign;
       }
       return isOn.value
         ? ({
@@ -66,12 +68,20 @@ export function useAnchorPosition({
         : null; // TODO add { anchorName }
     },
     get arrowStyle() {
+      const [side, align, inset] = sideAndAlign.value;
       return supportCSSAnchor
-        ? {
+        ? ({
             positionAnchor: anchorName,
-            position: 'absolute',
-            insetArea: 'top',
-          } as any as CSSProperties
+            position: 'fixed', // it must be fixed. According to the spec(https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element)
+            ...(align
+              ? {
+                  [side]: `anchor(${insetReverseMap[side]})`,
+                  ['inset-' + inset + align]: `calc(anchor(${align}) + 20px)`,
+                }
+              : {
+                  insetArea: insetReverseMap[side],
+                }),
+          } as any as CSSProperties)
         : null;
     },
   };
