@@ -1,9 +1,10 @@
-import type { MiddlewareData, ReferenceElement } from '@floating-ui/dom';
+import type { MiddlewareData, Placement, ReferenceElement } from '@floating-ui/dom';
 import { computePosition } from '@floating-ui/dom';
 import {
   computed,
   getCurrentScope,
   onScopeDispose,
+  Ref,
   ref,
   shallowReadonly,
   shallowRef,
@@ -25,9 +26,12 @@ import { MaybeRefLikeOrGetter, unrefOrGet, VirtualElement } from '@lun/core';
 export function useFloating(
   reference: MaybeRefLikeOrGetter<Element | VirtualElement>,
   floating: MaybeRefLikeOrGetter<HTMLElement>,
-  options: UseFloatingOptions<ReferenceElement> & { off?: MaybeRefLikeOrGetter<boolean> } = {},
-): UseFloatingReturn {
-  const { whileElementsMounted, off, middleware } = options;
+  options: UseFloatingOptions<ReferenceElement> & {
+    off?: MaybeRefLikeOrGetter<boolean>;
+    actualPlacement: Ref<Placement | undefined>;
+  },
+): Omit<UseFloatingReturn, 'placement'> {
+  const { whileElementsMounted, off, middleware, actualPlacement } = options;
   const openOption = computed(() => unref(options.open) ?? true);
   const placementOption = computed(() => unref(options.placement) ?? 'bottom');
   const strategyOption = computed(() => unref(options.strategy) ?? 'absolute');
@@ -35,7 +39,7 @@ export function useFloating(
   const x = ref(0);
   const y = ref(0);
   const strategy = ref(strategyOption.value);
-  const placement = ref(placementOption.value);
+  actualPlacement.value = placementOption.value;
   const middlewareData = shallowRef<MiddlewareData>({});
   const isPositioned = ref(false);
   const floatingStyles = computed(() => {
@@ -84,7 +88,7 @@ export function useFloating(
       x.value = position.x;
       y.value = position.y;
       strategy.value = position.strategy;
-      placement.value = position.placement;
+      actualPlacement.value = position.placement;
       middlewareData.value = position.middlewareData;
       isPositioned.value = true;
     });
@@ -133,7 +137,6 @@ export function useFloating(
     x: shallowReadonly(x),
     y: shallowReadonly(y),
     strategy: shallowReadonly(strategy),
-    placement: shallowReadonly(placement),
     middlewareData: shallowReadonly(middlewareData),
     isPositioned: shallowReadonly(isPositioned),
     floatingStyles,

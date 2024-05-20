@@ -81,7 +81,7 @@ export const defaultProps = {
     transition: 'fade',
     popWidth: 'max-content',
     arrowPosition: 'center',
-    arrowOffset: 20,
+    arrowOffset: 15,
     // anchorName: 'popover',
   },
   progress: { type: 'wave' },

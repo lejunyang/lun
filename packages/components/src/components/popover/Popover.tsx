@@ -115,6 +115,7 @@ export const Popover = defineSSRCustomElement({
     );
 
     const placement = toRef(props, 'placement');
+    const actualPlacement = ref(placement);
     // offset can not be computed, because it depends on offsetWidth(display: none)
     const offset = () => {
       const { value } = arrowRef;
@@ -135,7 +136,7 @@ export const Popover = defineSSRCustomElement({
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
         showArrow &&
-          !anchor.arrowStyle &&
+          true &&
           arrow({
             element: arrowRef,
           }),
@@ -162,22 +163,18 @@ export const Popover = defineSSRCustomElement({
           inner: () => actualTarget.value === CE,
           off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
           offset,
+          placement: actualPlacement,
         },
         props,
       ),
     );
-    const {
-      floatingStyles,
-      middlewareData,
-      update,
-      placement: actualPlacement,
-      isPositioned,
-    } = useFloating(currentTarget, actualPop as any, {
+    const { floatingStyles, middlewareData, update, isPositioned } = useFloating(currentTarget, actualPop as any, {
       whileElementsMounted: (...args) => {
         return autoUpdate(...args, props.autoUpdateOptions);
       },
       strategy,
       placement,
+      actualPlacement,
       open: isOpen,
       middleware,
       transform: toRef(props, 'useTransform'),
@@ -196,18 +193,7 @@ export const Popover = defineSSRCustomElement({
 
     const arrowStyles = computed(() => {
       const { x, y } = middlewareData.value.arrow || {};
-      const side = placement.value?.split('-')[0] || 'bottom';
-      const staticSide = insetReverseMap[side] || 'top';
-      return (
-        anchor.arrowStyle || {
-          position: 'absolute' as const,
-          left: x != null ? `${x}px` : '',
-          top: y != null ? `${y}px` : '',
-          right: '',
-          bottom: '',
-          [staticSide]: `${-arrowRef.value?.offsetWidth!}px`,
-        }
-      );
+      return anchor.arrowStyle(x, y, arrowRef.value?.offsetWidth);
     });
 
     const finalFloatingStyles = computed(() => {

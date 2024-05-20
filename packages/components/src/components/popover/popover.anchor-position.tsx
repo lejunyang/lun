@@ -27,15 +27,15 @@ export function useAnchorPosition(options: {
   inner?: MaybeRefLikeOrGetter<boolean | string>;
   off?: MaybeRefLikeOrGetter<boolean>;
   offset?: MaybeRefLikeOrGetter<number>;
-  placement?: Placement;
+  placement?: MaybeRefLikeOrGetter<Placement>;
   strategy?: 'absolute' | 'fixed';
   arrowPosition?: 'start' | 'end' | 'center';
   arrowOffset?: number | string;
 }) {
-  const { name, inner, off, offset } = options;
+  const { name, inner, off, offset, placement } = options;
   const isOn = computed(() => unrefOrGet(name) && supportCSSAnchor && !unrefOrGet(off));
   const sideAndAlign = computed(() => {
-    const [side, align] = (options.placement || 'bottom').split('-');
+    const [side, align] = (unrefOrGet(placement) || 'bottom').split('-');
     return [side, align, side === 'top' || side === 'bottom' ? 'inline-' : 'block-'];
   });
   const anchorName = '--p'; // it's for arrow element, always turn on anchor position for arrow element if supports
@@ -62,23 +62,30 @@ export function useAnchorPosition(options: {
           } as any as CSSProperties)
         : { ...fallbackStyles, anchorName };
     },
-    get arrowStyle() {
+    arrowStyle(x?: number, y?: number, arrowSize = 0) {
       const [side, _, inset] = sideAndAlign.value;
       const { arrowPosition, arrowOffset } = options;
-      return supportCSSAnchor
+      const notCenter = arrowPosition !== 'center',
+        insetAlign = 'inset-' + inset + (notCenter ? arrowPosition : 'start'),
+        reverseSide = insetReverseMap[side];
+      return supportCSSAnchor && false
         ? ({
             positionAnchor: anchorName,
             position: 'fixed', // it must be fixed. According to the spec(https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element)
-            ...(arrowPosition !== 'center'
+            ...(notCenter
               ? {
-                  [side]: `anchor(${insetReverseMap[side]})`,
-                  ['inset-' + inset + arrowPosition]: `calc(anchor(${arrowPosition}) + ${toPxIfNum(arrowOffset)})`,
+                  [side]: `anchor(${reverseSide})`,
+                  [insetAlign]: `calc(anchor(${arrowPosition}) + ${toPxIfNum(arrowOffset)})`,
                 }
               : {
-                  insetArea: insetReverseMap[side],
+                  insetArea: reverseSide,
                 }),
           } as any as CSSProperties)
-        : null;
+        : ({
+            position: 'absolute',
+            [insetAlign]: toPxIfNum(notCenter ? arrowOffset : x ?? y),
+            [reverseSide]: toPxIfNum(-arrowSize),
+          } satisfies CSSProperties);
     },
   };
 }
