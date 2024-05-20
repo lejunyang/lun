@@ -22,34 +22,29 @@ const insetLogicalMap: Record<string, string> = {
   right: 'inline-end',
 };
 
-export function useAnchorPosition({
-  name,
-  inner,
-  off,
-  offset,
-  placement,
-  strategy,
-}: {
+export function useAnchorPosition(options: {
   name: MaybeRefLikeOrGetter<string>;
   inner?: MaybeRefLikeOrGetter<boolean | string>;
   off?: MaybeRefLikeOrGetter<boolean>;
   offset?: MaybeRefLikeOrGetter<number>;
-  placement?: MaybeRefLikeOrGetter<Placement>;
-  strategy?: MaybeRefLikeOrGetter<'absolute' | 'fixed'>;
-  arrowPosition?: MaybeRefLikeOrGetter<'start' | 'end' | 'center'>;
+  placement?: Placement;
+  strategy?: 'absolute' | 'fixed';
+  arrowPosition?: 'start' | 'end' | 'center';
+  arrowOffset?: number | string;
 }) {
+  const { name, inner, off, offset } = options;
   const isOn = computed(() => unrefOrGet(name) && supportCSSAnchor && !unrefOrGet(off));
   const sideAndAlign = computed(() => {
-    const [side, align] = (unrefOrGet(placement) || 'bottom').split('-');
+    const [side, align] = (options.placement || 'bottom').split('-');
     return [side, align, side === 'top' || side === 'bottom' ? 'inline-' : 'block-'];
   });
-  const anchorName = '--p';
+  const anchorName = '--p'; // it's for arrow element, always turn on anchor position for arrow element if supports
   return {
     isOn,
     render() {
       return isOn.value && unrefOrGet(inner) && <style>{`:host{anchor-name:${unrefOrGet(name)}}`}</style>;
     },
-    get popStyle() {
+    popStyle(fallbackStyles: any) {
       const [side, align, inset] = sideAndAlign.value;
       let insetArea = side,
         rAlign = logicalReverseMap[align];
@@ -62,21 +57,22 @@ export function useAnchorPosition({
             positionAnchor: unrefOrGet(inner) ? unrefOrGet(name) : null, // anchor-name can not cross shadow tree... we only set positionAnchor when it's inner anchorName
             insetArea,
             [insetReverseMap[side] || 'top']: toPxIfNum(unrefOrGet(offset) || 0),
-            position: unrefOrGet(strategy) || 'absolute',
+            position: options.strategy || 'absolute',
             anchorName,
           } as any as CSSProperties)
-        : null; // TODO add { anchorName }
+        : { ...fallbackStyles, anchorName };
     },
     get arrowStyle() {
-      const [side, align, inset] = sideAndAlign.value;
+      const [side, _, inset] = sideAndAlign.value;
+      const { arrowPosition, arrowOffset } = options;
       return supportCSSAnchor
         ? ({
             positionAnchor: anchorName,
             position: 'fixed', // it must be fixed. According to the spec(https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element)
-            ...(align
+            ...(arrowPosition !== 'center'
               ? {
                   [side]: `anchor(${insetReverseMap[side]})`,
-                  ['inset-' + inset + align]: `calc(anchor(${align}) + 20px)`,
+                  ['inset-' + inset + arrowPosition]: `calc(anchor(${arrowPosition}) + ${toPxIfNum(arrowOffset)})`,
                 }
               : {
                   insetArea: insetReverseMap[side],

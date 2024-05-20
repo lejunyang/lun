@@ -135,6 +135,7 @@ export const Popover = defineSSRCustomElement({
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
         showArrow &&
+          !anchor.arrowStyle &&
           arrow({
             element: arrowRef,
           }),
@@ -143,25 +144,28 @@ export const Popover = defineSSRCustomElement({
     });
 
     const strategy = toRef(props, 'strategy');
-    const anchor = useAnchorPosition({
-      name: () => {
-        const { value } = actualTarget;
-        if (value === CE) {
-          const { anchorName } = props;
-          return anchorName && '--' + anchorName;
-        } else if (isElement(value)) {
-          // @ts-ignore
-          const { anchorName } = getCachedComputedStyle(value);
-          // anchorName defaults to none
-          return (anchorName as string)?.startsWith('--') && anchorName;
-        }
-      },
-      inner: () => actualTarget.value === CE,
-      off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
-      offset,
-      placement,
-      strategy,
-    });
+    const anchor = useAnchorPosition(
+      virtualGetMerge(
+        {
+          name: () => {
+            const { value } = actualTarget;
+            if (value === CE) {
+              const { anchorName } = props;
+              return anchorName && '--' + anchorName;
+            } else if (isElement(value)) {
+              // @ts-ignore
+              const { anchorName } = getCachedComputedStyle(value);
+              // anchorName defaults to none
+              return (anchorName as string)?.startsWith('--') && anchorName;
+            }
+          },
+          inner: () => actualTarget.value === CE,
+          off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
+          offset,
+        },
+        props,
+      ),
+    );
     const {
       floatingStyles,
       middlewareData,
@@ -212,7 +216,7 @@ export const Popover = defineSSRCustomElement({
       let result: CSSProperties = {
         width: toPxIfNum(popWidth === 'anchor' ? width : popWidth), // TODO anchor-size
         height: toPxIfNum(popHeight === 'anchor' ? height : popHeight),
-        ...(anchor.popStyle || floatingStyles.value),
+        ...anchor.popStyle(floatingStyles.value),
         zIndex: zIndex ?? contextZIndex.popover,
       };
       if (adjustPopStyle) result = adjustPopStyle(result, middlewareData.value) || result;

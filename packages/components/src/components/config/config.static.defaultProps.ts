@@ -80,6 +80,9 @@ export const defaultProps = {
     useTransform: false,
     transition: 'fade',
     popWidth: 'max-content',
+    arrowPosition: 'center',
+    arrowOffset: 20,
+    // anchorName: 'popover',
   },
   progress: { type: 'wave' },
   radio: {
@@ -113,6 +116,7 @@ export const defaultProps = {
     open: undefined, // must be undefined, otherwise it will be controlled
     showArrow: true,
     transition: 'scale',
+    // anchorName: 'tooltip',
   },
   watermark: {
     image: 'none', // defaults to none so that watermark with only 'content' prop will not be violated by changing 'image' prop

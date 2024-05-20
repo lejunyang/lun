@@ -48,7 +48,8 @@ export const popoverProps = freeze({
   /** @link https://floating-ui.com/docs/offset */
   offset: PropNumber(),
   showArrow: PropBoolean(),
-  arrowOffset: PropNumber(), // [x,y]
+  /** offset of arrow from popover edge, effective only when arrowPosition is not center */
+  arrowOffset: PropNumber(),
   /** @link https://floating-ui.com/docs/shift */
   shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
   /** @link https://floating-ui.com/docs/inline */
