@@ -80,7 +80,7 @@ export const defaultProps = {
     useTransform: false,
     transition: 'fade',
     popWidth: 'max-content',
-    arrowPosition: 'center',
+    arrowPosition: 'auto',
     arrowOffset: 15,
     // anchorName: 'popover',
   },

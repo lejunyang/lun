@@ -1,4 +1,10 @@
-import { MiddlewareState } from '@floating-ui/vue';
+import { ElementRects, MiddlewareState } from '@floating-ui/vue';
+
+declare module '@floating-ui/core' {
+  interface MiddlewareData {
+    rects?: ElementRects;
+  }
+}
 
 export const referenceRect = () => ({
   name: 'rects',

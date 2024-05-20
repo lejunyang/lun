@@ -39,7 +39,6 @@ export function useFloating(
   const x = ref(0);
   const y = ref(0);
   const strategy = ref(strategyOption.value);
-  actualPlacement.value = placementOption.value;
   const middlewareData = shallowRef<MiddlewareData>({});
   const isPositioned = ref(false);
   const floatingStyles = computed(() => {

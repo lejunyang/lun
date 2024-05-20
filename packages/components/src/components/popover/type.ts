@@ -44,7 +44,7 @@ export const popoverProps = freeze({
 
   strategy: PropString<'fixed' | 'absolute'>(),
   placement: PropString<Placement>(),
-  arrowPosition: PropString<'start' | 'center' | 'end'>(),
+  arrowPosition: PropString<'start' | 'center' | 'end' | 'auto'>(),
   /** @link https://floating-ui.com/docs/offset */
   offset: PropNumber(),
   showArrow: PropBoolean(),

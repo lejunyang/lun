@@ -8,6 +8,9 @@ import {
   Transition,
   BaseTransitionProps,
   getCurrentInstance,
+  reactive,
+  nextTick,
+  watchPostEffect,
 } from 'vue';
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, unrefOrGetMulti, usePopover } from '@lun/core';
 import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
@@ -18,6 +21,7 @@ import {
   isFunction,
   objectKeys,
   runIfFn,
+  supportCSSAnchor,
   toPxIfNum,
   virtualGetMerge,
 } from '@lun/utils';
@@ -27,16 +31,16 @@ import {
   autoUpdate,
   arrow,
   offset as pluginOffset,
-  ElementRects,
   shift as pluginShift,
   inline as pluginInline,
+  ElementRects,
 } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
 import { getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
-import { insetReverseMap, useAnchorPosition } from './popover.anchor-position';
+import { useAnchorPosition } from './popover.anchor-position';
 import { useFloating } from './useFloating';
 
 const name = 'popover';
@@ -115,7 +119,7 @@ export const Popover = defineSSRCustomElement({
     );
 
     const placement = toRef(props, 'placement');
-    const actualPlacement = ref(placement);
+    const actualPlacement = ref(placement.value || 'bottom');
     // offset can not be computed, because it depends on offsetWidth(display: none)
     const offset = () => {
       const { value } = arrowRef;
@@ -136,7 +140,7 @@ export const Popover = defineSSRCustomElement({
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
         showArrow &&
-          true &&
+          !supportCSSAnchor &&
           arrow({
             element: arrowRef,
           }),
@@ -168,6 +172,26 @@ export const Popover = defineSSRCustomElement({
         props,
       ),
     );
+
+    /** when not using floating-ui, rectsInfo is used to store reference and floating's rects */
+    const rectsInfo = reactive({
+      reference: {},
+      floating: {},
+    }) as ElementRects;
+    watchPostEffect(() => {
+      if (isShow.value && anchor.isOn.value) {
+        // need nextTick, or floating rect size could be 0
+        nextTick(() => {
+          const reference = actualTarget.value,
+            floating = actualPop.value;
+          if (reference && floating) {
+            rectsInfo.reference = reference.getBoundingClientRect();
+            rectsInfo.floating = floating.getBoundingClientRect();
+          }
+        });
+      }
+    });
+
     const { floatingStyles, middlewareData, update, isPositioned } = useFloating(currentTarget, actualPop as any, {
       whileElementsMounted: (...args) => {
         return autoUpdate(...args, props.autoUpdateOptions);
@@ -192,12 +216,12 @@ export const Popover = defineSSRCustomElement({
     });
 
     const arrowStyles = computed(() => {
-      const { x, y } = middlewareData.value.arrow || {};
-      return anchor.arrowStyle(x, y, arrowRef.value?.offsetWidth);
+      const { arrow: { x, y } = {}, rects } = middlewareData.value;
+      return anchor.arrowStyle(x, y, arrowRef.value?.offsetWidth, rects || rectsInfo);
     });
 
     const finalFloatingStyles = computed(() => {
-      const { width, height } = (middlewareData.value.rects as ElementRects)?.reference || {};
+      const { width, height } = middlewareData.value.rects?.reference || {};
       const { adjustPopStyle, zIndex, popWidth, popHeight } = props;
       let result: CSSProperties = {
         width: toPxIfNum(popWidth === 'anchor' ? width : popWidth), // TODO anchor-size
