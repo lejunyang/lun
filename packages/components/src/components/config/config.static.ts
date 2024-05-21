@@ -31,6 +31,7 @@ export const openShadowComponents = freeze([
   'progress',
   'radio',
   'radio-group',
+  'range',
   'select',
   'select-option',
   'select-optgroup',

@@ -90,6 +90,7 @@ export const defaultProps = {
     noIndicator: undefined, // virtualMerge requires undefined as default
   },
   'radio-group': {},
+  range: { type: 'horizontal' },
   select: {
     autoClose: true,
     upDownToggle: true,

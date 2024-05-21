@@ -30,6 +30,7 @@ import { once, supportCustomElement } from '@lun/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
+import { defineRange } from './range/Range';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -54,6 +55,7 @@ export function defineAllComponents() {
   definePopover();
   defineRadioGroup();
   defineRadio();
+  defineRange();
   defineSelect();
   defineSelectOptgroup();
   defineSelectOption();
@@ -137,6 +139,7 @@ export * from './message';
 export * from './popover';
 export * from './progress';
 export * from './radio';
+export * from './range';
 export * from './select';
 export * from './spin';
 export * from './switch';

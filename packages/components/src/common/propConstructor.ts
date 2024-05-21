@@ -24,6 +24,7 @@ export const PropObjOrFunc = cacheFunctionResult(createPropFactory(Object, Funct
 export const PropObjOrStr = cacheFunctionResult(createPropFactory(Object, String));
 export const PropObjOrBool = cacheFunctionResult(createPropFactory(Boolean, Object));
 export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array as Constructor<string[] | null>));
+export const PropNumOrArr = cacheFunctionResult(createPropFactory(String, Number, Array as Constructor<string [] | number[] | null>))
 
 /**
  * it's for prop 'value' of some components, like select-option, checkbox, radio... their value can be anything but empty string ''
