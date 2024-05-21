@@ -3,6 +3,7 @@ import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
+import { isFunction } from '@lun/utils';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
@@ -30,7 +31,7 @@ export const Icon = defineSSRCustomElement({
         return;
       }
       let { type, mutator, resolver } = libraryOption;
-      mutator = mutator instanceof Function ? mutator : (i) => i;
+      mutator = isFunction(mutator) ? mutator : (i) => i;
       try {
         let result = await resolver(name, attrs);
         if (type === 'html-url' && typeof result === 'string') {

@@ -1,4 +1,4 @@
-import { AnyFn } from '@lun/utils';
+import { AnyFn, isFunction } from '@lun/utils';
 import type { WritableComputedRef, UnwrapRef, Ref, ComponentInternalInstance } from 'vue';
 import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 
@@ -45,13 +45,13 @@ export function createUseModel<DK extends string, E extends () => any>({
       if (handleDefaultEmit) emit = handleDefaultEmit(emit, vm);
     }
     const cloneFn = (val: P[K]) =>
-      !clone ? val : clone instanceof Function ? clone(val) : JSON.parse(JSON.stringify(val));
+      !clone ? val : isFunction(clone) ? clone(val) : JSON.parse(JSON.stringify(val));
     const getter = () => {
       const value = extraData && getFromExtra && getFromExtra(extraData);
       if (value !== undefined) return value;
       return props[key!] !== undefined
         ? cloneFn(props[key!])
-        : extraSource instanceof Function
+        : isFunction(extraSource)
         ? extraSource()
         : undefined;
     };

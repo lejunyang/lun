@@ -1,5 +1,5 @@
 import { VNode, reactive } from 'vue';
-import { pick } from '@lun/utils';
+import { isFunction, pick } from '@lun/utils';
 import { defaultIconLibrary } from './icon.default';
 import { warn } from 'utils';
 
@@ -20,7 +20,7 @@ export const iconRegistryMap: Record<string, IconLibrary> = reactive({
 });
 
 export function registerIconLibrary(options: IconLibrary) {
-  if (!options?.library || !(options.resolver instanceof Function) || !options.type) {
+  if (!options?.library || !isFunction(options.resolver) || !options.type) {
     if (__DEV__)
       warn(`Register icon library failed, you may miss 'library', 'type' option, or 'resolver' is not a function`);
     return;
