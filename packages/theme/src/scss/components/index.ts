@@ -48,6 +48,7 @@ import { importRadioGroupBasicTheme } from './radio-group/index.ts';
 import { importThemeProviderBasicTheme } from './theme-provider/index.ts';
 import { importIconBasicTheme } from './icon/index.ts';
 import { importCommonTheme } from '../common/index.ts';
+import { importRangeBasicTheme } from './range';
 
 export * from './button';
 export * from './callout';
@@ -63,6 +64,7 @@ export * from './message';
 export * from './popover';
 export * from './progress';
 export * from './radio';
+export * from './range';
 export * from './select';
 export * from './select-optgroup';
 export * from './select-option';
@@ -88,6 +90,7 @@ export const importBasicTheme = once(() => {
   importProgressBasicTheme();
   importRadioBasicTheme();
   importRadioGroupBasicTheme();
+  importRangeBasicTheme();
   importSelectBasicTheme();
   importSelectOptgroupBasicTheme();
   importSelectOptionBasicTheme();
