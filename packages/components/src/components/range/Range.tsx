@@ -1,10 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useNamespace, useValueModel } from 'hooks';
 import { useSetupEdit, useSetupEvent } from '@lun/core';
-import { toArrayIfNotNil } from '@lun/utils';
+import { at, toArrayIfNotNil } from '@lun/utils';
+import { GlobalStaticConfig } from '../config/config.static';
 
 const name = 'range';
 export const Range = defineSSRCustomElement({
@@ -16,16 +17,31 @@ export const Range = defineSSRCustomElement({
     useSetupEvent();
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
-    const rootRef = ref<HTMLElement>();
     const valueModel = useValueModel(props);
 
-    return () => {
+    const { ensureNumber, min, max, minus, divide, toRawNum } = GlobalStaticConfig.math;
+    const minVal = computed(() => ensureNumber(props.min, 0));
+    const maxVal = computed(() => ensureNumber(props.min, 100));
+    const getPercent = (val: string | number) => {
+      const vmin = minVal.value,
+        vmax = maxVal.value;
+      const v = min(max(ensureNumber(val, 0), vmin), vmax);
+      return toRawNum(divide(minus(v, vmin), minus(vmax, vmin)));
+    };
+    const percents = computed(() => {
       const { value } = valueModel;
+      return toArrayIfNotNil(value ?? 0)
+        .map(getPercent)
+        .sort((a, b) => a - b);
+    });
+
+    return () => {
+      const { value } = percents;
       return (
-        <span class={ns.t} part={ns.p('part')}>
+        <span class={ns.t} part={ns.p('part')} style={ns.v({ min: at(value, 0), max: at(value, -1) })}>
           <span class={ns.e('track')} part={ns.p('track')}></span>
-          {toArrayIfNotNil(value ?? 0).map((v) => (
-            <span class={ns.e('handle')} part={ns.p('handle')}></span>
+          {value.map((v) => (
+            <span class={ns.e('handle')} part={ns.p('handle')} style={ns.v({ percent: v })}></span>
           ))}
         </span>
       );

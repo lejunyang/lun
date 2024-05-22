@@ -1,10 +1,13 @@
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, PropNumOrArr, PropString } from 'common';
+import { GetEventPropsFromEmits, PropNumber, PropNumOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const rangeProps = freeze({
   value: PropNumOrArr(),
   type: PropString<'horizontal' | 'vertical'>(),
+  min: PropNumber(),
+  max: PropNumber(),
+  step: PropNumber(),
 });
 
 export const rangeEmits = freeze({});
