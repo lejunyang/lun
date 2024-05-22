@@ -103,8 +103,8 @@ export const createDefaultMath = () =>
   });
 
 const is = (target: unknown): target is BigIntDecimal => target instanceof BigIntDecimal;
-export const createBigIntDecimalMath = () =>
-  createMath<BigIntDecimal>({
+export const createBigIntDecimalMath = () => {
+  const methods: MathMethods<BigIntDecimal> = {
     isNumber: (target): target is number | BigIntDecimal => isNumber(target) || is(target),
     isNaN(target) {
       return is(target) ? target.isNaN() : Number.isNaN(target);
@@ -130,12 +130,12 @@ export const createBigIntDecimalMath = () =>
     minus: (target, delta) => toBigIntDecimal(target).minus(delta),
     multi: (target, delta) => toBigIntDecimal(target).multi(delta),
     divide(target, delta) {
-      return toBigIntDecimal(this.toRawNum(target) / this.toRawNum(delta));
+      return toBigIntDecimal(methods.toRawNum(target) / methods.toRawNum(delta));
     },
     mod: (target, delta) => toBigIntDecimal(target).mod(delta),
 
     max(...args) {
-      if (!args.length) return this.getNegativeInfinity();
+      if (!args.length) return methods.getNegativeInfinity();
       let max = args[0];
       for (let i of args) {
         i = toBigIntDecimal(i);
@@ -146,7 +146,7 @@ export const createBigIntDecimalMath = () =>
     },
 
     min(...args) {
-      if (!args.length) return this.getPositiveInfinity();
+      if (!args.length) return methods.getPositiveInfinity();
       let min = args[0];
       for (let i of args) {
         i = toBigIntDecimal(i);
@@ -172,4 +172,6 @@ export const createBigIntDecimalMath = () =>
     negate(target) {
       return toBigIntDecimal(target).negated();
     },
-  });
+  };
+  return createMath<BigIntDecimal>(methods);
+}

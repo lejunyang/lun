@@ -1,8 +1,7 @@
-import { isText } from '@lun/utils';
+import { getTypeTag, isText } from '@lun/utils';
 
 export function rangeToString(range: Range | StaticRange) {
-  // TODO replace it with getTypeTag
-  if (range instanceof StaticRange) {
+  if (getTypeTag(range) === 'StaticRange') {
     // StaticRange doesn't have toString method...
     const { startContainer, endContainer, startOffset, endOffset, collapsed } = range;
     if (collapsed) return '';
