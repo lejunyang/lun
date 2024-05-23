@@ -3,8 +3,72 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+:host {
+  display: block;
+  width: 100%;
+}
+
 @include b(range) {
   display: flex;
+  align-items: center;
   position: relative;
-  flex-grow: 1;
+  flex: 1;
+  @include declareVars((height));
+  @include declareVarValues(
+    (
+      background-color: getGrayColor(a3),
+      border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(height) / 3),
+    )
+  );
+
+  @include e(track) {
+    position: absolute;
+    border-radius: inherit;
+    background-color: getAccentColor(a9); // TODO radix-theme uses accent-track...
+    inset-inline-start: calc(getVarValue((range, min)) * 100%);
+    inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
+    @include declareVars((height));
+  }
+
+  --handle-size: calc(#{getDeclaredVar(height)} + #{getSpaceValue(1)});
+  @include e(handle) {
+    position: absolute;
+    inset-inline-start: calc(getVarValue((range, percent)) * 100%);
+    transform: translateX(-50%);
+    outline: none;
+    width: var(--handle-size);
+    height: var(--handle-size);
+
+    &::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: getRadiusValue(1, 'thumb');
+      border: 1px solid getColor('black', a4);
+      inset: calc(-0.25 * getDeclaredVar(height));
+      cursor: pointer;
+    }
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        height: calc(#{getSpaceValue(2)} * 0.75),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        height: getSpaceValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        height: calc(#{getSpaceValue(2)} * 1.25),
+      )
+    );
+  }
 }

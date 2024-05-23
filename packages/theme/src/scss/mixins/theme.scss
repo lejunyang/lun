@@ -133,13 +133,22 @@
 }
 
 // radius
+
+@function getRadiusThumb() {
+  @return getVarValue(($radius-thumb-name));
+}
+
+@function getRadiusFactor() {
+  @return getVarValue(($radius-name, factor));
+}
+
 /// $canBe can be 'full' or 'thumb'. 'full' means it will get full border-radius when radius=full, 'thumb' means it will get full border-radius when radius>=medium
 @function getRadiusValue($level, $canBe: null) {
   @if $canBe == 'full' {
     @return max(getVarValue(($radius-name, $level)), getVarValue(($radius-full-name)));
   }
   @if $canBe == 'thumb' {
-    @return max(getVarValue(($radius-name, $level)), getVarValue(($radius-thumb-name)));
+    @return max(getVarValue(($radius-name, $level)), getRadiusThumb());
   }
   @return getVarValue(($radius-name, $level));
 }
