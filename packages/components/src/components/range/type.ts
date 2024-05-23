@@ -1,8 +1,9 @@
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, PropNumber, PropNumOrArr, PropString } from 'common';
+import { editStateProps, GetEventPropsFromEmits, PropNumber, PropNumOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const rangeProps = freeze({
+  ...editStateProps,
   value: PropNumOrArr(),
   type: PropString<'horizontal' | 'vertical'>(),
   min: PropNumber(),

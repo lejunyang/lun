@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
 import { computed } from 'vue';
-import { useNamespace, useValueModel } from 'hooks';
+import { useCEStates, useNamespace, useValueModel } from 'hooks';
 import { useSetupEdit, useSetupEvent } from '@lun/core';
 import {
   at,
@@ -68,7 +68,7 @@ export const Range = defineSSRCustomElement({
         const {
           dataset: { index },
         } = target as HTMLElement;
-        if (index == null) return;
+        if (index == null || !editComputed.value.editable) return;
         const value = processedValues.value[+index][0];
         if (isArrowLeftEvent(e) || isArrowDownEvent(e)) {
           updateVal(+index, max(minus(value, step.value), minVal.value));
@@ -78,11 +78,15 @@ export const Range = defineSSRCustomElement({
       },
     };
 
+    const [stateClass] = useCEStates(() => null, ns, editComputed);
+
     return () => {
-      const { value } = processedValues;
+      const { value } = processedValues,
+        { type } = props,
+        { editable } = editComputed.value;
       return (
         <div
-          class={ns.t}
+          class={[stateClass.value, ns.m(type)]}
           part={ns.p('root')}
           style={ns.v({ min: value.length > 1 ? at(value, 0)[1] : 0, max: at(value, -1)[1] })}
           {...handlers}
@@ -94,7 +98,7 @@ export const Range = defineSSRCustomElement({
               class={ns.e('handle')}
               part={ns.p('handle')}
               style={ns.v({ percent: p })}
-              tabindex={0}
+              tabindex={editable ? 0 : undefined}
             ></span>
           ))}
         </div>
