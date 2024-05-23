@@ -5,19 +5,42 @@
 
 :host {
   display: block;
-  width: 100%;
+  width: 100%; // vertical
 }
 
 @include b(range) {
   display: flex;
   align-items: center;
   position: relative;
+  user-select: none;
+  touch-action: none;
   flex: 1;
-  @include declareVars((height));
+  @include m(horizontal) {
+    @include declareVars(
+      (
+        height: size,
+      )
+    );
+    @include e(track) {
+      height: 100%;
+    }
+  }
+  @include m(vertical) {
+    @include declareVars(
+      (
+        width: size,
+      )
+    );
+    @include e(track) {
+      width: 100%;
+    }
+  }
+
   @include declareVarValues(
     (
       background-color: getGrayColor(a3),
-      border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(height) / 3),
+      border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(size) / 3),
+      margin-block: calc(0.25 * getDeclaredVar(size)),
     )
   );
 
@@ -27,10 +50,9 @@
     background-color: getAccentColor(a9); // TODO radix-theme uses accent-track...
     inset-inline-start: calc(getVarValue((range, min)) * 100%);
     inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
-    @include declareVars((height));
   }
 
-  --handle-size: calc(#{getDeclaredVar(height)} + #{getSpaceValue(1)});
+  --handle-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
   @include e(handle) {
     position: absolute;
     inset-inline-start: calc(getVarValue((range, percent)) * 100%);
@@ -39,35 +61,47 @@
     width: var(--handle-size);
     height: var(--handle-size);
 
+    $handle-shadow: 0 0 0 1px getColor('black', a4);
     &::after {
       content: '';
       position: absolute;
       background: white;
       border-radius: getRadiusValue(1, 'thumb');
-      border: 1px solid getColor('black', a4);
-      inset: calc(-0.25 * getDeclaredVar(height));
+      box-shadow: $handle-shadow;
+      inset: calc(-0.25 * getDeclaredVar(size));
       cursor: pointer;
+    }
+    &:focus-visible::after {
+      box-shadow: $handle-shadow, 0 0 0 3px getAccentColor(3), 0 0 0 5px getFocusColor();
+    }
+  }
+
+  @include is(disabled) {
+    @include e(handle) {
+      &::after {
+        cursor: getDisabledCursor();
+      }
     }
   }
 
   @include size(1) {
     @include setVars(
       (
-        height: calc(#{getSpaceValue(2)} * 0.75),
+        size: calc(#{getSpaceValue(2)} * 0.75),
       )
     );
   }
   @include size(2) {
     @include setVars(
       (
-        height: getSpaceValue(2),
+        size: getSpaceValue(2),
       )
     );
   }
   @include size(3) {
     @include setVars(
       (
-        height: calc(#{getSpaceValue(2)} * 1.25),
+        size: calc(#{getSpaceValue(2)} * 1.25),
       )
     );
   }

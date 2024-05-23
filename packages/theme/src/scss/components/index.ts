@@ -48,7 +48,7 @@ import { importRadioGroupBasicTheme } from './radio-group/index.ts';
 import { importThemeProviderBasicTheme } from './theme-provider/index.ts';
 import { importIconBasicTheme } from './icon/index.ts';
 import { importCommonTheme } from '../common/index.ts';
-import { importRangeBasicTheme } from './range';
+import { importRangeBasicTheme, importRangeSurfaceTheme } from './range';
 
 export * from './button';
 export * from './callout';
@@ -130,6 +130,7 @@ export const importSurfaceTheme = once(() => {
   importTextareaSurfaceTheme();
   importMentionsSurfaceTheme();
   importRadioSurfaceTheme();
+  importRangeSurfaceTheme();
 });
 
 export const importGhostTheme = once(() => {
