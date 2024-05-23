@@ -1,7 +1,7 @@
 export default () => {
   return (
     <>
-      <l-range></l-range>
+      <l-range value={30}></l-range>
     </>
   );
 };
