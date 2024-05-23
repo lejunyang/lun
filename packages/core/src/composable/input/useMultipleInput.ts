@@ -4,6 +4,8 @@ import {
   getFirstOfIterable,
   getNextMatchElInTree,
   getPreviousMatchElInTree,
+  isArrowLeftEvent,
+  isArrowRightEvent,
   isEnterDown,
   isHTMLInputElement,
   isNilOrEmptyStr,
@@ -82,12 +84,12 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
         handleDeleteTag(target);
       }
       // arrow left/right to focus on previous/next tag
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      if (isArrowLeftEvent(e) || isArrowRightEvent(e)) {
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
         if (!active || (active !== target && !shadowContains(target, active))) return;
         let targetEl = null as Element | null;
-        if (e.key === 'ArrowLeft') targetEl = getPreviousMatchElInTree(target, iterateOptions);
-        else if (e.key === 'ArrowRight') targetEl = getNextMatchElInTree(target, iterateOptions);
+        if (isArrowLeftEvent(e)) targetEl = getPreviousMatchElInTree(target, iterateOptions);
+        else if (isArrowRightEvent(e)) targetEl = getNextMatchElInTree(target, iterateOptions);
         (targetEl as HTMLElement)?.focus();
       }
     },

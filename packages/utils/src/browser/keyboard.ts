@@ -1,11 +1,26 @@
-import { isArray } from "../is";
+import { isArray } from '../is';
+
+const keydownType = 'keydown',
+  keyupType = 'keyUp';
 
 export function isEnterDown(e: Event) {
-	return e.type === 'keydown' && (e as KeyboardEvent).key === 'Enter';
+  return e.type === keydownType && (e as KeyboardEvent).key === 'Enter';
 }
 
+function createIsKeyEvent(k: string) {
+  return (e: Event) => {
+    const { type, key } = e as KeyboardEvent;
+    return (type === keydownType || type === keyupType) && key === k;
+  };
+}
+
+export const isArrowLeftEvent = createIsKeyEvent('ArrowLeft');
+export const isArrowRightEvent = createIsKeyEvent('ArrowRight');
+export const isArrowUpEvent = createIsKeyEvent('ArrowUp');
+export const isArrowDownEvent = createIsKeyEvent('ArrowDown');
+
 export function isNoBasicModifierKey(e: KeyboardEvent) {
-	return !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey;
+  return !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey;
 }
 
 /**
@@ -17,10 +32,10 @@ export function isNoBasicModifierKey(e: KeyboardEvent) {
  * @returns `undefined` if it's not keydown event, otherwise `boolean`
  */
 export function isKeyCompositionDown(e: KeyboardEvent, keyPattern: string | string[]) {
-	if (e.type !== 'keydown') return;
-	const keySplits = isArray(keyPattern) ? keyPattern : keyPattern.split('+');
-	let result = true;
-	for (const k of keySplits) {
+  if (e.type !== keydownType) return;
+  const keySplits = isArray(keyPattern) ? keyPattern : keyPattern.split('+');
+  let result = true;
+  for (const k of keySplits) {
     if (!k) continue;
     const finalK = String(k).trim().toLowerCase();
     if (!finalK) continue;
@@ -31,5 +46,5 @@ export function isKeyCompositionDown(e: KeyboardEvent, keyPattern: string | stri
     else result &&= finalK === e.key;
     if (!result) break;
   }
-	return result;
+  return result;
 }

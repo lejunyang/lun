@@ -1,4 +1,5 @@
 import { CollectorParentReturn, MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
+import { isArrowDownEvent, isArrowUpEvent } from '@lun/utils';
 import { ref, ComponentInternalInstance, watchEffect, computed } from 'vue';
 
 export function useActivateOption(
@@ -65,10 +66,10 @@ export function useActivateOption(
   const handlers = {
     onKeydown(e: KeyboardEvent) {
       if (!unrefOrGet(params)?.upDownToggle || !isNotAllDisabled.value) return;
-      if (e.key === 'ArrowDown') {
+      if (isArrowDownEvent(e)) {
         methods.activateNext();
         e.preventDefault();
-      } else if (e.key === 'ArrowUp') {
+      } else if (isArrowUpEvent(e)) {
         methods.activatePrev();
         e.preventDefault();
       }
