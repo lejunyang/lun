@@ -81,7 +81,7 @@ export class BigIntDecimal {
     }
     let { integer = '', decimal = '', negative, exp, expNegative, infinite, nan, empty } = (value || {}) as any;
     this.negative = negative;
-    if (nan || (!integer && !decimal)) {
+    if (nan || (!integer && !decimal && infinite == null)) {
       this.nan = true;
       return;
     }
@@ -232,6 +232,33 @@ export class BigIntDecimal {
     );
   }
 
+  div(value: BigIntDecimalValue, precision?: number): BigIntDecimal {
+    const target = toBigIntDecimal(value);
+    let temp;
+    if ((temp = this.check(target))) {
+      // @ts-ignore
+      temp.negative = temp.negative ^ target.negative;
+      return temp;
+    }
+    precision ??= Math.max(this.decimalLen, target.decimalLen);
+    if (!Number.isInteger(precision) || precision < 0) {
+      if (__DEV__)
+        console.error(
+          `Invalid precision '${precision}', will return value of 'this'. Precision must be a non-negative integer. `,
+        );
+      return this;
+    }
+    return this.cal(
+      target,
+      (num1, num2) => {
+        // for the fraction part, multiply the remainder with 10^precision to get the integer result
+        const fraction = ((num1 % num2) * 10n ** BigInt(precision)) / num2;
+        return BigInt((num1 / num2).toString() + fraction.toString());
+      },
+      () => precision,
+    );
+  }
+
   mod(value: BigIntDecimalValue): BigIntDecimal {
     const target = toBigIntDecimal(value);
     let temp;
@@ -272,7 +299,7 @@ export class BigIntDecimal {
     if (!_precision.isInteger() || _precision.lessThan(0)) {
       if (__DEV__)
         console.error(
-          `Invalid precision '${_precision.toString()}', will return original value. Precision must be a non-negative integer. `,
+          `Invalid precision '${_precision.toString()}', will return value of 'this'. Precision must be a non-negative integer. `,
         );
       return this;
     }

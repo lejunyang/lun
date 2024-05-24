@@ -31,7 +31,7 @@ export type MathMethods<W = number, T = W | number> = {
   plus(target: T, delta: T): W;
   minus(target: T, delta: T): W;
   multi(target: T, delta: T): W;
-  divide(target: T, delta: T): W;
+  divide(target: T, delta: T, precision?: number): W;
   max(...args: T[]): W;
   min(...args: T[]): W;
   mod: (target: T, delta: T) => W;
@@ -129,9 +129,7 @@ export const createBigIntDecimalMath = () => {
     plus: (target, delta) => toBigIntDecimal(target).plus(delta),
     minus: (target, delta) => toBigIntDecimal(target).minus(delta),
     multi: (target, delta) => toBigIntDecimal(target).multi(delta),
-    divide(target, delta) {
-      return toBigIntDecimal(methods.toRawNum(target) / methods.toRawNum(delta));
-    },
+    divide: (target, delta, precision) => toBigIntDecimal(target).div(delta, precision),
     mod: (target, delta) => toBigIntDecimal(target).mod(delta),
 
     max(...args) {
@@ -174,4 +172,4 @@ export const createBigIntDecimalMath = () => {
     },
   };
   return createMath<BigIntDecimal>(methods);
-}
+};
