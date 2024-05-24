@@ -30,7 +30,8 @@ export const Range = defineSSRCustomElement({
     const rootEl = ref<HTMLElement>();
     const thumbs = reactive<HTMLElement[]>([]);
 
-    const { ensureNumber, min, max, minus, divide, toRawNum, plus, lessThan } = GlobalStaticConfig.math;
+    const { ensureNumber, min, max, minus, divide, toRawNum, plus, multi, getPositiveInfinity, lessThan } =
+      GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number;
     const minVal = computed(() => ensureNumber(props.min, 0));
@@ -64,17 +65,28 @@ export const Range = defineSSRCustomElement({
       });
     };
 
-    const updateVal = (val: BigNum, index: number) => {
+    const updateVal = (val: BigNum, index?: number) => {
       const percent = getPercent(val);
-      let currentIndex: number, /** new index of this val will be in ordered values */ newIndex: number;
+      let currentIndex: number,
+        /** new index of this val will be in ordered values */ newIndex: number,
+        minGap = getPositiveInfinity(),
+        noIndex = index === undefined;
       const res = processedValues.value.map((value, i, arr) => {
         const v = currentIndex !== undefined ? arr[currentIndex++] : value;
-        if (newIndex === undefined && (percent < v[1] || i === arr.length - 1)) {
+        if (noIndex) {
+          // if noIndex, will find a closest index to update
+          const newGap = minus(val, v[0]);
+          if (lessThan(newGap, minGap)) {
+            minGap = newGap;
+            newIndex = i;
+          }
+        } else if (newIndex === undefined && (percent < v[1] || i === arr.length - 1)) {
           currentIndex = newIndex = i;
           return toRawNum(val);
         }
         return i === index ? toRawNum(arr[currentIndex++]) : toRawNum(v[0]);
       });
+      if (noIndex) res[newIndex!] = toRawNum(val);
       if (res.length === 1 && !isArray(valueModel.value)) valueModel.value = res[0];
       else valueModel.value = res;
       focusThumb(newIndex!);
@@ -104,6 +116,9 @@ export const Range = defineSSRCustomElement({
           // it's thumb element
           focusThumb(+index);
         } else {
+          const { x, y, width, height } = rootEl.value!.getBoundingClientRect();
+          const percent = props.type === 'vertical' ? (clientY - y) / height : (clientX - x) / width;
+          updateVal(multi(percent, len.value));
         }
       },
     };
