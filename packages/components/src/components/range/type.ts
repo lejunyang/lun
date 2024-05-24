@@ -1,5 +1,5 @@
 import { freeze } from '@lun/utils';
-import { editStateProps, GetEventPropsFromEmits, PropNumber, PropNumOrArr, PropString } from 'common';
+import { editStateProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropNumOrArr, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const rangeProps = freeze({
@@ -9,6 +9,8 @@ export const rangeProps = freeze({
   min: PropNumber(),
   max: PropNumber(),
   step: PropNumber(),
+  precision: PropNumber(),
+  strict: PropBoolean(),
 });
 
 export const rangeEmits = freeze({});

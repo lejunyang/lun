@@ -240,7 +240,7 @@ export class BigIntDecimal {
       temp.negative = temp.negative ^ target.negative;
       return temp;
     }
-    precision ??= Math.max(this.decimalLen, target.decimalLen);
+    precision ??= Math.max(this.decimalLen, target.decimalLen, 10);
     if (!Number.isInteger(precision) || precision < 0) {
       if (__DEV__)
         console.error(

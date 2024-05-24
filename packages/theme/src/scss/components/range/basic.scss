@@ -36,11 +36,12 @@
     }
   }
 
+  --factor: #{getVarValue((range, thumb, factor), 0.25)};
   @include declareVarValues(
     (
       background-color: getGrayColor(a3),
       border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(size) / 3),
-      margin-block: calc(0.25 * getDeclaredVar(size)),
+      margin-block: calc(var(--factor) * getDeclaredVar(size)),
     )
   );
 
@@ -68,7 +69,7 @@
       background: white;
       border-radius: getRadiusValue(1, 'thumb');
       box-shadow: $thumb-shadow;
-      inset: calc(-0.25 * getDeclaredVar(size));
+      inset: calc(-1 * var(--factor) * getDeclaredVar(size));
       cursor: pointer;
     }
     &:focus-visible::after {

@@ -30,10 +30,15 @@ export const Range = defineSSRCustomElement({
     const rootEl = ref<HTMLElement>();
     const thumbs = reactive<HTMLElement[]>([]);
 
-    const { ensureNumber, min, max, minus, divide, toRawNum, plus, multi, getPositiveInfinity, lessThan } =
+    const { ensureNumber, min, max, minus, divide, toRawNum, plus, multi, getPositiveInfinity, lessThan, toPrecision } =
       GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number;
+    const toNum = (val: BigNum) => {
+      const { precision } = props;
+      return toRawNum(precision == null ? val : toPrecision(val, precision as any));
+    };
+
     const minVal = computed(() => ensureNumber(props.min, 0));
     const maxVal = computed(() => ensureNumber(props.max, 100));
     const len = computed(() => minus(maxVal.value, minVal.value));
@@ -82,11 +87,11 @@ export const Range = defineSSRCustomElement({
           }
         } else if (newIndex === undefined && (percent < v[1] || i === arr.length - 1)) {
           currentIndex = newIndex = i;
-          return toRawNum(val);
+          return toNum(val);
         }
-        return i === index ? toRawNum(arr[currentIndex++]) : toRawNum(v[0]);
+        return i === index ? toNum(arr[currentIndex++][0]) : toNum(v[0]);
       });
-      if (noIndex) res[newIndex!] = toRawNum(val);
+      if (noIndex) res[newIndex!] = toNum(val);
       if (res.length === 1 && !isArray(valueModel.value)) valueModel.value = res[0];
       else valueModel.value = res;
       focusThumb(newIndex!);
