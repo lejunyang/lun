@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
-import { computed } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
 import { useSetupEdit, useSetupEvent } from '@lun/core';
 import {
@@ -25,9 +25,12 @@ export const Range = defineSSRCustomElement({
     useSetupEvent();
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
+    const isEditable = () => editComputed.value.editable;
     const valueModel = useValueModel(props);
+    const rootEl = ref<HTMLElement>();
+    const thumbs = reactive<HTMLElement[]>([]);
 
-    const { ensureNumber, min, max, minus, divide, toRawNum, plus } = GlobalStaticConfig.math;
+    const { ensureNumber, min, max, minus, divide, toRawNum, plus, lessThan } = GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number;
     const minVal = computed(() => ensureNumber(props.min, 0));
@@ -54,12 +57,27 @@ export const Range = defineSSRCustomElement({
         .sort((a, b) => a[1] - b[1]);
     });
 
-    const updateVal = (index: number, val: BigNum) => {
-      const res = processedValues.value.map((v, i) => {
-        return i === index ? toRawNum(val) : toRawNum(v[0]);
+    const focusThumb = (index: number) => {
+      nextTick(() => {
+        console.log('index', index);
+        thumbs[index]?.focus();
+      });
+    };
+
+    const updateVal = (val: BigNum, index: number) => {
+      const percent = getPercent(val);
+      let currentIndex: number, /** new index of this val will be in ordered values */ newIndex: number;
+      const res = processedValues.value.map((value, i, arr) => {
+        const v = currentIndex !== undefined ? arr[currentIndex++] : value;
+        if (newIndex === undefined && (percent < v[1] || i === arr.length - 1)) {
+          currentIndex = newIndex = i;
+          return toRawNum(val);
+        }
+        return i === index ? toRawNum(arr[currentIndex++]) : toRawNum(v[0]);
       });
       if (res.length === 1 && !isArray(valueModel.value)) valueModel.value = res[0];
       else valueModel.value = res;
+      focusThumb(newIndex!);
     };
 
     const handlers = {
@@ -68,12 +86,24 @@ export const Range = defineSSRCustomElement({
         const {
           dataset: { index },
         } = target as HTMLElement;
-        if (index == null || !editComputed.value.editable) return;
+        if (index == null || !isEditable()) return;
         const value = processedValues.value[+index][0];
         if (isArrowLeftEvent(e) || isArrowDownEvent(e)) {
-          updateVal(+index, max(minus(value, step.value), minVal.value));
+          updateVal(max(minus(value, step.value), minVal.value), +index);
         } else if (isArrowRightEvent(e) || isArrowUpEvent(e)) {
-          updateVal(+index, min(plus(value, step.value), maxVal.value));
+          updateVal(min(plus(value, step.value), maxVal.value), +index);
+        }
+      },
+      onClick(e: MouseEvent) {
+        const { target, clientX, clientY } = e;
+        const {
+          dataset: { index },
+        } = target as HTMLElement;
+        if (!isEditable()) return;
+        if (index != null) {
+          // it's thumb element
+          focusThumb(+index);
+        } else {
         }
       },
     };
@@ -89,16 +119,18 @@ export const Range = defineSSRCustomElement({
           class={[stateClass.value, ns.m(type)]}
           part={ns.p('root')}
           style={ns.v({ min: value.length > 1 ? at(value, 0)[1] : 0, max: at(value, -1)[1] })}
+          ref={rootEl}
           {...handlers}
         >
           <span class={ns.e('track')} part={ns.p('track')}></span>
           {value.map(([_, p], index) => (
             <span
               data-index={index}
-              class={ns.e('handle')}
-              part={ns.p('handle')}
+              class={ns.e('thumb')}
+              part={ns.p('thumb')}
               style={ns.v({ percent: p })}
               tabindex={editable ? 0 : undefined}
+              ref={(r) => (thumbs[index] = r as HTMLElement)}
             ></span>
           ))}
         </div>

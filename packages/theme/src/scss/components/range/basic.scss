@@ -52,32 +52,32 @@
     inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
   }
 
-  --handle-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
-  @include e(handle) {
+  --thumb-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
+  @include e(thumb) {
     position: absolute;
     inset-inline-start: calc(getVarValue((range, percent)) * 100%);
     transform: translateX(-50%);
     outline: none;
-    width: var(--handle-size);
-    height: var(--handle-size);
+    width: var(--thumb-size);
+    height: var(--thumb-size);
 
-    $handle-shadow: 0 0 0 1px getColor('black', a4);
+    $thumb-shadow: 0 0 0 1px getColor('black', a4);
     &::after {
       content: '';
       position: absolute;
       background: white;
       border-radius: getRadiusValue(1, 'thumb');
-      box-shadow: $handle-shadow;
+      box-shadow: $thumb-shadow;
       inset: calc(-0.25 * getDeclaredVar(size));
       cursor: pointer;
     }
     &:focus-visible::after {
-      box-shadow: $handle-shadow, 0 0 0 3px getAccentColor(3), 0 0 0 5px getFocusColor();
+      box-shadow: $thumb-shadow, 0 0 0 3px getAccentColor(3), 0 0 0 5px getFocusColor();
     }
   }
 
   @include is(disabled) {
-    @include e(handle) {
+    @include e(thumb) {
       &::after {
         cursor: getDisabledCursor();
       }

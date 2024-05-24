@@ -18,7 +18,7 @@
         box-shadow: inset 0 0 0 1px getGrayColor(6);
       }
 
-      @include e(handle) {
+      @include e(thumb) {
         &::after {
           background: getGrayColor(1);
           box-shadow: 0 0 0 1px getGrayColor(6);
