@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
 import { computed, nextTick, reactive, ref } from 'vue';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
-import { useSetupEdit, useSetupEvent } from '@lun/core';
+import { useDraggableMonitor, useSetupEdit, useSetupEvent } from '@lun/core';
 import {
   at,
   isArray,
@@ -12,6 +12,7 @@ import {
   isArrowRightEvent,
   isArrowUpEvent,
   toArrayIfNotNil,
+  clamp as clampNum,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 
@@ -65,7 +66,6 @@ export const Range = defineSSRCustomElement({
 
     const focusThumb = (index: number) => {
       nextTick(() => {
-        console.log('index', index);
         thumbs[index]?.focus();
       });
     };
@@ -97,6 +97,12 @@ export const Range = defineSSRCustomElement({
       focusThumb(newIndex!);
     };
 
+    const getRootRect = () => rootEl.value!.getBoundingClientRect();
+    const updateByCoord = (clientX: number, clientY: number, index?: number) => {
+      const { x, y, width, height } = getRootRect();
+      const percent = props.type === 'vertical' ? (clientY - y) / height : (clientX - x) / width;
+      updateVal(multi(percent, len.value), index);
+    };
     const handlers = {
       onKeydown(e: KeyboardEvent) {
         const { target } = e;
@@ -121,12 +127,27 @@ export const Range = defineSSRCustomElement({
           // it's thumb element
           focusThumb(+index);
         } else {
-          const { x, y, width, height } = rootEl.value!.getBoundingClientRect();
-          const percent = props.type === 'vertical' ? (clientY - y) / height : (clientX - x) / width;
-          updateVal(multi(percent, len.value));
+          updateByCoord(clientX, clientY);
         }
       },
     };
+
+    useDraggableMonitor({
+      el: rootEl,
+      disabled: () => !isEditable(),
+      draggable(target) {
+        return target.hasAttribute('data-index');
+      },
+      getCoord({ clientX, clientY }) {
+        const { x, y, width, height } = getRootRect();
+        return [clampNum(clientX, x, x + width), clampNum(clientY, y, y + height)];
+      },
+      onMove(target, { clientX, clientY }) {
+        const { dataset: { index } = {} } = target as HTMLElement;
+        if (index == null) return;
+        updateByCoord(clientX, clientY, +index);
+      },
+    });
 
     const [stateClass] = useCEStates(() => null, ns, editComputed);
 
