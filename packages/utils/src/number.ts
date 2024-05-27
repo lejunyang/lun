@@ -240,6 +240,8 @@ export class BigIntDecimal {
       temp.negative = temp.negative ^ target.negative;
       return temp;
     }
+    // division by zero
+    if (target.isZero()) return toBigIntDecimal(NaN);
     precision ??= Math.max(this.decimalLen, target.decimalLen, 10);
     if (!Number.isInteger(precision) || precision < 0) {
       if (__DEV__)
@@ -251,9 +253,10 @@ export class BigIntDecimal {
     return this.cal(
       target,
       (num1, num2) => {
+        const multiple = 10n ** BigInt(precision);
         // for the fraction part, multiply the remainder with 10^precision to get the integer result
-        const fraction = ((num1 % num2) * 10n ** BigInt(precision)) / num2;
-        return BigInt((num1 / num2).toString() + fraction.toString());
+        const fraction = ((num1 % num2) * multiple) / num2;
+        return (num1 / num2) * multiple + fraction; // add the fraction to the integer part
       },
       () => precision,
     );
@@ -386,3 +389,7 @@ export class BigIntDecimal {
 
 export const toBigIntDecimal = (param: any, clone?: boolean) =>
   param instanceof BigIntDecimal && !clone ? param : new BigIntDecimal(param);
+
+export function clamp(x: number, min: number, max: number) {
+  return x < min ? min : x > max ? max : x;
+}
