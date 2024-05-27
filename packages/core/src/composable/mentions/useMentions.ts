@@ -1,7 +1,7 @@
 import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { isEnterDown, isHTMLElement, isObject, isString, runIfFn, toArrayIfNotNil } from '@lun/utils';
+import { isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly, watch } from 'vue';
 import { getText, rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
@@ -366,7 +366,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   let handlers = {
     onBeforeinput(e: Event) {
       const { inputType, data, dataTransfer } = e as InputEvent;
-      if (!allowedInputTypes.has(inputType)) return e.preventDefault();
+      if (!allowedInputTypes.has(inputType)) return prevent(e);
       const isDelete = inputType.startsWith('delete'),
         isInsert = inputType.startsWith('insert'),
         isDeleteForward = inputType === 'deleteContentForward';
@@ -383,7 +383,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
         // for example <span>text</span> <span>@mention1</span> <span>@mention2</span> <span>text2</span>
         // if select the mention1 and delete it, then both dom change and vue re-render happens, but result in <span>text</span> <span>text2</span> for unknown reason
         // so just prevent beforeInput if it's about to delete mention span, and commit it immediately
-        e.preventDefault();
+        prevent(e);
         commitLastRecord();
       }
 
@@ -476,7 +476,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       const { onCommit, onEnterDown } = unrefOrGet(options);
       if (isEnterDown(e)) {
         if (state.lastTrigger) {
-          e.preventDefault();
+          prevent(e);
           const [value, label] = (onCommit && onCommit()) || [];
           commit(value, label);
         } else if (!state.isComposing && onEnterDown) {
@@ -498,7 +498,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       else state.ignoreNextBlur = false;
     },
     onPaste(e: ClipboardEvent) {
-      e.preventDefault();
+      prevent(e);
       const text = e.clipboardData?.getData('text/plain') || '';
       recordInsertOrDelete(text);
       commitLastRecord();

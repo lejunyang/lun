@@ -2,7 +2,7 @@ import { ComputedRef } from 'vue';
 import { TransformedUseInputOption, UseInputOptions } from '.';
 import { presets } from '../../presets';
 import { unrefOrGet } from '../../utils/ref';
-import { BigIntDecimal, isArrowDownEvent, isArrowUpEvent, isTruthyOrZero } from '@lun/utils';
+import { BigIntDecimal, isArrowDownEvent, isArrowUpEvent, isTruthyOrZero, prevent } from '@lun/utils';
 
 export function processNumOptions(options: UseInputOptions) {
   const {
@@ -130,10 +130,10 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
     onKeydown(e: KeyboardEvent) {
       if (options.value.disabled) return;
       if (isArrowDownEvent(e)) {
-        e.preventDefault(); // prevent native type=number
+        prevent(e); // prevent native type=number
         methods.stepDown();
       } else if (isArrowUpEvent(e)) {
-        e.preventDefault();
+        prevent(e);
         methods.stepUp();
       }
     },

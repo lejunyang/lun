@@ -10,6 +10,7 @@ import {
   isTruthyOrZero,
   BigIntDecimal,
   objectKeys,
+  prevent,
 } from '@lun/utils';
 import { ComputedRef, computed, reactive } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
@@ -266,7 +267,7 @@ export function useInput(
         const nextVal = nextValueAfterInput(target, e);
         const regex = toRegExp(restrict, 'g');
         if (nextVal.match(regex)) {
-          e.preventDefault();
+          prevent(e);
           // e.target.value = e.target.value; // reassign value can prevent input even not cancelable, but
         }
       }

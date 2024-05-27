@@ -5,7 +5,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
-import { debounce, isFunction, throttle } from '@lun/utils';
+import { debounce, isFunction, prevent, throttle } from '@lun/utils';
 
 const name = 'button';
 export const Button = defineSSRCustomElement({
@@ -48,10 +48,10 @@ export const Button = defineSSRCustomElement({
       onPointercancel: hideHold,
       // In some mobile browsers, contextmenu and text selection will be fired when long press, need to prevent it when hold is true
       onContextmenu(e: MouseEvent) {
-        if (holdShow.value) e.preventDefault();
+        if (holdShow.value) prevent(e);
       },
       onTouchstart(e: TouchEvent) {
-        if (props.hold && editComputed.value.interactive) e.preventDefault();
+        if (props.hold && editComputed.value.interactive) prevent(e);
       },
     };
 

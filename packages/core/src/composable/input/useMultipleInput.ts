@@ -9,6 +9,7 @@ import {
   isEnterDown,
   isHTMLInputElement,
   isNilOrEmptyStr,
+  prevent,
   shadowContains,
   toArrayIfNotNil,
 } from '@lun/utils';
@@ -147,7 +148,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
     onBeforeinput(e) {
       const { value, maxTags } = unrefOrGet(options)!;
       const values = toArrayIfNotNil(value);
-      if (maxTags && values.length >= +maxTags) e.preventDefault();
+      if (maxTags && values.length >= +maxTags) prevent(e);
     },
     onInput(e) {
       const { onInputUpdate } = unrefOrGet(options);

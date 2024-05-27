@@ -1,4 +1,4 @@
-import { getDeepestActiveElement, getTabbableElements, on, off, at } from '@lun/utils';
+import { getDeepestActiveElement, getTabbableElements, on, off, at, prevent } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 
 const activeFocusTrapEls: HTMLElement[] = [];
@@ -26,7 +26,7 @@ export function useFocusTrap() {
     // need to check isActive because there can be multiple dialogs opened at the same time
     if (!isActive(focusTrapEl)) return;
     if (e.key === 'Tab') {
-      e.preventDefault();
+      prevent(e);
       if (e.shiftKey) focusPrevElement();
       else focusNextElement();
     }

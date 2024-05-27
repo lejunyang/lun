@@ -1,5 +1,5 @@
 import { CollectorParentReturn, MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
-import { isArrowDownEvent, isArrowUpEvent } from '@lun/utils';
+import { isArrowDownEvent, isArrowUpEvent, prevent } from '@lun/utils';
 import { ref, ComponentInternalInstance, watchEffect, computed } from 'vue';
 
 export function useActivateOption(
@@ -68,10 +68,10 @@ export function useActivateOption(
       if (!unrefOrGet(params)?.upDownToggle || !isNotAllDisabled.value) return;
       if (isArrowDownEvent(e)) {
         methods.activateNext();
-        e.preventDefault();
+        prevent(e);
       } else if (isArrowUpEvent(e)) {
         methods.activatePrev();
-        e.preventDefault();
+        prevent(e);
       }
     },
   };

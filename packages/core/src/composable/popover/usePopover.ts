@@ -12,6 +12,7 @@ import {
   isNode,
   toHostIfSlot,
   runIfFn,
+  prevent,
 } from '@lun/utils';
 import { computed, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
@@ -272,7 +273,7 @@ export function usePopover(_options: UsePopoverOptions) {
         return activatePointerTarget(e as MouseEvent, onTrigger(e, m));
       }),
       onContextmenu: createTrigger('contextmenu', 'open', (e, m) => {
-        e.preventDefault();
+        prevent(e);
         return activatePointerTarget(e as MouseEvent, onTrigger(e, m));
       }),
       onFocusin: createTrigger('focus', 'open', (e, m) => {

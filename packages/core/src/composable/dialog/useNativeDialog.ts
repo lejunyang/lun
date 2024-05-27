@@ -1,4 +1,4 @@
-import { AnyFn, inBrowser, on } from '@lun/utils';
+import { AnyFn, inBrowser, on, prevent } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks/lifecycle';
 import { unrefOrGet } from '../../utils';
 import { UseDialogOptions, useDialog } from './useDialog';
@@ -8,7 +8,7 @@ export function useNativeDialog(options: UseDialogOptions & { native: boolean; e
     keydown(e: KeyboardEvent) {
       const { isOpen, native, escapeClosable } = options;
       if (e.key === 'Escape' && unrefOrGet(isOpen)) {
-        if (native) e.preventDefault();
+        if (native) prevent(e);
         if (escapeClosable) methods.close();
       }
     },
@@ -16,11 +16,11 @@ export function useNativeDialog(options: UseDialogOptions & { native: boolean; e
   const { methods, maskHandlers } = useDialog(options);
   const dialogHandlers = {
     onCancel(e: Event) {
-      e.preventDefault();
+      prevent(e);
       options.close();
     },
     onClose(e: Event) {
-      e.preventDefault();
+      prevent(e);
       options.close();
     },
   };

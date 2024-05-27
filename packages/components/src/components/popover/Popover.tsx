@@ -20,6 +20,7 @@ import {
   isElement,
   isFunction,
   objectKeys,
+  prevent,
   runIfFn,
   supportCSSAnchor,
   toPxIfNum,
@@ -266,7 +267,6 @@ export const Popover = defineSSRCustomElement({
     ];
 
     let cacheContent: any;
-    const prevent = (e: Event) => e.preventDefault();
     const getContent = () => {
       const { content, contentType, preferHtml, freezeWhenClosing } = props;
       let finalContent: any;
