@@ -12,9 +12,20 @@ export type DraggableElementState = {
   clientY: number;
 };
 
-export function useDraggableMonitor(options: {
+export function useDraggableMonitor({
+  el,
+  asWhole,
+  draggable,
+  getCoord,
+  disabled,
+  animationFrames,
+  onMove,
+  onStop,
+}: {
   el: MaybeRefLikeOrGetter<Element>;
-  draggable: (target: Element, state?: DraggableElementState) => boolean;
+  /** if asWhole is true, all draggable children elements consider as whole, sharing same state; otherwise, each child element has its own state */
+  asWhole?: boolean;
+  draggable: (target: Element, e: PointerEvent, state?: DraggableElementState) => boolean | undefined | null;
   getCoord?: (e: PointerEvent) => [number, number];
   disabled?: MaybeRefLikeOrGetter<boolean>;
   animationFrames?: number;
@@ -24,17 +35,18 @@ export function useDraggableMonitor(options: {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
 
-  const getCoord = (e: PointerEvent) => options.getCoord?.(e) || [e.clientX, e.clientY];
+  const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
 
   const handleStart = (e: PointerEvent) => {
     const { button, target, pointerId } = e;
     if (button !== 0) return; // left button only
-    const el = target as Element;
-    const state = targetStates.get(el);
-    if (!options.draggable(el, state)) return;
-    const [clientX, clientY] = getCoord(e);
+    const targetEl = target as Element,
+      keyEl = asWhole ? unrefOrGet(el)! : targetEl;
+    const state = targetStates.get(keyEl);
+    if (!draggable(targetEl, e, state)) return;
+    const [clientX, clientY] = finalGetCoord(e);
     if (!state) {
-      targetStates.set(el, {
+      targetStates.set(keyEl, {
         relativeX: 0,
         relativeY: 0,
         dx: -clientX,
@@ -55,31 +67,31 @@ export function useDraggableMonitor(options: {
       });
     }
     draggingCount += 1;
-    el.setPointerCapture(pointerId);
+    targetEl.setPointerCapture(pointerId);
     // el.style.userSelect = 'none'; // if there's text
     // el.style.webkitUserSelect = 'none'; // safari
   };
 
   const handleEnd = ({ target }: PointerEvent) => {
-    const el = target as Element;
-    const state = targetStates.get(el);
+    const targetEl = target as Element;
+    const state = targetStates.get(asWhole ? unrefOrGet(el)! : targetEl);
     if (!draggingCount || !state?.dragging) return;
     draggingCount -= 1;
     // el.style.userSelect = 'auto'; // if there's text
     // el.style.webkitUserSelect = 'auto'; // safari
     state.dragging = false;
-    runIfFn(options.onStop, el, state);
+    runIfFn(onStop, targetEl, state);
   };
 
   const handleMove = (e: PointerEvent) => {
-    const el = e.target as Element;
-    const state = targetStates.get(el);
+    const targetEl = e.target as Element,
+      keyEl = asWhole ? unrefOrGet(el)! : targetEl;
+    const state = targetStates.get(keyEl);
     if (!draggingCount || !state?.dragging) return;
-    const [clientX, clientY] = getCoord(e);
+    const [clientX, clientY] = finalGetCoord(e);
     Object.assign(state, { relativeX: state.dx + clientX, relativeY: state.dy + clientY, clientX, clientY });
-    const { onMove, animationFrames } = options;
     raf(() => {
-      runIfFn(onMove, el, state);
+      runIfFn(onMove, targetEl, state);
     }, animationFrames);
   };
 
@@ -94,7 +106,6 @@ export function useDraggableMonitor(options: {
   };
   watchEffect(() => {
     clean();
-    const { disabled, el } = options;
     const element = unrefOrGet(el);
     if (element && !unrefOrGet(disabled)) {
       cleanFns = [
