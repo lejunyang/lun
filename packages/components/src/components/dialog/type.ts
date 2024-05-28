@@ -1,4 +1,4 @@
-import { MaybePromise } from '@lun/core';
+import { DraggableFn, MaybePromise } from '@lun/core';
 import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
@@ -27,7 +27,10 @@ export const dialogProps = freeze({
   alwaysTrapFocus: PropBoolean(),
   maskClosable: PropBoolOrStr<boolean | 'click' | 'dblclick'>(),
   escapeClosable: PropBoolean(),
-  movable: PropBoolean(),
+  /** make the header of dialog draggable */
+  headerDraggable: PropBoolean(),
+  /** used to determine which part elements of dialog can be dragged */
+  draggable: PropFunction<DraggableFn>(),
   width: sizeProp,
   title: PropObjOrStr(),
   noHeader: PropBoolean(),

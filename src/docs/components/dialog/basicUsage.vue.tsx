@@ -8,6 +8,7 @@ const form = useForm({
   defaultFormData: {
     maskClosable: false,
     escapeClosable: true,
+    headerDraggable: true,
   },
 });
 export default function () {
@@ -31,6 +32,7 @@ export default function () {
           }}
         />
         <l-form-item name="escapeClosable" label="escapeClosable" help="是否可以通过Esc来关闭Dialog" />
+        <l-form-item name="headerDraggable" label="headerDraggable" help="是否可通过header拖拽" />
         <l-form-item name="alwaysTrapFocus" label="alwaysTrapFocus" />
         <l-form-item
           name="disableWhenPending"

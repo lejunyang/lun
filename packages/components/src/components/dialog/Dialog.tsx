@@ -6,13 +6,14 @@ import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
-import { refLikeToDescriptors, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
+import { refLikeToDescriptors, useDraggableMonitor, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
 import { Transition, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { at, getDeepestActiveElement, supportDialog, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import { at, getDeepestActiveElement, roundByDPR, supportDialog, toPxIfNum, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
+import { runIfFn } from '../../../../utils/src/function';
 
 const name = 'dialog';
 /** global current showing dialogs */
@@ -30,7 +31,8 @@ export const Dialog = Object.assign(
         isOpen = ref(false);
       const dialogRef = ref<HTMLDialogElement | HTMLDivElement>(),
         panelRef = ref<HTMLElement>(),
-        maskRef = ref<HTMLElement>();
+        maskRef = ref<HTMLElement>(),
+        headerRef = ref<HTMLElement>();
       const zIndex = useContextConfig('zIndex');
       const width = useBreakpoint(props, 'width', toPxIfNum);
       const [editComputed, editState] = useSetupEdit({
@@ -119,6 +121,22 @@ export const Dialog = Object.assign(
       // if there is a parent watermark, wrap children with watermark render
       const { render } = WatermarkContext.inject();
 
+      useDraggableMonitor({
+        el: dialogRef,
+        disabled() {
+          return !props.draggable && !props.headerDraggable;
+        },
+        asWhole: true,
+        draggable(...args) {
+          const { draggable, headerDraggable } = props;
+          return headerDraggable ? headerRef.value!.contains(args[0]) : runIfFn(draggable, ...args);
+        },
+        onMove(_, { relativeX, relativeY }) {
+          const el = panelRef.value!;
+          el.style.transform = `translate(${roundByDPR(relativeX, el)}px, ${roundByDPR(relativeY, el)}px)`;
+        },
+      });
+
       const [stateClass] = useCEStates(
         () => ({
           noTopLayer: props.noTopLayer || !supportDialog,
@@ -190,7 +208,7 @@ export const Dialog = Object.assign(
                         renderElement('icon', { name: 'x', slot: 'icon' }),
                       )}
                     {!noHeader && (
-                      <header class={[ns.e('header')]} part="header">
+                      <header class={[ns.e('header')]} part="header" ref={headerRef}>
                         <slot name="header-start"></slot>
                         <slot name="header">{title}</slot>
                         <slot name="header-end"></slot>

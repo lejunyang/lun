@@ -12,6 +12,12 @@ export type DraggableElementState = {
   clientY: number;
 };
 
+export type DraggableFn = (
+  target: Element,
+  e: PointerEvent,
+  state?: DraggableElementState,
+) => boolean | undefined | null;
+
 export function useDraggableMonitor({
   el,
   asWhole,
@@ -25,7 +31,7 @@ export function useDraggableMonitor({
   el: MaybeRefLikeOrGetter<Element>;
   /** if asWhole is true, all draggable children elements consider as whole, sharing same state; otherwise, each child element has its own state */
   asWhole?: boolean;
-  draggable: (target: Element, e: PointerEvent, state?: DraggableElementState) => boolean | undefined | null;
+  draggable: DraggableFn;
   getCoord?: (e: PointerEvent) => [number, number];
   disabled?: MaybeRefLikeOrGetter<boolean>;
   animationFrames?: number;
