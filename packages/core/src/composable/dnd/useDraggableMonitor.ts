@@ -27,6 +27,7 @@ export function useDraggableMonitor({
   animationFrames,
   onMove,
   onStop,
+  onClean,
 }: {
   el: MaybeRefLikeOrGetter<Element>;
   /** if asWhole is true, all draggable children elements consider as whole, sharing same state; otherwise, each child element has its own state */
@@ -37,6 +38,7 @@ export function useDraggableMonitor({
   animationFrames?: number;
   onMove?: (target: Element, state: DraggableElementState) => void;
   onStop?: (target: Element, state: DraggableElementState) => void;
+  onClean?: () => void;
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
@@ -108,6 +110,7 @@ export function useDraggableMonitor({
       cleanFns.forEach((f) => f());
       lastEl = null;
       cleanFns = [];
+      runIfFn(onClean);
     }
   };
   watchEffect(() => {

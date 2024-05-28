@@ -135,6 +135,9 @@ export const Dialog = Object.assign(
           const el = panelRef.value!;
           el.style.transform = `translate(${roundByDPR(relativeX, el)}px, ${roundByDPR(relativeY, el)}px)`;
         },
+        onClean() {
+          if (panelRef.value) panelRef.value.style.transform = '';
+        },
       });
 
       const [stateClass] = useCEStates(
