@@ -1,6 +1,6 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { AnyFn, on, prevent, raf, runIfFn } from '@lun/utils';
+import { AnyFn, on, prevent, rafThrottle, runIfFn } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useInlineStyleManager } from '../dialog/useInlineStyleManager';
 
@@ -92,6 +92,10 @@ export function useDraggableMonitor({
     runIfFn(onStop, targetEl, state);
   };
 
+  const emitMove = rafThrottle((el: Element, state: DraggableElementState) => {
+    runIfFn(onMove, el, state);
+  }, animationFrames);
+  
   const handleMove = (e: PointerEvent) => {
     const targetEl = e.target as Element,
       keyEl = asWhole ? unrefOrGet(el)! : targetEl;
@@ -99,9 +103,7 @@ export function useDraggableMonitor({
     if (!draggingCount || !state?.dragging) return;
     const [clientX, clientY] = finalGetCoord(e);
     Object.assign(state, { relativeX: state.dx + clientX, relativeY: state.dy + clientY, clientX, clientY });
-    raf(() => {
-      runIfFn(onMove, targetEl, state);
-    }, animationFrames);
+    emitMove(targetEl, state);
   };
 
   let lastEl: Element | null,

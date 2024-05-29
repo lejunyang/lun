@@ -124,16 +124,17 @@ export const Dialog = Object.assign(
       useDraggableMonitor({
         el: dialogRef,
         disabled() {
-          return !props.draggable && !props.headerDraggable;
+          return !props.customDraggable && !props.headerDraggable;
         },
         asWhole: true,
         draggable(...args) {
-          const { draggable, headerDraggable } = props;
-          return headerDraggable ? headerRef.value!.contains(args[0]) : runIfFn(draggable, ...args);
+          const { customDraggable, headerDraggable } = props;
+          return headerDraggable ? headerRef.value!.contains(args[0]) : runIfFn(customDraggable, ...args);
         },
         onMove(_, { relativeX, relativeY }) {
           const el = panelRef.value!;
           el.style.transform = `translate(${roundByDPR(relativeX, el)}px, ${roundByDPR(relativeY, el)}px)`;
+          // FIXME maybe won't fix. after dragging，if we change the size of viewport, the position look weird as relative position size may be too large for new viewport
         },
         onClean() {
           if (panelRef.value) panelRef.value.style.transform = '';
