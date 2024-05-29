@@ -1,6 +1,8 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
-import { onScopeDispose, reactive, watchEffect } from 'vue';
+import { reactive, watchEffect } from 'vue';
 import { AnyFn, on, prevent, raf, runIfFn } from '@lun/utils';
+import { tryOnScopeDispose } from '../../hooks';
+import { useInlineStyleManager } from '../dialog/useInlineStyleManager';
 
 export type DraggableElementState = {
   relativeX: number;
@@ -42,6 +44,7 @@ export function useDraggableMonitor({
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
+  const [storeAndSetStyle, restoreElStyle] = useInlineStyleManager();
 
   const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
 
@@ -75,9 +78,8 @@ export function useDraggableMonitor({
       });
     }
     draggingCount += 1;
-    targetEl.setPointerCapture(pointerId);
-    // el.style.userSelect = 'none'; // if there's text
-    // el.style.webkitUserSelect = 'none'; // safari
+    targetEl.setPointerCapture(pointerId); // found that pointer capture will invalidate cursor:move... seems cannot be fixed unless we don't use it
+    storeAndSetStyle(targetEl as HTMLElement, { userSelect: 'none' });
   };
 
   const handleEnd = ({ target }: PointerEvent) => {
@@ -85,8 +87,7 @@ export function useDraggableMonitor({
     const state = targetStates.get(asWhole ? unrefOrGet(el)! : targetEl);
     if (!draggingCount || !state?.dragging) return;
     draggingCount -= 1;
-    // el.style.userSelect = 'auto'; // if there's text
-    // el.style.webkitUserSelect = 'auto'; // safari
+    restoreElStyle(targetEl);
     state.dragging = false;
     runIfFn(onStop, targetEl, state);
   };
@@ -128,5 +129,5 @@ export function useDraggableMonitor({
       lastEl = element;
     }
   });
-  onScopeDispose(clean);
+  tryOnScopeDispose(clean);
 }

@@ -167,6 +167,7 @@ export const Dialog = Object.assign(
           noOkBtn,
           okBtnProps,
           okText,
+          headerDraggable,
         } = props;
         return (
           <Tag
@@ -211,7 +212,11 @@ export const Dialog = Object.assign(
                         renderElement('icon', { name: 'x', slot: 'icon' }),
                       )}
                     {!noHeader && (
-                      <header class={[ns.e('header')]} part="header" ref={headerRef}>
+                      <header
+                        class={[ns.e('header'), ns.is('draggable', headerDraggable)]}
+                        part="header"
+                        ref={headerRef}
+                      >
                         <slot name="header-start"></slot>
                         <slot name="header">{title}</slot>
                         <slot name="header-end"></slot>
