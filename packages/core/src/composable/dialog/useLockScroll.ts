@@ -4,23 +4,17 @@ import {
   getWindow,
   isOverflow,
   isRootOrBody,
-  objectKeys,
-  pick,
-  setStyle,
   supportCSSScrollbarGutter,
 } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
+import { useInlineStyleManager } from './useInlineStyleManager';
 
 const lockNumMap = new WeakMap<HTMLElement, number>(),
-  lockElStyleMap = new WeakMap<HTMLElement, Partial<CSSStyleDeclaration>>(),
   scrollPositionMap = new WeakMap<HTMLElement, [number, number]>();
 export function useLockScroll() {
   const localLocks = new Set<HTMLElement>();
 
-  function storeAndSetStyle(el: HTMLElement, style: Partial<CSSStyleDeclaration>) {
-    lockElStyleMap.set(el, pick(el.style, objectKeys(style)));
-    setStyle(el, style, true);
-  }
+  const [storeAndSetStyle, restoreElStyle] = useInlineStyleManager();
 
   function lock(el: HTMLElement) {
     const prevNum = lockNumMap.get(el);
@@ -64,11 +58,6 @@ export function useLockScroll() {
       }
     }
     localLocks.add(el);
-  }
-
-  function restoreElStyle(el: HTMLElement) {
-    const style = lockElStyleMap.get(el);
-    if (style) Object.assign(el.style, style);
   }
 
   function unlock(el: HTMLElement, force?: boolean) {

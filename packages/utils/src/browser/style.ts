@@ -1,7 +1,7 @@
 import { hyphenate } from '../string';
 import { getTypeTag, isNumber } from '../is';
 import { getWindow } from './dom';
-import { isHTMLElement, isSVGElement } from './is';
+import { isElement } from './is';
 import { isSupportCSSStyleSheet } from './support';
 import { toNumberIfValid } from '../number';
 
@@ -71,19 +71,23 @@ export function copyCSSStyleSheetsIfNeed(sheets: CSSStyleSheet[], currentNode?: 
   return sheets.map((s) => (needCopyCSSStyleSheet(s, currentNode) ? copyCSSStyleSheet(s, win) : s));
 }
 
-export function setStyle(
-  node: HTMLElement | SVGElement | null | undefined,
-  style: Partial<CSSStyleDeclaration>,
-  importantMap?: boolean | Record<keyof CSSStyleDeclaration, boolean>,
+export function setStyle<S extends Partial<CSSStyleDeclaration>>(
+  node: HTMLElement | SVGElement | MathMLElement | null | undefined,
+  style: S,
+  importantMap?: boolean | Record<keyof S, boolean>,
 ) {
-  if (!isHTMLElement(node) && !isSVGElement(node)) return;
+  if (!isElement(node) || !node.style) return false;
+  const prev = {} as Pick<S, keyof S>;
   for (const [key, value] of Object.entries(style)) {
+    // @ts-ignore
+    prev[key] = node.style[key];
     node.style.setProperty(
       hyphenate(key),
       value as any,
       importantMap === true || (importantMap as any)?.[key] ? 'important' : undefined,
     );
   }
+  return prev;
 }
 
 const computedStyleMap = new WeakMap<Element, CSSStyleDeclaration>();
