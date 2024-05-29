@@ -1,3 +1,4 @@
+import { inBrowser } from './browser';
 import { noop } from './function';
 import { ensureNumber } from './number';
 
@@ -146,22 +147,48 @@ export function delay(ms: number) {
  * Schedule a function to be called in a number of animation frames
  * @param callback The function to be called.
  * @param frames The number of frames to wait before executing the callback. Default is 1.
- * @param needCancel Optional function to determine if the animation should be needCancel.
+ * @param shouldCancel Optional function to determine if the scheduled callback should be cancelled.
  * @returns A function to cancel the scheduled animation frame.
  */
-export function raf(callback: FrameRequestCallback, frames = 1, needCancel?: () => boolean) {
+export function raf(callback: FrameRequestCallback, frames = 1, shouldCancel?: () => boolean) {
+  return internalRaf(callback, frames, inBrowser ? (document.timeline.currentTime as number) || 0 : 0, shouldCancel);
+}
+
+function internalRaf(
+  callback: FrameRequestCallback,
+  frames = 1,
+  time: DOMHighResTimeStamp,
+  shouldCancel?: () => boolean,
+) {
   let localCanceled = false;
-  needCancel ||= () => localCanceled;
+  shouldCancel ||= () => localCanceled;
   if (!frames || frames < 0) {
-    !needCancel() && callback(0);
+    !shouldCancel() && callback(time);
     return noop;
   }
-  const id = requestAnimationFrame(() => {
-    if (needCancel!()) return;
-    raf(callback, frames - 1, needCancel);
+  const id = requestAnimationFrame((t) => {
+    if (shouldCancel!()) return;
+    internalRaf(callback, frames - 1, t, shouldCancel);
   });
   return () => {
     localCanceled = true;
     cancelAnimationFrame(id);
   };
+}
+
+export function rafThrottle<T extends (...args: any[]) => any>(callback: T, frames = 1, shouldCancel?: () => boolean) {
+  let queuedCallback: T | null;
+  return function (this: ThisType<T>, ...args: any[]) {
+    if (!queuedCallback) {
+      raf(
+        () => {
+          queuedCallback!.apply(this, args);
+          queuedCallback = null;
+        },
+        frames,
+        shouldCancel,
+      );
+    }
+    queuedCallback = callback;
+  } as T;
 }
