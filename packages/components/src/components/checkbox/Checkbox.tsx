@@ -7,6 +7,7 @@ import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { isEnterDown } from '@lun/utils';
+import { partsDefine } from 'common';
 
 const name = 'checkbox';
 export const Checkbox = defineSSRCustomElement({
@@ -88,16 +89,16 @@ export const Checkbox = defineSSRCustomElement({
         isIntermediate = intermediate.value;
       const { editable } = editComputed.value;
       const labelPart = (
-        <span part={ns.p('label')} class={ns.e('label')}>
+        <span part={partsDefine[name].label} class={ns.e('label')}>
           <slot>{props.label}</slot>
         </span>
       );
       return (
         <>
-          <label part={ns.p('root')} class={stateClass.value}>
+          <label part={partsDefine[name].root} class={stateClass.value}>
             {props.labelPosition === 'start' && labelPart}
             <span
-              part={ns.p('indicator')}
+              part={partsDefine[name].indicator}
               class={ns.e('indicator')}
               tabindex={editable ? 0 : undefined}
               onKeydown={handlers.onKeydown}
@@ -110,7 +111,7 @@ export const Checkbox = defineSSRCustomElement({
               </slot>
               <input
                 class={[ns.e('input')]}
-                part={ns.p('input')}
+                part={partsDefine[name].input}
                 type={name}
                 checked={isChecked}
                 indeterminate={isIntermediate}

@@ -6,6 +6,7 @@ import { CheckboxCollector } from './collector';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
+import { partsDefine } from 'common';
 
 const name = 'checkbox-group';
 export const CheckboxGroup = defineSSRCustomElement({
@@ -90,7 +91,7 @@ export const CheckboxGroup = defineSSRCustomElement({
 
     const { render } = useOptions(props, 'checkbox');
     return () => (
-      <span part="root" class={stateClass.value}>
+      <span part={partsDefine[name].root} class={stateClass.value}>
         {render.value}
         <slot></slot>
       </span>

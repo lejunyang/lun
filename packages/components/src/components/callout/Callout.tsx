@@ -4,7 +4,7 @@ import { calloutEmits, calloutProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useNamespace } from 'hooks';
-import { getTransitionProps, renderStatusIcon } from 'common';
+import { getTransitionProps, renderStatusIcon, partsDefine } from 'common';
 
 const name = 'callout';
 export const Callout = defineSSRCustomElement({
@@ -39,21 +39,21 @@ export const Callout = defineSSRCustomElement({
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!closed.value && (
-            <span class={ns.t} part="root" data-status={status}>
+            <span class={ns.t} part={partsDefine[name].root} data-status={status}>
               <slot name="icon">
                 {renderStatusIcon(status, {
                   name: iconName,
                   library: iconLibrary,
                   ...iconProps,
-                  part: 'icon',
+                  part: partsDefine[name].icon,
                   class: ns.e('icon'),
                 })}
               </slot>
-              <div class={ns.e('content')} part="content">
-                <div class={ns.e('message')} part="message">
+              <div class={ns.e('content')} part={partsDefine[name].content}>
+                <div class={ns.e('message')} part={partsDefine[name].message}>
                   <slot>{message}</slot>
                 </div>
-                <div class={ns.e('description')} part="description">
+                <div class={ns.e('description')} part={partsDefine[name].description}>
                   <slot name="description">{stack || description}</slot>
                 </div>
               </div>
@@ -62,7 +62,7 @@ export const Callout = defineSSRCustomElement({
                   name: 'x',
                   ...props.closeIconProps,
                   onClick: close,
-                  part: 'close-icon',
+                  part: partsDefine[name]['close-icon'],
                   class: ns.e('close-icon'),
                 })}
             </span>

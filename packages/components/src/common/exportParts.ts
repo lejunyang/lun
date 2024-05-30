@@ -43,9 +43,9 @@ const toExportParts = <P extends { [k in OpenShadowComponentKey]: readonly strin
 const parts = {
   button: [root, 'spin', 'hold'] as const,
   callout: [root, icon, 'close-icon', content, 'message', 'description'] as const,
-  checkbox: [root, 'indicator', input, label],
-  'checkbox-group': [root],
-  dialog: [root, 'mask', 'panel', 'header', 'close', content, 'footer'],
+  checkbox: [root, 'indicator', input, label] as const,
+  'checkbox-group': [root] as const,
+  dialog: [root, 'mask', 'panel', 'header', 'close', content, 'footer'] as const,
   divider: [root, 'text'],
   'doc-pip': [],
   'file-picker': [],

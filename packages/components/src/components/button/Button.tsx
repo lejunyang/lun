@@ -6,6 +6,7 @@ import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce, isFunction, prevent, throttle } from '@lun/utils';
+import { partsDefine } from 'common';
 
 const name = 'button';
 export const Button = defineSSRCustomElement({
@@ -93,7 +94,7 @@ export const Button = defineSSRCustomElement({
       const { iconName, iconLibrary, size, spinProps, showLoading, hold, label, iconPosition } = props;
       const { interactive, loading } = editComputed.value;
       const finalDisabled = !interactive;
-      const finalSpinProps = { size, ...spinProps, part: 'spin' };
+      const finalSpinProps = { size, ...spinProps, part: partsDefine[name].spin };
       const loadingPart =
         loading && showLoading ? (
           countdownTxt.value || renderElement('spin', finalSpinProps)
@@ -107,11 +108,11 @@ export const Button = defineSSRCustomElement({
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handleClick.value}
-          part={ns.p('root')}
+          part={partsDefine[name].root}
           style={ns.v({ hold: hold && `${hold}ms` })}
         >
           <Transition name="hold" {...holdTransitionHandlers}>
-            {holdShow.value && <div part="hold"></div>}
+            {holdShow.value && <div part={partsDefine[name].hold}></div>}
           </Transition>
           {iconPosition === 'start' && loadingPart}
           <slot>{label}</slot>
