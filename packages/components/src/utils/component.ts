@@ -22,11 +22,7 @@ export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1
     if (__DEV__) error(`Element "${comp}" is not defined`);
     return;
   }
-  const { commonSeparator } = GlobalStaticConfig;
-  const exportparts = (exportParts[comp as OpenShadowComponentKey] || [])
-    .map((i) => i + ':' + comp + commonSeparator + i)
-    .join(',');
-  return h(name, { ...props, exportparts: exportparts || undefined }, children);
+  return h(name, { ...props, exportparts: exportParts[comp as OpenShadowComponentKey] }, children);
 }
 
 export type ComponentDependencyDefineMap = {

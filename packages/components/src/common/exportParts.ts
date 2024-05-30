@@ -1,16 +1,54 @@
 import { OpenShadowComponentKey } from '../components/config/config.static';
 
-const root = 'root';
-const label = 'label';
-const input = 'input';
-const content = 'content';
-const children = 'children';
-export const exportParts = {
-  callout: [root, 'icon', 'remove-icon', content, 'message', 'description'],
+const root = 'root',
+  label = 'label',
+  input = 'input',
+  content = 'content',
+  children = 'children',
+  icon = 'icon';
+
+const toPartsDefine = <P extends { [k in OpenShadowComponentKey]: readonly string[] }, K extends keyof P = keyof P>(
+  parts: P,
+) => {
+  return Object.fromEntries(
+    Object.entries(parts).map(([key, value]) => [
+      key,
+      value.reduce((res, p) => {
+        (res as any)[p] = p + ' ' + key + '-' + p;
+        return res;
+      }, {}),
+    ]),
+  ) as {
+    [k in K]: {
+      [kk in P[k] extends readonly string[] ? P[k][number] : never]: k extends string ? `${kk} ${k}-${kk}` : never;
+    };
+  };
+};
+
+const toExportParts = <P extends { [k in OpenShadowComponentKey]: readonly string[] }, K extends keyof P = keyof P>(
+  parts: P,
+) => {
+  return Object.fromEntries(
+    Object.entries(parts).map(([k, v]) => [
+      k,
+      Object.values(v)
+        .map((p) => k + '-' + p)
+        .join(','),
+    ]),
+  ) as {
+    [k in K]: string;
+  };
+};
+
+const parts = {
+  button: [root, 'spin', 'hold'] as const,
+  callout: [root, icon, 'close-icon', content, 'message', 'description'] as const,
   checkbox: [root, 'indicator', input, label],
   'checkbox-group': [root],
   dialog: [root, 'mask', 'panel', 'header', 'close', content, 'footer'],
   divider: [root, 'text'],
+  'doc-pip': [],
+  'file-picker': [],
   form: [root],
   'form-item': [root, label, content],
   icon: ['svg'],
@@ -33,12 +71,24 @@ export const exportParts = {
     'plus',
     'minus',
   ],
+  mentions: [],
+  message: [],
   popover: [content, 'native', 'fixed', 'teleport-fixed'],
+  progress: [],
   radio: [root, label, 'indicator'],
+  'radio-group': [],
+  range: [],
   select: [content],
   'select-optgroup': [root, label, children],
   'select-option': [root, label],
   spin: ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'],
   switch: [root, input, children, 'thumb'],
-  tag: [root, 'icon'],
-} as Record<OpenShadowComponentKey, string[]>;
+  tag: [root, icon],
+  'teleport-holder': [],
+  textarea: [],
+  'theme-provider': [],
+  tooltip: [],
+} satisfies Record<OpenShadowComponentKey, readonly string[]>;
+
+export const partsDefine = toPartsDefine(parts);
+export const exportParts = toExportParts(parts);
