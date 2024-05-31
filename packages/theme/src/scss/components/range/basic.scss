@@ -3,11 +3,6 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
-:host {
-  display: block;
-  width: 100%; // vertical
-}
-
 @include b(range) {
   display: flex;
   align-items: center;
@@ -23,6 +18,12 @@
     );
     @include e(track) {
       height: 100%;
+      inset-inline-start: calc(getVarValue((range, min)) * 100%);
+      inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
+    }
+    @include e(thumb) {
+      transform: translateX(-50%);
+      inset-inline-start: calc(getVarValue((range, percent)) * 100%);
     }
   }
   @include m(vertical) {
@@ -33,6 +34,24 @@
     );
     @include e(track) {
       width: 100%;
+      inset-block-start: calc(getVarValue((range, min)) * 100%);
+      inset-block-end: calc((1 - getVarValue((range, max))) * 100%);
+    }
+    @include e(thumb) {
+      transform: translate(-20%, -50%);
+      inset-block-start: calc(getVarValue((range, percent)) * 100%);
+    }
+  }
+
+  @at-root {
+    :host(:not([type='vertical'])) {
+      display: block;
+      width: 100%;
+    }
+
+    :host([type='vertical']) {
+      display: inline-flex;
+      height: 100px;
     }
   }
 
@@ -41,7 +60,7 @@
     (
       background-color: getGrayColor(a3),
       border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(size) / 3),
-      margin-block: calc(var(--factor) * getDeclaredVar(size)),
+      margin-block: calc(var(--factor) * var(--thumb-size)),
     )
   );
 
@@ -49,15 +68,11 @@
     position: absolute;
     border-radius: inherit;
     background-color: getAccentColor(a9); // TODO radix-theme uses accent-track...
-    inset-inline-start: calc(getVarValue((range, min)) * 100%);
-    inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
   }
 
   --thumb-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
   @include e(thumb) {
     position: absolute;
-    inset-inline-start: calc(getVarValue((range, percent)) * 100%);
-    transform: translateX(-50%);
     outline: none;
     width: var(--thumb-size);
     height: var(--thumb-size);
