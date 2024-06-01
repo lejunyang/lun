@@ -8,12 +8,19 @@ import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import { refLikeToDescriptors, useDraggableMonitor, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
 import { Transition, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
-import { getTransitionProps, intl } from 'common';
+import { getTransitionProps, intl, partsDefine } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
-import { at, getDeepestActiveElement, roundByDPR, supportDialog, toPxIfNum, virtualGetMerge } from '@lun/utils';
+import {
+  runIfFn,
+  at,
+  getDeepestActiveElement,
+  roundByDPR,
+  supportDialog,
+  toPxIfNum,
+  virtualGetMerge,
+} from '@lun/utils';
 import { useContextConfig } from 'config';
-import { runIfFn } from '../../../../utils/src/function';
 
 const name = 'dialog';
 /** global current showing dialogs */
@@ -127,6 +134,7 @@ export const Dialog = Object.assign(
           return !props.customDraggable && !props.headerDraggable;
         },
         asWhole: true,
+        ignoreWhenAlt: true,
         draggable(...args) {
           const { customDraggable, headerDraggable } = props;
           return headerDraggable ? headerRef.value!.contains(args[0]) : runIfFn(customDraggable, ...args);
@@ -173,7 +181,7 @@ export const Dialog = Object.assign(
         return (
           <Tag
             class={stateClass.value}
-            part="root"
+            part={partsDefine[name].root}
             ref={dialogRef}
             {...dialogHandlers}
             // title is a global HTMLAttributes, but we use it as prop. it will make the dialog show tooltip even if inheritAttrs is false, we need to set an empty title to prevent it
@@ -186,7 +194,7 @@ export const Dialog = Object.assign(
                   <div
                     v-show={maskShow.value}
                     class={ns.e('mask')}
-                    part="mask"
+                    part={partsDefine[name].mask}
                     ref={maskRef}
                     tabindex={-1}
                     {...maskHandlers}
@@ -197,7 +205,7 @@ export const Dialog = Object.assign(
                     v-show={isOpen.value}
                     class={ns.e('panel')}
                     ref={panelRef}
-                    part="panel"
+                    part={partsDefine[name].panel}
                     style={{ width: width.value }}
                   >
                     {!noCloseBtn &&
@@ -208,14 +216,14 @@ export const Dialog = Object.assign(
                           variant: 'ghost',
                           ...closeBtnProps,
                           asyncHandler: methods.close,
-                          part: 'close',
+                          part: partsDefine[name].close,
                         },
                         renderElement('icon', { name: 'x', slot: 'icon' }),
                       )}
                     {!noHeader && (
                       <header
                         class={[ns.e('header'), ns.is('draggable', headerDraggable)]}
-                        part="header"
+                        part={partsDefine[name].header}
                         ref={headerRef}
                       >
                         <slot name="header-start"></slot>
@@ -223,7 +231,7 @@ export const Dialog = Object.assign(
                         <slot name="header-end"></slot>
                       </header>
                     )}
-                    <div class={[ns.e('content')]} part="content">
+                    <div class={[ns.e('content')]} part={partsDefine[name].content}>
                       <slot>
                         {content && (
                           <VCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />
@@ -231,7 +239,7 @@ export const Dialog = Object.assign(
                       </slot>
                     </div>
                     {!noFooter && (
-                      <footer class={[ns.e('footer')]} part="footer">
+                      <footer class={[ns.e('footer')]} part={partsDefine[name].footer}>
                         <slot name="footer-start"></slot>
                         <slot name="footer">
                           {!noCancelBtn &&

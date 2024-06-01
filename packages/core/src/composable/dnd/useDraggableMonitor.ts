@@ -30,6 +30,7 @@ export function useDraggableMonitor({
   onMove,
   onStop,
   onClean,
+  ignoreWhenAlt,
 }: {
   el: MaybeRefLikeOrGetter<Element>;
   /** if asWhole is true, all draggable children elements consider as whole, sharing same state; otherwise, each child element has its own state */
@@ -41,6 +42,7 @@ export function useDraggableMonitor({
   onMove?: (target: Element, state: DraggableElementState) => void;
   onStop?: (target: Element, state: DraggableElementState) => void;
   onClean?: () => void;
+  ignoreWhenAlt?: boolean;
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
@@ -49,8 +51,8 @@ export function useDraggableMonitor({
   const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
 
   const handleStart = (e: PointerEvent) => {
-    const { button, target, pointerId } = e;
-    if (button !== 0) return; // left button only
+    const { button, target, pointerId, altKey } = e;
+    if (button !== 0 || (ignoreWhenAlt && altKey)) return; // left button only
     const targetEl = target as Element,
       keyEl = asWhole ? unrefOrGet(el)! : targetEl;
     const state = targetStates.get(keyEl);
@@ -95,7 +97,7 @@ export function useDraggableMonitor({
   const emitMove = rafThrottle((el: Element, state: DraggableElementState) => {
     runIfFn(onMove, el, state);
   }, animationFrames);
-  
+
   const handleMove = (e: PointerEvent) => {
     const targetEl = e.target as Element,
       keyEl = asWhole ? unrefOrGet(el)! : targetEl;
