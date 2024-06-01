@@ -17,6 +17,7 @@ import { freeze } from '@lun/utils';
 export const buttonProps = freeze({
   ...editStateProps,
   ...themeProps,
+  block: PropBoolean(),
   size: PropResponsive<'1' | '2' | '3' | '4'>(),
   label: PropString(),
   asyncHandler: PropFunction<(e?: MouseEvent) => void>(),

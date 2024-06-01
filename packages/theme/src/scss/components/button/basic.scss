@@ -3,8 +3,13 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
-:host {
+:host(:not([block])) {
   display: inline-flex;
+}
+
+:host([block]) {
+  display: flex;
+  flex-grow: 1;
 }
 
 .hold-enter-from {
@@ -55,6 +60,7 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  flex-grow: inherit;
   flex-shrink: 0;
   user-select: none;
   touch-action: manipulation;

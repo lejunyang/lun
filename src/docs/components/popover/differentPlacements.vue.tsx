@@ -31,7 +31,7 @@ export default function () {
           <l-button>right-start</l-button>
         </l-popover>
         <l-popover content={content} placement="right">
-          <l-button>right</l-button>
+          <l-button style="float: right">right</l-button>
         </l-popover>
         <l-popover content={content} placement="right-end">
           <l-button>right-end</l-button>
