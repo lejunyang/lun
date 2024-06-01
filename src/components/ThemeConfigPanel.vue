@@ -122,8 +122,10 @@ const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
     &[data-checked] .circle {
       outline: 2px solid var(--l-accent-9);
     }
-    &:--checked .circle {
-      outline: 2px solid var(--l-accent-9);
+    @supports not selector(:state(a)) {
+      &:--checked .circle {
+        outline: 2px solid var(--l-accent-9);
+      }
     }
     &:state(checked) .circle {
       outline: 2px solid var(--l-accent-9);
@@ -136,8 +138,10 @@ const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
     &[data-checked] .wrapper {
       outline: 2px solid var(--l-accent-9);
     }
-    &:--checked .wrapper {
-      outline: 2px solid var(--l-accent-9);
+    @supports not selector(:state(a)) {
+      &:--checked .wrapper {
+        outline: 2px solid var(--l-accent-9);
+      }
     }
     &:state(checked) .wrapper {
       outline: 2px solid var(--l-accent-9);

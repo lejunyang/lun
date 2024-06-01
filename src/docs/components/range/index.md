@@ -6,3 +6,7 @@ lang: zh-CN
 ## 基本使用
 
 <!-- @Code:basicUsage -->
+
+## 垂直
+
+<!-- @Code:vertical -->

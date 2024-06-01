@@ -34,4 +34,8 @@ lang: zh-CN
 
 如第一个示例所示，设置`headerDraggable`便可以拖拽弹框的头部来移动弹框。如果想要自定义拖拽元素，则可以通过`customDraggable`属性指定弹框内部哪些元素可拖拽
 
+:::info 注
+为方便选中文字，在按住Alt时不会触发拖拽
+:::
+
 <!-- @Code:draggable -->

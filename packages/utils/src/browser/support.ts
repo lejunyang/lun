@@ -34,7 +34,7 @@ export const isSupportFileSystem = cacheFunctionResult(() => {
       return false;
     }
   }
-  return 'showOpenFilePicker' in self;
+  return 'showOpenFilePicker' in self && isSecureContext;
 });
 
 export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === 'function');
@@ -61,13 +61,15 @@ export const isSupportCheckVisibility = cacheFunctionResult(
 export const supportDocumentPictureInPicture =
   typeof documentPictureInPicture === 'object' &&
   documentPictureInPicture &&
-  isFunction(documentPictureInPicture.requestWindow);
+  isFunction(documentPictureInPicture.requestWindow) &&
+  isSecureContext;
 
 export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);
 
 export const supportCSSApi = typeof CSS === 'object' && CSS;
 
-export const supportCSSHighLight = supportCSSApi && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
+export const supportCSSHighLight =
+  supportCSSApi && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
 
 export const supportCSSSupports = supportCSSApi && isFunction(CSS.supports);
 
