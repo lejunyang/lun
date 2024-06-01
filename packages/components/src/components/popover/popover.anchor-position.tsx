@@ -36,8 +36,15 @@ export function useAnchorPosition(options: {
   const isOn = computed(() => unrefOrGet(name) && supportCSSAnchor && !unrefOrGet(off));
   const info = computed(() => {
     const [side, align] = (unrefOrGet(placement) || 'bottom').split('-'),
+      // if side is top or bottom, the arrow's position needs to be inline; otherwise, it's block
       inline = side === 'top' || side === 'bottom';
-    return [side, align, inline ? 'inline-' : 'block-', inline ? 'width' : 'height'] as const;
+    return [
+      side,
+      align,
+      inline ? 'inline-' : 'block-',
+      inline ? 'width' : 'height',
+      `translate${inline ? 'X' : 'Y'}(-50%)`,
+    ] as const;
   });
   const anchorName = '--p'; // it's for arrow element, always turn on anchor position for arrow element if supports
   const defaultSize = { width: Infinity, height: Infinity };
@@ -65,41 +72,47 @@ export function useAnchorPosition(options: {
         : { ...fallbackStyles, anchorName };
     },
     arrowStyle(
-      x?: number,
-      y?: number,
       arrowSize = 0,
       { reference, floating } = { reference: defaultSize, floating: defaultSize },
     ) {
-      const [side, align, inset, sizeProp] = info.value;
+      const [side, align, inset, sizeProp, translate] = info.value;
       const { arrowPosition, arrowOffset } = options;
       const isAuto = arrowPosition === 'auto' || !arrowPosition,
         isCenter = arrowPosition === 'center' || (isAuto && !align),
         finalAlign = isCenter || isAuto ? align || 'start' : arrowPosition,
-        insetAlign = 'inset-' + inset + finalAlign,
-        reverseSide = insetReverseMap[side];
+        insetAlign = 'inset-' + inset + finalAlign;
       let finalArrowOffset =
         isAuto && !isCenter
           ? Math.min(+arrowOffset!, (reference[sizeProp] - arrowSize) / 2, (floating[sizeProp] - arrowSize) / 2)
           : arrowOffset;
       if ((finalArrowOffset as number) < 0) finalArrowOffset = arrowOffset;
-      return supportCSSAnchor
-        ? ({
-            positionAnchor: anchorName,
-            position: 'fixed', // it must be fixed. According to the spec(https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element)
-            ...(isCenter
-              ? {
-                  insetArea: reverseSide,
-                }
-              : {
-                  [side]: `anchor(${reverseSide})`,
-                  [insetAlign]: `calc(anchor(${finalAlign}) + ${toPxIfNum(finalArrowOffset)})`,
-                }),
-          } as any as CSSProperties)
-        : ({
-            position: 'absolute',
-            [insetAlign]: toPxIfNum(isCenter ? x ?? y : finalArrowOffset),
-            [reverseSide]: toPxIfNum(-arrowSize),
-          } satisfies CSSProperties);
+      return {
+        position: 'absolute',
+        [insetAlign]: isCenter ? '50%' : toPxIfNum(finalArrowOffset),
+        [side]: '100%',
+        transform: isCenter ? translate : '',
+      } satisfies CSSProperties;
+      // remove this code, CSS Anchor Position doesn't work well for arrow element, as the position will be wrong when transform: scale transition taking effect
+      // also, we don't need to use arrow plugin of floating-ui
+      // const reverseSide = insetReverseMap[side];
+      // return supportCSSAnchor
+      //   ? ({
+      //       positionAnchor: anchorName,
+      //       position: 'fixed', // it must be fixed. According to the spec(https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element)
+      //       ...(isCenter
+      //         ? {
+      //             insetArea: reverseSide,
+      //           }
+      //         : {
+      //             [side]: `anchor(${reverseSide})`,
+      //             [insetAlign]: `calc(anchor(${finalAlign}) + ${toPxIfNum(finalArrowOffset)})`,
+      //           }),
+      //     } as any as CSSProperties)
+      //   : ({
+      //       position: 'absolute',
+      //       [insetAlign]: toPxIfNum(isCenter ? x ?? y : finalArrowOffset),
+      //       [reverseSide]: toPxIfNum(-arrowSize),
+      //     } satisfies CSSProperties);
     },
   };
 }

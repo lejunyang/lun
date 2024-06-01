@@ -22,7 +22,6 @@ import {
   objectKeys,
   prevent,
   runIfFn,
-  supportCSSAnchor,
   toPxIfNum,
   virtualGetMerge,
 } from '@lun/utils';
@@ -30,7 +29,6 @@ import { useCEExpose, useNamespace } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import {
   autoUpdate,
-  arrow,
   offset as pluginOffset,
   shift as pluginShift,
   inline as pluginInline,
@@ -133,18 +131,13 @@ export const Popover = defineSSRCustomElement({
       return floatingOffset + (+props.offset! || 0);
     };
     const middleware = computed(() => {
-      const { shift, showArrow, inline } = props;
+      const { shift, inline } = props;
       return [
         // selection range needs inline
         (inline || options.value.triggers.has('select')) && pluginInline(Object(inline)),
         shift && pluginShift(Object(shift)),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
-        showArrow &&
-          !supportCSSAnchor &&
-          arrow({
-            element: arrowRef,
-          }),
         referenceRect(),
       ].filter(Boolean) as any;
     });
@@ -217,8 +210,8 @@ export const Popover = defineSSRCustomElement({
     });
 
     const arrowStyles = computed(() => {
-      const { arrow: { x, y } = {}, rects } = middlewareData.value;
-      return anchor.arrowStyle(x, y, arrowRef.value?.offsetWidth, rects || rectsInfo);
+      const { rects } = middlewareData.value;
+      return anchor.arrowStyle(arrowRef.value?.offsetWidth, rects || rectsInfo);
     });
 
     const finalFloatingStyles = computed(() => {
