@@ -1,6 +1,6 @@
 import { defineComponent, onMounted, ref } from 'vue';
 
-const C = defineComponent({
+export default defineComponent({
   setup() {
     const tooltip = ref(),
       div1 = ref(),
@@ -8,9 +8,12 @@ const C = defineComponent({
       value1 = ref('Target1 overflowing'),
       value2 = ref('Target2');
     onMounted(() => {
-      if (!tooltip.value.attachTarget) return;
-      tooltip.value.attachTarget(div1.value, { overflow: 'open' });
-      tooltip.value.attachTarget(div2.value, { overflow: 'open' });
+      // Need to wait for completion of component inner setup
+      setTimeout(() => {
+        if (!tooltip.value.attachTarget) return;
+        tooltip.value.attachTarget(div1.value, { overflow: 'open' });
+        tooltip.value.attachTarget(div2.value, { overflow: 'open' });
+      });
     });
     return () => (
       <>
@@ -31,5 +34,3 @@ const C = defineComponent({
     );
   },
 });
-
-export default <C />;

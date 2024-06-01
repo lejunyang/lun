@@ -1,7 +1,7 @@
 import { throttle, on, off } from '@lun/utils';
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 
-const C = defineComponent({
+export default defineComponent({
   setup() {
     const mouseState = reactive({
       x: 0,
@@ -50,5 +50,3 @@ const C = defineComponent({
     );
   },
 });
-
-export default () => <C />;

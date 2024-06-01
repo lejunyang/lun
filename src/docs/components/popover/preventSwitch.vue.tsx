@@ -1,7 +1,7 @@
 import { sentence } from 'data';
 import { defineComponent, onMounted, ref } from 'vue';
 
-const C = defineComponent({
+export default defineComponent({
   setup() {
     const pop = ref(),
       input1 = ref(),
@@ -22,4 +22,3 @@ const C = defineComponent({
     );
   },
 });
-export default <C />;

@@ -68,7 +68,7 @@ const Tooltip = defineSSRCustomElement({
               beforeOpen,
               // make popover display: contents and set target to tooltip CE rather than popover CE
               // so that overflow style can work on tooltip CE
-              target: target !== undefined ? target : overflowOpenEl,
+              target: target !== undefined ? target : overflowOpenEl || CE,
               style: `${attrs.style || ''}display: contents`,
               zIndex: zIndex.tooltip,
               ref: popoverRef,
