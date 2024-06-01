@@ -19,6 +19,7 @@ import {
   supportDialog,
   toPxIfNum,
   virtualGetMerge,
+  clamp,
 } from '@lun/utils';
 import { useContextConfig } from 'config';
 
@@ -135,13 +136,16 @@ export const Dialog = Object.assign(
         },
         asWhole: true,
         ignoreWhenAlt: true,
+        getCoord({ clientX, clientY }) {
+          return [clamp(clientX, 0, innerWidth), clamp(clientY, 0, innerHeight)];
+        },
         draggable(...args) {
           const { customDraggable, headerDraggable } = props;
           return headerDraggable ? headerRef.value!.contains(args[0]) : runIfFn(customDraggable, ...args);
         },
         onMove(_, { relativeX, relativeY }) {
           const el = panelRef.value!;
-          el.style.transform = `translate(${roundByDPR(relativeX, el)}px, ${roundByDPR(relativeY, el)}px)`;
+          el.style.transform = `translate3d(${roundByDPR(relativeX, el)}px, ${roundByDPR(relativeY, el)}px, 0)`;
           // FIXME maybe won't fix. after dragging，if we change the size of viewport, the position look weird as relative position size may be too large for new viewport
         },
         onClean() {

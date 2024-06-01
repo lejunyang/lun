@@ -178,6 +178,7 @@ function internalRaf(
 
 export function rafThrottle<T extends (...args: any[]) => any>(callback: T, frames = 1, shouldCancel?: () => boolean) {
   let queuedCallback: T | null;
+  if (frames < 0 || !frames) return callback;
   return function (this: ThisType<T>, ...args: any[]) {
     if (!queuedCallback) {
       raf(
