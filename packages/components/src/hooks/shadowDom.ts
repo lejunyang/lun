@@ -1,4 +1,4 @@
-import { unrefOrGetState, useSetupEdit } from '@lun/core';
+import { unrefOrGetState, useEdit } from '@lun/core';
 import { isFunction, isHTMLElement, pick } from '@lun/utils';
 import { warn } from 'utils';
 import {
@@ -73,13 +73,12 @@ let mustAddPrefixForCustomState: boolean | null = null; // in chromium 90~X, nee
 export function useCEStates<T extends Record<string, MaybeRef> | null | undefined>(
   statesGetter: () => T,
   ns?: ReturnType<typeof useNamespace>,
-  editComputed?: ReturnType<typeof useSetupEdit>[0],
 ) {
   let stop: ReturnType<typeof watchEffect>;
+  const editComputed = useEdit();
   const states = computed(() => ({
     ...statesGetter(),
-    ...(editComputed?.value &&
-      pick(editComputed.value, ['disabled', 'editable', 'interactive', 'loading', 'readonly'])),
+    ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
   }));
   let lastStatesKey = new Set<string>();
   // must in mount, form-item need to be set on mount

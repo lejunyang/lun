@@ -101,7 +101,6 @@ export const Input = defineSSRCustomElement({
         'withRenderer': !rendererSlot.empty.value,
       }),
       ns,
-      editComputed,
     );
 
     const lengthInfo = computed(() => {

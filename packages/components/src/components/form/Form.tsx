@@ -183,7 +183,7 @@ export const Form = defineSSRCustomElement({
       extraProvide: provide,
     });
 
-    const [stateClass] = useCEStates(() => ({}), ns, editComputed);
+    const [stateClass] = useCEStates(() => ({}), ns);
 
     const renderErrorTooltip = provideErrorTooltip({
       class: [ns.e('tooltip'), ns.m('error')],

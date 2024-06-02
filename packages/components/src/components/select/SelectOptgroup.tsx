@@ -14,8 +14,8 @@ export const SelectOptgroup = defineSSRCustomElement({
     const selectContext = SelectCollector.child(false, props.selectContext);
     const ns = useNamespace(name, { parent: selectContext?.parent });
     SelectOptgroupContext.provide();
-    const [editComputed] = useSetupEdit();
-    const [stateClass] = useCEStates(() => null, ns, editComputed);
+    const [_editComputed] = useSetupEdit();
+    const [stateClass] = useCEStates(() => null, ns);
 
     return () => (
       <div part="root" class={stateClass.value}>

@@ -86,7 +86,6 @@ export const CheckboxGroup = defineSSRCustomElement({
         vertical: props.vertical,
       }),
       ns,
-      editComputed,
     );
 
     const { render } = useOptions(props, 'checkbox');

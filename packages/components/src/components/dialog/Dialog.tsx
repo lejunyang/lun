@@ -160,7 +160,6 @@ export const Dialog = Object.assign(
           noMask: props.noMask,
         }),
         ns,
-        editComputed,
       );
 
       const Tag = supportDialog ? 'dialog' : 'div';

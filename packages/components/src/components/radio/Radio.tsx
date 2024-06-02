@@ -45,7 +45,6 @@ export const Radio = defineSSRCustomElement({
         };
       },
       ns,
-      editComputed,
     );
 
     return () => {

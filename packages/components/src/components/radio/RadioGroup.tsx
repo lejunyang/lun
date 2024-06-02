@@ -19,12 +19,12 @@ export const RadioGroup = defineSSRCustomElement({
       },
     });
     const valueModel = useValueModel(props);
-    const [editComputed] = useSetupEdit();
+    const [_editComputed] = useSetupEdit();
     RadioCollector.parent({ extraProvide: { valueModel } });
 
     const { render } = useOptions(props, 'radio');
 
-    const [stateClass] = useCEStates(() => ({}), ns, editComputed);
+    const [stateClass] = useCEStates(() => ({}), ns);
 
     // TODO arrow move to check prev/next active radio
     return () => (

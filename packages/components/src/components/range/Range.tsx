@@ -149,7 +149,7 @@ export const Range = defineSSRCustomElement({
       },
     });
 
-    const [stateClass] = useCEStates(() => null, ns, editComputed);
+    const [stateClass] = useCEStates(() => null, ns);
 
     return () => {
       const { value } = processedValues,

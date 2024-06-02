@@ -107,7 +107,6 @@ export const Mentions = defineSSRCustomElement({
         withClearIcon: props.showClearIcon && editComputed.value.editable,
       }),
       ns,
-      editComputed,
     );
 
     const lengthInfo = computed(() => {

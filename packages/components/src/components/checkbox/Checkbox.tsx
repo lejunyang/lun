@@ -80,7 +80,6 @@ export const Checkbox = defineSSRCustomElement({
         on: [checked, intermediate],
       }),
       ns,
-      editComputed,
     );
 
     expose(refLikesToGetters({ disabled: () => editComputed.value.disabled }));

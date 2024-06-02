@@ -89,7 +89,6 @@ export const FormItem = defineSSRCustomElement({
         ...layoutInfo?.value.itemState,
       }),
       ns,
-      editComputed,
     );
 
     const elementRef = useErrorTooltip(() => tips.value.tooltip, {

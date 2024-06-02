@@ -79,7 +79,7 @@ export const Select = defineSSRCustomElement({
         popover: popoverRef,
       }),
     );
-    const [stateClass] = useCEStates(() => null, ns, editComputed);
+    const [stateClass] = useCEStates(() => null, ns);
 
     const { render, loading, options, renderOptions, renderOption } = useOptions(props, 'select-option', {
       groupOptionName: 'select-optgroup',
