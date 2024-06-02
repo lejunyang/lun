@@ -20,7 +20,7 @@ export const Button = defineSSRCustomElement({
     let holdAnimationDone = false;
     const handleClick = computed(() => {
       const onClick = async (e?: MouseEvent) => {
-        if (!editComputed.value.interactive) return;
+        if (!editComputed.interactive) return;
         if (props.hold && !holdAnimationDone) return;
         holdAnimationDone = false;
         emit('validClick');
@@ -41,7 +41,7 @@ export const Button = defineSSRCustomElement({
 
     const buttonHandlers = {
       onPointerdown() {
-        if (props.hold && editComputed.value.interactive) holdShow.value = true;
+        if (props.hold && editComputed.interactive) holdShow.value = true;
       },
       onPointerup: hideHold,
       // find that pointerout will be fired when hold-on element grows to the pointer position, use pointerleave instead
@@ -52,7 +52,7 @@ export const Button = defineSSRCustomElement({
         if (holdShow.value) prevent(e);
       },
       onTouchstart(e: TouchEvent) {
-        if (props.hold && editComputed.value.interactive) prevent(e);
+        if (props.hold && editComputed.interactive) prevent(e);
       },
     };
 
@@ -92,7 +92,7 @@ export const Button = defineSSRCustomElement({
 
     return () => {
       const { iconName, iconLibrary, size, spinProps, showLoading, hold, label, iconPosition } = props;
-      const { interactive, loading } = editComputed.value;
+      const { interactive, loading } = editComputed;
       const finalDisabled = !interactive;
       const finalSpinProps = { size, ...spinProps, part: partsDefine[name].spin };
       const loadingPart =

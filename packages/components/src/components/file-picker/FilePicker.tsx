@@ -175,7 +175,7 @@ export const FilePicker = defineSSRCustomElement({
 
     const pickFile = async () => {
       const { value: input } = inputRef;
-      if (!input || !editComputed.value.editable || picking) return;
+      if (!input || !editComputed.editable || picking) return;
       const { directory, strictAccept, preferFileApi, startIn, rememberId, loadingWhenPick } = props;
 
       picking = true;
@@ -259,7 +259,7 @@ export const FilePicker = defineSSRCustomElement({
     });
 
     return () => {
-      const { disabled } = editComputed.value;
+      const { disabled } = editComputed;
       const { directory, multiple, filesRenderer, filesRendererType } = props;
       const content = runIfFn(filesRenderer, valueModel.value);
       return (

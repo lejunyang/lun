@@ -57,7 +57,7 @@ export const Textarea = defineSSRCustomElement({
         return {
           ...props,
           ...validateProps.value,
-          disabled: !editComputed.value.editable,
+          disabled: !editComputed.editable,
           value: valueModel,
           onChange(val) {
             valueModel.value = val as string;
@@ -85,7 +85,7 @@ export const Textarea = defineSSRCustomElement({
       () => ({
         empty: isEmpty(valueModel.value),
         required: validateProps.value.required,
-        withClearIcon: props.showClearIcon && editComputed.value.editable,
+        withClearIcon: props.showClearIcon && editComputed.editable,
       }),
       ns,
     );
@@ -100,7 +100,7 @@ export const Textarea = defineSSRCustomElement({
 
     const rootOnPointerDown = () => {
       raf(() => {
-        if (editComputed.value.interactive) textareaRef.value?.focus();
+        if (editComputed.interactive) textareaRef.value?.focus();
       });
     };
 
@@ -111,7 +111,7 @@ export const Textarea = defineSSRCustomElement({
     );
 
     return () => {
-      const { disabled, readonly } = editComputed.value;
+      const { disabled, readonly } = editComputed;
       const { placeholder, labelType, label, rows, cols, spellcheck } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;

@@ -61,7 +61,7 @@ export const Radio = defineSSRCustomElement({
             type={name}
             checked={checked.value}
             value={props.value}
-            disabled={editComputed.value.disabled}
+            disabled={editComputed.disabled}
             onChange={handler.onChange}
             hidden
           />

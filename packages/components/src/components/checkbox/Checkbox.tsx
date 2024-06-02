@@ -43,7 +43,7 @@ export const Checkbox = defineSSRCustomElement({
       if (!checkboxContext || props.excludeFromGroup) return checkedModel?.value ?? props.checked;
       const { radioState } = checkboxContext;
       const { allChecked, isChecked } = radioState.value;
-      return (allChecked && !editComputed.value.disabled) || (!props.checkForAll && isChecked(props.value));
+      return (allChecked && !editComputed.disabled) || (!props.checkForAll && isChecked(props.value));
     });
 
     const updateChecked = (checked: boolean) => {
@@ -64,7 +64,7 @@ export const Checkbox = defineSSRCustomElement({
         updateChecked(checked);
       },
       onKeydown(e: KeyboardEvent) {
-        if (isEnterDown(e) && editComputed.value.editable) {
+        if (isEnterDown(e) && editComputed.editable) {
           updateChecked(!checked.value);
         }
       },
@@ -82,11 +82,11 @@ export const Checkbox = defineSSRCustomElement({
       ns,
     );
 
-    expose(refLikesToGetters({ disabled: () => editComputed.value.disabled }));
+    expose(refLikesToGetters({ disabled: () => editComputed.disabled }));
     return () => {
       const isChecked = checked.value,
         isIntermediate = intermediate.value;
-      const { editable } = editComputed.value;
+      const { editable } = editComputed;
       const labelPart = (
         <span part={partsDefine[name].label} class={ns.e('label')}>
           <slot>{props.label}</slot>

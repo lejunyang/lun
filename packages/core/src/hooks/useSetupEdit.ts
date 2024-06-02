@@ -1,4 +1,4 @@
-import type { ComponentInternalInstance, ComputedRef } from 'vue';
+import type { ComponentInternalInstance } from 'vue';
 import { inject, getCurrentInstance, computed, provide, reactive } from 'vue';
 import { runIfFn } from '@lun/utils';
 import { refToGetter } from '../utils';
@@ -26,34 +26,35 @@ export function useSetupEdit(options?: {
   if (!ctx) {
     if (__DEV__) throw new Error('Do not use `useSetupEdit` outside the setup function scope');
   }
-  const parentEditComputed = noInherit ? undefined : inject<ComputedRef<EditState> | undefined>(EDIT_PROVIDER_KEY);
+  const parentEditComputed = noInherit ? undefined : inject<EditState | undefined>(EDIT_PROVIDER_KEY);
   const localState = reactive({ disabled: false, readonly: false, loading: false, ...initialLocalState });
-  const currentEditComputed = computed(() => {
-    let finalState: EditState;
-    let { disabled, readonly, loading, mergeDisabled, mergeLoading, mergeReadonly } = ctx.props as EditState;
-    mergeDisabled ??= parentEditComputed?.value.mergeDisabled;
-    mergeLoading ??= parentEditComputed?.value.mergeLoading;
-    mergeReadonly ??= parentEditComputed?.value.mergeReadonly;
-    finalState = {
-      disabled:
-        localState.disabled || disabled || ((mergeDisabled || disabled == null) && parentEditComputed?.value.disabled),
-      readonly:
-        localState.readonly || readonly || ((mergeReadonly || readonly == null) && parentEditComputed?.value.readonly),
-      loading:
-        localState.loading || loading || ((mergeLoading || loading == null) && parentEditComputed?.value.loading),
-      mergeDisabled,
-      mergeLoading,
-      mergeReadonly,
-      get interactive() {
-        return !this.disabled && !this.loading;
-      },
-      get editable() {
-        return this.interactive && !this.readonly;
-      },
-    };
-    finalState = runIfFn(adjust, finalState) || finalState;
-    return finalState;
-  });
+  const currentEditComputed = refToGetter(
+    computed(() => {
+      let finalState: EditState;
+      let { disabled, readonly, loading, mergeDisabled, mergeLoading, mergeReadonly } = ctx.props as EditState;
+      mergeDisabled ??= parentEditComputed?.mergeDisabled;
+      mergeLoading ??= parentEditComputed?.mergeLoading;
+      mergeReadonly ??= parentEditComputed?.mergeReadonly;
+      finalState = {
+        disabled:
+          localState.disabled || disabled || ((mergeDisabled || disabled == null) && parentEditComputed?.disabled),
+        readonly:
+          localState.readonly || readonly || ((mergeReadonly || readonly == null) && parentEditComputed?.readonly),
+        loading: localState.loading || loading || ((mergeLoading || loading == null) && parentEditComputed?.loading),
+        mergeDisabled,
+        mergeLoading,
+        mergeReadonly,
+        get interactive() {
+          return !this.disabled && !this.loading;
+        },
+        get editable() {
+          return this.interactive && !this.readonly;
+        },
+      };
+      finalState = runIfFn(adjust, finalState) || finalState;
+      return finalState;
+    }),
+  );
 
   provide(EDIT_PROVIDER_KEY, currentEditComputed);
 
@@ -64,5 +65,5 @@ export function useEdit() {
   const vm = getCurrentInstance() as
     | (ComponentInternalInstance & { provides: Record<string | symbol, any> })
     | undefined;
-  return refToGetter(vm?.provides[EDIT_PROVIDER_KEY]) as EditState;
+  return vm?.provides[EDIT_PROVIDER_KEY] as Readonly<EditState>;
 }

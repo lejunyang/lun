@@ -93,7 +93,7 @@ export function refLikesToGetters<M extends Record<string | number | symbol, May
 
 export function refToGetter<T extends { value: object } | undefined | null>(
   target: T,
-): T extends { value: infer V } ? V : {} {
+): T extends { value: infer V } ? Readonly<V> : {} {
   if (!target) return {} as any;
   return new Proxy(target, {
     get(target, key) {
@@ -102,8 +102,8 @@ export function refToGetter<T extends { value: object } | undefined | null>(
     ownKeys(target) {
       return Reflect.ownKeys(target.value || {});
     },
-    getOwnPropertyDescriptor: () => ({
-      enumerable: true,
-    }),
+    getOwnPropertyDescriptor(target, key) {
+      return Reflect.getOwnPropertyDescriptor(target.value || {}, key);
+    },
   }) as any;
 }

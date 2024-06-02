@@ -30,7 +30,7 @@ export const Switch = defineSSRCustomElement({
     return () => {
       const checked = checkedModel.value;
       const { spinProps, trueText, falseText } = props;
-      const { readonly, disabled, loading } = editComputed.value;
+      const { readonly, disabled, loading } = editComputed;
       return (
         <>
           <label part={ns.p('root')} class={stateClass.value}>

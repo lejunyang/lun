@@ -49,7 +49,7 @@ export const Mentions = defineSSRCustomElement({
           value: valueModel,
           valueToLabel,
           get disabled() {
-            return !editComputed.value.editable;
+            return !editComputed.editable;
           },
           onChange({ value, raw }: { value: string; raw: readonly (string | MentionSpan)[] }) {
             if (value !== valueModel.value) {
@@ -104,7 +104,7 @@ export const Mentions = defineSSRCustomElement({
       () => ({
         empty: isEmpty(valueModel.value),
         required: validateProps.value.required,
-        withClearIcon: props.showClearIcon && editComputed.value.editable,
+        withClearIcon: props.showClearIcon && editComputed.editable,
       }),
       ns,
     );
@@ -140,7 +140,7 @@ export const Mentions = defineSSRCustomElement({
 
     const contenteditable = isSupportPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
-      const { editable, readonly } = editComputed.value;
+      const { editable, readonly } = editComputed;
       const { placeholder, labelType, label, rows, cols, noOptions, resize } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;

@@ -179,7 +179,7 @@ export const Select = defineSSRCustomElement({
     };
     const popoverChildren = ({ isShow }: { isShow: boolean }) => {
       const { multiple, filter, freeInput } = props;
-      const editable = editComputed.value.editable && (filter || freeInput);
+      const editable = editComputed.editable && (filter || freeInput);
       return renderElement(
         'input',
         {
@@ -270,7 +270,7 @@ export const Select = defineSSRCustomElement({
           ...mergeProps(pick(props, objectKeys(selectPropsOfPopover)), popoverHandlers),
           ...themeProps.value,
           rootClass: [ns.is('select'), ns.s()],
-          open: editComputed.value.editable ? undefined : false,
+          open: editComputed.editable ? undefined : false,
           class: stateClass.value,
           triggers: ['click', 'focus'],
           popWidth: 'anchor',

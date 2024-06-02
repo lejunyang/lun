@@ -26,7 +26,7 @@ export const Range = defineSSRCustomElement({
     useSetupEvent();
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
-    const isEditable = () => editComputed.value.editable;
+    const isEditable = () => editComputed.editable;
     const valueModel = useValueModel(props);
     const rootEl = ref<HTMLElement>();
     const thumbs = reactive<HTMLElement[]>([]);
@@ -154,7 +154,7 @@ export const Range = defineSSRCustomElement({
     return () => {
       const { value } = processedValues,
         { type } = props,
-        { editable } = editComputed.value;
+        { editable } = editComputed;
       return (
         <div
           class={[stateClass.value, ns.m(type)]}

@@ -42,7 +42,7 @@ export const Input = defineSSRCustomElement({
         {
           value: valueModel,
           get disabled() {
-            return !editComputed.value.editable;
+            return !editComputed.editable;
           },
           onChange(val: string | number | string[] | number[], targetVal?: string) {
             valueModel.value = val;
@@ -138,7 +138,7 @@ export const Input = defineSSRCustomElement({
     const rootOnPointerDown = () => {
       // input will gain focus after we click anything inside label, but it's not immediate. We need to focus the input to show focus styles as soon as possible
       raf(() => {
-        if (editComputed.value.interactive) inputRef.value?.focus();
+        if (editComputed.interactive) inputRef.value?.focus();
       });
     };
 
@@ -148,12 +148,12 @@ export const Input = defineSSRCustomElement({
     const appendSlot = useSlot({ name: 'append' });
     const rendererSlot = useSlot({ name: 'renderer' });
 
-    const [passwordIcon, localType, togglePassword] = usePassword(() => validateProps.value.type, editComputed, ns);
+    const [passwordIcon, localType, togglePassword] = usePassword(() => validateProps.value.type, ns);
 
     const clearIcon = computed(
       () =>
         props.showClearIcon &&
-        editComputed.value.editable &&
+        editComputed.editable &&
         renderElement('icon', { name: 'x', class: [ns.em('suffix', 'clear-icon')], onClick: clearValue }),
     );
 
@@ -175,7 +175,7 @@ export const Input = defineSSRCustomElement({
     );
 
     return () => {
-      const { disabled, readonly, editable } = editComputed.value;
+      const { disabled, readonly, editable } = editComputed;
       const { multiple, placeholder, labelType, label, wrapTags, spellcheck, autofocus } = props;
       const type = localType.value;
       const inputType = type === 'number' || type === 'password' ? type : 'text';

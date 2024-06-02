@@ -106,7 +106,7 @@ export const DocPip = defineSSRCustomElement({
           const tagName = getElementFirstName('theme-provider');
           if (tagName) {
             const newThemeProvider = document.createElement(tagName);
-            Object.assign(newThemeProvider, theme, editComputed.value);
+            Object.assign(newThemeProvider, theme, editComputed);
             newThemeProvider.append(...slotNodes);
             appendNodes = [newThemeProvider];
           }
