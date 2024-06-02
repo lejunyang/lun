@@ -1,6 +1,7 @@
-import type { ComputedRef } from 'vue';
+import type { ComponentInternalInstance, ComputedRef } from 'vue';
 import { inject, getCurrentInstance, computed, provide, reactive } from 'vue';
-import { runIfFn } from '../../../utils/src/function';
+import { runIfFn } from '@lun/utils';
+import { refToGetter } from '../utils';
 
 export type EditState = {
   disabled?: boolean;
@@ -57,4 +58,11 @@ export function useSetupEdit(options?: {
   provide(EDIT_PROVIDER_KEY, currentEditComputed);
 
   return [currentEditComputed, localState] as const;
+}
+
+export function useEdit() {
+  const vm = getCurrentInstance() as
+    | (ComponentInternalInstance & { provides: Record<string | symbol, any> })
+    | undefined;
+  return refToGetter(vm?.provides[EDIT_PROVIDER_KEY]) as EditState;
 }

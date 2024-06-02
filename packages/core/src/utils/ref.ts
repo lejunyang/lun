@@ -45,13 +45,15 @@ export function unrefOrGetMulti<Targets extends MaybeRefLikeOrGetter<any>[]>(
 
 export function unrefOrGetState<T extends MaybeRefLikeOrGetter<any>[] | MaybeRefLikeOrGetter<any>>(
   target: T,
-): (T extends MaybeRefLikeOrGetter<any>[]
-  ? T[number] extends MaybeRefLikeOrGetter<infer A>
-    ? A
-    : never
-  : T extends MaybeRefLikeOrGetter<infer A>
-  ? A
-    : never) | undefined {
+):
+  | (T extends MaybeRefLikeOrGetter<any>[]
+      ? T[number] extends MaybeRefLikeOrGetter<infer A>
+        ? A
+        : never
+      : T extends MaybeRefLikeOrGetter<infer A>
+      ? A
+      : never)
+  | undefined {
   // @ts-ignore
   return isArray(target) ? unrefOrGetMulti(...target) : unrefOrGet(target);
 }
@@ -87,4 +89,21 @@ export function refLikesToGetters<M extends Record<string | number | symbol, May
   return Object.defineProperties({}, refLikeToDescriptors(obj)) as {
     readonly [k in keyof M]: ReturnType<typeof unrefOrGet<M[k]>>;
   };
+}
+
+export function refToGetter<T extends { value: object } | undefined | null>(
+  target: T,
+): T extends { value: infer V } ? V : {} {
+  if (!target) return {} as any;
+  return new Proxy(target, {
+    get(target, key) {
+      return (target.value as any)?.[key];
+    },
+    ownKeys(target) {
+      return Reflect.ownKeys(target.value || {});
+    },
+    getOwnPropertyDescriptor: () => ({
+      enumerable: true,
+    }),
+  }) as any;
 }
