@@ -5,7 +5,7 @@ const root = 'root',
   input = 'input',
   content = 'content',
   children = 'children',
-  icon = 'icon';
+  icon = 'icon', thumb = 'thumb';
 
 const toPartsDefine = <P extends { [k in OpenShadowComponentKey]: readonly string[] }, K extends keyof P = keyof P>(
   parts: P,
@@ -77,12 +77,12 @@ const parts = {
   progress: [],
   radio: [root, label, 'indicator'],
   'radio-group': [],
-  range: [],
+  range: [root, thumb, 'rail', 'track'] as const,
   select: [content],
   'select-optgroup': [root, label, children],
   'select-option': [root, label],
   spin: ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'],
-  switch: [root, input, children, 'thumb'],
+  switch: [root, input, children, thumb],
   tag: [root, icon],
   'teleport-holder': [],
   textarea: [],

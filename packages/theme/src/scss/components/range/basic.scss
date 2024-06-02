@@ -5,40 +5,51 @@
 
 @include b(range) {
   display: flex;
-  align-items: center;
-  position: relative;
-  user-select: none;
-  touch-action: none;
   flex: 1;
   @include m(horizontal) {
-    @include declareVars(
-      (
-        height: size,
-      )
-    );
+    @include e(rail) {
+      @include declareVars(
+        (
+          height: size,
+        )
+      );
+      @include declareVarValues(
+        (
+          margin-block: calc(var(--factor) * var(--thumb-size)),
+        )
+      );
+    }
     @include e(track) {
       height: 100%;
       inset-inline-start: calc(getVarValue((range, min)) * 100%);
       inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
     }
     @include e(thumb) {
-      transform: translateX(-50%);
+      // transform: translateX(-50%); // changed from absolute to relative, using flex, no need of transform
       inset-inline-start: calc(getVarValue((range, percent)) * 100%);
     }
   }
   @include m(vertical) {
-    @include declareVars(
-      (
-        width: size,
-      )
-    );
+    @include e(rail) {
+      flex-direction: column;
+      @include declareVars(
+        (
+          width: size,
+        )
+      );
+      @include declareVarValues(
+        (
+          margin-inline: calc(var(--factor) * var(--thumb-size)),
+        )
+      );
+    }
     @include e(track) {
       width: 100%;
       inset-block-start: calc(getVarValue((range, min)) * 100%);
       inset-block-end: calc((1 - getVarValue((range, max))) * 100%);
     }
     @include e(thumb) {
-      transform: translate(-20%, -50%);
+      // transform: translate(calc((var(--thumb-size) - getDeclaredVar(size)) / -2), -50%);
       inset-block-start: calc(getVarValue((range, percent)) * 100%);
     }
   }
@@ -51,18 +62,29 @@
 
     :host([type='vertical']) {
       display: inline-flex;
-      height: 100px;
+      @include declareVarValues(
+        (
+          height: 100px,
+        )
+      );
     }
   }
 
   --factor: #{getVarValue((range, thumb, factor), 0.25)};
-  @include declareVarValues(
-    (
-      background-color: getGrayColor(a3),
-      border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(size) / 3),
-      margin-block: calc(var(--factor) * var(--thumb-size)),
-    )
-  );
+  @include e(rail) {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    position: relative;
+    user-select: none;
+    touch-action: none;
+    @include declareVarValues(
+      (
+        background-color: getGrayColor(a3),
+        border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(size) / 3),
+      )
+    );
+  }
 
   @include e(track) {
     position: absolute;
@@ -72,7 +94,7 @@
 
   --thumb-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
   @include e(thumb) {
-    position: absolute;
+    position: relative;
     outline: none;
     width: var(--thumb-size);
     height: var(--thumb-size);

@@ -15,6 +15,7 @@ import {
   clamp as clampNum,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
+import { partsDefine } from 'common';
 
 const name = 'range';
 export const Range = defineSSRCustomElement({
@@ -158,22 +159,24 @@ export const Range = defineSSRCustomElement({
       return (
         <div
           class={[stateClass.value, ns.m(type)]}
-          part={ns.p('root')}
+          part={partsDefine[name].root}
           style={ns.v({ min: value.length > 1 ? at(value, 0)[1] : 0, max: at(value, -1)[1] })}
           ref={rootEl}
           {...handlers}
         >
-          <span class={ns.e('track')} part={ns.p('track')}></span>
-          {value.map(([_, p], index) => (
-            <span
-              data-index={index}
-              class={ns.e('thumb')}
-              part={ns.p('thumb')}
-              style={ns.v({ percent: p })}
-              tabindex={editable ? 0 : undefined}
-              ref={(r) => (thumbs[index] = r as HTMLElement)}
-            ></span>
-          ))}
+          <div class={ns.e('rail')} part={partsDefine[name].rail}>
+            <span class={ns.e('track')} part={partsDefine[name].track}></span>
+            {value.map(([_, p], index) => (
+              <span
+                data-index={index}
+                class={ns.e('thumb')}
+                part={partsDefine[name].thumb}
+                style={ns.v({ percent: p })}
+                tabindex={editable ? 0 : undefined}
+                ref={(r) => (thumbs[index] = r as HTMLElement)}
+              ></span>
+            ))}
+          </div>
         </div>
       );
     };

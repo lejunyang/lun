@@ -13,7 +13,9 @@ export const rangeProps = freeze({
   strict: PropBoolean(),
 });
 
-export const rangeEmits = freeze({});
+export const rangeEmits = freeze({
+  update: (_: number | number[]) => true,
+});
 
 export type RangeSetupProps = ExtractPropTypes<typeof rangeProps>;
 export type RangeEvents = GetEventPropsFromEmits<typeof rangeEmits>;
