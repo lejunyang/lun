@@ -25,7 +25,7 @@
       inset-inline-end: calc((1 - getVarValue((range, max))) * 100%);
     }
     @include e(thumb) {
-      // transform: translateX(-50%); // changed from absolute to relative, using flex, no need of transform
+      transform: translateX(-50%);
       inset-inline-start: calc(getVarValue((range, percent)) * 100%);
     }
   }
@@ -49,7 +49,7 @@
       inset-block-end: calc((1 - getVarValue((range, max))) * 100%);
     }
     @include e(thumb) {
-      // transform: translate(calc((var(--thumb-size) - getDeclaredVar(size)) / -2), -50%);
+      transform: translateY(-50%);
       inset-block-start: calc(getVarValue((range, percent)) * 100%);
     }
   }
@@ -94,7 +94,7 @@
 
   --thumb-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
   @include e(thumb) {
-    position: relative;
+    position: absolute;
     outline: none;
     width: var(--thumb-size);
     height: var(--thumb-size);

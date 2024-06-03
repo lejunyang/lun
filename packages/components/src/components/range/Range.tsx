@@ -32,8 +32,20 @@ export const Range = defineSSRCustomElement({
     const rootEl = ref<HTMLElement>();
     const thumbs = reactive<HTMLElement[]>([]);
 
-    const { ensureNumber, min, max, minus, divide, toRawNum, plus, multi, getPositiveInfinity, lessThan, toPrecision } =
-      GlobalStaticConfig.math;
+    const {
+      ensureNumber,
+      min,
+      max,
+      minus,
+      divide,
+      toRawNum,
+      plus,
+      multi,
+      getPositiveInfinity,
+      lessThan,
+      toPrecision,
+      abs,
+    } = GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number;
     const toNum = (val: BigNum) => {
@@ -73,28 +85,46 @@ export const Range = defineSSRCustomElement({
 
     const updateVal = (val: BigNum, index?: number) => {
       const percent = getPercent(val);
-      let currentIndex: number,
-        /** new index of this val will be in ordered values */ newIndex: number,
+      let /** new index of this val will be in ordered values */ newIndex: number,
+        /** same as newIndex, used to track */ replacedIndex: number | undefined,
         minGap = getPositiveInfinity(),
         noIndex = index === undefined;
       const res = processedValues.value.map((value, i, arr) => {
-        const v = currentIndex !== undefined ? arr[currentIndex++] : value;
         if (noIndex) {
           // if noIndex, will find a closest index to update
-          const newGap = minus(val, v[0]);
+          const newGap = abs(minus(val, value[0]));
           if (lessThan(newGap, minGap)) {
             minGap = newGap;
             newIndex = i;
           }
-        } else if (newIndex === undefined && (percent < v[1] || i === arr.length - 1)) {
-          currentIndex = newIndex = i;
-          return toNum(val);
+        } else if (newIndex === undefined) {
+          if (percent <= value[1]) {
+            newIndex = i;
+            if (i !== index) replacedIndex = i;
+            return toNum(val);
+          } else if (i === index) {
+            if (percent > arr[i + 1]?.[1]) {
+              // target is adding, and over next thumb
+              newIndex = replacedIndex = i + 1;
+              return toNum(arr[i + 1][0]);
+            } else if (percent >= value[1]) {
+              // target is adding, but not over next thumb
+              newIndex = i;
+              return toNum(val);
+            }
+          }
         }
-        return i === index ? toNum(arr[currentIndex++][0]) : toNum(v[0]);
+        if (replacedIndex !== undefined) {
+          const j = replacedIndex;
+          replacedIndex = undefined;
+          return toNum(arr[j][0]);
+        }
+        return toNum(value[0]);
       });
       if (noIndex) res[newIndex!] = toNum(val);
       if (res.length === 1 && !isArray(valueModel.value)) valueModel.value = res[0];
       else valueModel.value = res;
+      draggingIndex = newIndex!;
       focusThumb(newIndex!);
     };
 
@@ -133,6 +163,7 @@ export const Range = defineSSRCustomElement({
       },
     };
 
+    let draggingIndex: number | undefined;
     useDraggableMonitor({
       el: rootEl,
       disabled: () => !isEditable(),
@@ -146,7 +177,12 @@ export const Range = defineSSRCustomElement({
       onMove(target, { clientX, clientY }) {
         const { dataset: { index } = {} } = target as HTMLElement;
         if (index == null) return;
-        updateByCoord(clientX, clientY, +index);
+        draggingIndex ??= +index;
+        // if draggingIndex is not undefined, must use it other than index, as index is constant during dragging, but we need to update the correct index if thumb's position has changed
+        updateByCoord(clientX, clientY, draggingIndex);
+      },
+      onStop() {
+        draggingIndex = undefined;
       },
     });
 
