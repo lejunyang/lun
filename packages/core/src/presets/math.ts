@@ -70,7 +70,7 @@ export function createMath<T = number>(methods: MathMethods<T>) {
       return methods.minus(methods.getZero(), target);
     };
   if (!methods.abs)
-    methods.abs = (target) => (methods.lessThanOrEqual!(target, 0) ? methods.negate!(target) : (target as T));
+    methods.abs = (target) => (methods.lessThan(target, 0) ? methods.negate!(target) : (target as T));
   return methods as Required<MathMethods<T>>;
 }
 

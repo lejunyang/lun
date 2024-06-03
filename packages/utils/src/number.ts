@@ -39,6 +39,9 @@ export function ensureNumber(val: any, defaultVal: number) {
 export const numberRegex =
   /^(?<sign>[-+])?(?<integer>[0-9]*)(?<decimal>[.。][0-9]*)?((e|E)(?<expSign>[-+])?(?<exp>[0-9]*))?$/;
 
+
+const removeLeadingDash = (str: string) => str.replace(/^-/, '');
+
 export type BigIntDecimalValue = string | number | BigIntDecimal | typeof BigIntDecimal;
 export type BigIntDecimalConstructParam =
   | null
@@ -86,8 +89,9 @@ export class BigIntDecimal {
       return;
     }
     if ((this.empty = empty) || (this.infinite = infinite)) return;
-    decimal = decimal.replace(/0+$/, ''); // remove trailing zeros of decimal
+    decimal = removeLeadingDash(decimal.replace(/0+$/, '')); // remove trailing zeros of decimal
     let decimalLen = decimal.length;
+    integer = removeLeadingDash(integer);
     const e = +exp!;
     if (exp && e !== 0) {
       if (__DEV__ && Number.isNaN(e)) throw new Error('Invalid exponent');
