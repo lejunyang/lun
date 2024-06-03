@@ -13,6 +13,10 @@
     "test": "vitest",
     "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha"
   },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
   "dependencies": {
     "@giscus/vue": "^3.0.0",
     "@lun/components": "workspace:^",
@@ -35,7 +39,7 @@
     "@lun/plugins": "workspace:^",
     "@rollup/plugin-replace": "^5.0.5",
     "@types/dom-view-transitions": "^1.0.4",
-    "@types/node": "^20.13.0",
+    "@types/node": "^20.14.0",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "@vitejs/plugin-vue": "^5.0.5",
