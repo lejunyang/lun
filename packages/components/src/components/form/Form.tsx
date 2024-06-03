@@ -168,7 +168,7 @@ export const Form = defineSSRCustomElement({
     );
 
     const formRef = ref<HTMLFormElement>();
-    const [editComputed] = useSetupEdit({
+    useSetupEdit({
       adjust(state) {
         (['disabled', 'readonly', 'loading'] as const).forEach((key) => {
           if (currentForm.formState[key] !== undefined) state[key] = currentForm.formState[key];

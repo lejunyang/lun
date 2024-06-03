@@ -61,7 +61,7 @@ export const CheckboxGroup = defineSSRCustomElement({
 
     useCEExpose(methods);
 
-    const [editComputed] = useSetupEdit();
+    useSetupEdit();
     const radioState = computed(() => {
       let allChecked: boolean | null = null,
         intermediate = false;

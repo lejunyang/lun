@@ -43,6 +43,10 @@ clearTimeout(): void;
 
 <!-- @Code:countdown -->
 
+## 块级按钮
+
+<!-- @Code:block -->
+
 ## 不同变体
 
 <!-- @Code:differentVariants -->

@@ -15,6 +15,7 @@ import {
   supportDocumentPictureInPicture,
   supportCSSHighLight,
   supportCSSSupports,
+  supportCSSAnchor,
 } from '@lun/utils';
 
 const features = {
@@ -25,6 +26,7 @@ const features = {
   popover: supportPopover,
   showOpenFilePicker: isSupportFileSystem(),
   getComposedRanges: typeof Selection !== 'undefined' && 'getComposedRanges' in Selection.prototype,
+  anchorPosition: supportCSSAnchor,
   layer: supportCSSLayer,
   subgrid: supportCSSSubgrid,
   color: supportCSSSupports && CSS.supports('color', 'color(display-p3 1 1 1)'),

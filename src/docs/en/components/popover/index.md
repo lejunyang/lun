@@ -47,11 +47,12 @@ lang: zh-CN
 ## 实现方式
 
 通过`strategy`属性指定 Popover 定位方式，可选值为：
-- `absolute`：默认值，相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色，但祖先为 fixed 时滚动会有一定的视觉延迟。另外，它在某些时候会受到shadow DOM的限制，详细见下面的折叠块说明
+
+- `absolute`：默认值，相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色，但祖先为 fixed 时滚动会有一定的视觉延迟。另外，它在某些时候会受到 shadow DOM 的限制，详细见下面的折叠块说明
 - `fixed`：相对于最近 Containing block 进行定位（通常为视口），当 target 也是 fixed 时较为有用，它也可以用于防止被父级裁剪或遮挡，它对 shadow DOM 兼容性更好。但是页面滚动时，重新计算位置会有一定的视觉延迟
 
 :::details 当 strategy=absolute 时 Shadow DOM 对 offsetParent 的限制
-strategy=absolute时是通过offsetParent获取祖先元素，但是，被 slotted 的元素无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent。在嵌套 strategy=absolute 时这个限制有可能导致定位错误，但内部对这种情况做了兼容，当`l-popover`为定位元素时优先取其作为内部 offsetParent（**故其默认`position: relative`，请勿修改为 static**）
+strategy=absolute 时是通过 offsetParent 获取祖先元素，但是，被 slotted 的元素无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent。在嵌套 strategy=absolute 时这个限制有可能导致定位错误，但内部对这种情况做了兼容，当`l-popover`为定位元素时优先取其作为内部 offsetParent（**故其默认`position: relative`，请勿修改为 static**）
 :::
 
 通过`type`属性指定 Popover 实现方式, 目前支持以下方式：
@@ -62,9 +63,26 @@ strategy=absolute时是通过offsetParent获取祖先元素，但是，被 slott
 
 需要注意的是，若浏览器不支持 Popover，手动指定的 `type` 会被无视，将采用备选方案实现
 
-检测到当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
+<Support is="popover" /> 当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
 
 <!-- @Code:otherTypes -->
+
+## CSS Anchor positioning
+
+<Support is="anchorPosition" /> 当前浏览器{{ supportCSSAnchor ? '' : '不' }}支持 CSS Anchor position
+
+CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以让浏览器自行将悬浮元素定位到某个元素，避免我们手动计算和更新位置，带来更好的体验和性能，详细介绍可参考[Chrome 文档](https://developer.chrome.com/blog/anchor-positioning-api?hl=zh-cn)
+
+本组件支持该特性，只需设置`anchorName`属性，即可在浏览器支持的情况下开启 CSS Anchor Positioning，此时`type=absolute`和`type=fixed`将不会有明显区别，均有较佳的体验
+
+:::warning 注
+由于该特性对 Shadow DOM 有限制，声明 anchor 定位与 anchor-name 的 CSS 必须在同一个 Shadow Tree 下，否则不会生效，详细请参考[标准](https://drafts.csswg.org/css-anchor-position-1/#target)。因此，该特性在以下情况不会开启：
+
+- **type=teleport**：此时悬浮元素在 teleport-holder 下，如果此时想要使用该特性必须由用户在 document 下利用`::part()`选择器自行声明 Anchor positioning 相关样式
+- **target 为虚拟元素或外部元素**：如 triggers="select"时选中的文本，通过属性手动指定的 target， attachTarget 添加的目标
+:::
+
+<!-- @Code:anchorPosition -->
 
 ## 虚拟元素
 
@@ -98,7 +116,7 @@ strategy=absolute时是通过offsetParent获取祖先元素，但是，被 slott
 <!-- @Code:differentSizes -->
 
 <script setup>
-  import { supportPopover } from '@lun/utils';
+  import { supportPopover, supportCSSAnchor } from '@lun/utils';
 </script>
 
 <style>

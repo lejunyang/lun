@@ -43,7 +43,7 @@ export const Dialog = Object.assign(
         headerRef = ref<HTMLElement>();
       const zIndex = useContextConfig('zIndex');
       const width = useBreakpoint(props, 'width', toPxIfNum);
-      const [editComputed, editState] = useSetupEdit({
+      const [_editComputed, editState] = useSetupEdit({
         noInherit: true,
       });
       const pending = ref(false);

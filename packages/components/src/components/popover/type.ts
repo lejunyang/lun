@@ -98,4 +98,4 @@ export const popoverEmits = freeze({
 
 export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps> & CommonProps;
 export type PopoverEvents = GetEventPropsFromEmits<typeof popoverEmits>;
-export type PopoverProps = Partial<PopoverSetupProps>;
+export type PopoverProps = Partial<PopoverSetupProps> & PopoverEvents;

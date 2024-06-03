@@ -14,7 +14,9 @@ lang: zh-CN
 
 React 是目前流行 web 框架唯一不支持`customElement`的，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
 
-React 19 即将支持`customElement`，但目前还处于实验阶段，静待 2024 年中，目前我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
+React 19 即将支持`customElement`，但目前还处于实验阶段。本文档使用的是React 19 RC，在文档的React代码中可正常使用自定义元素。
+
+对于React 19之前的版本，我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
 
 ```tsx
 import { LInput } from '@lun/react';
@@ -66,14 +68,12 @@ defineAllComponents();
 
 - 全量引入的组件会使用`GlobalStaticConfig.namespace`加上组件本身的名字作为命名，例如`namespace`默认为`l`，那么`button`组件的默认名字便是`l-button`。引入组件后你便可以在任何地方使用它们
 - 全局静态配置需要在组件被使用前修改，但最好在定义前就统一修改，因为`namespace`在定义时就会使用
-- 如果你使用了主题，则必须在根节点包裹`l-theme-provider`
 
 ## 动态引入
 
 ```js
 import { autoDefine } from '@lun/components';
 import { autoImportTheme } from '@lun/theme';
-import '@lun/theme/public.css';
 
 autoImportTheme();
 autoDefine();
@@ -85,7 +85,6 @@ autoDefine();
 
 ```js
 import { defineButton } from '@lun/components';
-import '@lun/theme/public.css';
 import { importButtonBasicTheme, importButtonSurfaceTheme } from '@lun/theme';
 ```
 
@@ -139,6 +138,7 @@ defineButton('my-button', {
 - <Support is="popover" /> [popover](https://caniuse.com/?search=popover)
 - <Support is="showOpenFilePicker" /> [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)
 - <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges)(注：未对 Safari17 之前做兼容，详见[`Mentions`](/components/mentions/))
+- <Support is="anchorPosition" /> [CSS Anchor Positioning](https://caniuse.com/?search=anchor%20position)
 - <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer)
 - <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid)
 - <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>)

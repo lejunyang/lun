@@ -56,6 +56,7 @@ export default {
         breakpoints: '响应式断点',
         styles: '自定义样式',
         states: 'CSS如何选中特定状态的组件',
+        caveat: '注意事项',
       },
       other: {
         menu: '功能组件',
@@ -142,6 +143,7 @@ export default {
         breakpoints: 'Responsive breakpoints',
         styles: 'Custom styles',
         states: 'Select element with specific state in CSS',
+        caveat: 'Caveat',
       },
       other: {
         menu: 'Function',

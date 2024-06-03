@@ -7,11 +7,13 @@ export default defineComponent({
       input1 = ref(),
       input2 = ref();
     onMounted(() => {
-      const attach = pop.value.attachTarget;
-      if (attach) {
-        attach(input1.value);
-        attach(input2.value);
-      }
+      setTimeout(() => {
+        const attach = pop.value.attachTarget;
+        if (attach) {
+          attach(input1.value);
+          attach(input2.value);
+        }
+      });
     });
     return () => (
       <>

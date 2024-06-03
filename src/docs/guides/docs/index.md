@@ -9,9 +9,9 @@ lang: zh-CN
 
 <!-- @Code:basic -->
 
-- 点击右下角的按钮可以查看示例的源代码并编辑，编辑会实时编译并渲染到页面上
+- 点击右下角的按钮可以查看示例的源代码并编辑，**代码会实时编译并渲染到页面上**
 - 左下角可以选择语言，目前支持 Vue TSX, React TSX 和 HTML，对于各个语言，编写的代码有如下要求
-  - Vue: 需要 export default 一个 Vnode 或 Vue函数组件
+  - Vue: 需要 export default 一个 Vnode 或 Vue组件
   - React: 需要 export default 一个 ReactElement 或 React函数组件
   - HTML：纯 HTML 字符串，注意 custom element 必须有闭合标签，不允许自闭合
 - 编写的代码中仅允许特定的import，分别为`vue`, `react`, `react-dom`, `react-dom/client`, `@lun/components`, `@lun/core`, `@lun/utils`, `@lun/react`, `data`, import其他内容会直接报错

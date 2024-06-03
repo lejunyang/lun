@@ -41,7 +41,7 @@ export const FormItem = defineSSRCustomElement({
       virtualGetMerge(itemProps, runIfFn(parent?.props.itemProps, { formContext, formItemProps: itemProps })),
     );
     const ns = useNamespace(name, { parent });
-    const [editComputed, editState] = useSetupEdit();
+    const [_editComputed, editState] = useSetupEdit();
     const itemErrors = computed(() => {
       return formContext?.form.getError(path.value);
     });

@@ -2,7 +2,7 @@ import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
 import { isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, toArrayIfNotNil } from '@lun/utils';
-import { VNode, computed, h, reactive, readonly, watch } from 'vue';
+import { VNode, computed, h, reactive, readonly } from 'vue';
 import { getText, rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
 import { useCSSHighlight } from './useCSSHighlight';
