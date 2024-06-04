@@ -7,10 +7,11 @@ lang: zh-CN
 
 ## 基本使用
 
-通过`triggers`属性可设置触发方式，可同时设置多个：
+通过`triggers`属性可设置弹出框触发方式，可同时设置多个：
 
 - 悬浮触发`hover`：鼠标移入时触发，鼠标移出后关闭
-- 点击触发`click`：点击目标后(pointerdown)触发，点击目标和弹出框以外的地方关闭；若开启点击切换`toggleMode`，则点击目标时切换开启/关闭状态
+- 点击触发`click`：点击目标时(pointerdown)触发，点击除目标和弹出框以外的地方关闭；若开启点击切换`toggleMode`，则点击目标时切换开启/关闭状态
+- 按住触发`pointerdown`：按住目标时触发，松开后关闭
 - 聚焦触发`focus`：目标获得焦点后触发，失去焦点后关闭，当目标或弹出内容存在焦点时，鼠标移出不会关闭
 - 编辑触发`edit`：与`focus`相同，但仅在聚焦元素为可编辑元素时才触发，失去焦点后关闭，可编辑元素指`input`, `textarea`, `isContenteditable=true`或存在关联的[`editContext`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/editContext)，存在可编辑聚焦元素时，鼠标移出不会关闭
 - 右键触发`contextmenu`：右键时触发，点击其他地方关闭
@@ -79,7 +80,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 
 - **type=teleport**：此时悬浮元素在 teleport-holder 下，如果此时想要使用该特性必须由用户在 document 下利用`::part()`选择器自行声明 Anchor positioning 相关样式
 - **target 为虚拟元素或外部元素**：如 triggers="select"时选中的文本，通过属性手动指定的 target， attachTarget 添加的目标
-:::
+  :::
 
 <!-- @Code:anchorPosition -->
 

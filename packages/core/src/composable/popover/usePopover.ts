@@ -13,13 +13,14 @@ import {
   toHostIfSlot,
   runIfFn,
   prevent,
+  intersectOrHas,
 } from '@lun/utils';
 import { computed, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { useListen } from './useListen';
 
-export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select';
+export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select' | 'pointerdown';
 
 export interface PopoverAttachTargetOptions {
   isDisabled?: MaybeRefLikeOrGetter<boolean>;
@@ -134,7 +135,7 @@ export function usePopover(_options: UsePopoverOptions) {
   /** create a event handler representing a pop trigger with action method */
   const createTrigger =
     (
-      trigger: PopoverTrigger | null,
+      trigger: PopoverTrigger | null | Set<PopoverTrigger>,
       method: 'open' | 'close' | 'toggle',
       /** return false to prevent trigger; return open or close to change the default method */
       extraHandle?: (e: Event, actualMethod: 'open' | 'close') => void | boolean | 'open' | 'close',
@@ -142,7 +143,7 @@ export function usePopover(_options: UsePopoverOptions) {
     (e: Event) => {
       const { triggers, manual } = options.value;
       // 'edit' same as 'focus'
-      if ((!trigger || triggers.has(trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
+      if ((!trigger || intersectOrHas(triggers, trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
         let actualMethod =
           method === 'toggle' ? (_options.toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
         let temp: any = '';
@@ -256,13 +257,14 @@ export function usePopover(_options: UsePopoverOptions) {
       return triggerResult;
     };
 
+    const pointerdownClose = createTrigger('pointerdown', 'close', onTrigger);
     const targetHandlers = {
       onMouseenter: createTrigger('hover', 'open', onTrigger),
       onMouseleave: createTrigger('hover', 'close', (e, m) => {
         return !needPrevent(e) && onTrigger(e, m) !== false;
       }),
       // need to use pointer down to trigger toggle before focusin
-      onPointerdown: createTrigger('click', 'toggle', (e, m) => {
+      onPointerdown: createTrigger(new Set(['click', 'pointerdown']), 'toggle', (e, m) => {
         pointerDownTime = e.timeStamp;
         // focusin should be triggered after pointerdown
         // but found an exception... if we focus on target and then focus other place outside viewport(like browser address input or console input), then click target again
@@ -272,6 +274,9 @@ export function usePopover(_options: UsePopoverOptions) {
         if (pointerDownTime - targetFocusInTime < targetFocusThreshold) return false;
         return activatePointerTarget(e as MouseEvent, onTrigger(e, m));
       }),
+      onPointerup: pointerdownClose,
+      onPointerleave: pointerdownClose,
+      onPointercancel: pointerdownClose,
       onContextmenu: createTrigger('contextmenu', 'open', (e, m) => {
         prevent(e);
         return activatePointerTarget(e as MouseEvent, onTrigger(e, m));
@@ -311,12 +316,14 @@ export function usePopover(_options: UsePopoverOptions) {
     return targetHandlers;
   };
 
-  const handlePopShow = createTrigger(null, 'open');
+  const handlePopShow = createTrigger(null, 'open'),
+    contentClose = (e: Event) => _options.onPopContentClose?.(e),
+    pointerdownClose = createTrigger('pointerdown', 'close', contentClose);
   const popContentHandlers = {
     onMouseenter: handlePopShow,
     onMouseleave: createTrigger('hover', 'close', (e) => {
       const res = !needPrevent(e);
-      if (res !== false) _options.onPopContentClose?.(e);
+      if (res !== false) contentClose(e);
       return res;
     }),
     // focusin bubbles, while focus doesn't
@@ -325,7 +332,7 @@ export function usePopover(_options: UsePopoverOptions) {
     }),
     onFocusout: createTrigger(null, 'close', (e) => {
       popFocusIn = false;
-      _options.onPopContentClose?.(e);
+      contentClose(e);
     }),
     // need use pointerdown instead of click, because if we press the pop content and don't release, popover target will fire focusout and then close, click will not be triggered on pop content
     onPointerdown(e: Event) {
@@ -335,6 +342,9 @@ export function usePopover(_options: UsePopoverOptions) {
         handlePopShow(e);
       });
     },
+    onPointerup: pointerdownClose,
+    onPointerleave: pointerdownClose,
+    onPointercancel: pointerdownClose,
   };
 
   // ------------------ selection ------------------

@@ -12,6 +12,9 @@ export default function () {
       <l-popover triggers="click" toggleMode content="点击切换弹出">
         <l-button>点击切换</l-button>
       </l-popover>
+      <l-popover triggers="pointerdown" content="按住触发弹出">
+        <l-button>按住触发</l-button>
+      </l-popover>
       <l-popover triggers="focus" content="聚焦触发弹出">
         <l-button>聚焦触发</l-button>
       </l-popover>
