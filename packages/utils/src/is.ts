@@ -57,6 +57,11 @@ export function isNumber(target: unknown): target is number | Number {
   return isPlainNumber(target) || target instanceof Number;
 }
 
-export function isRegExp(target: unknown): target is RegExp {
-  return target instanceof RegExp;
-}
+const createIs = <T>(type: keyof typeof globalThis) => {
+  return (target: unknown): target is T => {
+    return target instanceof globalThis[type] || getTypeTag(target) === type;
+  };
+};
+
+export const isRegExp = createIs<RegExp>('RegExp');
+export const isSet = createIs<Set<any>>('Set');
