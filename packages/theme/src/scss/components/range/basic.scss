@@ -4,9 +4,8 @@
 @use '../../mixins/config' as *;
 
 @include b(range) {
-  display: flex;
-  flex: 1;
   @include m(horizontal) {
+    margin-inline: calc((var(--factor) + 1) * getDeclaredVar(size));
     @include e(rail) {
       @include declareVars(
         (
@@ -15,7 +14,7 @@
       );
       @include declareVarValues(
         (
-          margin-block: calc(var(--factor) * var(--thumb-size)),
+          margin-block: calc(2 * var(--factor) * getDeclaredVar(size)),
         )
       );
     }
@@ -28,8 +27,25 @@
       transform: translateX(-50%);
       inset-inline-start: calc(getVarValue((range, percent)) * 100%);
     }
+    @include e(labels) {
+      display: flex;
+      @include declareVarValues(
+        (
+          margin-block-end: (
+            label-margin-block-end,
+            getRVarValue(max-label-height),
+          ),
+        )
+      );
+    }
+    @include e(label) {
+      transform: translateX(-50%);
+      inset-inline-start: calc(getVarValue((range, percent)) * 100%);
+    }
   }
   @include m(vertical) {
+    display: flex;
+    margin-block: calc((var(--factor) + 1) * getDeclaredVar(size));
     @include e(rail) {
       flex-direction: column;
       @include declareVars(
@@ -39,7 +55,7 @@
       );
       @include declareVarValues(
         (
-          margin-inline: calc(var(--factor) * var(--thumb-size)),
+          margin-inline: calc(2 * var(--factor) * getDeclaredVar(size)),
         )
       );
     }
@@ -51,6 +67,22 @@
     @include e(thumb) {
       transform: translateY(-50%);
       inset-block-start: calc(getVarValue((range, percent)) * 100%);
+    }
+    @include e(labels) {
+      flex-direction: column;
+      @include declareVarValues(
+        (
+          margin-inline-end: (
+            label-margin-inline-end,
+            getRVarValue(max-label-width),
+          ),
+        )
+      );
+    }
+    @include e(label) {
+      transform: translateY(-50%);
+      inset-block-start: calc(getVarValue((range, percent)) * 100%);
+      text-align: end;
     }
   }
 
@@ -114,10 +146,27 @@
     }
   }
 
+  @include e(labels) {
+    position: relative;
+    display: flex;
+  }
+
+  @include e(label) {
+    position: absolute;
+    @include declareVars((line-height));
+  }
+
   @include is(disabled) {
     @include e(thumb) {
       &::after {
         cursor: getDisabledCursor();
+      }
+    }
+  }
+  @include is(readonly) {
+    @include e(thumb) {
+      &::after {
+        cursor: auto;
       }
     }
   }
@@ -126,6 +175,8 @@
     @include setVars(
       (
         size: calc(#{getSpaceValue(2)} * 0.75),
+        line-height: getLineHeightValue(1),
+        font-size: getFontSizeValue(1),
       )
     );
   }
@@ -133,6 +184,8 @@
     @include setVars(
       (
         size: getSpaceValue(2),
+        line-height: getLineHeightValue(2),
+        font-size: getFontSizeValue(2),
       )
     );
   }
@@ -140,6 +193,8 @@
     @include setVars(
       (
         size: calc(#{getSpaceValue(2)} * 1.25),
+        line-height: getLineHeightValue(3),
+        font-size: getFontSizeValue(3),
       )
     );
   }
