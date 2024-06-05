@@ -77,7 +77,7 @@ const parts = {
   progress: [],
   radio: [root, label, 'indicator'],
   'radio-group': [],
-  range: [root, thumb, 'rail', 'track'] as const,
+  range: [root, thumb, 'rail', 'track', label, 'labels'] as const,
   select: [content],
   'select-optgroup': [root, label, children],
   'select-option': [root, label],

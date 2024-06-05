@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
-import { computed, nextTick, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, onUpdated, reactive, ref } from 'vue';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
 import { useDraggableMonitor, useSetupEdit, useSetupEvent } from '@lun/core';
 import {
@@ -13,6 +13,8 @@ import {
   isArrowUpEvent,
   toArrayIfNotNil,
   clamp as clampNum,
+  setStyle,
+  toPxIfNum,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 import { partsDefine } from 'common';
@@ -29,7 +31,8 @@ export const Range = defineSSRCustomElement({
     const [editComputed] = useSetupEdit();
     const isEditable = () => editComputed.editable;
     const valueModel = useValueModel(props);
-    const rootEl = ref<HTMLElement>();
+    const rootEl = ref<HTMLElement>(),
+      labelWrapEl = ref<HTMLElement>();
     const thumbs = reactive<HTMLElement[]>([]);
 
     const {
@@ -45,6 +48,8 @@ export const Range = defineSSRCustomElement({
       lessThan,
       toPrecision,
       abs,
+      toNumber,
+      isNaN,
     } = GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number;
@@ -186,11 +191,28 @@ export const Range = defineSSRCustomElement({
       },
     });
 
+    const updateLabelSize = () => {
+      if (props.labels) {
+        nextTick(() => {
+          const { value } = labelWrapEl;
+          if (value) {
+            const children = Array.from(value.children);
+            setStyle(value, {
+              [ns.vn('max-label-width')]: toPxIfNum(Math.max(...children.map((e) => (e as HTMLElement).offsetWidth))),
+              [ns.vn('max-label-height')]: toPxIfNum(Math.max(...children.map((e) => (e as HTMLElement).offsetHeight))),
+            });
+          }
+        });
+      }
+    };
+    onMounted(updateLabelSize);
+    onUpdated(updateLabelSize);
+
     const [stateClass] = useCEStates(() => null, ns);
 
     return () => {
       const { value } = processedValues,
-        { type } = props,
+        { type, labels } = props,
         { editable } = editComputed;
       return (
         <div
@@ -213,6 +235,21 @@ export const Range = defineSSRCustomElement({
               ></span>
             ))}
           </div>
+          {labels && (
+            <div class={ns.e('labels')} part={partsDefine[name].labels} ref={labelWrapEl}>
+              {Object.entries(labels || {}).map(([key, label]) => {
+                const num = toNumber(key);
+                if (isNaN(num)) return;
+                const percent = getPercent(num);
+                const node = (
+                  <span class={ns.e('label')} part={partsDefine[name].label} style={ns.v({ percent })}>
+                    {label}
+                  </span>
+                );
+                return node;
+              })}
+            </div>
+          )}
         </div>
       );
     };

@@ -71,7 +71,7 @@ export function copyCSSStyleSheetsIfNeed(sheets: CSSStyleSheet[], currentNode?: 
   return sheets.map((s) => (needCopyCSSStyleSheet(s, currentNode) ? copyCSSStyleSheet(s, win) : s));
 }
 
-export function setStyle<S extends Partial<CSSStyleDeclaration>>(
+export function setStyle<S extends Partial<CSSStyleDeclaration> | Record<string, string | number | undefined | null>>(
   node: HTMLElement | SVGElement | MathMLElement | null | undefined,
   style: S,
   importantMap?: boolean | Record<keyof S, boolean>,
