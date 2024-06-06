@@ -1,5 +1,5 @@
 import { unrefOrGetState, useEdit } from '@lun/core';
-import { isFunction, isHTMLElement, pick } from '@lun/utils';
+import { fromObject, hyphenate, isFunction, isHTMLElement, pick } from '@lun/utils';
 import { warn } from 'utils';
 import {
   ComputedRef,
@@ -76,10 +76,15 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
 ) {
   let stop: ReturnType<typeof watchEffect>;
   const editComputed = useEdit();
-  const states = computed(() => ({
-    ...statesGetter(),
-    ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
-  }));
+  const states = computed(() =>
+    fromObject(
+      {
+        ...statesGetter(),
+        ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
+      },
+      (k, v: any) => [hyphenate(k), v],
+    ),
+  );
   let lastStatesKey = new Set<string>();
   // must in mount, form-item need to be set on mount
   onCEMount(({ CE }) => {

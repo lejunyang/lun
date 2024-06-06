@@ -20,7 +20,7 @@ export function flattenObject(obj: Record<string, unknown>): Record<string, unkn
 export function fromObject<
   O extends Record<string, unknown>,
   K extends ExcludeNumberAndSymbol<keyof O> = ExcludeNumberAndSymbol<keyof O>,
-  V = O[K],
+  V extends any = O[K],
 >(obj: O, fn: (key: K, value: V) => [string | number | symbol, unknown] | undefined) {
   return Object.fromEntries(
     Object.entries(obj).map(([k, v]) => {
