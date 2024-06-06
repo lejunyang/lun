@@ -22,6 +22,7 @@ export const dialogProps = freeze({
   ...createTransitionProps('panel'),
   ...createTransitionProps('mask'),
   open: PropBoolean(),
+  container: PropObjOrStr<HTMLElement | string>(),
   noMask: PropBoolean(),
   noTopLayer: PropBoolean(),
   alwaysTrapFocus: PropBoolean(),

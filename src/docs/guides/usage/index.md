@@ -13,9 +13,9 @@ lang: zh-CN
 
 React 是目前流行 web 框架唯一不支持`customElement`的，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
 
-React 19 即将支持`customElement`，但目前还处于实验阶段。本文档使用的是React 19 RC，在文档的React代码中可正常使用自定义元素。
+React 19 即将支持`customElement`，但目前还处于实验阶段。本文档使用的是 React 19 RC，在文档的 React 代码中可正常使用自定义元素。
 
-对于React 19之前的版本，我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
+对于 React 19 之前的版本，我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
 
 ```tsx
 import { LInput } from '@lun/react';
@@ -119,6 +119,7 @@ defineButton('my-button', {
 - [customElement](https://caniuse.com/?search=customElement) (chrome>=54, edge>=79, firefox>=63, safari>=10.3)
 - [BigInt](https://caniuse.com/?search=BigInt) (firefox>=68, safari>=14)
 - [flatMap](https://caniuse.com/?search=flatMap) (chrome>=69, safari>=12)
+- [fromEntries](https://caniuse.com/?search=fromEntries) (chrome>=73, edge>=73, firefox>=63, safari>=12.1)
 - [Named capture group](https://caniuse.com/?search=Named%20capture%20group) (chrome>=64, firefox>=78, safari>=11.3)
 - [CSS gap in flex](https://caniuse.com/?search=flex-gap) (chrome>=84, edge>=84, safari>=14.1)
 - [CSS :where :is](https://caniuse.com/?search=where) (chrome>=88, edge>=88, firefox>=78, safari>=14)

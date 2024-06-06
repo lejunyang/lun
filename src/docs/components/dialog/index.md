@@ -39,3 +39,9 @@ lang: zh-CN
 :::
 
 <!-- @Code:draggable -->
+
+## 容器内展示
+
+想要对话框在某个元素里展示，必须设置`noTopLayer`，对应元素需要为Containing Block
+
+<!-- @Code:container -->

@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement, renderElement, toElement } from 'utils';
 import { DialogExpose, dialogEmits, dialogProps } from './type';
 import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineButton } from '../button';
@@ -22,6 +22,7 @@ import {
   clamp,
 } from '@lun/utils';
 import { useContextConfig } from 'config';
+import { getContainingBlock } from '@floating-ui/utils/dom';
 
 const name = 'dialog';
 /** global current showing dialogs */
@@ -79,6 +80,9 @@ export const Dialog = Object.assign(
             lockScroll: () => {
               const { noTopLayer, noMask } = props;
               return !noTopLayer || !noMask;
+            },
+            container() {
+              return (toElement(props.container) as HTMLElement) || getContainingBlock(dialogRef.value!);
             },
           },
           props,

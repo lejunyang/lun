@@ -226,6 +226,10 @@ main .code-container {
     flex-basis: 100%;
     display: flex;
     gap: 5px;
+    &.center {
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   .align-end {

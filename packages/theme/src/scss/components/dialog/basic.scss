@@ -3,6 +3,10 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+:host {
+  display: contents;
+}
+
 @include b(dialog) {
   border: none;
   padding: 0;
