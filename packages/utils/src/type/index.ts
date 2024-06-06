@@ -23,3 +23,5 @@ export type UnwrapPrimitive<T> = T extends String
   : T extends Object
   ? object
   : T;
+
+export type ExcludeNumberAndSymbol<T> = T extends number | symbol ? never : T;

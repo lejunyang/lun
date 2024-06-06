@@ -1,3 +1,4 @@
+import { ExcludeNumberAndSymbol } from '../type';
 import { isObject } from '../is';
 
 function internalFlatten(currentObj: Record<string, unknown>, topObj: Record<string, unknown>, prefix = '') {
@@ -14,4 +15,17 @@ export function flattenObject(obj: Record<string, unknown>): Record<string, unkn
   const result = {};
   internalFlatten(obj, result);
   return result;
+}
+
+export function fromObject<
+  O extends Record<string, unknown>,
+  K extends ExcludeNumberAndSymbol<keyof O> = ExcludeNumberAndSymbol<keyof O>,
+  V = O[K],
+>(obj: O, fn: (key: K, value: V) => [string | number | symbol, unknown] | undefined) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => {
+      // @ts-ignore
+      return fn(k, v) || [k, v];
+    }),
+  );
 }

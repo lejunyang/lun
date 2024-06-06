@@ -1,3 +1,4 @@
+import { fromObject } from '@lun/utils';
 import { OpenShadowComponentKey } from '../components/config/config.static';
 
 const root = 'root',
@@ -5,20 +6,19 @@ const root = 'root',
   input = 'input',
   content = 'content',
   children = 'children',
-  icon = 'icon', thumb = 'thumb';
+  icon = 'icon',
+  thumb = 'thumb';
 
 const toPartsDefine = <P extends { [k in OpenShadowComponentKey]: readonly string[] }, K extends keyof P = keyof P>(
   parts: P,
 ) => {
-  return Object.fromEntries(
-    Object.entries(parts).map(([key, value]) => [
-      key,
-      value.reduce((res, p) => {
-        (res as any)[p] = p + ' ' + key + '-' + p;
-        return res;
-      }, {}),
-    ]),
-  ) as {
+  return fromObject(parts, (k: string, v: string[]) => [
+    k,
+    v.reduce((res, p) => {
+      (res as any)[p] = p + ' ' + k + '-' + p;
+      return res;
+    }, {}),
+  ]) as {
     [k in K]: {
       [kk in P[k] extends readonly string[] ? P[k][number] : never]: k extends string ? `${kk} ${k}-${kk}` : never;
     };
@@ -28,14 +28,12 @@ const toPartsDefine = <P extends { [k in OpenShadowComponentKey]: readonly strin
 const toExportParts = <P extends { [k in OpenShadowComponentKey]: readonly string[] }, K extends keyof P = keyof P>(
   parts: P,
 ) => {
-  return Object.fromEntries(
-    Object.entries(parts).map(([k, v]) => [
-      k,
-      Object.values(v)
-        .map((p) => k + '-' + p)
-        .join(','),
-    ]),
-  ) as {
+  return fromObject(parts, (k: string, v: string[]) => [
+    k,
+    Object.values(v)
+      .map((p) => k + '-' + p)
+      .join(','),
+  ]) as {
     [k in K]: string;
   };
 };
