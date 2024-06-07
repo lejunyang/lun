@@ -181,7 +181,7 @@ export const Input = defineSSRCustomElement({
       const inputType = type === 'number' || type === 'password' ? type : 'text';
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
-      const { empty, withPrepend, withAppend } = states.value;
+      const { empty, withPrepend, withAppend } = states;
       const hidePlaceholderForMultiple = multiple && !empty;
       const input = (
         <input

@@ -1,8 +1,7 @@
-import { unrefOrGetState, useEdit } from '@lun/core';
+import { refToGetter, unrefOrGetState, useEdit } from '@lun/core';
 import { fromObject, hyphenate, isFunction, isHTMLElement, pick } from '@lun/utils';
 import { warn } from 'utils';
 import {
-  ComputedRef,
   MaybeRef,
   camelize,
   computed,
@@ -67,24 +66,28 @@ let mustAddPrefixForCustomState: boolean | null = null; // in chromium 90~X, nee
  * update custom element's states automatically.
  * this depends on the ElementInternals property '_internals'.
  * if no CustomStateSet, expose states to dataset.
- * @param states {() => Record<string, MaybeRef | MaybeRef[]>}
+ * @param states {() => Record<string, MaybeRef | MaybeRef[]>} key needs to be camelCase
  * @returns computed state class of root element
  */
-export function useCEStates<T extends Record<string, MaybeRef> | null | undefined>(
-  statesGetter: () => T,
-  ns?: ReturnType<typeof useNamespace>,
-) {
+export function useCEStates<
+  T extends Record<string, MaybeRef> | null | undefined,
+  S extends Record<string, any> = T & {
+    disabled?: boolean | undefined;
+    readonly?: boolean | undefined;
+    loading?: boolean | undefined;
+    editable?: boolean | undefined;
+    interactive?: boolean | undefined;
+  },
+>(statesGetter: () => T, ns?: ReturnType<typeof useNamespace>) {
   let stop: ReturnType<typeof watchEffect>;
   const editComputed = useEdit();
-  const states = computed(() =>
-    fromObject(
-      {
-        ...statesGetter(),
-        ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
-      },
-      (k, v: any) => [hyphenate(k), v],
-    ),
-  );
+  const states = refToGetter(
+    computed(() => ({
+      ...statesGetter(),
+      ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
+    })),
+  ) as any as S;
+  const hyphenatedStates = refToGetter(computed(() => fromObject(states, (k, v) => [hyphenate(k), v])));
   let lastStatesKey = new Set<string>();
   // must in mount, form-item need to be set on mount
   onCEMount(({ CE }) => {
@@ -93,7 +96,6 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
     const setAttr = reflectStateToAttr === 'always' || (reflectStateToAttr === 'auto' && !stateSet);
 
     const handleState = (k: string, v: any, addState = true) => {
-      k = camelize(k); // dataset only accepts camelCase
       if (stateSet) {
         if (v && addState) {
           if (mustAddPrefixForCustomState === null) {
@@ -110,15 +112,16 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
           stateSet.delete(k);
         }
       }
+      const camelK = camelize(k); // dataset only accepts camelCase
       if (setAttr) {
-        if (v) CE.dataset[k] = '';
-        delete CE.dataset[k];
+        if (v) CE.dataset[camelK] = '';
+        delete CE.dataset[camelK];
       }
     };
 
     stop = watchEffect(() => {
       const newStatesKey = new Set<string>();
-      for (const [k, v] of Object.entries(states.value)) {
+      for (const [k, v] of Object.entries(hyphenatedStates)) {
         lastStatesKey.delete(k);
         newStatesKey.add(k);
         handleState(k, unrefOrGetState(v));
@@ -131,16 +134,5 @@ export function useCEStates<T extends Record<string, MaybeRef> | null | undefine
     });
   });
   onBeforeUnmount(() => stop?.());
-  return [
-    computed(() => (ns ? [ns.t, ns.is(states.value)] : '')),
-    states as ComputedRef<
-      T & {
-        disabled?: boolean | undefined;
-        readonly?: boolean | undefined;
-        loading?: boolean | undefined;
-        editable?: boolean | undefined;
-        interactive?: boolean | undefined;
-      }
-    >,
-  ] as const;
+  return [computed(() => (ns ? [ns.t, ns.is(hyphenatedStates)] : '')), states] as const;
 }

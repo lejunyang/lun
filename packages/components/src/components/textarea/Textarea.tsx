@@ -106,7 +106,7 @@ export const Textarea = defineSSRCustomElement({
 
     const clearIcon = computed(
       () =>
-        states.value.withClearIcon &&
+        states.withClearIcon &&
         renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
