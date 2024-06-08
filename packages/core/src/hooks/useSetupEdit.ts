@@ -1,7 +1,7 @@
 import type { ComponentInternalInstance } from 'vue';
-import { inject, getCurrentInstance, computed, provide, reactive } from 'vue';
+import { inject, getCurrentInstance, provide, reactive } from 'vue';
 import { runIfFn } from '@lun/utils';
-import { refToGetter } from '../utils';
+import { objectComputed } from '../utils';
 
 export type EditState = {
   disabled?: boolean;
@@ -28,33 +28,31 @@ export function useSetupEdit(options?: {
   }
   const parentEditComputed = noInherit ? undefined : inject<EditState | undefined>(EDIT_PROVIDER_KEY);
   const localState = reactive({ disabled: false, readonly: false, loading: false, ...initialLocalState });
-  const currentEditComputed = refToGetter(
-    computed(() => {
-      let finalState: EditState;
-      let { disabled, readonly, loading, mergeDisabled, mergeLoading, mergeReadonly } = ctx.props as EditState;
-      mergeDisabled ??= parentEditComputed?.mergeDisabled;
-      mergeLoading ??= parentEditComputed?.mergeLoading;
-      mergeReadonly ??= parentEditComputed?.mergeReadonly;
-      finalState = {
-        disabled:
-          localState.disabled || disabled || ((mergeDisabled || disabled == null) && parentEditComputed?.disabled),
-        readonly:
-          localState.readonly || readonly || ((mergeReadonly || readonly == null) && parentEditComputed?.readonly),
-        loading: localState.loading || loading || ((mergeLoading || loading == null) && parentEditComputed?.loading),
-        mergeDisabled,
-        mergeLoading,
-        mergeReadonly,
-        get interactive() {
-          return !this.disabled && !this.loading;
-        },
-        get editable() {
-          return this.interactive && !this.readonly;
-        },
-      };
-      finalState = runIfFn(adjust, finalState) || finalState;
-      return finalState;
-    }),
-  );
+  const currentEditComputed = objectComputed(() => {
+    let finalState: EditState;
+    let { disabled, readonly, loading, mergeDisabled, mergeLoading, mergeReadonly } = ctx.props as EditState;
+    mergeDisabled ??= parentEditComputed?.mergeDisabled;
+    mergeLoading ??= parentEditComputed?.mergeLoading;
+    mergeReadonly ??= parentEditComputed?.mergeReadonly;
+    finalState = {
+      disabled:
+        localState.disabled || disabled || ((mergeDisabled || disabled == null) && parentEditComputed?.disabled),
+      readonly:
+        localState.readonly || readonly || ((mergeReadonly || readonly == null) && parentEditComputed?.readonly),
+      loading: localState.loading || loading || ((mergeLoading || loading == null) && parentEditComputed?.loading),
+      mergeDisabled,
+      mergeLoading,
+      mergeReadonly,
+      get interactive() {
+        return !this.disabled && !this.loading;
+      },
+      get editable() {
+        return this.interactive && !this.readonly;
+      },
+    };
+    finalState = runIfFn(adjust, finalState) || finalState;
+    return finalState;
+  });
 
   provide(EDIT_PROVIDER_KEY, currentEditComputed);
 

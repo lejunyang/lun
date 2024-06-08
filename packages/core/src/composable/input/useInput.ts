@@ -12,8 +12,8 @@ import {
   objectKeys,
   prevent,
 } from '@lun/utils';
-import { ComputedRef, computed, reactive } from 'vue';
-import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
+import { reactive } from 'vue';
+import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils';
 import { processNumOptions, useNumberStep } from './useNumberStep';
 import { presets } from '../../presets/index';
 import { handleNumberBeforeInput, isNumberInputType, nextValueAfterInput } from './utils';
@@ -87,7 +87,7 @@ export type TransformedUseInputOption<T> = Omit<T, keyof TransformedOption> & Tr
 
 export type UseInputState<T> = {
   composing: boolean;
-  transformedOptions: TransformedUseInputOption<T>;
+  transformedOptions: Readonly<TransformedUseInputOption<T>>;
   prevValue: string | null;
   prevSelectionStart: number | null;
   prevSelectionEnd: number | null;
@@ -95,7 +95,7 @@ export type UseInputState<T> = {
 };
 
 export function useInput(
-  optionsGetter: MaybeRefLikeOrGetter<UseInputOptions>,
+  optionsGetter: MaybeRefLikeOrGetter<UseInputOptions, true>,
   extraHandlers?: { transform?: (val: any, e: Event) => any } & Partial<
     Record<
       | 'onBeforeinput'
@@ -117,8 +117,8 @@ export function useInput(
     >
   >,
 ) {
-  const options = computed(() => {
-    const result = unrefOrGet(optionsGetter)!;
+  const options = objectComputed(() => {
+    const result = unrefOrGet(optionsGetter);
     const {
       onChange,
       debounce,
@@ -156,10 +156,10 @@ export function useInput(
     prevSelectionStart: null,
     prevSelectionEnd: null,
     focusing: false,
-  });
+  }) as UseInputState<UseInputOptions>;
   const utils = {
     transformValue(actionNow: InputPeriod, value: string | number | null) {
-      const { transform, transformWhen, toNullWhenEmpty, type } = options.value;
+      const { transform, transformWhen, toNullWhenEmpty, type } = options;
       if (!transformWhen.has(actionNow)) return value;
       let newValue = value;
       if (isFunction(transform)) newValue = transform(newValue);
@@ -178,7 +178,7 @@ export function useInput(
         type = 'text',
         normalizeNumber,
         processNum,
-      } = options.value;
+      } = options;
       const target = e.target as HTMLInputElement;
       let value = state.prevValue ?? target.value; // there is invalid value if prevValue is not null, need to restore it later
       if (restrictWhen.has(actionNow)) {
@@ -249,16 +249,14 @@ export function useInput(
     },
   };
 
-  const { numberHandlers, ...otherNumReturn } = useNumberStep(
-    options as ComputedRef<TransformedUseInputOption<UseInputOptions>>,
-  );
+  const { numberHandlers, ...otherNumReturn } = useNumberStep(options as TransformedUseInputOption<UseInputOptions>);
 
   const handlers = {
     onBeforeinput(_e: Event) {
       const e = _e as InputEvent;
       const target = e.target as HTMLInputElement;
 
-      const { restrict, restrictWhen } = options.value;
+      const { restrict, restrictWhen } = options;
       handleNumberBeforeInput(e, state);
       if (e.defaultPrevented) return;
 
@@ -278,7 +276,7 @@ export function useInput(
       if (!state.composing) utils.handleEvent('not-composing', e);
     },
     onChange(e: Event) {
-      const { updateWhen } = options.value;
+      const { updateWhen } = options;
       utils.handleEvent('change', e);
       // inspired by vue3 v-model
       // Safari < 10.2 & UIWebView doesn't fire compositionend when switching focus before confirming composition choice
@@ -296,7 +294,7 @@ export function useInput(
       utils.handleEvent('not-composing', e);
     },
     onKeydown(e: KeyboardEvent) {
-      const { onEnterDown, emitEnterDownWhenComposing = false } = options.value;
+      const { onEnterDown, emitEnterDownWhenComposing = false } = options;
       if (isEnterDown(e)) {
         if ((!state.composing || emitEnterDownWhenComposing) && isFunction(onEnterDown)) onEnterDown(e);
       }
@@ -309,7 +307,7 @@ export function useInput(
       state.focusing = false;
       const target = e.target as HTMLInputElement;
       // native type=number can input something like --, --2321, ++3, at that time, target.value is '', and it won't trigger change event, we need to clear it manually
-      if (options.value.type === 'number' && !target.value) target.value = '';
+      if (options.type === 'number' && !target.value) target.value = '';
     },
   };
   if (extraHandlers) {

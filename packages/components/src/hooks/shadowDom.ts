@@ -1,4 +1,4 @@
-import { refToGetter, unrefOrGetState, useEdit } from '@lun/core';
+import { objectComputed, unrefOrGetState, useEdit } from '@lun/core';
 import { fromObject, hyphenate, isFunction, isHTMLElement, pick } from '@lun/utils';
 import { warn } from 'utils';
 import {
@@ -81,13 +81,11 @@ export function useCEStates<
 >(statesGetter: () => T, ns?: ReturnType<typeof useNamespace>) {
   let stop: ReturnType<typeof watchEffect>;
   const editComputed = useEdit();
-  const states = refToGetter(
-    computed(() => ({
-      ...statesGetter(),
-      ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
-    })),
-  ) as any as S;
-  const hyphenatedStates = refToGetter(computed(() => fromObject(states, (k, v) => [hyphenate(k), v])));
+  const states = objectComputed(() => ({
+    ...statesGetter(),
+    ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
+  })) as any as S;
+  const hyphenatedStates = objectComputed(() => fromObject(states, (k, v) => [hyphenate(k), v]));
   let lastStatesKey = new Set<string>();
   // must in mount, form-item need to be set on mount
   onCEMount(({ CE }) => {

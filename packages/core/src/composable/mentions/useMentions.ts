@@ -1,5 +1,5 @@
 import { UseInputOptions } from '../input';
-import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils/ref';
+import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
 import { isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly } from 'vue';
@@ -78,7 +78,7 @@ const allowedInputTypes = new Set([
 // FIXME firefox 最后位置输入trigger
 export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, true>) {
   let infoDirty = false;
-  const info = computed(() => {
+  const info = objectComputed(() => {
     const { triggers, suffix } = unrefOrGet(options);
     const t = toArrayIfNotNil(triggers).filter(Boolean);
     infoDirty = true;
@@ -88,7 +88,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   //  valueNow = 'abc@he what' => ['abc', { trigger: '@', value: 'he', label: 'he', suffix: ' ', actualLength: 4 }, 'what']
   const content = useTempState(
     () => {
-      const { on, triggers, suffix } = info.value;
+      const { on, triggers, suffix } = info;
       infoDirty = false;
       const { value, valueToLabel, noOptions } = unrefOrGet(options);
       const valueNow = String(unrefOrGet(value) || '');
@@ -444,7 +444,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       emitUpdate();
       requestFocus(currentIndex, startOffset); // in chromium, caret will be in wrong position after press Enter; in safari, every edit can lead to wrong caret position
 
-      const { triggers, on, suffix } = info.value;
+      const { triggers, on, suffix } = info;
       if (!on) return;
       const leadingText = text.substring(0, startOffset);
       if (!state.lastTrigger && (state.lastTrigger = triggers.find((t) => leadingText.endsWith(t)))) {

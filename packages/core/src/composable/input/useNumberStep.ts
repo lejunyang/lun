@@ -1,4 +1,3 @@
-import { ComputedRef } from 'vue';
 import { TransformedUseInputOption, UseInputOptions } from '.';
 import { presets } from '../../presets';
 import { unrefOrGet } from '../../utils/ref';
@@ -98,10 +97,10 @@ export function processNumOptions(options: UseInputOptions) {
   };
 }
 
-export function useNumberStep(options: ComputedRef<TransformedUseInputOption<UseInputOptions>>) {
+export function useNumberStep(options: TransformedUseInputOption<UseInputOptions>) {
   const performStep = (isNext: boolean) => {
     const { plus, isNaN, getZero, negate, toNumber, toRawNum } = presets.math;
-    let { step, value: v, onChange, type, multiple, clampToRange, strict } = options.value;
+    let { step, value: v, onChange, type, multiple, clampToRange, strict } = options;
     const isN = type === 'number',
       isNS = type === 'number-text';
     if ((!isN && !isNS) || multiple) return;
@@ -128,7 +127,7 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
 
   const numberHandlers = {
     onKeydown(e: KeyboardEvent) {
-      if (options.value.disabled) return;
+      if (options.disabled) return;
       if (isArrowDownEvent(e)) {
         prevent(e); // prevent native type=number
         methods.stepDown();
@@ -147,7 +146,7 @@ export function useNumberStep(options: ComputedRef<TransformedUseInputOption<Use
     };
     return {
       onPointerdown() {
-        if (options.value.disabled) return;
+        if (options.disabled) return;
         const method = isNext ? methods.stepUp : methods.stepDown;
         method();
         firstTimer = setTimeout(() => {

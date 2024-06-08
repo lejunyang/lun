@@ -1,5 +1,5 @@
-import { isArray, isFunction, isObjectByTag } from '@lun/utils';
-import { isRef } from 'vue';
+import { AnyObject, isArray, isFunction, isObjectByTag } from '@lun/utils';
+import { computed, isRef } from 'vue';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =
   | T
@@ -105,5 +105,11 @@ export function refToGetter<T extends { value: object } | undefined | null>(
     getOwnPropertyDescriptor(target, key) {
       return Reflect.getOwnPropertyDescriptor(target.value || {}, key);
     },
+    set: () => false,
   }) as any;
+}
+
+/** similar to vue's computed, but wrapped with a proxy, so we don't need .value anymore, only use it when getter returns a object */
+export function objectComputed<T extends AnyObject>(getter: () => T) {
+  return refToGetter(computed(getter));
 }
