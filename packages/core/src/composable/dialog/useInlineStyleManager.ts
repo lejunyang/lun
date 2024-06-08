@@ -1,7 +1,10 @@
 import { setStyle } from '@lun/utils';
 
 export function useInlineStyleManager() {
-  const elStyleMap = new WeakMap<Element, Partial<CSSStyleDeclaration>>();
+  const elStyleMap = new WeakMap<
+    Element,
+    readonly [Partial<CSSStyleDeclaration>, Record<keyof CSSStyleDeclaration, boolean>]
+  >();
   return [
     /**
      * storeAndSetStyle
@@ -18,8 +21,8 @@ export function useInlineStyleManager() {
      * @param el
      */
     function restoreElStyle(el: Element | undefined | null) {
-      const style = elStyleMap.get(el!);
-      if (style) Object.assign((el as HTMLElement).style, style);
+      const original = elStyleMap.get(el!);
+      if (original) setStyle(el as HTMLElement, original[0], original[1]);
     },
   ] as const;
 }

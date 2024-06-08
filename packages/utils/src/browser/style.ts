@@ -77,17 +77,21 @@ export function setStyle<S extends Partial<CSSStyleDeclaration> | Record<string,
   importantMap?: boolean | Record<keyof S, boolean>,
 ) {
   if (!isElement(node) || !node.style) return false;
-  const prev = {} as Pick<S, keyof S>;
+  const prev = {} as Pick<S, keyof S>,
+    originalImportantMap = {} as Record<keyof S, boolean>;
   for (const [key, value] of Object.entries(style)) {
+    const hk = hyphenate(key);
     // @ts-ignore
-    prev[key] = node.style[key];
+    prev[key] = node.style.getPropertyValue(hk); // can not get '--xxx-yy' property through node.style, must use getPropertyValue
+    // @ts-ignore
+    originalImportantMap[key] = !!node.style.getPropertyPriority(hk);
     node.style.setProperty(
-      hyphenate(key),
-      value as any,
+      hk,
+      (value as any) ?? '', // value can undefined => "undefined"
       importantMap === true || (importantMap as any)?.[key] ? 'important' : undefined,
     );
   }
-  return prev;
+  return [prev, originalImportantMap] as const;
 }
 
 const computedStyleMap = new WeakMap<Element, CSSStyleDeclaration>();

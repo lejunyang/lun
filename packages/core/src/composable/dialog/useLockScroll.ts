@@ -65,7 +65,9 @@ export function useLockScroll({
         storeAndSetStyle(el, {
           overflow: 'hidden',
           scrollbarGutter: supportCSSScrollbarGutter ? 'stable' : undefined,
-          paddingRight: `calc(${getCachedComputedStyle(el).paddingRight} + ${y}px)`,
+          paddingRight: supportCSSScrollbarGutter
+            ? undefined
+            : `calc(${getCachedComputedStyle(el).paddingRight} + ${y}px)`,
           [scrollLeftName]: sx,
           [scrollTopName]: sy,
         });
