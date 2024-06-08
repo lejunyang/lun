@@ -8,17 +8,17 @@ export function useInlineStyleManager() {
      * @param el
      * @param style
      */
-    function storeAndSetStyle<S extends Partial<CSSStyleDeclaration>>(el: Element, style: S) {
+    function storeAndSetStyle<S extends Partial<CSSStyleDeclaration>>(el: Element | undefined | null, style: S) {
       const prev = setStyle(el as HTMLElement, style, true);
-      if (prev) elStyleMap.set(el, prev);
+      if (prev) elStyleMap.set(el!, prev);
       return prev;
     },
     /**
      * restoreElStyle
      * @param el
      */
-    function restoreElStyle(el: Element) {
-      const style = elStyleMap.get(el);
+    function restoreElStyle(el: Element | undefined | null) {
+      const style = elStyleMap.get(el!);
       if (style) Object.assign((el as HTMLElement).style, style);
     },
   ] as const;

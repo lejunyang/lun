@@ -32,6 +32,7 @@
     position: fixed;
     inset: 0px;
     margin: auto;
+    transform: translate(var(--lock-scroll-left), var(--lock-scroll-top));
   }
 
   &::backdrop {

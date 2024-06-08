@@ -5,7 +5,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
-import { debounce, isFunction, prevent, throttle } from '@lun/utils';
+import { debounce as dF, isFunction, prevent, throttle as tF } from '@lun/utils';
 import { partsDefine } from 'common';
 
 const name = 'button';
@@ -21,16 +21,18 @@ export const Button = defineSSRCustomElement({
     const handleClick = computed(() => {
       const onClick = async (e?: MouseEvent) => {
         if (!editComputed.interactive) return;
-        if (props.hold && !holdAnimationDone) return;
+        const { hold, asyncHandler } = props;
+        if (hold && !holdAnimationDone) return;
         holdAnimationDone = false;
         emit('validClick');
-        if (isFunction(props.asyncHandler)) {
+        if (isFunction(asyncHandler)) {
           editState.loading = true;
-          Promise.resolve(props.asyncHandler(e)).finally(() => (editState.loading = false));
+          Promise.resolve(asyncHandler(e)).finally(() => (editState.loading = false));
         }
       };
-      if (+props.debounce! > 0) return debounce(onClick, props.debounce);
-      else if (+props.throttle! > 0) return throttle(onClick, props.throttle);
+      const { debounce, throttle } = props;
+      if (+debounce! > 0) return dF(onClick, debounce);
+      else if (+throttle! > 0) return tF(onClick, throttle);
       else return onClick;
     });
 

@@ -4,14 +4,22 @@ import {
   getWindow,
   isOverflow,
   isRootOrBody,
+  raf,
   supportCSSScrollbarGutter,
+  toPxIfNum,
 } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useInlineStyleManager } from './useInlineStyleManager';
 
 const lockNumMap = new WeakMap<HTMLElement, number>(),
   scrollPositionMap = new WeakMap<HTMLElement, [number, number]>();
-export function useLockScroll() {
+export function useLockScroll({
+  scrollLeftName = '--lock-scroll-left',
+  scrollTopName = '--lock-scroll-top',
+}: {
+  scrollLeftName?: `--${string}`;
+  scrollTopName?: `--${string}`;
+} = {}) {
   const localLocks = new Set<HTMLElement>();
 
   const [storeAndSetStyle, restoreElStyle] = useInlineStyleManager();
@@ -50,28 +58,42 @@ export function useLockScroll() {
           left: scrollX + 'px',
         });
       } else {
+        const { scrollLeft, scrollTop } = el;
+        const sx = toPxIfNum(scrollLeft),
+          sy = toPxIfNum(scrollTop);
+        scrollPositionMap.set(el, [scrollLeft, scrollTop]);
         storeAndSetStyle(el, {
           overflow: 'hidden',
           scrollbarGutter: supportCSSScrollbarGutter ? 'stable' : undefined,
           paddingRight: `calc(${getCachedComputedStyle(el).paddingRight} + ${y}px)`,
+          [scrollLeftName]: sx,
+          [scrollTopName]: sy,
+        });
+        // seems need to set scrollTop after a frame, or it doesn't work
+        raf(() => {
+          el.scrollTop = scrollTop;
         });
       }
     }
     localLocks.add(el);
   }
 
-  function unlock(el: HTMLElement, force?: boolean) {
-    const num = lockNumMap.get(el);
+  function unlock(el: HTMLElement) {
+    const num = lockNumMap.get(el),
+      pos = scrollPositionMap.get(el);
     localLocks.delete(el);
-    if (num === 1 || force) {
+    if (num === 1 && pos) {
+      const [scrollLeft, scrollTop] = pos;
       if (isRootOrBody(el)) {
         const elWindow = getWindow(el);
         const { documentElement, body } = elWindow.document;
         restoreElStyle(documentElement);
         restoreElStyle(body);
-        const [scrollX, scrollY] = scrollPositionMap.get(el)!;
-        elWindow.scrollTo(scrollX, scrollY);
-      } else restoreElStyle(el);
+        elWindow.scrollTo(scrollLeft, scrollTop);
+      } else {
+        restoreElStyle(el);
+        Object.assign(el, { scrollTop, scrollLeft });
+      }
       lockNumMap.delete(el);
     } else if (num) lockNumMap.set(el, num - 1);
   }

@@ -42,6 +42,6 @@ lang: zh-CN
 
 ## 容器内展示
 
-想要对话框在某个元素里展示，必须设置`noTopLayer`，对应元素需要为Containing Block
+想要对话框在某个容器里展示，必须设置`noTopLayer`，对应容器需要为fixed元素的Containing Block
 
 <!-- @Code:container -->
