@@ -39,7 +39,7 @@ import { getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
-import { useAnchorPosition } from './popover.anchor-position';
+import { processPopSize, useAnchorPosition } from './popover.anchor-position';
 import { useFloating } from './useFloating';
 
 const name = 'popover';
@@ -134,7 +134,7 @@ export const Popover = defineSSRCustomElement({
       const { shift, inline } = props;
       return [
         // selection range needs inline
-        (inline || options.value.triggers.has('select')) && pluginInline(Object(inline)),
+        (inline || options.triggers.has('select')) && pluginInline(Object(inline)),
         shift && pluginShift(Object(shift)),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
@@ -143,7 +143,7 @@ export const Popover = defineSSRCustomElement({
     });
 
     const strategy = toRef(props, 'strategy');
-    const anchor = useAnchorPosition(
+    const { isOn, popStyle, arrowStyle, render } = useAnchorPosition(
       virtualGetMerge(
         {
           name: () => {
@@ -173,7 +173,7 @@ export const Popover = defineSSRCustomElement({
       floating: {},
     }) as ElementRects;
     watchPostEffect(() => {
-      if (isShow.value && anchor.isOn.value) {
+      if (isShow.value && isOn.value) {
         // need nextTick, or floating rect size could be 0
         nextTick(() => {
           const reference = actualTarget.value,
@@ -196,7 +196,7 @@ export const Popover = defineSSRCustomElement({
       open: isOpen,
       middleware,
       transform: toRef(props, 'useTransform'),
-      off: () => !!anchor.isOn.value,
+      off: () => !!isOn.value,
     });
 
     // make virtual target auto update
@@ -209,22 +209,31 @@ export const Popover = defineSSRCustomElement({
       }
     });
 
-    const arrowStyles = computed(() => {
-      const { rects } = middlewareData.value;
-      return anchor.arrowStyle(arrowRef.value?.offsetWidth, rects || rectsInfo);
-    });
-
     const finalFloatingStyles = computed(() => {
-      const { width, height } = middlewareData.value.rects?.reference || {};
+      const rect = middlewareData.value.rects?.reference || {};
       const { adjustPopStyle, zIndex, popWidth, popHeight } = props;
       let result: CSSProperties = {
-        width: toPxIfNum(popWidth === 'anchor' ? width : popWidth), // TODO anchor-size
-        height: toPxIfNum(popHeight === 'anchor' ? height : popHeight),
-        ...anchor.popStyle(floatingStyles.value),
+        ...popStyle(
+          {
+            width: toPxIfNum(rect[processPopSize(popWidth) as keyof typeof rect] || popWidth),
+            height: toPxIfNum(rect[processPopSize(popHeight) as keyof typeof rect] || popHeight),
+            ...floatingStyles.value,
+          },
+          popWidth,
+          popHeight,
+        ),
         zIndex: zIndex ?? contextZIndex.popover,
       };
-      if (adjustPopStyle) result = adjustPopStyle(result, middlewareData.value) || result;
+      result = runIfFn(adjustPopStyle, result, middlewareData.value) || result;
       return result;
+    });
+
+    // watch and update style of arrow element
+    watchEffect(() => {
+      const { value } = arrowRef;
+      if (!value) return;
+      const { rects } = middlewareData.value;
+      Object.assign(value.style, arrowStyle(value.offsetWidth, rects || rectsInfo));
     });
 
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
@@ -269,15 +278,21 @@ export const Popover = defineSSRCustomElement({
           : (cacheContent = (finalContent = runIfFn(content, currentTarget.value)) && (
               <VCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
             ));
+
       return (
         <>
-          {props.showArrow && (
+          {/* 
+          why add isOpen.value || isShow.value here?
+          because I found a possible chromium bug, when anchorName is truthy and popWidth(or popHeight) is anchorWidth, and then if showArrow is true, the browser will crash as soon as the page loads(error code: STATUS_BREAKPOINT, version: 125)
+          I have no idea why that happens
+          but not rendering arrow element initially seems to be a workaround
+          */}
+          {props.showArrow && (isOpen.value || isShow.value) && (
             <div
               part={ns.p('arrow')}
               ref={arrowRef}
               // always prevent it for pointerTarget=coord, trigger=contextmenu
               onContextmenu={prevent}
-              style={arrowStyles.value}
               class={ns.e('arrow')}
             ></div>
           )}
@@ -336,7 +351,7 @@ export const Popover = defineSSRCustomElement({
     return () => {
       return (
         <>
-          {anchor.render()}
+          {render()}
           {isTopLayer()
             ? wrapTransition(
                 <div

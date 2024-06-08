@@ -98,7 +98,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 
 ## 聚焦时阻止目标切换
 
-当额外监听多个目标时，在某个目标聚焦或编辑时，如果我们想要阻止 popover 因为非聚焦的方式（例如鼠标移入）切换到其他的目标，我们可以使用`preventSwitchWhen`属性，可选值有：
+当使用单例监听多个目标时，在某个目标聚焦或编辑时，如果我们想要阻止 popover 因为非聚焦的方式（例如鼠标移入）切换到其他的目标，我们可以使用`preventSwitchWhen`属性，可选值有：
 
 - `focus`：聚焦时阻止切换目标
 - `edit`：编辑时阻止切换目标
@@ -110,6 +110,12 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 一般来说不会在关闭 popover 的时候更新内容，如果很难避免这种情况（例如在表单里面，字段失焦时触发校验，校验失败的信息在 popover 关闭时就更新上去了，造成闪烁），可以使用`freezeWhenClosing`属性。当开启时，如果 popover 正在关闭，停止`content`属性的更新（`pop-content`插槽不受影响）
 
 <!-- @Code:freezeUpdate -->
+
+## 同步宽度高度
+
+弹出内容可通过`popWidth`和`popHeight`属性指定宽度和高度，它可以为任意 CSS 长度值，为数字时会视为像素值。它们还支持两个特殊的值`anchorWidth`和`anchorHeight`，当为这两个值时，弹出框的宽度和高度会和锚点元素保持一致
+
+<!-- @Code:syncSize -->
 
 ## 不同大小
 

@@ -22,6 +22,17 @@ const insetLogicalMap: Record<string, string> = {
   right: 'inline-end',
 };
 
+export function processPopSize(size?: string | number, addAnchorSize?: boolean) {
+  switch (size) {
+    case 'anchorWidth':
+      return addAnchorSize ? 'anchor-size(width)' : 'width';
+    case 'anchorHeight':
+      return addAnchorSize ? 'anchor-size(height)' : 'height';
+    default:
+      return toPxIfNum(size);
+  }
+}
+
 export function useAnchorPosition(options: {
   name: MaybeRefLikeOrGetter<string>;
   inner?: MaybeRefLikeOrGetter<boolean | string>;
@@ -46,14 +57,15 @@ export function useAnchorPosition(options: {
       `translate${inline ? 'X' : 'Y'}(-50%)`,
     ] as const;
   });
-  const anchorName = '--p'; // it's for arrow element, always turn on anchor position for arrow element if supports
   const defaultSize = { width: Infinity, height: Infinity };
   return {
+    /** whether anchor position is on */
     isOn,
+    /** render extra style for anchor position */
     render() {
       return isOn.value && unrefOrGet(inner) && <style>{`:host{anchor-name:${unrefOrGet(name)}}`}</style>;
     },
-    popStyle(fallbackStyles: any) {
+    popStyle(fallbackStyles: any, popWidth?: string | number, popHeight?: string | number) {
       const [side, align, inset] = info.value;
       let insetArea = side,
         rAlign = logicalReverseMap[align];
@@ -67,14 +79,12 @@ export function useAnchorPosition(options: {
             insetArea,
             [insetReverseMap[side] || 'top']: toPxIfNum(unrefOrGet(offset) || 0),
             position: options.strategy || 'absolute',
-            anchorName,
+            width: processPopSize(popWidth, true),
+            height: processPopSize(popHeight, true),
           } as any as CSSProperties)
-        : { ...fallbackStyles, anchorName };
+        : fallbackStyles;
     },
-    arrowStyle(
-      arrowSize = 0,
-      { reference, floating } = { reference: defaultSize, floating: defaultSize },
-    ) {
+    arrowStyle(arrowSize = 0, { reference, floating } = { reference: defaultSize, floating: defaultSize }) {
       const [side, align, inset, sizeProp, translate] = info.value;
       const { arrowPosition, arrowOffset } = options;
       const isAuto = arrowPosition === 'auto' || !arrowPosition,
