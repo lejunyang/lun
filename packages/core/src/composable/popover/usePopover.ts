@@ -15,9 +15,9 @@ import {
   prevent,
   intersectOrHas,
 } from '@lun/utils';
-import { computed, reactive, ref, watchEffect } from 'vue';
+import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
-import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
+import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils';
 import { useListen } from './useListen';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select' | 'pointerdown';
@@ -62,7 +62,7 @@ export function usePopover(_options: UsePopoverOptions) {
   >();
 
   let ensureClose: boolean | undefined = false; // flag used to ensure delayed close
-  const options = computed(() => {
+  const options = objectComputed(() => {
     let { openDelay = 0, closeDelay = 120, onOpen, triggers, disabled, beforeOpen } = _options;
     const performOpen = () => {
       if (unrefOrGet(disabled) || unrefOrGet(isOpen) || runIfFn(beforeOpen) === false) return;
@@ -118,14 +118,14 @@ export function usePopover(_options: UsePopoverOptions) {
 
   const events = useListen({
     // always open parent when child opens, it's for nested type=teleport popover
-    onOpen: () => options.value.open(),
+    onOpen: () => options.open(),
     // we can't close parent when child closes, should use onPopContentClose and let parent to handle it
     // onClose: () => options.value.close(),
   });
 
   // handle manual open control by external
   watchEffect(() => {
-    const { manual, openNow, closeNow } = options.value;
+    const { manual, openNow, closeNow } = options;
     if (manual) {
       if (_options.open) openNow();
       else closeNow();
@@ -141,14 +141,14 @@ export function usePopover(_options: UsePopoverOptions) {
       extraHandle?: (e: Event, actualMethod: 'open' | 'close') => void | boolean | 'open' | 'close',
     ) =>
     (e: Event) => {
-      const { triggers, manual } = options.value;
+      const { triggers, manual } = options;
       // 'edit' same as 'focus'
       if ((!trigger || intersectOrHas(triggers, trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
         let actualMethod =
           method === 'toggle' ? (_options.toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
         let temp: any = '';
         if (extraHandle && (temp = extraHandle(e, actualMethod)) === false) return;
-        const finalMethod = (options.value as any)[temp] || options.value[actualMethod];
+        const finalMethod = (options as any)[temp] || options[actualMethod];
         // clear selection target
         if (trigger !== 'select' && finalMethod === 'open' && !virtualTarget.value?._p) virtualTarget.value = null;
         finalMethod();
@@ -163,7 +163,7 @@ export function usePopover(_options: UsePopoverOptions) {
 
   /** determine whether to prevent closing pop content(checkTrigger=true) or prevent switching pop target(checkTrigger=false) when has focus */
   const needPrevent = (e: Event, checkTrigger = true) => {
-    const { triggers } = options.value,
+    const { triggers } = options,
       { preventSwitchWhen } = _options;
     const deepEl = getDeepestActiveElement()!;
     return (
@@ -210,7 +210,7 @@ export function usePopover(_options: UsePopoverOptions) {
       extraTargetsMap.delete(target);
       extraTargetsOptionMap.delete(target);
       if (target === activeExtraTarget.value) {
-        options.value.closeNow();
+        options.closeNow();
         activeExtraTarget.value = null;
       }
     },
@@ -270,7 +270,7 @@ export function usePopover(_options: UsePopoverOptions) {
         // but found an exception... if we focus on target and then focus other place outside viewport(like browser address input or console input), then click target again
         // it will fire focusin first and then pointerdown, no idea why...
         // so prevent focusin firing when it's before pointerdown
-        const { targetFocusThreshold } = options.value;
+        const { targetFocusThreshold } = options;
         if (pointerDownTime - targetFocusInTime < targetFocusThreshold) return false;
         return activatePointerTarget(e as MouseEvent, onTrigger(e, m));
       }),
@@ -293,8 +293,8 @@ export function usePopover(_options: UsePopoverOptions) {
 
         // if we click suffix icon when input is focused and toggleMode is true, it will fire pointerdown(toggle close) -> focusout -> focusin(open). close will be canceled
         // we need to prevent this
-        // if (targetFocusInTime - pointerDownTime < options.value.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
-        // if (unrefOrGet(options.value.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
+        // if (targetFocusInTime - pointerDownTime < options.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
+        // if (unrefOrGet(options.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
         if (isClosing.value && !extraTargetsMap.has(cur)) {
           return false;
         }
@@ -308,7 +308,7 @@ export function usePopover(_options: UsePopoverOptions) {
         focusSet.delete(target);
         focusSet.delete(deep);
         focusSet.delete(cur);
-        const { targetFocusThreshold } = options.value;
+        const { targetFocusThreshold } = options;
         if (ignoreTargetFocusout || targetFocusOutTime - pointerDownTime < targetFocusThreshold) return false;
         return onTrigger(e, m);
       }),
@@ -347,6 +347,21 @@ export function usePopover(_options: UsePopoverOptions) {
     onPointercancel: pointerdownClose,
   };
 
+  const cleanup = useClickOutside(
+    computed(() =>
+      // Array.from(extraTargetsMap.value.keys()).concat(options.target as any, options.pop as any),
+      [activeExtraTarget.value, _options.target, _options.pop],
+    ),
+    () => {
+      options.close();
+      ignoreTargetFocusout = false;
+    },
+    () => {
+      const { manual } = options;
+      return unrefOrGet(isShow) && !manual;
+    },
+  );
+
   // ------------------ selection ------------------
   const handleSelect = createTrigger('select', 'open', (e) => {
     const selection = getWindow(e.target as any).getSelection();
@@ -354,7 +369,7 @@ export function usePopover(_options: UsePopoverOptions) {
       // virtualTarget.value = null; // do not clear virtualTarget here, if we clear it, actual pop target will update and then position shifts. we delay it to next open in createTrigger.
       return 'close';
     }
-    // options.value.target is a slot element, seems that slot element is always false when calling containsNode, so we need to get the host element
+    // options.target is a slot element, seems that slot element is always false when calling containsNode, so we need to get the host element
     const target = [toHostIfSlot(unrefOrGet(_options.target)), ...extraTargetsMap.keys()].find(
       (e) => isNode(e) && selection.containsNode(e, true),
     );
@@ -365,23 +380,17 @@ export function usePopover(_options: UsePopoverOptions) {
       return 'close';
     }
   });
-  inBrowser && tryOnScopeDispose(on(document, 'selectionchange', handleSelect));
+  const stop = watchEffect(
+    () => {
+      if (inBrowser && options.triggers.has('select')) {
+        cleanup.push(on(document, 'selectionchange', handleSelect));
+        nextTick(() => stop()); // must in nextTick, as we can't call stop before initialization
+      }
+    },
+    { flush: 'sync' },
+  );
   // ------------------ selection ------------------
 
-  const cleanup = useClickOutside(
-    computed(() =>
-      // Array.from(extraTargetsMap.value.keys()).concat(options.value.target as any, options.value.pop as any),
-      [activeExtraTarget.value, _options.target, _options.pop],
-    ),
-    () => {
-      options.value.close();
-      ignoreTargetFocusout = false;
-    },
-    () => {
-      const { manual } = options.value;
-      return unrefOrGet(isShow) && !manual;
-    },
-  );
   return {
     targetHandlers: createTargetHandlers((_, method) => {
       if (method === 'open') activeExtraTarget.value = null;
