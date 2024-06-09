@@ -12,7 +12,7 @@ export function createGetNodeInTree<T extends Node | Element>({
   ) {
     if (!el) return null;
     let isMatch = options?.isMatch || ((el) => !!el);
-    let shouldStop = options?.shouldStop || ((el) => el.parentElement === document.documentElement);
+    let shouldStop = options?.shouldStop || ((el) => el.parentElement === getDocumentElement(el));
     let temp = el;
     while (true) {
       const next = getNext(temp);
@@ -73,4 +73,8 @@ export const getNextMatchNodeInTree = createGetNodeInTree<Node>({
 
 export function getWindow(nodeOrWindow?: Node | Window) {
   return (nodeOrWindow as Window)?.window || (nodeOrWindow as Node)?.ownerDocument?.defaultView || window;
+}
+
+export function getDocumentElement(nodeOrWindow?: Node | Window) {
+  return getWindow(nodeOrWindow).document.documentElement;
 }

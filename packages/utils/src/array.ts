@@ -40,7 +40,8 @@ export function getFirstOfIterable<T>(iterable?: Iterable<T>): T | undefined {
   }
 }
 
-export function at(arr: any[], index: number) {
+export function at(arr: any[] | undefined | null, index: number) {
+  if (!arr) return;
   if (arr.at) return arr.at(index);
   const { length } = arr;
   // Array.prototype.at will perform integer conversion, Infinity as it is, NaN as 0

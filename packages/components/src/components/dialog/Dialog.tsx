@@ -7,7 +7,7 @@ import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import { refLikeToDescriptors, useDraggableMonitor, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
-import { Transition, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
+import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl, partsDefine } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
@@ -20,13 +20,14 @@ import {
   toPxIfNum,
   virtualGetMerge,
   clamp,
+  getDocumentElement,
 } from '@lun/utils';
 import { useContextConfig } from 'config';
-import { getContainingBlock } from '@floating-ui/utils/dom';
+import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
 
 const name = 'dialog';
-/** global current showing dialogs */
-const showing = ref<HTMLElement[]>([]);
+/** a map to store all showing dialogs with mask in each container, to make sure only one mask is shown in each container at the same time. */
+const containerShowing = reactive(new WeakMap<HTMLElement | Window, HTMLElement[]>());
 
 export const Dialog = Object.assign(
   defineSSRCustomElement({
@@ -50,26 +51,46 @@ export const Dialog = Object.assign(
       const pending = ref(false);
 
       const [initFocus, restoreFocus] = useFocusTrap();
-      let lastActiveElement: HTMLElement | undefined;
+      let lastActiveElement: HTMLElement | undefined,
+        lastContainer = ref<HTMLElement>();
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
         virtualGetMerge(
           {
             native: supportDialog,
             isOpen,
             open() {
-              const { noMask, noTopLayer } = props;
+              const { noMask, noTopLayer, container } = props;
               const dialog = dialogRef.value;
               if (dialog) {
                 lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
                 supportDialog && (dialog as HTMLDialogElement)[noTopLayer ? 'show' : 'showModal']();
                 openModel.value = isOpen.value = true;
-                if ((maskShow.value = !noMask)) showing.value.push(dialog);
+                if ((maskShow.value = !noMask)) {
+                  const dialogDocEl = getDocumentElement(dialog);
+                  let con: HTMLElement | Window;
+                  if (supportDialog && !noTopLayer) con = dialogDocEl;
+                  else {
+                    con = (toElement(container) as HTMLElement) || getContainingBlock(dialog);
+                    // last traversable node: body, html, #document, consider them as window
+                    if (!con || isLastTraversableNode(con)) con = getDocumentElement(dialog);
+                  }
+                  lastContainer.value = con;
+                  const showing = containerShowing.get(con) || [];
+                  showing.push(dialog);
+                  containerShowing.set(con, showing);
+                }
               }
             },
             close() {
-              if (dialogRef.value) {
+              const dialog = dialogRef.value,
+                container = lastContainer.value;
+              if (dialog) {
                 openModel.value = isOpen.value = maskShow.value = false;
-                showing.value = showing.value.filter((el) => el !== dialogRef.value);
+                if (container) {
+                  const showing = (containerShowing.get(container) || []).filter((el) => el !== dialog);
+                  containerShowing.set(container, showing);
+                  lastContainer.value = undefined;
+                }
               }
             },
             isPending: pending,
@@ -81,9 +102,7 @@ export const Dialog = Object.assign(
               const { noTopLayer, noMask } = props;
               return !noTopLayer || !noMask;
             },
-            container() {
-              return (toElement(props.container) as HTMLElement) || getContainingBlock(dialogRef.value!);
-            },
+            container: lastContainer,
           },
           props,
         ),
@@ -100,7 +119,7 @@ export const Dialog = Object.assign(
         const el = dialogRef.value,
           mask = maskRef.value!;
         if (!el) return;
-        if (at(showing.value, -1) === el) mask.style.display = '';
+        if (at(containerShowing.get(lastContainer.value!), -1) === el) mask.style.display = '';
         else mask.style.display = 'none';
       });
 
