@@ -30,12 +30,12 @@
     );
     // copy from user agent dialog:-internal-dialog-in-top-layer and dialog
     position: fixed;
-    // inset: 0px;
+    inset: 0px;
     margin: auto;
     // transform: translate(var(--lock-scroll-left), var(--lock-scroll-top));
     // do not use transform, transform will create a new stacking context and containing block, make nested dialog display unexpectedly
     left: var(--lock-scroll-left);
-    top: var(--lock-scroll-top);
+    top: var(--lock-scroll-top); // must add 0(or inset: 0) for top; it's for non top layer dialog
     @include e(mask) {
       left: var(--lock-scroll-left);
       top: var(--lock-scroll-top);

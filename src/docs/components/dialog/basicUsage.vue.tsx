@@ -17,6 +17,7 @@ export default function () {
       <l-form itemProps={{ element: 'switch', helpType: 'icon' }} instance={form} style="flex-basis: 100%;">
         <l-form-item name="noMask" label="noMask" help="是否关闭遮罩" />
         <l-form-item name="noTopLayer" label="noTopLayer" help="是否关闭原生Dialog Top Layer" />
+        <l-form-item name="noLockScroll" label="noLockScroll" help="是否关闭'打开弹窗时锁定滚动'特性" />
         <l-form-item
           name="maskClosable"
           label="maskClosable"
