@@ -47,6 +47,7 @@ export const dialogProps = freeze({
   cancelText: PropString(),
   okBtnProps: PropObject(),
   cancelBtnProps: PropObject(),
+  noLockScroll: PropBoolean(),
   /** function that will be called before opening dialog, if it returns false, prevent opening dialog */
   beforeOpen: PropFunction<() => void | boolean>(),
   /** function that will be called on clicking ok button, if it returns false/Promise.resolve(false)/Promise.reject(), dialog stays open and will not fire ok event */

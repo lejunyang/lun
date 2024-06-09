@@ -21,6 +21,7 @@ import {
   virtualGetMerge,
   clamp,
   getDocumentElement,
+  withResolvers,
 } from '@lun/utils';
 import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
@@ -52,32 +53,27 @@ export const Dialog = Object.assign(
 
       const [initFocus, restoreFocus] = useFocusTrap();
       let lastActiveElement: HTMLElement | undefined,
-        lastContainer = ref<HTMLElement>();
+        lastContainer = ref<HTMLElement>(),
+        dialogLeaveResolver: (() => void) | undefined;
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
         virtualGetMerge(
           {
             native: supportDialog,
             isOpen,
             open() {
-              const { noMask, noTopLayer, container } = props;
+              const { noMask, noTopLayer } = props;
               const dialog = dialogRef.value;
               if (dialog) {
                 lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
                 supportDialog && (dialog as HTMLDialogElement)[noTopLayer ? 'show' : 'showModal']();
                 openModel.value = isOpen.value = true;
                 if ((maskShow.value = !noMask)) {
-                  const dialogDocEl = getDocumentElement(dialog);
-                  let con: HTMLElement | Window;
-                  if (supportDialog && !noTopLayer) con = dialogDocEl;
-                  else {
-                    con = (toElement(container) as HTMLElement) || getContainingBlock(dialog);
-                    // last traversable node: body, html, #document, consider them as window
-                    if (!con || isLastTraversableNode(con)) con = getDocumentElement(dialog);
+                  const con = lastContainer.value;
+                  if (con) {
+                    const showing = containerShowing.get(con) || [];
+                    showing.push(dialog);
+                    containerShowing.set(con, showing);
                   }
-                  lastContainer.value = con;
-                  const showing = containerShowing.get(con) || [];
-                  showing.push(dialog);
-                  containerShowing.set(con, showing);
                 }
               }
             },
@@ -91,6 +87,9 @@ export const Dialog = Object.assign(
                   containerShowing.set(container, showing);
                   lastContainer.value = undefined;
                 }
+                const { promise, resolve } = withResolvers();
+                dialogLeaveResolver = resolve;
+                return promise;
               }
             },
             isPending: pending,
@@ -99,10 +98,25 @@ export const Dialog = Object.assign(
               if (props.disableWhenPending) editState.disabled = _pending;
             },
             lockScroll: () => {
-              const { noTopLayer, noMask } = props;
-              return !noTopLayer || !noMask;
+              const { noTopLayer, noMask, noLockScroll } = props;
+              // if topLayer, we need to lock scroll anyway, as you can't interact with behind elements even when no mask
+              return !(noTopLayer && noMask) && !noLockScroll;
             },
-            container: lastContainer,
+            container() {
+              const { noMask, noTopLayer, container } = props;
+              const dialog = dialogRef.value;
+              if (!noMask && dialog) {
+                const dialogDocEl = getDocumentElement(dialog);
+                let con: HTMLElement | Window;
+                if (supportDialog && !noTopLayer) con = dialogDocEl;
+                else {
+                  con = (toElement(container) as HTMLElement) || getContainingBlock(dialog);
+                  // last traversable node: body, html, #document, consider them as window
+                  if (!con || isLastTraversableNode(con)) con = getDocumentElement(dialog);
+                }
+                return (lastContainer.value = con);
+              }
+            },
           },
           props,
         ),
@@ -133,6 +147,7 @@ export const Dialog = Object.assign(
         onAfterLeave() {
           supportDialog && (dialogRef.value as HTMLDialogElement)?.close();
           restoreFocus();
+          if (dialogLeaveResolver) dialogLeaveResolver();
           emit('afterClose');
         },
       };
