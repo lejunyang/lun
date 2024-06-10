@@ -88,6 +88,8 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
       if (isArrowLeftEvent(e) || isArrowRightEvent(e)) {
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
         if (!active || (active !== target && !shadowContains(target, active))) return;
+        if (isHTMLInputElement(active) && (active.selectionStart !== 0 || active.selectionEnd !== 0)) return;
+        // only focus on previous tag when at the beginning of input
         let targetEl = null as Element | null;
         if (isArrowLeftEvent(e)) targetEl = getPreviousMatchElInTree(target, iterateOptions);
         else if (isArrowRightEvent(e)) targetEl = getNextMatchElInTree(target, iterateOptions);

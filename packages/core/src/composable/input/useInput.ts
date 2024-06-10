@@ -18,7 +18,7 @@ import { processNumOptions, useNumberStep } from './useNumberStep';
 import { presets } from '../../presets/index';
 import { handleNumberBeforeInput, isNumberInputType, nextValueAfterInput } from './utils';
 
-export type InputPeriod = 'change' | 'input' | 'not-composing';
+export type InputPeriod = 'change' | 'input' | 'notComposing';
 export type InputPeriodWithAuto = InputPeriod | 'auto';
 export type InputType = 'string' | 'text' | 'number' | 'number-text' | 'password';
 
@@ -130,12 +130,12 @@ export function useInput(
       restrictWhen: originalRestrict,
     } = result;
     const updateWhen = new Set(toArrayIfNotNil(originalUpdate!));
-    if (updateWhen.has('auto') || !updateWhen.size) updateWhen.add(multiple ? 'change' : 'not-composing');
+    if (updateWhen.has('auto') || !updateWhen.size) updateWhen.add(multiple ? 'change' : 'notComposing');
     updateWhen.delete('auto');
     const transformWhen = new Set(toArrayIfNotNil(originalTransform!));
-    if (!transformWhen.size) transformWhen.add('not-composing');
+    if (!transformWhen.size) transformWhen.add('notComposing');
     const restrictWhen = new Set(toArrayIfNotNil(originalRestrict!));
-    if (!restrictWhen.size) restrictWhen.add('not-composing');
+    if (!restrictWhen.size) restrictWhen.add('notComposing');
     return {
       ...processNumOptions(result),
       updateWhen: updateWhen as Set<InputPeriod>,
@@ -273,7 +273,7 @@ export function useInput(
     onInput(e: Event) {
       utils.handleEvent('input', e);
       // found a issue, if we eliminate the composition text in input event, continuous input will trigger compositionStart constantly
-      if (!state.composing) utils.handleEvent('not-composing', e);
+      if (!state.composing) utils.handleEvent('notComposing', e);
     },
     onChange(e: Event) {
       const { updateWhen } = options;
@@ -291,7 +291,7 @@ export function useInput(
     },
     onCompositionend(e: Event) {
       state.composing = false;
-      utils.handleEvent('not-composing', e);
+      utils.handleEvent('notComposing', e);
     },
     onKeydown(e: KeyboardEvent) {
       const { onEnterDown, emitEnterDownWhenComposing = false } = options;

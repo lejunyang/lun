@@ -14,7 +14,7 @@ export default () => {
         })}
       >
         <l-form-item name="input" />
-        <l-form-item name="not-composing" />
+        <l-form-item name="notComposing" />
         <l-form-item name="change" />
       </l-form>
     </div>

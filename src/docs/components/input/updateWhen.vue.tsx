@@ -12,8 +12,8 @@ export default () => {
         <l-form-item name="input" label={`updateWhen="input"`}>
           <l-input updateWhen="input" />
         </l-form-item>
-        <l-form-item name="input" label={`updateWhen="not-composing"`}>
-          <l-input updateWhen="not-composing" />
+        <l-form-item name="input" label={`updateWhen="notComposing"`}>
+          <l-input updateWhen="notComposing" />
         </l-form-item>
         <l-form-item name="input" label={`updateWhen="change"`}>
           <l-input updateWhen="change" />
@@ -24,14 +24,14 @@ export default () => {
         <l-form-item name="multi" label={`updateWhen="input"`}>
           <l-input updateWhen="input" multiple />
         </l-form-item>
-        <l-form-item name="multi" label={`updateWhen="not-composing"`}>
-          <l-input updateWhen="not-composing" multiple />
+        <l-form-item name="multi" label={`updateWhen="notComposing"`}>
+          <l-input updateWhen="notComposing" multiple />
         </l-form-item>
         <l-form-item name="multi" label={`updateWhen="change"`}>
           <l-input updateWhen="change" multiple />
         </l-form-item>
-        <l-form-item name="multi" label={`updateWhen={['change', 'not-composing']}`}>
-          <l-input updateWhen={['change', 'not-composing']} multiple />
+        <l-form-item name="multi" label={`updateWhen={['change', 'notComposing']}`}>
+          <l-input updateWhen={['change', 'notComposing']} multiple />
         </l-form-item>
       </l-form>
     </>

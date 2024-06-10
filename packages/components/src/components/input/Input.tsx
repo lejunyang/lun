@@ -96,9 +96,9 @@ export const Input = defineSSRCustomElement({
         empty: isEmpty(valueModel.value) && !valueForMultiple.value,
         multiple: props.multiple,
         required: validateProps.value.required,
-        'withPrepend': !prependSlot.empty.value,
-        'withAppend': !appendSlot.empty.value,
-        'withRenderer': !rendererSlot.empty.value,
+        withPrepend: !prependSlot.empty.value,
+        withAppend: !appendSlot.empty.value,
+        withRenderer: !rendererSlot.empty.value,
       }),
       ns,
     );
@@ -176,7 +176,7 @@ export const Input = defineSSRCustomElement({
 
     return () => {
       const { disabled, readonly, editable } = editComputed;
-      const { multiple, placeholder, labelType, label, wrapTags, spellcheck, autofocus } = props;
+      const { multiple, placeholder, labelType, label, wrapTags, spellcheck, autofocus, tagRemoveIcon } = props;
       const type = localType.value;
       const inputType = type === 'number' || type === 'password' ? type : 'text';
       const floatLabel = label || placeholder;
@@ -257,7 +257,7 @@ export const Input = defineSSRCustomElement({
                         label: v,
                         ...pickThemeProps(props),
                         ...tagProps,
-                        removable: editable,
+                        removable: editable && tagRemoveIcon,
                       });
                     })}
                   {editable && (
