@@ -16,6 +16,9 @@ export type DraggableElementState = {
   /** offset X of pointer down point to container's left edge */
   containerOffsetX: number;
   containerOffsetY: number;
+  /** x of pointer when start dragging, relative to the viewport */
+  startX: number;
+  startY: number;
 };
 
 export type DraggableFn = (
@@ -74,13 +77,17 @@ export function useDraggableMonitor({
     const { x, y } = container.getBoundingClientRect();
     const { x: tx, y: ty } = finalGetTargetRect(targetEl);
     // must calculate containerOffset here, not in handleMove, because target's x/y is changing during dragging, small pixels change can make it gradually out of container
-    const containerOffsetX = x + clientX - tx,
-      containerOffsetY = y + clientY - ty;
+    const containerOffsetX = clientX - tx,
+      containerOffsetY = clientY - ty,
+      startX = x + containerOffsetX,
+      startY = y + containerOffsetY;
     const common = {
       dragging: true,
       clientX,
       clientY,
       limitType,
+      startX,
+      startY,
       containerOffsetX,
       containerOffsetY,
     };
@@ -128,7 +135,7 @@ export function useDraggableMonitor({
     const state = targetStates.get(keyEl);
     if (!draggingCount || !state?.dragging) return;
     let [clientX, clientY] = finalGetCoord(e);
-    const { limitType, containerOffsetX, containerOffsetY } = state;
+    const { limitType, startX, startY, containerOffsetX, containerOffsetY } = state;
     const { x, y, right, bottom } = container.getBoundingClientRect();
     if (limitType === 'pointer') {
       clientX = floorByDPR(clamp(clientX, x, right), targetEl);
@@ -136,8 +143,8 @@ export function useDraggableMonitor({
     } else if (limitType === 'target') {
       const { width, height } = finalGetTargetRect(targetEl);
       // was using roundByDPR before, but round can actually make it overflow the container when we drag it to the bottom right corner, and then scrollbars appear
-      clientX = floorByDPR(clamp(clientX, containerOffsetX, right - width + containerOffsetX), targetEl);
-      clientY = floorByDPR(clamp(clientY, containerOffsetY, bottom - height + containerOffsetY), targetEl);
+      clientX = floorByDPR(clamp(clientX, startX, right - width + containerOffsetX), targetEl);
+      clientY = floorByDPR(clamp(clientY, startY, bottom - height + containerOffsetY), targetEl);
     }
     Object.assign(state, { relativeX: state.dx + clientX, relativeY: state.dy + clientY, clientX, clientY });
     emitMove(targetEl, state);

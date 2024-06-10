@@ -42,6 +42,6 @@ lang: zh-CN
 
 ## 容器内展示
 
-想要`l-dialog`在某个容器里展示，其必须设置`noTopLayer`，并放置于对应容器内，对应容器需要为 fixed 元素的 [Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)。与全屏打开的弹框类似，容器内的弹框也拥有锁定容器滚动、只展示一个蒙层等特性
+想要`l-dialog`在某个容器里展示，其必须设置`noTopLayer`，并放置于对应容器内，对应容器需要为 fixed 元素的 [Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)。与全屏打开的弹框类似，容器内的弹框也拥有锁定容器滚动、只展示一个蒙层等特性，如果开启拖拽，弹窗也会被限制在容器内移动。
 
 <!-- @Code:container -->
