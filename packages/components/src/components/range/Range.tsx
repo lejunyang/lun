@@ -175,10 +175,7 @@ export const Range = defineSSRCustomElement({
       draggable(target) {
         return target.hasAttribute('data-index');
       },
-      getCoord({ clientX, clientY }) {
-        const { x, y, width, height } = getRootRect();
-        return [clampNum(clientX, x, x + width), clampNum(clientY, y, y + height)];
-      },
+      limitInContainer: 'pointer',
       onMove(target, { clientX, clientY }) {
         const { dataset: { index } = {} } = target as HTMLElement;
         if (index == null) return;

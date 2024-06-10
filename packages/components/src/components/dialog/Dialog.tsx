@@ -19,7 +19,6 @@ import {
   supportDialog,
   toPxIfNum,
   virtualGetMerge,
-  clamp,
   getDocumentElement,
   withResolvers,
 } from '@lun/utils';
@@ -174,8 +173,9 @@ export const Dialog = Object.assign(
         },
         asWhole: true,
         ignoreWhenAlt: true,
-        getCoord({ clientX, clientY }) {
-          return [clamp(clientX, 0, innerWidth), clamp(clientY, 0, innerHeight)];
+        limitInContainer: 'target',
+        getTargetRect() {
+          return panelRef.value!.getBoundingClientRect();
         },
         draggable(...args) {
           const { customDraggable, headerDraggable } = props;

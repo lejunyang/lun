@@ -1,6 +1,6 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { AnyFn, on, prevent, rafThrottle, runIfFn } from '@lun/utils';
+import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useInlineStyleManager } from '../dialog/useInlineStyleManager';
 
@@ -12,6 +12,10 @@ export type DraggableElementState = {
   dragging: boolean;
   clientX: number;
   clientY: number;
+  limitType?: 'pointer' | 'target';
+  /** offset X of pointer down point to container's left edge */
+  containerOffsetX: number;
+  containerOffsetY: number;
 };
 
 export type DraggableFn = (
@@ -31,9 +35,12 @@ export function useDraggableMonitor({
   onStop,
   onClean,
   ignoreWhenAlt,
+  limitInContainer,
+  getTargetRect,
 }: {
+  /** the container element that contains draggable elements */
   el: MaybeRefLikeOrGetter<Element>;
-  /** if asWhole is true, all draggable children elements consider as whole, sharing same state; otherwise, each child element has its own state */
+  /** if asWhole is true, all draggable children elements consider as a whole, sharing same state; otherwise, each child element has its own state */
   asWhole?: boolean;
   draggable: DraggableFn;
   getCoord?: (e: PointerEvent) => [number, number];
@@ -43,12 +50,16 @@ export function useDraggableMonitor({
   onStop?: (target: Element, state: DraggableElementState) => void;
   onClean?: () => void;
   ignoreWhenAlt?: boolean;
+  /** used to apply limitation on coordinates so that pointer or target's coordinates can not be out of container when dragging */
+  limitInContainer?: 'pointer' | 'target' | ((target: Element, state: DraggableElementState) => 'pointer' | 'target');
+  getTargetRect?: (target: Element) => DOMRect;
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
   const [storeAndSetStyle, restoreElStyle] = useInlineStyleManager();
 
   const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
+  const finalGetTargetRect = (target: Element) => getTargetRect?.(target) || target.getBoundingClientRect();
 
   const handleStart = (e: PointerEvent) => {
     const { button, target, pointerId, altKey } = e;
@@ -58,15 +69,28 @@ export function useDraggableMonitor({
     const state = targetStates.get(keyEl);
     if (!draggable(targetEl, e, state)) return;
     const [clientX, clientY] = finalGetCoord(e);
+    const limitType = runIfFn(limitInContainer, targetEl, state);
+    const container = unrefOrGet(el)!;
+    const { x, y } = container.getBoundingClientRect();
+    const { x: tx, y: ty } = finalGetTargetRect(targetEl);
+    // must calculate containerOffset here, not in handleMove, because target's x/y is changing during dragging, small pixels change can make it gradually out of container
+    const containerOffsetX = x + clientX - tx,
+      containerOffsetY = y + clientY - ty;
+    const common = {
+      dragging: true,
+      clientX,
+      clientY,
+      limitType,
+      containerOffsetX,
+      containerOffsetY,
+    };
     if (!state) {
       targetStates.set(keyEl, {
         relativeX: 0,
         relativeY: 0,
         dx: -clientX,
         dy: -clientY,
-        dragging: true,
-        clientX,
-        clientY,
+        ...common,
       });
     } else {
       Object.assign(state, {
@@ -74,11 +98,10 @@ export function useDraggableMonitor({
         dy: state.relativeY - clientY,
         relativeX: clientX,
         relativeY: clientY,
-        dragging: true,
-        clientX,
-        clientY,
+        ...common,
       });
     }
+
     draggingCount += 1;
     targetEl.setPointerCapture(pointerId); // found that pointer capture will invalidate cursor:move... seems cannot be fixed unless we don't use it
     storeAndSetStyle(targetEl as HTMLElement, { userSelect: 'none' });
@@ -100,10 +123,22 @@ export function useDraggableMonitor({
 
   const handleMove = (e: PointerEvent) => {
     const targetEl = e.target as Element,
-      keyEl = asWhole ? unrefOrGet(el)! : targetEl;
+      container = unrefOrGet(el)!,
+      keyEl = asWhole ? container : targetEl;
     const state = targetStates.get(keyEl);
     if (!draggingCount || !state?.dragging) return;
-    const [clientX, clientY] = finalGetCoord(e);
+    let [clientX, clientY] = finalGetCoord(e);
+    const { limitType, containerOffsetX, containerOffsetY } = state;
+    const { x, y, right, bottom } = container.getBoundingClientRect();
+    if (limitType === 'pointer') {
+      clientX = floorByDPR(clamp(clientX, x, right), targetEl);
+      clientY = floorByDPR(clamp(clientY, y, bottom), targetEl);
+    } else if (limitType === 'target') {
+      const { width, height } = finalGetTargetRect(targetEl);
+      // was using roundByDPR before, but round can actually make it overflow the container when we drag it to the bottom right corner, and then scrollbars appear
+      clientX = floorByDPR(clamp(clientX, containerOffsetX, right - width + containerOffsetX), targetEl);
+      clientY = floorByDPR(clamp(clientY, containerOffsetY, bottom - height + containerOffsetY), targetEl);
+    }
     Object.assign(state, { relativeX: state.dx + clientX, relativeY: state.dy + clientY, clientX, clientY });
     emitMove(targetEl, state);
   };
