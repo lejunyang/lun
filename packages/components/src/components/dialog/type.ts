@@ -32,6 +32,7 @@ export const dialogProps = freeze({
   headerDraggable: PropBoolean(),
   /** used to determine which part elements of dialog can be dragged */
   customDraggable: PropFunction<DraggableFn>(), // draggable is a html attribute, use customDraggable instead
+  noTransform: PropBoolean(),
   width: sizeProp,
   title: PropObjOrStr(),
   noHeader: PropBoolean(),

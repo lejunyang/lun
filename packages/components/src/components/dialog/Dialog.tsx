@@ -6,8 +6,15 @@ import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
 import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
-import { refLikeToDescriptors, useDraggableMonitor, useFocusTrap, useNativeDialog, useSetupEdit } from '@lun/core';
-import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
+import {
+  refLikeToDescriptors,
+  useDraggableMonitor,
+  useFocusTrap,
+  useInlineStyleManager,
+  useNativeDialog,
+  useSetupEdit,
+} from '@lun/core';
+import { Transition, inject, onBeforeUnmount, provide, reactive, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl, partsDefine } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
@@ -166,6 +173,7 @@ export const Dialog = Object.assign(
       // if there is a parent watermark, wrap children with watermark render
       const { render } = WatermarkContext.inject();
 
+      const [setStyle, restoreStyle] = useInlineStyleManager();
       useDraggableMonitor({
         el: dialogRef,
         disabled() {
@@ -181,13 +189,18 @@ export const Dialog = Object.assign(
           const { customDraggable, headerDraggable } = props;
           return headerDraggable ? headerRef.value!.contains(args[0]) : runIfFn(customDraggable, ...args);
         },
-        onMove(_, { relativeX, relativeY }) {
+        onMove(_, { relativeX, relativeY, left, top }) {
           const el = panelRef.value!;
-          el.style.transform = `translate3d(${roundByDPR(relativeX, el)}px, ${roundByDPR(relativeY, el)}px, 0)`;
+          const process = (val: number) => toPxIfNum(roundByDPR(val, el));
+          if (props.noTransform) setStyle(el, { left: process(left), top: process(top) });
+          else
+            setStyle(el, {
+              transform: `translate3d(${process(relativeX)}, ${process(relativeY)}, 0)`,
+            });
           // FIXME maybe won't fix. after dragging，if we change the size of viewport, the position look weird as relative position size may be too large for new viewport
         },
         onClean() {
-          if (panelRef.value) panelRef.value.style.transform = '';
+          restoreStyle(panelRef.value);
         },
       });
 
