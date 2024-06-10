@@ -18,7 +18,16 @@ lang: zh-CN
 
 ## 多值
 
-`maxTags`属性可限制最大标签数量，`wrapTags`属性可控制标签过多时是否换行
+当设置`multiple`后`l-input`变为多值输入框，以下属性在多值时可用：
+- `separator`: 分隔符，默认为空白字符和逗号，在[值更新时](#自定义更新时机)会根据其对输入字符串进行分割
+- `unique`: 是否允许重复值，默认允许
+- `maxTags`: 限制最大标签数量
+- `wrapTags`: 可控制标签过多时是否换行，换行展示会将输入框撑开，展示所有标签
+- `tagRemoveIcon`: 当可编辑时，是否为每个标签展示删除icon
+
+:::tip 注
+多值时支持键盘导航，通过Tab、Shift+Tab或左右箭头均可以切换聚焦的Tag，按删除键可删除当前聚焦的Tag（不区分BackSpace和Delete）。当聚焦为输入框时按下BackSpace则是直接删除前一个Tag
+:::
 
 <!-- @Code:multiple -->
 
@@ -64,12 +73,12 @@ lang: zh-CN
 
 ## 自定义更新时机
 
-通过`updateWhen`属性来自定义输入值的更新时机，可选值有：
+通过`updateWhen`属性来自定义输入值的更新时机，其默认值为`auto`，可选值有：
 
 - `input`: input 事件时触发更新，当`multiple`为 true 时，在输入过程中遇到`separator`便立即更新
-- `not-composing`: 同样在 input 事件时触发更新，但是如果处于 composition 则不更新
+- `notComposing`: 同样在 input 事件时触发更新，但是如果处于 composition 则不更新
 - `change`: change 事件时触发更新
-- `auto`: 当`multiple`为 true 时相当于`change`，当为 false 时相当于`not-composing`
+- `auto`: 当`multiple`为 true 时相当于`change`，当为 false 时相当于`notComposing`
 
 同时，`updateWhen`支持设置为数组，这通常用于`multiple`为 true 的时候
 
@@ -77,16 +86,18 @@ lang: zh-CN
 
 ## 自定义字符限制时机
 
-`restrict`, `maxLength`, `replaceChPeriodMark`这三个属性会限制输入的内容，而`restrictWhen`决定了限制的时机，其可选值有`beforeInput`, `input`, `not-composing`, `change`
+`restrict`, `maxLength`, `replaceChPeriodMark`这三个属性会限制输入的内容，而`restrictWhen`决定了限制的时机，其可选值有`beforeInput`, `input`, `notComposing`, `change`
 :::warning 注
-不建议将 restrictWhen 设为 input，在 input 事件中限制字符输入，如果此时处于中文输入 composition 下会导致字符被吞，但是输入法仍然显示你输入的字符，而且会出现怪异的行为。推荐设为 not-composing
+不建议将 restrictWhen 设为 input，在 input 事件中限制字符输入，如果此时处于中文输入 composition 下会导致字符被吞，但是输入法仍然显示你输入的字符，而且会出现怪异的行为。推荐设为 notComposing
 :::
 
 <!-- @Code:restrictWhen -->
 
 ## 自定义值转换时机
 
-`transformWhen`用于设置`transform`的时机，可选值有`input`, `not-composing`, `change`
+`transformWhen`用于设置输入值转换的时机，值转换会发生在输入后，发出更新事件前
+
+可选值有`input`, `notComposing`, `change`，默认为`notComposing`
 
 <!-- @Code:transformWhen -->
 

@@ -178,8 +178,8 @@ export const Select = defineSSRCustomElement({
       },
     };
     const popoverChildren = ({ isShow }: { isShow: boolean }) => {
-      const { multiple, filter, freeInput } = props;
-      const editable = editComputed.editable && (filter || freeInput);
+      const { multiple, filter, freeInput, hideOptionWhenSelected } = props;
+      const editable = editComputed.editable && (filter || freeInput || hideOptionWhenSelected);
       return renderElement(
         'input',
         {
