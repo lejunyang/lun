@@ -5,10 +5,17 @@ import { tryOnScopeDispose } from '../../hooks';
 import { useInlineStyleManager } from '../dialog/useInlineStyleManager';
 
 export type DraggableElementState = {
+  /** x relative to target's original position, can be used in transform */
   relativeX: number;
   relativeY: number;
+  /** from target's left edge to container's left edge */
+  readonly left: number;
+  readonly top: number;
   dx: number;
   dy: number;
+  /** initial left of target */
+  iLeft: number;
+  iTop: number;
   dragging: boolean;
   clientX: number;
   clientY: number;
@@ -90,6 +97,8 @@ export function useDraggableMonitor({
       startY,
       containerOffsetX,
       containerOffsetY,
+      iLeft: tx - x,
+      iTop: ty - y,
     };
     if (!state) {
       targetStates.set(keyEl, {
@@ -98,6 +107,12 @@ export function useDraggableMonitor({
         dx: -clientX,
         dy: -clientY,
         ...common,
+        get left() {
+          return this.iLeft + this.relativeX;
+        },
+        get top() {
+          return this.iTop + this.relativeY;
+        },
       });
     } else {
       Object.assign(state, {
