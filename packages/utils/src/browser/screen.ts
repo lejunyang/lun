@@ -6,7 +6,11 @@ export function getDPR(element?: Element): number {
   return getWindow(element).devicePixelRatio || 1;
 }
 
-export function roundByDPR(value: number, element?: Element) {
+const createDRP = (method: 'round' | 'floor' | 'ceil') => (value: number, element?: Element) => {
   const dpr = getDPR(element);
-  return Math.round(value * dpr) / dpr;
-}
+  return Math[method](value * dpr) / dpr;
+};
+
+export const roundByDPR = createDRP('round');
+export const floorByDPR = createDRP('floor');
+export const ceilByDPR = createDRP('ceil');
