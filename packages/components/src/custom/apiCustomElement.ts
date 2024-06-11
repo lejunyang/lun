@@ -206,6 +206,7 @@ const warnHandler = (msg: string, _: any, trace: string) => {
   console.warn(msg, msg.includes('Extraneous non-props') ? '\n' + trace : undefined);
 };
 
+const rootAttrName = 'data-root';
 const shadowRootMap = new WeakMap<HTMLElement, ShadowRoot>();
 
 export class VueElement extends BaseClass {
@@ -265,12 +266,17 @@ export class VueElement extends BaseClass {
     this._connected = false;
     nextTick(() => {
       if (!this._connected) {
+        // dom is removed
         if (this._ob) {
           this._ob.disconnect();
           this._ob = null;
         }
         render(null, this._def.shadowOptions === null ? this : shadowRootMap.get(this)!);
         this._instance = null;
+      } else {
+        // dom is moved to another place
+        const parent = this._findParent();
+        this.toggleAttribute(rootAttrName, !parent);
       }
     });
   }
@@ -405,6 +411,17 @@ export class VueElement extends BaseClass {
     render(this._createVNode(), this._def.shadowOptions === null ? this : shadowRootMap.get(this)!);
   }
 
+  private _findParent() {
+    // locate nearest Vue custom element parent for provide/inject
+    let parent: Node | null = this;
+    // parentNode of shadowRoot is null, use host to get parentNode
+    while ((parent = parent && (parent.parentNode || (parent as ShadowRoot).host))) {
+      const virtual = virtualParentMap.get(parent) as VueElement;
+      if (virtual) parent = virtual;
+      if (parent instanceof VueElement) return parent;
+    }
+  }
+
   private _createVNode(): VNode<any, any> {
     const vnode = createVNode(this._def, Object.assign({}, this._props));
     if (!this._instance) {
@@ -446,19 +463,11 @@ export class VueElement extends BaseClass {
           }
         };
 
-        // locate nearest Vue custom element parent for provide/inject
-        let parent: Node | null = this;
-        // parentNode of shadowRoot is null, use host to get parentNode
-        while ((parent = parent && (parent.parentNode || (parent as ShadowRoot).host))) {
-          const virtual = virtualParentMap.get(parent) as VueElement;
-          if (virtual) parent = virtual;
-          if (parent instanceof VueElement) {
-            instance.parent = parent._instance;
-            instance.provides = parent._instance!.provides;
-            break;
-          }
-        }
-        if (!parent) this.setAttribute('data-root', '');
+        let parent = this._findParent();
+        if (parent) {
+          instance.parent = parent._instance;
+          instance.provides = parent._instance!.provides;
+        } else this.setAttribute(rootAttrName, '');
         if (isFunction(this._def.onCE)) this._def.onCE(instance, this, parent);
       };
     }
