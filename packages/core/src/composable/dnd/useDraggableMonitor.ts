@@ -11,18 +11,26 @@ export type DraggableElementState = {
   /** from target's left edge to container's left edge */
   readonly left: number;
   readonly top: number;
-  dx: number;
-  dy: number;
-  /** initial left of target */
+  /** initial left when dragging starts */
   iLeft: number;
   iTop: number;
+  dx: number;
+  dy: number;
   dragging: boolean;
+  /** pointer's clientX */
   clientX: number;
   clientY: number;
+  /** left edge of target's bounding rect to the viewport */
+  clientLeft: number;
+  /** top of target's rect */
+  clientTop: number;
+  /** initial clientLeft when dragging starts */
+  iClientLeft: number;
+  iClientTop: number;
   limitType?: 'pointer' | 'target';
   /** offset X of pointer down point to container's left edge */
-  containerOffsetX: number;
-  containerOffsetY: number;
+  pointerOffsetX: number;
+  pointerOffsetY: number;
   /** x of pointer when start dragging, relative to the viewport */
   startX: number;
   startY: number;
@@ -56,7 +64,8 @@ export function useDraggableMonitor({
   getCoord?: (e: PointerEvent) => [number, number];
   disabled?: MaybeRefLikeOrGetter<boolean>;
   animationFrames?: number;
-  onMove?: (target: Element, state: DraggableElementState) => void;
+  /** return false to prevent updating */
+  onMove?: (target: Element, state: DraggableElementState) => void | boolean;
   onStop?: (target: Element, state: DraggableElementState) => void;
   onClean?: () => void;
   ignoreWhenAlt?: boolean;
@@ -71,6 +80,23 @@ export function useDraggableMonitor({
   const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
   const finalGetTargetRect = (target: Element) => getTargetRect?.(target) || target.getBoundingClientRect();
 
+  const getState = (options: Omit<DraggableElementState, 'left' | 'top' | 'clientLeft' | 'clientTop'>) =>
+    ({
+      ...options,
+      get left() {
+        return this.iLeft + this.relativeX;
+      },
+      get top() {
+        return this.iTop + this.relativeY;
+      },
+      get clientLeft() {
+        return this.iClientLeft + this.relativeX;
+      },
+      get clientTop() {
+        return this.iClientTop + this.relativeY;
+      },
+    } as DraggableElementState);
+
   const handleStart = (e: PointerEvent) => {
     const { button, target, pointerId, altKey } = e;
     if (button !== 0 || (ignoreWhenAlt && altKey)) return; // left button only
@@ -84,10 +110,10 @@ export function useDraggableMonitor({
     const { x, y } = container.getBoundingClientRect();
     const { x: tx, y: ty } = finalGetTargetRect(targetEl);
     // must calculate containerOffset here, not in handleMove, because target's x/y is changing during dragging, small pixels change can make it gradually out of container
-    const containerOffsetX = clientX - tx,
-      containerOffsetY = clientY - ty,
-      startX = x + containerOffsetX,
-      startY = y + containerOffsetY;
+    const pointerOffsetX = clientX - tx,
+      pointerOffsetY = clientY - ty,
+      startX = x + pointerOffsetX,
+      startY = y + pointerOffsetY;
     const common = {
       dragging: true,
       clientX,
@@ -95,25 +121,24 @@ export function useDraggableMonitor({
       limitType,
       startX,
       startY,
-      containerOffsetX,
-      containerOffsetY,
+      pointerOffsetX,
+      pointerOffsetY,
       iLeft: tx - x,
       iTop: ty - y,
+      iClientLeft: tx,
+      iClientTop: ty,
     };
     if (!state) {
-      targetStates.set(keyEl, {
-        relativeX: 0,
-        relativeY: 0,
-        dx: -clientX,
-        dy: -clientY,
-        ...common,
-        get left() {
-          return this.iLeft + this.relativeX;
-        },
-        get top() {
-          return this.iTop + this.relativeY;
-        },
-      });
+      targetStates.set(
+        keyEl,
+        getState({
+          relativeX: 0,
+          relativeY: 0,
+          dx: -clientX,
+          dy: -clientY,
+          ...common,
+        }),
+      );
     } else {
       Object.assign(state, {
         dx: state.relativeX - clientX,
@@ -139,8 +164,10 @@ export function useDraggableMonitor({
     runIfFn(onStop, targetEl, state);
   };
 
-  const emitMove = rafThrottle((el: Element, state: DraggableElementState) => {
-    runIfFn(onMove, el, state);
+  const emitMove = rafThrottle((el: Element, state: DraggableElementState, keyEl: Element) => {
+    if (runIfFn(onMove, el, state) !== false) {
+      targetStates.set(keyEl, state);
+    }
   }, animationFrames);
 
   const handleMove = (e: PointerEvent) => {
@@ -150,7 +177,7 @@ export function useDraggableMonitor({
     const state = targetStates.get(keyEl);
     if (!draggingCount || !state?.dragging) return;
     let [clientX, clientY] = finalGetCoord(e);
-    const { limitType, startX, startY, containerOffsetX, containerOffsetY } = state;
+    const { limitType, startX, startY, pointerOffsetX, pointerOffsetY } = state;
     const { x, y, right, bottom } = container.getBoundingClientRect();
     if (limitType === 'pointer') {
       clientX = floorByDPR(clamp(clientX, x, right), targetEl);
@@ -158,11 +185,17 @@ export function useDraggableMonitor({
     } else if (limitType === 'target') {
       const { width, height } = finalGetTargetRect(targetEl);
       // was using roundByDPR before, but round can actually make it overflow the container when we drag it to the bottom right corner, and then scrollbars appear
-      clientX = floorByDPR(clamp(clientX, startX, right - width + containerOffsetX), targetEl);
-      clientY = floorByDPR(clamp(clientY, startY, bottom - height + containerOffsetY), targetEl);
+      clientX = floorByDPR(clamp(clientX, startX, right - width + pointerOffsetX), targetEl);
+      clientY = floorByDPR(clamp(clientY, startY, bottom - height + pointerOffsetY), targetEl);
     }
-    Object.assign(state, { relativeX: state.dx + clientX, relativeY: state.dy + clientY, clientX, clientY });
-    emitMove(targetEl, state);
+    const newState = getState({
+      ...state,
+      relativeX: state.dx + clientX,
+      relativeY: state.dy + clientY,
+      clientX,
+      clientY,
+    });
+    emitMove(targetEl, newState, keyEl);
   };
 
   let lastEl: Element | null,
