@@ -28,7 +28,7 @@ export function useRefs<
   const onRefs = Object.keys(init).reduce((r, c) => {
     r[c] = (current: any) => {
       refs[c] = current;
-      runIfFn(onRefCallback?.[c], current);
+      runIfFn<any>(onRefCallback?.[c], current);
     };
     return r;
   }, {} as Record<string, any>);

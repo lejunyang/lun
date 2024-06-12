@@ -23,7 +23,7 @@ export const cacheFunctionResult = <T extends (...args: any[]) => any>(fn: T) =>
   }) as T;
 };
 
-export function runIfFn<T, Args extends unknown[] = EnsureParameters<T>>(
+export function runIfFn<T, Args extends EnsureParameters<T, any[]> = EnsureParameters<T, any[]>>(
   target?: T,
   ...args: Args
 ): T extends AnyFn ? ReturnType<T> : T {

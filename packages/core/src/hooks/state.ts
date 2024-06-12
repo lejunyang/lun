@@ -92,7 +92,7 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
         onCancel();
       }
     });
-    handlePromise(runIfFn(unrefOrGet(maybeGetter), ...toArrayIfNotNil(unrefOrGet(fnArgs))));
+    handlePromise(runIfFn<any>(unrefOrGet(maybeGetter), ...toArrayIfNotNil(unrefOrGet(fnArgs))));
   });
   return [result, pending] as const;
 }

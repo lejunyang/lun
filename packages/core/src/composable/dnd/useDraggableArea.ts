@@ -1,8 +1,8 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR } from '@lun/utils';
+import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR, numbersEqual } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
-import { useInlineStyleManager } from '../dialog/useInlineStyleManager';
+import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
 export type DraggableElementState = {
   /** x relative to target's original position, can be used in transform */
@@ -42,13 +42,14 @@ export type DraggableFn = (
   state?: DraggableElementState,
 ) => boolean | undefined | null;
 
-export function useDraggableMonitor({
+export function useDraggableArea({
   el,
   asWhole,
   draggable,
   getCoord,
   disabled,
   animationFrames,
+  axis,
   onMove,
   onStop,
   onClean,
@@ -64,18 +65,21 @@ export function useDraggableMonitor({
   getCoord?: (e: PointerEvent) => [number, number];
   disabled?: MaybeRefLikeOrGetter<boolean>;
   animationFrames?: number;
+  /** other values represent both x and y */
+  axis?: 'x' | 'y';
   /** return false to prevent updating */
-  onMove?: (target: Element, state: DraggableElementState) => void | boolean;
+  onMove?: (target: Element, state: DraggableElementState, oldState: DraggableElementState) => void | boolean;
   onStop?: (target: Element, state: DraggableElementState) => void;
-  onClean?: () => void;
+    onClean?: () => void;
+  /** ignore dragging when alt key is pressed */
   ignoreWhenAlt?: boolean;
   /** used to apply limitation on coordinates so that pointer or target's coordinates can not be out of container when dragging */
-  limitInContainer?: 'pointer' | 'target' | ((target: Element, state: DraggableElementState) => 'pointer' | 'target');
+  limitInContainer?: 'pointer' | 'target' | ((target: Element, state?: DraggableElementState) => 'pointer' | 'target');
   getTargetRect?: (target: Element) => DOMRect;
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
-  const [storeAndSetStyle, restoreElStyle] = useInlineStyleManager();
+  const [storeAndSetStyle, restoreElStyle] = useTempInlineStyle(true);
 
   const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
   const finalGetTargetRect = (target: Element) => getTargetRect?.(target) || target.getBoundingClientRect();
@@ -164,11 +168,14 @@ export function useDraggableMonitor({
     runIfFn(onStop, targetEl, state);
   };
 
-  const emitMove = rafThrottle((el: Element, state: DraggableElementState, keyEl: Element) => {
-    if (runIfFn(onMove, el, state) !== false) {
-      targetStates.set(keyEl, state);
-    }
-  }, animationFrames);
+  const emitMove = rafThrottle(
+    (el: Element, state: DraggableElementState, oldState: DraggableElementState, keyEl: Element) => {
+      if (runIfFn(onMove, el, state, oldState) !== false) {
+        targetStates.set(keyEl, state);
+      }
+    },
+    animationFrames,
+  );
 
   const handleMove = (e: PointerEvent) => {
     const targetEl = e.target as Element,
@@ -188,14 +195,22 @@ export function useDraggableMonitor({
       clientX = floorByDPR(clamp(clientX, startX, right - width + pointerOffsetX), targetEl);
       clientY = floorByDPR(clamp(clientY, startY, bottom - height + pointerOffsetY), targetEl);
     }
+    const relativeX = state.dx + clientX,
+      relativeY = state.dy + clientY;
+    // not changed, return
+    if (
+      (numbersEqual(relativeX, state.relativeX) || axis === 'y') &&
+      (numbersEqual(relativeY, state.relativeY) || axis === 'x')
+    )
+      return;
     const newState = getState({
       ...state,
-      relativeX: state.dx + clientX,
-      relativeY: state.dy + clientY,
+      relativeX,
+      relativeY,
       clientX,
       clientY,
     });
-    emitMove(targetEl, newState, keyEl);
+    emitMove(targetEl, newState, state, keyEl);
   };
 
   let lastEl: Element | null,

@@ -9,7 +9,7 @@ import {
   toPxIfNum,
 } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
-import { useInlineStyleManager } from './useInlineStyleManager';
+import { useTempInlineStyle } from './useTempInlineStyle';
 
 const lockNumMap = new WeakMap<HTMLElement, number>(),
   scrollPositionMap = new WeakMap<HTMLElement, [number, number]>();
@@ -22,7 +22,7 @@ export function useLockScroll({
 } = {}) {
   const localLocks = new Set<HTMLElement>();
 
-  const [storeAndSetStyle, restoreElStyle] = useInlineStyleManager();
+  const [storeAndSetStyle, restoreElStyle] = useTempInlineStyle(true);
 
   function lock(el: HTMLElement) {
     const prevNum = lockNumMap.get(el);

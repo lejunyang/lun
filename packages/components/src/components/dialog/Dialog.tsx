@@ -8,13 +8,13 @@ import { VCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import {
   refLikeToDescriptors,
-  useDraggableMonitor,
+  useDraggableArea,
   useFocusTrap,
-  useInlineStyleManager,
+  useTempInlineStyle,
   useNativeDialog,
   useSetupEdit,
 } from '@lun/core';
-import { Transition, inject, onBeforeUnmount, provide, reactive, ref, watch, watchEffect } from 'vue';
+import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
 import { getTransitionProps, intl, partsDefine } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
@@ -173,8 +173,8 @@ export const Dialog = Object.assign(
       // if there is a parent watermark, wrap children with watermark render
       const { render } = WatermarkContext.inject();
 
-      const [setStyle, restoreStyle] = useInlineStyleManager();
-      useDraggableMonitor({
+      const [setStyle, restoreStyle] = useTempInlineStyle();
+      useDraggableArea({
         el: dialogRef,
         disabled() {
           return !props.customDraggable && !props.headerDraggable;

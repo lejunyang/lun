@@ -4,7 +4,7 @@ export type CommonObject = Record<string | number | symbol, unknown>;
 export type AnyObject = Record<string | number | symbol, any>;
 export type Constructor<T = any> = new (...args: any[]) => T;
 
-export type EnsureParameters<T> = T extends (...args: infer P) => any ? P : never[];
+export type EnsureParameters<T, F = never> = T extends (...args: infer P) => any ? P : F;
 
 export type UnwrapPrimitive<T> = T extends String
   ? string

@@ -40,7 +40,7 @@ const Tooltip = defineSSRCustomElement({
     useCEExpose(methods, refLikeToDescriptors({ popover: popoverRef }));
 
     const beforeOpen = (el: Element) => {
-      if (runIfFn(props.beforeOpen) === false) return false;
+      if (runIfFn(props.beforeOpen, el) === false) return false;
       const { overflow } = targetOptionMap.get(el) || {};
       if ((overflow === 'enable' || overflow === 'open') && !methods.isOverflow(el)) return false;
     };
