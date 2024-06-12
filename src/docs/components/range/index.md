@@ -15,6 +15,12 @@ lang: zh-CN
 
 ## 标记
 
-`labels`属性可以设置标记，它为一个对象，对象的key为标记的数字位置，value为标记的字符串内容
+`labels`属性可以设置标记，它为一个对象，对象的 key 为标记的数字位置，value 为标记的字符串内容
 
 <!-- @Code:labels -->
+
+## 范围可拖拽
+
+当`value`为数组且设置`trackDraggable`后，可以直接拖拽多值组成的轨道本身
+
+<!-- @Code:trackDraggable -->

@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
 import { computed, nextTick, onMounted, onUpdated, reactive, ref } from 'vue';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
-import { useDraggableMonitor, useSetupEdit, useSetupEvent } from '@lun/core';
+import { useDraggableArea, useSetupEdit, useSetupEvent } from '@lun/core';
 import {
   at,
   isArray,
@@ -12,7 +12,6 @@ import {
   isArrowRightEvent,
   isArrowUpEvent,
   toArrayIfNotNil,
-  clamp as clampNum,
   setStyle,
   toPxIfNum,
 } from '@lun/utils';
@@ -50,9 +49,10 @@ export const Range = defineSSRCustomElement({
       abs,
       toNumber,
       isNaN,
+      isZero,
     } = GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
-    type CanBeNum = string | number;
+    type CanBeNum = string | number | BigNum;
     const toNum = (val: BigNum) => {
       const { precision } = props;
       return toRawNum(precision == null ? val : toPrecision(val, precision as any));
@@ -134,10 +134,18 @@ export const Range = defineSSRCustomElement({
     };
 
     const getRootRect = () => rootEl.value!.getBoundingClientRect();
-    const updateByCoord = (clientX: number, clientY: number, index?: number) => {
+    const getValueByCoord = (clientX: number, clientY: number) => {
       const { x, y, width, height } = getRootRect();
       const percent = props.type === 'vertical' ? (clientY - y) / height : (clientX - x) / width;
-      updateVal(multi(percent, len.value), index);
+      return multi(percent, len.value);
+    };
+    const updateByCoord = (clientX: number, clientY: number, index?: number) => {
+      updateVal(getValueByCoord(clientX, clientY), index);
+    };
+    const updateTrack = (clientX: number, clientY: number) => {
+      const val = clamp(getValueByCoord(clientX, clientY));
+      const offset = minus(val, processedValues.value[0][0]);
+      if (!isZero(offset)) valueModel.value = processedValues.value.map(([v]) => toNum(plus(v, offset)));
     };
     const handlers = {
       onKeydown(e: KeyboardEvent) {
@@ -163,21 +171,35 @@ export const Range = defineSSRCustomElement({
           // it's thumb element
           focusThumb(+index);
         } else {
-          updateByCoord(clientX, clientY);
+          // a click event following dragging track, need to ignore it
+          if (!draggingTrack) updateByCoord(clientX, clientY);
+          else draggingTrack = false;
         }
       },
     };
 
-    let draggingIndex: number | undefined;
-    useDraggableMonitor({
+    let draggingIndex: number | undefined,
+      draggingTrack = false;
+    useDraggableArea({
       el: rootEl,
       disabled: () => !isEditable(),
       draggable(target) {
-        return target.hasAttribute('data-index');
+        return (
+          target.hasAttribute('data-index') ||
+          (props.trackDraggable && processedValues.value.length > 1 && target.hasAttribute('data-track'))
+        );
       },
-      limitInContainer: 'pointer',
-      onMove(target, { clientX, clientY }) {
-        const { dataset: { index } = {} } = target as HTMLElement;
+      limitInContainer: (el) => ((el as HTMLElement).dataset.track ? 'target' : 'pointer'),
+      get axis() {
+        return props.type === 'vertical' ? 'y' : 'x';
+      },
+      rememberRelative: false, // must clear coord remembered in last dragging for track, as we're not using transform and rerender children on every move
+      onMove(target, { clientX, clientY, clientLeft, clientTop }) {
+        const { dataset: { index, track } = {} } = target as HTMLElement;
+        if (track) {
+          draggingTrack = true;
+          return updateTrack(clientLeft, clientTop);
+        }
         if (index == null) return;
         draggingIndex ??= +index;
         // if draggingIndex is not undefined, must use it other than index, as index is constant during dragging, but we need to update the correct index if thumb's position has changed
@@ -220,7 +242,7 @@ export const Range = defineSSRCustomElement({
           {...handlers}
         >
           <div class={ns.e('rail')} part={partsDefine[name].rail}>
-            <span class={ns.e('track')} part={partsDefine[name].track}></span>
+            <span class={ns.e('track')} data-track="0" part={partsDefine[name].track}></span>
             {value.map(([_, p], index) => (
               <span
                 data-index={index}
