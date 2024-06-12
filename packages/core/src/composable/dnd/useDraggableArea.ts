@@ -4,6 +4,8 @@ import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR, numbersEqu
 import { tryOnScopeDispose } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
+// greatly inspired by https://www.redblobgames.com/making-of/draggable/
+
 export type DraggableElementState = {
   /** x relative to target's original position, can be used in transform */
   relativeX: number;
@@ -34,6 +36,7 @@ export type DraggableElementState = {
   /** x of pointer when start dragging, relative to the viewport */
   startX: number;
   startY: number;
+  pointerId: number;
 };
 
 export type DraggableFn = (
@@ -56,6 +59,7 @@ export function useDraggableArea({
   ignoreWhenAlt,
   limitInContainer,
   getTargetRect,
+  rememberRelative = true,
 }: {
   /** the container element that contains draggable elements */
   el: MaybeRefLikeOrGetter<Element>;
@@ -70,12 +74,13 @@ export function useDraggableArea({
   /** return false to prevent updating */
   onMove?: (target: Element, state: DraggableElementState, oldState: DraggableElementState) => void | boolean;
   onStop?: (target: Element, state: DraggableElementState) => void;
-    onClean?: () => void;
+  onClean?: () => void;
   /** ignore dragging when alt key is pressed */
   ignoreWhenAlt?: boolean;
   /** used to apply limitation on coordinates so that pointer or target's coordinates can not be out of container when dragging */
   limitInContainer?: 'pointer' | 'target' | ((target: Element, state?: DraggableElementState) => 'pointer' | 'target');
   getTargetRect?: (target: Element) => DOMRect;
+  rememberRelative?: boolean;
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
@@ -108,6 +113,7 @@ export function useDraggableArea({
       keyEl = asWhole ? unrefOrGet(el)! : targetEl;
     const state = targetStates.get(keyEl);
     if (!draggable(targetEl, e, state)) return;
+    e.stopPropagation(); // for nested
     const [clientX, clientY] = finalGetCoord(e);
     const limitType = runIfFn(limitInContainer, targetEl, state);
     const container = unrefOrGet(el)!;
@@ -131,8 +137,9 @@ export function useDraggableArea({
       iTop: ty - y,
       iClientLeft: tx,
       iClientTop: ty,
+      pointerId,
     };
-    if (!state) {
+    if (!state || !rememberRelative) {
       targetStates.set(
         keyEl,
         getState({
@@ -147,8 +154,6 @@ export function useDraggableArea({
       Object.assign(state, {
         dx: state.relativeX - clientX,
         dy: state.relativeY - clientY,
-        relativeX: clientX,
-        relativeY: clientY,
         ...common,
       });
     }
@@ -182,7 +187,9 @@ export function useDraggableArea({
       container = unrefOrGet(el)!,
       keyEl = asWhole ? container : targetEl;
     const state = targetStates.get(keyEl);
-    if (!draggingCount || !state?.dragging) return;
+    // check pointerId for touch devices simultaneous dragging
+    if (!draggingCount || !state?.dragging || state.pointerId !== e.pointerId) return;
+    e.stopPropagation(); // for nested
     let [clientX, clientY] = finalGetCoord(e);
     const { limitType, startX, startY, pointerOffsetX, pointerOffsetY } = state;
     const { x, y, right, bottom } = container.getBoundingClientRect();
@@ -234,6 +241,7 @@ export function useDraggableArea({
         on(element, 'pointermove', handleMove),
         on(element, 'touchstart', prevent),
         on(element, 'dragstart', prevent),
+        on(element, 'lostpointercapture', handleEnd),
       ];
       lastEl = element;
     }
