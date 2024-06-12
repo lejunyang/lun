@@ -36,6 +36,10 @@ describe('BigIntDecimal', () => {
     const bigIntDecimal2 = new BigIntDecimal('678.90');
     const result = bigIntDecimal1.minus(bigIntDecimal2);
     expect(result.toString()).toBe('-555.45');
+    const bigIntDecimal3 = new BigIntDecimal('0.001');
+    const bigIntDecimal4 = new BigIntDecimal('0.004');
+    const result2 = bigIntDecimal3.minus(bigIntDecimal4);
+    expect(result2.toString()).toBe('-0.003');
   });
 
   test('should correctly handle multiplication', () => {

@@ -39,7 +39,6 @@ export function ensureNumber(val: any, defaultVal: number) {
 export const numberRegex =
   /^(?<sign>[-+])?(?<integer>[0-9]*)(?<decimal>[.。][0-9]*)?((e|E)(?<expSign>[-+])?(?<exp>[0-9]*))?$/;
 
-
 const removeLeadingDash = (str: string) => str.replace(/^-/, '');
 
 export type BigIntDecimalValue = string | number | BigIntDecimal | typeof BigIntDecimal;
@@ -180,14 +179,15 @@ export class BigIntDecimal {
     const offsetAlignedDecimal = offset.alignDecimal(maxDecimalLength);
     let nextDecimalLength = calDecimalLen(maxDecimalLength);
 
-    const valueStr = calculator(myAlignedDecimal, offsetAlignedDecimal)
-      .toString()
-      .padStart(nextDecimalLength + 1, '0');
+    let valueStr = calculator(myAlignedDecimal, offsetAlignedDecimal).toString();
+    let negative;
+    // 0.001 - 0.004 => 1 - 4 => -3 => 0003
+    if ((negative = valueStr[0] === '-')) valueStr = valueStr.slice(1);
+    valueStr = valueStr.padStart(nextDecimalLength + 1, '0');
     // 1.001 + (-1) => 1001 + (-1000) => 1 => 0001
     const sliceIndex = -nextDecimalLength || valueStr.length; // correct nextDecimalLength if it's 0, it means the result is an integer
-    const negative = valueStr[0] === '-';
     return toBigIntDecimal({
-      integer: valueStr.slice(negative ? 1 : 0, sliceIndex),
+      integer: valueStr.slice(0, sliceIndex),
       decimal: valueStr.slice(sliceIndex),
       negative,
     });
