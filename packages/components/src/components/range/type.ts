@@ -15,7 +15,7 @@ export const rangeProps = freeze({
   ...editStateProps,
   value: PropNumOrArr(),
   type: PropString<'horizontal' | 'vertical'>(),
-  valueType: PropString<'number' | 'number-string'>(), // TODO
+  valueType: PropString<'number' | 'number-text'>(),
   min: PropNumber(),
   max: PropNumber(),
   step: PropNumber(),

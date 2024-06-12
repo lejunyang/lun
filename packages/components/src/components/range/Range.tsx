@@ -54,8 +54,9 @@ export const Range = defineSSRCustomElement({
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number | BigNum;
     const toNum = (val: BigNum) => {
-      const { precision } = props;
-      return toRawNum(precision == null ? val : toPrecision(val, precision as any));
+      const { precision, valueType } = props;
+      const res = precision == null ? val : toPrecision(val, precision as any);
+      return valueType === 'number-text' ? String(res) : toRawNum(res);
     };
 
     const minVal = computed(() => ensureNumber(props.min, 0));
@@ -125,7 +126,7 @@ export const Range = defineSSRCustomElement({
           return toNum(arr[j][0]);
         }
         return toNum(value[0]);
-      });
+      }) as string[] | number[];
       if (noIndex) res[newIndex!] = toNum(val);
       if (res.length === 1 && !isArray(valueModel.value)) valueModel.value = res[0];
       else valueModel.value = res;
@@ -145,7 +146,8 @@ export const Range = defineSSRCustomElement({
     const updateTrack = (clientX: number, clientY: number) => {
       const val = clamp(getValueByCoord(clientX, clientY));
       const offset = minus(val, processedValues.value[0][0]);
-      if (!isZero(offset)) valueModel.value = processedValues.value.map(([v]) => toNum(plus(v, offset)));
+      if (!isZero(offset))
+        valueModel.value = processedValues.value.map(([v]) => toNum(plus(v, offset))) as string[] | number[];
     };
     const handlers = {
       onKeydown(e: KeyboardEvent) {
@@ -257,7 +259,7 @@ export const Range = defineSSRCustomElement({
           {labels && (
             <div class={ns.e('labels')} part={partsDefine[name].labels} ref={labelWrapEl}>
               {Object.entries(labels || {}).map(([key, label]) => {
-                const num = toNumber(key);
+                const num = toNumber(key === 'start' ? minVal.value : key === 'end' ? maxVal.value : key);
                 if (isNaN(num)) return;
                 const percent = getPercent(num);
                 const node = (
