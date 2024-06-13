@@ -3,8 +3,10 @@ import { defineConfig } from 'vite';
 import { vUpdateForBabel } from '@lun/plugins';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
+const processPath = (path: string) => fileURLToPath(new URL(path, import.meta.url));
+
 const commonAlias = {
-  data: fileURLToPath(new URL('./src/utils/data.ts', import.meta.url)),
+  data: processPath('./src/utils/data.ts'),
 };
 
 export default defineConfig({
@@ -37,17 +39,18 @@ export default defineConfig({
     alias:
       process.env.NODE_ENV !== 'production'
         ? {
-            custom: fileURLToPath(new URL('./packages/components/src/custom/index', import.meta.url)),
-            common: fileURLToPath(new URL('./packages/components/src/common/index', import.meta.url)),
-            config: fileURLToPath(new URL('./packages/components/src/components/config/index', import.meta.url)),
-            utils: fileURLToPath(new URL('./packages/components/src/utils/index', import.meta.url)),
-            hooks: fileURLToPath(new URL('./packages/components/src/hooks/index', import.meta.url)),
-            '@lun/plugins': fileURLToPath(new URL('./packages/plugins/index', import.meta.url)),
-            '@lun/components': fileURLToPath(new URL('./packages/components/index', import.meta.url)),
-            '@lun/core': fileURLToPath(new URL('./packages/core/index', import.meta.url)),
-            '@lun/utils': fileURLToPath(new URL('./packages/utils/index', import.meta.url)),
-            '@lun/theme': fileURLToPath(new URL('./packages/theme/src', import.meta.url)),
-            '@lun/react': fileURLToPath(new URL('./packages/react/index', import.meta.url)),
+            custom: processPath('./packages/components/src/custom/index'),
+            common: processPath('./packages/components/src/common/index'),
+            config: processPath('./packages/components/src/components/config/index'),
+            utils: processPath('./packages/components/src/utils/index'),
+            hooks: processPath('./packages/components/src/hooks/index'),
+            '@lun/plugins': processPath('./packages/plugins/index'),
+            '@lun/components': processPath('./packages/components/index'),
+            '@lun/core/date-dayjs': processPath('./packages/core/src/presets/date.dayjs.ts'),
+            '@lun/core': processPath('./packages/core/index'),
+            '@lun/utils': processPath('./packages/utils/index'),
+            '@lun/theme': processPath('./packages/theme/src'),
+            '@lun/react': processPath('./packages/react/index'),
             ...commonAlias,
           }
         : { ...commonAlias },

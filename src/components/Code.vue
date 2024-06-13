@@ -103,7 +103,7 @@ const props = defineProps({
   },
 });
 
-const devHide = computed(() => props.dev && inBrowser && !location.search.includes('dev'));
+const devHide = computed(() => props.dev && inBrowser && location.hostname !== 'localhost');
 
 const lang = ref('vueJSX');
 const showEditor = ref(false);

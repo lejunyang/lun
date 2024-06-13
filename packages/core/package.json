@@ -11,6 +11,11 @@
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
+    "./date-dayjs": {
+      "require": "./dist/date.dayjs.development.cjs",
+      "import": "./dist/date.dayjs.development.js",
+      "types": "./dist/date.dayjs.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
@@ -24,7 +29,8 @@
     "version": "npm version"
   },
   "dependencies": {
-    "@lun/utils": "workspace:^"
+    "@lun/utils": "workspace:^",
+    "dayjs": "^1.11.11"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "^5.0.5",
