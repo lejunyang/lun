@@ -141,7 +141,7 @@
       inset: calc(-1 * var(--factor) * getDeclaredVar(size));
       cursor: pointer;
     }
-    &:focus-visible::after {
+    &:focus::after {
       box-shadow: $thumb-shadow, 0 0 0 3px getAccentColor(3), 0 0 0 5px getFocusColor();
     }
   }
@@ -154,6 +154,12 @@
   @include e(label) {
     position: absolute;
     @include declareVars((line-height));
+  }
+
+  @include e(tooltip) {
+    &::part(popover-content) {
+      transition: none; // disable popover's transition, or it will be too laggy
+    }
   }
 
   @include is(disabled) {

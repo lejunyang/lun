@@ -4,6 +4,7 @@ import {
   editStateProps,
   GetEventPropsFromEmits,
   PropBoolean,
+  PropFunction,
   PropNumber,
   PropNumOrArr,
   PropObject,
@@ -23,6 +24,8 @@ export const rangeProps = freeze({
   strict: PropBoolean(),
   labels: PropObject<Record<string | number, string>>(),
   trackDraggable: PropBoolean(),
+  tooltipProps: PropObject(),
+  tooltipFormatter: PropFunction<(value: string) => string>(),
 });
 
 export const rangeEmits = freeze({

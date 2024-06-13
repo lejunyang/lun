@@ -5,6 +5,12 @@ lang: zh-CN
 
 ## 基本使用
 
+默认`min=0`，`max=100`，`step=1`，不在有效范围的值会自动修正到边界值。若不指定`precision`，会自动取`step`的小数位数。
+
+支持大数和高精度小数，需要将`valueType`设为`number-text`，值会变为字符串
+
+支持键盘操作，聚焦后可用上下左右箭头增减值
+
 <!-- @Code:basicUsage -->
 
 ## 多值

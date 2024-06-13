@@ -21,7 +21,10 @@ export type MathMethods<W = number, T = W | number> = {
   toNumber(target: unknown): W;
   // to js number only
   toRawNum(target: unknown): number;
+  /** different from Number.prototype.toPrecision, precision represents the number of digits of the fractional part */
   toPrecision(target: T, precision: T): W;
+  /** get precision number of fractional part */
+  getPrecision(target: T): number;
   getZero(): W;
   getNaN(): W;
   getPositiveInfinity(): W;
@@ -69,8 +72,7 @@ export function createMath<T = number>(methods: MathMethods<T>) {
       if (methods.isZero(target)) return toNumber(target);
       return methods.minus(methods.getZero(), target);
     };
-  if (!methods.abs)
-    methods.abs = (target) => (methods.lessThan(target, 0) ? methods.negate!(target) : (target as T));
+  if (!methods.abs) methods.abs = (target) => (methods.lessThan(target, 0) ? methods.negate!(target) : (target as T));
   return methods as Required<MathMethods<T>>;
 }
 
@@ -99,6 +101,7 @@ export const createDefaultMath = () =>
     greaterThan,
     lessThan,
     toPrecision: (target, precision) => +target.toFixed(precision),
+    getPrecision: (target) => String(target).split('.')[1]?.length || 0,
     negate: (target) => -target,
   });
 
@@ -166,6 +169,9 @@ export const createBigIntDecimalMath = () => {
     },
     toPrecision(target, precision) {
       return toBigIntDecimal(target).toPrecision(precision);
+    },
+    getPrecision(target) {
+      return toBigIntDecimal(target).decimalLen;
     },
     negate(target) {
       return toBigIntDecimal(target).negated();

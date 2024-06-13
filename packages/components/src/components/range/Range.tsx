@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
 import { computed, nextTick, onMounted, onUpdated, reactive, ref } from 'vue';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
@@ -14,9 +14,11 @@ import {
   toArrayIfNotNil,
   setStyle,
   toPxIfNum,
+  runIfFn,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 import { partsDefine } from 'common';
+import { defineTooltip, iTooltip } from '../tooltip';
 
 const name = 'range';
 export const Range = defineSSRCustomElement({
@@ -33,6 +35,15 @@ export const Range = defineSSRCustomElement({
     const rootEl = ref<HTMLElement>(),
       labelWrapEl = ref<HTMLElement>();
     const thumbs = reactive<HTMLElement[]>([]);
+    const tooltipRef = ref<iTooltip>();
+    const getTooltip = (el: Element) => {
+      const index = thumbs.findIndex((t) => t === el);
+      if (index >= 0) {
+        let value = processedValues.value[index][2];
+        return runIfFn(props.tooltipFormatter, value) || value;
+      }
+    };
+    const isVertical = () => props.type === 'vertical';
 
     const {
       ensureNumber,
@@ -50,12 +61,13 @@ export const Range = defineSSRCustomElement({
       toNumber,
       isNaN,
       isZero,
+      getPrecision,
     } = GlobalStaticConfig.math;
     type BigNum = ReturnType<typeof ensureNumber>;
     type CanBeNum = string | number | BigNum;
     const toNum = (val: BigNum) => {
       const { precision, valueType } = props;
-      const res = precision == null ? val : toPrecision(val, precision as any);
+      const res = precision == null ? toPrecision(val, getPrecision(step.value)) : toPrecision(val, precision as any);
       return valueType === 'number-text' ? String(res) : toRawNum(res);
     };
 
@@ -78,7 +90,7 @@ export const Range = defineSSRCustomElement({
         .map((v) => {
           const clamped = clamp(v),
             p = getPercent(clamped);
-          return [clamped, p] as const;
+          return [clamped, p, String(clamped)] as const;
         })
         .sort((a, b) => a[1] - b[1]);
     });
@@ -137,7 +149,7 @@ export const Range = defineSSRCustomElement({
     const getRootRect = () => rootEl.value!.getBoundingClientRect();
     const getValueByCoord = (clientX: number, clientY: number) => {
       const { x, y, width, height } = getRootRect();
-      const percent = props.type === 'vertical' ? (clientY - y) / height : (clientX - x) / width;
+      const percent = isVertical() ? (clientY - y) / height : (clientX - x) / width;
       return multi(percent, len.value);
     };
     const updateByCoord = (clientX: number, clientY: number, index?: number) => {
@@ -193,7 +205,7 @@ export const Range = defineSSRCustomElement({
       },
       limitInContainer: (el) => ((el as HTMLElement).dataset.track ? 'target' : 'pointer'),
       get axis() {
-        return props.type === 'vertical' ? 'y' : 'x';
+        return isVertical() ? 'y' : 'x';
       },
       rememberRelative: false, // must clear coord remembered in last dragging for track, as we're not using transform and rerender children on every move
       onMove(target, { clientX, clientY, clientLeft, clientTop }) {
@@ -204,6 +216,7 @@ export const Range = defineSSRCustomElement({
         }
         if (index == null) return;
         draggingIndex ??= +index;
+        // FIXME if it's big number and we drag it to the end, we can't get max value due to the precision issue
         // if draggingIndex is not undefined, must use it other than index, as index is constant during dragging, but we need to update the correct index if thumb's position has changed
         updateByCoord(clientX, clientY, draggingIndex);
       },
@@ -226,14 +239,18 @@ export const Range = defineSSRCustomElement({
         });
       }
     };
-    onMounted(updateLabelSize);
+    onMounted(() => {
+      updateLabelSize();
+      const attach = tooltipRef.value?.attachTarget;
+      if (attach) thumbs.forEach((t) => attach(t));
+    });
     onUpdated(updateLabelSize);
 
     const [stateClass] = useCEStates(() => null, ns);
 
     return () => {
       const { value } = processedValues,
-        { type, labels } = props,
+        { type, labels, tooltipProps } = props,
         { editable } = editComputed;
       return (
         <div
@@ -271,6 +288,13 @@ export const Range = defineSSRCustomElement({
               })}
             </div>
           )}
+          {renderElement('tooltip', {
+            content: getTooltip,
+            placement: isVertical() ? 'right' : undefined,
+            ...tooltipProps,
+            class: ns.e('tooltip'),
+            ref: tooltipRef,
+          })}
         </div>
       );
     };
@@ -280,4 +304,6 @@ export const Range = defineSSRCustomElement({
 export type tRange = typeof Range;
 export type iRange = InstanceType<tRange>;
 
-export const defineRange = createDefineElement(name, Range);
+export const defineRange = createDefineElement(name, Range, {
+  tooltip: defineTooltip,
+});
