@@ -25,3 +25,5 @@ export type UnwrapPrimitive<T> = T extends String
   : T;
 
 export type ExcludeNumberAndSymbol<T> = T extends number | symbol ? never : T;
+
+export type TryGet<O, K, D = never> = K extends keyof O ? O[K] : D;
