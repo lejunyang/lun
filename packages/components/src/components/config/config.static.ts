@@ -5,8 +5,9 @@ import {
   getInitialElementAnimationRegistry,
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
-import { presets } from '@lun/core';
+import { presets, DateMethods } from '@lun/core';
 import { defaultProps } from './config.static.defaultProps';
+import { DateValueType } from '../date-panel/type';
 
 const holderName = 'teleport-holder';
 export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
@@ -134,15 +135,17 @@ export const GlobalStaticConfig = new Proxy(
     animationRegistry: getInitialDefaultAnimationRegistry(),
     elAnimationRegistry: getInitialElementAnimationRegistry(),
     ...presets,
+    date: null as any as DateMethods<DateValueType>,
   },
   {
     get(target, p, receiver) {
-      // deep get, or remove components key
-      return Reflect.get(p in presets ? presets : target, p, receiver);
+      const val = Reflect.get(p in presets ? presets : target, p, receiver);
+      if (__DEV__ && val == null) throw new Error(`GlobalStaticConfig '${String(p)}' has not been defined yet`);
+      return val;
     },
     set(target: any, p, newValue, receiver) {
       const oldVal = target[p];
-      if (__DEV__ && Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)) {
+      if (__DEV__ && (!newValue || (oldVal && Object.getPrototypeOf(oldVal) !== Object.getPrototypeOf(newValue)))) {
         error(`Invalid static config was set on ${String(p)}`, 'old config:', target[p], 'new config:', newValue);
         return false;
       } else {
