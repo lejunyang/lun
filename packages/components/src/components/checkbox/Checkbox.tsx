@@ -15,10 +15,10 @@ export const Checkbox = defineSSRCustomElement({
   props: checkboxProps,
   emits: checkboxEmits,
   formAssociated: true,
-  setup(props, { emit, expose }) {
+  setup(props, { expose, emit: e }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
-    useSetupEvent();
+    const emit = useSetupEvent<typeof e>();
     const [editComputed] = useSetupEdit();
     // if it's under CheckboxGroup, it will not be considered as a model
     const checkedModel = checkboxContext

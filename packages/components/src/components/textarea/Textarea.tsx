@@ -14,9 +14,9 @@ export const Textarea = defineSSRCustomElement({
   props: textareaProps,
   formAssociated: true,
   emits: textareaEmits,
-  setup(props, { emit, attrs }) {
+  setup(props, { emit: e, attrs }) {
     const ns = useNamespace(name);
-    useSetupEvent();
+    const emit = useSetupEvent<typeof e>();
     const valueModel = useValueModel(props);
     const { validateProps } = usePropsFromFormItem(props);
     const [editComputed] = useSetupEdit();

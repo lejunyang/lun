@@ -16,8 +16,8 @@ export const FilePicker = defineSSRCustomElement({
   props: filePickerProps,
   emits: filePickerEmits,
   formAssociated: true,
-  setup(props, { emit }) {
-    useSetupEvent();
+  setup(props, { emit: e }) {
+    const emit = useSetupEvent<typeof e>();
     const [editComputed, editState] = useSetupEdit();
     const valueModel = useValueModel(props);
     const inputRef = ref<HTMLInputElement>();

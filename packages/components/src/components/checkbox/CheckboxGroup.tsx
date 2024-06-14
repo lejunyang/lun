@@ -14,9 +14,9 @@ export const CheckboxGroup = defineSSRCustomElement({
   props: checkboxGroupProps,
   emits: checkboxGroupEmits,
   formAssociated: true,
-  setup(props, { emit }) {
+  setup(props, { emit: e }) {
     const ns = useNamespace(name);
-    useSetupEvent({
+    const emit = useSetupEvent<typeof e>({
       update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
         if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
         if (isCheckForAll) {

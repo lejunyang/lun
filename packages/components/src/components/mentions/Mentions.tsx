@@ -18,8 +18,8 @@ export const Mentions = defineSSRCustomElement({
   formAssociated: true,
   props: mentionsProps,
   emits: mentionsEmits,
-  setup(props, { emit, attrs }) {
-    useSetupEvent();
+  setup(props, { emit: e, attrs }) {
+    const emit = useSetupEvent<typeof e>();
     const ns = useNamespace(name);
     const valueModel = useValueModel(props, { shouldEmit: false });
     const { validateProps } = usePropsFromFormItem(props);

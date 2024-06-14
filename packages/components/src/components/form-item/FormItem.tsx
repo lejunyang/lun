@@ -34,7 +34,7 @@ export const FormItem = defineSSRCustomElement({
   name,
   props: formItemProps,
   emits: formItemEmits,
-  setup(itemProps, { emit, attrs }) {
+  setup(itemProps, { emit: e, attrs }) {
     const formContext = FormItemCollector.child();
     const { parent, layoutInfo } = formContext || {};
     const props = computed(() =>
@@ -193,7 +193,7 @@ export const FormItem = defineSSRCustomElement({
     };
     if (!formContext) return render;
 
-    useSetupEvent({
+    const emit = useSetupEvent<typeof e>({
       update: (val) => {
         if (canValidate('update')) validate();
         emit('update', val);

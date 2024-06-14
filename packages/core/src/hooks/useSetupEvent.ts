@@ -1,4 +1,4 @@
-import { createEventManager, isFunction } from '@lun/utils';
+import { AnyFn, createEventManager, isFunction } from '@lun/utils';
 import { inject, getCurrentInstance, provide, onBeforeUnmount } from 'vue';
 
 export const EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-event-provider-key' : '');
@@ -22,18 +22,24 @@ declare module 'vue' {
  * Inherit parent's event context. When current component emits an event, it will trigger parent's listener.
  * Also Create an event context to listen to children's event emits
  * It must be called before emit is used(like useValueModel)
+ * 
+ * Note that you must use the returned emit function to emit events, as in vue setup, the emit func is correct in DEV, not in PROD mode(packages/runtime-core/src/component.ts -> createSetupContext)
  * @param events
+ * @returns new emit function
  */
-export function useSetupEvent(events?: Events, options?: { toParentWhen?: () => boolean; bubbles?: boolean }) {
+export function useSetupEvent<OriginalEmit extends AnyFn | undefined>(
+  events?: Events,
+  options?: { toParentWhen?: () => boolean; bubbles?: boolean },
+) {
   const { toParentWhen, bubbles = false } = options || {};
   const ctx = getCurrentInstance()!;
-  if (!ctx || ctx[ctxKey]) return;
+  if (!ctx || ctx[ctxKey]) return ctx?.emit as OriginalEmit;
   const manager = (ctx[ctxKey] = createEventManager());
   const { emit, emitsOptions } = ctx;
-  ctx.emit = (event, ...args) => {
+  const newEmit = (ctx.emit = (event, ...args) => {
     manager.emit(event, ...args);
     emit(event, ...args);
-  };
+  });
 
   const parentSubscribedEvents = inject<Events>(EVENT_PROVIDER_KEY);
   const bubbleProvide: Events = {};
@@ -51,4 +57,5 @@ export function useSetupEvent(events?: Events, options?: { toParentWhen?: () => 
     });
   provide(EVENT_PROVIDER_KEY, bubbles ? bubbleProvide : events);
   onBeforeUnmount(manager.clear);
+  return newEmit as OriginalEmit;
 }

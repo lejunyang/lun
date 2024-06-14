@@ -13,8 +13,8 @@ export const Radio = defineSSRCustomElement({
   props: radioProps,
   emits: radioEmits,
   formAssociated: true,
-  setup(props, { emit }) {
-    useSetupEvent();
+  setup(props, { emit: e }) {
+    const emit = useSetupEvent<typeof e>();
     const [editComputed] = useSetupEdit();
     const radioContext = RadioCollector.child();
     const ns = useNamespace(name, { parent: radioContext?.parent });

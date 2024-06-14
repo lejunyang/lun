@@ -25,8 +25,8 @@ export const Input = defineSSRCustomElement({
   props: inputProps,
   formAssociated: true,
   emits: inputEmits,
-  setup(props, { emit }) {
-    useSetupEvent();
+  setup(props, { emit: e }) {
+    const emit = useSetupEvent<typeof e>();
     const valueModel = useValueModel(props);
     // when type=number, valueModel is a number, but we need to avoid update input's value when it's '1.'
     const strValModel = ref('');
