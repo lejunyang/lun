@@ -101,8 +101,8 @@ export function toGetterDescriptors<
 ): {
   [k in RemappedKey | Exclude<K, PMK>]: PropertyDescriptor;
 } {
-  const descriptors = {} as any;
-  for (const key in obj) {
+  const descriptors = {} as any, target = propertiesMap || obj;
+  for (const key in target) {
     const newKey = (propertiesMap as any)?.[key] || key;
     descriptors[newKey] = {
       get() {

@@ -13,7 +13,7 @@ import {
   watchPostEffect,
 } from 'vue';
 import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, unrefOrGetMulti, usePopover } from '@lun/core';
-import { createDefineElement, toUnrefGetterDescriptors } from 'utils';
+import { createDefineElement } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import {
   getCachedComputedStyle,
@@ -22,6 +22,7 @@ import {
   objectKeys,
   prevent,
   runIfFn,
+  toGetterDescriptors,
   toPxIfNum,
   virtualGetMerge,
 } from '@lun/utils';
@@ -243,7 +244,7 @@ export const Popover = defineSSRCustomElement({
         ...methods,
       },
       {
-        ...toUnrefGetterDescriptors(options, {
+        ...toGetterDescriptors(options, {
           open: 'delayOpenPopover',
           close: 'delayClosePopover',
           openNow: 'openPopover',

@@ -58,8 +58,14 @@ export function unrefOrGetState<T extends MaybeRefLikeOrGetter<any>[] | MaybeRef
   return isArray(target) ? unrefOrGetMulti(...target) : unrefOrGet(target);
 }
 
-export type ToAllMaybeRefLike<T extends {}, EnsuredKeys extends keyof T = never> = { [k in keyof T]: MaybeRefLikeOrGetter<T[k], k extends EnsuredKeys ? true : false> };
-export type ToMaybeRefLike<T extends {}, Excluded extends keyof T = never, Remaining extends keyof T = Exclude<keyof T, Excluded>> = {
+export type ToAllMaybeRefLike<T extends {}, EnsuredKeys extends keyof T = never> = {
+  [k in keyof T]: MaybeRefLikeOrGetter<T[k], k extends EnsuredKeys ? true : false>;
+};
+export type ToMaybeRefLike<
+  T extends {},
+  Excluded extends keyof T = never,
+  Remaining extends keyof T = Exclude<keyof T, Excluded>,
+> = {
   [k in Remaining]: T[k] | MaybeRefLikeOrGetter<T[k]>;
 } & { [k in Excluded]: T[k] };
 
@@ -95,18 +101,21 @@ export function refToGetter<T extends { value: object } | undefined | null>(
   target: T,
 ): T extends { value: infer V } ? Readonly<V> : {} {
   if (!target) return {} as any;
-  return new Proxy(target, {
-    get(target, key) {
-      return (target.value as any)?.[key];
+  return new Proxy(
+    {},
+    {
+      get(_, key) {
+        return (target.value as any)?.[key];
+      },
+      ownKeys(_) {
+        return Reflect.ownKeys(target.value || {});
+      },
+      getOwnPropertyDescriptor(_, key) {
+        return Reflect.getOwnPropertyDescriptor(target.value || {}, key);
+      },
+      set: () => false,
     },
-    ownKeys(target) {
-      return Reflect.ownKeys(target.value || {});
-    },
-    getOwnPropertyDescriptor(target, key) {
-      return Reflect.getOwnPropertyDescriptor(target.value || {}, key);
-    },
-    set: () => false,
-  }) as any;
+  ) as any;
 }
 
 /** similar to vue's computed, but wrapped with a proxy, so we don't need .value anymore, only use it when getter returns a object */
