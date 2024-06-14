@@ -8,6 +8,7 @@ export type UseDatePanelCells = {
   date: DateValueType;
   disabled: boolean;
   selected: boolean;
+  /** date is in one of selected range */
   inRange: boolean;
   inView: boolean;
   isNow: boolean;
@@ -18,8 +19,9 @@ export type UseDatePanelCells = {
 //   cells: UseDatePanelCells;
 // };
 
+/** [rows, cols] */
 const gridMap = {
-  date: [7, 7],
+  date: [6, 7],
 } as Record<DatePanelType, [number, number]>;
 
 export function useDatePanel(options: {
@@ -30,10 +32,10 @@ export function useDatePanel(options: {
   range: 'single' | 'multiple';
   type: DatePanelType;
   viewDate: DateValueType;
-  min: DateValueType;
-  max: DateValueType;
-  lessThan: DateValueType;
-  moreThan: DateValueType;
+  min?: DateValueType;
+  max?: DateValueType;
+  lessThan?: DateValueType;
+  moreThan?: DateValueType;
   lang: string;
   disabledDate: (date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean;
   onBeforeSelect: (date: DateValueType) => void | boolean;
@@ -105,9 +107,14 @@ export function useDatePanel(options: {
     hovering: null as null | DateValueType,
   });
 
+  const format = computed(() => {
+    const { format, type, showTime, use12Hours } = options;
+    return getDefaultFormat(format, type, showTime, use12Hours);
+  });
+
   const processedValue = computed(() => {
-    const { value, range, format, type, showTime, use12Hours, lang } = options;
-    const mergedFormat = getDefaultFormat(format, type, showTime, use12Hours);
+    const { value, range, lang } = options;
+    const mergedFormat = format.value;
     if (range === 'multiple') {
       return isArray(value)
         ? (value.map((v) => formatRangeValue(v, mergedFormat, lang)).filter((i) => i.length) as [
@@ -144,8 +151,21 @@ export function useDatePanel(options: {
     else return isSame(type, value as DateValueType, target);
   };
 
+  const isOutOfLimit = computed(() => {
+    const { type, min, max, moreThan, lessThan, lang } = options;
+    const minDate = parse(lang, min, format.value),
+      maxDate = parse(lang, max, format.value),
+      dateMoreThan = parse(lang, moreThan, format.value),
+      dateLessThan = parse(lang, lessThan, format.value);
+    return (target: DateValueType) =>
+      (minDate && isBefore(target, minDate)) ||
+      (dateMoreThan && (isBefore(target, dateMoreThan) || isSame(type, target, dateMoreThan))) ||
+      (maxDate && isAfter(target, maxDate)) ||
+      (dateLessThan && (isAfter(target, dateLessThan) || isSame(type, target, dateLessThan)));
+  });
+
   const cells = computed(() => {
-    const { value, type, disabledDate, lang, viewDate, min, max, lessThan, moreThan } = options;
+    const { type, disabledDate, lang, viewDate } = options;
     const grid = gridMap[type];
     if (!grid) return [];
     const now = getNow();
@@ -168,7 +188,7 @@ export function useDatePanel(options: {
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
         const currentDate = getCellDate(baseDate, offset, type);
-        const disabled = disabledDate(currentDate, { type }); // TODO min,max...
+        const disabled = disabledDate(currentDate, { type }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
           date: currentDate,
           disabled,
