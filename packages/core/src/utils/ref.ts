@@ -58,10 +58,10 @@ export function unrefOrGetState<T extends MaybeRefLikeOrGetter<any>[] | MaybeRef
   return isArray(target) ? unrefOrGetMulti(...target) : unrefOrGet(target);
 }
 
-export type ToRefLike<T extends {}> = { [k in keyof T]: MaybeRefLikeOrGetter<T[k]> };
-export type ToMaybeRefLike<T extends {}, EX extends keyof T = never, M extends keyof T = Exclude<keyof T, EX>> = {
-  [k in M]: T[k] | MaybeRefLikeOrGetter<T[k]>;
-} & { [k in EX]: T[k] };
+export type ToAllMaybeRefLike<T extends {}, EnsuredKeys extends keyof T = never> = { [k in keyof T]: MaybeRefLikeOrGetter<T[k], k extends EnsuredKeys ? true : false> };
+export type ToMaybeRefLike<T extends {}, Excluded extends keyof T = never, Remaining extends keyof T = Exclude<keyof T, Excluded>> = {
+  [k in Remaining]: T[k] | MaybeRefLikeOrGetter<T[k]>;
+} & { [k in Excluded]: T[k] };
 
 export function mergeRef(...args: ({ value: any } | { current: any } | ((r: any) => void))[]) {
   return (r: any) => {

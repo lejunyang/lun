@@ -47,7 +47,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       minify: dev ? false : 'esbuild',
       emptyOutDir: dev,
       rollupOptions: {
-        external: ['vue', /@lun\/.+/, 'react'],
+        external: ['vue', /@lun\/.+/, 'react', 'dayjs'],
         output: {
           ...viteConfig?.build?.rollupOptions?.output,
           globals: {
