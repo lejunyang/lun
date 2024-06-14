@@ -11,7 +11,7 @@ export type DateMethods<T> = {
   getMinute: (date: T) => number;
   getSecond: (date: T) => number;
 
-  // set
+  // set, must return new object, for add methods, diff can be negative
   addYear: (date: T, diff: number) => T;
   addMonth: (date: T, diff: number) => T;
   addDate: (date: T, diff: number) => T;

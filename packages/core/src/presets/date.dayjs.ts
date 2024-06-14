@@ -7,6 +7,7 @@ import weekYear from 'dayjs/plugin/weekYear';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { DateMethods } from './date';
+import { presets } from '.';
 
 // copied from react-components/picker
 
@@ -38,7 +39,7 @@ const parseLocale = (locale: string) => {
 export { dayjs };
 export type { Dayjs };
 
-export default {
+const methods = {
   // get
   getNow: () => dayjs(),
   getFixedDate: (string) => dayjs(string, ['YYYY-M-DD', 'YYYY-MM-DD']),
@@ -108,3 +109,13 @@ export default {
     },
   },
 } satisfies DateMethods<Dayjs>;
+
+declare module '.' {
+  export interface DateInterface {
+    date: Dayjs;
+  }
+}
+
+presets.date = methods;
+
+export default methods;
