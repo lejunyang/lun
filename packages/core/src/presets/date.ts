@@ -6,6 +6,7 @@ export type DateMethods<T> = {
   getWeekDay: (date: T) => number;
   getYear: (date: T) => number;
   getMonth: (date: T) => number;
+  /** Get the date of the month, should be 1-31 */
   getDate: (date: T) => number;
   getHour: (date: T) => number;
   getMinute: (date: T) => number;
@@ -23,9 +24,11 @@ export type DateMethods<T> = {
   setSecond: (date: T, second: number) => T;
 
   // Compare
+  /** date1 is before date2 */
   isBefore: (date1: T, date2: T) => boolean;
+  /** date1 is after date2 */
   isAfter: (date1: T, date2: T) => boolean;
-  isValid: (date: T) => boolean;
+  isValid: (date: unknown) => date is T;
 
   locale: {
     getWeekFirstDay: (locale: string) => number;
@@ -35,8 +38,11 @@ export type DateMethods<T> = {
     getShortWeekDays: (locale: string) => string[];
     getShortMonths: (locale: string) => string[];
     format: (locale: string, date: T, format: string) => string;
-    parse: (locale: string, text: string, formats: string[]) => T | null;
+    /** should return null if it's falsy value or failed to parse */
+    parse: (
+      locale: string,
+      value: string | number | Date | T | null | undefined,
+      formats: string | string[],
+    ) => T | null;
   };
 };
-
-

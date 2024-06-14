@@ -8,8 +8,9 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { DateMethods } from './date';
 import { presets } from '.';
+import { isString, toArrayIfNotNil } from '@lun/utils';
 
-// copied from react-components/picker
+// derived from react-components/picker
 
 const localeMap: Record<string, string> = {
   'zh-CN': 'zh-cn',
@@ -69,7 +70,7 @@ const methods = {
   // Compare
   isBefore: (date1, date2) => date1.isBefore(date2),
   isAfter: (date1, date2) => date1.isAfter(date2),
-  isValid: (date) => date.isValid(),
+  isValid: (date): date is Dayjs => dayjs.isDayjs(date) && date.isValid(),
 
   locale: {
     getWeekFirstDay: (locale) => dayjs().locale(parseLocale(locale)).localeData().firstDayOfWeek(),
@@ -79,11 +80,13 @@ const methods = {
     getShortMonths: (locale) => dayjs().locale(parseLocale(locale)).localeData().monthsShort(),
     format: (locale, date, format) => date.locale(parseLocale(locale)).format(format),
     parse: (locale, text, formats) => {
+      if (!text) return null;
       const localeStr = parseLocale(locale);
+      formats = toArrayIfNotNil(formats);
       for (let i = 0; i < formats.length; i += 1) {
         const format = formats[i];
         const formatText = text;
-        if (format.includes('wo') || format.includes('Wo')) {
+        if ((format.includes('wo') || format.includes('Wo')) && isString(formatText)) {
           // parse Wo
           const year = formatText.split('-')[0];
           const weekStr = formatText.split('-')[1];

@@ -1,3 +1,4 @@
+export * from './date';
 export * from './dialog';
 export * from './dnd';
 export * from './form';
