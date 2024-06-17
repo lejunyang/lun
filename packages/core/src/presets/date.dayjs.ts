@@ -113,11 +113,11 @@ const methods = {
   },
 } satisfies DateMethods<Dayjs>;
 
-declare module '.' {
-  export interface DateInterface {
-    date: Dayjs;
-  }
-}
+// declare module '.' {
+//   export interface DateInterface {
+//     date: Dayjs;
+//   }
+// }
 
 presets.date = methods;
 

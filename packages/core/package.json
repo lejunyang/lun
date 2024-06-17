@@ -33,16 +33,16 @@
     "dayjs": "^1.11.11"
   },
   "devDependencies": {
-    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-replace": "^5.0.7",
     "@vitejs/plugin-vue": "^4.6.2",
     "cross-env": "^7.0.3",
     "rimraf": "^5.0.7",
     "typescript": "^5.4.5",
-    "vite": "^5.2.12",
+    "vite": "^5.3.1",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0",
-    "vue": "^3.4.27",
-    "vue-tsc": "^2.0.19"
+    "vue": "^3.4.29",
+    "vue-tsc": "^2.0.21"
   },
   "peerDependencies": {
     "vue": "^3.2.0"

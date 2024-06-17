@@ -17,3 +17,5 @@ export const presets = Object.seal({
   math: createBigIntDecimalMath(),
   date: null as any as DateMethods<DateValueType>,
 });
+
+export type Presets = typeof presets;

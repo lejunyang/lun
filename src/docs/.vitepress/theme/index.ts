@@ -13,12 +13,19 @@ import {
 } from '@lun/theme';
 import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
+import { Dayjs } from '@lun/core/date-dayjs'
 import Layout from './Layout.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import './style.css';
 
 let once = false;
+
+declare module '@lun/core' {
+  export interface DateInterface {
+    date: Dayjs;
+  }
+}
 
 export default {
   extends: Theme,

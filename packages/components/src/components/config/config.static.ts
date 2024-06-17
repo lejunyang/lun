@@ -5,9 +5,8 @@ import {
   getInitialElementAnimationRegistry,
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
-import { presets, DateMethods } from '@lun/core';
+import { presets } from '@lun/core';
 import { defaultProps } from './config.static.defaultProps';
-import { DateValueType } from '../date-panel/type';
 
 const holderName = 'teleport-holder';
 export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
@@ -134,8 +133,18 @@ export const GlobalStaticConfig = new Proxy(
     customRendererMap: getInitialCustomRendererMap(),
     animationRegistry: getInitialDefaultAnimationRegistry(),
     elAnimationRegistry: getInitialElementAnimationRegistry(),
-    ...presets,
-    date: null as any as DateMethods<DateValueType>,
+    ...(presets as Omit<import('@lun/core').Presets, 'date'> & {
+      /**
+       * @example
+       * use below way to customize the date type
+       * declare module '@lun/core' {
+       *   export interface DateInterface {
+       *     date: Dayjs;
+       *   }
+       * }
+       */
+      date: import('@lun/core').DateMethods<import('@lun/core').DateValueType>;
+    }),
   },
   {
     get(target, p, receiver) {
