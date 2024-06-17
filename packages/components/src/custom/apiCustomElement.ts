@@ -26,6 +26,7 @@ import {
   render,
   camelize,
   VueElementConstructor,
+  ComponentObjectPropsOptions,
 } from 'vue';
 import { preprocessComponentOptions } from '../utils';
 import { hyphenate, toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
@@ -47,7 +48,16 @@ export type Style = string | CSSStyleSheet;
 
 // overload 1: direct setup function
 export function defineCustomElement<Props, RawBindings = object>(
-  setup: (props: Readonly<Props>, ctx: SetupContext) => RawBindings | RenderFunction,
+  setup: (props: Props, ctx: SetupContext) => RawBindings | RenderFunction,
+  options?: Pick<ComponentOptions, 'name' | 'inheritAttrs' | 'emits'> & {
+    props?: (keyof Props)[];
+  },
+): VueElementConstructor<Props>;
+export function defineCustomElement<Props, RawBindings = object>(
+  setup: (props: Props, ctx: SetupContext) => RawBindings | RenderFunction,
+  options?: Pick<ComponentOptions, 'name' | 'inheritAttrs' | 'emits'> & {
+    props?: ComponentObjectPropsOptions<Props>;
+  },
 ): VueElementConstructor<Props>;
 
 // overload 2: object format with no props
@@ -129,10 +139,14 @@ export function defineCustomElement<
 // `defineComponent`
 export function defineCustomElement(options: { new (...args: any[]): ComponentPublicInstance }): VueElementConstructor;
 
-export function defineCustomElement(options: any, hydrate?: RootHydrateFunction): VueElementConstructor {
+export function defineCustomElement(
+  options: any,
+  extraOptions?: ComponentOptions,
+  hydrate?: RootHydrateFunction,
+): VueElementConstructor {
   // extra process for options
   preprocessComponentOptions(options);
-  const Comp = defineComponent(options) as any;
+  const Comp = defineComponent(options, extraOptions) as any;
   class VueCustomElement extends VueElement {
     static def = Comp;
     static formAssociated = !!Comp.formAssociated; // must set true if want to access _internals.form
@@ -146,9 +160,9 @@ export function defineCustomElement(options: any, hydrate?: RootHydrateFunction)
   return VueCustomElement as any;
 }
 
-export const defineSSRCustomElement = ((options: any) => {
+export const defineSSRCustomElement = ((options: any, extraOptions?: ComponentOptions) => {
   // @ts-ignore
-  return defineCustomElement(options, hydrate);
+  return defineCustomElement(options, extraOptions, hydrate);
 }) as typeof defineCustomElement;
 
 const BaseClass = (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) as typeof HTMLElement;
