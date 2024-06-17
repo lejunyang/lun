@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue';
+import { computed, reactive, Ref, WritableComputedRef } from 'vue';
 import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import { isArray, runIfFn } from '@lun/utils';
@@ -16,42 +16,43 @@ export type UseDatePanelCells = {
   title?: string;
 }[][];
 
+export type UseDatePanelOptions = ToAllMaybeRefLike<
+  {
+    lang: string;
+    cellFormat: string;
+  },
+  'lang' | 'cellFormat'
+> & {
+  value: MaybeRefLikeOrGetter<DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]>;
+  viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
+  format?: string;
+  showTime?: boolean;
+  use12Hours?: boolean;
+  range?: 'single' | 'multiple';
+  type: DatePanelType;
+  min?: DateValueType;
+  max?: DateValueType;
+  lessThan?: DateValueType;
+  moreThan?: DateValueType;
+  disabledDate?: (date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean;
+  // onBeforeSelect: (date: DateValueType) => void | boolean;
+  // onSelect: (date: DateValueType) => void;
+  // titleFormat?:
+};
+
 /** [rows, cols] */
 const gridMap = {
   date: [6, 7],
 } as Record<DatePanelType, [number, number]>;
 
-export function useDatePanel(
-  options: ToAllMaybeRefLike<
-    {
-      lang: string;
-      cellFormat: string;
-    },
-    'lang' | 'cellFormat'
-  > & {
-    value: MaybeRefLikeOrGetter<DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]>;
-    format?: string;
-    showTime?: boolean;
-    use12Hours?: boolean;
-    range?: 'single' | 'multiple';
-    type: DatePanelType;
-    viewDate?: DateValueType;
-    min?: DateValueType;
-    max?: DateValueType;
-    lessThan?: DateValueType;
-    moreThan?: DateValueType;
-    disabledDate?: (date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean;
-    // onBeforeSelect: (date: DateValueType) => void | boolean;
-    // onSelect: (date: DateValueType) => void;
-    // titleFormat?:
-  },
-) {
+export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
-  const { lang, cellFormat } = options;
+  const { lang, cellFormat, viewDate } = options;
 
   // --------- Methods ----------
-  const { getYear, getMonth, getDate, getWeekDay, getNow, setDate, addDate, isBefore, isAfter } = presets.date;
+  const { getYear, getMonth, getDate, getWeekDay, getNow, setDate, addDate, addMonth, addYear, isBefore, isAfter } =
+    presets.date;
   const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
   const finalParse = (value: any, formats: string | string[]) => parse(value, formats);
   function isSameYear(year1?: DateValueType, year2?: DateValueType) {
@@ -161,18 +162,19 @@ export function useDatePanel(
       (dateLessThan && (isAfter(target, dateLessThan) || isSame(type, target, dateLessThan)));
   });
 
+  if (!viewDate.value) viewDate.value = getNow();
+
   const cells = computed(() => {
-    const { type, disabledDate, viewDate } = options;
+    const { type, disabledDate } = options;
     const grid = gridMap[type];
     const now = getNow();
-    const finalViewDate = viewDate || now;
+    const finalViewDate = unrefOrGet(viewDate) || now;
     if (!grid) return [];
     const [rows, cols] = grid;
     const cellInfo: UseDatePanelCells = [];
-    const weekFirstDay = getWeekFirstDay();
     const monthStartDate = setDate(finalViewDate, 1);
     const baseDate = getWeekStartDate(monthStartDate);
-    const month = getMonth(finalViewDate);
+    // const month = getMonth(finalViewDate);
     const isInView = (target: DateValueType) => {
       switch (type) {
         case 'date':
@@ -201,8 +203,35 @@ export function useDatePanel(
     return cellInfo;
   });
 
+  const methods = {
+    nextMonth() {
+      viewDate.value = addMonth(viewDate.value, 1);
+    },
+    prevMonth() {
+      viewDate.value = addMonth(viewDate.value, -1);
+    },
+    nextYear() {
+      viewDate.value = addYear(viewDate.value, 1);
+    },
+    prevYear() {
+      viewDate.value = addYear(viewDate.value, -1);
+    },
+    nextView() {},
+    prevView() {},
+  };
+
+  const handlers = {
+    onClick() {},
+    onDblClick() {},
+    onMouseenter() {},
+    onMouseleave() { },
+    onKeydown() {}
+  };
+
   return {
     state,
     cells,
+    methods,
+    handlers,
   };
 }
