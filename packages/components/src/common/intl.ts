@@ -21,6 +21,8 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'validation.pattern': '格式不正确',
     'validation.len': '长度必须为${len}',
 
+    'date.cellFormat': 'D',
+
     'dialog.ok': '确定',
     'dialog.cancel': '取消',
 

@@ -31,6 +31,7 @@ import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
 import { defineRange } from './range/Range';
+import { defineCalendar } from './calendar';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -44,6 +45,7 @@ export function defineAllComponents() {
   defineFormItem();
   defineButton();
   defineMessage();
+  defineCalendar();
   defineCallout();
   defineCheckboxGroup();
   defineCheckbox();
@@ -122,6 +124,7 @@ export const autoDefine = once(() => {
 
 export * from './animation';
 export * from './button';
+export * from './calendar';
 export * from './callout';
 export * from './checkbox';
 export * from './config';

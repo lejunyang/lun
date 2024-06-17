@@ -6,6 +6,7 @@ export const defaultProps = {
     iconPosition: 'start',
     variant: 'surface',
   },
+  calendar: {},
   callout: {
     transition: 'scaleOut',
   },

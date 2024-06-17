@@ -14,6 +14,7 @@ export const noShadowComponents = freeze(['custom-renderer'] as const);
 export const closedShadowComponents = freeze(['watermark'] as const);
 export const openShadowComponents = freeze([
   'button',
+  'calendar',
   'callout',
   'checkbox',
   'checkbox-group',

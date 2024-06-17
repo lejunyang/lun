@@ -1,7 +1,7 @@
 import { computed, reactive } from 'vue';
 import { DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
-import { isArray } from '@lun/utils';
+import { isArray, runIfFn } from '@lun/utils';
 import { getDefaultFormat } from './utils';
 
 export type UseDatePanelCells = {
@@ -12,38 +12,43 @@ export type UseDatePanelCells = {
   inRange: boolean;
   inView: boolean;
   isNow: boolean;
+  text: string;
   title?: string;
 }[][];
-
-// export type UseDatePanelState = {
-//   cells: UseDatePanelCells;
-// };
 
 /** [rows, cols] */
 const gridMap = {
   date: [6, 7],
 } as Record<DatePanelType, [number, number]>;
 
-export function useDatePanel(options: {
-  value: MaybeRefLikeOrGetter<DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]>;
-  format?: string;
-  showTime?: boolean;
-  use12Hours?: boolean;
-  range: 'single' | 'multiple';
-  type: DatePanelType;
-  viewDate: DateValueType;
-  min?: DateValueType;
-  max?: DateValueType;
-  lessThan?: DateValueType;
-  moreThan?: DateValueType;
-  lang: string;
-  disabledDate: (date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean;
-  onBeforeSelect: (date: DateValueType) => void | boolean;
-  onSelect: (date: DateValueType) => void;
-  // titleFormat?:
-}) {
+export function useDatePanel(
+  options: ToAllMaybeRefLike<
+    {
+      lang: string;
+      cellFormat: string;
+    },
+    'lang' | 'cellFormat'
+  > & {
+    value: MaybeRefLikeOrGetter<DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]>;
+    format?: string;
+    showTime?: boolean;
+    use12Hours?: boolean;
+    range?: 'single' | 'multiple';
+    type: DatePanelType;
+    viewDate?: DateValueType;
+    min?: DateValueType;
+    max?: DateValueType;
+    lessThan?: DateValueType;
+    moreThan?: DateValueType;
+    disabledDate?: (date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean;
+    // onBeforeSelect: (date: DateValueType) => void | boolean;
+    // onSelect: (date: DateValueType) => void;
+    // titleFormat?:
+  },
+) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
+  const { lang, cellFormat } = options;
 
   // --------- Methods ----------
   const {
@@ -56,8 +61,9 @@ export function useDatePanel(options: {
     addDate,
     isBefore,
     isAfter,
-    locale: { getWeekFirstDay, parse },
+    locale: { getWeekFirstDay, parse, format },
   } = presets.date;
+  const finalParse = (value: any, formats: string | string[]) => parse(unrefOrGet(lang), value, formats);
   function isSameYear(year1?: DateValueType, year2?: DateValueType) {
     return (year1 && year2 && getYear(year1) === getYear(year2)) as boolean;
   }
@@ -85,10 +91,10 @@ export function useDatePanel(options: {
     }
     return alignStartDate;
   }
-  function formatRangeValue(value: unknown, format: string, lang: string) {
+  function formatRangeValue(value: unknown, format: string) {
     if (!isArray(value)) return [];
-    const start = parse(lang, value[0] as any, format);
-    const end = parse(lang, value[1] as any, format);
+    const start = finalParse(value[0] as any, format);
+    const end = finalParse(value[1] as any, format);
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   }
@@ -107,24 +113,24 @@ export function useDatePanel(options: {
     hovering: null as null | DateValueType,
   });
 
-  const format = computed(() => {
+  const parseFormat = computed(() => {
     const { format, type, showTime, use12Hours } = options;
     return getDefaultFormat(format, type, showTime, use12Hours);
   });
 
   const processedValue = computed(() => {
-    const { value, range, lang } = options;
-    const mergedFormat = format.value;
+    const { value, range } = options;
+    const mergedFormat = parseFormat.value;
     if (range === 'multiple') {
       return isArray(value)
-        ? (value.map((v) => formatRangeValue(v, mergedFormat, lang)).filter((i) => i.length) as [
+        ? (value.map((v) => formatRangeValue(v, mergedFormat)).filter((i) => i.length) as [
             DateValueType,
             DateValueType,
           ][])
         : [];
     } else if (range) {
-      return formatRangeValue(value, mergedFormat, lang);
-    } else return parse(lang, value as any, mergedFormat);
+      return formatRangeValue(value, mergedFormat);
+    } else return finalParse(value as any, mergedFormat);
   });
 
   const isSelected = (target: DateValueType) => {
@@ -152,11 +158,12 @@ export function useDatePanel(options: {
   };
 
   const isOutOfLimit = computed(() => {
-    const { type, min, max, moreThan, lessThan, lang } = options;
-    const minDate = parse(lang, min, format.value),
-      maxDate = parse(lang, max, format.value),
-      dateMoreThan = parse(lang, moreThan, format.value),
-      dateLessThan = parse(lang, lessThan, format.value);
+    const { type, min, max, moreThan, lessThan } = options;
+    const pf = parseFormat.value;
+    const minDate = finalParse(min, pf),
+      maxDate = finalParse(max, pf),
+      dateMoreThan = finalParse(moreThan, pf),
+      dateLessThan = finalParse(lessThan, pf);
     return (target: DateValueType) =>
       (minDate && isBefore(target, minDate)) ||
       (dateMoreThan && (isBefore(target, dateMoreThan) || isSame(type, target, dateMoreThan))) ||
@@ -165,16 +172,18 @@ export function useDatePanel(options: {
   });
 
   const cells = computed(() => {
-    const { type, disabledDate, lang, viewDate } = options;
+    const { type, disabledDate, viewDate, cellFormat } = options;
+    const vLang = unrefOrGet(lang);
     const grid = gridMap[type];
-    if (!grid) return [];
     const now = getNow();
+    const finalViewDate = viewDate || now;
+    if (!grid) return [];
     const [rows, cols] = grid;
     const cellInfo: UseDatePanelCells = [];
-    const weekFirstDay = getWeekFirstDay(lang);
-    const monthStartDate = setDate(viewDate, 1);
-    const baseDate = getWeekStartDate(lang, monthStartDate);
-    const month = getMonth(viewDate);
+    const weekFirstDay = getWeekFirstDay(vLang);
+    const monthStartDate = setDate(finalViewDate, 1);
+    const baseDate = getWeekStartDate(vLang, monthStartDate);
+    const month = getMonth(finalViewDate);
     const isInView = (target: DateValueType) => {
       switch (type) {
         case 'date':
@@ -188,7 +197,7 @@ export function useDatePanel(options: {
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
         const currentDate = getCellDate(baseDate, offset, type);
-        const disabled = disabledDate(currentDate, { type }) || !!isOutOfLimit.value(currentDate);
+        const disabled = runIfFn(disabledDate, currentDate, { type }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
           date: currentDate,
           disabled,
@@ -196,6 +205,7 @@ export function useDatePanel(options: {
           inRange: isInRange(currentDate), // TODO add hovering check
           inView: isInView(currentDate),
           isNow: isSame(type, currentDate, now),
+          text: format(vLang, currentDate, unrefOrGet(cellFormat)),
         };
       }
     }
