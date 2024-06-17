@@ -33,10 +33,11 @@ export type DateMethods<T> = {
   locale: {
     getWeekFirstDay: (locale: string) => number;
     getWeekFirstDate: (locale: string, date: T) => T;
-    // get week index
+    /** get week index */
     getWeek: (locale: string, date: T) => number;
-    getShortWeekDays: (locale: string) => string[];
-    getShortMonths: (locale: string) => string[];
+    /** get short names of week days, should be an array of 7 strings */
+    getShortWeekDays?: (locale: string) => string[];
+    getShortMonths?: (locale: string) => string[];
     format: (locale: string, date: T, format: string) => string;
     /** should return null if it's falsy value or failed to parse */
     parse: (

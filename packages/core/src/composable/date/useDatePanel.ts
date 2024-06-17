@@ -1,5 +1,5 @@
 import { computed, reactive } from 'vue';
-import { DatePanelType, DateValueType, presets } from '../../presets';
+import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import { isArray, runIfFn } from '@lun/utils';
 import { getDefaultFormat } from './utils';
@@ -51,19 +51,9 @@ export function useDatePanel(
   const { lang, cellFormat } = options;
 
   // --------- Methods ----------
-  const {
-    getYear,
-    getMonth,
-    getDate,
-    getWeekDay,
-    getNow,
-    setDate,
-    addDate,
-    isBefore,
-    isAfter,
-    locale: { getWeekFirstDay, parse, format },
-  } = presets.date;
-  const finalParse = (value: any, formats: string | string[]) => parse(unrefOrGet(lang), value, formats);
+  const { getYear, getMonth, getDate, getWeekDay, getNow, setDate, addDate, isBefore, isAfter } = presets.date;
+  const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
+  const finalParse = (value: any, formats: string | string[]) => parse(value, formats);
   function isSameYear(year1?: DateValueType, year2?: DateValueType) {
     return (year1 && year2 && getYear(year1) === getYear(year2)) as boolean;
   }
@@ -81,8 +71,8 @@ export function useDatePanel(
         return false;
     }
   }
-  function getWeekStartDate(locale: string, value: DateValueType) {
-    const weekFirstDay = getWeekFirstDay(locale);
+  function getWeekStartDate(value: DateValueType) {
+    const weekFirstDay = getWeekFirstDay();
     const monthStartDate = setDate(value, 1);
     const startDateWeekDay = getWeekDay(monthStartDate);
     let alignStartDate = addDate(monthStartDate, weekFirstDay - startDateWeekDay);
@@ -172,17 +162,16 @@ export function useDatePanel(
   });
 
   const cells = computed(() => {
-    const { type, disabledDate, viewDate, cellFormat } = options;
-    const vLang = unrefOrGet(lang);
+    const { type, disabledDate, viewDate } = options;
     const grid = gridMap[type];
     const now = getNow();
     const finalViewDate = viewDate || now;
     if (!grid) return [];
     const [rows, cols] = grid;
     const cellInfo: UseDatePanelCells = [];
-    const weekFirstDay = getWeekFirstDay(vLang);
+    const weekFirstDay = getWeekFirstDay();
     const monthStartDate = setDate(finalViewDate, 1);
-    const baseDate = getWeekStartDate(vLang, monthStartDate);
+    const baseDate = getWeekStartDate(monthStartDate);
     const month = getMonth(finalViewDate);
     const isInView = (target: DateValueType) => {
       switch (type) {
@@ -205,7 +194,7 @@ export function useDatePanel(
           inRange: isInRange(currentDate), // TODO add hovering check
           inView: isInView(currentDate),
           isNow: isSame(type, currentDate, now),
-          text: format(vLang, currentDate, unrefOrGet(cellFormat)),
+          text: format(currentDate, unrefOrGet(cellFormat)),
         };
       }
     }
