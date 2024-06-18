@@ -17,10 +17,11 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'validation.string.max': '长度不得大于${max}',
     'validation.string.greaterThan': '长度不得小于等于${greaterThan}',
     'validation.string.lessThan': '长度不得大于等于${lessThan}',
-    
+
     'validation.pattern': '格式不正确',
     'validation.len': '长度必须为${len}',
 
+    'date.yearFormat': 'YYYY年',
     'date.cellFormat': 'D',
 
     'dialog.ok': '确定',
