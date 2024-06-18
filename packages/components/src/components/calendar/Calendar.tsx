@@ -3,11 +3,11 @@ import { createDefineElement, renderElement } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { useNamespace } from 'hooks';
-import { getTransitionProps, intl } from 'common';
+import { intl } from 'common';
 import { createDateLocaleMethods, createUseModel, useDatePanel } from '@lun/core';
-import { runIfFn, virtualGetMerge } from '@lun/utils';
+import { capitalize, runIfFn, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
-import { TransitionGroup } from 'vue';
+import { Transition } from 'vue';
 import { GlobalStaticConfig } from 'config';
 
 const useViewDate = createUseModel({
@@ -28,7 +28,8 @@ export const Calendar = defineSSRCustomElement({
     const lang = () => context.lang;
     const getFormat = (field: keyof typeof props, defaultFormat: string) =>
       props[field] || intl(`date.${field}`).d(defaultFormat);
-    const { cells, methods } = useDatePanel(
+
+    const { cells, methods, getBaseDateStr, direction } = useDatePanel(
       virtualGetMerge(
         {
           type: 'date' as const,
@@ -41,6 +42,13 @@ export const Calendar = defineSSRCustomElement({
     );
     const { getMonth } = GlobalStaticConfig.date;
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
+
+    const transitionHandlers = {
+      onBeforeLeave: (el: Element) => {
+        (el as HTMLElement).style.position = 'absolute'; // make leaving tbody position absolute, so it won't occupy any space
+      },
+    };
+
     return () => {
       let { shortMonths, shortWeekDays, monthBeforeYear } = props;
       shortMonths ||= runIfFn(getShortMonths) || [];
@@ -75,20 +83,19 @@ export const Calendar = defineSSRCustomElement({
                 return <th>{shortWeekDays[(i + weekFirstDay) % 7]}</th>;
               })}
             </thead>
-            <tbody>
-              <TransitionGroup {...getTransitionProps(props)}>
+            <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''} {...transitionHandlers}>
+              <tbody key={getBaseDateStr()}>
                 {cells.value.map((row) => {
                   return (
-                    // add key to trigger transition on view changing
-                    <tr key={row.key}>
+                    <tr>
                       {row.map(({ text }) => {
                         return <td>{text}</td>;
                       })}
                     </tr>
                   );
                 })}
-              </TransitionGroup>
-            </tbody>
+              </tbody>
+            </Transition>
           </table>
         </div>
       );

@@ -1,4 +1,4 @@
-import { computed, reactive, Ref, WritableComputedRef } from 'vue';
+import { computed, reactive, ref, Ref, WritableComputedRef } from 'vue';
 import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import { isArray, runIfFn } from '@lun/utils';
@@ -165,6 +165,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   if (!viewDate.value) viewDate.value = getNow();
 
+  let baseDateStr: string;
   const cells = computed(() => {
     const { type, disabledDate } = options;
     const grid = gridMap[type];
@@ -183,7 +184,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
           return false;
       }
     };
-    const baseDateStr = format(baseDate, parseFormat.value);
+    baseDateStr = format(baseDate, parseFormat.value);
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
       cellInfo[row] ||= [];
@@ -210,18 +211,23 @@ export function useDatePanel(options: UseDatePanelOptions) {
     return cellInfo;
   });
 
+  const /** used to control the direction of the transition */ direction = ref<'right' | 'left' | 'up' | 'down'>();
   const methods = {
     nextMonth() {
       viewDate.value = addMonth(viewDate.value, 1);
+      direction.value = 'right';
     },
     prevMonth() {
       viewDate.value = addMonth(viewDate.value, -1);
+      direction.value = 'left';
     },
     nextYear() {
       viewDate.value = addYear(viewDate.value, 1);
+      direction.value = 'right';
     },
     prevYear() {
       viewDate.value = addYear(viewDate.value, -1);
+      direction.value = 'left';
     },
     nextView() {},
     prevView() {},
@@ -240,5 +246,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
     cells,
     methods,
     handlers,
+    getBaseDateStr() {
+      return baseDateStr;
+    },
+    direction,
   };
 }

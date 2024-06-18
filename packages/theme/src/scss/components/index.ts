@@ -49,6 +49,7 @@ import { importThemeProviderBasicTheme } from './theme-provider/index.ts';
 import { importIconBasicTheme } from './icon/index.ts';
 import { importCommonTheme } from '../common/index.ts';
 import { importRangeBasicTheme, importRangeSurfaceTheme } from './range';
+import { importCalendarBasicTheme } from './calendar/index.ts';
 
 export * from './button';
 export * from './callout';
@@ -99,6 +100,7 @@ export const importBasicTheme = once(() => {
   importTagBasicTheme();
   importTextareaBasicTheme();
   importMentionsBasicTheme();
+  importCalendarBasicTheme();
 });
 
 export const importOutlineTheme = once(() => {

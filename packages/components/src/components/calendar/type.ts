@@ -8,13 +8,11 @@ import {
   themeProps,
   CommonProps,
   PropArray,
-  createTransitionProps,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const calendarProps = freeze({
   ...themeProps,
-  ...createTransitionProps(),
   value: PropObject<DateValueType>(),
   viewDate: PropObject<DateValueType>(),
   format: PropString(),
