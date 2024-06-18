@@ -13,7 +13,7 @@ import {
 } from '@lun/theme';
 import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
-import { Dayjs } from '@lun/core/date-dayjs'
+import { Dayjs } from '@lun/core/date-dayjs';
 import Layout from './Layout.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
@@ -88,6 +88,12 @@ export default {
       console.log('GlobalContextConfig', GlobalContextConfig);
       Object.assign(window, { GlobalStaticConfig, GlobalContextConfig });
       defineAllComponents();
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          console.debug(entry.entryType + ' performance issue observed', entry);
+        }
+      });
+      observer.observe({ entryTypes: ['longtask', 'long-animation-frame', 'event'] });
     }
   }) as (typeof Theme)['enhanceApp'],
 };

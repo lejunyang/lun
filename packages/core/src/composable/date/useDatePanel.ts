@@ -1,21 +1,25 @@
 import { computed, reactive, ref, Ref, WritableComputedRef } from 'vue';
 import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
-import { isArray, runIfFn } from '@lun/utils';
+import { isArray, isEnterDown, isHTMLElement, runIfFn } from '@lun/utils';
 import { getDefaultFormat } from './utils';
 
-export type UseDatePanelCells = ({
+export type UseDatePanelCell = {
   key: string;
   date: DateValueType;
-  disabled: boolean;
-  selected: boolean;
-  /** date is in one of selected range */
-  inRange: boolean;
-  inView: boolean;
-  isNow: boolean;
   text: string;
+  state: {
+    disabled: boolean;
+    selected: boolean;
+    hovered: boolean;
+    /** date is in one of selected range */
+    inRange: boolean;
+    inView: boolean;
+    now: boolean;
+  };
   title?: string;
-}[] & { key: string })[];
+};
+export type UseDatePanelCells = (UseDatePanelCell[] & { key: string })[];
 
 export type UseDatePanelOptions = ToAllMaybeRefLike<
   {
@@ -35,9 +39,9 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   max?: DateValueType;
   lessThan?: DateValueType;
   moreThan?: DateValueType;
-  disabledDate?: (date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean;
-  // onBeforeSelect: (date: DateValueType) => void | boolean;
-  // onSelect: (date: DateValueType) => void;
+  disabledDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
+  getCell: (target: HTMLElement) => [number, number] | undefined;
+  onSelect?: (value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]) => void;
   // titleFormat?:
 };
 
@@ -49,13 +53,25 @@ const gridMap = {
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
-  const { lang, cellFormat, viewDate } = options;
+  const { lang, cellFormat, viewDate, getCell, onSelect } = options;
 
   // --------- Methods ----------
-  const { getYear, getMonth, getDate, getWeekDay, getNow, setDate, addDate, addMonth, addYear, isBefore, isAfter } =
-    presets.date;
+  const {
+    getYear,
+    getMonth,
+    getDate,
+    getWeekDay,
+    getNow,
+    setDate,
+    addDate,
+    addMonth,
+    addYear,
+    isBefore,
+    isAfter,
+    isValid,
+  } = presets.date;
   const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
-  const finalParse = (value: any, formats: string | string[]) => parse(value, formats);
+  const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
   function isSameYear(year1?: DateValueType, year2?: DateValueType) {
     return (year1 && year2 && getYear(year1) === getYear(year2)) as boolean;
   }
@@ -65,8 +81,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
   function isSameDate(date1?: DateValueType, date2?: DateValueType): boolean {
     return isSameYear(date1, date2) && isSameMonth(date1, date2) && getDate(date1!) === getDate(date2!);
   }
-  function isSame(type: DatePanelType, v1: DateValueType | undefined, v2: DateValueType | undefined) {
-    switch (type) {
+  function isSame(v1: DateValueType | undefined, v2: DateValueType | undefined) {
+    switch (options.type) {
       case 'date':
         return isSameDate(v1, v2);
       default:
@@ -83,10 +99,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
     }
     return alignStartDate;
   }
-  function formatRangeValue(value: unknown, format: string) {
+  function formatRangeValue(value: unknown) {
     if (!isArray(value)) return [];
-    const start = finalParse(value[0] as any, format);
-    const end = finalParse(value[1] as any, format);
+    const start = finalParse(value[0] as any);
+    const end = finalParse(value[1] as any);
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   }
@@ -111,34 +127,31 @@ export function useDatePanel(options: UseDatePanelOptions) {
   });
 
   const processedValue = computed(() => {
-    const { value, range } = options;
-    const mergedFormat = parseFormat.value;
+    let { value, range } = options;
+    value = unrefOrGet(value);
     if (range === 'multiple') {
       return isArray(value)
-        ? (value.map((v) => formatRangeValue(v, mergedFormat)).filter((i) => i.length) as [
-            DateValueType,
-            DateValueType,
-          ][])
+        ? (value.map((v) => formatRangeValue(v)).filter((i) => i.length) as [DateValueType, DateValueType][])
         : [];
     } else if (range) {
-      return formatRangeValue(value, mergedFormat);
-    } else return finalParse(value as any, mergedFormat);
+      return formatRangeValue(value);
+    } else return finalParse(value as any);
   });
 
   const isSelected = (target: DateValueType) => {
-    const { range, type } = options;
+    const { range } = options;
     const { value } = processedValue;
     if (range === 'multiple')
       return (value as [DateValueType, DateValueType][]).some(
-        (range) => isSame(type, range[0], target) || isSame(type, range[1], target),
+        (range) => isSame(range[0], target) || isSame(range[1], target),
       );
     else if (range)
-      return isSame(type, (value as DateValueType[])[0], target) || isSame(type, (value as DateValueType[])[1], target);
-    else return isSame(type, value as DateValueType, target);
+      return isSame((value as DateValueType[])[0], target) || isSame((value as DateValueType[])[1], target);
+    else return isSame(value as DateValueType, target);
   };
 
   const isInRange = (target: DateValueType) => {
-    const { range, type } = options;
+    const { range } = options;
     const { value } = processedValue;
     if (range === 'multiple')
       return (value as [DateValueType, DateValueType][]).some(
@@ -146,21 +159,20 @@ export function useDatePanel(options: UseDatePanelOptions) {
       );
     else if (range)
       return isAfter(target, (value as DateValueType[])[0]) || isBefore(target, (value as DateValueType[])[1]);
-    else return isSame(type, value as DateValueType, target);
+    else return isSame(value as DateValueType, target);
   };
 
   const isOutOfLimit = computed(() => {
-    const { type, min, max, moreThan, lessThan } = options;
-    const pf = parseFormat.value;
-    const minDate = finalParse(min, pf),
-      maxDate = finalParse(max, pf),
-      dateMoreThan = finalParse(moreThan, pf),
-      dateLessThan = finalParse(lessThan, pf);
+    const { min, max, moreThan, lessThan } = options;
+    const minDate = finalParse(min),
+      maxDate = finalParse(max),
+      dateMoreThan = finalParse(moreThan),
+      dateLessThan = finalParse(lessThan);
     return (target: DateValueType) =>
       (minDate && isBefore(target, minDate)) ||
-      (dateMoreThan && (isBefore(target, dateMoreThan) || isSame(type, target, dateMoreThan))) ||
+      (dateMoreThan && (isBefore(target, dateMoreThan) || isSame(target, dateMoreThan))) ||
       (maxDate && isAfter(target, maxDate)) ||
-      (dateLessThan && (isAfter(target, dateLessThan) || isSame(type, target, dateLessThan)));
+      (dateLessThan && (isAfter(target, dateLessThan) || isSame(target, dateLessThan)));
   });
 
   if (!viewDate.value) viewDate.value = getNow();
@@ -192,18 +204,19 @@ export function useDatePanel(options: UseDatePanelOptions) {
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
         const currentDate = getCellDate(baseDate, offset, type);
-        if (!col) {
-          rowKey = cellInfo[row].key = baseDateStr + '-' + row;
-        }
+        if (!col) rowKey = cellInfo[row].key = baseDateStr + '-' + row;
         const disabled = runIfFn(disabledDate, currentDate, { type }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
           key: rowKey! + '-' + col,
           date: currentDate,
-          disabled,
-          selected: isSelected(currentDate),
-          inRange: isInRange(currentDate), // TODO add hovering check
-          inView: isInView(currentDate),
-          isNow: isSame(type, currentDate, now),
+          state: {
+            disabled,
+            selected: isSelected(currentDate),
+            hovered: state.hovering && isSame(state.hovering, currentDate),
+            inRange: isInRange(currentDate), // TODO add hovering check
+            inView: isInView(currentDate),
+            now: isSame(currentDate, now),
+          },
           text: format(currentDate, unrefOrGet(cellFormat)),
         };
       }
@@ -233,12 +246,40 @@ export function useDatePanel(options: UseDatePanelOptions) {
     prevView() {},
   };
 
+  const handleIfCell = ({ target }: { target: any }, handle: (cell: UseDatePanelCell) => void) => {
+    let indexes: [number, number] | undefined;
+    if (isHTMLElement(target) && (indexes = getCell(target))) {
+      const [row, col] = indexes;
+      const cell = cells.value[row]?.[col];
+      if (cell && !cell.state.disabled) handle(cell);
+    }
+  };
+  const selectCell = ({ date }: UseDatePanelCell) => {
+    viewDate.value = date;
+    const { range } = options;
+    state.selecting = range ? date : null;
+    if (!range) runIfFn(onSelect, date);
+    // TODO handle range
+  };
   const handlers = {
-    onClick() {},
-    onDblClick() {},
-    onMouseenter() {},
-    onMouseleave() {},
-    onKeydown() {},
+    onClick(e: MouseEvent) {
+      handleIfCell(e, selectCell);
+    },
+    onMouseenter(e: MouseEvent) {
+      handleIfCell(e, ({ date }) => {
+        state.hovering = date;
+      });
+    },
+    onMouseleave(e: MouseEvent) {
+      handleIfCell(e, () => {
+        state.hovering = null;
+      });
+    },
+    onKeydown(e: KeyboardEvent) {
+      if (isEnterDown(e)) {
+        handleIfCell(e, selectCell);
+      }
+    },
   };
 
   return {

@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useNamespace } from 'hooks';
+import { useNamespace, useValueModel } from 'hooks';
 import { intl } from 'common';
 import { createDateLocaleMethods, createUseModel, useDatePanel } from '@lun/core';
 import { capitalize, runIfFn, virtualGetMerge } from '@lun/utils';
@@ -24,18 +24,26 @@ export const Calendar = defineSSRCustomElement({
     const ns = useNamespace(name);
     const context = useContextConfig();
     const viewDate = useViewDate(props);
+    const valueModel = useValueModel(props);
 
     const lang = () => context.lang;
     const getFormat = (field: keyof typeof props, defaultFormat: string) =>
       props[field] || intl(`date.${field}`).d(defaultFormat);
 
-    const { cells, methods, getBaseDateStr, direction } = useDatePanel(
+    const { cells, methods, getBaseDateStr, direction, handlers } = useDatePanel(
       virtualGetMerge(
         {
           type: 'date' as const,
           lang,
+          value: valueModel,
           viewDate,
           cellFormat: () => getFormat('cellFormat', 'D'),
+          getCell({ dataset: { row, col } }: HTMLElement) {
+            if (row && col) return [+row, +col] as [number, number];
+          },
+          onSelect(value: any) {
+            valueModel.value = value;
+          },
         },
         props,
       ),
@@ -61,7 +69,8 @@ export const Calendar = defineSSRCustomElement({
         <button>{monthFormat ? format(view, monthFormat) : shortMonths[getMonth(view)]}</button>,
       ];
       return (
-        <div>
+        <div {...handlers}>
+          <slot name="header"></slot>
           <div>
             <slot name="super-prev" onClick={methods.prevYear}>
               <button>{renderElement('icon', { name: 'double-left' })}</button>
@@ -85,11 +94,15 @@ export const Calendar = defineSSRCustomElement({
             </thead>
             <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''} {...transitionHandlers}>
               <tbody key={getBaseDateStr()}>
-                {cells.value.map((row) => {
+                {cells.value.map((row, rowIndex) => {
                   return (
-                    <tr>
-                      {row.map(({ text }) => {
-                        return <td>{text}</td>;
+                    <tr data-row={rowIndex}>
+                      {row.map(({ text, state }, colIndex) => {
+                        return (
+                          <td data-row={rowIndex} data-col={colIndex} class={ns.is(state)}>
+                            {text}
+                          </td>
+                        );
                       })}
                     </tr>
                   );
@@ -97,6 +110,7 @@ export const Calendar = defineSSRCustomElement({
               </tbody>
             </Transition>
           </table>
+          <slot name="footer"></slot>
         </div>
       );
     };
