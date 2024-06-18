@@ -4,7 +4,8 @@ import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils
 import { isArray, runIfFn } from '@lun/utils';
 import { getDefaultFormat } from './utils';
 
-export type UseDatePanelCells = {
+export type UseDatePanelCells = ({
+  key: string;
   date: DateValueType;
   disabled: boolean;
   selected: boolean;
@@ -14,7 +15,7 @@ export type UseDatePanelCells = {
   isNow: boolean;
   text: string;
   title?: string;
-}[][];
+}[] & { key: string })[];
 
 export type UseDatePanelOptions = ToAllMaybeRefLike<
   {
@@ -174,7 +175,6 @@ export function useDatePanel(options: UseDatePanelOptions) {
     const cellInfo: UseDatePanelCells = [];
     const monthStartDate = setDate(finalViewDate, 1);
     const baseDate = getWeekStartDate(monthStartDate);
-    // const month = getMonth(finalViewDate);
     const isInView = (target: DateValueType) => {
       switch (type) {
         case 'date':
@@ -183,13 +183,20 @@ export function useDatePanel(options: UseDatePanelOptions) {
           return false;
       }
     };
+    const baseDateStr = format(baseDate, parseFormat.value);
     for (let row = 0; row < rows; row++) {
+      // @ts-ignore
       cellInfo[row] ||= [];
+      let rowKey: string;
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
         const currentDate = getCellDate(baseDate, offset, type);
+        if (!col) {
+          rowKey = cellInfo[row].key = baseDateStr + '-' + row;
+        }
         const disabled = runIfFn(disabledDate, currentDate, { type }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
+          key: rowKey! + '-' + col,
           date: currentDate,
           disabled,
           selected: isSelected(currentDate),
@@ -224,8 +231,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     onClick() {},
     onDblClick() {},
     onMouseenter() {},
-    onMouseleave() { },
-    onKeydown() {}
+    onMouseleave() {},
+    onKeydown() {},
   };
 
   return {
