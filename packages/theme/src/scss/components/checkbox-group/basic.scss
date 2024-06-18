@@ -3,6 +3,10 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+:host {
+  display: inline-flex; // fix height changing issue when toggling check
+}
+
 @include b(checkbox-group) {
   display: inline-flex;
   @include declareVars(gap);

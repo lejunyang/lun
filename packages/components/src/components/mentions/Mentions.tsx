@@ -3,7 +3,7 @@ import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTrigger
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
-import { isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
+import { AnyFn, isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { InputFocusOption } from 'common';
 import { mentionsEmits, mentionsProps } from './type';
@@ -91,8 +91,12 @@ export const Mentions = defineSSRCustomElement({
       ),
     );
 
+    let afterCloseClean: AnyFn | undefined;
     watchEffect(() => {
-      selected.value = state.activeMentionValue;
+      if (!state.activeMentionValue && !state.lastTrigger) {
+        // delay cleaning selected until popover is closed, to avoid visual jitter during closing animation. freezeWhenClosing is not working, as selected changing and closing happen at the same time
+        afterCloseClean = () => (afterCloseClean = selected.value = undefined);
+      } else selected.value = state.activeMentionValue;
       activateMethods.activateCurrentSelected();
     });
 
@@ -124,8 +128,7 @@ export const Mentions = defineSSRCustomElement({
 
     const clearIcon = computed(
       () =>
-        states.withClearIcon &&
-        renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
+        states.withClearIcon && renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
     const { render: optionsRender, hasOption } = useOptions(props, 'select-option', {
@@ -136,6 +139,9 @@ export const Mentions = defineSSRCustomElement({
       showArrow: false,
       target,
       beforeOpen: activateMethods.initIndex,
+      onAfterClose() {
+        afterCloseClean?.();
+      },
     };
 
     const contenteditable = isSupportPlaintextEditable() ? 'plaintext-only' : 'true';
@@ -183,20 +189,21 @@ export const Mentions = defineSSRCustomElement({
           <div class={ns.e('length-info')} part="length-info">
             {lengthInfo.value}
           </div>
-          {renderElement(
-            'popover',
-            {
-              ...popoverProps,
-              open: !!state.lastTrigger && !noOptions,
-            },
-            <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
-              {!context.value.length && !hasOption() ? (
-                <slot name="no-content">No content</slot> // TODO emptyText prop
-              ) : (
-                [optionsRender.value, <slot></slot>]
-              )}
-            </div>,
-          )}
+          {!noOptions &&
+            renderElement(
+              'popover',
+              {
+                ...popoverProps,
+                open: !!state.lastTrigger,
+              },
+              <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
+                {!context.value.length && !hasOption() ? (
+                  <slot name="no-content">No content</slot> // TODO emptyText prop
+                ) : (
+                  [optionsRender.value, <slot></slot>]
+                )}
+              </div>,
+            )}
         </label>
       );
     };
