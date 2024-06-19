@@ -1,7 +1,7 @@
 import { computed, reactive, ref, Ref, WritableComputedRef } from 'vue';
 import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
-import { isArray, isEnterDown, isHTMLElement, runIfFn } from '@lun/utils';
+import { isArray, isEnterDown, isHTMLElement, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { getDefaultFormat } from './utils';
 
 export type UseDatePanelCell = {
@@ -120,6 +120,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   // --------- Methods ----------
 
   const state = reactive({
+    /** the start date of a range, meaning the user is selecting a range and just selected the start date */
     selecting: null as null | DateValueType,
     hovering: null as null | DateValueType,
   });
@@ -144,7 +145,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       values = unrefOrGet(value);
     return !multiple && range ? formatRangeValue(values) : null;
   });
-  const singleValue = computed(() => finalParse(unrefOrGet(options.value)));
+  const values = computed(() => toArrayIfNotNil(unrefOrGet(options.value)).map((v) => finalParse(v)));
   // --- values ---
 
   const isSelected = (target: DateValueType) => {
@@ -152,15 +153,25 @@ export function useDatePanel(options: UseDatePanelOptions) {
       range = rangeValue.value;
     if (ranges) return ranges.some((range) => isSame(range[0], target) || isSame(range[1], target));
     else if (range) return isSame(range[0], target) || isSame(range[1], target);
-    else return isSame(singleValue.value, target);
+    else return values.value.some((v) => isSame(v, target));
   };
 
-  const isInRange = (target: DateValueType) => {
+  const isInRange = (target: DateValueType, range: DateValueType[], considerSame = false) =>
+    (isAfter(target, range[0]) && isBefore(target, range[1])) ||
+    (considerSame && (isSame(target, range[0]) || isSame(target, range[1])));
+
+  const isInSelectedRange = (target: DateValueType) => {
     const ranges = multiRangeValues.value,
       range = rangeValue.value;
-    if (ranges) return ranges.some((range) => isAfter(target, range[0]) || isBefore(target, range[1]));
-    else if (range) return isAfter(target, range[0]) || isBefore(target, range[1]);
+    if (ranges) return ranges.some((range) => isInRange(target, range));
+    else if (range) return isInRange(target, range);
     else return false;
+  };
+
+  const isInHoveringRange = (target: DateValueType) => {
+    const { selecting, hovering } = state;
+    const range = formatRangeValue([selecting, hovering]);
+    return range.length ? isInRange(target, range) : false;
   };
 
   const isOutOfLimit = computed(() => {
@@ -214,7 +225,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
             disabled,
             selected: isSelected(currentDate),
             hovered: state.hovering && isSame(state.hovering, currentDate),
-            inRange: isInRange(currentDate), // TODO add hovering check
+            inRange: isInSelectedRange(currentDate) || isInHoveringRange(currentDate),
             inView: isInView(currentDate),
             now: isSame(currentDate, now),
           },
@@ -257,10 +268,24 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
   const selectCell = ({ date }: UseDatePanelCell) => {
     viewDate.value = date;
-    const { range } = options;
-    state.selecting = range ? date : null;
-    if (!range) runIfFn(onSelect, date);
-    // TODO handle range
+    const ranges = multiRangeValues.value,
+      range = rangeValue.value;
+    const { selecting } = state;
+    if (ranges) {
+      const newRanges = ranges.filter((range) => !isInRange(date, range, true));
+      if (selecting) {
+        newRanges.push(formatRangeValue([selecting, date]) as [DateValueType, DateValueType]);
+        state.selecting = null;
+      } else state.selecting = date;
+      runIfFn(onSelect, newRanges);
+    } else if (range) {
+      const newRange = formatRangeValue([selecting, date]);
+      runIfFn(onSelect, newRange);
+      state.selecting = newRange.length ? null : date; // length true -> has selecting before -> set to null; length 0 -> selecting is null before
+    } else if (options.multiple) {
+      const newValues = values.value.filter((v) => !isSame(v, date));
+      runIfFn(onSelect, [...newValues, date]);
+    } else runIfFn(onSelect, date);
   };
   const handlers = {
     onClick(e: MouseEvent) {

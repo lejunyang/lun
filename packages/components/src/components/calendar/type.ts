@@ -8,12 +8,13 @@ import {
   themeProps,
   CommonProps,
   PropArray,
+  PropObjOrStr,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const calendarProps = freeze({
   ...themeProps,
-  value: PropObject<DateValueType | DateValueType[] | [DateValueType, DateValueType][]>(),
+  value: PropObjOrStr<DateValueType | DateValueType[] | [DateValueType, DateValueType][]>(),
   viewDate: PropObject<DateValueType>(),
   range: PropBoolean(),
   multiple: PropBoolean(),
@@ -29,6 +30,7 @@ export const calendarProps = freeze({
 });
 
 export const calendarEmits = freeze({
+  update: (_: DateValueType) => null,
   updateViewDate: (_: DateValueType) => null,
 });
 

@@ -38,7 +38,8 @@ export type DateMethods<T> = {
     /** get short names of week days, should be an array of 7 strings */
     getShortWeekDays?: (locale: string) => string[];
     getShortMonths?: (locale: string) => string[];
-    format: (locale: string, date: T, format: string) => string;
+    /** will return empty string if it's not valid date */
+    format: (locale: string, date: any, format: string) => string;
     /** should return null if it's falsy value or failed to parse */
     parse: (
       locale: string,

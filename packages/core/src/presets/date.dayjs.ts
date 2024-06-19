@@ -78,7 +78,7 @@ const methods = {
     getWeek: (locale, date) => date.locale(parseLocale(locale)).week(),
     getShortWeekDays: (locale) => dayjs().locale(parseLocale(locale)).localeData().weekdaysMin(),
     getShortMonths: (locale) => dayjs().locale(parseLocale(locale)).localeData().monthsShort(),
-    format: (locale, date, format) => date.locale(parseLocale(locale)).format(format),
+    format: (locale, date, format) => (dayjs.isDayjs(date) ? date.locale(parseLocale(locale)).format(format) : ''),
     parse: (locale, text, formats) => {
       if (!text) return null;
       const localeStr = parseLocale(locale);
