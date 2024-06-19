@@ -4,8 +4,79 @@
 @use '../../mixins/config' as *;
 
 @include b(calendar) {
-  @include e(body) {
+  @include e(table) {
     position: relative;
     overflow: hidden;
+    text-align: center;
+    border-collapse: collapse;
+  }
+  @include e(cell) {
+    @include declareVars(
+      (
+        padding: cell-padding,
+      )
+    );
+    @include is(now) {
+      @include e(inner) {
+        box-shadow: inset 0 0 0 1px getAccentColor(a8);
+      }
+    }
+    @include is(selected) {
+      @include e(inner) {
+        background-color: getAccentColor(a3);
+        color: getAccentColor(a11);
+      }
+    }
+    @include is(inView) {
+    }
+    @include is(inRange) {
+    }
+  }
+
+  @include e(inner) {
+    @include declareVars(
+      (
+        min-width: cell-min-width,
+        min-height: cell-min-height,
+        line-height: cell-line-height,
+        border-radius: cell-border-radius,
+      )
+    );
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        cell-padding: getSpaceValue(1),
+        cell-min-width: getSpaceValue(4),
+        cell-min-height: getSpaceValue(4),
+        cell-line-height: getSpaceValue(4),
+        cell-border-radius: getRadiusValue(1, 'full'),
+      )
+    );
+  }
+
+  @include size(2) {
+    @include setVars(
+      (
+        cell-padding: getSpaceValue(2),
+        cell-min-width: getSpaceValue(5),
+        cell-min-height: getSpaceValue(5),
+        cell-line-height: getSpaceValue(5),
+        cell-border-radius: getRadiusValue(2, 'full'),
+      )
+    );
+  }
+
+  @include size(3) {
+    @include setVars(
+      (
+        cell-padding: getSpaceValue(3),
+        cell-min-width: getSpaceValue(6),
+        cell-min-height: getSpaceValue(6),
+        cell-line-height: getSpaceValue(6),
+        cell-border-radius: getRadiusValue(3, 'full'),
+      )
+    );
   }
 }
