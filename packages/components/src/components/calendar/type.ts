@@ -13,8 +13,10 @@ import { ExtractPropTypes } from 'vue';
 
 export const calendarProps = freeze({
   ...themeProps,
-  value: PropObject<DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]>(),
+  value: PropObject<DateValueType | DateValueType[] | [DateValueType, DateValueType][]>(),
   viewDate: PropObject<DateValueType>(),
+  range: PropBoolean(),
+  multiple: PropBoolean(),
   format: PropString(),
   yearFormat: PropString(),
   monthFormat: PropString(),

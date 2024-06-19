@@ -28,18 +28,21 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   },
   'lang' | 'cellFormat'
 > & {
-  value: MaybeRefLikeOrGetter<DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]>;
+  value: MaybeRefLikeOrGetter<DateValueType | DateValueType[] | [DateValueType, DateValueType][]>;
   viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
   format?: string;
   showTime?: boolean;
   use12Hours?: boolean;
-  range?: 'single' | 'multiple';
+  range?: boolean;
+  multiple?: boolean;
   type: DatePanelType;
   min?: DateValueType;
   max?: DateValueType;
   lessThan?: DateValueType;
   moreThan?: DateValueType;
   disabledDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
+  prevCells?: boolean; // TODO
+  nextCells?: boolean;
   getCell: (target: HTMLElement) => [number, number] | undefined;
   onSelect?: (value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]) => void;
   // titleFormat?:
@@ -126,40 +129,38 @@ export function useDatePanel(options: UseDatePanelOptions) {
     return getDefaultFormat(format, type, showTime, use12Hours);
   });
 
-  const processedValue = computed(() => {
-    let { value, range } = options;
-    value = unrefOrGet(value);
-    if (range === 'multiple') {
-      return isArray(value)
-        ? (value.map((v) => formatRangeValue(v)).filter((i) => i.length) as [DateValueType, DateValueType][])
-        : [];
-    } else if (range) {
-      return formatRangeValue(value);
-    } else return finalParse(value as any);
+  // --- values ---
+  const multiRangeValues = computed(() => {
+    const { multiple, range, value } = options,
+      values = unrefOrGet(value);
+    return multiple && range
+      ? isArray(values)
+        ? (values.map((v) => formatRangeValue(v)).filter((i) => i.length) as [DateValueType, DateValueType][])
+        : []
+      : null;
   });
+  const rangeValue = computed(() => {
+    const { multiple, range, value } = options,
+      values = unrefOrGet(value);
+    return !multiple && range ? formatRangeValue(values) : null;
+  });
+  const singleValue = computed(() => finalParse(unrefOrGet(options.value)));
+  // --- values ---
 
   const isSelected = (target: DateValueType) => {
-    const { range } = options;
-    const { value } = processedValue;
-    if (range === 'multiple')
-      return (value as [DateValueType, DateValueType][]).some(
-        (range) => isSame(range[0], target) || isSame(range[1], target),
-      );
-    else if (range)
-      return isSame((value as DateValueType[])[0], target) || isSame((value as DateValueType[])[1], target);
-    else return isSame(value as DateValueType, target);
+    const ranges = multiRangeValues.value,
+      range = rangeValue.value;
+    if (ranges) return ranges.some((range) => isSame(range[0], target) || isSame(range[1], target));
+    else if (range) return isSame(range[0], target) || isSame(range[1], target);
+    else return isSame(singleValue.value, target);
   };
 
   const isInRange = (target: DateValueType) => {
-    const { range } = options;
-    const { value } = processedValue;
-    if (range === 'multiple')
-      return (value as [DateValueType, DateValueType][]).some(
-        (range) => isAfter(target, range[0]) || isBefore(target, range[1]),
-      );
-    else if (range)
-      return isAfter(target, (value as DateValueType[])[0]) || isBefore(target, (value as DateValueType[])[1]);
-    else return isSame(value as DateValueType, target);
+    const ranges = multiRangeValues.value,
+      range = rangeValue.value;
+    if (ranges) return ranges.some((range) => isAfter(target, range[0]) || isBefore(target, range[1]));
+    else if (range) return isAfter(target, range[0]) || isBefore(target, range[1]);
+    else return false;
   };
 
   const isOutOfLimit = computed(() => {
