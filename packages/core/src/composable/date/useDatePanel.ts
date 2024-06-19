@@ -258,12 +258,15 @@ export function useDatePanel(options: UseDatePanelOptions) {
     prevView() {},
   };
 
-  const handleIfCell = ({ target }: { target: any }, handle: (cell: UseDatePanelCell) => void) => {
+  const handleIfCell = (e: Event, handle: (cell: UseDatePanelCell) => void) => {
     let indexes: [number, number] | undefined;
-    if (isHTMLElement(target) && (indexes = getCell(target))) {
-      const [row, col] = indexes;
-      const cell = cells.value[row]?.[col];
-      if (cell && !cell.state.disabled) handle(cell);
+    for (const target of e.composedPath()) {
+      if (isHTMLElement(target) && (indexes = getCell(target))) {
+        const [row, col] = indexes;
+        const cell = cells.value[row]?.[col];
+        if (cell && !cell.state.disabled) handle(cell);
+      }
+      if (target === e.currentTarget) break;
     }
   };
   const selectCell = ({ date }: UseDatePanelCell) => {

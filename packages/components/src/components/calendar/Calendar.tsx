@@ -2,9 +2,9 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useNamespace, useValueModel } from 'hooks';
-import { intl } from 'common';
-import { createDateLocaleMethods, createUseModel, useDatePanel } from '@lun/core';
+import { useCEStates, useNamespace, useValueModel } from 'hooks';
+import { intl, partsDefine } from 'common';
+import { createDateLocaleMethods, createUseModel, useDatePanel, useSetupEdit } from '@lun/core';
 import { capitalize, runIfFn, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
 import { Transition } from 'vue';
@@ -22,6 +22,7 @@ export const Calendar = defineSSRCustomElement({
   emits: calendarEmits,
   setup(props) {
     const ns = useNamespace(name);
+    useSetupEdit();
     const context = useContextConfig();
     const viewDate = useViewDate(props);
     const valueModel = useValueModel(props);
@@ -57,6 +58,8 @@ export const Calendar = defineSSRCustomElement({
       },
     };
 
+    const [stateClass] = useCEStates(() => null, ns);
+
     return () => {
       let { shortMonths, shortWeekDays, monthBeforeYear } = props;
       shortMonths ||= runIfFn(getShortMonths) || [];
@@ -69,7 +72,7 @@ export const Calendar = defineSSRCustomElement({
         <button>{monthFormat ? format(view, monthFormat) : shortMonths[getMonth(view)]}</button>,
       ];
       return (
-        <div {...handlers}>
+        <div {...handlers} class={stateClass.value} part={partsDefine[name].root}>
           <slot name="header"></slot>
           <div>
             <slot name="super-prev" onClick={methods.prevYear}>
@@ -86,21 +89,32 @@ export const Calendar = defineSSRCustomElement({
               <button>{renderElement('icon', { name: 'double-left' })}</button>
             </slot>
           </div>
-          <table class={ns.e('body')}>
-            <thead>
+          <table class={ns.e('table')} part={partsDefine[name].table}>
+            <thead class={ns.e('thead')} part={partsDefine[name].thead}>
               {cells.value[0].map((_, i) => {
-                return <th>{shortWeekDays[(i + weekFirstDay) % 7]}</th>;
+                return (
+                  <th class={[ns.e('th'), ns.e('cell')]} part={partsDefine[name].th}>
+                    {shortWeekDays[(i + weekFirstDay) % 7]}
+                  </th>
+                );
               })}
             </thead>
             <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''} {...transitionHandlers}>
-              <tbody key={getBaseDateStr()}>
+              <tbody key={getBaseDateStr()} class={ns.e('tbody')} part={partsDefine[name].tbody}>
                 {cells.value.map((row, rowIndex) => {
                   return (
-                    <tr data-row={rowIndex}>
+                    <tr data-row={rowIndex} class={ns.e('tr')} part={partsDefine[name].tr}>
                       {row.map(({ text, state }, colIndex) => {
                         return (
-                          <td data-row={rowIndex} data-col={colIndex} class={ns.is(state)}>
-                            {text}
+                          <td
+                            data-row={rowIndex}
+                            data-col={colIndex}
+                            class={[ns.is(state), ns.e('td'), ns.e('cell')]}
+                            part={partsDefine[name].td}
+                          >
+                            <div class={ns.e('inner')} part={partsDefine[name].inner}>
+                              {text}
+                            </div>
                           </td>
                         );
                       })}
