@@ -169,14 +169,16 @@ export function useDatePanel(options: UseDatePanelOptions) {
     const ranges = multiRangeValues.value,
       range = rangeValue.value,
       { selecting, hovering } = state,
+      selectingRange = formatRangeValue([selecting, hovering]),
+      isSingleSelecting = !hovering && isSame(target, selecting),
       res = {
         singleSelected: false,
         rangeStart: false,
         rangeEnd: false,
         inRange: false,
-        selectingStart: isSame(target, selecting),
-        selectingEnd: isSame(target, hovering),
-        inSelecting: isInRange(target, formatRangeValue([selecting, hovering])),
+        selectingStart: isSame(target, selectingRange[0]) || isSingleSelecting,
+        selectingEnd: isSame(target, selectingRange[1]) || isSingleSelecting,
+        inSelecting: isInRange(target, selectingRange),
       };
     const checkRange = (range: DateValueType[]) => {
       if (isSame(range[0], target)) return (res.rangeStart = true);
@@ -207,6 +209,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   let baseDateStr: string;
   const cells = computed(() => {
     const { type, disabledDate } = options;
+    const { selecting, hovering } = state;
     const grid = gridMap[type];
     const now = getNow();
     const finalViewDate = unrefOrGet(viewDate) || now;
@@ -232,13 +235,13 @@ export function useDatePanel(options: UseDatePanelOptions) {
         const offset = row * cols + col;
         const currentDate = getCellDate(baseDate, offset, type);
         if (!col) rowKey = cellInfo[row].key = baseDateStr + '-' + row;
-        const disabled = runIfFn(disabledDate, currentDate, { type }) || !!isOutOfLimit.value(currentDate);
+        const disabled = runIfFn(disabledDate, currentDate, { type, selecting }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
           key: rowKey! + '-' + col,
           date: currentDate,
           state: {
             disabled,
-            hovered: isSame(state.hovering, currentDate),
+            hovered: isSame(hovering, currentDate),
             inView: isInView(currentDate),
             now: isSame(currentDate, now),
             ...getSelectState(currentDate),
@@ -308,12 +311,12 @@ export function useDatePanel(options: UseDatePanelOptions) {
     onClick(e: MouseEvent) {
       handleIfCell(e, selectCell);
     },
-    onMouseenter(e: MouseEvent) {
+    onMouseover(e: MouseEvent) {
       handleIfCell(e, ({ date }) => {
         state.hovering = date;
       });
     },
-    onMouseleave(e: MouseEvent) {
+    onMouseout(e: MouseEvent) {
       handleIfCell(e, () => {
         state.hovering = null;
       });
