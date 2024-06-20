@@ -10,10 +10,21 @@ export type UseDatePanelCell = {
   text: string;
   state: {
     disabled: boolean;
-    selected: boolean;
+    /** for range=false, stands for if cell is selected and not in a range */
+    singleSelected: boolean;
     hovered: boolean;
-    /** date is in one of selected range */
+    /** stands for if cell is the start of a selected range */
+    rangeStart: boolean;
+    /** stands for if cell is the end of a selected range */
+    rangeEnd: boolean;
+    /** stands for if cell is in one of selected ranges */
     inRange: boolean;
+    /** stands for if cell is the start of a selecting range */
+    selectingStart: boolean;
+    /** stands for if cell is the end of a selecting range, it's not necessarily same as hovered as we may use keyboard to move */
+    selectingEnd: boolean;
+    /** stands for if cell is in the selecting range */
+    inSelecting: boolean;
     inView: boolean;
     now: boolean;
   };
@@ -148,30 +159,34 @@ export function useDatePanel(options: UseDatePanelOptions) {
   const values = computed(() => toArrayIfNotNil(unrefOrGet(options.value)).map((v) => finalParse(v)));
   // --- values ---
 
-  const isSelected = (target: DateValueType) => {
+  const isInRange = (target: DateValueType, range: DateValueType[]) =>
+    !!range.length && isAfter(target, range[0]) && isBefore(target, range[1]);
+
+  const isOverlapping = ([start1, end1]: DateValueType[], [start2, end2]: DateValueType[]) =>
+    isBefore(start1, end2) && isBefore(start2, end1);
+
+  const getSelectState = (target: DateValueType) => {
     const ranges = multiRangeValues.value,
-      range = rangeValue.value;
-    if (ranges) return ranges.some((range) => isSame(range[0], target) || isSame(range[1], target));
-    else if (range) return isSame(range[0], target) || isSame(range[1], target);
-    else return values.value.some((v) => isSame(v, target));
-  };
-
-  const isInRange = (target: DateValueType, range: DateValueType[], considerSame = false) =>
-    (isAfter(target, range[0]) && isBefore(target, range[1])) ||
-    (considerSame && (isSame(target, range[0]) || isSame(target, range[1])));
-
-  const isInSelectedRange = (target: DateValueType) => {
-    const ranges = multiRangeValues.value,
-      range = rangeValue.value;
-    if (ranges) return ranges.some((range) => isInRange(target, range));
-    else if (range) return isInRange(target, range);
-    else return false;
-  };
-
-  const isInHoveringRange = (target: DateValueType) => {
-    const { selecting, hovering } = state;
-    const range = formatRangeValue([selecting, hovering]);
-    return range.length ? isInRange(target, range) : false;
+      range = rangeValue.value,
+      { selecting, hovering } = state,
+      res = {
+        singleSelected: false,
+        rangeStart: false,
+        rangeEnd: false,
+        inRange: false,
+        selectingStart: isSame(target, selecting),
+        selectingEnd: isSame(target, hovering),
+        inSelecting: isInRange(target, formatRangeValue([selecting, hovering])),
+      };
+    const checkRange = (range: DateValueType[]) => {
+      if (isSame(range[0], target)) return (res.rangeStart = true);
+      if (isSame(range[1], target)) return (res.rangeEnd = true);
+      if (isInRange(target, range)) return (res.inRange = true);
+    };
+    if (ranges) ranges.find(checkRange);
+    else if (range) checkRange(range);
+    else res.singleSelected = values.value.some((v) => isSame(v, target));
+    return res;
   };
 
   const isOutOfLimit = computed(() => {
@@ -223,11 +238,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
           date: currentDate,
           state: {
             disabled,
-            selected: isSelected(currentDate),
-            hovered: state.hovering && isSame(state.hovering, currentDate),
-            inRange: isInSelectedRange(currentDate) || isInHoveringRange(currentDate),
+            hovered: isSame(state.hovering, currentDate),
             inView: isInView(currentDate),
             now: isSame(currentDate, now),
+            ...getSelectState(currentDate),
           },
           text: format(currentDate, unrefOrGet(cellFormat)),
         };
@@ -275,19 +289,19 @@ export function useDatePanel(options: UseDatePanelOptions) {
       range = rangeValue.value;
     const { selecting } = state;
     if (ranges) {
-      const newRanges = ranges.filter((range) => !isInRange(date, range, true));
       if (selecting) {
-        newRanges.push(formatRangeValue([selecting, date]) as [DateValueType, DateValueType]);
+        const newRange = formatRangeValue([selecting, date]) as [DateValueType, DateValueType];
+        const newRanges = ranges.filter((range) => !isOverlapping(newRange, range));
+        newRanges.push(newRange);
         state.selecting = null;
+        runIfFn(onSelect, newRanges);
       } else state.selecting = date;
-      runIfFn(onSelect, newRanges);
     } else if (range) {
       const newRange = formatRangeValue([selecting, date]);
-      runIfFn(onSelect, newRange);
-      state.selecting = newRange.length ? null : date; // length true -> has selecting before -> set to null; length 0 -> selecting is null before
+      state.selecting = newRange.length ? (runIfFn(onSelect, newRange), null) : date;
     } else if (options.multiple) {
-      const newValues = values.value.filter((v) => !isSame(v, date));
-      runIfFn(onSelect, [...newValues, date]);
+      const newValues = values.value.filter((v) => !isSame(v, date)); // click selected date will unselect it
+      runIfFn(onSelect, values.value.length === newValues.length ? [...newValues, date] : newValues);
     } else runIfFn(onSelect, date);
   };
   const handlers = {
