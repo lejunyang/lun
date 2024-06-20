@@ -181,9 +181,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
         inSelecting: isInRange(target, selectingRange),
       };
     const checkRange = (range: DateValueType[]) => {
-      if (isSame(range[0], target)) return (res.rangeStart = true);
-      if (isSame(range[1], target)) return (res.rangeEnd = true);
-      if (isInRange(target, range)) return (res.inRange = true);
+      res.rangeStart = isSame(range[0], target);
+      if ((res.rangeEnd = isSame(range[1], target)) || res.rangeStart || (res.inRange = isInRange(target, range)))
+        return true;
     };
     if (ranges) ranges.find(checkRange);
     else if (range) checkRange(range);

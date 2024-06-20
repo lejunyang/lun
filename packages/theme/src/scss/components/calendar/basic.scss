@@ -68,6 +68,14 @@
         }
       }
     }
+    @include is((rangeStart, rangeEnd)) {
+      @include e(inner) {
+        &::after {
+          // for a range only contains one day, do not span
+          inset-inline: 0;
+        }
+      }
+    }
     @include is(selectingStart) {
       @include e(inner) {
         &::before {
@@ -97,6 +105,7 @@
     @include is((selectingStart, selectingEnd)) {
       @include e(inner) {
         &::before {
+          // for a range only contains one day, do not span
           inset-inline: 0px;
         }
       }
@@ -109,7 +118,10 @@
         }
       }
     }
-    @include is(inView) {
+    @include isN(inView) {
+      @include e(inner) {
+        color: getGrayColor(9),
+      }
     }
     @include is(inRange) {
       @include e(inner) {
