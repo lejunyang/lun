@@ -11,6 +11,7 @@
     border-collapse: collapse;
   }
   @include e(cell) {
+    overflow: hidden;
     @include declareVars(
       (
         padding: cell-padding,
@@ -21,25 +22,116 @@
         box-shadow: inset 0 0 0 1px getAccentColor(a8);
       }
     }
-    @include is(selected) {
+    @include multiIs((selectingStart, selectingEnd, inSelecting)) {
       @include e(inner) {
-        background-color: getAccentColor(a3);
         color: getAccentColor(a11);
+        &::before {
+          content: '';
+          position: absolute;
+          inset: 0px;
+          border-block: 1px dashed getAccentColor(a8);
+        }
+      }
+    }
+    @include multiIs((singleSelected, rangeStart, rangeEnd)) {
+      @include e(inner) {
+        background-color: getAccentColor(9);
+        color: getAccentColor(contrast);
+      }
+    }
+    @include multiIs((rangeStart, rangeEnd)) {
+      @include e(inner) {
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-color: getAccentColor(a3);
+          @include declareVars(
+            (
+              border-radius: cell-border-radius,
+            )
+          );
+        }
+      }
+    }
+    @include is(rangeStart) {
+      @include e(inner) {
+        &::after {
+          inset-inline-end: -50%;
+        }
+      }
+    }
+    @include is(rangeEnd) {
+      @include e(inner) {
+        &::after {
+          inset-inline-start: -50%;
+        }
+      }
+    }
+    @include is(selectingStart) {
+      @include e(inner) {
+        &::before {
+          border-inline-start: 1px dashed getAccentColor(a8);
+          inset-inline-end: -50%;
+          @include declareVars(
+            (
+              border-radius: cell-border-radius,
+            )
+          );
+        }
+      }
+    }
+    @include is(selectingEnd) {
+      @include e(inner) {
+        &::before {
+          border-inline-end: 1px dashed getAccentColor(a8);
+          inset-inline-start: -50%;
+          @include declareVars(
+            (
+              border-radius: cell-border-radius,
+            )
+          );
+        }
+      }
+    }
+    @include is((selectingStart, selectingEnd)) {
+      @include e(inner) {
+        &::before {
+          inset-inline: 0px;
+        }
+      }
+    }
+    @include is(inSelecting) {
+      @include e(inner) {
+        &::before {
+          left: -50%;
+          right: -50%;
+        }
       }
     }
     @include is(inView) {
     }
     @include is(inRange) {
+      @include e(inner) {
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0 -50% 0 -50%;
+          background-color: getAccentColor(a3);
+        }
+      }
     }
   }
 
   @include e(inner) {
+    position: relative;
     @include declareVars(
       (
         min-width: cell-min-width,
         min-height: cell-min-height,
         line-height: cell-line-height,
         border-radius: cell-border-radius,
+        padding: inner-padding,
       )
     );
   }
@@ -64,6 +156,7 @@
         cell-min-height: getSpaceValue(5),
         cell-line-height: getSpaceValue(5),
         cell-border-radius: getRadiusValue(2, 'full'),
+        inner-padding: calc(#{getSpaceValue(1)} / 2),
       )
     );
   }
@@ -76,6 +169,7 @@
         cell-min-height: getSpaceValue(6),
         cell-line-height: getSpaceValue(6),
         cell-border-radius: getRadiusValue(3, 'full'),
+        inner-padding: getSpaceValue(1),
       )
     );
   }

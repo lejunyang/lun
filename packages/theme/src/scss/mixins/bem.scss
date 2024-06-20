@@ -125,6 +125,14 @@
   }
 }
 
+@mixin multiIs($listState, $withParent: true, $atRoot: false) {
+  @each $s in $listState {
+    @include basicIs($s, $withParent, $atRoot, false) {
+      @content;
+    }
+  }
+}
+
 @mixin isN($state, $withParent: true, $atRoot: false) {
   @include basicIs($state, $withParent, $atRoot, true) {
     @content;
@@ -253,7 +261,6 @@
   }
 }
 
-
 /// inside @include b(button) { ... }
 /// getRVarName(padding) => --l-button-padding
 /// getRVarName((label, padding)) => --l-button-label-padding
@@ -261,14 +268,12 @@
   @return getVarName(list.join($Root, $list));
 }
 
-
 /// inside @include b(button) { ... }
 /// getRVarValue(padding) => var(--l-button-padding)
 /// getRVarValue((label, padding), 1px) => var(--l-button-label-padding, 1px)
 @function getRVarValue($args, $default: '') {
   @return getVarValue(list.join($Root, $args), $default);
 }
-
 
 /// inside @include b(button) { ... }
 /// getDeclaredVar(padding) => var(--l-button-padding, var(--padding));
@@ -290,7 +295,6 @@
   }
 }
 
-
 /// inside @include b(button) { ... }
 /// declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
 /// declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
@@ -309,7 +313,6 @@
     #{$prop}: #{getRVarValue($name, $val)};
   }
 }
-
 
 /// setVars((padding: 10px, margin: 20px)) => --padding: 10px; --margin: 20px;
 @mixin setVars($varMap) {
