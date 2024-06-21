@@ -29,12 +29,12 @@
 </template>
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
-import { useData, inBrowser } from 'vitepress';
+import { useData, inBrowser, useRouter } from 'vitepress';
 import { watchEffect, nextTick, provide, reactive, onMounted } from 'vue';
 import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
 import { GlobalContextConfig } from '@lun/components';
 import Giscus from '@giscus/vue';
-import { on, AnyFn } from '@lun/utils';
+import { on, AnyFn, withResolvers } from '@lun/utils';
 
 const Layout = Theme.Layout;
 
@@ -51,7 +51,7 @@ const { isDark, lang, page } = useData();
 let lastClickX = 0,
   lastClickY = 0;
 
-const swapZ = () => {
+const swapZ = (scale = 0.8, duration = 500) => {
   document.documentElement.animate(
     [
       {
@@ -59,12 +59,12 @@ const swapZ = () => {
         opacity: 1,
       },
       {
-        transform: 'scale(0.7)',
+        transform: `scale(${scale})`,
         opacity: 0,
       },
     ],
     {
-      duration: 500,
+      duration,
       easing: 'ease-in-out',
       pseudoElement: '::view-transition-old(root)',
     },
@@ -72,7 +72,7 @@ const swapZ = () => {
   document.documentElement.animate(
     [
       {
-        transform: 'scale(0.7)',
+        transform: `scale(${scale})`,
         opacity: 0,
       },
       {
@@ -81,7 +81,7 @@ const swapZ = () => {
       },
     ],
     {
-      duration: 500,
+      duration,
       easing: 'ease-in-out',
       pseudoElement: '::view-transition-new(root)',
     },
@@ -159,6 +159,29 @@ const toggleAppearanceWithTransition = () => {
 
 provide('toggle-appearance', toggleAppearanceWithTransition);
 
+const router = useRouter();
+let routeResolve: (() => void) | undefined, transitionPromise: Promise<any> | undefined;
+router.onBeforeRouteChange = () => {
+  if (document.startViewTransition) {
+    transitionPromise = document.startViewTransition(() => {
+      const { promise, resolve } = withResolvers();
+      routeResolve = resolve;
+      return promise;
+    }).ready;
+  }
+};
+router.onAfterRouteChanged = async () => {
+  if (routeResolve) {
+    routeResolve();
+    routeResolve = undefined;
+  }
+  if (transitionPromise) {
+    await transitionPromise;
+    transitionPromise = undefined;
+    swapZ(0.9, 300);
+  }
+};
+
 watchEffect(() => {
   if (inBrowser) {
     document.cookie = `nf_lang=${lang.value}; path=/`;
@@ -176,10 +199,5 @@ watchEffect(() => {
 
 giscus-widget::part(iframe) {
   margin-top: 24px;
-}
-
-/* cross document transition */
-@view-transition {
-  navigation: auto;
 }
 </style>
