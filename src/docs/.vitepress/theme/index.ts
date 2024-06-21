@@ -18,6 +18,7 @@ import Layout from './Layout.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import './style.css';
+import { on } from '@lun/utils';
 
 let once = false;
 
@@ -94,6 +95,13 @@ export default {
         }
       });
       observer.observe({ entryTypes: ['longtask', 'long-animation-frame', 'event'] });
+      // Load when the page is activated
+      on(document, 'prerenderingchange', () => {
+        console.debug(`The page has been activated!`);
+
+        const activationStart = Math.round((performance.getEntriesByType('navigation')[0] as any).activationStart);
+        console.debug(`The page was activated at: ${activationStart}`);
+      });
     }
   }) as (typeof Theme)['enhanceApp'],
 };

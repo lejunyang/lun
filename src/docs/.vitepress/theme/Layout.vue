@@ -3,7 +3,7 @@
   <l-theme-provider :appearance="!inBrowser ? undefined : isDark ? 'dark' : 'light'" root v-bind="theme">
     <Layout>
       <template #nav-bar-content-after>
-        <ThemeConfigPanel :theme="theme" :lang="lang" />
+        <ThemeConfigPanel :theme="theme" :lang="lang" :animate="randomAnimate" />
       </template>
       <template #doc-after>
         <ClientOnly>
@@ -30,10 +30,11 @@
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser } from 'vitepress';
-import { watchEffect, nextTick, provide, reactive } from 'vue';
+import { watchEffect, nextTick, provide, reactive, onMounted } from 'vue';
 import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
 import { GlobalContextConfig } from '@lun/components';
 import Giscus from '@giscus/vue';
+import { on, AnyFn } from '@lun/utils';
 
 const Layout = Theme.Layout;
 
@@ -47,34 +48,113 @@ const theme = reactive({
 });
 
 const { isDark, lang, page } = useData();
+let lastClickX = 0,
+  lastClickY = 0;
 
-const toggleAppearanceWithTransition = async () => {
-  const switchButton = document.getElementById('switch-appearance');
+const swapZ = () => {
+  document.documentElement.animate(
+    [
+      {
+        transform: 'scale(1)',
+        opacity: 1,
+      },
+      {
+        transform: 'scale(0.7)',
+        opacity: 0,
+      },
+    ],
+    {
+      duration: 500,
+      easing: 'ease-in-out',
+      pseudoElement: '::view-transition-old(root)',
+    },
+  );
+  document.documentElement.animate(
+    [
+      {
+        transform: 'scale(0.7)',
+        opacity: 0,
+      },
+      {
+        transform: 'scale(1)',
+        opacity: 1,
+      },
+    ],
+    {
+      duration: 500,
+      easing: 'ease-in-out',
+      pseudoElement: '::view-transition-new(root)',
+    },
+  );
+};
+
+const polygonSlide = () => {
+  document.documentElement.animate(
+    [
+      {
+        clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)',
+      },
+      {
+        clipPath: 'polygon(75% 0, 100% 0, 100% 100%, 60% 100%)',
+        offset: 0.3,
+      },
+      {
+        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+      },
+    ],
+    {
+      duration: 700,
+      easing: 'ease-in-out',
+      pseudoElement: '::view-transition-new(root)',
+    },
+  );
+};
+
+const circleGrow = () => {
+  const x = lastClickX,
+    y = lastClickY;
+  const right = window.innerWidth - x;
+  const bottom = window.innerHeight - y;
+  // Calculates the radius of circle that can cover the screen
+  const maxRadius = Math.hypot(Math.max(x, right), Math.max(y, bottom));
+  document.documentElement.animate(
+    {
+      clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRadius}px at ${x}px ${y}px)`],
+    },
+    {
+      duration: 500,
+      easing: 'ease-in-out',
+      pseudoElement: '::view-transition-new(root)',
+    },
+  );
+};
+
+onMounted(() => {
+  on(
+    document,
+    'click',
+    ({ clientX, clientY }: MouseEvent) => {
+      lastClickX = clientX;
+      lastClickY = clientY;
+    },
+    { capture: true },
+  );
+});
+
+const animationPool = [swapZ, polygonSlide, circleGrow];
+const randomAnimate = async (update: AnyFn) => {
   if (document.startViewTransition) {
-    // https://akashhamirwasia.com/blog/full-page-theme-toggle-animation-with-view-transitions-api/
     await document.startViewTransition(async () => {
-      isDark.value = !isDark.value;
+      update();
       await nextTick();
     }).ready;
-    if (!switchButton) return;
-    const { top, left, width, height } = switchButton.getBoundingClientRect();
-    const x = left + width / 2;
-    const y = top + height + 2;
-    const right = window.innerWidth - x;
-    const bottom = window.innerHeight - y;
-    // Calculates the radius of circle that can cover the screen
-    const maxRadius = Math.hypot(Math.max(x, right), Math.max(y, bottom));
-    document.documentElement.animate(
-      {
-        clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRadius}px at ${x}px ${y}px)`],
-      },
-      {
-        duration: 500,
-        easing: 'ease-in-out',
-        pseudoElement: '::view-transition-new(root)',
-      },
-    );
-  } else isDark.value = !isDark.value;
+    const index = Math.floor(Math.random() * animationPool.length);
+    animationPool[index]();
+  } else update();
+};
+
+const toggleAppearanceWithTransition = () => {
+  return randomAnimate(() => (isDark.value = !isDark.value));
 };
 
 provide('toggle-appearance', toggleAppearanceWithTransition);
@@ -96,5 +176,10 @@ watchEffect(() => {
 
 giscus-widget::part(iframe) {
   margin-top: 24px;
+}
+
+/* cross document transition */
+@view-transition {
+  navigation: auto;
 }
 </style>

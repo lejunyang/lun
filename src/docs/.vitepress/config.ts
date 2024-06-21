@@ -138,6 +138,9 @@ export default defineConfig({
   base: '/lun/',
   title: 'Lun',
   description: 'Web components',
+  sitemap: {
+    hostname: 'https://github.com/lejunyang/lun/',
+  },
   vue: {
     template: {
       compilerOptions: {
@@ -159,6 +162,22 @@ export default defineConfig({
     },
   },
   vite: viteConfig,
+  head: [
+    [
+      'script',
+      {
+        type: 'speculationrules',
+      },
+      `{
+  "prerender": [
+    {
+      "urls": ["/lun/components/button/", "/lun/guides/usage/"]
+    }
+  ]
+}`,
+    ],
+  ],
+  lastUpdated: true,
   themeConfig: {
     search: {
       provider: 'local',

@@ -64,9 +64,10 @@
 import { themeColors, grayColors } from '@lun/components';
 import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
 import locales from '../docs/.vitepress/locales';
+import { AnyFn } from '@lun/utils';
 
 const props = defineProps<{
-  theme?: {
+  theme: {
     color: string;
     'gray-color': string;
     size: string;
@@ -74,6 +75,7 @@ const props = defineProps<{
     scale: string;
   };
   lang?: string;
+  animate: (update: AnyFn) => void;
 }>();
 
 const radiuses = ['none', 'small', 'medium', 'large', 'full'];
