@@ -10,6 +10,13 @@
     text-align: center;
     border-collapse: collapse;
   }
+
+  @include e(thead) {
+    background: getSemanticColor('background');
+    position: relative;
+    z-index: 2;
+  }
+
   @include e(cell) {
     overflow: hidden;
     @include declareVars(
@@ -120,7 +127,7 @@
     }
     @include isN(inView) {
       @include e(inner) {
-        color: getGrayColor(9),
+        color: getGrayColor(9);
       }
     }
     @include is(inRange) {

@@ -83,6 +83,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     isBefore,
     isAfter,
     isValid,
+    getEndOfMonth,
   } = presets.date;
   const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
   const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
@@ -206,7 +207,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   if (!viewDate.value) viewDate.value = getNow();
 
-  let baseDateStr: string;
+  let baseDateStr: string, viewStartDate: DateValueType, viewEndDate: DateValueType;
   const cells = computed(() => {
     const { type, disabledDate } = options;
     const { selecting, hovering } = state;
@@ -216,7 +217,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (!grid) return [];
     const [rows, cols] = grid;
     const cellInfo: UseDatePanelCells = [];
-    const monthStartDate = setDate(finalViewDate, 1);
+    const monthStartDate = (viewStartDate = setDate(finalViewDate, 1));
+    viewEndDate = getEndOfMonth(finalViewDate);
     const baseDate = getWeekStartDate(monthStartDate);
     const isInView = (target: DateValueType) => {
       switch (type) {
@@ -288,6 +290,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
   const selectCell = ({ date }: UseDatePanelCell) => {
     viewDate.value = date;
+    direction.value = isBefore(date, viewStartDate) ? 'down' : isAfter(date, viewEndDate) ? 'up' : undefined;
     const ranges = multiRangeValues.value,
       range = rangeValue.value;
     const { selecting } = state;
