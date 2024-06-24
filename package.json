@@ -29,7 +29,7 @@
     "monaco-editor": "^0.49.0",
     "react": "rc",
     "react-dom": "rc",
-    "vue": "^3.4.29"
+    "vue": "^3.4.30"
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",
@@ -52,7 +52,7 @@
     "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.7",
     "sass": "^1.77.5",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "v-lazy-show": "^0.2.4",
     "vite": "^5.3.1",
     "vite-plugin-dts": "^3.9.1",
@@ -64,8 +64,8 @@
     "vite": "^5.3.1",
     "@vueuse/core": "^10.11.0",
     "postcss": "^8.4.30",
-    "typescript": "^5.4.5",
-    "vue": "^3.4.29",
+    "typescript": "^5.5.2",
+    "vue": "^3.4.30",
     "@floating-ui/utils": "^0.2.2",
     "@floating-ui/dom": "^1.6.5"
   }
