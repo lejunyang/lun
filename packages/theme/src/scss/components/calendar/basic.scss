@@ -140,6 +140,12 @@
         }
       }
     }
+    @include is(focusing) {
+      @include e(inner) {
+        outline: 2px solid getAccentColor(8);
+        outline-offset: -1px;
+      }
+    }
   }
 
   @include e(inner) {
@@ -153,7 +159,7 @@
         padding: inner-padding,
       )
     );
-    &:focus-visible {
+    &:focus {
       outline: 2px solid getAccentColor(8);
       outline-offset: -1px;
     }

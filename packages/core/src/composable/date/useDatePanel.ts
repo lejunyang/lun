@@ -1,4 +1,4 @@
-import { computed, reactive, ref, Ref, WritableComputedRef } from 'vue';
+import { computed, nextTick, reactive, ref, Ref, WritableComputedRef } from 'vue';
 import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import {
@@ -48,6 +48,7 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   {
     lang: string;
     cellFormat: string;
+    getFocusing: HTMLElement;
   },
   'lang' | 'cellFormat'
 > & {
@@ -79,7 +80,7 @@ const gridMap = {
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
-  const { lang, cellFormat, viewDate, getCell, onSelect } = options;
+  const { lang, cellFormat, viewDate, getCell, onSelect, getFocusing } = options;
 
   // --------- Methods ----------
   const {
@@ -373,6 +374,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
             direction.value = e.key.slice(5).toLowerCase() as any;
           }
           state.focusing = newDate;
+          nextTick(() => unrefOrGet(getFocusing)?.focus());
         }
       });
     },

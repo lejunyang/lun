@@ -7,7 +7,7 @@ import { intl, partsDefine } from 'common';
 import { createDateLocaleMethods, createUseModel, useDatePanel, useSetupEdit } from '@lun/core';
 import { capitalize, runIfFn, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
-import { Transition } from 'vue';
+import { ref, Transition } from 'vue';
 import { GlobalStaticConfig } from 'config';
 
 const useViewDate = createUseModel({
@@ -24,8 +24,9 @@ export const Calendar = defineSSRCustomElement({
     const ns = useNamespace(name);
     useSetupEdit();
     const context = useContextConfig();
-    const viewDate = useViewDate(props);
-    const valueModel = useValueModel(props);
+    const viewDate = useViewDate(props),
+      valueModel = useValueModel(props);
+    const focusingInner = ref<HTMLElement>();
 
     const lang = () => context.lang;
     const getFormat = (field: keyof typeof props, defaultFormat: string) =>
@@ -45,10 +46,12 @@ export const Calendar = defineSSRCustomElement({
           onSelect(value: any) {
             valueModel.value = value;
           },
+          getFocusing: focusingInner,
         },
         props,
       ),
     );
+
     const { getMonth } = GlobalStaticConfig.date;
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
@@ -115,7 +118,8 @@ export const Calendar = defineSSRCustomElement({
                             <div
                               class={ns.e('inner')}
                               part={partsDefine[name].inner}
-                              tabindex={state.now || state.selected ? 0 : undefined}
+                              tabindex={state.now || state.selected ? 0 : -1}
+                              ref={state.focusing ? focusingInner : undefined}
                             >
                               {text}
                             </div>
