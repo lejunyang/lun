@@ -17,6 +17,7 @@ import { Dayjs } from '@lun/core/date-dayjs';
 import Layout from './Layout.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
+import SupportInfo from '../../../components/SupportInfo.vue';
 import './style.css';
 import { on } from '@lun/utils';
 
@@ -37,6 +38,7 @@ export default {
 
     app.component('Code', Code);
     app.component('Support', Support);
+    app.component('SupportInfo', SupportInfo);
     app.config.warnHandler = (msg, _vm, _trace) => {
       // ignore injection not found warning
       if (msg.includes('injection') && msg.includes('not found')) return;

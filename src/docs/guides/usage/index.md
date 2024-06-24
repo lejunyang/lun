@@ -116,14 +116,14 @@ defineButton('my-button', {
 
 至少需要兼容`customElement`, 以下列出的其他特性为所需版本大于`customElement`的, 若不支持需考虑 polyfill 或移除某些特性
 
-- [customElement](https://caniuse.com/?search=customElement) (chrome>=54, edge>=79, firefox>=63, safari>=10.3)
-- [BigInt](https://caniuse.com/?search=BigInt) (firefox>=68, safari>=14)
-- [flatMap](https://caniuse.com/?search=flatMap) (chrome>=69, safari>=12)
-- [fromEntries](https://caniuse.com/?search=fromEntries) (chrome>=73, edge>=73, firefox>=63, safari>=12.1)
-- [Named capture group](https://caniuse.com/?search=Named%20capture%20group) (chrome>=64, firefox>=78, safari>=11.3)
-- [CSS gap in flex](https://caniuse.com/?search=flex-gap) (chrome>=84, edge>=84, safari>=14.1)
-- [CSS :where :is](https://caniuse.com/?search=where) (chrome>=88, edge>=88, firefox>=78, safari>=14)
-- [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) (chrome>=89, edge>=89, firefox>=66, safari>=15)
+- [customElement](https://caniuse.com/?search=customElement) <SupportInfo chrome="54" edge="79" firefox="63" safari="10.3" />
+- [BigInt](https://caniuse.com/?search=BigInt) <SupportInfo chrome="67" edge="79" firefox="68" safari="14" />
+- [flatMap](https://caniuse.com/?search=flatMap) <SupportInfo chrome="69" edge="79" firefox="62" safari="12" />
+- [fromEntries](https://caniuse.com/?search=fromEntries) <SupportInfo chrome="73" edge="79" firefox="63" safari="12.1" />
+- [Named capture group](https://caniuse.com/?search=Named%20capture%20group) <SupportInfo chrome="64" edge="79" firefox="78" safari="11.1" />
+- [CSS gap in flex](https://caniuse.com/?search=flex-gap) <SupportInfo chrome="84" edge="84"  firefox="63" safari="14.1" />
+- [CSS :where :is](https://caniuse.com/?search=where) <SupportInfo chrome="88" edge="88" firefox="78" safari="14" />
+- [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) <SupportInfo chrome="89" edge="89" firefox="66" safari="15" />
 
 :::details 当前用户代理信息
 {{ browserInfo }}
@@ -131,22 +131,22 @@ defineButton('my-button', {
 
 某些特性需要的版本较高, 但它们在内部有做兼容处理或替代方案, 如下
 
-- <Support is="adoptedStyleSheets" /> [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets)
-- <Support is="Dialog" /> [Dialog](https://caniuse.com/?search=Dialog)
-- <Support is="slotAssign" /> [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign)
-- <Support is="inputCancel" /> [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel)
-- <Support is="popover" /> [popover](https://caniuse.com/?search=popover)
-- <Support is="showOpenFilePicker" /> [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker)
-- <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges)(注：未对 Safari17 之前做兼容，详见[`Mentions`](/components/mentions/))
-- <Support is="anchorPosition" /> [CSS Anchor Positioning](https://caniuse.com/?search=anchor%20position)
-- <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer)
-- <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid)
-- <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>)
+- <Support is="adoptedStyleSheets" /> [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets) <SupportInfo chrome="73" edge="79" firefox="101" safari="16.4" />
+- <Support is="Dialog" /> [Dialog](https://caniuse.com/?search=Dialog) <SupportInfo chrome="37" edge="79" firefox="98" safari="15.4" />
+- <Support is="slotAssign" /> [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign) <SupportInfo chrome="86" edge="86" firefox="92" safari="16.4" />
+- <Support is="inputCancel" /> [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel) <SupportInfo chrome="113" edge="113" firefox="91" safari="16.4" />
+- <Support is="popover" /> [popover](https://caniuse.com/?search=popover) <SupportInfo chrome="114" edge="114" firefox="125" safari="17" />
+- <Support is="showOpenFilePicker" /> [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker) <SupportInfo chrome="86" edge="86" firefox="no" safari="no" />
+- <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges) <SupportInfo chrome="no" edge="no" firefox="130" safari="17" />
+- <Support is="anchorPosition" /> [CSS Anchor Positioning](https://caniuse.com/?search=anchor%20position) <SupportInfo chrome="125" edge="125" firefox="no" safari="no" />
+- <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer) <SupportInfo chrome="99" edge="99" firefox="97" safari="15.4" />
+- <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid) <SupportInfo chrome="117" edge="117" firefox="71" safari="16" />
+- <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>) <SupportInfo chrome="111" edge="111" firefox="113" safari="15" />
 
 某些特性无法做兼容，但它们影响不大，只是出于技术探索添加了那些特性，不使用那些功能即可
 
-- <Support is="docPip" /> [`doc-pip`](/components/doc-pip/): [DocumentPictureInPicture](https://caniuse.com/?search=DocumentPictureInPicture)
-- <Support is="highlight" /> [`mentions`](/components/mentions/): [CSS highlight](https://caniuse.com/?search=highlight)
+- <Support is="docPip" /> [`doc-pip`](/components/doc-pip/): [DocumentPictureInPicture](https://caniuse.com/?search=DocumentPictureInPicture) <SupportInfo chrome="116" edge="116" firefox="no" safari="no" />
+- <Support is="highlight" /> [`mentions`](/components/mentions/): [CSS highlight](https://caniuse.com/?search=highlight) <SupportInfo chrome="105" edge="105" firefox="no" safari="17.2" />
 
 <script setup>
   import { inBrowser } from '@lun/utils';
