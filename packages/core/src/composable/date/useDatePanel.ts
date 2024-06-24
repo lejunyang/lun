@@ -1,7 +1,17 @@
 import { computed, reactive, ref, Ref, WritableComputedRef } from 'vue';
 import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
-import { isArray, isEnterDown, isHTMLElement, runIfFn, toArrayIfNotNil } from '@lun/utils';
+import {
+  isArray,
+  isArrowDownEvent,
+  isArrowLeftEvent,
+  isArrowRightEvent,
+  isArrowUpEvent,
+  isEnterDown,
+  isHTMLElement,
+  runIfFn,
+  toArrayIfNotNil,
+} from '@lun/utils';
 import { getDefaultFormat } from './utils';
 
 export type UseDatePanelCell = {
@@ -28,6 +38,7 @@ export type UseDatePanelCell = {
     readonly selected: boolean;
     inView: boolean;
     now: boolean;
+    focusing: boolean;
   };
   title?: string;
 };
@@ -136,6 +147,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     /** the start date of a range, meaning the user is selecting a range and just selected the start date */
     selecting: null as null | DateValueType,
     hovering: null as null | DateValueType,
+    focusing: null as null | DateValueType,
   });
 
   const parseFormat = computed(() => {
@@ -193,6 +205,15 @@ export function useDatePanel(options: UseDatePanelOptions) {
     return res;
   };
 
+  const isInView = (target: DateValueType, viewDate: DateValueType) => {
+    switch (options.type) {
+      case 'date':
+        return isSameMonth(viewDate, target);
+      default:
+        return false;
+    }
+  };
+
   const isOutOfLimit = computed(() => {
     const { min, max, moreThan, lessThan } = options;
     const minDate = finalParse(min),
@@ -211,7 +232,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   let baseDateStr: string, viewStartDate: DateValueType, viewEndDate: DateValueType;
   const cells = computed(() => {
     const { type, disabledDate } = options;
-    const { selecting, hovering } = state;
+    const { selecting, hovering, focusing } = state;
     const grid = gridMap[type];
     const now = getNow();
     const finalViewDate = unrefOrGet(viewDate) || now;
@@ -221,14 +242,6 @@ export function useDatePanel(options: UseDatePanelOptions) {
     const monthStartDate = (viewStartDate = setDate(finalViewDate, 1));
     viewEndDate = getEndOfMonth(finalViewDate);
     const baseDate = getWeekStartDate(monthStartDate);
-    const isInView = (target: DateValueType) => {
-      switch (type) {
-        case 'date':
-          return isSameMonth(monthStartDate, target);
-        default:
-          return false;
-      }
-    };
     baseDateStr = format(baseDate, parseFormat.value);
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
@@ -245,8 +258,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
           state: {
             disabled,
             hovered: isSame(hovering, currentDate),
-            inView: isInView(currentDate),
+            inView: isInView(currentDate, monthStartDate),
             now: isSame(currentDate, now),
+            focusing: isSame(currentDate, focusing),
             ...getSelectState(currentDate),
             get selected() {
               const { rangeStart, rangeEnd, selectingStart, selectingEnd, singleSelected } = this;
@@ -282,13 +296,13 @@ export function useDatePanel(options: UseDatePanelOptions) {
     prevView() {},
   };
 
-  const handleIfCell = (e: Event, handle: (cell: UseDatePanelCell) => void) => {
+  const handleIfCell = (e: Event, handle: (cell: UseDatePanelCell, indexes: [number, number]) => void) => {
     let indexes: [number, number] | undefined;
     for (const target of e.composedPath()) {
       if (isHTMLElement(target) && (indexes = getCell(target))) {
         const [row, col] = indexes;
         const cell = cells.value[row]?.[col];
-        if (cell && !cell.state.disabled) handle(cell);
+        if (cell && !cell.state.disabled) handle(cell, indexes);
       }
       if (target === e.currentTarget) break;
     }
@@ -315,6 +329,25 @@ export function useDatePanel(options: UseDatePanelOptions) {
       runIfFn(onSelect, values.value.length === newValues.length ? [...newValues, date] : newValues);
     } else runIfFn(onSelect, date);
   };
+  const getOffsetDate = (date: DateValueType, e: KeyboardEvent) => {
+    const { type } = options;
+    const cols = gridMap[type][1];
+    const offset = isArrowUpEvent(e)
+      ? -cols
+      : isArrowDownEvent(e)
+      ? cols
+      : isArrowLeftEvent(e)
+      ? -1
+      : isArrowRightEvent(e)
+      ? 1
+      : 0;
+    switch (type) {
+      case 'date':
+        return addDate(date, offset);
+      default:
+        return date;
+    }
+  };
   const handlers = {
     onClick(e: MouseEvent) {
       handleIfCell(e, selectCell);
@@ -330,9 +363,24 @@ export function useDatePanel(options: UseDatePanelOptions) {
       });
     },
     onKeydown(e: KeyboardEvent) {
-      if (isEnterDown(e)) {
-        handleIfCell(e, selectCell);
-      }
+      handleIfCell(e, (cell) => {
+        const { date } = cell;
+        if (isEnterDown(e)) selectCell(cell);
+        else if (isArrowUpEvent(e) || isArrowDownEvent(e) || isArrowLeftEvent(e) || isArrowRightEvent(e)) {
+          const newDate = getOffsetDate(date, e);
+          if (!isInView(newDate, date)) {
+            viewDate.value = newDate;
+            direction.value = e.key.slice(5).toLowerCase() as any;
+          }
+          state.focusing = newDate;
+        }
+      });
+    },
+    onFocusin(e: FocusEvent) {
+      handleIfCell(e, ({ date }) => (state.focusing = date));
+    },
+    onFocusout(e: FocusEvent) {
+      handleIfCell(e, () => (state.focusing = null));
     },
   };
 
