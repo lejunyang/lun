@@ -112,7 +112,11 @@ export const Calendar = defineSSRCustomElement({
                             class={[ns.is(state), ns.e('td'), ns.e('cell')]}
                             part={partsDefine[name].td}
                           >
-                            <div class={ns.e('inner')} part={partsDefine[name].inner}>
+                            <div
+                              class={ns.e('inner')}
+                              part={partsDefine[name].inner}
+                              tabindex={state.now || state.selected ? 0 : undefined}
+                            >
                               {text}
                             </div>
                           </td>

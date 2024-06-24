@@ -25,6 +25,7 @@ export type UseDatePanelCell = {
     selectingEnd: boolean;
     /** stands for if cell is in the selecting range */
     inSelecting: boolean;
+    readonly selected: boolean;
     inView: boolean;
     now: boolean;
   };
@@ -247,6 +248,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
             inView: isInView(currentDate),
             now: isSame(currentDate, now),
             ...getSelectState(currentDate),
+            get selected() {
+              const { rangeStart, rangeEnd, selectingStart, selectingEnd, singleSelected } = this;
+              return rangeStart || rangeEnd || selectingStart || selectingEnd || singleSelected;
+            },
           },
           text: format(currentDate, unrefOrGet(cellFormat)),
         };
