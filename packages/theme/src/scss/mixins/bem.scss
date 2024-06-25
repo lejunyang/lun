@@ -296,6 +296,31 @@
 }
 
 /// inside @include b(button) { ... }
+/// declareVars((padding, margin)) => --_padding: var(--l-padding, var(--padding)); padding: var(--_padding); --_margin: var(--l-margin, var(--margin)); margin: var(--_margin);
+@mixin declareReuseVars($varListOrMap) {
+  @each $name, $alias in $varListOrMap {
+    @if $alias {
+      --_#{$alias}: getDeclaredVar($alias);
+      #{$name}: var(--_#{$alias});
+    } @else {
+      --_#{$name}: getDeclaredVar($name);
+      #{$name}: var(--_#{$name});
+    }
+  }
+}
+
+/// use it when parent has used declareReuseVars
+@mixin reuseVars($varListOrMap) {
+  @each $name, $alias in $varListOrMap {
+    @if $alias {
+      #{$name}: var(--_#{$alias});
+    } @else {
+      #{$name}: var(--_#{$name});
+    }
+  }
+}
+
+/// inside @include b(button) { ... }
 /// declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
 /// declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
 /// remind that declareVarValues((transition: all 0.3s)) will be compiled to transition: var(--l-button-transition-all, 0.3s) !!! need to wrap the value with quotes
