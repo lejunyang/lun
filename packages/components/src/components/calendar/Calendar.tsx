@@ -55,12 +55,6 @@ export const Calendar = defineSSRCustomElement({
     const { getMonth } = GlobalStaticConfig.date;
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
-    const transitionHandlers = {
-      onBeforeLeave: (el: Element) => {
-        (el as HTMLElement).style.position = 'absolute'; // make leaving tbody position absolute, so it won't occupy any space
-      },
-    };
-
     const [stateClass] = useCEStates(() => null, ns);
 
     return () => {
@@ -74,6 +68,7 @@ export const Calendar = defineSSRCustomElement({
         <button>{format(view, getFormat('yearFormat', 'YYYY'))}</button>,
         <button>{monthFormat ? format(view, monthFormat) : shortMonths[getMonth(view)]}</button>,
       ];
+      const row0 = cells.value[0] || [];
       return (
         <div {...handlers} class={stateClass.value} part={partsDefine[name].root}>
           <slot name="header"></slot>
@@ -92,46 +87,42 @@ export const Calendar = defineSSRCustomElement({
               <button>{renderElement('icon', { name: 'double-left' })}</button>
             </slot>
           </div>
-          <table class={ns.e('table')} part={partsDefine[name].table}>
-            <thead class={ns.e('thead')} part={partsDefine[name].thead}>
-              {cells.value[0].map((_, i) => {
+          <div class={ns.e('content')} part={partsDefine[name].content} style={ns.v({ cols: row0.length })}>
+            <div class={ns.e('head')} part={partsDefine[name].head}>
+              {row0.map((_, i) => {
                 return (
-                  <th class={[ns.e('th'), ns.e('cell')]} part={partsDefine[name].th}>
+                  <div class={[ns.em('cell', 'head'), ns.e('cell')]} part={partsDefine[name].cell}>
                     {shortWeekDays[(i + weekFirstDay) % 7]}
-                  </th>
+                  </div>
                 );
               })}
-            </thead>
-            <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''} {...transitionHandlers}>
-              <tbody key={getBaseDateStr()} class={ns.e('tbody')} part={partsDefine[name].tbody}>
+            </div>
+            <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''}>
+              <div key={getBaseDateStr()} class={ns.e('body')} part={partsDefine[name].body}>
                 {cells.value.map((row, rowIndex) => {
-                  return (
-                    <tr data-row={rowIndex} class={ns.e('tr')} part={partsDefine[name].tr}>
-                      {row.map(({ text, state }, colIndex) => {
-                        return (
-                          <td
-                            data-row={rowIndex}
-                            data-col={colIndex}
-                            class={[ns.is(state), ns.e('td'), ns.e('cell')]}
-                            part={partsDefine[name].td}
-                          >
-                            <div
-                              class={ns.e('inner')}
-                              part={partsDefine[name].inner}
-                              tabindex={state.now || state.selected ? 0 : -1}
-                              ref={state.focusing ? focusingInner : undefined}
-                            >
-                              {text}
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
+                  return row.map(({ text, state }, colIndex) => {
+                    return (
+                      <div
+                        data-row={rowIndex}
+                        data-col={colIndex}
+                        class={[ns.is(state), ns.em('cell', 'body'), ns.e('cell')]}
+                        part={partsDefine[name].cell}
+                      >
+                        <div
+                          class={ns.e('inner')}
+                          part={partsDefine[name].inner}
+                          tabindex={state.now || state.selected ? 0 : -1}
+                          ref={state.focusing ? focusingInner : undefined}
+                        >
+                          {text}
+                        </div>
+                      </div>
+                    );
+                  });
                 })}
-              </tbody>
+              </div>
             </Transition>
-          </table>
+          </div>
           <slot name="footer"></slot>
         </div>
       );

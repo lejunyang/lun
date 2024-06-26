@@ -9,6 +9,7 @@ import {
   isArrowUpEvent,
   isEnterDown,
   isHTMLElement,
+  prevent,
   runIfFn,
   toArrayIfNotNil,
 } from '@lun/utils';
@@ -368,6 +369,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
         const { date } = cell;
         if (isEnterDown(e)) selectCell(cell);
         else if (isArrowUpEvent(e) || isArrowDownEvent(e) || isArrowLeftEvent(e) || isArrowRightEvent(e)) {
+          prevent(e);
           const newDate = getOffsetDate(date, e);
           if (!isInView(newDate, date)) {
             viewDate.value = newDate;
