@@ -91,8 +91,10 @@ export const Calendar = defineSSRCustomElement({
             <div class={ns.e('head')} part={partsDefine[name].head}>
               {row0.map((_, i) => {
                 return (
-                  <div class={[ns.em('cell', 'head'), ns.e('cell')]} part={partsDefine[name].cell}>
-                    {shortWeekDays[(i + weekFirstDay) % 7]}
+                  <div class={[ns.e('cell'), ns.em('cell', 'head')]} part={partsDefine[name].cell}>
+                    <div class={ns.e('inner')} part={partsDefine[name].inner}>
+                      {shortWeekDays[(i + weekFirstDay) % 7]}
+                    </div>
                   </div>
                 );
               })}
@@ -105,7 +107,7 @@ export const Calendar = defineSSRCustomElement({
                       <div
                         data-row={rowIndex}
                         data-col={colIndex}
-                        class={[ns.is(state), ns.em('cell', 'body'), ns.e('cell')]}
+                        class={[ns.is(state), ns.e('cell'), ns.em('cell', 'body')]}
                         part={partsDefine[name].cell}
                       >
                         <div

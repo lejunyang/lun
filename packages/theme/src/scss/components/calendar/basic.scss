@@ -4,17 +4,73 @@
 @use '../../mixins/config' as *;
 
 @include b(calendar) {
-  @include e(table) {
+  display: inline-flex;
+  flex-direction: column;
+  @include e(content) {
     position: relative;
     overflow: hidden;
     text-align: center;
-    border-collapse: collapse;
+    display: grid;
+    @supports (grid-template-rows: subgrid) {
+      grid-template-columns: repeat(getRVarValue(cols), max-content);
+    }
   }
 
-  @include e(thead) {
+  @include e(head) {
     background: getSemanticColor('background');
     position: relative;
     z-index: 2;
+    display: grid;
+    grid-row: 1;
+    grid-column: 1 / -1;
+    @supports (grid-template-rows: subgrid) {
+      grid-template: auto/subgrid;
+    }
+    @supports not (grid-template-rows: subgrid) {
+      grid-template-columns: repeat(getRVarValue(cols), max-content);
+    }
+  }
+
+  @include e(body) {
+    position: relative;
+    display: grid;
+    grid-row: 2;
+    grid-column: 1 / -1;
+    @supports (grid-template-rows: subgrid) {
+      grid-template: auto/subgrid;
+    }
+    @supports not (grid-template-rows: subgrid) {
+      grid-template-columns: repeat(getRVarValue(cols), max-content);
+    }
+  }
+
+  @include e(inner) {
+    position: relative;
+    @include declareVars(
+      (
+        min-width: cell-min-width,
+        min-height: cell-min-height,
+        line-height: cell-line-height,
+        padding: inner-padding,
+      )
+    );
+    @include declareReuseVars(
+      (
+        border-radius: cell-border-radius,
+      )
+    );
+    &:focus {
+      outline: 2px solid getAccentColor(8);
+      outline-offset: -1px;
+    }
+  }
+
+  @include em(cell, body, true) {
+    @include isN(inView) {
+      @include e(inner) {
+        color: getGrayColor(9);
+      }
+    }
   }
 
   @include e(cell) {
@@ -53,7 +109,7 @@
           position: absolute;
           inset: 0;
           background-color: getAccentColor(a3);
-          @include declareVars(
+          @include reuseVars(
             (
               border-radius: cell-border-radius,
             )
@@ -88,7 +144,7 @@
         &::before {
           border-inline-start: 1px dashed getAccentColor(a8);
           inset-inline-end: -50%;
-          @include declareVars(
+          @include reuseVars(
             (
               border-radius: cell-border-radius,
             )
@@ -101,7 +157,7 @@
         &::before {
           border-inline-end: 1px dashed getAccentColor(a8);
           inset-inline-start: -50%;
-          @include declareVars(
+          @include reuseVars(
             (
               border-radius: cell-border-radius,
             )
@@ -125,11 +181,6 @@
         }
       }
     }
-    @include isN(inView) {
-      @include e(inner) {
-        color: getGrayColor(9);
-      }
-    }
     @include is(inRange) {
       @include e(inner) {
         &::after {
@@ -145,23 +196,6 @@
         outline: 2px solid getAccentColor(8);
         outline-offset: -1px;
       }
-    }
-  }
-
-  @include e(inner) {
-    position: relative;
-    @include declareVars(
-      (
-        min-width: cell-min-width,
-        min-height: cell-min-height,
-        line-height: cell-line-height,
-        border-radius: cell-border-radius,
-        padding: inner-padding,
-      )
-    );
-    &:focus {
-      outline: 2px solid getAccentColor(8);
-      outline-offset: -1px;
     }
   }
 
@@ -202,4 +236,18 @@
       )
     );
   }
+}
+
+// found that slideRight and slideDown can cause layout jitter, no idea why
+// if we remove overflow: hidden for content element, they both work fine, but we can't remove that
+// found that use animation for slideRight and slideDown, not transition, and set animation-delay for enter element, can also fix the jitter issue
+.slideRight-enter-active,
+.slideDown-enter-active {
+  animation-delay: 1ms;
+}
+
+// also set longer delay for leave element, to cover the enter element
+.slideRight-leave-active,
+.slideDown-leave-active {
+  animation-delay: 2ms;
 }

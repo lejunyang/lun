@@ -67,11 +67,11 @@
     transition: 0.3s transform, 0.3s opacity;
   }
   .slideLeft-leave-to {
-    transform: translateX(-100%);
+    transform: translateX(100%);
     opacity: 0;
   }
   .slideLeft-enter-from {
-    transform: translateX(100%);
+    transform: translateX(-100%);
     opacity: 0;
   }
   .slideLeft-enter-to,
@@ -82,23 +82,52 @@
   // ---slideLeft---
 
   // ---slideRight---
-  .slideRight-enter-active,
+  // slideRight and slideDown use animation not transition, in case calendar component jitters... more details please refer to the comments in calendar/basic.scss
+
+  @keyframes slideRightEnter {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideRightLeave {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
   .slideRight-leave-active {
-    transition: 0.3s transform, 0.3s opacity;
+    animation: slideRightLeave 0.3s;
   }
-  .slideRight-leave-to {
-    transform: translateX(100%);
-    opacity: 0;
+  .slideRight-enter-active {
+    animation: slideRightEnter 0.3s;
   }
-  .slideRight-enter-from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  .slideRight-enter-to,
-  .slideRight-leave-from {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  // .slideRight-enter-active,
+  // .slideRight-leave-active {
+  //   transition: 0.3s transform, 0.3s opacity;
+  // }
+  // .slideRight-leave-to {
+  //   transform: translateX(-100%);
+  //   opacity: 0;
+  // }
+  // .slideRight-enter-from {
+  //   transform: translateX(100%);
+  //   opacity: 0;
+  // }
+  // .slideRight-enter-to,
+  // .slideRight-leave-from {
+  //   transform: translateX(0);
+  //   opacity: 1;
+  // }
   // ---slideRight---
 
   // ---slideUp---
@@ -107,11 +136,11 @@
     transition: 0.3s transform, 0.3s opacity;
   }
   .slideUp-leave-to {
-    transform: translateY(-100%);
+    transform: translateY(100%);
     opacity: 0;
   }
   .slideUp-enter-from {
-    transform: translateY(100%);
+    transform: translateY(-100%);
     opacity: 0;
   }
   .slideUp-enter-to,
@@ -121,24 +150,54 @@
   }
   // ---slideUp---
 
+  @keyframes slideDownEnter {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDownLeave {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+
   // ---slideDown---
-  .slideDown-enter-active,
   .slideDown-leave-active {
-    transition: 0.3s transform, 0.3s opacity;
+    animation: slideDownLeave 0.3s;
   }
-  .slideDown-leave-to {
-    transform: translateY(100%);
-    opacity: 0;
+  .slideDown-enter-active {
+    animation: slideDownEnter 0.3s;
   }
-  .slideDown-enter-from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  .slideDown-enter-to,
-  .slideDown-leave-from {
-    transform: translateY(0);
-    opacity: 1;
-  }
+
+  // .slideDown-enter-active,
+  // .slideDown-leave-active {
+  //   // transition: 30s transform, 30s opacity;
+  //   transition: 0.3s transform, 0.3s opacity;
+  // }
+  // .slideDown-leave-to {
+  //   transform: translateY(-100%);
+  //   opacity: 0;
+  // }
+  // .slideDown-enter-from {
+  //   transform: translateY(100%);
+  //   opacity: 0;
+  // }
+  // .slideDown-enter-to,
+  // .slideDown-leave-from {
+  //   transform: translateY(0);
+  //   opacity: 1;
+  // }
   // ---slideDown---
 
   @supports not (scale: 1) {
