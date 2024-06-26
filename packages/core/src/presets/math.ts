@@ -6,6 +6,7 @@ import {
   numbersEqual,
   BigIntDecimal,
   toBigIntDecimal,
+  assignIfNil,
 } from '@lun/utils';
 
 export type MathMethods<W = number, T = W | number> = {
@@ -54,26 +55,23 @@ export type MathMethods<W = number, T = W | number> = {
 
 export function createMath<T = number>(methods: MathMethods<T>) {
   const { greaterThan, lessThan, equals, toNumber, isNaN } = methods;
-  if (!methods.greaterThanOrEqual)
-    methods.greaterThanOrEqual = (left, right) => greaterThan(left, right) || equals(left, right);
-  if (!methods.lessThanOrEqual) methods.lessThanOrEqual = (left, right) => lessThan(left, right) || equals(left, right);
-  if (!methods.ensureNumber)
-    methods.ensureNumber = (target, defaultVal) => {
+  return assignIfNil(methods, {
+    greaterThanOrEqual: (left, right) => greaterThan(left, right) || equals(left, right),
+    lessThanOrEqual: (left, right) => lessThan(left, right) || equals(left, right),
+    ensureNumber(target, defaultVal) {
       const result = toNumber(target);
       return isNaN(result) ? toNumber(defaultVal) : result;
-    };
-  if (!methods.toNumberOrNull)
-    methods.toNumberOrNull = (target) => {
+    },
+    toNumberOrNull(target) {
       const result = toNumber(target);
       return isNaN(result) ? null : result;
-    };
-  if (!methods.negate)
-    methods.negate = (target) => {
+    },
+    negate(target) {
       if (methods.isZero(target)) return toNumber(target);
       return methods.minus(methods.getZero(), target);
-    };
-  if (!methods.abs) methods.abs = (target) => (methods.lessThan(target, 0) ? methods.negate!(target) : (target as T));
-  return methods as Required<MathMethods<T>>;
+    },
+    abs: (target) => (methods.lessThan(target, 0) ? methods.negate!(target) : (target as T)),
+  }) as any as Required<MathMethods<T>>;
 }
 
 export const createDefaultMath = () =>

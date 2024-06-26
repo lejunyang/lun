@@ -1,3 +1,5 @@
+import { assignIfNil, identity } from '@lun/utils';
+
 export type DateMethods<T> = {
   // get
   getNow: () => T;
@@ -47,4 +49,33 @@ export type DateMethods<T> = {
       formats: string | string[],
     ) => T | null;
   };
+
+  // optional methods
+  add?: (date: T, diff: number, type: 'y' | 'M' | 'd') => T;
+  set?: (date: T, val: number, type: 'y' | 'M' | 'd' | 'h' | 'm' | 's') => T;
+};
+
+export const createDate = <T>(methods: DateMethods<T>) => {
+  const { addYear, addMonth, addDate, setYear, setMonth, setDate, setHour, setMinute, setSecond } = methods;
+  const addMap = {
+      y: addYear,
+      M: addMonth,
+      d: addDate,
+    },
+    setMap = {
+      y: setYear,
+      M: setMonth,
+      d: setDate,
+      h: setHour,
+      m: setMinute,
+      s: setSecond,
+    };
+  return assignIfNil(methods, {
+    add(date, diff, type) {
+      return (addMap[type] || identity)(date, diff);
+    },
+    set(date, val, type) {
+      return (setMap[type] || identity)(date, val);
+    },
+  });
 };

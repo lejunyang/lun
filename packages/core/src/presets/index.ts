@@ -16,7 +16,7 @@ export type DatePanelType = 'time' | 'date' | 'week' | 'month' | 'quarter' | 'ye
 export const presets = Object.seal({
   /** define the methods used to process numbers, now used in number input only */
   math: createBigIntDecimalMath(),
-  date: null as any as DateMethods<DateValueType>,
+  date: null as any as Required<DateMethods<DateValueType>>,
 });
 
 /** return proxies of the date locale methods with the language parameter bound, so that we don't have to pass it every time we call the locale method */

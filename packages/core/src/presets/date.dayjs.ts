@@ -6,7 +6,7 @@ import weekOfYear from 'dayjs/plugin/weekOfYear';
 import weekYear from 'dayjs/plugin/weekYear';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { DateMethods } from './date';
+import { createDate, DateMethods } from './date';
 import { presets } from '.';
 import { isString, toArrayIfNotNil } from '@lun/utils';
 
@@ -119,6 +119,6 @@ const methods = {
 //   }
 // }
 
-presets.date = methods;
+presets.date = createDate(methods);
 
 export default methods;
