@@ -269,3 +269,13 @@ export const virtualGetMerge = createVirtualMerge<true>(() => ({
 export function inherit<C extends Object, P extends Object>(child: C, parent: P): C & P {
   return Object.setPrototypeOf(child, parent);
 }
+
+export function assignIfNil<T extends Record<string, any>, S extends Partial<T>>(target: T, source: S) {
+  for (const key in source) {
+    if (target[key] == null) {
+      // @ts-ignore
+      target[key] = source[key];
+    }
+  }
+  return target as any as Omit<T, keyof S> & Required<S>;
+}
