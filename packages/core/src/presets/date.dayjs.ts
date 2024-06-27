@@ -47,7 +47,6 @@ const methods = {
   // get
   getNow: () => dayjs(),
   getFixedDate: (string) => dayjs(string, ['YYYY-M-DD', 'YYYY-MM-DD']),
-  getEndOfMonth: (date) => date.endOf('month'),
   getWeekDay: (date) => {
     const clone = date.locale('en');
     return clone.weekday() + clone.localeData().firstDayOfWeek();
@@ -112,6 +111,9 @@ const methods = {
     },
     startOf(type, date) {
       return date.startOf(type);
+    },
+    endOf(type, date) {
+      return date.endOf(type);
     },
     isSame(type, date1, date2) {
       // isSame supports 'w', but seems there is a wrong type interface

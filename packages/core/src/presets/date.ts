@@ -1,11 +1,7 @@
-import { assignIfNil } from '@lun/utils';
-import { processType } from './date.utils';
-
 export type DateMethods<T> = {
   // get
   getNow: () => T;
   getFixedDate: (str: string) => T;
-  getEndOfMonth: (date: T) => T;
   getWeekDay: (date: T) => number;
 
   // Compare
@@ -20,7 +16,7 @@ export type DateMethods<T> = {
     getWeekFirstDate: (locale: string, date: T) => T;
     /** get week index */
     getWeek: (locale: string, date: T) => number;
-    /** get short names of week days, should be an array of 7 strings */
+    /** get short names of week days, should be an array of 7 strings starting from week first day */
     getShortWeekDays?: (locale: string) => string[];
     getShortMonths?: (locale: string) => string[];
     /** will return empty string if it's not valid date */
@@ -39,7 +35,7 @@ export type DateMethods<T> = {
     get: (type: DateType, date: T) => number;
     isSame: (type: DateType, date1: T | null | undefined, date2: T | null | undefined) => boolean;
     startOf: (type: DateType, date: T) => T;
-    baseOf?: (type: DateType, date: T) => T;
+    endOf: (type: DateType, date: T) => T;
   };
 };
 
@@ -68,12 +64,5 @@ export type DateType =
   | 'weeks';
 
 export const createDatePreset = <T>(methods: DateMethods<T>) => {
-  assignIfNil(methods.type, {
-    baseOf(type, date) {
-      const t = processType(type);
-      const types = ['y', 'M', 'd', 'h', 'm', 's'];
-      return methods.type.startOf((types.find((_, i) => types[i + 1] === t) || 'y') as BaseDateType, date);
-    },
-  });
   return methods as FinalDateMethods<T>;
 };
