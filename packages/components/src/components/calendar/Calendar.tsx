@@ -32,7 +32,7 @@ export const Calendar = defineSSRCustomElement({
     const getFormat = (field: keyof typeof props, defaultFormat: string) =>
       props[field] || intl(`date.${field}`).d(defaultFormat);
 
-    const { cells, methods, getBaseDateStr, direction, handlers } = useDatePanel(
+    const { cells, methods, getPanelStartStr, direction, handlers } = useDatePanel(
       virtualGetMerge(
         {
           type: 'date' as const,
@@ -102,7 +102,7 @@ export const Calendar = defineSSRCustomElement({
               })}
             </div>
             <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''}>
-              <div key={getBaseDateStr()} class={ns.e('body')} part={partsDefine[name].body}>
+              <div key={getPanelStartStr()} class={ns.e('body')} part={partsDefine[name].body}>
                 {cells.value.map((row, rowIndex) => {
                   return row.map(({ text, state }, colIndex) => {
                     return (

@@ -38,9 +38,13 @@ export const onOnce: typeof on = (el, event, handler, options) => {
 
 export const prevent = (e: Event) => e.preventDefault();
 
-export const iterateEventPath = (e: Event, handle: (t: EventTarget) => void) => {
+/**
+ * iterate targets in event's composedPath until meet currentTarget of event
+ * @param handle return `true` to break the iteration early
+ */
+export const iterateEventPath = (e: Event, handle: (t: EventTarget) => void | boolean) => {
   for (const target of e.composedPath()) {
-    handle(target);
+    if (handle(target) === true) break;
     if (target === e.currentTarget) break;
   }
 };

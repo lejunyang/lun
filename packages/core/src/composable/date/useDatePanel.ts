@@ -1,5 +1,12 @@
 import { computed, nextTick, reactive, ref, Ref, WritableComputedRef } from 'vue';
-import { createDateLocaleMethods, createDateTypeMethods, DatePanelType, DateValueType, presets } from '../../presets';
+import {
+  BaseDateType,
+  createDateLocaleMethods,
+  createDateTypeMethods,
+  DatePanelType,
+  DateValueType,
+  presets,
+} from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import {
   isArray,
@@ -15,6 +22,7 @@ import {
   toArrayIfNotNil,
 } from '@lun/utils';
 import { getDefaultFormat } from './utils';
+import { processType } from '../../presets/date.utils';
 
 export type UseDatePanelCell = {
   key: string;
@@ -51,6 +59,8 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
     lang: string;
     cellFormat: string;
     getFocusing: HTMLElement;
+    enablePrevCells?: boolean;
+    enableNextCells?: boolean;
   },
   'lang' | 'cellFormat'
 > & {
@@ -67,8 +77,6 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   lessThan?: DateValueType;
   moreThan?: DateValueType;
   disabledDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
-  prevCells?: boolean; // TODO
-  nextCells?: boolean;
   getCell: (target: HTMLElement) => [number, number] | undefined;
   onSelect?: (value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]) => void;
   // titleFormat?:
@@ -78,11 +86,19 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
 const gridMap = {
   date: [6, 7],
 } as Record<DatePanelType, [number, number]>;
+/** date offset for each panel type */
+const panelOffsetMap = {
+  y: ['y', 10],
+  Q: ['y', 1],
+  M: ['y', 1],
+  w: ['M', 1],
+  d: ['M', 1],
+} as Record<BaseDateType, [BaseDateType, number]>;
 
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
-  const { lang, cellFormat, viewDate, getCell, onSelect, getFocusing } = options;
+  const { lang, cellFormat, viewDate, getCell, onSelect, getFocusing, enablePrevCells, enableNextCells } = options;
 
   // --------- Methods ----------
   const {
@@ -91,11 +107,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
     isBefore,
     isAfter,
     isValid,
-    getEndOfMonth,
-    type: { get, add: typeAdd },
+    type: { get, add: typeAdd, endOf, startOf },
   } = presets.date;
   const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
-  const { isSame, baseOf, add, set } = createDateTypeMethods(() => options.type);
+  const { isSame, add, set } = createDateTypeMethods(() => options.type);
   const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
 
   function getWeekStartDate(value: DateValueType) {
@@ -115,8 +130,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   }
-  function getViewStart(date: DateValueType) {}
-  function getViewBaseDate(date: DateValueType) {}
+  const getPanelOffset = () => panelOffsetMap[processType(options.type)];
+  const baseOf = (date: DateValueType) => startOf(getPanelOffset()[0], date);
   // --------- Methods ----------
 
   const state = reactive({
@@ -200,28 +215,21 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   if (!viewDate.value) viewDate.value = getNow();
 
-  let baseDateStr: string, viewStartDate: DateValueType, viewEndDate: DateValueType;
-  const cells = computed(() => {
+  const getCells = (panelStartDate: DateValueType, viewDate: DateValueType) => {
     const { type, disabledDate } = options;
-    const { selecting, hovering, focusing } = state;
     const grid = gridMap[type];
-    const now = getNow();
-    const finalViewDate = unrefOrGet(viewDate) || now;
-    if (!grid) return [];
     const [rows, cols] = grid;
+    const now = getNow();
+    const { selecting, hovering, focusing } = state;
     const cellInfo: UseDatePanelCells = [];
-    const monthStartDate = (viewStartDate = set(finalViewDate, 1));
-    viewEndDate = getEndOfMonth(finalViewDate);
-    const baseDate = getWeekStartDate(monthStartDate);
-    baseDateStr = format(baseDate, parseFormat.value);
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
       cellInfo[row] ||= [];
       let rowKey: string;
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
-        const currentDate = add(baseDate, offset);
-        if (!col) rowKey = cellInfo[row].key = baseDateStr + '-' + row;
+        const currentDate = add(panelStartDate, offset);
+        if (!col) rowKey = cellInfo[row].key = panelStartDateStr + '-' + row;
         const disabled = runIfFn(disabledDate, currentDate, { type, selecting }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
           key: rowKey! + '-' + col,
@@ -229,7 +237,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
           state: {
             disabled,
             hovered: isSame(hovering, currentDate),
-            inView: isInView(currentDate, monthStartDate),
+            inView: isInView(currentDate, viewDate),
             now: isSame(currentDate, now),
             focusing: isSame(currentDate, focusing),
             ...getSelectState(currentDate),
@@ -243,9 +251,37 @@ export function useDatePanel(options: UseDatePanelOptions) {
       }
     }
     return cellInfo;
+  };
+  let panelStartDateStr: string, viewStartDate: DateValueType, viewEndDate: DateValueType;
+  const getViewDate = () => unrefOrGet(viewDate) || getNow();
+  const cells = computed(() => {
+    const finalViewDate = getViewDate();
+    viewStartDate = baseOf(finalViewDate);
+    viewEndDate = endOf(getPanelOffset()[0], finalViewDate);
+    const panelStartDate = getWeekStartDate(viewStartDate); // TODO other types
+    panelStartDateStr = format(panelStartDate, parseFormat.value);
+    return getCells(panelStartDate, viewStartDate);
+  });
+  /** cells for previous date panel */
+  const prevCells = computed(() => {
+    if (!unrefOrGet(enablePrevCells)) return [];
+    const finalViewDate = getViewDate();
+    const [t, offset] = getPanelOffset();
+    const prevPanelViewDate = baseOf(typeAdd(t, finalViewDate, -offset));
+    const prevPanelStartDate = getWeekStartDate(prevPanelViewDate);
+    return getCells(prevPanelStartDate, prevPanelViewDate);
+  });
+  /** cells for next date panel */
+  const nextCells = computed(() => {
+    if (!unrefOrGet(enableNextCells)) return [];
+    const finalViewDate = getViewDate();
+    const [t, offset] = getPanelOffset();
+    const nextPanelViewDate = baseOf(typeAdd(t, finalViewDate, offset));
+    const nextPanelStartDate = getWeekStartDate(nextPanelViewDate);
+    return getCells(nextPanelStartDate, nextPanelViewDate);
   });
 
-  const /** used to control the direction of the transition */ direction = ref<'right' | 'left' | 'up' | 'down'>();
+  const /** used to control the direction of panel's transition */ direction = ref<'right' | 'left' | 'up' | 'down'>();
   const methods = {
     nextMonth() {
       viewDate.value = typeAdd('M', viewDate.value, 1);
@@ -267,13 +303,17 @@ export function useDatePanel(options: UseDatePanelOptions) {
     prevView() {},
   };
 
+  /** will call handle if cell is found in event path */
   const handleIfCell = (e: Event, handle: (cell: UseDatePanelCell, indexes: [number, number]) => void) => {
     let indexes: [number, number] | undefined;
     iterateEventPath(e, (target) => {
       if (isHTMLElement(target) && (indexes = getCell(target))) {
         const [row, col] = indexes;
         const cell = cells.value[row]?.[col];
-        if (cell && !cell.state.disabled) handle(cell, indexes);
+        if (cell && !cell.state.disabled) {
+          handle(cell, indexes);
+          return true;
+        }
       }
     });
   };
@@ -356,9 +396,11 @@ export function useDatePanel(options: UseDatePanelOptions) {
     cells,
     methods,
     handlers,
-    getBaseDateStr() {
-      return baseDateStr;
+    getPanelStartStr() {
+      return panelStartDateStr;
     },
     direction,
+    prevCells,
+    nextCells,
   };
 }
