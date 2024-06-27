@@ -6,9 +6,11 @@ import weekOfYear from 'dayjs/plugin/weekOfYear';
 import weekYear from 'dayjs/plugin/weekYear';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { createDate, DateMethods } from './date';
+import quarterOfYear from 'dayjs/plugin/quarterOfYear';
+import { BaseDateType, createDatePreset, DateMethods } from './date';
 import { presets } from '.';
 import { isString, toArrayIfNotNil } from '@lun/utils';
+import { processType } from './date.utils';
 
 // derived from react-components/picker
 
@@ -22,6 +24,7 @@ dayjs.extend(weekday);
 dayjs.extend(localeData);
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
+dayjs.extend(quarterOfYear);
 
 dayjs.extend((_o, c) => {
   // todo support Wo (ISO week)
@@ -111,6 +114,27 @@ const methods = {
       return null;
     },
   },
+  type: {
+    add(type, date, diff) {
+      const t = processType(type);
+      return t === 'w' ? date.add(diff * 7, 'd') : date.add(diff, t);
+    },
+    set(type, date, val) {
+      const t = processType(type);
+      return t === 'Q' ? date.quarter(val) : t === 'w' ? date.week(val) : date.set(t, val);
+    },
+    get(type, date) {
+      const t = processType(type);
+      return t === 'Q' ? date.quarter() : t === 'w' ? date.week() : date.get(t);
+    },
+    startOf(type, date) {
+      return date.startOf(type);
+    },
+    isSame(type, date1, date2) {
+      // isSame supports 'w', but seems there is a wrong type interface
+      return !!date1 && !!date2 && date1.isSame(date2, type as Exclude<BaseDateType, 'w'>);
+    },
+  },
 } satisfies DateMethods<Dayjs>;
 
 // declare module '.' {
@@ -119,6 +143,6 @@ const methods = {
 //   }
 // }
 
-presets.date = createDate(methods);
+presets.date = createDatePreset(methods);
 
 export default methods;

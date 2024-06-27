@@ -53,7 +53,7 @@ export type MathMethods<W = number, T = W | number> = {
   abs?: (target: T) => W;
 };
 
-export function createMath<T = number>(methods: MathMethods<T>) {
+export function createMathPreset<T = number>(methods: MathMethods<T>) {
   const { greaterThan, lessThan, equals, toNumber, isNaN } = methods;
   return assignIfNil(methods, {
     greaterThanOrEqual: (left, right) => greaterThan(left, right) || equals(left, right),
@@ -74,8 +74,8 @@ export function createMath<T = number>(methods: MathMethods<T>) {
   }) as any as Required<MathMethods<T>>;
 }
 
-export const createDefaultMath = () =>
-  createMath({
+export const createDefaultMathPreset = () =>
+  createMathPreset({
     isNumber: isNumber as typeof isPlainNumber,
     isNaN: Number.isNaN,
     isZero: (target) => target === 0,
@@ -104,7 +104,7 @@ export const createDefaultMath = () =>
   });
 
 const is = (target: unknown): target is BigIntDecimal => target instanceof BigIntDecimal;
-export const createBigIntDecimalMath = () => {
+export const createBigIntDecimalMathPreset = () => {
   const methods: MathMethods<BigIntDecimal> = {
     isNumber: (target): target is number | BigIntDecimal => isNumber(target) || is(target),
     isNaN(target) {
@@ -175,5 +175,5 @@ export const createBigIntDecimalMath = () => {
       return toBigIntDecimal(target).negated();
     },
   };
-  return createMath<BigIntDecimal>(methods);
+  return createMathPreset<BigIntDecimal>(methods);
 };

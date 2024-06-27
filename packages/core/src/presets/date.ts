@@ -1,4 +1,5 @@
-import { assignIfNil, identity, objectKeys } from '@lun/utils';
+import { assignIfNil } from '@lun/utils';
+import { processType } from './date.utils';
 
 export type DateMethods<T> = {
   // get
@@ -7,11 +8,15 @@ export type DateMethods<T> = {
   getEndOfMonth: (date: T) => T;
   getWeekDay: (date: T) => number;
   getYear: (date: T) => number;
+  /** 0~11 */
   getMonth: (date: T) => number;
-  /** Get the date of the month, should be 1-31 */
+  /** Get the date of the month, should be 1~31 */
   getDate: (date: T) => number;
+  /** 0~23 */
   getHour: (date: T) => number;
+  /** 0~59 */
   getMinute: (date: T) => number;
+  /** 0~59 */
   getSecond: (date: T) => number;
 
   // set, must return new object, for add methods, diff can be negative
@@ -50,15 +55,19 @@ export type DateMethods<T> = {
     ) => T | null;
   };
 
-  // optional methods
-  type?: {
-    add?: (type: DateType, date: T, diff: number) => T;
-    set?: (type: DateType, date: T, val: number) => T;
-    isSame?: (type: DateType, date1: T, date2: T) => boolean;
+  type: {
+    add: (type: DateType, date: T, diff: number) => T;
+    set: (type: DateType, date: T, val: number) => T;
+    get: (type: DateType, date: T) => number;
+    isSame: (type: DateType, date1: T | null | undefined, date2: T | null | undefined) => boolean;
+    startOf: (type: DateType, date: T) => T;
+    baseOf?: (type: DateType, date: T) => T;
   };
 };
 
-type BaseDateType = 'y' | 'M' | 'd' | 'h' | 'm' | 's';
+export type FinalDateMethods<T> = Omit<DateMethods<T>, 'type'> & { type: Required<DateMethods<T>['type'] & {}> };
+
+export type BaseDateType = 'y' | 'M' | 'd' | 'h' | 'm' | 's' | 'Q' | 'w';
 export type DateType =
   | BaseDateType
   | 'year'
@@ -67,80 +76,26 @@ export type DateType =
   | 'months'
   | 'day'
   | 'days'
+  | 'date'
+  | 'dates'
   | 'hour'
   | 'hours'
   | 'minute'
   | 'minutes'
   | 'second'
-  | 'seconds';
+  | 'seconds'
+  | 'quarter'
+  | 'quarters'
+  | 'week'
+  | 'weeks';
 
-const processType = (type: string) => {
-  let lType: string;
-  return (
-    type.length === 1 ? type : ((lType = type.toLowerCase()), lType.startsWith('mo') ? 'M' : lType[0])
-  ) as BaseDateType;
-};
-
-export const createDate = <T>(methods: DateMethods<T>) => {
-  const {
-    addYear,
-    addMonth,
-    addDate,
-    setYear,
-    setMonth,
-    setDate,
-    setHour,
-    setMinute,
-    setSecond,
-    getYear,
-    getMonth,
-    getDate,
-    getHour,
-    getMinute,
-    getSecond,
-  } = methods;
-  const addMap = {
-      y: addYear,
-      M: addMonth,
-      d: addDate,
-    },
-    setMap = {
-      y: setYear,
-      M: setMonth,
-      d: setDate,
-      h: setHour,
-      m: setMinute,
-      s: setSecond,
-    },
-    getMap = {
-      y: getYear,
-      M: getMonth,
-      d: getDate,
-      h: getHour,
-      m: getMinute,
-      s: getSecond,
-    };
-  assignIfNil(methods, {
-    type: {},
-  });
-  assignIfNil(methods.type!, {
-    add(type, date, diff) {
-      // @ts-ignore // TODO
-      return (addMap[processType(type)] || identity)(date, diff);
-    },
-    set(type, date, val) {
-      return (setMap[processType(type)] || identity)(date, val);
-    },
-    isSame(type, date1, date2) {
-      // TODO milliseconds
+export const createDatePreset = <T>(methods: DateMethods<T>) => {
+  assignIfNil(methods.type, {
+    baseOf(type, date) {
       const t = processType(type);
-      if (!getMap[t] || !date1 || !date2) return false;
-      for (const k of objectKeys(getMap)) {
-        if (getMap[k](date1) !== getMap[k](date2)) return false;
-        if (k === t) return true;
-      }
-      return false;
+      const types = ['y', 'M', 'd', 'h', 'm', 's'];
+      return methods.type.startOf((types.find((_, i) => types[i + 1] === t) || 'y') as BaseDateType, date);
     },
-  } satisfies Required<DateMethods<T>['type'] & {}>);
-  return methods as Omit<DateMethods<T>, 'type'> & { type: Required<DateMethods<T>['type'] & {}> };
+  });
+  return methods as FinalDateMethods<T>;
 };
