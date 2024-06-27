@@ -1,5 +1,5 @@
 import { computed, nextTick, reactive, ref, Ref, WritableComputedRef } from 'vue';
-import { createDateLocaleMethods, DatePanelType, DateValueType, presets } from '../../presets';
+import { createDateLocaleMethods, createDateTypeMethods, DatePanelType, DateValueType, presets } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import {
   isArray,
@@ -9,6 +9,7 @@ import {
   isArrowUpEvent,
   isEnterDown,
   isHTMLElement,
+  iterateEventPath,
   prevent,
   runIfFn,
   toArrayIfNotNil,
@@ -85,46 +86,25 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   // --------- Methods ----------
   const {
-    getYear,
-    getMonth,
-    getDate,
     getWeekDay,
     getNow,
-    setDate,
-    addDate,
-    addMonth,
-    addYear,
     isBefore,
     isAfter,
     isValid,
     getEndOfMonth,
+    type: { get, add: typeAdd },
   } = presets.date;
   const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
+  const { isSame, baseOf, add, set } = createDateTypeMethods(() => options.type);
   const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
-  function isSameYear(year1?: DateValueType, year2?: DateValueType) {
-    return (year1 && year2 && getYear(year1) === getYear(year2)) as boolean;
-  }
-  function isSameMonth(month1?: DateValueType, month2?: DateValueType) {
-    return (month1 && month2 && getMonth(month1) === getMonth(month2)) as boolean;
-  }
-  function isSameDate(date1?: DateValueType, date2?: DateValueType): boolean {
-    return isSameYear(date1, date2) && isSameMonth(date1, date2) && getDate(date1!) === getDate(date2!);
-  }
-  function isSame(v1: DateValueType | undefined, v2: DateValueType | undefined) {
-    switch (options.type) {
-      case 'date':
-        return isSameDate(v1, v2);
-      default:
-        return false;
-    }
-  }
+
   function getWeekStartDate(value: DateValueType) {
     const weekFirstDay = getWeekFirstDay();
-    const monthStartDate = setDate(value, 1);
+    const monthStartDate = set(value, 1);
     const startDateWeekDay = getWeekDay(monthStartDate);
-    let alignStartDate = addDate(monthStartDate, weekFirstDay - startDateWeekDay);
-    if (getMonth(alignStartDate) === getMonth(value) && getDate(alignStartDate) > 1) {
-      alignStartDate = addDate(alignStartDate, -7);
+    let alignStartDate = add(monthStartDate, weekFirstDay - startDateWeekDay);
+    if (get('M', alignStartDate) === get('M', value) && get('d', alignStartDate) > 1) {
+      alignStartDate = add(alignStartDate, -7);
     }
     return alignStartDate;
   }
@@ -135,14 +115,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   }
-  function getCellDate(date: DateValueType, offset: number, type: DatePanelType) {
-    switch (type) {
-      case 'date':
-        return addDate(date, offset);
-      default:
-        return date;
-    }
-  }
+  function getViewStart(date: DateValueType) {}
+  function getViewBaseDate(date: DateValueType) {}
   // --------- Methods ----------
 
   const state = reactive({
@@ -208,12 +182,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
 
   const isInView = (target: DateValueType, viewDate: DateValueType) => {
-    switch (options.type) {
-      case 'date':
-        return isSameMonth(viewDate, target);
-      default:
-        return false;
-    }
+    return isSame(baseOf(viewDate), baseOf(target));
   };
 
   const isOutOfLimit = computed(() => {
@@ -241,7 +210,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (!grid) return [];
     const [rows, cols] = grid;
     const cellInfo: UseDatePanelCells = [];
-    const monthStartDate = (viewStartDate = setDate(finalViewDate, 1));
+    const monthStartDate = (viewStartDate = set(finalViewDate, 1));
     viewEndDate = getEndOfMonth(finalViewDate);
     const baseDate = getWeekStartDate(monthStartDate);
     baseDateStr = format(baseDate, parseFormat.value);
@@ -251,7 +220,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       let rowKey: string;
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
-        const currentDate = getCellDate(baseDate, offset, type);
+        const currentDate = add(baseDate, offset);
         if (!col) rowKey = cellInfo[row].key = baseDateStr + '-' + row;
         const disabled = runIfFn(disabledDate, currentDate, { type, selecting }) || !!isOutOfLimit.value(currentDate);
         cellInfo[row][col] = {
@@ -279,19 +248,19 @@ export function useDatePanel(options: UseDatePanelOptions) {
   const /** used to control the direction of the transition */ direction = ref<'right' | 'left' | 'up' | 'down'>();
   const methods = {
     nextMonth() {
-      viewDate.value = addMonth(viewDate.value, 1);
+      viewDate.value = typeAdd('M', viewDate.value, 1);
       direction.value = 'right';
     },
     prevMonth() {
-      viewDate.value = addMonth(viewDate.value, -1);
+      viewDate.value = typeAdd('M', viewDate.value, -1);
       direction.value = 'left';
     },
     nextYear() {
-      viewDate.value = addYear(viewDate.value, 1);
+      viewDate.value = typeAdd('y', viewDate.value, 1);
       direction.value = 'right';
     },
     prevYear() {
-      viewDate.value = addYear(viewDate.value, -1);
+      viewDate.value = typeAdd('y', viewDate.value, -1);
       direction.value = 'left';
     },
     nextView() {},
@@ -300,14 +269,13 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   const handleIfCell = (e: Event, handle: (cell: UseDatePanelCell, indexes: [number, number]) => void) => {
     let indexes: [number, number] | undefined;
-    for (const target of e.composedPath()) {
+    iterateEventPath(e, (target) => {
       if (isHTMLElement(target) && (indexes = getCell(target))) {
         const [row, col] = indexes;
         const cell = cells.value[row]?.[col];
         if (cell && !cell.state.disabled) handle(cell, indexes);
       }
-      if (target === e.currentTarget) break;
-    }
+    });
   };
   const selectCell = ({ date }: UseDatePanelCell) => {
     viewDate.value = date;
@@ -343,12 +311,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       : isArrowRightEvent(e)
       ? 1
       : 0;
-    switch (type) {
-      case 'date':
-        return addDate(date, offset);
-      default:
-        return date;
-    }
+    return add(date, offset);
   };
   const handlers = {
     onClick(e: MouseEvent) {

@@ -52,7 +52,9 @@ export const Calendar = defineSSRCustomElement({
       ),
     );
 
-    const { getMonth } = GlobalStaticConfig.date;
+    const {
+      type: { get },
+    } = GlobalStaticConfig.date;
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
     const [stateClass] = useCEStates(() => null, ns);
@@ -66,7 +68,7 @@ export const Calendar = defineSSRCustomElement({
         monthFormat = getFormat('monthFormat', '');
       const yearMonth = [
         <button>{format(view, getFormat('yearFormat', 'YYYY'))}</button>,
-        <button>{monthFormat ? format(view, monthFormat) : shortMonths[getMonth(view)]}</button>,
+        <button>{monthFormat ? format(view, monthFormat) : shortMonths[get('M', view)]}</button>,
       ];
       const row0 = cells.value[0] || [];
       return (

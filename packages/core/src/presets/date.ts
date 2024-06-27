@@ -7,28 +7,6 @@ export type DateMethods<T> = {
   getFixedDate: (str: string) => T;
   getEndOfMonth: (date: T) => T;
   getWeekDay: (date: T) => number;
-  getYear: (date: T) => number;
-  /** 0~11 */
-  getMonth: (date: T) => number;
-  /** Get the date of the month, should be 1~31 */
-  getDate: (date: T) => number;
-  /** 0~23 */
-  getHour: (date: T) => number;
-  /** 0~59 */
-  getMinute: (date: T) => number;
-  /** 0~59 */
-  getSecond: (date: T) => number;
-
-  // set, must return new object, for add methods, diff can be negative
-  addYear: (date: T, diff: number) => T;
-  addMonth: (date: T, diff: number) => T;
-  addDate: (date: T, diff: number) => T;
-  setYear: (date: T, year: number) => T;
-  setMonth: (date: T, month: number) => T;
-  setDate: (date: T, num: number) => T;
-  setHour: (date: T, hour: number) => T;
-  setMinute: (date: T, minute: number) => T;
-  setSecond: (date: T, second: number) => T;
 
   // Compare
   /** date1 is before date2 */

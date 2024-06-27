@@ -52,23 +52,6 @@ const methods = {
     const clone = date.locale('en');
     return clone.weekday() + clone.localeData().firstDayOfWeek();
   },
-  getYear: (date) => date.year(),
-  getMonth: (date) => date.month(),
-  getDate: (date) => date.date(),
-  getHour: (date) => date.hour(),
-  getMinute: (date) => date.minute(),
-  getSecond: (date) => date.second(),
-
-  // set
-  addYear: (date, diff) => date.add(diff, 'year'),
-  addMonth: (date, diff) => date.add(diff, 'month'),
-  addDate: (date, diff) => date.add(diff, 'day'),
-  setYear: (date, year) => date.year(year),
-  setMonth: (date, month) => date.month(month),
-  setDate: (date, num) => date.date(num),
-  setHour: (date, hour) => date.hour(hour),
-  setMinute: (date, minute) => date.minute(minute),
-  setSecond: (date, second) => date.second(second),
 
   // Compare
   isBefore: (date1, date2) => date1.isBefore(date2),
