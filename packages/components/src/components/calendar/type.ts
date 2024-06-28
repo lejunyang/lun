@@ -29,6 +29,7 @@ export const calendarProps = freeze({
   shortWeekDays: PropArray<string[]>(),
   showTime: PropBoolean(),
   use12Hours: PropBoolean(),
+  scrollable: PropBoolean(),
 });
 
 export const calendarEmits = freeze({
