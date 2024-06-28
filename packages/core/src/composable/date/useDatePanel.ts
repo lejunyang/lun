@@ -5,6 +5,7 @@ import {
   createDateTypeMethods,
   DatePanelType,
   DateValueType,
+  ExtendBaseDateType,
   presets,
 } from '../../presets';
 import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
@@ -52,7 +53,11 @@ export type UseDatePanelCell = {
   };
   title?: string;
 };
-export type UseDatePanelCells = (UseDatePanelCell[] & { key: string })[];
+export type UseDatePanelCells = (UseDatePanelCell[] & { key: string })[] & {
+  key: string;
+  viewStartDate: DateValueType;
+  viewEndDate: DateValueType;
+};
 
 export type UseDatePanelOptions = ToAllMaybeRefLike<
   {
@@ -88,12 +93,13 @@ const gridMap = {
 } as Record<DatePanelType, [number, number]>;
 /** date offset for each panel type */
 const panelOffsetMap = {
+  de: ['y', 100],
   y: ['y', 10],
   Q: ['y', 1],
   M: ['y', 1],
   w: ['M', 1],
   d: ['M', 1],
-} as Record<BaseDateType, [BaseDateType, number]>;
+} as Record<BaseDateType | ExtendBaseDateType, [BaseDateType, number]>;
 
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
@@ -113,7 +119,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   const { isSame, add, set } = createDateTypeMethods(() => options.type);
   const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
 
-  function getWeekStartDate(value: DateValueType) {
+  const getWeekStartDate = (value: DateValueType) => {
     const weekFirstDay = getWeekFirstDay();
     const monthStartDate = set(value, 1);
     const startDateWeekDay = getWeekDay(monthStartDate);
@@ -122,16 +128,40 @@ export function useDatePanel(options: UseDatePanelOptions) {
       alignStartDate = add(alignStartDate, -7);
     }
     return alignStartDate;
-  }
-  function formatRangeValue(value: unknown) {
+  };
+  const formatRangeValue = (value: unknown) => {
     if (!isArray(value)) return [];
     const start = finalParse(value[0] as any);
     const end = finalParse(value[1] as any);
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
-  }
+  };
   const getPanelOffset = () => panelOffsetMap[processType(options.type)];
-  const baseOf = (date: DateValueType) => startOf(getPanelOffset()[0], date);
+  const viewStartOf = (date: DateValueType) => {
+    const [t, offset] = getPanelOffset();
+    const base = startOf(t, date);
+    if (offset > 1) {
+      // year: offset 10 => 2024 => 2020
+      // decade: offset 100 => 2024 => 2000
+      return set(base, Math.floor(get(t, base) / offset) * offset);
+    }
+    return base;
+  };
+  const viewEndOf = (date: DateValueType) => {
+    const [t, offset] = getPanelOffset();
+    if (offset > 1) {
+      // year: offset 10 => 2024 => 2020 => 2029
+      // decade: offset 100 => 2024 => 2000 => 2099
+      return add(viewStartOf(date), offset - 1);
+    }
+    return endOf(t, date);
+  };
+  const panelStartOf = (viewStartDate: DateValueType) => {
+    const [t, offset] = getPanelOffset();
+    if (t === 'M') return getWeekStartDate(viewStartDate);
+    else if (t === 'y' && offset === 1) return viewStartDate;
+    else return add(viewStartDate, -offset / 10); // year and decade
+  };
   // --------- Methods ----------
 
   const state = reactive({
@@ -197,7 +227,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
 
   const isInView = (target: DateValueType, viewDate: DateValueType) => {
-    return isSame(baseOf(viewDate), baseOf(target));
+    return isSame(viewStartOf(viewDate), viewStartOf(target));
   };
 
   const isOutOfLimit = computed(() => {
@@ -213,15 +243,17 @@ export function useDatePanel(options: UseDatePanelOptions) {
       (dateLessThan && (isAfter(target, dateLessThan) || isSame(target, dateLessThan)));
   });
 
-  if (!viewDate.value) viewDate.value = getNow();
-
-  const getCells = (panelStartDate: DateValueType, viewDate: DateValueType) => {
+  const getCells = (viewDate: DateValueType) => {
+    const viewStartDate = viewStartOf(viewDate),
+      viewEndDate = viewEndOf(viewDate),
+      panelStartDate = panelStartOf(viewStartDate);
     const { type, disabledDate } = options;
     const grid = gridMap[type];
     const [rows, cols] = grid;
     const now = getNow();
     const { selecting, hovering, focusing } = state;
-    const cellInfo: UseDatePanelCells = [];
+    const panelStartDateStr = format(panelStartDate, parseFormat.value);
+    const cellInfo: UseDatePanelCells = Object.assign([], { key: panelStartDateStr, viewStartDate, viewEndDate });
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
       cellInfo[row] ||= [];
@@ -237,7 +269,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
           state: {
             disabled,
             hovered: isSame(hovering, currentDate),
-            inView: isInView(currentDate, viewDate),
+            inView: isInView(currentDate, viewStartDate),
             now: isSame(currentDate, now),
             focusing: isSame(currentDate, focusing),
             ...getSelectState(currentDate),
@@ -252,33 +284,21 @@ export function useDatePanel(options: UseDatePanelOptions) {
     }
     return cellInfo;
   };
-  let panelStartDateStr: string, viewStartDate: DateValueType, viewEndDate: DateValueType;
-  const getViewDate = () => unrefOrGet(viewDate) || getNow();
-  const cells = computed(() => {
-    const finalViewDate = getViewDate();
-    viewStartDate = baseOf(finalViewDate);
-    viewEndDate = endOf(getPanelOffset()[0], finalViewDate);
-    const panelStartDate = getWeekStartDate(viewStartDate); // TODO other types
-    panelStartDateStr = format(panelStartDate, parseFormat.value);
-    return getCells(panelStartDate, viewStartDate);
-  });
+
+  const getViewDate = () => unrefOrGet(viewDate) || viewStartOf(getNow());
+  if (!viewDate.value) viewDate.value = getViewDate();
+  const cells = computed(() => getCells(getViewDate()));
   /** cells for previous date panel */
   const prevCells = computed(() => {
     if (!unrefOrGet(enablePrevCells)) return [];
-    const finalViewDate = getViewDate();
     const [t, offset] = getPanelOffset();
-    const prevPanelViewDate = baseOf(typeAdd(t, finalViewDate, -offset));
-    const prevPanelStartDate = getWeekStartDate(prevPanelViewDate);
-    return getCells(prevPanelStartDate, prevPanelViewDate);
+    return getCells(typeAdd(t, getViewDate(), -offset));
   });
   /** cells for next date panel */
   const nextCells = computed(() => {
     if (!unrefOrGet(enableNextCells)) return [];
-    const finalViewDate = getViewDate();
     const [t, offset] = getPanelOffset();
-    const nextPanelViewDate = baseOf(typeAdd(t, finalViewDate, offset));
-    const nextPanelStartDate = getWeekStartDate(nextPanelViewDate);
-    return getCells(nextPanelStartDate, nextPanelViewDate);
+    return getCells(typeAdd(t, getViewDate(), offset));
   });
 
   const /** used to control the direction of panel's transition */ direction = ref<'right' | 'left' | 'up' | 'down'>();
@@ -318,8 +338,18 @@ export function useDatePanel(options: UseDatePanelOptions) {
     });
   };
   const selectCell = ({ date }: UseDatePanelCell) => {
-    viewDate.value = date;
-    direction.value = isBefore(date, viewStartDate) ? 'down' : isAfter(date, viewEndDate) ? 'up' : undefined;
+    const selectViewStart = viewStartOf(date);
+    if (!isSame(selectViewStart, viewDate.value)) {
+      viewDate.value = date;
+      direction.value = isBefore(
+        date,
+        (prevCells.value as UseDatePanelCells).viewStartDate || cells.value.viewStartDate,
+      )
+        ? 'down'
+        : isAfter(date, (nextCells.value as UseDatePanelCells).viewEndDate || cells.value.viewEndDate)
+        ? 'up'
+        : undefined;
+    }
     const ranges = multiRangeValues.value,
       range = rangeValue.value;
     const { selecting } = state;
@@ -375,7 +405,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
           prevent(e);
           const newDate = getOffsetDate(date, e);
           if (!isInView(newDate, date)) {
-            viewDate.value = newDate;
+            viewDate.value = viewStartOf(newDate);
             direction.value = e.key.slice(5).toLowerCase() as any;
           }
           state.focusing = newDate;
@@ -396,9 +426,6 @@ export function useDatePanel(options: UseDatePanelOptions) {
     cells,
     methods,
     handlers,
-    getPanelStartStr() {
-      return panelStartDateStr;
-    },
     direction,
     prevCells,
     nextCells,
