@@ -30,7 +30,7 @@ export type DateMethods<T> = {
   };
 
   type: {
-    add: (type: DateType, date: T, diff: number) => T;
+    add: (type: DateType | ExtendDateType, date: T, diff: number) => T;
     set: (type: DateType, date: T, val: number) => T;
     get: (type: DateType, date: T) => number;
     isSame: (type: DateType, date1: T | null | undefined, date2: T | null | undefined) => boolean;
@@ -42,6 +42,7 @@ export type DateMethods<T> = {
 export type FinalDateMethods<T> = Omit<DateMethods<T>, 'type'> & { type: Required<DateMethods<T>['type'] & {}> };
 
 export type BaseDateType = 'y' | 'M' | 'd' | 'h' | 'm' | 's' | 'Q' | 'w';
+export type ExtendBaseDateType = 'de';
 export type DateType =
   | BaseDateType
   | 'year'
@@ -62,6 +63,7 @@ export type DateType =
   | 'quarters'
   | 'week'
   | 'weeks';
+export type ExtendDateType = ExtendBaseDateType | 'decade' | 'decades';
 
 export const createDatePreset = <T>(methods: DateMethods<T>) => {
   return methods as FinalDateMethods<T>;

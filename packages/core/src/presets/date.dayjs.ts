@@ -7,7 +7,7 @@ import weekYear from 'dayjs/plugin/weekYear';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
-import { BaseDateType, createDatePreset, DateMethods } from './date';
+import { BaseDateType, createDatePreset, DateMethods, ExtendBaseDateType } from './date';
 import { presets } from '.';
 import { isString, toArrayIfNotNil } from '@lun/utils';
 import { processType } from './date.utils';
@@ -98,8 +98,8 @@ const methods = {
   },
   type: {
     add(type, date, diff) {
-      const t = processType(type);
-      return t === 'w' ? date.add(diff * 7, 'd') : date.add(diff, t);
+      const t = processType(type) as ExtendBaseDateType | BaseDateType;
+      return t === 'w' ? date.add(diff * 7, 'd') : t === 'de' ? date.add(diff * 10, 'y') : date.add(diff, t);
     },
     set(type, date, val) {
       const t = processType(type);
