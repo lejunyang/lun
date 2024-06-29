@@ -5,9 +5,9 @@ import { defineIcon } from '../icon/Icon';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
 import { intl, partsDefine } from 'common';
 import { createDateLocaleMethods, createUseModel, useDatePanel, UseDatePanelCells, useSetupEdit } from '@lun/core';
-import { capitalize, runIfFn, supportTouch, virtualGetMerge } from '@lun/utils';
+import { capitalize, getRect, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
-import { ComputedRef, onMounted, ref, Transition, watchEffect } from 'vue';
+import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
 import { GlobalStaticConfig } from 'config';
 
 const useViewDate = createUseModel({
@@ -51,10 +51,113 @@ export const Calendar = defineSSRCustomElement({
           getFocusing: focusingInner,
           enablePrevCells: scrollable,
           enableNextCells: scrollable,
+          async beforeViewChange(offset: number) {
+            if (scrollable()) {
+              // >> 31 => positive: 0 negative: -1
+              const { value } = wrapper;
+              const target = value!.children[1 + ((offset >> 31) | 1)] as HTMLElement;
+              const { x, width } = getRect(target),
+                { x: wx } = getRect(value!);
+              console.log('before view change scroll', Math.abs(x - wx) > width / 2);
+              if (Math.abs(x - wx) > width / 2) {
+                console.log('will scroll');
+                target.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'nearest',
+                });
+                const { promise, resolve } = withResolvers();
+                scrollEnd = resolve;
+                return promise;
+              }
+            }
+          },
         },
         props,
       ),
     );
+
+    let scrollEnd: (() => void) | null, observer: IntersectionObserver;
+    onMounted(() => {
+      const { value } = wrapper;
+      let lastKey: string | undefined,
+        lastScrollLeft: number = 0;
+      const scrollToCenter = () => {
+        const { children, scrollLeft } = value!;
+        console.log(
+          'go TO CENTER!!!!',
+          lastKey,
+          (value!.children[0] as HTMLElement).dataset.key,
+          'scrollLeft',
+          value!.scrollLeft,
+        );
+        if (scrollLeft !== lastScrollLeft) {
+          console.log('delay to scroll, scrollLeft', scrollLeft);
+          lastScrollLeft = scrollLeft;
+          raf(scrollToCenter);
+        } else raf(() => (children[1] as HTMLElement).scrollIntoView({ behavior: 'instant', block: 'nearest' }));
+      };
+      if (scrollable()) {
+        scrollToCenter();
+        let centerTarget: HTMLElement | null = null,
+          disableSides = false;
+        observer = new IntersectionObserver(
+          (entries) => {
+            console.log('INTO call', wrapper.value!.scrollLeft);
+            for (const { intersectionRatio, target, isIntersecting } of entries) {
+              console.log(
+                'call',
+                isIntersecting,
+                intersectionRatio,
+                target.dataset.key,
+                disableSides,
+                performance.now(),
+              );
+              if (intersectionRatio > 0.99 && isIntersecting) {
+                if (target === centerTarget) {
+                  console.log('center back');
+                  disableSides = false;
+                  observer.unobserve(centerTarget);
+                  centerTarget = null;
+                  nextTick(observe);
+                } else if (!disableSides) {
+                  disableSides = true;
+                  observer.disconnect();
+                  if (scrollEnd) {
+                    scrollEnd();
+                    scrollEnd = null;
+                    nextTick(observe);
+                    nextTick(scrollToCenter);
+                  } else {
+                    // user scrolls
+                    observer.observe((centerTarget = value!.children[1] as HTMLElement));
+                    lastKey = (value!.children[0] as HTMLElement).dataset.key;
+                    if (target === value!.children[0]) {
+                      console.log('call preView');
+                      methods.prevView();
+                    } else {
+                      methods.nextView();
+                    }
+                    raf(scrollToCenter);
+                  }
+                }
+              }
+              return; // threshold is 0.99, it may have multiple entries, only process the first entry
+            }
+          },
+          {
+            root: value!,
+            threshold: 0.99, // use 1 will cause bugs!
+          },
+        );
+        const observe = () => {
+          console.log('observe', value!.children[0].dataset.key);
+          observer.observe(value!.children[0] as HTMLElement);
+          observer.observe(value!.children[2] as HTMLElement);
+        };
+        observe();
+      }
+    });
+    onBeforeUnmount(() => observer.disconnect());
 
     const {
       type: { get },
@@ -64,21 +167,26 @@ export const Calendar = defineSSRCustomElement({
     const [stateClass] = useCEStates(() => null, ns);
 
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => (
-      <div key={value.key} class={[ns.e('body'), bodyClass]} part={partsDefine[name].body}>
+      <div
+        key={scrollable() ? undefined : value.key}
+        class={[ns.e('body'), bodyClass]}
+        part={partsDefine[name].body}
+        data-key={value.viewStartDate.format('MM-DD')}
+      >
         {value.map((row, rowIndex) => {
           return row.map(({ text, state }, colIndex) => {
             return (
               <div
                 data-row={rowIndex}
                 data-col={colIndex}
-                class={[ns.is(state), ns.e('cell'), ns.em('cell', 'body')]}
+                class={[ns.e('cell'), ns.em('cell', 'body'), ns.is(state)]}
                 part={partsDefine[name].cell}
               >
                 <div
                   class={ns.e('inner')}
                   part={partsDefine[name].inner}
                   tabindex={state.now || state.selected ? 0 : -1}
-                  ref={state.focusing ? focusingInner : undefined}
+                  ref={state.focusing && state.inView ? focusingInner : undefined}
                 >
                   {text}
                 </div>
@@ -87,18 +195,6 @@ export const Calendar = defineSSRCustomElement({
           });
         })}
       </div>
-    );
-
-    onMounted(() => {
-      const { value } = wrapper;
-      value!.scrollLeft = (value!.children[0] as HTMLElement).clientWidth;
-    });
-    watchEffect(
-      () => {
-        const { value } = wrapper;
-        if (!scrollable() || !value) return;
-      },
-      { flush: 'sync' },
     );
 
     return () => {
@@ -144,7 +240,13 @@ export const Calendar = defineSSRCustomElement({
               })}
             </div>
             {scrollable() ? (
-              <div class={ns.e('wrapper')} ref={wrapper} part={partsDefine[name].wrapper}>
+              <div
+                class={ns.e('wrapper')}
+                ref={wrapper}
+                part={partsDefine[name].wrapper}
+                onScrollend={(e) => console.log('scrollend', e)}
+                // onScrollend={wrapperScrollEnd}
+              >
                 {getCellNodes(prevCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'prev'))}
                 {getCellNodes(cells, ns.em('body', 'current'))}
                 {getCellNodes(nextCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'next'))}

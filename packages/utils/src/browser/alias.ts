@@ -2,3 +2,5 @@
 export const freeze = <T>(o: T) => Object.freeze(o) as T;
 
 export const identity = <T>(x: T) => x;
+
+export const getRect = (elOrRange: Element | Range) => elOrRange.getBoundingClientRect();
