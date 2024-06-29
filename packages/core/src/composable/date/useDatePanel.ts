@@ -84,6 +84,7 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   disabledDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
   getCell: (target: HTMLElement) => [number, number] | undefined;
   onSelect?: (value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]) => void;
+  beforeViewChange?: (offset: number) => Promise<void> | void;
   // titleFormat?:
 };
 
@@ -104,7 +105,17 @@ const panelOffsetMap = {
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
-  const { lang, cellFormat, viewDate, getCell, onSelect, getFocusing, enablePrevCells, enableNextCells } = options;
+  const {
+    lang,
+    cellFormat,
+    viewDate,
+    getCell,
+    onSelect,
+    getFocusing,
+    enablePrevCells,
+    enableNextCells,
+    beforeViewChange,
+  } = options;
 
   // --------- Methods ----------
   const {
@@ -302,25 +313,19 @@ export function useDatePanel(options: UseDatePanelOptions) {
   });
 
   const /** used to control the direction of panel's transition */ direction = ref<'right' | 'left' | 'up' | 'down'>();
+  const createMethod = (next: boolean, type?: BaseDateType, offset?: number) => async () => {
+    const [t, _offset] = getPanelOffset();
+    await runIfFn(beforeViewChange, next ? 1 : -1);
+    viewDate.value = typeAdd(type ?? t, viewDate.value, (offset ?? _offset) * (next ? 1 : -1));
+    direction.value = next ? 'right' : 'left';
+  };
   const methods = {
-    nextMonth() {
-      viewDate.value = typeAdd('M', viewDate.value, 1);
-      direction.value = 'right';
-    },
-    prevMonth() {
-      viewDate.value = typeAdd('M', viewDate.value, -1);
-      direction.value = 'left';
-    },
-    nextYear() {
-      viewDate.value = typeAdd('y', viewDate.value, 1);
-      direction.value = 'right';
-    },
-    prevYear() {
-      viewDate.value = typeAdd('y', viewDate.value, -1);
-      direction.value = 'left';
-    },
-    nextView() {},
-    prevView() {},
+    nextMonth: createMethod(true, 'M', 1),
+    prevMonth: createMethod(false, 'M', -1),
+    nextYear: createMethod(true, 'y', 1),
+    prevYear: createMethod(false, 'y', -1),
+    nextView: createMethod(true),
+    prevView: createMethod(false),
   };
 
   /** will call handle if cell is found in event path */
@@ -337,18 +342,18 @@ export function useDatePanel(options: UseDatePanelOptions) {
       }
     });
   };
-  const selectCell = ({ date }: UseDatePanelCell) => {
+  const selectCell = async ({ date }: UseDatePanelCell) => {
     const selectViewStart = viewStartOf(date);
     if (!isSame(selectViewStart, viewDate.value)) {
-      viewDate.value = date;
       direction.value = isBefore(
         date,
         (prevCells.value as UseDatePanelCells).viewStartDate || cells.value.viewStartDate,
       )
-        ? 'down'
+        ? (await runIfFn(beforeViewChange, 1), 'down')
         : isAfter(date, (nextCells.value as UseDatePanelCells).viewEndDate || cells.value.viewEndDate)
-        ? 'up'
+        ? (await runIfFn(beforeViewChange, -1), 'up')
         : undefined;
+      viewDate.value = date;
     }
     const ranges = multiRangeValues.value,
       range = rangeValue.value;
@@ -381,7 +386,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       : isArrowRightEvent(e)
       ? 1
       : 0;
-    return add(date, offset);
+    return [add(date, offset), offset] as const;
   };
   const handlers = {
     onClick(e: MouseEvent) {
@@ -398,18 +403,23 @@ export function useDatePanel(options: UseDatePanelOptions) {
       });
     },
     onKeydown(e: KeyboardEvent) {
-      handleIfCell(e, (cell) => {
+      handleIfCell(e, async (cell) => {
         const { date } = cell;
         if (isEnterDown(e)) selectCell(cell);
         else if (isArrowUpEvent(e) || isArrowDownEvent(e) || isArrowLeftEvent(e) || isArrowRightEvent(e)) {
           prevent(e);
-          const newDate = getOffsetDate(date, e);
+          const [newDate, offset] = getOffsetDate(date, e);
           if (!isInView(newDate, date)) {
-            viewDate.value = viewStartOf(newDate);
             direction.value = e.key.slice(5).toLowerCase() as any;
+            await runIfFn(beforeViewChange, offset);
+            viewDate.value = viewStartOf(newDate);
           }
           state.focusing = newDate;
-          nextTick(() => unrefOrGet(getFocusing)?.focus());
+          console.log('date', format(date, parseFormat.value), format(newDate, parseFormat.value), { offset });
+          nextTick(() => {
+            console.log('focusing', unrefOrGet(getFocusing));
+            unrefOrGet(getFocusing)?.focus();
+          });
         }
       });
     },
