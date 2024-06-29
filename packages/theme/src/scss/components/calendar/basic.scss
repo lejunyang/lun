@@ -44,6 +44,33 @@
     }
   }
 
+  // --- for panel has three bodies ---
+  @include e(wrapper) {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-auto-flow: column; // make grid scrollable
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    @supports (grid-template-rows: subgrid) {
+      grid-template: auto/subgrid;
+    }
+    @include e(body, true) {
+      scroll-snap-align: start;
+      // scroll-snap-stop: always; // do not set this, seems it will affect scroll check in Calendar.tsx
+    }
+  }
+  @include em(body, current, true) {
+    transform: translate(100%);
+  }
+  @include em(body, next, true) {
+    transform: translate(200%);
+    color: green;
+  }
+  @include em(body, prev, true) {
+    color: red;
+  }
+  // --- for panel has three bodies ---
+
   @include e(inner) {
     position: relative;
     @include declareVars(
