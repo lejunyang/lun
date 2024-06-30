@@ -415,11 +415,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
             viewDate.value = viewStartOf(newDate);
           }
           state.focusing = newDate;
-          console.log('date', format(date, parseFormat.value), format(newDate, parseFormat.value), { offset });
-          nextTick(() => {
-            console.log('focusing', unrefOrGet(getFocusing));
-            unrefOrGet(getFocusing)?.focus();
-          });
+          nextTick(() => unrefOrGet(getFocusing)?.focus());
         }
       });
     },

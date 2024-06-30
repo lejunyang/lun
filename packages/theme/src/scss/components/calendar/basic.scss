@@ -64,10 +64,6 @@
   }
   @include em(body, next, true) {
     transform: translate(200%);
-    color: green;
-  }
-  @include em(body, prev, true) {
-    color: red;
   }
   // --- for panel has three bodies ---
 

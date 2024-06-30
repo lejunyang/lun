@@ -58,9 +58,7 @@ export const Calendar = defineSSRCustomElement({
               const target = value!.children[1 + ((offset >> 31) | 1)] as HTMLElement;
               const { x, width } = getRect(target),
                 { x: wx } = getRect(value!);
-              console.log('before view change scroll', Math.abs(x - wx) > width / 2);
               if (Math.abs(x - wx) > width / 2) {
-                console.log('will scroll');
                 target.scrollIntoView({
                   behavior: 'smooth',
                   block: 'nearest',
@@ -79,66 +77,42 @@ export const Calendar = defineSSRCustomElement({
     let scrollEnd: (() => void) | null, observer: IntersectionObserver;
     onMounted(() => {
       const { value } = wrapper;
-      let lastKey: string | undefined,
-        lastScrollLeft: number = 0;
+      let lastScrollLeft: number = 0,
+        observing = false;
       const scrollToCenter = () => {
         const { children, scrollLeft } = value!;
-        console.log(
-          'go TO CENTER!!!!',
-          lastKey,
-          (value!.children[0] as HTMLElement).dataset.key,
-          'scrollLeft',
-          value!.scrollLeft,
-        );
         if (scrollLeft !== lastScrollLeft) {
-          console.log('delay to scroll, scrollLeft', scrollLeft);
+          // this is to check if it's scrolling as our threshold is 0.99, we must scroll to center after last scroll stops, or it will cause multiple scrolls!!!
           lastScrollLeft = scrollLeft;
           raf(scrollToCenter);
-        } else raf(() => (children[1] as HTMLElement).scrollIntoView({ behavior: 'instant', block: 'nearest' }));
+        } else
+          raf(() => {
+            (children[1] as HTMLElement).scrollIntoView({ behavior: 'instant', block: 'nearest' });
+            if (!observing) observe();
+          });
+      };
+      const observe = () => {
+        observer.observe(value!.children[0] as HTMLElement);
+        observer.observe(value!.children[2] as HTMLElement);
+        observing = true;
       };
       if (scrollable()) {
         scrollToCenter();
-        let centerTarget: HTMLElement | null = null,
-          disableSides = false;
         observer = new IntersectionObserver(
           (entries) => {
-            console.log('INTO call', wrapper.value!.scrollLeft);
             for (const { intersectionRatio, target, isIntersecting } of entries) {
-              console.log(
-                'call',
-                isIntersecting,
-                intersectionRatio,
-                target.dataset.key,
-                disableSides,
-                performance.now(),
-              );
               if (intersectionRatio > 0.99 && isIntersecting) {
-                if (target === centerTarget) {
-                  console.log('center back');
-                  disableSides = false;
-                  observer.unobserve(centerTarget);
-                  centerTarget = null;
-                  nextTick(observe);
-                } else if (!disableSides) {
-                  disableSides = true;
-                  observer.disconnect();
-                  if (scrollEnd) {
-                    scrollEnd();
-                    scrollEnd = null;
-                    nextTick(observe);
-                    nextTick(scrollToCenter);
-                  } else {
-                    // user scrolls
-                    observer.observe((centerTarget = value!.children[1] as HTMLElement));
-                    lastKey = (value!.children[0] as HTMLElement).dataset.key;
-                    if (target === value!.children[0]) {
-                      console.log('call preView');
-                      methods.prevView();
-                    } else {
-                      methods.nextView();
-                    }
-                    raf(scrollToCenter);
-                  }
+                observer.disconnect();
+                observing = false;
+                if (scrollEnd) {
+                  scrollEnd();
+                  scrollEnd = null;
+                  nextTick(scrollToCenter);
+                } else {
+                  // user scrolls
+                  if (target === value!.children[0]) methods.prevView();
+                  else methods.nextView();
+                  raf(scrollToCenter);
                 }
               }
               return; // threshold is 0.99, it may have multiple entries, only process the first entry
@@ -149,11 +123,6 @@ export const Calendar = defineSSRCustomElement({
             threshold: 0.99, // use 1 will cause bugs!
           },
         );
-        const observe = () => {
-          console.log('observe', value!.children[0].dataset.key);
-          observer.observe(value!.children[0] as HTMLElement);
-          observer.observe(value!.children[2] as HTMLElement);
-        };
         observe();
       }
     });
@@ -244,8 +213,6 @@ export const Calendar = defineSSRCustomElement({
                 class={ns.e('wrapper')}
                 ref={wrapper}
                 part={partsDefine[name].wrapper}
-                onScrollend={(e) => console.log('scrollend', e)}
-                // onScrollend={wrapperScrollEnd}
               >
                 {getCellNodes(prevCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'prev'))}
                 {getCellNodes(cells, ns.em('body', 'current'))}
