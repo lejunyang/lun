@@ -32,6 +32,7 @@ import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
 import { defineRange } from './range/Range';
 import { defineCalendar } from './calendar';
+import { defineDatePicker } from './date-picker';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -50,6 +51,7 @@ export function defineAllComponents() {
   defineCheckboxGroup();
   defineCheckbox();
   defineCustomRenderer();
+  defineDatePicker();
   defineDialog();
   defineDivider();
   defineIcon();
@@ -129,6 +131,7 @@ export * from './callout';
 export * from './checkbox';
 export * from './config';
 export * from './custom-renderer';
+export * from './date-picker';
 export * from './dialog';
 export * from './divider';
 export * from './doc-pip';

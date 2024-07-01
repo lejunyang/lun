@@ -15,6 +15,7 @@ export const defaultProps = {
   },
   'checkbox-group': {},
   'custom-renderer': {},
+  'date-picker': {},
   dialog: {
     escapeClosable: true,
     width: '450px',

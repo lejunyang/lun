@@ -18,6 +18,7 @@ export const openShadowComponents = freeze([
   'callout',
   'checkbox',
   'checkbox-group',
+  'date-picker',
   'dialog',
   'divider',
   'doc-pip',
