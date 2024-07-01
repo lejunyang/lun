@@ -297,15 +297,19 @@
 
 /// declare reuseable vars to reduce duplicate `var(--outer-var, var(--inner-var))`
 /// inside @include b(button) { ... }
-/// declareVars((padding, margin)) => --_padding: var(--l-padding, var(--padding)); padding: var(--_padding); --_margin: var(--l-margin, var(--margin)); margin: var(--_margin);
-@mixin declareReuseVars($varListOrMap) {
+/// declareReuseVars((padding, margin), true) => --_padding: var(--l-padding, var(--padding)); padding: var(--_padding); --_margin: var(--l-margin, var(--margin)); margin: var(--_margin);
+@mixin declareReuseVars($varListOrMap, $withVarValue: false) {
   @each $name, $alias in $varListOrMap {
     @if $alias {
       --_#{$alias}: #{getDeclaredVar($alias)};
-      #{$name}: var(--_#{$alias});
+      @if $withVarValue {
+        #{$name}: var(--_#{$alias});
+      }
     } @else {
       --_#{$name}: #{getDeclaredVar($name)};
-      #{$name}: var(--_#{$name});
+      @if $withVarValue {
+        #{$name}: var(--_#{$name});
+      }
     }
   }
 }

@@ -6,6 +6,10 @@
 @include b(calendar) {
   display: inline-flex;
   flex-direction: column;
+  color: getSemanticColor('text');
+
+  @include declareReuseVars((cell-border-radius, cell-min-width, cell-min-height, cell-line-height, inner-padding));
+
   @include e(content) {
     position: relative;
     overflow: hidden;
@@ -49,8 +53,14 @@
     display: grid;
     grid-column: 1 / -1;
     grid-auto-flow: column; // make grid scrollable
-    overflow-x: auto;
     scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
     @supports (grid-template-rows: subgrid) {
       grid-template: auto/subgrid;
     }
@@ -69,16 +79,12 @@
 
   @include e(inner) {
     position: relative;
-    @include declareVars(
+    @include reuseVars(
       (
         min-width: cell-min-width,
         min-height: cell-min-height,
         line-height: cell-line-height,
         padding: inner-padding,
-      )
-    );
-    @include declareReuseVars(
-      (
         border-radius: cell-border-radius,
       )
     );
@@ -222,6 +228,57 @@
     }
   }
 
+  @include e(header) {
+    display: flex;
+    padding-block: 1px;
+    @include declareVars(
+      (
+        padding-inline: cell-padding,
+        gap: header-gap,
+      )
+    );
+  }
+  @include e(info) {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+  }
+  @include e(info-btn) {
+    color: getSemanticColor('text');
+    font-weight: bold;
+  }
+  @at-root {
+    button {
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      outline: none;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      &:focus-visible {
+        outline: 1px solid getFocusColor();
+      }
+      @include declareVarValues(
+        (
+          color: (
+            button-color,
+            getGrayColor(11),
+          ),
+        )
+      );
+      @include reuseVars(
+        (
+          min-width: cell-min-width,
+          height: cell-min-height,
+          line-height: cell-line-height,
+          padding: inner-padding,
+          border-radius: cell-border-radius,
+        )
+      );
+    }
+  }
+
   @include size(1) {
     @include setVars(
       (
@@ -230,6 +287,7 @@
         cell-min-height: getSpaceValue(4),
         cell-line-height: getSpaceValue(4),
         cell-border-radius: getRadiusValue(1, 'full'),
+        header-gap: getSpaceValue(1),
       )
     );
   }
@@ -243,6 +301,7 @@
         cell-line-height: getSpaceValue(5),
         cell-border-radius: getRadiusValue(2, 'full'),
         inner-padding: calc(#{getSpaceValue(1)} / 2),
+        header-gap: getSpaceValue(2),
       )
     );
   }
@@ -256,6 +315,7 @@
         cell-line-height: getSpaceValue(6),
         cell-border-radius: getRadiusValue(3, 'full'),
         inner-padding: getSpaceValue(1),
+        header-gap: getSpaceValue(3),
       )
     );
   }
