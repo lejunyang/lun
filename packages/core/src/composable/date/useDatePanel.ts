@@ -330,17 +330,18 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   /** will call handle if cell is found in event path */
   const handleIfCell = (e: Event, handle: (cell: UseDatePanelCell, indexes: [number, number]) => void) => {
-    let indexes: [number, number] | undefined;
+    let indexes: [number, number] | undefined, isCell: boolean;
     iterateEventPath(e, (target) => {
       if (isHTMLElement(target) && (indexes = getCell(target))) {
         const [row, col] = indexes;
         const cell = cells.value[row]?.[col];
         if (cell && !cell.state.disabled) {
           handle(cell, indexes);
-          return true;
+          return (isCell = true);
         }
       }
     });
+    return isCell!;
   };
   const selectCell = async ({ date }: UseDatePanelCell) => {
     const selectViewStart = viewStartOf(date);
@@ -390,7 +391,18 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
   const handlers = {
     onClick(e: MouseEvent) {
-      handleIfCell(e, selectCell);
+      if (!handleIfCell(e, selectCell)) {
+        iterateEventPath(e, (t) => {
+          if (isHTMLElement(t)) {
+            const {
+              dataset: { method, disabled },
+            } = t;
+            if (method && method in methods && !disabled) {
+              methods[method as keyof typeof methods]();
+            }
+          }
+        });
+      }
     },
     onMouseover(e: MouseEvent) {
       handleIfCell(e, ({ date }) => {
