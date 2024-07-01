@@ -30,6 +30,7 @@ export const calendarProps = freeze({
   showTime: PropBoolean(),
   use12Hours: PropBoolean(),
   scrollable: PropBoolean(),
+  full: PropBoolean(),
 });
 
 export const calendarEmits = freeze({

@@ -2,10 +2,10 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useCEStates, useNamespace, useValueModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useValueModel } from 'hooks';
 import { intl, partsDefine } from 'common';
 import { createDateLocaleMethods, createUseModel, useDatePanel, UseDatePanelCells, useSetupEdit } from '@lun/core';
-import { capitalize, getRect, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
+import { capitalize, getRect, pick, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
 import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
 import { GlobalStaticConfig } from 'config';
@@ -33,7 +33,7 @@ export const Calendar = defineSSRCustomElement({
     const getFormat = (field: keyof typeof props, defaultFormat: string) =>
       props[field] || intl(`date.${field}`).d(defaultFormat);
 
-    const scrollable = () => props.scrollable || supportTouch || true;
+    const scrollable = () => props.scrollable || supportTouch;
     const { cells, methods, direction, handlers, prevCells, nextCells } = useDatePanel(
       virtualGetMerge(
         {
@@ -82,7 +82,7 @@ export const Calendar = defineSSRCustomElement({
       const scrollToCenter = () => {
         const { children, scrollLeft } = value!;
         if (scrollLeft !== lastScrollLeft) {
-          // this is to check if it's scrolling as our threshold is 0.99, we must scroll to center after last scroll stops, or it will cause multiple scrolls!!!
+          // this is to check if it's scrolling as our threshold is 0.99 not 1, we must scroll to center after last scroll stops, or it will cause multiple scrolls!!!
           lastScrollLeft = scrollLeft;
           raf(scrollToCenter);
         } else
@@ -120,7 +120,7 @@ export const Calendar = defineSSRCustomElement({
           },
           {
             root: value!,
-            threshold: 0.99, // use 1 will cause bugs!
+            threshold: 0.99, // use 1 will cause bugs! sometimes it doesn't trigger IntersectionObserver's callback when using 1
           },
         );
         observe();
@@ -133,15 +133,11 @@ export const Calendar = defineSSRCustomElement({
     } = GlobalStaticConfig.date;
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(() => pick(props, ['full']), ns);
+    useCEExpose(methods);
 
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => (
-      <div
-        key={scrollable() ? undefined : value.key}
-        class={[ns.e('body'), bodyClass]}
-        part={partsDefine[name].body}
-        data-key={value.viewStartDate.format('MM-DD')}
-      >
+      <div key={scrollable() ? undefined : value.key} class={[ns.e('body'), bodyClass]} part={partsDefine[name].body}>
         {value.map((row, rowIndex) => {
           return row.map(({ text, state }, colIndex) => {
             return (
@@ -174,28 +170,31 @@ export const Calendar = defineSSRCustomElement({
         view = viewDate.value,
         monthFormat = getFormat('monthFormat', '');
       const yearMonth = [
-        <button>{format(view, getFormat('yearFormat', 'YYYY'))}</button>,
-        <button>{monthFormat ? format(view, monthFormat) : shortMonths[get('M', view)]}</button>,
+        <button class={[ns.e('year'), ns.e('info-btn')]}>{format(view, getFormat('yearFormat', 'YYYY'))}</button>,
+        <button class={[ns.e('month'), ns.e('info-btn')]}>
+          {monthFormat ? format(view, monthFormat) : shortMonths[get('M', view)]}
+        </button>,
       ];
       const row0 = cells.value[0] || [];
       return (
         <div {...handlers} class={stateClass.value} part={partsDefine[name].root}>
-          <slot name="header"></slot>
-          <div>
-            <slot name="super-prev" onClick={methods.prevYear}>
-              <button>{renderElement('icon', { name: 'double-left' })}</button>
-            </slot>
-            <slot name="prev" onClick={methods.prevMonth}>
-              <button>{renderElement('icon', { name: 'down' })}</button>
-            </slot>
-            <div>{monthBeforeYear ? yearMonth.reverse() : yearMonth}</div>
-            <slot name="next" onClick={methods.nextMonth}>
-              <button>{renderElement('icon', { name: 'down' })}</button>
-            </slot>
-            <slot name="super-next" onClick={methods.nextYear}>
-              <button>{renderElement('icon', { name: 'double-left' })}</button>
-            </slot>
-          </div>
+          <slot name="header">
+            <div class={ns.e('header')} part={partsDefine[name].header}>
+              <button class={ns.e('super-prev')} data-method="prevYear">
+                {renderElement('icon', { name: 'double-left' })}
+              </button>
+              <button class={ns.e('super-prev')} data-method="prevMonth">
+                {renderElement('icon', { name: 'left' })}
+              </button>
+              <div class={ns.e('info')}>{monthBeforeYear ? yearMonth.reverse() : yearMonth}</div>
+              <button class={ns.e('next')} data-method="nextMonth">
+                {renderElement('icon', { name: 'right' })}
+              </button>
+              <button class={ns.e('super-next')} data-method="nextYear">
+                {renderElement('icon', { name: 'double-right' })}
+              </button>
+            </div>
+          </slot>
           <div class={ns.e('content')} part={partsDefine[name].content} style={ns.v({ cols: row0.length })}>
             <div class={ns.e('head')} part={partsDefine[name].head}>
               {row0.map((_, i) => {
@@ -209,11 +208,7 @@ export const Calendar = defineSSRCustomElement({
               })}
             </div>
             {scrollable() ? (
-              <div
-                class={ns.e('wrapper')}
-                ref={wrapper}
-                part={partsDefine[name].wrapper}
-              >
+              <div class={ns.e('wrapper')} ref={wrapper} part={partsDefine[name].wrapper}>
                 {getCellNodes(prevCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'prev'))}
                 {getCellNodes(cells, ns.em('body', 'current'))}
                 {getCellNodes(nextCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'next'))}

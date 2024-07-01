@@ -8,7 +8,8 @@ const root = 'root',
   children = 'children',
   icon = 'icon',
   thumb = 'thumb',
-  wrapper = 'wrapper';
+  wrapper = 'wrapper',
+  header = 'header';
 
 const toPartsDefine = <P extends { [k in OpenShadowComponentKey]: readonly string[] }, K extends keyof P = keyof P>(
   parts: P,
@@ -41,11 +42,12 @@ const toExportParts = <P extends { [k in OpenShadowComponentKey]: readonly strin
 
 const parts = {
   button: [root, 'spin', 'hold'] as const,
-  calendar: [root, content, 'head', 'body', 'cell', 'inner', wrapper] as const,
+  calendar: [root, content, 'head', 'body', 'cell', 'inner', wrapper, header] as const,
   callout: [root, icon, 'close-icon', content, 'message', 'description'] as const,
   checkbox: [root, 'indicator', input, label] as const,
   'checkbox-group': [root] as const,
-  dialog: [root, 'mask', 'panel', 'header', 'close', content, 'footer'] as const,
+  'date-picker': [] as const,
+  dialog: [root, 'mask', 'panel', header, 'close', content, 'footer'] as const,
   divider: [root, 'text'],
   'doc-pip': [],
   'file-picker': [],
