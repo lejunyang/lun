@@ -48,12 +48,13 @@ export type UseDatePanelCell = {
     inSelecting: boolean;
     readonly selected: boolean;
     inView: boolean;
+    readonly preview: boolean;
     now: boolean;
     focusing: boolean;
   };
   title?: string;
 };
-export type UseDatePanelCells = (UseDatePanelCell[] & { key: string })[] & {
+export type UseDatePanelCells = (UseDatePanelCell[] & { key: string; allPreviewDates: boolean })[] & {
   key: string;
   viewStartDate: DateValueType;
   viewEndDate: DateValueType;
@@ -81,7 +82,8 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   max?: DateValueType;
   lessThan?: DateValueType;
   moreThan?: DateValueType;
-  disabledDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
+  disableDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
+  hidePreviewDates?: boolean;
   getCell: (target: HTMLElement) => [number, number] | undefined;
   onSelect?: (value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]) => void;
   beforeViewChange?: (offset: number) => Promise<void> | void;
@@ -258,7 +260,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     const viewStartDate = viewStartOf(viewDate),
       viewEndDate = viewEndOf(viewDate),
       panelStartDate = panelStartOf(viewStartDate);
-    const { type, disabledDate } = options;
+    const { type, disableDate } = options;
     const grid = gridMap[type];
     const [rows, cols] = grid;
     const now = getNow();
@@ -268,19 +270,25 @@ export function useDatePanel(options: UseDatePanelOptions) {
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
       cellInfo[row] ||= [];
-      let rowKey: string;
+      let rowKey: string,
+        rowAllPreview = true;
       for (let col = 0; col < cols; col++) {
         const offset = row * cols + col;
         const currentDate = add(panelStartDate, offset);
         if (!col) rowKey = cellInfo[row].key = panelStartDateStr + '-' + row;
-        const disabled = runIfFn(disabledDate, currentDate, { type, selecting }) || !!isOutOfLimit.value(currentDate);
+        const disabled = runIfFn(disableDate, currentDate, { type, selecting }) || !!isOutOfLimit.value(currentDate);
+        const inView = isInView(currentDate, viewStartDate);
+        if (inView) rowAllPreview = false;
         cellInfo[row][col] = {
           key: rowKey! + '-' + col,
           date: currentDate,
           state: {
             disabled,
             hovered: isSame(hovering, currentDate),
-            inView: isInView(currentDate, viewStartDate),
+            inView,
+            get preview() {
+              return !this.inView;
+            },
             now: isSame(currentDate, now),
             focusing: isSame(currentDate, focusing),
             ...getSelectState(currentDate),
@@ -292,6 +300,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
           text: format(currentDate, unrefOrGet(cellFormat)),
         };
       }
+      cellInfo[row].allPreviewDates = rowAllPreview;
     }
     return cellInfo;
   };
@@ -335,7 +344,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       if (isHTMLElement(target) && (indexes = getCell(target))) {
         const [row, col] = indexes;
         const cell = cells.value[row]?.[col];
-        if (cell && !cell.state.disabled) {
+        if (cell && !cell.state.disabled && !(options.hidePreviewDates && cell.state.preview)) {
           handle(cell, indexes);
           return (isCell = true);
         }
