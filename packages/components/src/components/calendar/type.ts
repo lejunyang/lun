@@ -30,7 +30,11 @@ export const calendarProps = freeze({
   showTime: PropBoolean(),
   use12Hours: PropBoolean(),
   scrollable: PropBoolean(),
-  full: PropBoolean(),
+  mini: PropBoolean(),
+  /** determine whether to remove the whole row if dates of that row are all preview dates, like the last row in 2024-07 */
+  removePreviewRow: PropBoolean(),
+  /** determine whether to hide all preview dates in the panel */
+  hidePreviewDates: PropBoolean(),
 });
 
 export const calendarEmits = freeze({

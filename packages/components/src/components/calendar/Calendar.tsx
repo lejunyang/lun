@@ -5,7 +5,7 @@ import { defineIcon } from '../icon/Icon';
 import { useCEExpose, useCEStates, useNamespace, useValueModel } from 'hooks';
 import { intl, partsDefine } from 'common';
 import { createDateLocaleMethods, createUseModel, useDatePanel, UseDatePanelCells, useSetupEdit } from '@lun/core';
-import { capitalize, getRect, pick, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
+import { capitalize, getRect, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
 import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
 import { GlobalStaticConfig } from 'config';
@@ -133,37 +133,43 @@ export const Calendar = defineSSRCustomElement({
     } = GlobalStaticConfig.date;
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
-    const [stateClass] = useCEStates(() => pick(props, ['full']), ns);
+    const [stateClass] = useCEStates(() => null, ns);
     useCEExpose(methods);
 
-    const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => (
-      <div key={scrollable() ? undefined : value.key} class={[ns.e('body'), bodyClass]} part={partsDefine[name].body}>
-        {value.map((row, rowIndex) => {
-          return row.map(({ text, state }, colIndex) => {
-            return (
-              <div
-                data-row={rowIndex}
-                data-col={colIndex}
-                class={[ns.e('cell'), ns.em('cell', 'body'), ns.is(state)]}
-                part={partsDefine[name].cell}
-              >
+    const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => {
+      const { hidePreviewDates, removePreviewRow } = props;
+      return (
+        <div key={scrollable() ? undefined : value.key} class={[ns.e('body'), bodyClass]} part={partsDefine[name].body}>
+          {value.map((row, rowIndex) => {
+            if ((removePreviewRow || hidePreviewDates) && row.allPreviewDates) return null;
+            return row.map(({ text, state }, colIndex) => {
+              return (
                 <div
-                  class={ns.e('inner')}
-                  part={partsDefine[name].inner}
-                  tabindex={state.now || state.selected ? 0 : -1}
-                  ref={state.focusing && state.inView ? focusingInner : undefined}
+                  data-row={rowIndex}
+                  data-col={colIndex}
+                  class={[ns.e('cell'), ns.em('cell', 'body'), ns.is(state)]}
+                  part={partsDefine[name].cell}
                 >
-                  {text}
+                  {hidePreviewDates && state.preview ? null : (
+                    <div
+                      class={ns.e('inner')}
+                      part={partsDefine[name].inner}
+                      tabindex={state.now || state.selected ? 0 : -1}
+                      ref={state.focusing && state.inView ? focusingInner : undefined}
+                    >
+                      {text}
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          });
-        })}
-      </div>
-    );
+              );
+            });
+          })}
+        </div>
+      );
+    };
 
     return () => {
-      let { shortMonths, shortWeekDays, monthBeforeYear } = props;
+      let { shortMonths, shortWeekDays, monthBeforeYear, mini } = props;
       shortMonths ||= runIfFn(getShortMonths) || [];
       shortWeekDays ||= runIfFn(getShortWeekDays) || [];
       const weekFirstDay = getWeekFirstDay(),
@@ -177,7 +183,7 @@ export const Calendar = defineSSRCustomElement({
       ];
       const row0 = cells.value[0] || [];
       return (
-        <div {...handlers} class={stateClass.value} part={partsDefine[name].root}>
+        <div {...handlers} class={[stateClass.value, ns.m(mini ? 'mini' : 'full')]} part={partsDefine[name].root}>
           <slot name="header">
             <div class={ns.e('header')} part={partsDefine[name].header}>
               <button class={ns.e('super-prev')} data-method="prevYear">
