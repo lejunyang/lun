@@ -13,10 +13,13 @@ import {
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
+type DateRaw = DateValueType | DateValueType[] | DateValueType[][];
+type DateStr = string | string[] | string[][];
+
 export const calendarProps = freeze({
   ...themeProps,
   ...editStateProps,
-  value: PropObjOrStr<DateValueType | DateValueType[] | [DateValueType, DateValueType][]>(),
+  value: PropObjOrStr<DateStr | DateRaw>(),
   viewDate: PropObject<DateValueType>(),
   range: PropBoolean(),
   multiple: PropBoolean(),
@@ -37,8 +40,10 @@ export const calendarProps = freeze({
   hidePreviewDates: PropBoolean(),
 });
 
+export type CalendarUpdateDetail = { value: DateStr; raw: DateRaw };
+
 export const calendarEmits = freeze({
-  update: (_: DateValueType) => null,
+  update: (_: CalendarUpdateDetail) => null,
   updateViewDate: (_: DateValueType) => null,
 });
 

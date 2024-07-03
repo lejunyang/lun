@@ -2,30 +2,26 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useCEExpose, useCEStates, useNamespace, useValueModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { intl, partsDefine } from 'common';
-import { createDateLocaleMethods, createUseModel, useDatePanel, UseDatePanelCells, useSetupEdit } from '@lun/core';
+import { createDateLocaleMethods, useDatePanel, UseDatePanelCells, useSetupEdit, useSetupEvent } from '@lun/core';
 import { capitalize, getRect, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
 import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
 import { GlobalStaticConfig } from 'config';
-
-const useViewDate = createUseModel({
-  defaultKey: 'viewDate',
-  defaultEvent: 'updateViewDate',
-});
 
 const name = 'calendar';
 export const Calendar = defineSSRCustomElement({
   name,
   props: calendarProps,
   emits: calendarEmits,
-  setup(props) {
+  setup(props, { emit: e }) {
     const ns = useNamespace(name);
+    const emit = useSetupEvent<typeof e>();
     useSetupEdit();
     const context = useContextConfig();
     const viewDate = useViewDate(props),
-      valueModel = useValueModel(props);
+      valueModel = useValueModel(props, { shouldEmit: false });
     const focusingInner = ref<HTMLElement>(),
       wrapper = ref<HTMLElement>();
 
@@ -45,8 +41,12 @@ export const Calendar = defineSSRCustomElement({
           getCell({ dataset: { row, col } }: HTMLElement) {
             if (row && col) return [+row, +col] as [number, number];
           },
-          onSelect(value: any) {
-            valueModel.value = value;
+          onSelect(value: any, valueStr: any) {
+            valueModel.value = valueStr;
+            emit('update', {
+              value: valueStr,
+              raw: value,
+            });
           },
           getFocusing: focusingInner,
           enablePrevCells: scrollable,
@@ -74,7 +74,7 @@ export const Calendar = defineSSRCustomElement({
       ),
     );
 
-    let scrollEnd: (() => void) | null, observer: IntersectionObserver;
+    let scrollEnd: (() => void) | null, observer: IntersectionObserver | undefined;
     onMounted(() => {
       const { value } = wrapper;
       let lastScrollLeft: number = 0,
@@ -92,8 +92,8 @@ export const Calendar = defineSSRCustomElement({
           });
       };
       const observe = () => {
-        observer.observe(value!.children[0] as HTMLElement);
-        observer.observe(value!.children[2] as HTMLElement);
+        observer!.observe(value!.children[0] as HTMLElement);
+        observer!.observe(value!.children[2] as HTMLElement);
         observing = true;
       };
       if (scrollable()) {
@@ -102,7 +102,7 @@ export const Calendar = defineSSRCustomElement({
           (entries) => {
             for (const { intersectionRatio, target, isIntersecting } of entries) {
               if (intersectionRatio > 0.99 && isIntersecting) {
-                observer.disconnect();
+                observer!.disconnect();
                 observing = false;
                 if (scrollEnd) {
                   scrollEnd();
@@ -126,7 +126,7 @@ export const Calendar = defineSSRCustomElement({
         observe();
       }
     });
-    onBeforeUnmount(() => observer.disconnect());
+    onBeforeUnmount(() => observer?.disconnect());
 
     const {
       type: { get },
