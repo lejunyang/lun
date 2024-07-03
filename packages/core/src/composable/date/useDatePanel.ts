@@ -1,4 +1,4 @@
-import { computed, nextTick, reactive, ref, Ref, WritableComputedRef } from 'vue';
+import { computed, nextTick, reactive, ref, Ref, watchEffect, WritableComputedRef } from 'vue';
 import {
   BaseDateType,
   createDateLocaleMethods,
@@ -184,11 +184,17 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
   // --------- Methods ----------
 
-  const state = reactive({
+  const initState = {
     /** the start date of a range, meaning the user is selecting a range and just selected the start date */
     selecting: null as null | DateValueType,
     hovering: null as null | DateValueType,
     focusing: null as null | DateValueType,
+  };
+  const state = reactive(initState);
+  watchEffect(() => {
+    // @ts-ignore
+    const { range, type, multiple } = options; // when these change, reset state
+    Object.assign(state, initState);
   });
 
   const parseFormat = computed(() => {
@@ -198,7 +204,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   // --- values ---
   const multiRangeValues = computed(() => {
-    const { multiple, range, value } = options,
+    const { multiple, range } = options,
       values = unrefOrGet(value);
     return multiple && range
       ? isArray(values)
@@ -207,11 +213,11 @@ export function useDatePanel(options: UseDatePanelOptions) {
       : null;
   });
   const rangeValue = computed(() => {
-    const { multiple, range, value } = options,
+    const { multiple, range } = options,
       values = unrefOrGet(value);
     return !multiple && range ? formatRangeValue(values) : null;
   });
-  const values = computed(() => toArrayIfNotNil(unrefOrGet(options.value)).map((v) => finalParse(v)));
+  const values = computed(() => toArrayIfNotNil(unrefOrGet(value)).map((v) => finalParse(v)));
   // --- values ---
 
   const isInRange = (target: DateValueType, range: DateValueType[]) =>
@@ -223,9 +229,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
   const getSelectState = (target: DateValueType) => {
     const ranges = multiRangeValues.value,
       range = rangeValue.value,
-      { selecting, hovering } = state,
-      selectingRange = formatRangeValue([selecting, hovering]),
-      isSingleSelecting = !hovering && isSame(target, selecting),
+      { selecting, hovering, focusing } = state,
+      selectingEnd = hovering || focusing,
+      selectingRange = formatRangeValue([selecting, selectingEnd]),
+      isSingleSelecting = !selectingEnd && isSame(target, selecting),
       res = {
         singleSelected: false,
         rangeStart: false,
@@ -340,9 +347,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
   const methods = {
     nextMonth: createMethod(true, 'M', 1),
-    prevMonth: createMethod(false, 'M', -1),
+    prevMonth: createMethod(false, 'M', 1),
     nextYear: createMethod(true, 'y', 1),
-    prevYear: createMethod(false, 'y', -1),
+    prevYear: createMethod(false, 'y', 1),
     nextView: createMethod(true),
     prevView: createMethod(false),
   };
@@ -449,6 +456,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
             viewDate.value = viewStartOf(newDate);
           }
           state.focusing = newDate;
+          if (state.selecting) state.hovering = null; // clear hovering if we are selecting a range and then use arrows to move focus, so that we can use focusing as selectingEnd
           nextTick(() => unrefOrGet(getFocusing)?.focus());
         }
       });
