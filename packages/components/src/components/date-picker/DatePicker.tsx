@@ -1,10 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { datePickerEmits, datePickerProps } from './type';
-import { defineCalendar } from '../calendar';
+import { CalendarUpdateDetail, defineCalendar } from '../calendar';
 import { defineInput } from '../input';
 import { definePopover } from '../popover';
-import { useSetupEvent } from '@lun/core';
+import { DateValueType, useSetupEdit, useSetupEvent } from '@lun/core';
+import { useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
+import { ref } from 'vue';
 
 const name = 'date-picker';
 export const DatePicker = defineSSRCustomElement({
@@ -12,13 +14,40 @@ export const DatePicker = defineSSRCustomElement({
   formAssociated: true,
   props: datePickerProps,
   emits: datePickerEmits,
-  setup(props) {
-    useSetupEvent();
-    const popoverChildren = () => renderElement('input');
+  setup(props, { emit: e }) {
+    const ns = useNamespace(name);
+    const emit = useSetupEvent<typeof e>();
+    useSetupEdit();
+    const viewDate = useViewDate(props),
+      valueModel = useValueModel(props, { shouldEmit: false }),
+      inputModel = ref();
+    const calendarHandlers = {
+      onUpdate({ detail }: CustomEvent<CalendarUpdateDetail>) {
+        inputModel.value = valueModel.value = detail.value;
+        emit('update', detail);
+      },
+      onUpdateViewDate({ detail }: CustomEvent<DateValueType>) {
+        viewDate.value = detail;
+      },
+    };
+
+    const [stateClass] = useCEStates(() => null, ns);
     return () => {
+      const { popoverProps, inputProps, multiple, ...rest } = props;
       return renderElement('popover', {
-        defaultChildren: popoverChildren,
-        content: renderElement('calendar', props),
+        placement: 'bottom-start',
+        ...popoverProps,
+        class: stateClass.value,
+        showArrow: false,
+        triggers: ['click', 'focus'],
+        defaultChildren: renderElement('input', { ...inputProps, value: inputModel.value, multiple }),
+        contentType: 'vnode',
+        content: renderElement('calendar', {
+          ...rest,
+          value: valueModel.value,
+          viewDate: viewDate.value,
+          ...calendarHandlers,
+        }),
       });
     };
   },

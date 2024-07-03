@@ -1,18 +1,17 @@
 import { DateValueType } from '@lun/core';
 import { freeze } from '@lun/utils';
-import {
-  GetEventPropsFromEmits,
-  CommonProps,
-} from 'common';
+import { GetEventPropsFromEmits, CommonProps, PropObject } from 'common';
 import { ExtractPropTypes } from 'vue';
-import { calendarProps } from '../calendar';
+import { calendarProps, CalendarUpdateDetail } from '../calendar';
 
 export const datePickerProps = freeze({
-  ...calendarProps
+  ...calendarProps,
+  popoverProps: PropObject(),
+  inputProps: PropObject(),
 });
 
 export const datePickerEmits = freeze({
-  update: (_: DateValueType) => null,
+  update: (_: CalendarUpdateDetail) => null,
   updateViewDate: (_: DateValueType) => null,
 });
 
