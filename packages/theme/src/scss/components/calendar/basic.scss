@@ -160,7 +160,7 @@
         }
       }
     }
-    @include is((rangeStart, rangeEnd)) {
+    @include is(oneDayRange) {
       @include e(inner) {
         &::after {
           // for a range only contains one day, do not span

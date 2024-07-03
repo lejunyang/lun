@@ -8,7 +8,7 @@ import {
   ExtendBaseDateType,
   presets,
 } from '../../presets';
-import { MaybeRefLikeOrGetter, ToAllMaybeRefLike, unrefOrGet } from '../../utils';
+import { ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import {
   isArray,
   isArrowDownEvent,
@@ -40,6 +40,8 @@ export type UseDatePanelCell = {
     rangeEnd: boolean;
     /** stands for if cell is in one of selected ranges */
     inRange: boolean;
+    /** stands for if cell is a range of one day */
+    oneDayRange: boolean;
     /** stands for if cell is the start of a selecting range */
     selectingStart: boolean;
     /** stands for if cell is the end of a selecting range, it's not necessarily same as hovered as we may use keyboard to move */
@@ -67,10 +69,10 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
     getFocusing: HTMLElement;
     enablePrevCells?: boolean;
     enableNextCells?: boolean;
+    value: DateValueType | DateValueType[] | [DateValueType, DateValueType][];
   },
   'lang' | 'cellFormat'
 > & {
-  value: MaybeRefLikeOrGetter<DateValueType | DateValueType[] | [DateValueType, DateValueType][]>;
   viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
   format?: string;
   showTime?: boolean;
@@ -85,7 +87,10 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   disableDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
   hidePreviewDates?: boolean;
   getCell: (target: HTMLElement) => [number, number] | undefined;
-  onSelect?: (value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][]) => void;
+  onSelect?: (
+    value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][],
+    valStr: string | [string, string] | [string, string][],
+  ) => void;
   beforeViewChange?: (offset: number) => Promise<void> | void;
   // titleFormat?:
 };
@@ -108,6 +113,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
   const {
+    value,
     lang,
     cellFormat,
     viewDate,
@@ -130,6 +136,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   } = presets.date;
   const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
   const { isSame, add, set } = createDateTypeMethods(() => options.type);
+  const finalFormat = (date: DateValueType) => format(date, parseFormat.value);
   const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
 
   const getWeekStartDate = (value: DateValueType) => {
@@ -224,16 +231,19 @@ export function useDatePanel(options: UseDatePanelOptions) {
         rangeStart: false,
         rangeEnd: false,
         inRange: false,
+        oneDayRange: false,
         selectingStart: isSame(target, selectingRange[0]) || isSingleSelecting,
         selectingEnd: isSame(target, selectingRange[1]) || isSingleSelecting,
         inSelecting: isInRange(target, selectingRange),
       };
     const checkRange = (range: DateValueType[]) => {
-      res.rangeStart = isSame(range[0], target);
-      if ((res.rangeEnd = isSame(range[1], target)) || res.rangeStart || (res.inRange = isInRange(target, range)))
-        return true;
+      res.rangeStart ||= isSame(range[0], target);
+      ((res.rangeEnd ||= isSame(range[1], target)) && (res.oneDayRange ||= isSame(range[0], range[1]))) ||
+        res.rangeStart ||
+        (res.inRange ||= isInRange(target, range));
     };
-    if (ranges) ranges.find(checkRange);
+    if (ranges)
+      ranges.forEach(checkRange); // do not use find, need to check all. cause for one date, it can be two ranges' edge
     else if (range) checkRange(range);
     else res.singleSelected = values.value.some((v) => isSame(v, target));
     return res;
@@ -265,7 +275,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     const [rows, cols] = grid;
     const now = getNow();
     const { selecting, hovering, focusing } = state;
-    const panelStartDateStr = format(panelStartDate, parseFormat.value);
+    const panelStartDateStr = finalFormat(panelStartDate);
     const cellInfo: UseDatePanelCells = Object.assign([], { key: panelStartDateStr, viewStartDate, viewEndDate });
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
@@ -374,15 +384,18 @@ export function useDatePanel(options: UseDatePanelOptions) {
         const newRanges = ranges.filter((range) => !isOverlapping(newRange, range));
         newRanges.push(newRange);
         state.selecting = null;
-        runIfFn(onSelect, newRanges);
+        runIfFn(onSelect, newRanges, newRanges.map((r) => r.map((d) => finalFormat(d))) as [string, string][]);
       } else state.selecting = date;
     } else if (range) {
       const newRange = formatRangeValue([selecting, date]);
-      state.selecting = newRange.length ? (runIfFn(onSelect, newRange), null) : date;
+      state.selecting = newRange.length
+        ? (runIfFn(onSelect, newRange, newRange.map((d) => finalFormat(d)) as [string, string]), null)
+        : date;
     } else if (options.multiple) {
       const newValues = values.value.filter((v) => !isSame(v, date)); // click selected date will unselect it
-      runIfFn(onSelect, values.value.length === newValues.length ? [...newValues, date] : newValues);
-    } else runIfFn(onSelect, date);
+      const final = values.value.length === newValues.length ? [...newValues, date] : newValues;
+      runIfFn(onSelect, final, final.map((i) => finalFormat(i)) as [string, string]);
+    } else runIfFn(onSelect, date, finalFormat(date));
   };
   const getOffsetDate = (date: DateValueType, e: KeyboardEvent) => {
     const { type } = options;
