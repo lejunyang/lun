@@ -72,6 +72,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/', lang) },
+            { text: locales[lang].sidebar.dataInput.datePicker, link: wrapLink('/components/date-picker/', lang) },
             { text: locales[lang].sidebar.dataInput.filePicker, link: wrapLink('/components/file-picker/', lang) },
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/', lang) },
             { text: locales[lang].sidebar.dataInput.mentions, link: wrapLink('/components/mentions/', lang) },
@@ -83,11 +84,12 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           ],
         },
         {
-          text: locales[lang].sidebar.ft.menu,
+          text: locales[lang].sidebar.dataDisplay.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.ft.form, link: wrapLink('/components/form/', lang) },
-            // { text: locales[lang].sidebar.ft.table, link: wrapLink('/components/table/') },
+            { text: locales[lang].sidebar.dataDisplay.calendar, link: wrapLink('/components/calendar/', lang) },
+            { text: locales[lang].sidebar.dataDisplay.form, link: wrapLink('/components/form/', lang) },
+            // { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/') },
           ],
         },
         {

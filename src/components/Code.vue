@@ -230,6 +230,9 @@ main .code-container {
       justify-content: center;
       align-items: center;
     }
+    &.column {
+      flex-direction: column;
+    }
   }
 
   .align-end {

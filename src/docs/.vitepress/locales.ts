@@ -15,6 +15,7 @@ export default {
       dataInput: {
         menu: '输入组件',
         checkbox: 'Checkbox 复选框',
+        datePicker: 'DatePicker 时间选择',
         filePicker: 'FilePicker 文件选择',
         input: 'Input 输入',
         mentions: 'Mentions 提及',
@@ -24,8 +25,9 @@ export default {
         switch: 'Switch 开关',
         textarea: 'Textarea 文本域',
       },
-      ft: {
-        menu: '表单与表格',
+      dataDisplay: {
+        menu: '数据展示',
+        calendar: 'Calendar 日历',
         form: 'Form 表单',
         table: 'Table 表格',
       },
@@ -100,8 +102,9 @@ export default {
         tag: 'Tag',
       },
       dataInput: {
-        menu: 'DataInput',
+        menu: 'Data Input',
         checkbox: 'Checkbox',
+        datePicker: 'DatePicker',
         filePicker: 'FilePicker',
         input: 'Input',
         mentions: 'Mentions',
@@ -111,8 +114,9 @@ export default {
         switch: 'Switch',
         textarea: 'Textarea',
       },
-      ft: {
-        menu: 'Form & Table',
+      dataDisplay: {
+        menu: 'Data Display',
+        calendar: 'Calendar',
         form: 'Form',
         table: 'Table',
       },
