@@ -5,7 +5,17 @@ import { defineIcon } from '../icon/Icon';
 import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { intl, partsDefine } from 'common';
 import { createDateLocaleMethods, useDatePanel, UseDatePanelCells, useSetupEdit, useSetupEvent } from '@lun/core';
-import { capitalize, getRect, raf, runIfFn, supportTouch, virtualGetMerge, withResolvers } from '@lun/utils';
+import {
+  AnyAsyncFn,
+  capitalize,
+  getRect,
+  raf,
+  runIfFn,
+  supportTouch,
+  toGetterDescriptors,
+  virtualGetMerge,
+  withResolvers,
+} from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
 import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
 import { GlobalStaticConfig } from 'config';
@@ -30,7 +40,7 @@ export const Calendar = defineSSRCustomElement({
       props[field] || intl(`date.${field}`).d(defaultFormat);
 
     const scrollable = () => props.scrollable || supportTouch;
-    const { cells, methods, direction, handlers, prevCells, nextCells } = useDatePanel(
+    const { cells, methods, direction, handlers, prevCells, nextCells, state } = useDatePanel(
       virtualGetMerge(
         {
           type: 'date' as const,
@@ -78,7 +88,8 @@ export const Calendar = defineSSRCustomElement({
     onMounted(() => {
       const { value } = wrapper;
       let lastScrollLeft: number = 0,
-        observing = false;
+        observing = false,
+        onBeforeCenter: AnyAsyncFn | null;
       const scrollToCenter = () => {
         const { children, scrollLeft } = value!;
         if (scrollLeft !== lastScrollLeft) {
@@ -86,7 +97,11 @@ export const Calendar = defineSSRCustomElement({
           lastScrollLeft = scrollLeft;
           raf(scrollToCenter);
         } else
-          raf(() => {
+          raf(async () => {
+            if (onBeforeCenter) {
+              await onBeforeCenter();
+              onBeforeCenter = null;
+            }
             (children[1] as HTMLElement).scrollIntoView({ behavior: 'instant', block: 'nearest' });
             if (!observing) observe();
           });
@@ -110,8 +125,13 @@ export const Calendar = defineSSRCustomElement({
                   nextTick(scrollToCenter);
                 } else {
                   // user scrolls
-                  if (target === value!.children[0]) methods.prevView();
-                  else methods.nextView();
+                  focusingInner.value?.blur(); // need to clear previous focus to fix the issue(arrow left to navigate to left month, then scroll to right, focusing element will be wrong)
+                  state.focusing = null;
+                  onBeforeCenter = async () => {
+                    if (target === value!.children[0]) methods.prevView();
+                    else methods.nextView();
+                    await nextTick();
+                  };
                   raf(scrollToCenter);
                 }
               }
@@ -134,7 +154,7 @@ export const Calendar = defineSSRCustomElement({
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
     const [stateClass] = useCEStates(() => null, ns);
-    useCEExpose(methods);
+    useCEExpose(methods, toGetterDescriptors(state));
 
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => {
       const { hidePreviewDates, removePreviewRow } = props;

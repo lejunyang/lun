@@ -1,5 +1,6 @@
 export type Fn = () => void;
 export type AnyFn<R = any> = (...args: any[]) => R;
+export type AnyAsyncFn<R = any> = (...args: any[]) => Promise<R>;
 export type CommonObject = Record<string | number | symbol, unknown>;
 export type AnyObject = Record<string | number | symbol, any>;
 export type Constructor<T = any> = new (...args: any[]) => T;

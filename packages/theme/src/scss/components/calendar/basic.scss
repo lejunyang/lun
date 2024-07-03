@@ -220,7 +220,7 @@
         }
       }
     }
-    @include is(focusing) {
+    @include is((focusing, inView)) {
       @include e(inner) {
         outline: 2px solid getAccentColor(8);
         outline-offset: -1px;
