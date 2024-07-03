@@ -99,3 +99,12 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
 
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybePromiseOrGetter<T> = MaybePromise<T> | (() => MaybePromise<T>);
+
+/** it's for computed that always returns a new value in getter(like return an object literal). return a same old value to cache the result so that it won't trigger other effects */
+export function cacheComputed<T>(getter: (oldVal?: NoInfer<T>) => T, shouldUpdate?: (oldVal: NoInfer<T>) => boolean) {
+  let cache: T;
+  return computed<T>(() => {
+    if (cache === undefined || !shouldUpdate || shouldUpdate(cache)) return (cache = getter(cache));
+    else return cache;
+  });
+}

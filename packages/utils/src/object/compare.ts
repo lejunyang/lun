@@ -1,3 +1,4 @@
+import { isArray } from '../is';
 import { runIfFn } from '../function';
 export function simpleObjectEquals(obj1: any, obj2: any, depths = Infinity): boolean {
   if (Object.is(obj1, obj2) || (obj1 == null && obj2 == null)) return true;
@@ -49,4 +50,13 @@ function objectCompareWithPath(
   }
   runIfFn(options?.callback, obj1, obj2, path);
   return false;
+}
+
+export function shallowArrayEquals(arr1: any, arr2: any, isEqual = (i: any, j: any) => i === j): boolean {
+  if (!isArray(arr1) || !isArray(arr2) || arr1.length !== arr2.length) return false;
+  if (arr1 === arr2) return true;
+  for (let i = 0; i < arr1.length; i++) {
+    if (!isEqual(arr1[i], arr2[i])) return false;
+  }
+  return true;
 }
