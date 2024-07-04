@@ -85,9 +85,10 @@ const Tooltip = defineSSRCustomElement({
 });
 
 export type tTooltip = typeof Tooltip;
-export type iTooltip = InstanceType<tTooltip> & {
+export type TooltipExpose = {
   readonly popover: iPopover;
 } & ReturnType<typeof useOverflowWatcher>['methods'];
+export type iTooltip = InstanceType<tTooltip> & TooltipExpose;
 
 export const defineTooltip = createDefineElement(name, Tooltip, {
   popover: definePopover,

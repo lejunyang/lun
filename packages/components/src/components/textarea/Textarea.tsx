@@ -106,8 +106,7 @@ export const Textarea = defineSSRCustomElement({
 
     const clearIcon = computed(
       () =>
-        states.withClearIcon &&
-        renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
+        states.withClearIcon && renderElement('icon', { name: 'x', class: [ns.e('clear-icon')], onClick: clearValue }),
     );
 
     return () => {
@@ -153,11 +152,12 @@ export const Textarea = defineSSRCustomElement({
 });
 
 export type tTextarea = typeof Textarea;
-export type iTextarea = InstanceType<tTextarea> & {
+export type TextareaExpose = {
   focus: (options?: InputFocusOption) => void;
   blur: () => void;
   readonly textarea: HTMLTextAreaElement;
 };
+export type iTextarea = InstanceType<tTextarea> & TextareaExpose;
 
 export const defineTextarea = createDefineElement(name, Textarea, {
   icon: defineIcon,

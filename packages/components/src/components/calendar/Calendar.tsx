@@ -4,7 +4,14 @@ import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { intl, partsDefine } from 'common';
-import { createDateLocaleMethods, useDatePanel, UseDatePanelCells, useSetupEdit, useSetupEvent } from '@lun/core';
+import {
+  createDateLocaleMethods,
+  DateValueType,
+  useDatePanel,
+  UseDatePanelCells,
+  useSetupEdit,
+  useSetupEvent,
+} from '@lun/core';
 import {
   AnyAsyncFn,
   capitalize,
@@ -253,7 +260,12 @@ export const Calendar = defineSSRCustomElement({
 });
 
 export type tCalendar = typeof Calendar;
-export type iCalendar = InstanceType<tCalendar>;
+export type CalendarExpose = Readonly<{
+  selecting: null | DateValueType;
+  hovering: null | DateValueType;
+  focusing: null | DateValueType;
+}>;
+export type iCalendar = InstanceType<tCalendar> & CalendarExpose;
 
 export const defineCalendar = createDefineElement(name, Calendar, {
   icon: defineIcon,

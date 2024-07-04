@@ -126,10 +126,11 @@ export const Button = defineSSRCustomElement({
 });
 
 export type tButton = typeof Button;
-export type iButton = InstanceType<tButton> & {
+export type ButtonExpose = {
   setTimeout(timeout: number, getCountdownTxt?: (remain: number) => string, interval?: number): void;
   clearTimeout(): void;
 };
+export type iButton = InstanceType<tButton> & ButtonExpose;
 
 export const defineButton = createDefineElement(name, Button, {
   spin: defineSpin,

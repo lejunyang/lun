@@ -151,10 +151,11 @@ export const DocPip = defineSSRCustomElement({
 });
 
 export type tDocPip = typeof DocPip;
-export type iDocPip = InstanceType<tDocPip> & {
+export type DocPipExpose = {
   openPip: (...otherStyles: DocPipAcceptStyle[]) => Promise<boolean | undefined>;
   closePip: () => void;
   togglePip: () => Promise<boolean | undefined> | undefined;
 };
+export type iDocPip = InstanceType<tDocPip> & DocPipExpose;
 
 export const defineDocPip = createDefineElement(name, DocPip);

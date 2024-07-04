@@ -311,11 +311,16 @@ export const Input = defineSSRCustomElement({
 });
 
 export type tInput = typeof Input;
-export type iInput = InstanceType<tInput> & {
+export type InputExpose = {
   focus: (options?: InputFocusOption) => void;
   blur: () => void;
+  stepUp(): void;
+  stepDown(): void;
+  togglePassword: (force?: boolean) => void;
+  readonly valueAsNumber: number;
   readonly input: HTMLInputElement;
 };
+export type iInput = InstanceType<tInput> & InputExpose;
 
 export const defineInput = createDefineElement(name, Input, {
   icon: defineIcon,

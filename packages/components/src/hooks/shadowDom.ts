@@ -78,11 +78,11 @@ export function useCEStates<
     editable?: boolean | undefined;
     interactive?: boolean | undefined;
   },
->(statesGetter: () => T, ns?: ReturnType<typeof useNamespace>) {
+>(statesGetter?: () => T, ns?: ReturnType<typeof useNamespace>) {
   let stop: ReturnType<typeof watchEffect>;
   const editComputed = useEdit();
   const states = objectComputed(() => ({
-    ...statesGetter(),
+    ...statesGetter?.(),
     ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),
   })) as any as S;
   const hyphenatedStates = objectComputed(() => fromObject(states, (k, v) => [hyphenate(k), v]));

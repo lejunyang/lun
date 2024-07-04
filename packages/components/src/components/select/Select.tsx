@@ -293,13 +293,13 @@ export const Select = defineSSRCustomElement({
 });
 
 export type tSelect = typeof Select;
-export type iSelect = InstanceType<tSelect> &
-  ReturnType<typeof useSelectMethods> & {
-    blur: () => void;
-    focus: (option?: InputFocusOption) => void;
-    readonly input: iInput;
-    readonly popover: iPopover;
-  };
+export type SelectExpose = ReturnType<typeof useSelectMethods> & {
+  blur: () => void;
+  focus: (option?: InputFocusOption) => void;
+  readonly input: iInput;
+  readonly popover: iPopover;
+};
+export type iSelect = InstanceType<tSelect> & SelectExpose;
 
 export const defineSelect = createDefineElement('select', Select, {
   'select-option': defineSelectOption,

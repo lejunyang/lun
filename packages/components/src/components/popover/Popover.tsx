@@ -378,7 +378,7 @@ export const Popover = defineSSRCustomElement({
 });
 
 export type tPopover = typeof Popover;
-export type iPopover = InstanceType<tPopover> & {
+export type PopoverExpose = {
   togglePopover: (force?: boolean) => void;
   updatePosition: () => void;
   attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
@@ -396,6 +396,7 @@ export type iPopover = InstanceType<tPopover> & {
   readonly isOpen: boolean;
   readonly isShow: boolean;
 };
+export type iPopover = InstanceType<tPopover> & PopoverExpose;
 
 export const definePopover = createDefineElement(name, Popover, {
   'teleport-holder': defineTeleportHolder,

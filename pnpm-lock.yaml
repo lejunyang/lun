@@ -107,7 +107,7 @@ importers:
         version: 5.5.2
       v-lazy-show:
         specifier: ^0.2.4
-        version: 0.2.4(@vue/compiler-core@3.4.30)
+        version: 0.2.4(@vue/compiler-core@3.4.31)
       vite:
         specifier: ^5.3.1
         version: 5.3.1(@types/node@20.14.2)(sass@1.77.5)
@@ -225,8 +225,8 @@ importers:
   packages/plugins:
     dependencies:
       '@vue/compiler-core':
-        specifier: ^3.4.21
-        version: 3.4.29
+        specifier: ^3.4.31
+        version: 3.4.31
     devDependencies:
       '@babel/core':
         specifier: ^7.24.7
@@ -1078,6 +1078,9 @@ packages:
   '@vue/compiler-core@3.4.30':
     resolution: {integrity: sha512-ZL8y4Xxdh8O6PSwfdZ1IpQ24PjTAieOz3jXb/MDTfDtANcKBMxg1KLm6OX2jofsaQGYfIVzd3BAG22i56/cF1w==}
 
+  '@vue/compiler-core@3.4.31':
+    resolution: {integrity: sha512-skOiodXWTV3DxfDhB4rOf3OGalpITLlgCeOwb+Y9GJpfQ8ErigdBUHomBzvG78JoVE8MJoQsb+qhZiHfKeNeEg==}
+
   '@vue/compiler-dom@3.4.27':
     resolution: {integrity: sha512-kUTvochG/oVgE1w5ViSr3KUBh9X7CWirebA3bezTbB5ZKBQZwR2Mwj9uoSKRMFcz4gSMzzLXBPD6KpCLb9nvWw==}
 
@@ -1151,6 +1154,9 @@ packages:
 
   '@vue/shared@3.4.30':
     resolution: {integrity: sha512-CLg+f8RQCHQnKvuHY9adMsMaQOcqclh6Z5V9TaoMgy0ut0tz848joZ7/CYFFyF/yZ5i2yaw7Fn498C+CNZVHIg==}
+
+  '@vue/shared@3.4.31':
+    resolution: {integrity: sha512-Yp3wtJk//8cO4NItOPpi3QkLExAr/aLBGZMmTtW9WpdwBCJpRM6zj9WgWktXAl8IDIozwNMByT45JP3tO3ACWA==}
 
   '@vueuse/core@10.11.0':
     resolution: {integrity: sha512-x3sD4Mkm7PJ+pcq3HX8PLPBadXCAlSDR/waK87dz0gQE+qJnaaFhc/dZVfJz+IUYzTMVGum2QlR7ImiJQN4s6g==}
@@ -3512,6 +3518,14 @@ snapshots:
       estree-walker: 2.0.2
       source-map-js: 1.2.0
 
+  '@vue/compiler-core@3.4.31':
+    dependencies:
+      '@babel/parser': 7.24.7
+      '@vue/shared': 3.4.31
+      entities: 4.5.0
+      estree-walker: 2.0.2
+      source-map-js: 1.2.0
+
   '@vue/compiler-dom@3.4.27':
     dependencies:
       '@vue/compiler-core': 3.4.27
@@ -3570,7 +3584,7 @@ snapshots:
       '@volar/language-core': 1.11.1
       '@volar/source-map': 1.11.1
       '@vue/compiler-dom': 3.4.27
-      '@vue/shared': 3.4.29
+      '@vue/shared': 3.4.30
       computeds: 0.0.1
       minimatch: 9.0.4
       muggle-string: 0.3.1
@@ -3583,7 +3597,7 @@ snapshots:
     dependencies:
       '@volar/language-core': 2.3.0
       '@vue/compiler-dom': 3.4.29
-      '@vue/shared': 3.4.29
+      '@vue/shared': 3.4.30
       computeds: 0.0.1
       minimatch: 9.0.4
       path-browserify: 1.0.1
@@ -3634,6 +3648,8 @@ snapshots:
   '@vue/shared@3.4.29': {}
 
   '@vue/shared@3.4.30': {}
+
+  '@vue/shared@3.4.31': {}
 
   '@vueuse/core@10.11.0(vue@3.4.30(typescript@5.5.2))':
     dependencies:
@@ -4910,9 +4926,9 @@ snapshots:
 
   uuid@8.3.2: {}
 
-  v-lazy-show@0.2.4(@vue/compiler-core@3.4.30):
+  v-lazy-show@0.2.4(@vue/compiler-core@3.4.31):
     dependencies:
-      '@vue/compiler-core': 3.4.30
+      '@vue/compiler-core': 3.4.31
 
   validator@13.12.0: {}
 

@@ -65,7 +65,7 @@ export function provideContextConfig(config: Partial<TGlobalContextConfig>) {
 export function useContextConfig(): TGlobalContextConfig;
 export function useContextConfig<K extends kTGlobalContextConfig>(key: K): TGlobalContextConfig[K];
 /**
- * return a specific part of current effect config, if no key provided, return the whole config object
+ * return the specific effective config if key provided, or return the whole config object
  */
 export function useContextConfig(key?: kTGlobalContextConfig) {
   const result = inject(CONTEXT_CONFIG_KEY, GlobalContextConfig);

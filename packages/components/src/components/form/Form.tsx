@@ -211,7 +211,8 @@ export const Form = defineSSRCustomElement({
 });
 
 export type tForm = typeof Form;
-export type iForm = InstanceType<tForm> & UseFormReturn;
+export type FormExpose = UseFormReturn;
+export type iForm = InstanceType<tForm> & FormExpose;
 
 export const defineForm = createDefineElement(name, Form, {
   tooltip: defineTooltip,

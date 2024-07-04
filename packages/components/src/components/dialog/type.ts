@@ -72,10 +72,3 @@ export const dialogEmits = freeze({
 export type DialogSetupProps = ExtractPropTypes<typeof dialogProps> & CommonProps;
 export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>;
 export type DialogProps = Partial<DialogSetupProps> & DialogEvents;
-
-export type DialogExpose = {
-  openDialog: () => void;
-  closeDialog: () => Promise<void>;
-  toggleDialog: () => Promise<void> | undefined;
-  readonly isOpen: boolean;
-};

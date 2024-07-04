@@ -175,7 +175,8 @@ export const Message = Object.assign(
 );
 
 export type tMessage = typeof Message;
-export type iMessage = InstanceType<tMessage> & MessageMethods;
+export type MessageExpose = MessageMethods;
+export type iMessage = InstanceType<tMessage> & MessageExpose;
 
 export const defineMessage = createDefineElement(name, Message, {
   callout: defineCallout,

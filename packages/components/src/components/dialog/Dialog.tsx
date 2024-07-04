@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, toElement } from 'utils';
-import { DialogExpose, dialogEmits, dialogProps } from './type';
+import { dialogEmits, dialogProps } from './type';
 import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
@@ -327,6 +327,12 @@ export const Dialog = Object.assign(
 );
 
 export type tDialog = typeof Dialog;
+export type DialogExpose = {
+  openDialog: () => void;
+  closeDialog: () => Promise<void>;
+  toggleDialog: () => Promise<void> | undefined;
+  readonly isOpen: boolean;
+};
 export type iDialog = InstanceType<tDialog> & DialogExpose;
 
 export const defineDialog = createDefineElement(name, Dialog, {

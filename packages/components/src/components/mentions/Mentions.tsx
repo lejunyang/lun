@@ -211,10 +211,7 @@ export const Mentions = defineSSRCustomElement({
 });
 
 export type tMentions = typeof Mentions;
-export type iMentions = InstanceType<tMentions> & {
-  focus: (options?: InputFocusOption) => void;
-  blur: () => void;
-};
+export type iMentions = InstanceType<tMentions>;
 
 export const defineMentions = createDefineElement(name, Mentions, {
   icon: defineIcon,

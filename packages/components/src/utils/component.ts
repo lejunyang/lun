@@ -3,7 +3,7 @@ import { ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { exportParts } from '../common/exportParts';
-import { error, warn } from './console';
+import { warn } from './console';
 import { getFirstOfIterable, isElement, isString, supportCustomElement } from '@lun/utils';
 import { PropString } from 'common';
 import { useContextStyles } from 'hooks';
@@ -19,7 +19,7 @@ export function isLunComponent(el: Element, comp: ComponentKey) {
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
   const name = getElementFirstName(comp);
   if (!name) {
-    if (__DEV__) error(`Element "${comp}" is not defined`);
+    if (__DEV__) warn(`Component "${comp}" is not defined`);
     return;
   }
   return h(name, { ...props, exportparts: exportParts[comp as OpenShadowComponentKey] }, children);
