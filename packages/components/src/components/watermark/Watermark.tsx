@@ -2,9 +2,21 @@ import { defineSSRCustomElement } from 'custom';
 import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName, renderElement } from 'utils';
 import { useNamespace } from 'hooks';
-import { VNode, computed, getCurrentInstance, inject, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue';
+import {
+  VNode,
+  computed,
+  getCurrentInstance,
+  inject,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  provide,
+  reactive,
+  ref,
+  watchEffect,
+} from 'vue';
 import { useWatermark } from '@lun/core';
-import { isTruthyOrZero } from '@lun/utils';
+import { isTruthyOrZero, objectKeys } from '@lun/utils';
 
 const name = 'watermark';
 const ceStyle = `display: block !important; position: relative !important; inset: 0px !important; visibility: visible !important; opacity: 1 !important; transform: none !important; clip-path: none !important; animation: auto ease 0s 1 normal none running none !important; translate: none !important; scale: none !important;`;
@@ -31,8 +43,8 @@ export const Watermark = defineSSRCustomElement({
     let shadowRoot: ShadowRoot, lastStyle: string;
 
     if (!mutable) {
-      const mayNeedUpdateKeys = new Set<keyof typeof watermarkProps>(
-        (Object.keys(props) as any).filter((k: any) => !isTruthyOrZeroOrFalse(props[k])),
+      const mayNeedUpdateKeys = new Set(
+        objectKeys(props).filter((k) => !isTruthyOrZeroOrFalse(props[k])),
       );
       const stop = watchEffect(() => {
         for (const key of Array.from(mayNeedUpdateKeys)) {
@@ -86,12 +98,15 @@ export const Watermark = defineSSRCustomElement({
     onBeforeUnmount(() => {
       ceObserver.disconnect();
       shadowRootObserver.disconnect();
-      const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
-      Object.assign(newEl, freezedProps);
-      if (CE.childNodes.length) newEl.append(...CE.childNodes);
-      if (CEParent?.isConnected) {
-        CEParent.insertBefore(newEl, CENext);
-      }
+      const children = CE.childNodes;
+      nextTick(() => {
+        if (CEParent?.isConnected) {
+          const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
+          Object.assign(newEl, freezedProps);
+          if (children.length) newEl.append(...children);
+          CEParent.insertBefore(newEl, CENext);
+        }
+      });
     });
 
     const parent = WatermarkContext.inject();
