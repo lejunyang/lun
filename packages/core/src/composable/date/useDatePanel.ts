@@ -322,7 +322,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
     return cellInfo;
   };
 
-  const getViewDate = () => unrefOrGet(viewDate) || viewStartOf(getNow());
+  const getViewDate = () =>
+    unrefOrGet(viewDate) ||
+    viewStartOf(multiRangeValues.value?.[0]?.[0] || rangeValue.value?.[0] || values.value[0] || getNow());
   if (!viewDate.value) viewDate.value = getViewDate();
   const cells = computed(() => getCells(getViewDate()));
   /** cells for previous date panel */
@@ -390,6 +392,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
         const newRange = formatRangeValue([selecting, date]) as [DateValueType, DateValueType];
         const newRanges = ranges.filter((range) => !isOverlapping(newRange, range));
         newRanges.push(newRange);
+        newRanges.sort((r1, r2) => (isBefore(r1[0], r2[0]) ? -1 : 1));
         state.selecting = null;
         runIfFn(onSelect, newRanges, newRanges.map((r) => r.map((d) => finalFormat(d))) as [string, string][]);
       } else state.selecting = date;
@@ -400,7 +403,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
         : date;
     } else if (options.multiple) {
       const newValues = values.value.filter((v) => !isSame(v, date)); // click selected date will unselect it
-      const final = values.value.length === newValues.length ? [...newValues, date] : newValues;
+      const final = (values.value.length === newValues.length ? [...newValues, date] : newValues).sort((a, b) =>
+        isBefore(a, b) ? -1 : 1,
+      );
       runIfFn(onSelect, final, final.map((i) => finalFormat(i)) as [string, string]);
     } else runIfFn(onSelect, date, finalFormat(date));
   };
