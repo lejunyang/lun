@@ -36,10 +36,10 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rimraf": "^5.0.7",
-    "vite": "^5.3.1",
+    "vite": "^5.3.3",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0",
-    "vue": "^3.4.30"
+    "vue": "^3.4.31"
   },
   "peerDependencies": {
     "react": ">=16.8",

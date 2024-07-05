@@ -39,7 +39,7 @@
     "cross-env": "^7.0.3",
     "postcss-logical": "^7.0.1",
     "rimraf": "^5.0.7",
-    "sass": "^1.77.5",
+    "sass": "^1.77.6",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0"
   }
