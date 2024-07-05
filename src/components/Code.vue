@@ -18,6 +18,16 @@
           :title="locales[userLang]?.components.codeSelect"
         />
         <div class="code-block-actions">
+          <svg v-bind="commonSVGProps" @click="goToGithubSource">
+            <title>{{ locales[userLang]?.components.editInGithub }}</title>
+            <path
+              d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+            />
+            <path
+              fill-rule="evenodd"
+              d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
+            />
+          </svg>
           <svg
             v-bind="commonSVGProps"
             v-show="!isFullscreen && isSupported"
@@ -75,6 +85,7 @@ import { Ref } from 'vue';
 import { createElement } from 'react';
 
 const data = useData();
+
 const userLang = data.lang as any as Ref<keyof typeof locales>;
 
 const commonSVGProps = {
@@ -89,7 +100,7 @@ const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : 
 
 const props = defineProps({
   dev: { type: Boolean },
-  vueJSX: {
+  vueTSX: {
     type: String,
     default: '',
   },
@@ -97,7 +108,19 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  react: {
+  reactTSX: {
+    type: String,
+    default: '',
+  },
+  vueTSXPath: {
+    type: String,
+    default: '',
+  },
+  htmlPath: {
+    type: String,
+    default: '',
+  },
+  reactTSXPath: {
     type: String,
     default: '',
   },
@@ -105,21 +128,21 @@ const props = defineProps({
 
 const devHide = computed(() => props.dev && inBrowser && location.hostname !== 'localhost');
 
-const lang = ref('vueJSX');
+const lang = ref('vueTSX');
 const showEditor = ref(false);
 const loading = ref(true);
 const initialized = ref(false);
 const showGenerated = ref(false);
 const selectOptions = [
-  { label: 'Vue TSX', value: 'vueJSX' },
-  { label: 'React TSX', value: 'react' },
+  { label: 'Vue TSX', value: 'vueTSX' },
+  { label: 'React TSX', value: 'reactTSX' },
   { label: 'HTML', value: 'html' },
 ];
 
 const codesMap = reactive({
-  vueJSX: props.vueJSX,
+  vueTSX: props.vueTSX,
   html: props.html,
-  react: props.react,
+  reactTSX: props.reactTSX,
 } as Record<string, string>);
 
 const resetCodes = () => {
@@ -127,6 +150,12 @@ const resetCodes = () => {
     codesMap[key] = (props as any)[key];
   });
   rendererProps.key = Date.now();
+};
+
+const goToGithubSource = () => {
+  const fileName = (props as any)[`${lang.value}Path`];
+  const path = data.page.value.relativePath.split('/').slice(0, -1).join('/');
+  if (fileName) window.open(`https://github.com/lejunyang/lun/blob/main/src/docs/${path}/${fileName}`, '_blank');
 };
 
 const rendererProps = reactive({
@@ -150,7 +179,7 @@ const handleCodeChange = debounce(async () => {
       return;
     }
     switch (lang.value) {
-      case 'vueJSX':
+      case 'vueTSX':
         const vContent = await runVueTSXCode(code);
         rendererProps.content = isFunction(vContent) ? h(vContent) : vContent;
         rendererProps.type = 'vnode';
@@ -159,7 +188,7 @@ const handleCodeChange = debounce(async () => {
         rendererProps.type = 'html';
         rendererProps.content = code;
         break;
-      case 'react':
+      case 'reactTSX':
         const rContent = await runReactTSXCode(code);
         rendererProps.content = isFunction(rContent) ? createElement(rContent) : rContent;
         rendererProps.type = 'react';
@@ -256,7 +285,7 @@ main .code-container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   svg {
     cursor: pointer;
   }

@@ -3,12 +3,11 @@ import path from 'node:path';
 import { capitalize } from '@lun/utils';
 
 const suffixMap: Record<string, string> = {
-  '.vue.tsx': 'vueJSX',
-  '.vue.jsx': 'vueJSX',
-  '.react.tsx': 'react',
-  '.react.jsx': 'react',
+  '.vue.tsx': 'vueTSX',
+  '.react.tsx': 'reactTSX',
   '.html': 'html',
 };
+const suffixReverseMap = Object.fromEntries(Object.entries(suffixMap).map(([key, value]) => [value, key]));
 
 /** replace specific code comments in md with Code component, add import script for that */
 export function replaceCodeTags(filePath: string, fileContent: string) {
@@ -37,6 +36,7 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
     let propResult = '';
     Object.entries(codeType).forEach(([type, source]) => {
       propResult += ` :${type}="${name + type}"`;
+      propResult += ` ${type}Path="${name + suffixReverseMap[type]}"`;
       imports.push(source);
     });
     return `<Code${name.startsWith('_dev') ? ' dev' : ''}${propResult}><${componentName}ForSSR /></Code>`;
