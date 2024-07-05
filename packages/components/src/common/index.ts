@@ -1,6 +1,7 @@
 import { renderElement } from 'utils';
 import { Status } from './type';
 import { supportPopover } from '@lun/utils';
+import { ComponentKey } from 'config';
 
 export * from './editStateProps';
 export * from './intl';
@@ -41,3 +42,8 @@ export const popSupport = {
   position: true,
   teleport: true,
 };
+
+export const getCompParts = <N extends ComponentKey, P extends readonly string[]>(name: N, parts: P) =>
+  parts.map((p) => `${p} ${name}-${p}`) as {
+    [key in keyof P]: `${P[key]} ${N}-${P[key]}`;
+  };

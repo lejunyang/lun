@@ -2,7 +2,6 @@ import { ComponentKey, GlobalStaticConfig, OpenShadowComponentKey } from 'config
 import { ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
-import { exportParts } from '../common/exportParts';
 import { warn } from './console';
 import { getFirstOfIterable, isElement, isString, supportCustomElement } from '@lun/utils';
 import { PropString } from 'common';
@@ -16,6 +15,7 @@ export function isLunComponent(el: Element, comp: ComponentKey) {
   return GlobalStaticConfig.actualNameMap[comp]?.has(el.tagName.toLowerCase());
 }
 
+const exportParts = {} as Record<ComponentKey, string>;
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
   const name = getElementFirstName(comp);
   if (!name) {
@@ -29,14 +29,29 @@ export type ComponentDependencyDefineMap = {
   [key: string]: (name?: string, dn?: Record<string, string>) => void;
 };
 
-export function createDefineElement(
+export function createDefineElement<
+  Comp extends CustomElementConstructor,
+  Keys extends keyof InstanceType<Comp> = keyof InstanceType<Comp>,
+>(
   compKey: ComponentKey,
-  Component: CustomElementConstructor,
+  Component: Comp,
+  defaultProps?: {
+    [k in Keys]?: InstanceType<Comp>[k];
+  },
+  parts?: readonly string[] | string[],
 ): (name?: string) => void;
 
-export function createDefineElement<T extends ComponentDependencyDefineMap>(
+export function createDefineElement<
+  T extends ComponentDependencyDefineMap,
+  Comp extends CustomElementConstructor,
+  Keys extends keyof InstanceType<Comp> = keyof InstanceType<Comp>,
+>(
   compKey: ComponentKey,
-  Component: CustomElementConstructor,
+  Component: Comp,
+  defaultProps: {
+    [k in Keys]?: InstanceType<Comp>[k];
+  },
+  parts: readonly string[] | string[],
   dependencies: T,
 ): (name?: string, dependencyNames?: Record<keyof T, string>) => void;
 
@@ -44,19 +59,24 @@ export function createDefineElement<T extends ComponentDependencyDefineMap>(
 export function createDefineElement(
   compKey: ComponentKey,
   Component: CustomElementConstructor,
+  compDefaultProps?: Record<string, any>,
+  parts?: string[] | readonly string[],
   dependencies?: ComponentDependencyDefineMap,
 ) {
   return (name?: string, dependencyNameMap?: Record<string, string>) => {
     if (!supportCustomElement) return;
+    const { nameMap, defaultProps, actualNameMap } = GlobalStaticConfig;
     if (dependencies) {
       for (const [k, v] of Object.entries(dependencies)) {
         v(dependencyNameMap?.[k]);
       }
     }
-    name ||= GlobalStaticConfig.nameMap[compKey];
+    name ||= nameMap[compKey];
     name = name.toLowerCase();
     if (!customElements.get(name)) {
-      GlobalStaticConfig.actualNameMap[compKey].add(name);
+      if (compDefaultProps) defaultProps[compKey] = compDefaultProps;
+      if (parts) exportParts[compKey] = parts.map((p) => compKey + '-' + p).join(',');
+      actualNameMap[compKey].add(name);
       customElements.define(name, Component);
     }
   };
