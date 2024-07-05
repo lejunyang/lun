@@ -4,17 +4,14 @@ import { datePickerEmits, datePickerProps } from './type';
 import { defineCalendar, iCalendar } from '../calendar';
 import { defineInput, iInput } from '../input';
 import { definePopover, iPopover } from '../popover';
-import {
-  useDateParseFormat,
-  useSetupEdit,
-  useSetupEvent,
-} from '@lun/core';
+import { useDateParseFormat, useSetupEdit, useSetupEvent } from '@lun/core';
 import { useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { ref } from 'vue';
 import { isObject, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
 
 const name = 'date-picker';
+const parts = [] as const;
 export const DatePicker = defineSSRCustomElement({
   name,
   formAssociated: true,
@@ -96,7 +93,7 @@ export const DatePicker = defineSSRCustomElement({
 export type tDatePicker = typeof DatePicker;
 export type iDatePicker = InstanceType<tDatePicker>;
 
-export const defineDatePicker = createDefineElement(name, DatePicker, {
+export const defineDatePicker = createDefineElement(name, DatePicker, {}, parts, {
   input: defineInput,
   popover: definePopover,
   calendar: defineCalendar,

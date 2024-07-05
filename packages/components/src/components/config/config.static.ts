@@ -6,7 +6,6 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun/core';
-import { defaultProps } from './config.static.defaultProps';
 
 const holderName = 'teleport-holder';
 export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
@@ -94,7 +93,10 @@ export const GlobalStaticConfig = new Proxy(
       return result;
     }, {} as Record<ComponentKey, Set<string>>),
     /** define default props of every component */
-    defaultProps,
+    defaultProps: components.reduce((result, name) => {
+      result[name] = {};
+      return result;
+    }, {} as Record<ComponentKey, Record<string, any>>),
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** whether wrap &#64;layer for components' styles. will use it as layer name if it's truthy string, or use 'lun' as default */
     wrapCSSLayer: supportCSSLayer as boolean | string,

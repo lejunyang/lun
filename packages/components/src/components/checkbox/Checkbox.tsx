@@ -7,9 +7,11 @@ import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { isEnterDown } from '@lun/utils';
-import { partsDefine } from 'common';
+import { getCompParts } from 'common';
 
 const name = 'checkbox';
+const parts = ['root', 'indicator', 'input', 'label'] as const;
+const compParts = getCompParts(name, parts);
 export const Checkbox = defineSSRCustomElement({
   name,
   props: checkboxProps,
@@ -88,16 +90,16 @@ export const Checkbox = defineSSRCustomElement({
         isIntermediate = intermediate.value;
       const { editable } = editComputed;
       const labelPart = (
-        <span part={partsDefine[name].label} class={ns.e('label')}>
+        <span part={compParts[3]} class={ns.e('label')}>
           <slot>{props.label}</slot>
         </span>
       );
       return (
         <>
-          <label part={partsDefine[name].root} class={stateClass.value}>
+          <label part={compParts[0]} class={stateClass.value}>
             {props.labelPosition === 'start' && labelPart}
             <span
-              part={partsDefine[name].indicator}
+              part={compParts[1]}
               class={ns.e('indicator')}
               tabindex={editable ? 0 : undefined}
               onKeydown={handlers.onKeydown}
@@ -110,7 +112,7 @@ export const Checkbox = defineSSRCustomElement({
               </slot>
               <input
                 class={[ns.e('input')]}
-                part={partsDefine[name].input}
+                part={compParts[2]}
                 type={name}
                 checked={isChecked}
                 indeterminate={isIntermediate}
@@ -132,6 +134,14 @@ export const Checkbox = defineSSRCustomElement({
 export type tCheckbox = typeof Checkbox;
 export type iCheckbox = InstanceType<tCheckbox>;
 
-export const defineCheckbox = createDefineElement(name, Checkbox, {
-  icon: defineIcon,
-});
+export const defineCheckbox = createDefineElement(
+  name,
+  Checkbox,
+  {
+    labelPosition: 'end',
+  },
+  parts,
+  {
+    icon: defineIcon,
+  },
+);

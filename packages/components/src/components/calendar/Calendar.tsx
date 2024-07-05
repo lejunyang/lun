@@ -3,7 +3,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
-import { intl, partsDefine } from 'common';
+import { getCompParts, intl } from 'common';
 import {
   createDateLocaleMethods,
   DateValueType,
@@ -28,6 +28,8 @@ import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } fr
 import { GlobalStaticConfig } from 'config';
 
 const name = 'calendar';
+const parts = ['root', 'content', 'head', 'body', 'cell', 'inner', 'wrapper', 'header'] as const;
+const compParts = getCompParts(name, parts);
 export const Calendar = defineSSRCustomElement({
   name,
   props: calendarProps,
@@ -166,7 +168,7 @@ export const Calendar = defineSSRCustomElement({
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => {
       const { hidePreviewDates, removePreviewRow } = props;
       return (
-        <div key={scrollable() ? undefined : value.key} class={[ns.e('body'), bodyClass]} part={partsDefine[name].body}>
+        <div key={scrollable() ? undefined : value.key} class={[ns.e('body'), bodyClass]} part={compParts[3]}>
           {value.map((row, rowIndex) => {
             if ((removePreviewRow || hidePreviewDates) && row.allPreviewDates) return null;
             return row.map(({ text, state }, colIndex) => {
@@ -175,12 +177,12 @@ export const Calendar = defineSSRCustomElement({
                   data-row={rowIndex}
                   data-col={colIndex}
                   class={[ns.e('cell'), ns.em('cell', 'body'), ns.is(state)]}
-                  part={partsDefine[name].cell}
+                  part={compParts[4]}
                 >
                   {hidePreviewDates && state.preview ? null : (
                     <div
                       class={ns.e('inner')}
-                      part={partsDefine[name].inner}
+                      part={compParts[5]}
                       tabindex={state.now || state.selected ? 0 : -1}
                       ref={state.focusing && state.inView ? focusingInner : undefined}
                     >
@@ -210,9 +212,9 @@ export const Calendar = defineSSRCustomElement({
       ];
       const row0 = cells.value[0] || [];
       return (
-        <div {...handlers} class={[stateClass.value, ns.m(mini ? 'mini' : 'full')]} part={partsDefine[name].root}>
+        <div {...handlers} class={[stateClass.value, ns.m(mini ? 'mini' : 'full')]} part={compParts[0]}>
           <slot name="header">
-            <div class={ns.e('header')} part={partsDefine[name].header}>
+            <div class={ns.e('header')} part={compParts[7]}>
               <button class={ns.e('super-prev')} data-method="prevYear">
                 {renderElement('icon', { name: 'double-left' })}
               </button>
@@ -228,12 +230,12 @@ export const Calendar = defineSSRCustomElement({
               </button>
             </div>
           </slot>
-          <div class={ns.e('content')} part={partsDefine[name].content} style={ns.v({ cols: row0.length })}>
-            <div class={ns.e('head')} part={partsDefine[name].head}>
+          <div class={ns.e('content')} part={compParts[1]} style={ns.v({ cols: row0.length })}>
+            <div class={ns.e('head')} part={compParts[2]}>
               {row0.map((_, i) => {
                 return (
-                  <div class={[ns.e('cell'), ns.em('cell', 'head')]} part={partsDefine[name].cell}>
-                    <div class={ns.e('inner')} part={partsDefine[name].inner}>
+                  <div class={[ns.e('cell'), ns.em('cell', 'head')]} part={compParts[4]}>
+                    <div class={ns.e('inner')} part={compParts[5]}>
                       {shortWeekDays[(i + weekFirstDay) % 7]}
                     </div>
                   </div>
@@ -241,7 +243,7 @@ export const Calendar = defineSSRCustomElement({
               })}
             </div>
             {scrollable() ? (
-              <div class={ns.e('wrapper')} ref={wrapper} part={partsDefine[name].wrapper}>
+              <div class={ns.e('wrapper')} ref={wrapper} part={compParts[6]}>
                 {getCellNodes(prevCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'prev'))}
                 {getCellNodes(cells, ns.em('body', 'current'))}
                 {getCellNodes(nextCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'next'))}
@@ -269,6 +271,6 @@ export type CalendarExpose = Readonly<{
 }>;
 export type iCalendar = InstanceType<tCalendar> & CalendarExpose;
 
-export const defineCalendar = createDefineElement(name, Calendar, {
+export const defineCalendar = createDefineElement(name, Calendar, {}, parts, {
   icon: defineIcon,
 });

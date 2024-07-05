@@ -6,9 +6,11 @@ import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce as dF, isFunction, prevent, throttle as tF } from '@lun/utils';
-import { partsDefine } from 'common';
+import { getCompParts } from 'common';
 
 const name = 'button';
+const parts = ['root', 'spin', 'hold'] as const;
+const compParts = getCompParts(name, parts);
 export const Button = defineSSRCustomElement({
   name,
   props: buttonProps,
@@ -96,7 +98,7 @@ export const Button = defineSSRCustomElement({
       const { iconName, iconLibrary, size, spinProps, showLoading, hold, label, iconPosition } = props;
       const { interactive, loading } = editComputed;
       const finalDisabled = !interactive;
-      const finalSpinProps = { size, ...spinProps, part: partsDefine[name].spin };
+      const finalSpinProps = { size, ...spinProps, part: compParts[1] };
       const loadingPart =
         loading && showLoading ? (
           countdownTxt.value || renderElement('spin', finalSpinProps)
@@ -110,11 +112,11 @@ export const Button = defineSSRCustomElement({
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
           onClick={handleClick.value}
-          part={partsDefine[name].root}
+          part={compParts[0]}
           style={ns.v({ hold: hold && `${hold}ms` })}
         >
           <Transition name="hold" {...holdTransitionHandlers}>
-            {holdShow.value && <div part={partsDefine[name].hold}></div>}
+            {holdShow.value && <div part={compParts[2]}></div>}
           </Transition>
           {iconPosition === 'start' && loadingPart}
           <slot>{label}</slot>
@@ -132,6 +134,16 @@ export type ButtonExpose = {
 };
 export type iButton = InstanceType<tButton> & ButtonExpose;
 
-export const defineButton = createDefineElement(name, Button, {
-  spin: defineSpin,
-});
+export const defineButton = createDefineElement(
+  name,
+  Button,
+  {
+    showLoading: true,
+    iconPosition: 'start',
+    // variant: 'surface',
+  },
+  parts,
+  {
+    spin: defineSpin,
+  },
+);

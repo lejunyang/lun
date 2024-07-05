@@ -4,9 +4,11 @@ import { calloutEmits, calloutProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useNamespace } from 'hooks';
-import { getTransitionProps, renderStatusIcon, partsDefine } from 'common';
+import { getTransitionProps, renderStatusIcon, getCompParts } from 'common';
 
 const name = 'callout';
+const parts = ['root', 'icon', 'close-icon', 'content', 'message', 'description'] as const;
+const compParts = getCompParts(name, parts);
 export const Callout = defineSSRCustomElement({
   name,
   props: calloutProps,
@@ -39,21 +41,21 @@ export const Callout = defineSSRCustomElement({
       return (
         <Transition {...getTransitionProps(props)} {...handlers}>
           {!closed.value && (
-            <span class={ns.t} part={partsDefine[name].root} data-status={status}>
+            <span class={ns.t} part={compParts[0]} data-status={status}>
               <slot name="icon">
                 {renderStatusIcon(status, {
                   name: iconName,
                   library: iconLibrary,
                   ...iconProps,
-                  part: partsDefine[name].icon,
+                  part: compParts[1],
                   class: ns.e('icon'),
                 })}
               </slot>
-              <div class={ns.e('content')} part={partsDefine[name].content}>
-                <div class={ns.e('message')} part={partsDefine[name].message}>
+              <div class={ns.e('content')} part={compParts[3]}>
+                <div class={ns.e('message')} part={compParts[4]}>
                   <slot>{message}</slot>
                 </div>
-                <div class={ns.e('description')} part={partsDefine[name].description}>
+                <div class={ns.e('description')} part={compParts[5]}>
                   <slot name="description">{stack || description}</slot>
                 </div>
               </div>
@@ -62,7 +64,7 @@ export const Callout = defineSSRCustomElement({
                   name: 'x',
                   ...props.closeIconProps,
                   onClick: close,
-                  part: partsDefine[name]['close-icon'],
+                  part: compParts[2],
                   class: ns.e('close-icon'),
                 })}
             </span>
@@ -76,6 +78,14 @@ export const Callout = defineSSRCustomElement({
 export type tCallout = typeof Callout;
 export type iCallout = InstanceType<tCallout>;
 
-export const defineCallout = createDefineElement(name, Callout, {
-  icon: defineIcon,
-});
+export const defineCallout = createDefineElement(
+  name,
+  Callout,
+  {
+    transition: 'scaleOut',
+  },
+  parts,
+  {
+    icon: defineIcon,
+  },
+);
