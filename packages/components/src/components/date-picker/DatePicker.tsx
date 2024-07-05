@@ -1,12 +1,18 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { datePickerEmits, datePickerProps } from './type';
-import { CalendarUpdateDetail, defineCalendar } from '../calendar';
-import { defineInput } from '../input';
-import { definePopover } from '../popover';
-import { DateValueType, useSetupEdit, useSetupEvent } from '@lun/core';
+import { defineCalendar, iCalendar } from '../calendar';
+import { defineInput, iInput } from '../input';
+import { definePopover, iPopover } from '../popover';
+import {
+  useDateParseFormat,
+  useSetupEdit,
+  useSetupEvent,
+} from '@lun/core';
 import { useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { ref } from 'vue';
+import { isObject, virtualGetMerge } from '@lun/utils';
+import { useContextConfig } from 'config';
 
 const name = 'date-picker';
 export const DatePicker = defineSSRCustomElement({
@@ -16,22 +22,50 @@ export const DatePicker = defineSSRCustomElement({
   emits: datePickerEmits,
   setup(props, { emit: e }) {
     const ns = useNamespace(name);
-    const emit = useSetupEvent<typeof e>();
+    const context = useContextConfig();
+    const { parse, format } = useDateParseFormat(virtualGetMerge({ lang: () => context.lang }, props));
+
     useSetupEdit();
+    const emit = useSetupEvent<typeof e>(
+      {
+        update(val) {
+          if (isObject(val) && 'raw' in val) {
+            // it's calendar's update
+            inputModel.value = valueModel.value = val.value;
+            emit('update', val);
+            if (!props.multiple) popoverRef.value?.delayClosePopover(true);
+          } else {
+            // it's input's update
+            const newDate = parse(val);
+            if (newDate) {
+              valueModel.value = newDate;
+              emit('update', {
+                raw: newDate,
+                value: (inputModel.value = format(newDate)), // TODO multiple
+              });
+            }
+          }
+        },
+        updateViewDate(val) {
+          viewDate.value = val;
+        },
+        close() {
+          // popover closes, reset input's internal value to clear invalid input
+          inputRef.value?.resetValue();
+        },
+      },
+      { forceChildrenBubble: true },
+    );
+
     const viewDate = useViewDate(props),
       valueModel = useValueModel(props, { shouldEmit: false }),
-      inputModel = ref();
-    const calendarHandlers = {
-      onUpdate({ detail }: CustomEvent<CalendarUpdateDetail>) {
-        inputModel.value = valueModel.value = detail.value;
-        emit('update', detail);
-      },
-      onUpdateViewDate({ detail }: CustomEvent<DateValueType>) {
-        viewDate.value = detail;
-      },
-    };
+      inputModel = ref(format(parse(valueModel.value)) || undefined); // TODO multiple. consider moving multiple and range to useDateParseFormat
+    const popoverRef = ref<iPopover>(),
+      calendarRef = ref<iCalendar>(),
+      inputRef = ref<iInput>();
 
     const [stateClass] = useCEStates(() => null, ns);
+    // TODO expose
     return () => {
       const { popoverProps, inputProps, multiple, ...rest } = props;
       return renderElement('popover', {
@@ -39,14 +73,20 @@ export const DatePicker = defineSSRCustomElement({
         ...popoverProps,
         class: stateClass.value,
         showArrow: false,
+        ref: popoverRef,
         triggers: ['click', 'focus'],
-        defaultChildren: renderElement('input', { ...inputProps, value: inputModel.value, multiple }),
+        defaultChildren: renderElement('input', {
+          ...inputProps,
+          value: inputModel.value,
+          multiple,
+          ref: inputRef,
+        }),
         contentType: 'vnode',
         content: renderElement('calendar', {
           ...rest,
+          ref: calendarRef,
           value: valueModel.value,
           viewDate: viewDate.value,
-          ...calendarHandlers,
         }),
       });
     };
