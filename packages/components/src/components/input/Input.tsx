@@ -169,9 +169,12 @@ export const Input = defineSSRCustomElement({
         get valueAsNumber() {
           return GlobalStaticConfig.math.toRawNum(valueModel.value);
         },
+        resetValue() {
+          valueModel.value = props.value;
+        },
         togglePassword,
       },
-      refLikeToDescriptors({ input: inputRef }),
+      refLikeToDescriptors({ input: inputRef, innerValue: valueModel }),
     );
 
     return () => {
@@ -317,6 +320,10 @@ export type InputExpose = {
   stepUp(): void;
   stepDown(): void;
   togglePassword: (force?: boolean) => void;
+  /** reset input's internal value to props.value */
+  resetValue(): void;
+  /** get input's internal value */
+  readonly innerValue: string | number | string[] | number[];
   readonly valueAsNumber: number;
   readonly input: HTMLInputElement;
 };

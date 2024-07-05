@@ -47,7 +47,7 @@ export const Calendar = defineSSRCustomElement({
       props[field] || intl(`date.${field}`).d(defaultFormat);
 
     const scrollable = () => props.scrollable || supportTouch;
-    const { cells, methods, direction, handlers, prevCells, nextCells, state } = useDatePanel(
+    const { cells, methods, direction, handlers, prevCells, nextCells, state, expose } = useDatePanel(
       virtualGetMerge(
         {
           type: 'date' as const,
@@ -161,7 +161,7 @@ export const Calendar = defineSSRCustomElement({
     const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
 
     const [stateClass] = useCEStates(() => null, ns);
-    useCEExpose(methods, toGetterDescriptors(state));
+    useCEExpose({ ...methods, ...expose }, toGetterDescriptors(state));
 
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => {
       const { hidePreviewDates, removePreviewRow } = props;
@@ -264,6 +264,8 @@ export type CalendarExpose = Readonly<{
   selecting: null | DateValueType;
   hovering: null | DateValueType;
   focusing: null | DateValueType;
+  parseDate(value: any): DateValueType | null;
+  formatDate(value: DateValueType): string;
 }>;
 export type iCalendar = InstanceType<tCalendar> & CalendarExpose;
 
