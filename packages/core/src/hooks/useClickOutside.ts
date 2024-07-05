@@ -1,4 +1,4 @@
-import { inBrowser, toArrayIfNotNil, on } from '@lun/utils';
+import { inBrowser, toArrayIfNotNil, on, getRect } from '@lun/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
@@ -28,12 +28,12 @@ export function useClickOutside(
       for (let getter of getters) {
         if (!getter || !(target = unrefOrGet(getter)!)) continue;
         if (e.target === target || els.includes(target as any)) return;
-        if (isMouseEventInRect(e, target.getBoundingClientRect())) return;
+        if (isMouseEventInRect(e, getRect(target as Element))) return;
       }
       callback(e);
     },
   };
-  
+
   cleanup.push(on(document, 'click', handler.documentClick));
 
   tryOnScopeDispose(() => {

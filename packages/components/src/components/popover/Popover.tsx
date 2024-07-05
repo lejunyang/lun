@@ -12,7 +12,14 @@ import {
   nextTick,
   watchPostEffect,
 } from 'vue';
-import { MaybeRefLikeOrGetter, refLikeToDescriptors, unrefOrGet, unrefOrGetMulti, usePopover } from '@lun/core';
+import {
+  MaybeRefLikeOrGetter,
+  refLikeToDescriptors,
+  unrefOrGet,
+  unrefOrGetMulti,
+  usePopover,
+  useSetupEvent,
+} from '@lun/core';
 import { createDefineElement } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import {
@@ -25,6 +32,7 @@ import {
   toGetterDescriptors,
   toPxIfNum,
   virtualGetMerge,
+  getRect,
 } from '@lun/utils';
 import { useCEExpose, useNamespace } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -49,8 +57,9 @@ export const Popover = defineSSRCustomElement({
   props: popoverProps,
   inheritAttrs: false,
   emits: popoverEmits,
-  setup(props, { emit }) {
+  setup(props, { emit: e }) {
     const ns = useNamespace(name);
+    const emit = useSetupEvent<typeof e>();
     const /** pop content element with type=popover */ popRef = ref<HTMLDivElement>(),
       slotRef = ref<HTMLSlotElement>(),
       /** pop content element when type=position or teleport */ positionedRef = ref<HTMLDivElement>(),
@@ -180,8 +189,8 @@ export const Popover = defineSSRCustomElement({
           const reference = actualTarget.value,
             floating = actualPop.value;
           if (reference && floating) {
-            rectsInfo.reference = reference.getBoundingClientRect();
-            rectsInfo.floating = floating.getBoundingClientRect();
+            rectsInfo.reference = getRect(reference);
+            rectsInfo.floating = getRect(floating);
           }
         });
       }
@@ -205,7 +214,7 @@ export const Popover = defineSSRCustomElement({
       const target = unrefOrGet(props.target);
       // have getBoundingClientRect but not a element, it's virtual
       if (isFunction(target?.getBoundingClientRect) && !isElement(target)) {
-        target?.getBoundingClientRect(); // collect dep
+        getRect(target as Element); // collect dep
         if (isPositioned.value) update();
       }
     });

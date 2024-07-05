@@ -14,6 +14,7 @@ import {
   runIfFn,
   prevent,
   intersectOrHas,
+  getRect,
 } from '@lun/utils';
 import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
@@ -238,7 +239,7 @@ export function usePopover(_options: UsePopoverOptions) {
           _p: true,
           getBoundingClientRect() {
             // always get new rect
-            const { x, y } = t.getBoundingClientRect();
+            const { x, y } = getRect(t);
             const fx = tx + x,
               fy = ty + y;
             return {

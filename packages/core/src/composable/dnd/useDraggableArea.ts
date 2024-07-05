@@ -1,6 +1,6 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR, numbersEqual } from '@lun/utils';
+import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR, numbersEqual, getRect } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
@@ -87,7 +87,7 @@ export function useDraggableArea({
   const [storeAndSetStyle, restoreElStyle] = useTempInlineStyle(true);
 
   const finalGetCoord = (e: PointerEvent) => getCoord?.(e) || [e.clientX, e.clientY];
-  const finalGetTargetRect = (target: Element) => getTargetRect?.(target) || target.getBoundingClientRect();
+  const finalGetTargetRect = (target: Element) => getTargetRect?.(target) || getRect(target);
 
   const getState = (options: Omit<DraggableElementState, 'left' | 'top' | 'clientLeft' | 'clientTop'>) =>
     ({
@@ -117,7 +117,7 @@ export function useDraggableArea({
     const [clientX, clientY] = finalGetCoord(e);
     const limitType = runIfFn(limitInContainer, targetEl, state);
     const container = unrefOrGet(el)!;
-    const { x, y } = container.getBoundingClientRect();
+    const { x, y } = getRect(container);
     const { x: tx, y: ty } = finalGetTargetRect(targetEl);
     // must calculate containerOffset here, not in handleMove, because target's x/y is changing during dragging, small pixels change can make it gradually out of container
     const pointerOffsetX = clientX - tx,
@@ -192,7 +192,7 @@ export function useDraggableArea({
     e.stopPropagation(); // for nested
     let [clientX, clientY] = finalGetCoord(e);
     const { limitType, startX, startY, pointerOffsetX, pointerOffsetY } = state;
-    const { x, y, right, bottom } = container.getBoundingClientRect();
+    const { x, y, right, bottom } = getRect(container);
     if (limitType === 'pointer') {
       clientX = floorByDPR(clamp(clientX, x, right), targetEl);
       clientY = floorByDPR(clamp(clientY, y, bottom), targetEl);

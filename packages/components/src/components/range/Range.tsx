@@ -15,6 +15,7 @@ import {
   setStyle,
   toPxIfNum,
   runIfFn,
+  getRect,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 import { partsDefine } from 'common';
@@ -146,9 +147,8 @@ export const Range = defineSSRCustomElement({
       focusThumb(newIndex!);
     };
 
-    const getRootRect = () => rootEl.value!.getBoundingClientRect();
     const getValueByCoord = (clientX: number, clientY: number) => {
-      const { x, y, width, height } = getRootRect();
+      const { x, y, width, height } = getRect(rootEl.value!);
       const percent = isVertical() ? (clientY - y) / height : (clientX - x) / width;
       return multi(percent, len.value);
     };

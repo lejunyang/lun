@@ -28,6 +28,7 @@ import {
   virtualGetMerge,
   getDocumentElement,
   withResolvers,
+  getRect,
 } from '@lun/utils';
 import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
@@ -183,7 +184,7 @@ export const Dialog = Object.assign(
         ignoreWhenAlt: true,
         limitInContainer: 'target',
         getTargetRect() {
-          return panelRef.value!.getBoundingClientRect();
+          return getRect(panelRef.value!);
         },
         draggable(...args) {
           const { customDraggable, headerDraggable } = props;
