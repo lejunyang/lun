@@ -1,7 +1,6 @@
 import { computed, nextTick, reactive, ref, Ref, watchEffect, WritableComputedRef } from 'vue';
 import {
   BaseDateType,
-  createDateLocaleMethods,
   createDateTypeMethods,
   DatePanelType,
   DateValueType,
@@ -22,7 +21,7 @@ import {
   runIfFn,
   toArrayIfNotNil,
 } from '@lun/utils';
-import { getDefaultFormat } from './utils';
+import { useDateParseFormat } from './utils';
 import { processType } from '../../presets/date.utils';
 
 export type UseDatePanelCell = {
@@ -114,7 +113,6 @@ export function useDatePanel(options: UseDatePanelOptions) {
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
   const {
     value,
-    lang,
     cellFormat,
     viewDate,
     getCell,
@@ -131,13 +129,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
     getNow,
     isBefore,
     isAfter,
-    isValid,
     type: { get, add: typeAdd, endOf, startOf },
   } = presets.date;
-  const { getWeekFirstDay, parse, format } = createDateLocaleMethods(lang);
   const { isSame, add, set } = createDateTypeMethods(() => options.type);
-  const finalFormat = (date: DateValueType) => format(date, parseFormat.value);
-  const finalParse = (value: any) => (isValid(value) ? value : parse(value, parseFormat.value));
+  const { parse, format, getWeekFirstDay } = useDateParseFormat(options);
 
   const getWeekStartDate = (value: DateValueType) => {
     const weekFirstDay = getWeekFirstDay();
@@ -151,8 +146,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
   };
   const formatRangeValue = (value: unknown) => {
     if (!isArray(value)) return [];
-    const start = finalParse(value[0] as any);
-    const end = finalParse(value[1] as any);
+    const start = parse(value[0] as any);
+    const end = parse(value[1] as any);
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   };
@@ -197,11 +192,6 @@ export function useDatePanel(options: UseDatePanelOptions) {
     Object.assign(state, initState);
   });
 
-  const parseFormat = computed(() => {
-    const { format, type, showTime, use12Hours } = options;
-    return getDefaultFormat(format, type, showTime, use12Hours);
-  });
-
   // --- values ---
   const multiRangeValues = computed(() => {
     const { multiple, range } = options,
@@ -217,7 +207,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       values = unrefOrGet(value);
     return !multiple && range ? formatRangeValue(values) : null;
   });
-  const values = computed(() => toArrayIfNotNil(unrefOrGet(value)).map((v) => finalParse(v)));
+  const values = computed(() => toArrayIfNotNil(unrefOrGet(value)).map((v) => parse(v)));
   // --- values ---
 
   const isInRange = (target: DateValueType, range: DateValueType[]) =>
@@ -262,10 +252,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
 
   const isOutOfLimit = computed(() => {
     const { min, max, moreThan, lessThan } = options;
-    const minDate = finalParse(min),
-      maxDate = finalParse(max),
-      dateMoreThan = finalParse(moreThan),
-      dateLessThan = finalParse(lessThan);
+    const minDate = parse(min),
+      maxDate = parse(max),
+      dateMoreThan = parse(moreThan),
+      dateLessThan = parse(lessThan);
     return (target: DateValueType) =>
       (minDate && isBefore(target, minDate)) ||
       (dateMoreThan && (isBefore(target, dateMoreThan) || isSame(target, dateMoreThan))) ||
@@ -282,7 +272,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     const [rows, cols] = grid;
     const now = getNow();
     const { selecting, hovering, focusing } = state;
-    const panelStartDateStr = finalFormat(panelStartDate);
+    const panelStartDateStr = format(panelStartDate);
     const cellInfo: UseDatePanelCells = Object.assign([], { key: panelStartDateStr, viewStartDate, viewEndDate });
     for (let row = 0; row < rows; row++) {
       // @ts-ignore
@@ -394,20 +384,20 @@ export function useDatePanel(options: UseDatePanelOptions) {
         newRanges.push(newRange);
         newRanges.sort((r1, r2) => (isBefore(r1[0], r2[0]) ? -1 : 1));
         state.selecting = null;
-        runIfFn(onSelect, newRanges, newRanges.map((r) => r.map((d) => finalFormat(d))) as [string, string][]);
+        runIfFn(onSelect, newRanges, newRanges.map((r) => r.map((d) => format(d))) as [string, string][]);
       } else state.selecting = date;
     } else if (range) {
       const newRange = formatRangeValue([selecting, date]);
       state.selecting = newRange.length
-        ? (runIfFn(onSelect, newRange, newRange.map((d) => finalFormat(d)) as [string, string]), null)
+        ? (runIfFn(onSelect, newRange, newRange.map((d) => format(d)) as [string, string]), null)
         : date;
     } else if (options.multiple) {
       const newValues = values.value.filter((v) => !isSame(v, date)); // click selected date will unselect it
       const final = (values.value.length === newValues.length ? [...newValues, date] : newValues).sort((a, b) =>
         isBefore(a, b) ? -1 : 1,
       );
-      runIfFn(onSelect, final, final.map((i) => finalFormat(i)) as [string, string]);
-    } else runIfFn(onSelect, date, finalFormat(date));
+      runIfFn(onSelect, final, final.map((i) => format(i)) as [string, string]);
+    } else runIfFn(onSelect, date, format(date));
   };
   const getOffsetDate = (date: DateValueType, e: KeyboardEvent) => {
     const { type } = options;
@@ -482,5 +472,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
     direction,
     prevCells,
     nextCells,
+    expose: {
+      parseDate: parse,
+      formatDate: format,
+    },
   };
 }
