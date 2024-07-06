@@ -15,11 +15,34 @@ import { isEmpty, isArray, runIfFn, raf } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
-import { InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
+import { getCompParts, InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
 import { GlobalStaticConfig } from 'config';
 import usePassword from './Input.password';
 
 const name = 'input';
+const parts = [
+  'root',
+  'inner-input',
+  'label',
+  'prepend',
+  'wrapper',
+  'prefix',
+  'background',
+  'renderer',
+  'suffix',
+  'length-info',
+  'append',
+  'tag-container',
+  'steps-wrapper',
+  'up',
+  'down',
+  'plus',
+  'minus',
+  'float-label',
+  'float-background',
+  'multi-input-wrapper',
+] as const;
+const compParts = getCompParts(name, parts);
 export const Input = defineSSRCustomElement({
   name,
   props: inputProps,
@@ -117,18 +140,18 @@ export const Input = defineSSRCustomElement({
         slot = ns.e('slot');
       return {
         arrow: stepControl === 'up-down' && (
-          <span class={ns.e('steps-wrapper')} part="steps-wrapper">
+          <span class={ns.e('steps-wrapper')} part={compParts[12]}>
             {renderElement('icon', { class: [step, arrow], name: 'up', part: 'up', ...stepUpHandlers })}
             {renderElement('icon', { class: [step, arrow], name: 'down', part: 'down', ...stepDownHandlers })}
           </span>
         ),
         plus: stepControl === 'plus-minus' && (
-          <div class={[slot, ns.e('plus')]}>
+          <div class={[slot, ns.e('plus')]} part={compParts[15]}>
             {renderElement('icon', { class: step, name: 'plus', part: 'plus', ...stepUpHandlers })}
           </div>
         ),
         minus: stepControl === 'plus-minus' && (
-          <div class={[slot, ns.e('minus')]}>
+          <div class={[slot, ns.e('minus')]} part={compParts[16]}>
             {renderElement('icon', { class: step, name: 'minus', part: 'minus', ...stepDownHandlers })}
           </div>
         ),
@@ -194,7 +217,7 @@ export const Input = defineSSRCustomElement({
           type={inputType}
           inputmode={type === 'number-text' ? 'numeric' : undefined}
           ref={inputRef}
-          part="inner-input"
+          part={compParts[1]}
           class={[ns.e('inner-input')]}
           value={finalInputVal.value}
           placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
@@ -205,26 +228,31 @@ export const Input = defineSSRCustomElement({
         />
       );
       return (
-        <span part="root" class={[stateClass.value, ns.m(type)]} onPointerdown={rootOnPointerDown}>
-          <div class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isOr('empty', !withPrepend)]} part="prepend">
+        <span part={compParts[0]} class={[stateClass.value, ns.m(type)]} onPointerdown={rootOnPointerDown}>
+          <div
+            class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isOr('empty', !withPrepend)]}
+            part={compParts[3]}
+          >
             <slot {...prependSlot.slotProps}></slot>
           </div>
-          <label class={ns.e('label')} part="label">
+          <label class={ns.e('label')} part={compParts[2]}>
             {hasFloatLabel && (
-              <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
+              <div class={[ns.e('label'), ns.is('float-label')]} part={compParts[17]}>
                 {floatLabel}
-                <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
+                <div class={ns.em('label', 'float-background')} part={compParts[18]}>
+                  {floatLabel}
+                </div>
               </div>
             )}
             {numberStepIcons.value?.minus}
-            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty)]} part="prefix">
+            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty)]} part={compParts[5]}>
               <slot {...prefixSlot.slotProps}></slot>
             </div>
-            <span class={ns.e('wrapper')} part="wrapper">
+            <span class={ns.e('wrapper')} part={compParts[4]}>
               {/* render when value is defined，in case it covers float label and placeholder */}
               {/* TODO support custom renderer when multiple */}
               {!empty && !multiple && (
-                <div class={[ns.e('inner-input'), ns.e('renderer')]} part="renderer">
+                <div class={[ns.e('inner-input'), ns.e('renderer')]} part={compParts[7]}>
                   <slot {...rendererSlot.slotProps}></slot>
                 </div>
               )}
@@ -236,7 +264,7 @@ export const Input = defineSSRCustomElement({
                     ns.isOr(`wrap`, wrapTags),
                     ns.is('no-tags', isEmpty(valueModel.value)),
                   ]}
-                  part="tag-container"
+                  part={compParts[11]}
                 >
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
@@ -267,7 +295,7 @@ export const Input = defineSSRCustomElement({
                     // use grid and pseudo to make the input auto grow, see in https://css-tricks.com/auto-growing-inputs-textareas/
                     <span
                       class={ns.e('multi-input-wrapper')}
-                      part="multi-input-wrapper"
+                      part={compParts[19]}
                       data-value={hidePlaceholderForMultiple ? valueForMultiple.value : placeholder}
                     >
                       {input}
@@ -278,7 +306,7 @@ export const Input = defineSSRCustomElement({
                 input
               )}
             </span>
-            <span class={ns.e('background')} part="background" />
+            <span class={ns.e('background')} part={compParts[6]} />
             <span
               class={[
                 ns.e('slot'),
@@ -289,7 +317,7 @@ export const Input = defineSSRCustomElement({
                   suffixSlot.empty.value && !clearIcon.value && !statusIcon.value && !passwordIcon.value,
                 ),
               ]}
-              part="suffix"
+              part={compParts[8]}
             >
               {clearIcon.value}
               {passwordIcon.value}
@@ -297,14 +325,17 @@ export const Input = defineSSRCustomElement({
               {statusIcon.value}
             </span>
             {props.showLengthInfo && (
-              <span class={ns.e('length-info')} part="length-info">
+              <span class={ns.e('length-info')} part={compParts[9]}>
                 {lengthInfo.value}
               </span>
             )}
             {numberStepIcons.value?.plus}
             {numberStepIcons.value?.arrow}
           </label>
-          <div class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isOr('empty', !withAppend)]} part="append">
+          <div
+            class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isOr('empty', !withAppend)]}
+            part={compParts[10]}
+          >
             <slot {...appendSlot.slotProps}></slot>
           </div>
         </span>
@@ -329,7 +360,25 @@ export type InputExpose = {
 };
 export type iInput = InstanceType<tInput> & InputExpose;
 
-export const defineInput = createDefineElement(name, Input, {
-  icon: defineIcon,
-  tag: defineTag,
-});
+export const defineInput = createDefineElement(
+  name,
+  Input,
+  {
+    trim: true,
+    updateWhen: 'auto',
+    restrictWhen: 'notComposing',
+    transformWhen: 'notComposing',
+    showClearIcon: true,
+    separator: /[\s,]/,
+    showStatusIcon: true,
+    stepControl: 'up-down',
+    required: undefined,
+    normalizeNumber: true,
+    tagRemoveIcon: true,
+  },
+  parts,
+  {
+    icon: defineIcon,
+    tag: defineTag,
+  },
+);

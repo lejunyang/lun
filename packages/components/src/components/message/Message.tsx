@@ -3,7 +3,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { MessageMethods, MessageOpenConfig, messageEmits, messageProps } from './type';
 import { BaseTransitionProps, CSSProperties, TransitionGroup, computed, reactive, ref, watchEffect } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
-import { getTransitionProps, popSupport } from 'common';
+import { getCompParts, getTransitionProps, popSupport } from 'common';
 import { isFunction, objectKeys, omit } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
@@ -11,6 +11,8 @@ import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 
 const name = 'message';
+const parts = ['root'] as const;
+const compParts = getCompParts(name, parts);
 export const Message = Object.assign(
   defineSSRCustomElement({
     name,
@@ -147,7 +149,7 @@ export const Message = Object.assign(
           <div
             class={[ns.t, ns.m(placement), ns.is('fixed', isFixed)]}
             ref={rootRef}
-            part={ns.p('root')}
+            part={compParts[0]}
             {...rootProps.value}
             v-show={show.value}
             {...vnodeHandlers}
@@ -178,7 +180,18 @@ export type tMessage = typeof Message;
 export type MessageExpose = MessageMethods;
 export type iMessage = InstanceType<tMessage> & MessageExpose;
 
-export const defineMessage = createDefineElement(name, Message, {
-  callout: defineCallout,
-  'teleport-holder': defineTeleportHolder,
-});
+export const defineMessage = createDefineElement(
+  name,
+  Message,
+  {
+    transition: 'message',
+    resetDurationOnHover: true,
+    placement: 'top',
+    offset: 10,
+  },
+  parts,
+  {
+    callout: defineCallout,
+    'teleport-holder': defineTeleportHolder,
+  },
+);

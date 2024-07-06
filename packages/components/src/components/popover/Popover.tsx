@@ -44,7 +44,7 @@ import {
   ElementRects,
 } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
-import { getTransitionProps, popSupport } from 'common';
+import { getCompParts, getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
@@ -52,6 +52,8 @@ import { processPopSize, useAnchorPosition } from './popover.anchor-position';
 import { useFloating } from './useFloating';
 
 const name = 'popover';
+const parts = ['content', 'native', 'arrow'] as const;
+const compParts = getCompParts(name, parts);
 export const Popover = defineSSRCustomElement({
   name,
   props: popoverProps,
@@ -299,7 +301,7 @@ export const Popover = defineSSRCustomElement({
           */}
           {props.showArrow && (isOpen.value || isShow.value) && (
             <div
-              part={ns.p('arrow')}
+              part={compParts[2]}
               ref={arrowRef}
               // always prevent it for pointerTarget=coord, trigger=contextmenu
               onContextmenu={prevent}
@@ -317,7 +319,7 @@ export const Popover = defineSSRCustomElement({
       const result = wrapTransition(
         <div
           {...popContentHandlers}
-          part={isTeleport() ? '' : ns.p([value, 'content'])}
+          part={isTeleport() ? '' : compParts[0]}
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
           ref={positionedRef}
@@ -368,7 +370,7 @@ export const Popover = defineSSRCustomElement({
                   {...popContentHandlers}
                   v-show={isOpen.value}
                   style={finalFloatingStyles.value}
-                  part={ns.p(['native', 'content'])}
+                  part={compParts[0] + ' ' + compParts[1]}
                   popover="manual"
                   ref={popRef}
                   class={getRootClass('popover')}
@@ -407,6 +409,22 @@ export type PopoverExpose = {
 };
 export type iPopover = InstanceType<tPopover> & PopoverExpose;
 
-export const definePopover = createDefineElement(name, Popover, {
-  'teleport-holder': defineTeleportHolder,
-});
+export const definePopover = createDefineElement(
+  name,
+  Popover,
+  {
+    offset: 4,
+    open: undefined, // must be undefined, otherwise it will be controlled
+    showArrow: true,
+    useTransform: false,
+    transition: 'fade',
+    popWidth: 'max-content',
+    arrowPosition: 'auto',
+    arrowOffset: 15,
+    // anchorName: 'popover',
+  },
+  parts,
+  {
+    'teleport-holder': defineTeleportHolder,
+  },
+);

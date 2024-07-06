@@ -10,8 +10,11 @@ import { definePopover } from '../popover';
 import { defineSelectOption } from '../select';
 import { useSelect } from '../select/useSelect';
 import { VCustomRenderer } from '../custom-renderer';
+import { getCompParts } from 'common';
 
 const name = 'mentions';
+const parts = ['root', 'float-label', 'wrapper', 'textarea', 'length-info', 'content'] as const;
+const compParts = getCompParts(name, parts);
 export const Mentions = defineSSRCustomElement({
   name,
   formAssociated: true,
@@ -150,16 +153,16 @@ export const Mentions = defineSSRCustomElement({
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (
-        <label part="root" class={stateClass.value}>
+        <label part={compParts[0]} class={stateClass.value}>
           {hasFloatLabel && (
-            <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
+            <div class={[ns.e('label'), ns.is('float-label')]} part={compParts[1]}>
               {floatLabel}
               <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
             </div>
           )}
-          <span class={ns.e('wrapper')} part="wrapper">
+          <span class={ns.e('wrapper')} part={compParts[2]}>
             <textarea
-              part="textarea"
+              part={compParts[3]}
               class={ns.e('textarea')}
               placeholder={hasFloatLabel ? undefined : placeholder}
               rows={rows}
@@ -171,7 +174,7 @@ export const Mentions = defineSSRCustomElement({
               tabindex={editable || readonly ? 0 : undefined}
               spellcheck={props.spellcheck}
               ref={editRef}
-              part="textarea"
+              part={compParts[3]}
               class={ns.e('textarea')}
               placeholder={hasFloatLabel ? undefined : placeholder}
               style={{
@@ -185,7 +188,7 @@ export const Mentions = defineSSRCustomElement({
             </div>
             {clearIcon.value}
           </span>
-          <div class={ns.e('length-info')} part="length-info">
+          <div class={ns.e('length-info')} part={compParts[4]}>
             {lengthInfo.value}
           </div>
           {!noOptions &&
@@ -195,7 +198,7 @@ export const Mentions = defineSSRCustomElement({
                 ...popoverProps,
                 open: !!state.lastTrigger,
               },
-              <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={popOnPointerDown}>
+              <div class={ns.e('content')} part={compParts[5]} slot="pop-content" onPointerdown={popOnPointerDown}>
                 {!context.value.length && !hasOption() ? (
                   <slot name="no-content">No content</slot> // TODO emptyText prop
                 ) : (
@@ -212,8 +215,17 @@ export const Mentions = defineSSRCustomElement({
 export type tMentions = typeof Mentions;
 export type iMentions = InstanceType<tMentions>;
 
-export const defineMentions = createDefineElement(name, Mentions, {
-  icon: defineIcon,
-  popover: definePopover,
-  'select-option': defineSelectOption,
-});
+export const defineMentions = createDefineElement(
+  name,
+  Mentions,
+  {
+    triggers: ['@'],
+    suffix: ' ',
+  },
+  parts,
+  {
+    icon: defineIcon,
+    popover: definePopover,
+    'select-option': defineSelectOption,
+  },
+);

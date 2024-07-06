@@ -6,8 +6,11 @@ import { useCEStates, useNamespace } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioProps } from './type';
 import { virtualGetMerge } from '@lun/utils';
+import { getCompParts } from 'common';
 
 const name = 'radio';
+const parts = ['root', 'label', 'indicator'] as const;
+const compParts = getCompParts(name, parts);
 export const Radio = defineSSRCustomElement({
   name,
   props: radioProps,
@@ -31,31 +34,28 @@ export const Radio = defineSSRCustomElement({
       },
     };
 
-    const [stateClass] = useCEStates(
-      () => {
-        const { type } = radioContext?.parent?.props || {};
-        const button = type === 'button',
-          card = type === 'card';
-        return {
-          checked,
-          button,
-          card,
-          start: button && (props.start || radioContext?.isStart),
-          end: button && (props.end || radioContext?.isEnd),
-        };
-      },
-      ns,
-    );
+    const [stateClass] = useCEStates(() => {
+      const { type } = radioContext?.parent?.props || {};
+      const button = type === 'button',
+        card = type === 'card';
+      return {
+        checked,
+        button,
+        card,
+        start: button && (props.start || radioContext?.isStart),
+        end: button && (props.end || radioContext?.isEnd),
+      };
+    }, ns);
 
     return () => {
       const { labelPosition, noIndicator } = mergedProps;
       const labelPart = (
-        <span part={ns.p('label')} class={ns.e('label')}>
+        <span part={compParts[1]} class={ns.e('label')}>
           <slot>{props.label}</slot>
         </span>
       );
       return (
-        <label part={ns.p('root')} class={stateClass.value}>
+        <label part={compParts[0]} class={stateClass.value}>
           {labelPosition === 'start' && labelPart}
           <input
             type={name}
@@ -65,7 +65,7 @@ export const Radio = defineSSRCustomElement({
             onChange={handler.onChange}
             hidden
           />
-          {!noIndicator && <span class={ns.e('indicator')} part={ns.p('indicator')}></span>}
+          {!noIndicator && <span class={ns.e('indicator')} part={compParts[2]}></span>}
           {labelPosition === 'end' && labelPart}
         </label>
       );
@@ -76,4 +76,12 @@ export const Radio = defineSSRCustomElement({
 export type tRadio = typeof Radio;
 export type iRadio = InstanceType<typeof Radio>;
 
-export const defineRadio = createDefineElement(name, Radio);
+export const defineRadio = createDefineElement(
+  name,
+  Radio,
+  {
+    labelPosition: 'end',
+    noIndicator: undefined, // virtualMerge requires undefined as default
+  },
+  parts,
+);

@@ -3,11 +3,13 @@ import { createDefineElement } from 'utils';
 import { progressProps } from './type';
 import { useNamespace } from 'hooks';
 import { computed } from 'vue';
-import { renderStatusIcon } from 'common';
+import { getCompParts, renderStatusIcon } from 'common';
 import { defineIcon } from '../icon/Icon';
 import { toPxIfNum } from '@lun/utils';
 
 const name = 'progress';
+const parts = ['root', 'text'] as const;
+const compParts = getCompParts(name, parts);
 export const Progress = defineSSRCustomElement({
   name,
   props: progressProps,
@@ -52,7 +54,7 @@ export const Progress = defineSSRCustomElement({
     return () => {
       const { noPercent, status, showStatusIcon, type } = props;
       const text = (
-        <span class={[ns.em('text', type), ns.e('text')]} part="text">
+        <span class={[ns.em('text', type), ns.e('text')]} part={compParts[1]}>
           <slot>
             {(showStatusIcon &&
               renderStatusIcon(status, {
@@ -65,7 +67,7 @@ export const Progress = defineSSRCustomElement({
       const isLine = type === 'line';
       return (
         <>
-          <div class={[ns.t, ns.m(type)]} part="root" style={rootStyles.value}>
+          <div class={[ns.t, ns.m(type)]} part={compParts[0]} style={rootStyles.value}>
             {getInner()}
             {!isLine && text}
           </div>
@@ -79,6 +81,6 @@ export const Progress = defineSSRCustomElement({
 export type tProgress = typeof Progress;
 export type iProgress = InstanceType<typeof Progress>;
 
-export const defineProgress = createDefineElement(name, Progress, {
+export const defineProgress = createDefineElement(name, Progress, { type: 'wave' }, parts, {
   icon: defineIcon,
 });

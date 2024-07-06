@@ -4,8 +4,11 @@ import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioGroupProps } from './type';
+import { getCompParts } from 'common';
 
 const name = 'radio-group';
+const parts = ['root'] as const;
+const compParts = getCompParts(name, parts);
 export const RadioGroup = defineSSRCustomElement({
   name,
   props: radioGroupProps,
@@ -28,7 +31,7 @@ export const RadioGroup = defineSSRCustomElement({
 
     // TODO arrow move to check prev/next active radio
     return () => (
-      <div class={[stateClass.value, ns.m(props.type)]} part={ns.p('root')}>
+      <div class={[stateClass.value, ns.m(props.type)]} part={compParts[0]}>
         {render.value}
         <slot></slot>
       </div>
@@ -39,4 +42,4 @@ export const RadioGroup = defineSSRCustomElement({
 export type tRadioGroup = typeof RadioGroup;
 export type iRadioGroup = InstanceType<tRadioGroup>;
 
-export const defineRadioGroup = createDefineElement(name, RadioGroup);
+export const defineRadioGroup = createDefineElement(name, RadioGroup, {}, parts);
