@@ -17,12 +17,14 @@ import {
   useOptions,
   useValueModel,
 } from 'hooks';
-import { InputFocusOption, intl, pickThemeProps } from 'common';
+import { getCompParts, InputFocusOption, intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
 import { defineButton } from '../button/Button';
 import { useSelect } from './useSelect';
 
 const name = 'select';
+const parts = ['content'] as const;
+const compParts = getCompParts(name, parts);
 export const Select = defineSSRCustomElement({
   name,
   props: selectProps,
@@ -248,7 +250,7 @@ export const Select = defineSSRCustomElement({
     return () => {
       const isTeleport = props.type === 'teleport';
       const popContent = (
-        <div class={ns.e('content')} part="content" slot="pop-content" onPointerdown={contentOnPointerDown}>
+        <div class={ns.e('content')} part={compParts[0]} slot="pop-content" onPointerdown={contentOnPointerDown}>
           {!context.value.length && !options.value?.length ? (
             <slot name="no-content">No content</slot> // TODO emptyText prop
           ) : (
@@ -301,11 +303,21 @@ export type SelectExpose = ReturnType<typeof useSelectMethods> & {
 };
 export type iSelect = InstanceType<tSelect> & SelectExpose;
 
-export const defineSelect = createDefineElement('select', Select, {
-  'select-option': defineSelectOption,
-  'select-optgroup': defineSelectOptgroup,
-  popover: definePopover,
-  input: defineInput,
-  spin: defineSpin,
-  button: defineButton,
-});
+export const defineSelect = createDefineElement(
+  'select',
+  Select,
+  {
+    autoClose: true,
+    upDownToggle: true,
+    autoActivateFirst: true,
+  },
+  parts,
+  {
+    'select-option': defineSelectOption,
+    'select-optgroup': defineSelectOptgroup,
+    popover: definePopover,
+    input: defineInput,
+    spin: defineSpin,
+    button: defineButton,
+  },
+);

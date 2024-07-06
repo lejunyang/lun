@@ -18,10 +18,12 @@ import {
   getRect,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
-import { partsDefine } from 'common';
+import { getCompParts, partsDefine } from 'common';
 import { defineTooltip, iTooltip } from '../tooltip';
 
 const name = 'range';
+const parts = ['root', 'thumb', 'rail', 'track', 'label', 'labels'] as const;
+const compParts = getCompParts(name, parts);
 export const Range = defineSSRCustomElement({
   name,
   props: rangeProps,
@@ -255,18 +257,18 @@ export const Range = defineSSRCustomElement({
       return (
         <div
           class={[stateClass.value, ns.m(type)]}
-          part={partsDefine[name].root}
+          part={compParts[0]}
           style={ns.v({ min: value.length > 1 ? at(value, 0)[1] : 0, max: at(value, -1)[1] })}
           ref={rootEl}
           {...handlers}
         >
-          <div class={ns.e('rail')} part={partsDefine[name].rail}>
-            <span class={ns.e('track')} data-track="0" part={partsDefine[name].track}></span>
+          <div class={ns.e('rail')} part={compParts[2]}>
+            <span class={ns.e('track')} data-track="0" part={compParts[3]}></span>
             {value.map(([_, p], index) => (
               <span
                 data-index={index}
                 class={ns.e('thumb')}
-                part={partsDefine[name].thumb}
+                part={compParts[1]}
                 style={ns.v({ percent: p })}
                 tabindex={editable ? 0 : undefined}
                 ref={(r) => (thumbs[index] = r as HTMLElement)}
@@ -274,13 +276,13 @@ export const Range = defineSSRCustomElement({
             ))}
           </div>
           {labels && (
-            <div class={ns.e('labels')} part={partsDefine[name].labels} ref={labelWrapEl}>
+            <div class={ns.e('labels')} part={compParts[5]} ref={labelWrapEl}>
               {Object.entries(labels || {}).map(([key, label]) => {
                 const num = toNumber(key === 'start' ? minVal.value : key === 'end' ? maxVal.value : key);
                 if (isNaN(num)) return;
                 const percent = getPercent(num);
                 const node = (
-                  <span class={ns.e('label')} part={partsDefine[name].label} style={ns.v({ percent })}>
+                  <span class={ns.e('label')} part={compParts[4]} style={ns.v({ percent })}>
                     {label}
                   </span>
                 );
@@ -302,8 +304,9 @@ export const Range = defineSSRCustomElement({
 });
 
 export type tRange = typeof Range;
-export type iRange = InstanceType<tRange>;
+export type RangeExpose = {};
+export type iRange = InstanceType<tRange> & RangeExpose;
 
-export const defineRange = createDefineElement(name, Range, {
+export const defineRange = createDefineElement(name, Range, { type: 'horizontal' }, parts, {
   tooltip: defineTooltip,
 });

@@ -4,9 +4,11 @@ import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
-import { getTransitionProps } from 'common';
+import { getCompParts, getTransitionProps } from 'common';
 
 const name = 'tag';
+const parts = ['root', 'icon'] as const;
+const compParts = getCompParts(name, parts);
 export const Tag = defineSSRCustomElement({
   name,
   props: tagProps,
@@ -35,7 +37,7 @@ export const Tag = defineSSRCustomElement({
           {!removed.value && (
             <span
               class={ns.t}
-              part={ns.p('root')}
+              part={compParts[0]}
               ref={rootRef}
               tabindex={attrs.tabindex as any}
               style={attrs.style as any}
@@ -46,7 +48,7 @@ export const Tag = defineSSRCustomElement({
                   name: 'x',
                   ...props.removeIconProps,
                   onClick: remove,
-                  part: ns.p('icon'),
+                  part: compParts[1],
                   class: ns.e('icon'),
                 })}
             </span>
@@ -60,6 +62,14 @@ export const Tag = defineSSRCustomElement({
 export type tTag = typeof Tag;
 export type iTag = InstanceType<tTag>;
 
-export const defineTag = createDefineElement(name, Tag, {
-  icon: defineIcon,
-});
+export const defineTag = createDefineElement(
+  name,
+  Tag,
+  {
+    transition: 'scaleOut',
+  },
+  parts,
+  {
+    icon: defineIcon,
+  },
+);

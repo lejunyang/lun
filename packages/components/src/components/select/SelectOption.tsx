@@ -8,8 +8,11 @@ import { SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { SelectCollector } from './collector';
+import { getCompParts } from 'common';
 
 const name = 'select-option';
+const parts = ['root', 'label'] as const;
+const compParts = getCompParts(name, parts);
 export const SelectOption = defineSSRCustomElement({
   name,
   props: selectOptionProps,
@@ -55,9 +58,9 @@ export const SelectOption = defineSSRCustomElement({
     return () => {
       const { content, contentType: type, contentPreferHtml: preferHtml } = props;
       return (
-        <label part="root" class={stateClass.value} hidden={hidden.value} {...handlers}>
+        <label part={compParts[0]} class={stateClass.value} hidden={hidden.value} {...handlers}>
           <slot name="start"></slot>
-          <span class={ns.e('label')} part="label">
+          <span class={ns.e('label')} part={compParts[1]}>
             {content ? (
               <VCustomRenderer content={content} type={type} preferHtml={preferHtml} />
             ) : (
@@ -74,6 +77,6 @@ export const SelectOption = defineSSRCustomElement({
 export type tSelectOption = typeof SelectOption;
 export type iSelectOption = InstanceType<typeof SelectOption>;
 
-export const defineSelectOption = createDefineElement(name, SelectOption, {
+export const defineSelectOption = createDefineElement(name, SelectOption, {}, parts, {
   icon: defineIcon,
 });

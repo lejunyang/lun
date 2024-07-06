@@ -32,11 +32,7 @@ export const ThemeProvider = defineSSRCustomElement({
     });
     useSetupEdit();
     // return () => undefined;
-    return () => (
-      <>
-        <slot></slot>
-      </>
-    );
+    return () => <slot></slot>;
   },
 });
 

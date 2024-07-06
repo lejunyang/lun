@@ -6,9 +6,11 @@ import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useValueM
 import { textareaEmits, textareaProps } from './type';
 import { getHeight, isEmpty, raf } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
-import { InputFocusOption } from 'common';
+import { getCompParts, InputFocusOption } from 'common';
 
 const name = 'textarea';
+const parts = ['root', 'float-label', 'float-background', 'wrapper', 'textarea', 'length-info'] as const;
+const compParts = getCompParts(name, parts);
 export const Textarea = defineSSRCustomElement({
   name,
   props: textareaProps,
@@ -115,19 +117,21 @@ export const Textarea = defineSSRCustomElement({
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
       return (
-        <label part="root" class={stateClass.value} onPointerdown={rootOnPointerDown}>
+        <label part={compParts[0]} class={stateClass.value} onPointerdown={rootOnPointerDown}>
           {hasFloatLabel && (
-            <div class={[ns.e('label'), ns.is('float-label')]} part="float-label">
+            <div class={[ns.e('label'), ns.is('float-label')]} part={compParts[1]}>
               {floatLabel}
-              <div class={ns.em('label', 'float-background')}>{floatLabel}</div>
+              <div class={ns.em('label', 'float-background')} part={compParts[2]}>
+                {floatLabel}
+              </div>
             </div>
           )}
-          <span class={ns.e('wrapper')} part="wrapper">
+          <span class={ns.e('wrapper')} part={compParts[3]}>
             <textarea
               {...attrs}
               spellcheck={spellcheck}
               ref={textareaRef}
-              part="textarea"
+              part={compParts[4]}
               class={ns.e('textarea')}
               value={valueModel.value}
               placeholder={hasFloatLabel ? undefined : placeholder}
@@ -142,7 +146,7 @@ export const Textarea = defineSSRCustomElement({
             />
             {clearIcon.value}
           </span>
-          <div class={ns.e('length-info')} part="length-info">
+          <div class={ns.e('length-info')} part={compParts[5]}>
             {lengthInfo.value}
           </div>
         </label>
@@ -159,6 +163,6 @@ export type TextareaExpose = {
 };
 export type iTextarea = InstanceType<tTextarea> & TextareaExpose;
 
-export const defineTextarea = createDefineElement(name, Textarea, {
+export const defineTextarea = createDefineElement(name, Textarea, {}, parts, {
   icon: defineIcon,
 });

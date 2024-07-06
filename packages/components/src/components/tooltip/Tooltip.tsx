@@ -9,6 +9,7 @@ import { getCurrentInstance, onMounted, ref } from 'vue';
 import { useContextConfig } from 'config';
 
 const name = 'tooltip';
+const parts = [] as const;
 const Tooltip = defineSSRCustomElement({
   name,
   props: tooltipProps,
@@ -90,6 +91,17 @@ export type TooltipExpose = {
 } & ReturnType<typeof useOverflowWatcher>['methods'];
 export type iTooltip = InstanceType<tTooltip> & TooltipExpose;
 
-export const defineTooltip = createDefineElement(name, Tooltip, {
-  popover: definePopover,
-});
+export const defineTooltip = createDefineElement(
+  name,
+  Tooltip,
+  {
+    open: undefined, // must be undefined, otherwise it will be controlled
+    showArrow: true,
+    transition: 'scale',
+    // anchorName: 'tooltip',
+  },
+  parts,
+  {
+    popover: definePopover,
+  },
+);

@@ -5,8 +5,11 @@ import { useCEStates, useNamespace } from 'hooks';
 import { useSetupEdit } from '@lun/core';
 import { SelectOptgroupContext } from '.';
 import { SelectCollector } from './collector';
+import { getCompParts } from 'common';
 
 const name = 'select-optgroup';
+const parts = ['root', 'label', 'children'] as const;
+const compParts = getCompParts(name, parts);
 export const SelectOptgroup = defineSSRCustomElement({
   name,
   props: selectOptgroupProps,
@@ -18,11 +21,11 @@ export const SelectOptgroup = defineSSRCustomElement({
     const [stateClass] = useCEStates(() => null, ns);
 
     return () => (
-      <div part="root" class={stateClass.value}>
-        <div class={ns.e('label')} part="label">
+      <div part={compParts[0]} class={stateClass.value}>
+        <div class={ns.e('label')} part={compParts[1]}>
           <slot name="group-label">{props.label}</slot>
         </div>
-        <div class={ns.e('children')} part="children">
+        <div class={ns.e('children')} part={compParts[2]}>
           <slot></slot>
         </div>
       </div>
@@ -33,4 +36,4 @@ export const SelectOptgroup = defineSSRCustomElement({
 export type tSelectOptgroup = typeof SelectOptgroup;
 export type iSelectOptgroup = InstanceType<tSelectOptgroup>;
 
-export const defineSelectOptgroup = createDefineElement(name, SelectOptgroup);
+export const defineSelectOptgroup = createDefineElement(name, SelectOptgroup, {}, parts);

@@ -5,8 +5,11 @@ import { useNamespace } from 'hooks';
 import { ref, watchEffect } from 'vue';
 import { useInstanceStyle } from '@lun/core';
 import { getValuesFromStyle } from '@lun/utils';
+import { getCompParts } from 'common';
 
 const name = 'spin';
+const parts = ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'] as const;
+const compParts = getCompParts(name, parts);
 export const Spin = defineSSRCustomElement({
   name,
   props: spinProps,
@@ -42,10 +45,10 @@ export const Spin = defineSSRCustomElement({
               width="1em"
               height="1em"
               fill="none"
-              part="svg"
+              part={compParts[0]}
             >
               <circle
-                part="circle"
+                part={compParts[1]}
                 cx="25"
                 cy="25"
                 r="20"
@@ -62,12 +65,12 @@ export const Spin = defineSSRCustomElement({
     return () => {
       const { asContainer, tip } = props;
       return asContainer ? (
-        <div class={ns.e('container')} part="container">
+        <div class={ns.e('container')} part={compParts[2]}>
           <slot></slot>
-          {showing.value && <div class={ns.e('mask')} part="mask" />}
-          <span class={ns.e('wrapper')} part="wrapper">
+          {showing.value && <div class={ns.e('mask')} part={compParts[4]} />}
+          <span class={ns.e('wrapper')} part={compParts[3]}>
             {getSVG()}
-            <div class={ns.e('tip')} part="tip">
+            <div class={ns.e('tip')} part={compParts[5]}>
               <slot name="tip">{tip}</slot>
             </div>
           </span>
@@ -82,4 +85,13 @@ export const Spin = defineSSRCustomElement({
 export type tSpin = typeof Spin;
 export type iSpin = InstanceType<tSpin>;
 
-export const defineSpin = createDefineElement(name, Spin);
+export const defineSpin = createDefineElement(
+  name,
+  Spin,
+  {
+    type: 'circle',
+    strokeWidth: 4,
+    spinning: true,
+  },
+  parts,
+);

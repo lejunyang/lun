@@ -9,7 +9,6 @@ export * from './propConstructor';
 export * from './themeProps';
 export * from './transitionProps';
 export * from './type';
-export * from './exportParts';
 
 export const statuses = ['success', 'warning', 'error', 'info'];
 const statusSet = new Set(statuses);

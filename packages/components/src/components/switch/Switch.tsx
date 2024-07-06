@@ -5,8 +5,11 @@ import { useCEStates, useCheckedModel, useNamespace } from 'hooks';
 import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { Transition } from 'vue';
+import { getCompParts } from 'common';
 
 const name = 'switch';
+const parts = ['root', 'input', 'children', 'thumb', 'checked', 'unchecked'] as const;
+const compParts = getCompParts(name, parts);
 export const Switch = defineSSRCustomElement({
   name,
   props: switchProps,
@@ -33,9 +36,9 @@ export const Switch = defineSSRCustomElement({
       const { readonly, disabled, loading } = editComputed;
       return (
         <>
-          <label part={ns.p('root')} class={stateClass.value}>
+          <label part={compParts[0]} class={stateClass.value}>
             <input
-              part={ns.p('input')}
+              part={compParts[1]}
               type="checkbox"
               role="switch"
               checked={checked}
@@ -45,17 +48,17 @@ export const Switch = defineSSRCustomElement({
               hidden
               {...inputHandlers}
             />
-            <span part={ns.p('thumb')} class={[ns.e('thumb')]}>
+            <span part={compParts[3]} class={[ns.e('thumb')]}>
               <slot name={loading ? 'loading' : 'thumb'}>{loading && renderElement('spin', spinProps)}</slot>
             </span>
-            <span part={ns.p('children')} class={ns.e('children')}>
+            <span part={compParts[2]} class={ns.e('children')}>
               <Transition name="children">
-                <span v-show={checked} class={ns.e('checked')}>
+                <span v-show={checked} class={ns.e('checked')} part={compParts[4]}>
                   <slot name="checked">{trueText}</slot>
                 </span>
               </Transition>
               <Transition name="children">
-                <span v-show={!checked} class={ns.e('unchecked')}>
+                <span v-show={!checked} class={ns.e('unchecked')} part={compParts[5]}>
                   <slot name="unchecked">{falseText}</slot>
                 </span>
               </Transition>
@@ -70,6 +73,15 @@ export const Switch = defineSSRCustomElement({
 export type tSwitch = typeof Switch;
 export type iSwitch = InstanceType<tSwitch>;
 
-export const defineSwitch = createDefineElement(name, Switch, {
-  spin: defineSpin,
-});
+export const defineSwitch = createDefineElement(
+  name,
+  Switch,
+  {
+    trueValue: true,
+    falseValue: false,
+  },
+  parts,
+  {
+    spin: defineSpin,
+  },
+);
