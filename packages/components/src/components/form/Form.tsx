@@ -8,8 +8,11 @@ import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, sha
 import { ensureNumber, getCachedComputedStyle, noop, pick, supportCSSSubgrid, toPxIfNum } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
+import { getCompParts } from 'common';
 
 const name = 'form';
+const parts = ['root'] as const;
+const compParts = getCompParts(name, parts);
 export const Form = defineSSRCustomElement({
   name,
   props: formProps,
@@ -198,7 +201,7 @@ export const Form = defineSSRCustomElement({
         <form
           ref={formRef}
           class={stateClass.value}
-          part={ns.p('root')}
+          part={compParts[0]}
           style={normalizeStyle([layoutInfo.value.formStyle, attrs.style])}
         >
           <slot></slot>
@@ -214,6 +217,18 @@ export type tForm = typeof Form;
 export type FormExpose = UseFormReturn;
 export type iForm = InstanceType<tForm> & FormExpose;
 
-export const defineForm = createDefineElement(name, Form, {
-  tooltip: defineTooltip,
-});
+export const defineForm = createDefineElement(
+  name,
+  Form,
+  {
+    plainName: undefined,
+    layout: 'grid',
+    cols: '1',
+    preferSubgrid: true,
+    labelLayout: 'horizontal',
+  },
+  parts,
+  {
+    tooltip: defineTooltip,
+  },
+);

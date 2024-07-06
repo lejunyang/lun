@@ -1,9 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit, useSetupEvent } from '@lun/core';
+import { refLikeToDescriptors, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, error } from 'utils';
 import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
-import { defineSpin } from '../spin/Spin';
 import { computed, ref } from 'vue';
 import { AnyFn, isArray, isString, isSupportFileSystem, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer';
@@ -11,6 +10,7 @@ import { isAbort } from './utils';
 
 // TODO drop support
 const name = 'file-picker';
+const parts = [] as const;
 export const FilePicker = defineSSRCustomElement({
   name,
   props: filePickerProps,
@@ -254,9 +254,12 @@ export const FilePicker = defineSSRCustomElement({
       },
     };
 
-    useCEExpose({
-      pickFile,
-    });
+    useCEExpose(
+      {
+        pickFile,
+      },
+      refLikeToDescriptors({ innerValue: valueModel }),
+    );
 
     return () => {
       const { disabled } = editComputed;
@@ -286,9 +289,16 @@ export const FilePicker = defineSSRCustomElement({
 export type tFilePicker = typeof FilePicker;
 export type FilePickerExpose = {
   pickFile(): Promise<void>;
+  readonly innerValue: File | File[] | undefined;
 };
 export type iFilePicker = InstanceType<tFilePicker> & FilePickerExpose;
 
-export const defineFilePicker = createDefineElement(name, FilePicker, {
-  spin: defineSpin,
-});
+export const defineFilePicker = createDefineElement(
+  name,
+  FilePicker,
+  {
+    preferFileApi: true,
+    loadingWhenPick: true,
+  },
+  parts,
+);

@@ -4,11 +4,14 @@ import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
 import { isFunction } from '@lun/utils';
+import { getCompParts } from 'common';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
 
 const name = 'icon';
+const parts = ['svg'] as const;
+const compParts = getCompParts(name, parts);
 export const Icon = defineSSRCustomElement({
   name,
   props: iconProps,
@@ -109,7 +112,7 @@ export const Icon = defineSSRCustomElement({
           );
         case 'svg-sprite-href':
           return (
-            <svg {...attrs} part="svg">
+            <svg {...attrs} part={compParts[0]}>
               <use part="use" href={state.src as string}></use>
             </svg>
           );
@@ -121,4 +124,11 @@ export const Icon = defineSSRCustomElement({
 export type tIcon = typeof Icon;
 export type iIcon = InstanceType<tIcon>;
 
-export const defineIcon = createDefineElement(name, Icon);
+export const defineIcon = createDefineElement(
+  name,
+  Icon,
+  {
+    library: 'default',
+  },
+  parts,
+);

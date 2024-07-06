@@ -15,7 +15,7 @@ import {
   useSetupEdit,
 } from '@lun/core';
 import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
-import { getTransitionProps, intl, partsDefine } from 'common';
+import { getCompParts, getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
 import {
@@ -34,6 +34,8 @@ import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
 
 const name = 'dialog';
+const parts = ['root', 'mask', 'panel', 'header', 'close', 'content', 'footer'] as const;
+const compParts = getCompParts(name, parts);
 /** a map to store all showing dialogs with mask in each container, to make sure only one mask is shown in each container at the same time. */
 const containerShowing = reactive(new WeakMap<HTMLElement | Window, HTMLElement[]>());
 
@@ -236,7 +238,7 @@ export const Dialog = Object.assign(
         return (
           <Tag
             class={stateClass.value}
-            part={partsDefine[name].root}
+            part={compParts[0]}
             ref={dialogRef}
             {...dialogHandlers}
             // title is a global HTMLAttributes, but we use it as prop. it will make the dialog show tooltip even if inheritAttrs is false, we need to set an empty title to prevent it
@@ -249,7 +251,7 @@ export const Dialog = Object.assign(
                   <div
                     v-show={maskShow.value}
                     class={ns.e('mask')}
-                    part={partsDefine[name].mask}
+                    part={compParts[1]}
                     ref={maskRef}
                     tabindex={-1}
                     {...maskHandlers}
@@ -260,7 +262,7 @@ export const Dialog = Object.assign(
                     v-show={isOpen.value}
                     class={ns.e('panel')}
                     ref={panelRef}
-                    part={partsDefine[name].panel}
+                    part={compParts[2]}
                     style={{ width: width.value }}
                   >
                     {!noCloseBtn &&
@@ -271,14 +273,14 @@ export const Dialog = Object.assign(
                           variant: 'ghost',
                           ...closeBtnProps,
                           asyncHandler: methods.close,
-                          part: partsDefine[name].close,
+                          part: compParts[4],
                         },
                         renderElement('icon', { name: 'x', slot: 'icon' }),
                       )}
                     {!noHeader && (
                       <header
                         class={[ns.e('header'), ns.is('draggable', headerDraggable)]}
-                        part={partsDefine[name].header}
+                        part={compParts[3]}
                         ref={headerRef}
                       >
                         <slot name="header-start"></slot>
@@ -286,7 +288,7 @@ export const Dialog = Object.assign(
                         <slot name="header-end"></slot>
                       </header>
                     )}
-                    <div class={[ns.e('content')]} part={partsDefine[name].content}>
+                    <div class={[ns.e('content')]} part={compParts[5]}>
                       <slot>
                         {content && (
                           <VCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />
@@ -294,7 +296,7 @@ export const Dialog = Object.assign(
                       </slot>
                     </div>
                     {!noFooter && (
-                      <footer class={[ns.e('footer')]} part={partsDefine[name].footer}>
+                      <footer class={[ns.e('footer')]} part={compParts[6]}>
                         <slot name="footer-start"></slot>
                         <slot name="footer">
                           {!noCancelBtn &&
@@ -336,8 +338,19 @@ export type DialogExpose = {
 };
 export type iDialog = InstanceType<tDialog> & DialogExpose;
 
-export const defineDialog = createDefineElement(name, Dialog, {
-  spin: defineSpin,
-  icon: defineIcon,
-  button: defineButton,
-});
+export const defineDialog = createDefineElement(
+  name,
+  Dialog,
+  {
+    escapeClosable: true,
+    width: '450px',
+    panelTransition: 'scale',
+    maskTransition: 'bgFade',
+  },
+  parts,
+  {
+    spin: defineSpin,
+    icon: defineIcon,
+    button: defineButton,
+  },
+);

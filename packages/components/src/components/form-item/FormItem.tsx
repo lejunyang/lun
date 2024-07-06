@@ -28,8 +28,11 @@ import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig } from 'config';
 import { innerValidator } from './formItem.validate';
 import { getConditionValue } from './utils';
+import { getCompParts } from 'common';
 
 const name = 'form-item';
+const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line'] as const;
+const compParts = getCompParts(name, parts);
 export const FormItem = defineSSRCustomElement({
   name,
   props: formItemProps,
@@ -128,17 +131,17 @@ export const FormItem = defineSSRCustomElement({
       let { hasLabel } = formContext?.layoutInfo.value || {};
       hasLabel &&= !noLabel;
       const rMark = required && requiredMark && (
-        <span class={[ns.e('required-mark')]} part={ns.p('required-mark')}>
+        <span class={[ns.e('required-mark')]} part={compParts[3]}>
           {requiredMark}
         </span>
       );
       const { rootStyle, labelStyle, contentStyle, hostStyle } = styles.value || {};
       return (
-        <div class={stateClass.value} part={ns.p('root')} style={normalizeStyle([rootStyle, attrs.style])}>
+        <div class={stateClass.value} part={compParts[0]} style={normalizeStyle([rootStyle, attrs.style])}>
           {hostStyle && <style>{hostStyle}</style>}
           {hasLabel && (
             <span
-              part={ns.p('label')}
+              part={compParts[1]}
               class={[ns.e('label')]}
               style={{
                 ...labelStyle,
@@ -152,7 +155,7 @@ export const FormItem = defineSSRCustomElement({
               {requiredMarkAlign === 'end' && rMark}
               {!helpIconDisabled.value && renderElement('icon', { name: 'help', ref: helpIconRef })}
               {colonMark && (
-                <span class={ns.e('colon')} part={ns.p('colon')}>
+                <span class={ns.e('colon')} part={compParts[4]}>
                   {colonMark}
                 </span>
               )}
@@ -161,7 +164,7 @@ export const FormItem = defineSSRCustomElement({
           )}
           <span
             class={ns.e('content')}
-            part={ns.p('content')}
+            part={compParts[2]}
             style={{
               ...contentStyle,
               ...contentWrapperStyle,
@@ -177,12 +180,12 @@ export const FormItem = defineSSRCustomElement({
               )
             ) : (
               // can not set elementRef on slot, popover requires an element with bounding rect to attach to, so wrap slot with a span
-              <span ref={elementRef} part={ns.p('wrapper')}>
+              <span ref={elementRef} part={compParts[5]}>
                 <slot />
               </span>
             )}
             {helpType === 'newLine' && help && (
-              <div class={[ns.e('help'), ns.e('line-tip')]} part="help-line">
+              <div class={[ns.e('help'), ns.e('line-tip')]} part={compParts[6]}>
                 {help}
               </div>
             )}
@@ -389,6 +392,22 @@ export const FormItem = defineSSRCustomElement({
 export type tFormItem = typeof FormItem;
 export type iFormItem = InstanceType<tFormItem>;
 
-export const defineFormItem = createDefineElement(name, FormItem, {
-  icon: defineIcon,
-});
+export const defineFormItem = createDefineElement(
+  name,
+  FormItem,
+  {
+    plainName: undefined,
+    colonMark: ':',
+    requiredMark: '*',
+    requiredMarkAlign: 'start',
+    helpType: 'icon',
+    tipType: 'tooltip',
+    required: undefined, // must, for runIfFn(required, formContext) ?? localRequired.value
+    clearWhenDepChange: undefined, // must, used in virtualGetMerge
+    validateWhen: ['blur', 'depChange'],
+  },
+  parts,
+  {
+    icon: defineIcon,
+  },
+);
