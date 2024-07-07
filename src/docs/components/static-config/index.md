@@ -48,7 +48,9 @@ export declare const GlobalStaticConfig: {
   animationRegistry: Record<string | symbol, ElementAnimation>;
   /** useless for now, consider to remove it */
   elAnimationRegistry: WeakMap<Element, Record<string | symbol, ElementAnimation>>;
-  /** define the methods used to process numbers, now used in number input only */
+  /** define the math preset methods used to process numbers */
   math: Required<MathMethods<number>>;
+  /** define the date preset methods used to process dates */
+  date: FinalDateMethods<any>;
 };
 ```
