@@ -18,7 +18,7 @@ import {
   getRect,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
-import { getCompParts, partsDefine } from 'common';
+import { getCompParts } from 'common';
 import { defineTooltip, iTooltip } from '../tooltip';
 
 const name = 'range';
@@ -218,7 +218,6 @@ export const Range = defineSSRCustomElement({
         }
         if (index == null) return;
         draggingIndex ??= +index;
-        // FIXME if it's big number and we drag it to the end, we can't get max value due to the precision issue
         // if draggingIndex is not undefined, must use it other than index, as index is constant during dragging, but we need to update the correct index if thumb's position has changed
         updateByCoord(clientX, clientY, draggingIndex);
       },

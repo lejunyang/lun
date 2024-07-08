@@ -1,6 +1,16 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, floorByDPR, numbersEqual, getRect } from '@lun/utils';
+import {
+  AnyFn,
+  clamp,
+  on,
+  prevent,
+  rafThrottle,
+  runIfFn,
+  numbersEqual,
+  getRect,
+  roundByDPR,
+} from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
@@ -69,7 +79,7 @@ export function useDraggableArea({
   getCoord?: (e: PointerEvent) => [number, number];
   disabled?: MaybeRefLikeOrGetter<boolean>;
   animationFrames?: number;
-  /** other values represent both x and y */
+  /** indicate draggable target will only be dragged along x or y axis, used to avoid unnecessary onMove calls. values other than 'x' or 'y' represent both x and y */
   axis?: 'x' | 'y';
   /** return false to prevent updating */
   onMove?: (target: Element, state: DraggableElementState, oldState: DraggableElementState) => void | boolean;
@@ -193,14 +203,14 @@ export function useDraggableArea({
     let [clientX, clientY] = finalGetCoord(e);
     const { limitType, startX, startY, pointerOffsetX, pointerOffsetY } = state;
     const { x, y, right, bottom } = getRect(container);
+    clientX = roundByDPR(clientX, targetEl);
     if (limitType === 'pointer') {
-      clientX = floorByDPR(clamp(clientX, x, right), targetEl);
-      clientY = floorByDPR(clamp(clientY, y, bottom), targetEl);
+      clientX = clamp(clientX, x, right);
+      clientY = clamp(clientY, y, bottom);
     } else if (limitType === 'target') {
       const { width, height } = finalGetTargetRect(targetEl);
-      // was using roundByDPR before, but round can actually make it overflow the container when we drag it to the bottom right corner, and then scrollbars appear
-      clientX = floorByDPR(clamp(clientX, startX, right - width + pointerOffsetX), targetEl);
-      clientY = floorByDPR(clamp(clientY, startY, bottom - height + pointerOffsetY), targetEl);
+      clientX = clamp(clientX, startX, right - width + pointerOffsetX);
+      clientY = clamp(clientY, startY, bottom - height + pointerOffsetY);
     }
     const relativeX = state.dx + clientX,
       relativeY = state.dy + clientY;
