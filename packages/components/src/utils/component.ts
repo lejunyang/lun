@@ -92,6 +92,8 @@ export function createImportStyle(compKey: OpenShadowComponentKey | 'common', st
 export function preprocessComponentOptions(options: ComponentOptions) {
   const compKey = options.name as ComponentKey;
   if (compKey && compKey in GlobalStaticConfig.defaultProps) {
+    const { props, setup, shadowOptions } = options;
+    const propsClone = { ...props };
     Object.defineProperties(options, {
       name: {
         get() {
@@ -105,12 +107,14 @@ export function preprocessComponentOptions(options: ComponentOptions) {
             : undefined;
         },
       },
+      props: {
+        get: () => setDefaultsForPropOptions(propsClone, GlobalStaticConfig.defaultProps[compKey]),
+      },
     });
     options.inheritAttrs ||= false;
-    const noShadow = options.shadowOptions === null || options.shadowOptions?.mode === 'closed';
-    options.props = setDefaultsForPropOptions(options.props, GlobalStaticConfig.defaultProps[compKey]);
-    if (!noShadow) options.props.innerStyle = PropString(); // after setDefaultsForPropOptions, because original options.props is freezed by me
-    const originalSetup = options.setup;
+    const noShadow = shadowOptions === null || shadowOptions?.mode === 'closed';
+    if (!noShadow) propsClone.innerStyle = PropString();
+    const originalSetup = setup;
     options.setup = (props: any, ctx: any) => {
       const setupResult = originalSetup?.(props, ctx);
       if (noShadow) return setupResult;
