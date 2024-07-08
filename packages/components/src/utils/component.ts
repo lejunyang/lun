@@ -126,7 +126,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
   }
 }
 
-export function toElement(queryOrElement?: string | Element) {
+export function toElement(queryOrElement?: string | Element | null) {
   return isElement(queryOrElement)
     ? queryOrElement
     : isString(queryOrElement)

@@ -33,6 +33,7 @@ import { defineDocPip } from './doc-pip';
 import { defineRange } from './range/Range';
 import { defineCalendar } from './calendar';
 import { defineDatePicker } from './date-picker';
+import { defineTour } from './tour/Tour';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -72,6 +73,7 @@ export function defineAllComponents() {
   defineTextarea();
   defineMentions();
   defineDocPip();
+  defineTour();
 }
 
 export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];

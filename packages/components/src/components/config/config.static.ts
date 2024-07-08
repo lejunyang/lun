@@ -17,6 +17,7 @@ export const openShadowComponents = freeze([
   'callout',
   'checkbox',
   'checkbox-group',
+  'color-picker',
   'date-picker',
   'dialog',
   'divider',
@@ -43,6 +44,7 @@ export const openShadowComponents = freeze([
   'textarea',
   'theme-provider',
   'tooltip',
+  'tour',
 ] as const);
 export const components = freeze([...openShadowComponents, ...noShadowComponents, ...closedShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
