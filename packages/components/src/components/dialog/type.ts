@@ -1,5 +1,5 @@
 import { DraggableFn, MaybePromise } from '@lun/core';
-import { ExtractPropTypes } from 'vue';
+import { CSSProperties, ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
@@ -49,6 +49,9 @@ export const dialogProps = freeze({
   okBtnProps: PropObject(),
   cancelBtnProps: PropObject(),
   noLockScroll: PropBoolean(),
+  /** set styles for dialog panel, 'width' of it takes priority over 'width' prop */
+  panelStyle: PropObject<CSSProperties>(),
+  maskStyle: PropObject<CSSProperties>(),
   /** function that will be called before opening dialog, if it returns false, prevent opening dialog */
   beforeOpen: PropFunction<() => void | boolean>(),
   /** function that will be called on clicking ok button, if it returns false/Promise.resolve(false)/Promise.reject(), dialog stays open and will not fire ok event */

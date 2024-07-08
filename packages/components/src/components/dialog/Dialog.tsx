@@ -170,7 +170,7 @@ export const Dialog = Object.assign(
           closeDialog: methods.close,
           toggleDialog: methods.toggle,
         },
-        refLikeToDescriptors({ isOpen }),
+        refLikeToDescriptors({ isOpen, panelElement: panelRef }),
       );
 
       // if there is a parent watermark, wrap children with watermark render
@@ -234,6 +234,8 @@ export const Dialog = Object.assign(
           okBtnProps,
           okText,
           headerDraggable,
+          panelStyle,
+          maskStyle,
         } = props;
         return (
           <Tag
@@ -254,6 +256,7 @@ export const Dialog = Object.assign(
                     part={compParts[1]}
                     ref={maskRef}
                     tabindex={-1}
+                    style={maskStyle}
                     {...maskHandlers}
                   />
                 </Transition>
@@ -263,7 +266,7 @@ export const Dialog = Object.assign(
                     class={ns.e('panel')}
                     ref={panelRef}
                     part={compParts[2]}
-                    style={{ width: width.value }}
+                    style={{ width: width.value, ...panelStyle }}
                   >
                     {!noCloseBtn &&
                       renderElement(
@@ -335,6 +338,7 @@ export type DialogExpose = {
   closeDialog: () => Promise<void>;
   toggleDialog: () => Promise<void> | undefined;
   readonly isOpen: boolean;
+  readonly panelElement: HTMLDivElement | undefined;
 };
 export type iDialog = InstanceType<tDialog> & DialogExpose;
 
