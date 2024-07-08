@@ -6,6 +6,12 @@ declare module '@floating-ui/core' {
   }
 }
 
+declare module '@floating-ui/vue' {
+  interface MiddlewareData {
+    rects?: ElementRects;
+  }
+}
+
 export const referenceRect = () => ({
   name: 'rects',
   fn({ x, y, rects }: MiddlewareState) {

@@ -1,9 +1,7 @@
 import type { MiddlewareData, Placement, ReferenceElement } from '@floating-ui/dom';
-import { computePosition } from '@floating-ui/dom';
+import { computePosition } from '@floating-ui/vue';
 import {
   computed,
-  getCurrentScope,
-  onScopeDispose,
   Ref,
   ref,
   shallowReadonly,
@@ -14,7 +12,7 @@ import {
 } from 'vue';
 import type { UseFloatingOptions, UseFloatingReturn } from '@floating-ui/vue';
 import { getDPR, roundByDPR } from '@lun/utils';
-import { MaybeRefLikeOrGetter, unrefOrGet, VirtualElement } from '@lun/core';
+import { MaybeRefLikeOrGetter, tryOnScopeDispose, unrefOrGet, VirtualElement } from '@lun/core';
 
 /**
  * Computes the `x` and `y` coordinates that will place the floating element next to a reference element when it is given a certain CSS positioning strategy.
@@ -28,14 +26,14 @@ export function useFloating(
   floating: MaybeRefLikeOrGetter<HTMLElement>,
   options: UseFloatingOptions<ReferenceElement> & {
     off?: MaybeRefLikeOrGetter<boolean>;
-    actualPlacement: Ref<Placement | undefined>;
+    actualPlacement?: Ref<Placement | undefined>;
   },
 ): Omit<UseFloatingReturn, 'placement'> {
   const { whileElementsMounted, off, middleware, actualPlacement } = options;
   const openOption = computed(() => unref(options.open) ?? true);
-  const placementOption = computed(() => unref(options.placement) ?? 'bottom');
-  const strategyOption = computed(() => unref(options.strategy) ?? 'absolute');
-  const transformOption = computed(() => unref(options.transform) ?? true);
+  const placementOption = computed(() => unrefOrGet(options.placement) ?? 'bottom');
+  const strategyOption = computed(() => unrefOrGet(options.strategy) ?? 'absolute');
+  const transformOption = computed(() => unrefOrGet(options.transform) ?? true);
   const x = ref(0);
   const y = ref(0);
   const strategy = ref(strategyOption.value);
@@ -80,14 +78,14 @@ export function useFloating(
     }
 
     computePosition(refEl, floatEl, {
-      middleware: unref(middleware),
+      middleware: unrefOrGet(middleware),
       placement: placementOption.value,
       strategy: strategyOption.value,
     }).then((position) => {
       x.value = position.x;
       y.value = position.y;
       strategy.value = position.strategy;
-      actualPlacement.value = position.placement;
+      if (actualPlacement) actualPlacement.value = position.placement;
       middlewareData.value = position.middlewareData;
       isPositioned.value = true;
     });
@@ -122,15 +120,14 @@ export function useFloating(
     }
   }
 
-  watch([middleware, placementOption, strategyOption], update, {
-    flush: 'sync',
-  });
-  watchEffect(attach, { flush: 'sync' });
-  watch(openOption, reset, { flush: 'sync' });
+  const watchOption = {
+    flush: 'sync' as const,
+  };
+  watch([middleware, placementOption, strategyOption], update, watchOption);
+  watchEffect(attach, watchOption);
+  watch(openOption, reset, watchOption);
 
-  if (getCurrentScope()) {
-    onScopeDispose(cleanup);
-  }
+  tryOnScopeDispose(cleanup);
 
   return {
     x: shallowReadonly(x),
