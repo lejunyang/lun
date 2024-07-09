@@ -41,6 +41,7 @@ import {
   offset as pluginOffset,
   shift as pluginShift,
   inline as pluginInline,
+  flip as pluginFlip,
   ElementRects,
 } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
@@ -143,10 +144,11 @@ export const Popover = defineSSRCustomElement({
       return floatingOffset + (+props.offset! || 0);
     };
     const middleware = computed(() => {
-      const { shift, inline } = props;
+      const { shift, inline, flip } = props;
       return [
         // selection range needs inline
         (inline || options.triggers.has('select')) && pluginInline(Object(inline)),
+        flip && pluginFlip(Object(flip)),
         shift && pluginShift(Object(shift)),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
@@ -244,8 +246,8 @@ export const Popover = defineSSRCustomElement({
     watchEffect(() => {
       const { value } = arrowRef;
       if (!value) return;
-      const { rects } = middlewareData.value;
-      Object.assign(value.style, arrowStyle(value.offsetWidth, rects || rectsInfo));
+      const { rects, shift } = middlewareData.value;
+      Object.assign(value.style, arrowStyle(value.offsetWidth, rects || rectsInfo, shift));
     });
 
     // Already exist a prop `show`, so rename the methods, these will override native popover methods

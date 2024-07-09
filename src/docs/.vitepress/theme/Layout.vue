@@ -3,7 +3,7 @@
   <l-theme-provider :appearance="!inBrowser ? undefined : isDark ? 'dark' : 'light'" root v-bind="theme">
     <Layout>
       <template #nav-bar-content-after>
-        <ThemeConfigPanel :theme="theme" :lang="lang" :animate="randomAnimate" />
+        <ThemeConfigPanel :theme="theme" :lang="lang as any" :animate="randomAnimate" />
       </template>
       <template #doc-after>
         <ClientOnly>
@@ -178,7 +178,7 @@ router.onAfterRouteChanged = async () => {
   if (transitionPromise) {
     await transitionPromise;
     transitionPromise = undefined;
-    swapZ(0.9, 300);
+    swapZ(0.95, 300);
   }
 };
 

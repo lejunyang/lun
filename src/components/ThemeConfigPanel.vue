@@ -1,6 +1,6 @@
 <template>
-  <!-- TODO change strategy to absolute when max-width: 768px -->
-  <l-popover triggers="click" class="theme-popover" shift size="2" strategy="fixed">
+  <!-- TODO change strategy to absolute when max-width: 768px because of layout change -->
+  <l-popover triggers="click" class="theme-popover" shift flip size="2" strategy="fixed">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="20"
@@ -74,7 +74,7 @@ const props = defineProps<{
     radius: string;
     scale: string;
   };
-  lang?: string;
+  lang: keyof typeof locales;
   animate: (update: AnyFn) => void;
 }>();
 

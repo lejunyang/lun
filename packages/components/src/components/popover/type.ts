@@ -13,7 +13,7 @@ import {
   createTransitionProps,
   themeProps,
 } from 'common';
-import type { AutoUpdateOptions, Placement, ShiftOptions } from '@floating-ui/vue';
+import type { AutoUpdateOptions, FlipOptions, Placement, ShiftOptions } from '@floating-ui/vue';
 import type { Derivable, InlineOptions } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
@@ -50,6 +50,8 @@ export const popoverProps = freeze({
   showArrow: PropBoolean(),
   /** offset of arrow from popover edge, effective only when arrowPosition is not center */
   arrowOffset: PropNumber(),
+  /** @link https://floating-ui.com/docs/flip */
+  flip: PropObjOrBool<boolean | FlipOptions, Constructor<Derivable<FlipOptions>>[]>(Function as any),
   /** @link https://floating-ui.com/docs/shift */
   shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
   /** @link https://floating-ui.com/docs/inline */

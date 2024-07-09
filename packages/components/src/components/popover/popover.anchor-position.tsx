@@ -49,13 +49,7 @@ export function useAnchorPosition(options: {
     const [side, align] = (unrefOrGet(placement) || 'bottom').split('-'),
       // if side is top or bottom, the arrow's position needs to be inline; otherwise, it's block
       inline = side === 'top' || side === 'bottom';
-    return [
-      side,
-      align,
-      inline ? 'inline-' : 'block-',
-      inline ? 'width' : 'height',
-      `translate${inline ? 'X' : 'Y'}(-50%)`,
-    ] as const;
+    return [side, align, inline ? 'inline-' : 'block-', inline ? 'width' : 'height', inline ? 'x' : 'y'] as const;
   });
   const defaultSize = { width: Infinity, height: Infinity };
   return {
@@ -84,9 +78,14 @@ export function useAnchorPosition(options: {
           } as any as CSSProperties)
         : fallbackStyles;
     },
-    arrowStyle(arrowSize = 0, { reference, floating } = { reference: defaultSize, floating: defaultSize }) {
-      const [side, align, inset, sizeProp, translate] = info.value;
+    arrowStyle(
+      arrowSize = 0,
+      { reference, floating } = { reference: defaultSize, floating: defaultSize },
+      shift?: { x: number; y: number },
+    ) {
+      const [side, align, inset, sizeProp, axis] = info.value;
       const { arrowPosition, arrowOffset } = options;
+      const shiftSize = shift?.[axis];
       const isAuto = arrowPosition === 'auto' || !arrowPosition,
         isCenter = arrowPosition === 'center' || (isAuto && !align),
         finalAlign = isCenter || isAuto ? align || 'start' : arrowPosition,
@@ -100,7 +99,9 @@ export function useAnchorPosition(options: {
         position: 'absolute',
         [insetAlign]: isCenter ? '50%' : toPxIfNum(finalArrowOffset),
         [side]: '100%',
-        transform: isCenter ? translate : '',
+        transform: isCenter
+          ? `translate${axis.toUpperCase()}(${shiftSize ? `calc(-50% + (${-shiftSize}px))` : '-50%'})`
+          : '',
       } satisfies CSSProperties;
       // remove this code, CSS Anchor Position doesn't work well for arrow element, as the position will be wrong when transform: scale transition taking effect
       // also, we don't need to use arrow plugin of floating-ui
