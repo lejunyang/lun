@@ -2,12 +2,13 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, toElement } from 'utils';
 import { tourEmits, tourProps, TourStep } from './type';
 import { ref, watch } from 'vue';
-import { useNamespace, useOpenModel } from 'hooks';
+import { useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineDialog, iDialog } from '../dialog';
-import { isArray, setStyle } from '@lun/utils';
+import { ensureNumber, isArray } from '@lun/utils';
 import { unrefOrGet, useSetupEvent } from '@lun/core';
-import { computePosition } from '@floating-ui/vue';
+import { autoUpdate } from '@floating-ui/vue';
 import { referenceRect } from '../popover/floating.store-rects';
+import { useFloating } from '../popover/useFloating';
 
 const name = 'tour';
 const parts = [] as const;
@@ -23,6 +24,11 @@ export const Tour = defineSSRCustomElement({
     const dialogRef = ref<iDialog>(),
       currentTarget = ref();
 
+    const { floatingStyles, middlewareData } = useFloating(currentTarget, () => dialogRef.value?.panelElement!, {
+      middleware: [referenceRect()],
+      whileElementsMounted: autoUpdate,
+    });
+
     const start = () => {
       const { steps } = props;
       let step: TourStep;
@@ -35,34 +41,35 @@ export const Tour = defineSSRCustomElement({
       }
     };
 
-    const update = () => {
-      const pop = dialogRef.value!.panelElement!;
-      computePosition(currentTarget.value, pop, {
-        middleware: [referenceRect()],
-        placement: 'bottom',
-        strategy: 'absolute',
-      }).then((position) => {
-        // position.middlewareData.rects?.reference
-        setStyle(pop, {
-          top: `${position.y}px`,
-          left: `${position.x}px`,
-        });
-      });
-    };
-
     watch([openModel, dialogRef], ([open, dialog]) => {
       if (dialog) {
         if (open) {
           start();
           dialog.openDialog();
-          update();
         }
       }
     });
+
+    const [stateClass] = useCEStates(() => null, ns);
+
     return () => {
+      const { highlightPadding } = props;
+      const padding = ensureNumber(highlightPadding, 0);
+      const { rects } = middlewareData.value;
+      const { x, y, width, height } = rects?.reference! || {};
       return renderElement('dialog', {
+        class: stateClass.value,
         ref: dialogRef,
         open: openModel.value,
+        panelStyle: floatingStyles.value,
+        maskStyle: rects
+          ? {
+              boxSizing: 'border-box',
+              borderWidth: `${y - padding}px ${innerWidth - x - width - padding}px ${
+                innerHeight - y - height - padding
+              }px ${x - padding}px`,
+            }
+          : {},
       });
     };
   },
@@ -72,6 +79,14 @@ export type tTour = typeof Tour;
 export type TourExpose = {};
 export type iTour = InstanceType<tTour> & TourExpose;
 
-export const defineTour = createDefineElement(name, Tour, {}, parts, {
-  dialog: defineDialog,
-});
+export const defineTour = createDefineElement(
+  name,
+  Tour,
+  {
+    highlightPadding: 2,
+  },
+  parts,
+  {
+    dialog: defineDialog,
+  },
+);

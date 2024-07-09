@@ -156,4 +156,5 @@ export * from './teleport-holder';
 export * from './textarea';
 export * from './theme-provider';
 export * from './tooltip';
+export * from './tour';
 export * from './watermark';

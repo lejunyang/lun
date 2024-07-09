@@ -50,8 +50,10 @@ import { importIconBasicTheme } from './icon/index.ts';
 import { importCommonTheme } from '../common/index.ts';
 import { importRangeBasicTheme, importRangeSurfaceTheme } from './range';
 import { importCalendarBasicTheme } from './calendar/index.ts';
+import { importTourBasicTheme } from './tour/index.ts';
 
 export * from './button';
+export * from './calendar';
 export * from './callout';
 export * from './checkbox';
 export * from './checkbox-group';
@@ -73,6 +75,8 @@ export * from './spin';
 export * from './switch';
 export * from './tag';
 export * from './textarea';
+export * from './theme-provider';
+export * from './tour';
 
 export const importBasicTheme = once(() => {
   importThemeProviderBasicTheme();
@@ -101,6 +105,7 @@ export const importBasicTheme = once(() => {
   importTextareaBasicTheme();
   importMentionsBasicTheme();
   importCalendarBasicTheme();
+  importTourBasicTheme();
 });
 
 export const importOutlineTheme = once(() => {

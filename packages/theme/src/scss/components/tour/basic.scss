@@ -1,0 +1,12 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(tour) {
+  &::part(mask) {
+    background-color: transparent;
+    border-style: solid;
+    border-color: getSemanticColor('mask');
+  }
+}

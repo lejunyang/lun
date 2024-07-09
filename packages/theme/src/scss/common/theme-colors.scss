@@ -80,7 +80,7 @@ $color: $default-accent-color;
   @include semanticColor('panel-solid', getColor('gray', 2));
   // @include semanticColor('panel-translucent', rgba(255, 255, 255, 0.8));
   @include semanticColor('surface', rgba(0, 0, 0, 0.25));
-  @include semanticColor('surface', rgb(0, 0, 0));
+  // @include semanticColor('surface-solid', rgb(0, 0, 0)); // TODO check input dark theme for renderer 
   @include semanticColor('text', rgba(255, 255, 245, 0.86));
   --#{$namespace}-gray-surface: #21212180;
   --#{$namespace}-mauve-surface: #22212380;
