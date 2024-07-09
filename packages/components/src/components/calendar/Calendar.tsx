@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement, renderElement, scrollIntoView } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
@@ -78,9 +78,8 @@ export const Calendar = defineSSRCustomElement({
               const { x, width } = getRect(target),
                 { x: wx } = getRect(value!);
               if (Math.abs(x - wx) > width / 2) {
-                target.scrollIntoView({
+                scrollIntoView(target, {
                   behavior: 'smooth',
-                  block: 'nearest',
                 });
                 const { promise, resolve } = withResolvers();
                 scrollEnd = resolve;
@@ -111,7 +110,7 @@ export const Calendar = defineSSRCustomElement({
               await onBeforeCenter();
               onBeforeCenter = null;
             }
-            (children[1] as HTMLElement).scrollIntoView({ behavior: 'instant', block: 'nearest' });
+            scrollIntoView(children[1] as HTMLElement, { behavior: 'instant' });
             if (!observing) observe();
           });
       };

@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement, toElement } from 'utils';
+import { createDefineElement, renderElement, scrollIntoView, toElement } from 'utils';
 import { tourEmits, tourProps, TourStep } from './type';
 import { ref, watch } from 'vue';
-import { useCEStates, useNamespace, useOpenModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineDialog, iDialog } from '../dialog';
 import { ensureNumber, isArray } from '@lun/utils';
 import { unrefOrGet, useSetupEvent } from '@lun/core';
@@ -29,13 +29,20 @@ export const Tour = defineSSRCustomElement({
       whileElementsMounted: autoUpdate,
     });
 
-    const start = () => {
-      const { steps } = props;
-      let step: TourStep;
-      console.log('steps', steps);
-      if (isArray(steps) && (step = steps[stepModel.value])) {
+    const updateStep = (offset: number) => {
+      const { steps, scrollOptions } = props;
+      const totalSteps = isArray(steps) ? steps.length : ensureNumber(steps, 0);
+      if (!totalSteps) return;
+      let i: number, step: TourStep;
+      if (!offset) i = stepModel.value = 0;
+      else if ((i = stepModel.value += offset) >= totalSteps || i < 0) {
+        stepModel.value = 0;
+        return (openModel.value = false);
+      }
+      if (isArray(steps) && (step = steps[i])) {
         const el = toElement(unrefOrGet(step.target));
         if (el) {
+          scrollIntoView(el, scrollOptions);
           currentTarget.value = el;
         }
       }
@@ -44,13 +51,18 @@ export const Tour = defineSSRCustomElement({
     watch([openModel, dialogRef], ([open, dialog]) => {
       if (dialog) {
         if (open) {
-          start();
+          updateStep(0);
           dialog.openDialog();
         }
       }
     });
 
     const [stateClass] = useCEStates(() => null, ns);
+    useCEExpose({
+      startStep: () => updateStep(0),
+      nextStep: () => updateStep(1),
+      prevStep: () => updateStep(-1),
+    });
 
     return () => {
       const { highlightPadding } = props;

@@ -1,6 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
 import { createVirtualMerge, toGetterDescriptors } from '@lun/utils';
 
+export * from './alias';
 export * from './component';
 export * from './console';
 export * from './style';
