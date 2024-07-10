@@ -15,7 +15,7 @@
   },
   "engines": {
     "node": ">=18",
-    "pnpm": ">=9"
+    "pnpm": ">=9.5.0"
   },
   "dependencies": {
     "@giscus/vue": "^3.0.0",
@@ -42,23 +42,23 @@
     "@types/node": "^20.14.9",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "@vitejs/plugin-vue-jsx": "^3.1.0",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "catalog:",
     "@vue/runtime-dom": "^3.4.31",
-    "cross-env": "^7.0.3",
+    "cross-env": "catalog:",
     "cypress": "^13.13.0",
     "happy-dom": "^14.12.3",
     "new-javascript": "^0.4.3",
-    "postcss-logical": "^7.0.1",
-    "rimraf": "^5.0.7",
+    "postcss-logical": "catalog:",
+    "rimraf": "catalog:",
     "sass": "^1.77.6",
-    "typescript": "^5.5.3",
+    "typescript": "catalog:",
     "v-lazy-show": "^0.2.4",
-    "vite": "^5.3.3",
-    "vite-plugin-dts": "^3.9.1",
-    "vitepress": "1.2.3",
-    "vitest": "^1.6.0",
-    "vue-tsc": "^2.0.26"
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitepress": "1.3.0",
+    "vitest": "^2.0.1",
+    "vue-tsc": "catalog:"
   },
   "resolutions": {
     "vite": "^5.3.3",

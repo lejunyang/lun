@@ -35,12 +35,12 @@
   },
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",
-    "@rollup/plugin-replace": "^5.0.7",
-    "cross-env": "^7.0.3",
-    "postcss-logical": "^7.0.1",
-    "rimraf": "^5.0.7",
-    "sass": "^1.77.6",
-    "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.6.0"
+    "@rollup/plugin-replace": "catalog:",
+    "cross-env": "catalog:",
+    "postcss-logical": "catalog:",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   }
 }

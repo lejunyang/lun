@@ -1,2 +1,22 @@
 packages:
   - 'packages/*'
+
+catalog:
+  vite: ^5.3.3
+  vite-plugin-dts: ^3.9.1
+  '@vitejs/plugin-vue': ^5.0.5
+  '@vitejs/plugin-vue-jsx': ^3.1.0
+  vitest: ^2.0.1
+  vue: ^3.4.31
+  vue-tsc: ^2.0.26
+  react: rc
+  react-dom: rc
+  typescript: ^5.5.3
+  rimraf: ^5.0.7
+  cross-env: ^7.0.3
+  '@rollup/plugin-replace': ^5.0.7
+  postcss-logical: ^7.0.1
+  sass: ^1.77.6
+  '@floating-ui/dom': ^1.6.7
+  '@floating-ui/utils': ^0.2.4
+  '@floating-ui/vue': ^1.1.1

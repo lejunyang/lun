@@ -28,18 +28,18 @@
     "@lun/components": "workspace:^"
   },
   "devDependencies": {
-    "@rollup/plugin-replace": "^5.0.7",
+    "@rollup/plugin-replace": "catalog:",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "cross-env": "^7.0.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "rimraf": "^5.0.7",
-    "vite": "^5.3.3",
-    "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.6.0",
-    "vue": "^3.4.31"
+    "cross-env": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "rimraf": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
   },
   "peerDependencies": {
     "react": ">=16.8",

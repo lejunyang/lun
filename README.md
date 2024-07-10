@@ -31,7 +31,7 @@ Also, most cross framework libraries use class oriented way to build themselves,
 
 ## Development
 
-Requires pnpm to run locally. If there is no local build, run build first.
+Requires pnpm>=9.5.0 to run locally. If there is no local build, run build first.
 
 ```
 pnpm install
