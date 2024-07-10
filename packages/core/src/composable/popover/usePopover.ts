@@ -17,7 +17,7 @@ import {
   getRect,
 } from '@lun/utils';
 import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
-import { VirtualElement, tryOnScopeDispose, useClickOutside } from '../../hooks';
+import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted } from '../../hooks';
 import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils';
 import { useListen } from './useListen';
 
@@ -125,9 +125,10 @@ export function usePopover(_options: UsePopoverOptions) {
   });
 
   // handle manual open control by external
+  const mounted = useMounted();
   watchEffect(() => {
     const { manual, openNow, closeNow } = options;
-    if (manual) {
+    if (manual && mounted.value) {
       if (_options.open) openNow();
       else closeNow();
     }

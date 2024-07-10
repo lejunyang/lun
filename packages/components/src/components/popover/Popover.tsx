@@ -87,13 +87,6 @@ export const Popover = defineSSRCustomElement({
     const innerTarget = computed(() => {
       return propVirtualTarget.value || CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
     });
-    const actualTarget = computed(() => unrefOrGetMulti(virtualTarget, activeExtraTarget, innerTarget));
-
-    /** current popover target */
-    const currentTarget = computed(() =>
-      // avoid update float position when not show
-      unrefOrGetMulti(isOpen, isShow) ? actualTarget.value : null,
-    );
 
     const {
       targetHandlers,
@@ -128,6 +121,13 @@ export const Popover = defineSSRCustomElement({
         },
         props,
       ),
+    );
+
+    const actualTarget = computed(() => unrefOrGetMulti(virtualTarget, activeExtraTarget, innerTarget));
+    /** current popover target */
+    const currentTarget = computed(() =>
+      // avoid update float position when not show
+      unrefOrGetMulti(isOpen, isShow) ? actualTarget.value : null,
     );
 
     const placement = toRef(props, 'placement');

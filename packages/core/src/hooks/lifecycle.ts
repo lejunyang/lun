@@ -6,6 +6,7 @@ import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallow
 export function useMounted() {
   const result = shallowRef(false);
   getCurrentInstance() && onMounted(() => (result.value = true));
+  return result;
 }
 
 export function tryOnScopeDispose(fn: Fn) {
