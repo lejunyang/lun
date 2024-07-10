@@ -1,6 +1,7 @@
 import { Placement } from '@floating-ui/vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
 import { supportCSSAnchor, toPxIfNum } from '@lun/utils';
+import { popSupport } from 'common';
 import { computed, CSSProperties } from 'vue';
 
 export const insetReverseMap: Record<string, string> = {
@@ -42,8 +43,9 @@ export function useAnchorPosition(options: {
   strategy?: 'absolute' | 'fixed';
   arrowPosition?: 'start' | 'end' | 'center' | 'auto';
   arrowOffset?: number | string;
+  type?: MaybeRefLikeOrGetter<keyof typeof popSupport>;
 }) {
-  const { name, inner, off, offset, placement } = options;
+  const { name, inner, off, offset, placement, type } = options;
   const isOn = computed(() => unrefOrGet(name) && supportCSSAnchor && !unrefOrGet(off));
   const info = computed(() => {
     const [side, align] = (unrefOrGet(placement) || 'bottom').split('-'),
@@ -57,7 +59,16 @@ export function useAnchorPosition(options: {
     isOn,
     /** render extra style for anchor position */
     render() {
-      return isOn.value && unrefOrGet(inner) && <style>{`:host{anchor-name:${unrefOrGet(name)}}`}</style>;
+      return (
+        isOn.value &&
+        unrefOrGet(inner) && (
+          <style>{`:host{${
+            // according to the spec(https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element)
+            // when it's 'normal' type, 'absolute' strategy will break the first rule, and then anchor positioning is not working
+            `position:${unrefOrGet(type) === 'normal' && options.strategy !== 'fixed' ? 'static' : 'relative'};`
+          }anchor-name:${unrefOrGet(name)}}`}</style>
+        )
+      );
     },
     popStyle(fallbackStyles: any, popWidth?: string | number, popHeight?: string | number) {
       const [side, align, inset] = info.value;

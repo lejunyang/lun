@@ -188,6 +188,7 @@ export const Popover = defineSSRCustomElement({
           off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
           offset,
           placement: actualPlacement,
+          type,
         },
         props,
       ),
@@ -374,8 +375,6 @@ export const Popover = defineSSRCustomElement({
       </Transition>
     );
 
-    // FIXME now in theme, host's position defaults to relative. but when anchor positioning is enabled and type=normal, it doesn't work, but static position works...
-    // this is because of https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element as relative creates a new containing block for absolute
     return () => {
       return (
         <>

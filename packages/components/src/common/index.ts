@@ -38,7 +38,7 @@ export function renderStatusIcon(
 
 export const popSupport = {
   popover: supportPopover,
-  position: true,
+  normal: true,
   teleport: true,
 };
 

@@ -30,7 +30,7 @@ export const popoverProps = freeze({
   /** used to manually set the anchor target of popover */
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   /** determine the implementation type of popover */
-  type: PropString<'popover' | 'position' | 'teleport'>(),
+  type: PropString<'popover' | 'normal' | 'teleport'>(),
   /** used to turn on CSS anchor positioning and specify the anchor-name for custom element itself */
   anchorName: PropString(),
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
