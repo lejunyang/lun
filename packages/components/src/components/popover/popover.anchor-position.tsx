@@ -99,6 +99,7 @@ export function useAnchorPosition(options: {
         position: 'absolute',
         [insetAlign]: isCenter ? '50%' : toPxIfNum(finalArrowOffset),
         [side]: '100%',
+        [insetReverseMap[side]]: '', // must set empty value for the other side. because 'flip' can happen, side can change to top from bottom. due to vue style update logic, original 'bottom' will not be removed unless we specify it
         transform: isCenter
           ? `translate${axis.toUpperCase()}(${shiftSize ? `calc(-50% + (${-shiftSize}px))` : '-50%'})`
           : '',

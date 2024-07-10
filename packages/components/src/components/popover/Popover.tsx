@@ -43,6 +43,7 @@ import {
   inline as pluginInline,
   flip as pluginFlip,
   ElementRects,
+  limitShift,
 } from '@floating-ui/vue';
 import { referenceRect } from './floating.store-rects';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
@@ -149,7 +150,18 @@ export const Popover = defineSSRCustomElement({
         // selection range needs inline
         (inline || options.triggers.has('select')) && pluginInline(Object(inline)),
         flip && pluginFlip(Object(flip)),
-        shift && pluginShift(Object(shift)),
+        shift &&
+          pluginShift(
+            isFunction(shift)
+              ? shift
+              : {
+                  // shift will happen even if anchor target is out of view, use limiter to prevent that
+                  limiter: limitShift({
+                    offset: ({ rects }) => rects.reference.width,
+                  }),
+                  ...(shift as any),
+                },
+          ),
         // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
         pluginOffset(offset),
         referenceRect(),
@@ -362,6 +374,8 @@ export const Popover = defineSSRCustomElement({
       </Transition>
     );
 
+    // FIXME now in theme, host's position defaults to relative. but when anchor positioning is enabled and type=normal, it doesn't work, but static position works...
+    // this is because of https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element as relative creates a new containing block for absolute
     return () => {
       return (
         <>
