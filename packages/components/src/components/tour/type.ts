@@ -1,8 +1,9 @@
-import { Constructor, freeze, omit } from '@lun/utils';
-import { GetEventPropsFromEmits, CommonProps, PropNumOrArr, PropNumber, PropObject } from 'common';
+import { freeze, omit } from '@lun/utils';
+import { GetEventPropsFromEmits, CommonProps, PropNumber, PropObject, PropArray } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { MaybePromise, MaybeRefLikeOrGetter } from '@lun/core';
-import { dialogProps } from '../dialog';
+import { dialogEmits, dialogProps } from '../dialog';
+import { popoverFloatingUIProps } from '../popover/type';
 
 export type TourStep = {
   title?: string;
@@ -13,14 +14,14 @@ export type TourStep = {
 
 export const tourProps = freeze({
   ...omit(dialogProps, ['noOkBtn', 'noCancelBtn', 'okBtnProps', 'okText', 'cancelBtnProps', 'cancelText', 'beforeOk']),
-  steps: PropNumOrArr<string | number, Constructor<TourStep[]>[]>(),
+  ...popoverFloatingUIProps,
+  steps: PropArray<TourStep[]>(),
   highlightPadding: PropNumber(),
   scrollOptions: PropObject<ScrollIntoViewOptions>(),
 });
 
 export const tourEmits = freeze({
-  open: null,
-  close: null,
+  ...dialogEmits,
 });
 
 export type TourSetupProps = ExtractPropTypes<typeof tourProps> & CommonProps;
