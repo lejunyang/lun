@@ -2,6 +2,9 @@ import { getTypeTag, isNil, isObject } from '../is';
 import { capitalize, uncapitalize } from '../string';
 import { deepCopy } from './copy';
 import { objectGet, objectKeys } from './value';
+import { AnyFn } from '../type';
+import { fromObject } from './process';
+import { runIfFn } from '../function';
 
 // /**
 //  * property of `source` will overwrite target only when related property of `target` is null or undefined\
@@ -278,4 +281,17 @@ export function assignIfNil<T extends Record<string, any>, S extends Partial<T>>
     }
   }
   return target as any as Omit<T, keyof S> & Required<S>;
+}
+
+export function mergeHandlers<T1 extends Record<string, AnyFn>, T2 extends Record<string, AnyFn>>(
+  obj1?: T1,
+  obj2?: T2,
+) {
+  return fromObject({ ...obj1, ...obj2 }, (k) => [
+    k,
+    (...args: any[]) => {
+      runIfFn(obj1?.[k], ...args);
+      runIfFn(obj2?.[k], ...args);
+    },
+  ]) as T1 & T2;
 }

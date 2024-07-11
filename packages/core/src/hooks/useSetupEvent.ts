@@ -1,4 +1,4 @@
-import { AnyFn, createEventManager, isFunction, objectKeys } from '@lun/utils';
+import { AnyFn, createEventManager, isFunction, mergeHandlers, objectKeys, runIfFn } from '@lun/utils';
 import { inject, getCurrentInstance, provide, onBeforeUnmount } from 'vue';
 
 export const EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-event-provider-key' : '');
@@ -25,14 +25,20 @@ declare module 'vue' {
  * It must be called before emit is used(like useValueModel)
  *
  * Note that you must use the returned emit function to emit events, as in vue setup, the emit func is correct in DEV, not in PROD mode(packages/runtime-core/src/component.ts -> createSetupContext)
- * @param events
+ * @param listenedEvents
  * @returns new emit function
  */
 export function useSetupEvent<OriginalEmit extends AnyFn | undefined>(
-  events?: Events,
-  options?: { toParentWhen?: () => boolean; bubbles?: boolean; forceChildrenBubble?: boolean },
+  listenedEvents?: Events,
+  options?: {
+    toParentWhen?: () => boolean;
+    bubbles?: boolean;
+    forceChildrenBubble?: boolean;
+    /** specify events to re-emit from children */
+    reEmits?: string[];
+  },
 ) {
-  const { toParentWhen, bubbles = false, forceChildrenBubble } = options || {};
+  const { toParentWhen, bubbles = false, forceChildrenBubble, reEmits = [] } = options || {};
   const ctx = getCurrentInstance()!;
   if (!ctx || ctx[ctxKey]) return ctx?.emit as OriginalEmit;
   const manager = (ctx[ctxKey] = createEventManager());
@@ -44,19 +50,23 @@ export function useSetupEvent<OriginalEmit extends AnyFn | undefined>(
 
   const parentSubscribedEvents = inject<Events>(EVENT_PROVIDER_KEY);
   const finalBubbles = bubbles || inject<boolean | undefined>(forceBubbleKey);
+  const reEmitsCB = reEmits.reduce((res, k) => {
+    res[k] = (...args: any[]) => newEmit(k, ...args);
+    return res;
+  }, {} as Record<string, AnyFn>);
+  const childrenCB = mergeHandlers(listenedEvents, reEmitsCB);
   const bubbleProvide: Events = {};
-  objectKeys({ ...emitsOptions, ...parentSubscribedEvents }).forEach((k) => {
+  objectKeys({ ...emitsOptions, ...parentSubscribedEvents, ...reEmitsCB }).forEach((k) => {
     const parentCB = (...args: any[]) => {
-      const func = parentSubscribedEvents?.[k];
-      if (isFunction(func)) func(...args);
+      runIfFn(parentSubscribedEvents?.[k], ...args);
     };
     bubbleProvide[k] = (...args) => {
-      if (isFunction(events?.[k])) events![k](...args);
+      runIfFn(childrenCB[k], ...args);
       parentCB(...args);
     };
     toParentWhen ? manager.when(k, toParentWhen, parentCB) : manager.on(k, parentCB);
   });
-  provide(EVENT_PROVIDER_KEY, finalBubbles ? bubbleProvide : events);
+  provide(EVENT_PROVIDER_KEY, finalBubbles ? bubbleProvide : childrenCB);
   provide(forceBubbleKey, forceChildrenBubble);
   onBeforeUnmount(manager.clear);
   return newEmit as OriginalEmit;
