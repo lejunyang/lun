@@ -1,5 +1,5 @@
-import { Fn } from '@lun/utils';
-import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallowRef } from 'vue';
+import { Fn, noop } from '@lun/utils';
+import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallowRef, watchEffect } from 'vue';
 
 // from vue/use
 
@@ -16,3 +16,13 @@ export function tryOnScopeDispose(fn: Fn) {
   }
   return false;
 }
+
+export const watchEffectOnMounted: typeof watchEffect = (fn, options) => {
+  const scope = getCurrentScope();
+  let stop = noop;
+  scope &&
+    onMounted(() => {
+      scope.run(() => (stop = watchEffect(fn, options)));
+    });
+  return () => stop();
+};

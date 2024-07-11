@@ -241,18 +241,7 @@ export function usePopover(_options: UsePopoverOptions) {
           getBoundingClientRect() {
             // always get new rect
             const { x, y } = getRect(t);
-            const fx = tx + x,
-              fy = ty + y;
-            return {
-              width: 0,
-              height: 0,
-              x: fx,
-              y: fy,
-              top: fy,
-              left: fx,
-              right: fx,
-              bottom: fy,
-            };
+            return new DOMRect(tx + x, ty + y, 0, 0);
           },
         };
       } else virtualTarget.value = undefined;
