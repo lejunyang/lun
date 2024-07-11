@@ -3,7 +3,6 @@ import {
   CSSProperties,
   computed,
   ref,
-  toRef,
   watchEffect,
   Transition,
   BaseTransitionProps,
@@ -25,7 +24,6 @@ import { popoverEmits, popoverProps } from './type';
 import {
   getCachedComputedStyle,
   isElement,
-  isFunction,
   objectKeys,
   prevent,
   runIfFn,
@@ -36,22 +34,14 @@ import {
 } from '@lun/utils';
 import { useCEExpose, useNamespace } from 'hooks';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
-import {
-  autoUpdate,
-  offset as pluginOffset,
-  shift as pluginShift,
-  inline as pluginInline,
-  flip as pluginFlip,
-  ElementRects,
-  limitShift,
-} from '@floating-ui/vue';
-import { referenceRect } from './floating.store-rects';
+import { ElementRects } from '@floating-ui/vue';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
 import { processPopSize, useAnchorPosition } from './popover.anchor-position';
 import { useFloating } from './useFloating';
+import { hasRect } from './utils';
 
 const name = 'popover';
 const parts = ['content', 'native', 'arrow'] as const;
@@ -59,7 +49,6 @@ const compParts = getCompParts(name, parts);
 export const Popover = defineSSRCustomElement({
   name,
   props: popoverProps,
-  inheritAttrs: false,
   emits: popoverEmits,
   setup(props, { emit: e }) {
     const ns = useNamespace(name);
@@ -83,7 +72,7 @@ export const Popover = defineSSRCustomElement({
     const actualPop = computed(() => unrefOrGetMulti(popRef, positionedRef));
     const propVirtualTarget = computed(() => {
       const target = unrefOrGet(props.target);
-      return isFunction(target?.getBoundingClientRect) ? target : null;
+      return hasRect(target) ? target : null;
     });
     const innerTarget = computed(() => {
       return propVirtualTarget.value || CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
@@ -131,45 +120,33 @@ export const Popover = defineSSRCustomElement({
       unrefOrGetMulti(isOpen, isShow) ? actualTarget.value : null,
     );
 
-    const placement = toRef(props, 'placement');
-    const actualPlacement = ref(placement.value || 'bottom');
-    // offset can not be computed, because it depends on offsetWidth(display: none)
-    const offset = () => {
-      const { value } = arrowRef;
-      // when it's css anchor position, offset is called and cached in computed(at that time offsetWidth is 0), need to use computedStyle instead
-      const arrowLen = !value ? 0 : value.offsetWidth || +getCachedComputedStyle(value).width.slice(0, -2);
-      // const arrowLen = value && isShow.value ? value.offsetWidth : 0;
-      // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
-      // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
-      const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
-      return floatingOffset + (+props.offset! || 0);
-    };
-    const middleware = computed(() => {
-      const { shift, inline, flip } = props;
-      return [
-        // selection range needs inline
-        (inline || options.triggers.has('select')) && pluginInline(Object(inline)),
-        flip && pluginFlip(Object(flip)),
-        shift &&
-          pluginShift(
-            isFunction(shift)
-              ? shift
-              : {
-                  // shift will happen even if anchor target is out of view, use limiter to prevent that
-                  limiter: limitShift({
-                    offset: ({ rects }) => rects.reference.width,
-                  }),
-                  ...(shift as any),
-                },
-          ),
-        // type.value === 'popover' && topLayerOverTransforms(), // it's already been fixed by floating-ui
-        pluginOffset(offset),
-        referenceRect(),
-      ].filter(Boolean) as any;
-    });
+    /** when not using floating-ui, rectsInfo is used to store reference and floating's rects */
+    const rectsInfo = reactive({
+      reference: {},
+      floating: {},
+    }) as ElementRects;
 
-    const strategy = toRef(props, 'strategy');
-    const { isOn, popStyle, arrowStyle, render } = useAnchorPosition(
+    const strategy = () => props.strategy || 'absolute';
+    const { floatingStyles, middlewareData, update, isPositioned, placementInfo, getOffset, placement } = useFloating(
+      currentTarget,
+      actualPop as any,
+      arrowRef,
+      virtualGetMerge(
+        {
+          strategy,
+          open: isOpen,
+          transform: () => props.useTransform,
+          off: () => !!isOn.value,
+          externalRects: rectsInfo,
+          get inline() {
+            return props.inline || options.triggers.has('select');
+          },
+        },
+        props,
+      ),
+    );
+
+    const { isOn, popStyle, render } = useAnchorPosition(
       virtualGetMerge(
         {
           name: () => {
@@ -186,19 +163,14 @@ export const Popover = defineSSRCustomElement({
           },
           inner: () => actualTarget.value === CE,
           off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
-          offset,
-          placement: actualPlacement,
+          offset: getOffset,
           type,
+          info: placementInfo,
         },
         props,
       ),
     );
-
-    /** when not using floating-ui, rectsInfo is used to store reference and floating's rects */
-    const rectsInfo = reactive({
-      reference: {},
-      floating: {},
-    }) as ElementRects;
+    // update rects for anchor position
     watchPostEffect(() => {
       if (isShow.value && isOn.value) {
         // need nextTick, or floating rect size could be 0
@@ -213,24 +185,11 @@ export const Popover = defineSSRCustomElement({
       }
     });
 
-    const { floatingStyles, middlewareData, update, isPositioned } = useFloating(currentTarget, actualPop as any, {
-      whileElementsMounted: (...args) => {
-        return autoUpdate(...args, props.autoUpdateOptions);
-      },
-      strategy,
-      placement,
-      actualPlacement,
-      open: isOpen,
-      middleware,
-      transform: toRef(props, 'useTransform'),
-      off: () => !!isOn.value,
-    });
-
     // make virtual target auto update
     watchEffect(() => {
       const target = unrefOrGet(props.target);
       // have getBoundingClientRect but not a element, it's virtual
-      if (isFunction(target?.getBoundingClientRect) && !isElement(target)) {
+      if (hasRect(target) && !isElement(target)) {
         getRect(target as Element); // collect dep
         if (isPositioned.value) update();
       }
@@ -253,14 +212,6 @@ export const Popover = defineSSRCustomElement({
       };
       result = runIfFn(adjustPopStyle, result, middlewareData.value) || result;
       return result;
-    });
-
-    // watch and update style of arrow element
-    watchEffect(() => {
-      const { value } = arrowRef;
-      if (!value) return;
-      const { rects, shift } = middlewareData.value;
-      Object.assign(value.style, arrowStyle(value.offsetWidth, rects || rectsInfo, shift));
     });
 
     // Already exist a prop `show`, so rename the methods, these will override native popover methods
@@ -291,8 +242,8 @@ export const Popover = defineSSRCustomElement({
       props.rootClass,
       props.variant === 'styleless' ? null : ns.t,
       ns.is(type),
-      ns.is(`placement-${actualPlacement.value}`),
-      ns.is(`side-${actualPlacement.value?.split('-')[0]}`),
+      ns.is(`placement-${placement.value}`),
+      ns.is(`side-${placement.value?.split('-')[0]}`),
     ];
 
     let cacheContent: any;
@@ -329,8 +280,6 @@ export const Popover = defineSSRCustomElement({
     };
 
     const getPositionContent = () => {
-      let { value } = strategy;
-      value ||= 'absolute';
       const result = wrapTransition(
         <div
           {...popContentHandlers}
@@ -338,7 +287,7 @@ export const Popover = defineSSRCustomElement({
           style={finalFloatingStyles.value}
           v-show={isOpen.value}
           ref={positionedRef}
-          class={getRootClass(value)}
+          class={getRootClass(unrefOrGet(strategy))}
           {...vnodeHandlers}
         >
           {getContent()}
@@ -405,18 +354,18 @@ export const Popover = defineSSRCustomElement({
 
 export type tPopover = typeof Popover;
 export type PopoverExpose = {
+  openPopover: () => void;
+  closePopover: () => void;
   togglePopover: (force?: boolean) => void;
-  updatePosition: () => void;
-  attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
-  detachTarget(target?: Element | undefined): void;
-  detachAll(): void;
   delayOpenPopover: () => void;
   /**
    * @param ensure delayed close may be canceled if delayOpenPopover is invoked. if ensure is true, it will not be canceled
    */
   delayClosePopover: (ensure?: boolean) => void;
-  openPopover: () => void;
-  closePopover: () => void;
+  updatePosition: () => void;
+  attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
+  detachTarget(target?: Element | undefined): void;
+  detachAll(): void;
   readonly currentTarget: any;
   readonly isTopLayer: boolean;
   readonly isOpen: boolean;

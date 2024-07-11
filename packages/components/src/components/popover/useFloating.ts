@@ -1,20 +1,30 @@
-import type { MiddlewareData, Placement, ReferenceElement } from '@floating-ui/dom';
-import { computePosition } from '@floating-ui/vue';
+import type {
+  InlineOptions,
+  MiddlewareData,
+  ReferenceElement,
+  Derivable,
+  FlipOptions,
+  ShiftOptions,
+  ElementRects,
+  AutoUpdateOptions,
+} from '@floating-ui/dom';
+import { autoUpdate, computePosition } from '@floating-ui/vue';
+import { computed, CSSProperties, ref, shallowReadonly, shallowRef, unref, watch, watchEffect } from 'vue';
+import type { UseFloatingOptions } from '@floating-ui/vue';
 import {
-  computed,
-  Ref,
-  ref,
-  shallowReadonly,
-  shallowRef,
-  unref,
-  watch,
-  watchEffect,
-} from 'vue';
-import type { UseFloatingOptions, UseFloatingReturn } from '@floating-ui/vue';
-import { getDPR, roundByDPR } from '@lun/utils';
-import { MaybeRefLikeOrGetter, tryOnScopeDispose, unrefOrGet, VirtualElement } from '@lun/core';
+  offset as pluginOffset,
+  shift as pluginShift,
+  inline as pluginInline,
+  flip as pluginFlip,
+  limitShift,
+} from '@floating-ui/vue';
+import { getCachedComputedStyle, getDPR, isFunction, roundByDPR, toPxIfNum } from '@lun/utils';
+import { MaybeRefLikeOrGetter, tryOnScopeDispose, unrefOrGet, VirtualElement, watchEffectOnMounted } from '@lun/core';
+import { referenceRect } from './floating.store-rects';
+import { insetReverseMap } from './popover.anchor-position';
 
 /**
+ * derived from @floating-ui/vue, made some changes
  * Computes the `x` and `y` coordinates that will place the floating element next to a reference element when it is given a certain CSS positioning strategy.
  * @param reference The reference template ref.
  * @param floating The floating template ref.
@@ -24,21 +34,108 @@ import { MaybeRefLikeOrGetter, tryOnScopeDispose, unrefOrGet, VirtualElement } f
 export function useFloating(
   reference: MaybeRefLikeOrGetter<Element | VirtualElement>,
   floating: MaybeRefLikeOrGetter<HTMLElement>,
-  options: UseFloatingOptions<ReferenceElement> & {
+  arrow: MaybeRefLikeOrGetter<HTMLElement>,
+  options: Omit<UseFloatingOptions<ReferenceElement>, 'whileElementsMounted' | 'middleware'> & {
     off?: MaybeRefLikeOrGetter<boolean>;
-    actualPlacement?: Ref<Placement | undefined>;
+    offset?: MaybeRefLikeOrGetter<number | string>;
+    flip?: boolean | FlipOptions | Derivable<FlipOptions>;
+    shift?: boolean | ShiftOptions | Derivable<ShiftOptions>;
+    inline?: boolean | InlineOptions | Derivable<InlineOptions>;
+    arrowPosition?: 'start' | 'end' | 'center' | 'auto';
+    arrowOffset?: number | string;
+    externalRects?: ElementRects;
+    noAutoUpdate?: boolean;
+    autoUpdateOptions?: AutoUpdateOptions;
   },
-): Omit<UseFloatingReturn, 'placement'> {
-  const { whileElementsMounted, off, middleware, actualPlacement } = options;
+) {
+  const { off, externalRects } = options;
   const openOption = computed(() => unref(options.open) ?? true);
   const placementOption = computed(() => unrefOrGet(options.placement) ?? 'bottom');
   const strategyOption = computed(() => unrefOrGet(options.strategy) ?? 'absolute');
   const transformOption = computed(() => unrefOrGet(options.transform) ?? true);
-  const x = ref(0);
-  const y = ref(0);
-  const strategy = ref(strategyOption.value);
+
+  // offset can not be computed, because it depends on offsetWidth(display: none)
+  const getOffset = () => {
+    const el = unrefOrGet(arrow);
+    // when it's css anchor position, offset is called and cached in computed(at that time offsetWidth is 0), need to use computedStyle instead
+    const arrowLen = !el ? 0 : el.offsetWidth || +getCachedComputedStyle(el).width.slice(0, -2);
+    // const arrowLen = value && isShow.value ? value.offsetWidth : 0;
+    // Get half the arrow box's hypotenuse length as the offset, since it has rotated 45 degrees
+    // 取正方形的对角线长度的一半作为floating偏移量，因为它旋转了45度
+    const floatingOffset = Math.sqrt(2 * arrowLen ** 2) / 2;
+    return floatingOffset + (+unrefOrGet(options.offset)! || 0);
+  };
+  const middleware = computed(() => {
+    const { shift, flip, inline } = options;
+    return [
+      inline && pluginInline(Object(inline)),
+      flip && pluginFlip(Object(flip)),
+      shift &&
+        pluginShift(
+          isFunction(shift)
+            ? shift
+            : {
+                // shift will happen even if anchor target is out of view, use limiter to prevent that
+                limiter: limitShift({
+                  offset: ({ rects }) => rects.reference.width,
+                }),
+                ...(shift as any),
+              },
+        ),
+      pluginOffset(getOffset),
+      referenceRect(),
+    ].filter(Boolean) as any;
+  });
+
+  const x = ref(0),
+    y = ref(0);
+  const strategy = ref(strategyOption.value),
+    placement = ref(placementOption.value);
   const middlewareData = shallowRef<MiddlewareData>({});
   const isPositioned = ref(false);
+
+  // ------------------------------ arrow style ------------------------------
+  const placementInfo = computed(() => {
+    const [side, align] = (unrefOrGet(placement) || 'bottom').split('-'),
+      // if side is top or bottom, the arrow's position needs to be inline; otherwise, it's block
+      inline = side === 'top' || side === 'bottom';
+    return [side, align, inline ? 'inline-' : 'block-', inline ? 'width' : 'height', inline ? 'x' : 'y'] as const;
+  });
+  const defaultSize = { width: Infinity, height: Infinity };
+  const getArrowStyle = (externalRects?: ElementRects) => {
+    const arrowSize = unrefOrGet(arrow)?.offsetWidth || 0;
+    const [side, align, insetMid, sizeProp, axis] = placementInfo.value;
+    const { arrowPosition, arrowOffset } = options;
+    const { shift, rects } = middlewareData.value;
+    const { reference, floating } = rects || externalRects || { reference: defaultSize, floating: defaultSize };
+    const shiftSize = shift?.[axis];
+    const isAuto = arrowPosition === 'auto' || !arrowPosition,
+      isCenter = arrowPosition === 'center' || (isAuto && !align),
+      finalAlign = isCenter || isAuto ? align || 'start' : arrowPosition,
+      insetAlign = 'inset-' + insetMid + finalAlign;
+    let finalArrowOffset =
+      isAuto && !isCenter
+        ? Math.min(+arrowOffset!, (reference[sizeProp] - arrowSize) / 2, (floating[sizeProp] - arrowSize) / 2)
+        : arrowOffset;
+    if ((finalArrowOffset as number) < 0) finalArrowOffset = arrowOffset;
+    return {
+      position: 'absolute',
+      [insetAlign]: isCenter ? '50%' : toPxIfNum(finalArrowOffset),
+      [side]: '100%',
+      [insetReverseMap[side]]: '', // must set empty value for the other side. because 'flip' can happen, side can change to top from bottom. due to vue style update logic, original 'bottom' will not be removed unless we specify it
+      transform: isCenter
+        ? `translate${axis.toUpperCase()}(${shiftSize ? `calc(-50% + (${-shiftSize}px))` : '-50%'})`
+        : '',
+    } satisfies CSSProperties;
+  };
+  // watch and update style of arrow element
+  watchEffect(() => {
+    const el = unrefOrGet(arrow);
+    if (!el) return;
+    Object.assign(el.style, getArrowStyle(externalRects));
+  });
+  // ------------------------------ arrow style ------------------------------
+
   const floatingStyles = computed(() => {
     const initialStyles = {
       position: strategy.value,
@@ -68,7 +165,7 @@ export function useFloating(
     };
   });
 
-  let whileElementsMountedCleanup: (() => void) | undefined;
+  let autoUpdateClean: (() => void) | undefined;
 
   function update() {
     const floatEl = unrefOrGet(floating),
@@ -76,7 +173,6 @@ export function useFloating(
     if (!floatEl || !refEl) {
       return;
     }
-
     computePosition(refEl, floatEl, {
       middleware: unrefOrGet(middleware),
       placement: placementOption.value,
@@ -85,16 +181,16 @@ export function useFloating(
       x.value = position.x;
       y.value = position.y;
       strategy.value = position.strategy;
-      if (actualPlacement) actualPlacement.value = position.placement;
+      placement.value = position.placement;
       middlewareData.value = position.middlewareData;
       isPositioned.value = true;
     });
   }
 
   function cleanup() {
-    if (typeof whileElementsMountedCleanup === 'function') {
-      whileElementsMountedCleanup();
-      whileElementsMountedCleanup = undefined;
+    if (autoUpdateClean) {
+      autoUpdateClean();
+      autoUpdateClean = undefined;
     }
   }
 
@@ -102,7 +198,7 @@ export function useFloating(
     cleanup();
     if (unrefOrGet(off)) return;
 
-    if (!whileElementsMounted) {
+    if (options.noAutoUpdate) {
       update();
       return;
     }
@@ -110,7 +206,7 @@ export function useFloating(
       refEl = unrefOrGet(reference);
 
     if (refEl && floatEl) {
-      whileElementsMountedCleanup = whileElementsMounted(refEl, floatEl, update);
+      autoUpdateClean = autoUpdate(refEl, floatEl, update, options.autoUpdateOptions);
     }
   }
 
@@ -124,7 +220,7 @@ export function useFloating(
     flush: 'sync' as const,
   };
   watch([middleware, placementOption, strategyOption], update, watchOption);
-  watchEffect(attach, watchOption);
+  watchEffectOnMounted(attach, watchOption);
   watch(openOption, reset, watchOption);
 
   tryOnScopeDispose(cleanup);
@@ -137,5 +233,8 @@ export function useFloating(
     isPositioned: shallowReadonly(isPositioned),
     floatingStyles,
     update,
+    placement,
+    getOffset,
+    placementInfo,
   };
 }

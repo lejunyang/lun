@@ -19,6 +19,25 @@ import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
 import { Constructor, freeze } from '@lun/utils';
 
+export const popoverFloatingUIProps = freeze({
+  strategy: PropString<'fixed' | 'absolute'>(),
+  placement: PropString<Placement>(),
+  arrowPosition: PropString<'start' | 'center' | 'end' | 'auto'>(),
+  /** @link https://floating-ui.com/docs/offset */
+  offset: PropNumber(),
+  showArrow: PropBoolean(),
+  /** offset of arrow from popover edge, effective only when arrowPosition is not center */
+  arrowOffset: PropNumber(),
+  /** @link https://floating-ui.com/docs/flip */
+  flip: PropObjOrBool<boolean | FlipOptions, Constructor<Derivable<FlipOptions>>[]>(Function as any),
+  /** @link https://floating-ui.com/docs/shift */
+  shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
+  /** @link https://floating-ui.com/docs/inline */
+  inline: PropObjOrBool<boolean | InlineOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
+  /** @link https://floating-ui.com/docs/autoUpdate */
+  autoUpdateOptions: PropObject<AutoUpdateOptions>(),
+});
+
 export const popoverProps = freeze({
   ...createTransitionProps(),
   /** note that it will not inherit edit state's disabled */
@@ -42,22 +61,7 @@ export const popoverProps = freeze({
   preferHtml: PropBoolean(),
   defaultChildren: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(), // it was named as 'children', but 'children' is a reserved prop in react
 
-  strategy: PropString<'fixed' | 'absolute'>(),
-  placement: PropString<Placement>(),
-  arrowPosition: PropString<'start' | 'center' | 'end' | 'auto'>(),
-  /** @link https://floating-ui.com/docs/offset */
-  offset: PropNumber(),
-  showArrow: PropBoolean(),
-  /** offset of arrow from popover edge, effective only when arrowPosition is not center */
-  arrowOffset: PropNumber(),
-  /** @link https://floating-ui.com/docs/flip */
-  flip: PropObjOrBool<boolean | FlipOptions, Constructor<Derivable<FlipOptions>>[]>(Function as any),
-  /** @link https://floating-ui.com/docs/shift */
-  shift: PropObjOrBool<boolean | ShiftOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
-  /** @link https://floating-ui.com/docs/inline */
-  inline: PropObjOrBool<boolean | InlineOptions, Constructor<Derivable<ShiftOptions>>[]>(Function as any),
-  /** @link https://floating-ui.com/docs/autoUpdate */
-  autoUpdateOptions: PropObject<AutoUpdateOptions>(),
+  ...popoverFloatingUIProps,
 
   /** used to set the width of pop content, can be css width value or special value 'anchorWidth', 'anchorHeight', which will make the pop content same width or height as the anchor element */
   popWidth: PropNumber(),
