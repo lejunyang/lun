@@ -30,10 +30,17 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'select.button.selectAll': '全选',
     'select.button.reverse': '反选',
     'select.button.clear': '清空',
+
+    'tour.prev': '上一步',
+    'tour.next': '下一步',
+    'tour.close': '结束',
   },
 });
 
-export function processStringWithParams<T>(value: string | ((param: T) => string) | undefined, param: T): string | undefined;
+export function processStringWithParams<T>(
+  value: string | ((param: T) => string) | undefined,
+  param: T,
+): string | undefined;
 export function processStringWithParams<T>(value?: string | ((param?: T) => string), param?: T): string | undefined;
 
 export function processStringWithParams<T extends Record<string, any>>(

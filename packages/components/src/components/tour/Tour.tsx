@@ -1,14 +1,15 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView, toElement } from 'utils';
 import { tourEmits, tourProps, TourStep } from './type';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineDialog, iDialog } from '../dialog';
-import { ensureNumber, isArray } from '@lun/utils';
+import { ensureNumber, isArray, runIfFn } from '@lun/utils';
 import { unrefOrGet, useSetupEvent } from '@lun/core';
 import { autoUpdate } from '@floating-ui/vue';
 import { referenceRect } from '../popover/floating.store-rects';
 import { useFloating } from '../popover/useFloating';
+import { intl } from 'common';
 
 const name = 'tour';
 const parts = [] as const;
@@ -20,7 +21,13 @@ export const Tour = defineSSRCustomElement({
     const ns = useNamespace(name);
     const openModel = useOpenModel(props),
       stepModel = ref(0);
-    useSetupEvent();
+    const close = () => {
+      openModel.value = false;
+      dialogRef.value?.closeDialog();
+    };
+    useSetupEvent({
+      close,
+    });
     const dialogRef = ref<iDialog>(),
       currentTarget = ref();
 
@@ -29,39 +36,49 @@ export const Tour = defineSSRCustomElement({
       whileElementsMounted: autoUpdate,
     });
 
-    const updateStep = (offset: number) => {
+    const totalSteps = computed(() => {
+      const { steps } = props;
+      return isArray(steps) ? steps.length : ensureNumber(steps, 0);
+    });
+
+    // Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+    let step: TourStep | undefined;
+    const updateStep = async (offset: number) => {
       const { steps, scrollOptions } = props;
-      const totalSteps = isArray(steps) ? steps.length : ensureNumber(steps, 0);
-      if (!totalSteps) return;
-      let i: number, step: TourStep;
+      if (!totalSteps.value) return false;
+      let i: number;
       if (!offset) i = stepModel.value = 0;
-      else if ((i = stepModel.value += offset) >= totalSteps || i < 0) {
+      else if ((i = stepModel.value += offset) >= totalSteps.value || i < 0) {
         stepModel.value = 0;
-        return (openModel.value = false);
+        return close();
       }
       if (isArray(steps) && (step = steps[i])) {
+        if ((await runIfFn(step.beforeEnter)) === false) return false;
         const el = toElement(unrefOrGet(step.target));
         if (el) {
-          scrollIntoView(el, scrollOptions);
           currentTarget.value = el;
+          scrollIntoView(el, { block: 'center', ...scrollOptions });
         }
       }
     };
 
-    watch([openModel, dialogRef], ([open, dialog]) => {
+    watch([openModel, dialogRef], async ([open, dialog]) => {
       if (dialog) {
         if (open) {
-          updateStep(0);
-          dialog.openDialog();
+          if ((await updateStep(0)) !== false) dialog.openDialog();
         }
       }
     });
 
     const [stateClass] = useCEStates(() => null, ns);
+    const nextStep = () => updateStep(1),
+      prevStep = () => updateStep(-1);
+
     useCEExpose({
-      startStep: () => updateStep(0),
-      nextStep: () => updateStep(1),
-      prevStep: () => updateStep(-1),
+      openTour: () => updateStep(0),
+      nextStep,
+      prevStep,
+      closeTour: close,
     });
 
     return () => {
@@ -69,20 +86,38 @@ export const Tour = defineSSRCustomElement({
       const padding = ensureNumber(highlightPadding, 0);
       const { rects } = middlewareData.value;
       const { x, y, width, height } = rects?.reference! || {};
-      return renderElement('dialog', {
-        class: stateClass.value,
-        ref: dialogRef,
-        open: openModel.value,
-        panelStyle: floatingStyles.value,
-        maskStyle: rects
-          ? {
-              boxSizing: 'border-box',
-              borderWidth: `${y - padding}px ${innerWidth - x - width - padding}px ${
-                innerHeight - y - height - padding
-              }px ${x - padding}px`,
-            }
-          : {},
-      });
+      const stepNow = stepModel.value,
+        stepMax = totalSteps.value;
+      return renderElement(
+        'dialog',
+        {
+          noOkBtn: true,
+          noCancelBtn: true,
+          class: stateClass.value,
+          ref: dialogRef,
+          panelStyle: floatingStyles.value,
+          maskStyle: rects
+            ? {
+                boxSizing: 'border-box',
+                borderWidth: `${y - padding}px ${innerWidth - x - width - padding}px ${
+                  innerHeight - y - height - padding
+                }px ${x - padding}px`,
+              }
+            : {},
+          title: step?.title,
+        },
+        <>
+          <slot name={stepNow}>{step?.content}</slot>
+          <slot name="footer" slot="footer">
+            {stepNow > 0 &&
+              renderElement('button', { asyncHandler: prevStep, label: intl('tour.prev').d('Prev Step') })}
+            {stepNow < stepMax - 1 &&
+              renderElement('button', { asyncHandler: nextStep, label: intl('tour.next').d('Next Step') })}
+            {stepNow === stepMax - 1 &&
+              renderElement('button', { onClick: close, label: intl('tour.prev').d('Close') })}
+          </slot>
+        </>,
+      );
     };
   },
 });

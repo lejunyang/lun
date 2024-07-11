@@ -1,17 +1,18 @@
-import { Constructor, freeze } from '@lun/utils';
+import { Constructor, freeze, omit } from '@lun/utils';
 import { GetEventPropsFromEmits, CommonProps, PropNumOrArr, PropNumber, PropObject } from 'common';
 import { ExtractPropTypes } from 'vue';
-import { MaybeRefLikeOrGetter } from '@lun/core';
+import { MaybePromise, MaybeRefLikeOrGetter } from '@lun/core';
 import { dialogProps } from '../dialog';
 
 export type TourStep = {
   title?: string;
   content?: string;
   target: MaybeRefLikeOrGetter<string | Element>;
+  beforeEnter?: () => MaybePromise<boolean | void>;
 };
 
 export const tourProps = freeze({
-  ...dialogProps,
+  ...omit(dialogProps, ['noOkBtn', 'noCancelBtn', 'okBtnProps', 'okText', 'cancelBtnProps', 'cancelText', 'beforeOk']),
   steps: PropNumOrArr<string | number, Constructor<TourStep[]>[]>(),
   highlightPadding: PropNumber(),
   scrollOptions: PropObject<ScrollIntoViewOptions>(),
