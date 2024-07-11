@@ -27,7 +27,7 @@ lang: zh-CN
 通过`type`属性指定 Message 实现方式, 目前支持以下方式：
 
 - `popover`: 默认值，会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现
-- `position`: 当前位置渲染，使用 fixed 定位，会受父元素影响
+- `normal`: 当前位置渲染，使用 fixed 定位，会受父元素影响
 - `teleport`: 将弹出内容渲染到[`teleport-holder`](/components/teleport-holder/)（默认在第一个[`theme-provider`](/components/theme-provider/)下）并使用 fixed 定位，此时主题的继承可能不符合预期，通过`to`属性可调整渲染位置
 
 需要注意的是，若浏览器不支持 Popover，手动指定的 `type` 会被无视，将采用备选方案实现

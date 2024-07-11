@@ -42,7 +42,7 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
     return `<Code${name.startsWith('_dev') ? ' dev' : ''}${propResult}><${componentName}ForSSR /></Code>`;
   });
   if (!imports.length) return newContent;
-  imports.unshift("import { inBrowser } from 'vitepress';");
+  imports.unshift("import { inBrowser } from '@lun/utils';");
   let hasScriptSetup = false;
   const scriptSetupRegex = /<script\s+setup>([\s\S]*?)<\/script>/;
   newContent = newContent.replace(scriptSetupRegex, (_, scriptContent) => {

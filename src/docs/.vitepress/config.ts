@@ -105,6 +105,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.pop.message, link: wrapLink('/components/message/', lang) },
             { text: locales[lang].sidebar.pop.popover, link: wrapLink('/components/popover/', lang) },
             { text: locales[lang].sidebar.pop.tooltip, link: wrapLink('/components/tooltip/', lang) },
+            { text: locales[lang].sidebar.pop.tour, link: wrapLink('/components/tour/', lang) },
           ],
         },
         {
@@ -226,12 +227,20 @@ export default defineConfig({
           next: '下一页',
         },
         darkModeSwitchLabel: '夜间模式',
+        lastUpdated: {
+          text: '上次更新于',
+          formatOptions: { dateStyle: 'medium', timeStyle: undefined, forceLocale: true },
+        },
       },
     },
     en: {
       label: 'English',
       lang: 'en',
       themeConfig: {
+        lastUpdated: {
+          text: 'Last updated at',
+          formatOptions: { dateStyle: 'medium', timeStyle: undefined, forceLocale: true },
+        },
         ...getThemeConfig('en'),
       },
     },

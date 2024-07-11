@@ -110,6 +110,32 @@ const polygonSlide = () => {
   );
 };
 
+const pullToSides = () => {
+  document.documentElement.animate(
+    [
+      {
+        clipPath: 'polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%)',
+      },
+      {
+        clipPath: 'polygon(40% 0%, 60% 0%, 75% 100%, 25% 100%)',
+        offset: 0.3,
+      },
+      {
+        clipPath: 'polygon(30% 0%, 70% 0%, 90% 100%, 10% 100%)',
+        offset: 0.8,
+      },
+      {
+        clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0 100%)',
+      },
+    ],
+    {
+      duration: 700,
+      easing: 'ease-in-out',
+      pseudoElement: '::view-transition-new(root)',
+    },
+  );
+};
+
 const circleGrow = () => {
   const x = lastClickX,
     y = lastClickY;
@@ -141,7 +167,7 @@ onMounted(() => {
   );
 });
 
-const animationPool = [swapZ, polygonSlide, circleGrow];
+const animationPool = [pullToSides, swapZ, polygonSlide, circleGrow];
 const randomAnimate = async (update: AnyFn) => {
   if (document.startViewTransition) {
     await document.startViewTransition(async () => {

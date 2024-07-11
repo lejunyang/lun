@@ -38,6 +38,7 @@ export default {
         message: 'Message 消息',
         popover: 'Popover 弹出',
         tooltip: 'Tooltip 提示',
+        tour: 'Tour 引导',
       },
       feedback: {
         menu: '反馈展示',
@@ -129,6 +130,7 @@ export default {
         message: 'Message',
         popover: 'Popover',
         tooltip: 'Tooltip',
+        tour: 'Tour',
       },
       feedback: {
         menu: 'Feedback',
