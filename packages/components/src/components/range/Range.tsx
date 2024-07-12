@@ -251,7 +251,7 @@ export const Range = defineSSRCustomElement({
 
     return () => {
       const { value } = processedValues,
-        { type, labels, tooltipProps } = props,
+        { type, labels, tooltipProps, railStyle, trackStyle } = props,
         { editable } = editComputed;
       return (
         <div
@@ -261,8 +261,8 @@ export const Range = defineSSRCustomElement({
           ref={rootEl}
           {...handlers}
         >
-          <div class={ns.e('rail')} part={compParts[2]}>
-            <span class={ns.e('track')} data-track="0" part={compParts[3]}></span>
+          <div class={ns.e('rail')} part={compParts[2]} style={railStyle}>
+            <span class={ns.e('track')} data-track="0" part={compParts[3]} style={trackStyle}></span>
             {value.map(([_, p], index) => (
               <span
                 data-index={index}

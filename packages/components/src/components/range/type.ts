@@ -10,7 +10,7 @@ import {
   PropObject,
   PropString,
 } from 'common';
-import { ExtractPropTypes } from 'vue';
+import { CSSProperties, ExtractPropTypes } from 'vue';
 
 export const rangeProps = freeze({
   ...editStateProps,
@@ -26,6 +26,8 @@ export const rangeProps = freeze({
   trackDraggable: PropBoolean(),
   tooltipProps: PropObject(),
   tooltipFormatter: PropFunction<(value: string) => string>(),
+  railStyle: PropObject<CSSProperties>(),
+  trackStyle: PropObject<CSSProperties>(),
 });
 
 export const rangeEmits = freeze({

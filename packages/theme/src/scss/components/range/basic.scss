@@ -4,6 +4,7 @@
 @use '../../mixins/config' as *;
 
 @include b(range) {
+  display: flex;
   @include m(horizontal) {
     margin-inline: calc((var(--factor) + 1) * getDeclaredVar(size));
     @include e(rail) {
@@ -14,7 +15,8 @@
       );
       @include declareVarValues(
         (
-          margin-block: calc(2 * var(--factor) * getDeclaredVar(size)),
+          // 2px box-shadow
+          margin-block: calc(2 * var(--factor) * getDeclaredVar(size) + 2px)
         )
       );
     }
@@ -44,7 +46,6 @@
     }
   }
   @include m(vertical) {
-    display: flex;
     margin-block: calc((var(--factor) + 1) * getDeclaredVar(size));
     @include e(rail) {
       flex-direction: column;
@@ -55,7 +56,7 @@
       );
       @include declareVarValues(
         (
-          margin-inline: calc(2 * var(--factor) * getDeclaredVar(size)),
+          margin-inline: calc(2 * var(--factor) * getDeclaredVar(size) + 2px),
         )
       );
     }
