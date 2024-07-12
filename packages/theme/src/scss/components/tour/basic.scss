@@ -2,11 +2,42 @@
 @use '../../mixins/theme' as *;
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
+@use '../popover/basic' as *;
 
 @include b(tour) {
   &::part(mask) {
     background-color: transparent;
     border-style: solid;
     border-color: getSemanticColor('mask');
+  }
+  &::part(panel) {
+    transition: all 0.2s cubic-bezier(0.23, 0.64, 0.34, 1);
+  }
+
+  @include popoverArrow;
+
+  @include size(1) {
+    @include setVars(
+      (
+        arrow-size: getSpaceValue(2),
+        arrow-hypot: getSpaceValue(2, true),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        arrow-size: getSpaceValue(3),
+        arrow-hypot: getSpaceValue(3, true),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        arrow-size: getSpaceValue(4),
+        arrow-hypot: getSpaceValue(4, true),
+      )
+    );
   }
 }

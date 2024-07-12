@@ -325,6 +325,10 @@
   }
 }
 
+@function getReuseVar($name) {
+  @return var(--_#{$name});
+}
+
 /// inside @include b(button) { ... }
 /// declareVarValues((padding: 5px)) => padding: var(--l-button-padding, 5px);
 /// declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);

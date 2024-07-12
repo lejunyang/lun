@@ -5,7 +5,7 @@
 
 :host {
   display: inline-block;
-  position: relative; 
+  position: relative;
 }
 [popover] {
   margin: initial;
@@ -19,11 +19,123 @@
   overflow: unset;
 }
 
+@mixin popoverArrow() {
+  @include declareReuseVars((arrow-size, arrow-hypot, arrow-clip-path));
+  @include e(arrow) {
+    @include reuseVars(
+      (
+        width: arrow-hypot,
+        height: arrow-hypot,
+      )
+    );
+    overflow: hidden;
+    // use two pseudo elements to implement clip-path with shadows, ::before is the background, ::after is the shadow
+    &::before {
+      position: absolute;
+      content: '';
+      display: block;
+      left: 0;
+      background-color: getSemanticColor('panel-solid');
+      z-index: 1;
+      @include reuseVars(
+        (
+          width: arrow-hypot,
+          height: arrow-hypot,
+          clip-path: arrow-clip-path,
+        )
+      );
+    }
+    &::after {
+      position: absolute;
+      content: '';
+      display: block;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      box-shadow: getShadow(5);
+      @include reuseVars(
+        (
+          width: arrow-size,
+          height: arrow-size,
+        )
+      );
+    }
+  }
+  @include is(side-top) {
+    @include setVars(
+      (
+        arrow-clip-path: polygon(50% 100%, 0% 0%, 100% 0%),
+      )
+    );
+    @include e(arrow) {
+      &::before {
+        top: 0;
+        height: calc(#{getReuseVar(arrow-hypot)} / 2);
+      }
+      &::after {
+        top: unset;
+      }
+    }
+  }
+  @include is(side-bottom) {
+    @include setVars(
+      (
+        arrow-clip-path: polygon(50% 0%, 0% 100%, 100% 100%),
+      )
+    );
+    @include e(arrow) {
+      &::before {
+        bottom: 0;
+        height: calc(#{getReuseVar(arrow-hypot)} / 2);
+      }
+      &::after {
+        top: 100%;
+      }
+    }
+  }
+  @include is(side-left) {
+    @include setVars(
+      (
+        arrow-clip-path: polygon(100% 50%, 0% 0%, 0% 100%),
+      )
+    );
+    @include e(arrow) {
+      &::before {
+        left: 0;
+        width: calc(#{getReuseVar(arrow-hypot)} / 2);
+      }
+      &::after {
+        left: unset;
+      }
+    }
+  }
+  @include is(side-right) {
+    @include setVars(
+      (
+        arrow-clip-path: polygon(0% 50%, 100% 0%, 100% 100%),
+      )
+    );
+    @include e(arrow) {
+      &::before {
+        left: unset;
+        right: 0;
+        width: calc(#{getReuseVar(arrow-hypot)} / 2);
+      }
+      &::after {
+        left: 100%;
+      }
+    }
+  }
+}
+
 @include b(popover) {
-  $contentPadding: getVarName((popover, content, padding));
-  $arrowSize: getVarName((popover, arrow, size));
-  $arrowHypot: getVarName((popover, arrow, hypot));
-  $arrowClipPath: getVarName((popover, arrow, clip-path));
+  @include declareReuseVars(
+    (
+      padding: content-padding,
+      border-radius: border-radius,
+    ),
+    true
+  );
 
   background-color: getSemanticColor('panel-solid');
   box-shadow: getShadow(5);
@@ -40,107 +152,47 @@
     // );
   }
 
-  @include e(arrow) {
-    width: var(#{$arrowHypot});
-    height: var(#{$arrowHypot});
-    overflow: hidden;
-    // use two pseudo elements to implement clip-path with shadows, ::before is the background, ::after is the shadow
-    &::before {
-      position: absolute;
-      content: '';
-      display: block;
-      left: 0;
-      width: var(#{$arrowHypot});
-      height: var(#{$arrowHypot});
-      background-color: getSemanticColor('panel-solid');
-      clip-path: var(#{$arrowClipPath});
-      z-index: 1;
-    }
-    &::after {
-      position: absolute;
-      content: '';
-      display: block;
-      left: 50%;
-      top: 50%;
-      width: var(#{$arrowSize});
-      height: var(#{$arrowSize});
-      transform: translate(-50%, -50%) rotate(45deg);
-      box-shadow: getShadow(5);
-    }
-  }
-  @include is(side-top) {
-    #{$arrowClipPath}: polygon(50% 100%, 0% 0%, 100% 0%);
-    @include e(arrow) {
-      &::before {
-        top: 0;
-        height: calc(var(#{$arrowHypot}) / 2);
-      }
-      &::after {
-        top: unset;
-      }
-    }
-  }
-  @include is(side-bottom) {
-    #{$arrowClipPath}: polygon(50% 0%, 0% 100%, 100% 100%);
-    @include e(arrow) {
-      &::before {
-        bottom: 0;
-        height: calc(var(#{$arrowHypot}) / 2);
-      }
-      &::after {
-        top: 100%;
-      }
-    }
-  }
-  @include is(side-left) {
-    #{$arrowClipPath}: polygon(100% 50%, 0% 0%, 0% 100%);
-    @include e(arrow) {
-      &::before {
-        left: 0;
-        width: calc(var(#{$arrowHypot}) / 2);
-      }
-      &::after {
-        left: unset;
-      }
-    }
-  }
-  @include is(side-right) {
-    #{$arrowClipPath}: polygon(0% 50%, 100% 0%, 100% 100%);
-    @include e(arrow) {
-      &::before {
-        left: unset;
-        right: 0;
-        width: calc(var(#{$arrowHypot}) / 2);
-      }
-      &::after {
-        left: 100%;
-      }
-    }
-  }
+  @include popoverArrow;
 
   @include size(1) {
-    padding: var(#{$contentPadding}, getSpaceValue(1));
-    border-radius: getRadiusValue(4);
-    #{$arrowSize}: getSpaceValue(2);
-    #{$arrowHypot}: getSpaceValue(2, true);
+    @include setVars(
+      (
+        content-padding: getSpaceValue(1),
+        arrow-size: getSpaceValue(2),
+        arrow-hypot: getSpaceValue(2, true),
+        border-radius: getRadiusValue(4),
+      )
+    );
   }
   @include size(2) {
-    padding: var(#{$contentPadding}, getSpaceValue(2));
-    border-radius: getRadiusValue(4);
-    #{$arrowSize}: getSpaceValue(3);
-    #{$arrowHypot}: getSpaceValue(3, true);
+    @include setVars(
+      (
+        content-padding: getSpaceValue(2),
+        arrow-size: getSpaceValue(3),
+        arrow-hypot: getSpaceValue(3, true),
+        border-radius: getRadiusValue(4),
+      )
+    );
   }
   @include size(3) {
-    padding: var(#{$contentPadding}, getSpaceValue(4));
-    border-radius: getRadiusValue(5);
-    #{$arrowSize}: getSpaceValue(4);
-    #{$arrowHypot}: getSpaceValue(4, true);
+    @include setVars(
+      (
+        content-padding: getSpaceValue(4),
+        arrow-size: getSpaceValue(4),
+        arrow-hypot: getSpaceValue(4, true),
+        border-radius: getRadiusValue(5),
+      )
+    );
   }
   @include size(4) {
-    padding: var(#{$contentPadding}, getSpaceValue(5));
-    border-radius: getRadiusValue(5);
-    #{$arrowSize}: getSpaceValue(5);
-    #{$arrowHypot}: getSpaceValue(5, true);
+    @include setVars(
+      (
+        content-padding: getSpaceValue(5),
+        arrow-size: getSpaceValue(5),
+        arrow-hypot: getSpaceValue(5, true),
+        border-radius: getRadiusValue(5),
+      )
+    );
   }
 
   // ------------------------------ for select ------------------------------
