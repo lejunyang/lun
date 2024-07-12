@@ -28,6 +28,14 @@ export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1
 export type ComponentDependencyDefineMap = {
   [key: string]: (name?: string, dn?: Record<string, string>) => void;
 };
+type ExtractChainDepNames<T extends ComponentDependencyDefineMap> = T[keyof T] extends (
+  name?: string,
+  dn?: infer ChainT,
+) => void
+  ? ChainT extends Record<string, string>
+    ? keyof ChainT
+    : never
+  : never;
 
 export function createDefineElement<
   Comp extends CustomElementConstructor,
@@ -53,7 +61,7 @@ export function createDefineElement<
   },
   parts: readonly string[] | string[],
   dependencies: T,
-): (name?: string, dependencyNames?: Record<keyof T, string>) => void;
+): (name?: string, dependencyNames?: Record<keyof T | ExtractChainDepNames<T>, string>) => void;
 
 /*@__NO_SIDE_EFFECTS__*/
 export function createDefineElement(
@@ -68,7 +76,7 @@ export function createDefineElement(
     const { nameMap, defaultProps, actualNameMap } = GlobalStaticConfig;
     if (dependencies) {
       for (const [k, v] of Object.entries(dependencies)) {
-        v(dependencyNameMap?.[k]);
+        v(dependencyNameMap?.[k], dependencyNameMap);
       }
     }
     name ||= nameMap[compKey];
