@@ -41,9 +41,9 @@ export function useDateParseFormat(options: {
 }) {
   const { parse, format, ...rest } = createDateLocaleMethods(options.lang);
   return {
-    parse: (date: DateValueType, formatStr?: string) => format(date, formatStr || getDefaultTimeFormat(options)),
+    format: (date: DateValueType, formatStr?: string) => format(date, formatStr || getDefaultTimeFormat(options)),
     /** parse from */
-    format: (value: any, formatStr?: string) =>
+    parse: (value: any, formatStr?: string) =>
       presets.date.isValid(value) ? value : parse(value, formatStr || getDefaultTimeFormat(options)),
     ...rest,
   };

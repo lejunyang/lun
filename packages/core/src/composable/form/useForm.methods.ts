@@ -27,8 +27,12 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       if (isArray(path)) {
         if (!path.length) return;
         const last = path.pop();
-        const obj = objectGet(formData.value, path);
-        if (isObject(obj)) delete obj[last!];
+        if (!path.length) {
+          delete formData.value[last!];
+        } else {
+          const obj = objectGet(formData.value, path);
+          if (isObject(obj)) delete obj[last!];
+        }
       } else delete formData.value[path];
       hooks.onUpdateValue.exec({ formData: formData.value, path, isDelete: true, value: undefined });
     },
