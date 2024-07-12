@@ -377,6 +377,7 @@ export const FormItem = defineSSRCustomElement({
       hooks.onFormItemDisconnected.exec(param);
       switch (props.value.unmountBehavior) {
         case 'delete':
+          console.log('delete')
           return deletePath(path.value);
         case 'toNull':
           return setValue(path.value, null);
@@ -396,14 +397,12 @@ export const defineFormItem = createDefineElement(
   name,
   FormItem,
   {
-    plainName: undefined,
     colonMark: ':',
     requiredMark: '*',
     requiredMarkAlign: 'start',
     helpType: 'icon',
     tipType: 'tooltip',
     required: undefined, // must, for runIfFn(required, formContext) ?? localRequired.value
-    clearWhenDepChange: undefined, // must, used in virtualGetMerge
     validateWhen: ['blur', 'depChange'],
   },
   parts,

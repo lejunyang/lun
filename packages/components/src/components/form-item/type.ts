@@ -15,6 +15,7 @@ import {
   editStateProps,
   sizeProp,
   themeProps,
+  undefBoolProp,
 } from 'common';
 import { MaybePromise, CollectorContext, InputType } from '@lun/core';
 import { ComponentKey } from 'config';
@@ -49,7 +50,7 @@ export const formItemProps = freeze({
   ...editStateProps,
   ...themeProps,
   name: PropString(),
-  plainName: PropBoolean(),
+  plainName: undefBoolProp,
   array: PropBoolean(),
 
   element: PropString<ComponentKey>(),
@@ -97,7 +98,7 @@ export const formItemProps = freeze({
   unmountBehavior: PropString<'delete' | 'toNull' | 'toUndefined'>(),
   /** used to define the dependencies of current field, changing dependent values will trigger some actions, see `clearWhenDepChange` `disableWhenDepFalsy` `requireWhenDepTruthy` `validateWhen` */
   deps: PropStrOrArr(),
-  clearWhenDepChange: PropBoolean(),
+  clearWhenDepChange: undefBoolProp, // must defaults to undefined as used in virtualGetMerge
   disableWhenDep: PropStrOrArr<Condition>(),
   // ------------------ validation ------------------
   ...formItemRuleProps,

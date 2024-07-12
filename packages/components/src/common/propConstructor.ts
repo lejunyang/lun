@@ -24,7 +24,9 @@ export const PropObjOrFunc = cacheFunctionResult(createPropFactory(Object, Funct
 export const PropObjOrStr = cacheFunctionResult(createPropFactory(Object, String));
 export const PropObjOrBool = cacheFunctionResult(createPropFactory(Boolean, Object));
 export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array as Constructor<string[] | null>));
-export const PropNumOrArr = cacheFunctionResult(createPropFactory(String, Number, Array as Constructor<string [] | number[] | null>))
+export const PropNumOrArr = cacheFunctionResult(
+  createPropFactory(String, Number, Array as Constructor<string[] | number[] | null>),
+);
 
 /**
  * it's for prop 'value' of some components, like select-option, checkbox, radio... their value can be anything but empty string ''
@@ -38,6 +40,7 @@ export const PropResponsive = cacheFunctionResult(createPropFactory(Object, Numb
 
 export const sizeProp = PropResponsive<string | number>();
 
+/** it's for prop like 'open', whose default value must be undefined */
 export const undefBoolProp = { type: Boolean, default: undefined };
 
 // const test = {

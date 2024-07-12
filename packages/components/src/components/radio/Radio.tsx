@@ -81,7 +81,6 @@ export const defineRadio = createDefineElement(
   Radio,
   {
     labelPosition: 'end',
-    noIndicator: undefined, // virtualMerge requires undefined as default
   },
   parts,
 );

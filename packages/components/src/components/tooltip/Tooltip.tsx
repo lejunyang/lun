@@ -95,8 +95,6 @@ export const defineTooltip = createDefineElement(
   name,
   Tooltip,
   {
-    open: undefined, // must be undefined, otherwise it will be controlled
-    showArrow: true,
     transition: 'scale',
     // anchorName: 'tooltip',
   },

@@ -7,6 +7,7 @@ import {
   PropString,
   PropBoolean,
   CommonProps,
+  undefBoolProp,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -19,7 +20,7 @@ export const radioProps = freeze({
   label: PropString(),
   labelPosition: PropString<LogicalPosition>(),
   checked: PropBoolean(),
-  noIndicator: PropBoolean(),
+  noIndicator: undefBoolProp, // virtualMerge requires undefined as default
 
   start: PropBoolean(),
   end: PropBoolean(),

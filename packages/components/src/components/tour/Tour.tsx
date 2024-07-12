@@ -19,7 +19,6 @@ export const Tour = defineSSRCustomElement({
   setup(props, { emit: e }) {
     const ns = useNamespace(name);
     const close = () => {
-      console.log('close');
       openModel.value = false;
       dialogRef.value?.closeDialog();
     };

@@ -12,6 +12,7 @@ import {
   PropString,
   createTransitionProps,
   themeProps,
+  undefBoolProp,
 } from 'common';
 import type { AutoUpdateOptions, FlipOptions, Placement, ShiftOptions } from '@floating-ui/vue';
 import type { Derivable, InlineOptions } from '@floating-ui/core';
@@ -25,7 +26,7 @@ export const popoverFloatingUIProps = freeze({
   arrowPosition: PropString<'start' | 'center' | 'end' | 'auto'>(),
   /** @link https://floating-ui.com/docs/offset */
   offset: PropNumber(),
-  showArrow: PropBoolean(),
+  showArrow: undefBoolProp,
   /** offset of arrow from popover edge, effective only when arrowPosition is not center */
   arrowOffset: PropNumber(),
   /** @link https://floating-ui.com/docs/flip */
@@ -43,7 +44,7 @@ export const popoverProps = freeze({
   /** note that it will not inherit edit state's disabled */
   disabled: PropObjOrBool<MaybeRefLikeOrGetter<boolean>>(),
   /** used to manually set the open state of popover */
-  open: PropBoolean(),
+  open: undefBoolProp,
   /** determine whether to freeze content update when pop is closing */
   freezeWhenClosing: PropBoolean(),
   /** used to manually set the anchor target of popover */

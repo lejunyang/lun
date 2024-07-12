@@ -221,7 +221,6 @@ export const defineForm = createDefineElement(
   name,
   Form,
   {
-    plainName: undefined,
     layout: 'grid',
     cols: '1',
     preferSubgrid: true,

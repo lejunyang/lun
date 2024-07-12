@@ -11,6 +11,7 @@ import {
   sizeProp,
   PropResponsive,
   CommonProps,
+  undefBoolProp,
 } from 'common';
 import { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
@@ -32,7 +33,7 @@ export const formProps = freeze({
    * determine whether the name of form-items of current form are plain or not, plain means the name will be considered as a single string path, will not try transform it into nested path
    * prop `plainName` of form-item itself takes higher priority
    */
-  plainName: PropBoolean(),
+  plainName: undefBoolProp,
   validators: PropObject<FormValidators>(),
   /**
    * determine the validate early stop strategy.

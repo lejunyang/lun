@@ -378,7 +378,6 @@ export const definePopover = createDefineElement(
   Popover,
   {
     offset: 4,
-    open: undefined, // must be undefined, otherwise it will be controlled
     showArrow: true,
     useTransform: false,
     transition: 'fade',

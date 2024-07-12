@@ -1,12 +1,12 @@
 import { freeze } from '@lun/utils';
-import { CommonProps, editStateProps, GetEventPropsFromEmits, PropBoolean, PropObjOrStr, sizeProp } from 'common';
+import { CommonProps, editStateProps, GetEventPropsFromEmits, PropBoolean, PropObjOrStr, sizeProp, undefBoolProp } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type DocPipAcceptStyle = string | CSSStyleSheet | HTMLStyleElement;
 
 export const docPipProps = freeze({
   ...editStateProps,
-  open: PropBoolean(),
+  open: undefBoolProp,
   width: sizeProp,
   height: sizeProp,
   pipStyles: PropObjOrStr<DocPipAcceptStyle | DocPipAcceptStyle[]>(),
