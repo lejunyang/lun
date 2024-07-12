@@ -16,25 +16,26 @@ export const Tour = defineSSRCustomElement({
   name,
   props: tourProps,
   emits: tourEmits,
-  setup(props) {
+  setup(props, { emit: e }) {
     const ns = useNamespace(name);
-    const openModel = useOpenModel(props),
-      stepModel = ref(0);
     const close = () => {
+      console.log('close');
       openModel.value = false;
       dialogRef.value?.closeDialog();
     };
-    useSetupEvent(
+    const emit = useSetupEvent<typeof e>(
       {
         close,
       },
       { reEmits: ['afterOpen', 'afterClose'] },
     );
+    const openModel = useOpenModel(props),
+      stepModel = ref(0);
     const dialogRef = ref<iDialog>(),
       currentTarget = ref(),
       arrowRef = ref();
 
-    const { floatingStyles, middlewareData } = useFloating(
+    const { floatingStyles, middlewareData, placement, placementInfo } = useFloating(
       currentTarget,
       () => dialogRef.value?.panelElement!,
       arrowRef,
@@ -60,6 +61,7 @@ export const Tour = defineSSRCustomElement({
         return close();
       }
       if ((step = steps[i])) {
+        emit('updateStep', step);
         if ((await runIfFn(step.beforeEnter)) === false) return;
         const el = toElement(unrefOrGet(step.target));
         if (el) {
@@ -70,15 +72,21 @@ export const Tour = defineSSRCustomElement({
       }
     };
 
-    watch([openModel, dialogRef], async ([open, dialog]) => {
+    watch([openModel, dialogRef], async ([open, dialog], [_, oldDialog]) => {
       if (dialog) {
         if (open) {
           if ((await updateStep(0)) === true) dialog.openDialog();
-        }
+        } else if (oldDialog) close(); // check oldDialog in case close is call onMounted
       }
     });
 
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(
+      () => ({
+        [`placement-${placement.value}`]: 1,
+        [`side-${placementInfo.value[0]}`]: 1,
+      }),
+      ns,
+    );
     const nextStep = () => updateStep(1),
       prevStep = () => updateStep(-1);
 
@@ -147,6 +155,9 @@ export const defineTour = createDefineElement(
     highlightPadding: 2,
     offset: 4,
     showArrow: true,
+    placement: 'top',
+    flip: true,
+    shift: true,
   },
   parts,
   {

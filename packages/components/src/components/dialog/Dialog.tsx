@@ -13,6 +13,7 @@ import {
   useTempInlineStyle,
   useNativeDialog,
   useSetupEdit,
+  useSetupEvent,
 } from '@lun/core';
 import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
 import { getCompParts, getTransitionProps, intl } from 'common';
@@ -44,8 +45,9 @@ export const Dialog = Object.assign(
     name,
     props: dialogProps,
     emits: dialogEmits,
-    setup(props, { emit }) {
+    setup(props, { emit: e }) {
       const ns = useNamespace(name);
+      const emit = useSetupEvent<typeof e>();
       const openModel = useOpenModel(props);
       const maskShow = ref(false),
         isOpen = ref(false);

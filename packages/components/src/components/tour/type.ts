@@ -22,6 +22,7 @@ export const tourProps = freeze({
 
 export const tourEmits = freeze({
   ...dialogEmits,
+  updateStep: (_: TourStep) => true,
 });
 
 export type TourSetupProps = ExtractPropTypes<typeof tourProps> & CommonProps;
