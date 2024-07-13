@@ -34,6 +34,7 @@ import { defineRange } from './range/Range';
 import { defineCalendar } from './calendar';
 import { defineDatePicker } from './date-picker';
 import { defineTour } from './tour/Tour';
+import { defineColorPicker } from './color-picker';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -74,6 +75,7 @@ export function defineAllComponents() {
   defineMentions();
   defineDocPip();
   defineTour();
+  defineColorPicker();
 }
 
 export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];
@@ -131,6 +133,7 @@ export * from './button';
 export * from './calendar';
 export * from './callout';
 export * from './checkbox';
+export * from './color-picker';
 export * from './config';
 export * from './custom-renderer';
 export * from './date-picker';
