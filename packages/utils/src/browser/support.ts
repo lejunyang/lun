@@ -37,6 +37,8 @@ export const isSupportFileSystem = cacheFunctionResult(() => {
   return 'showOpenFilePicker' in self && isSecureContext;
 });
 
+export const supportClipboard = inBrowser && isSecureContext && navigator.clipboard;
+
 export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === 'function');
 
 export const isSupportCustomStateSet = cacheFunctionResult(

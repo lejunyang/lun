@@ -1,17 +1,19 @@
 import { getCachedComputedStyle } from './style';
-import { inBrowser } from './support';
-import { isFunction } from '../is';
+import { inBrowser, supportClipboard } from './support';
 
 export const copyText = (() => {
   let textarea: HTMLTextAreaElement;
   return (text: string) => {
     if (!inBrowser) return;
-    try {
-      const write = navigator.clipboard?.writeText;
-      if (isFunction(write)) return write(text);
-    } catch {}
+    if (supportClipboard)
+      return supportClipboard
+        .writeText(text)
+        .then(() => true)
+        .catch((e) => {
+          throw e;
+        });
     if (!document.execCommand) return;
-    if (!textarea || !textarea.isConnected) {
+    if (!textarea?.isConnected) {
       textarea = document.createElement('textarea');
       textarea.ariaHidden = 'true';
       textarea.style.cssText = 'position:fixed;top:-100px;left:-100px;pointer-events:none;opacity:0;';

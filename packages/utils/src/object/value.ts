@@ -1,4 +1,4 @@
-import { isArray } from '../is';
+import { isArray, isObject } from '../is';
 import { stringToPath } from '../string';
 import { MergeObjects } from './merge';
 
@@ -30,7 +30,7 @@ export const objectGet: ObjectGet = (object: any, path?: string | (string | numb
  * { a: {} }, 'a[0].b', 1 => { a: [{ b: 1 }]}
  */
 export function objectSet<T>(object: T, path: string | string[], value: any, ignoreOriginalValue = true) {
-  if (!object || typeof object !== 'object') return object;
+  if (!isObject(object)) return object;
   const newPath = isArray(path) ? path : stringToPath(path);
   newPath.reduce((obj, p, i) => {
     const nextIsArray = Number.isInteger(+newPath[i + 1]);
