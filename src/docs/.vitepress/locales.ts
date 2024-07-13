@@ -29,6 +29,7 @@ export default {
         menu: '数据展示',
         calendar: 'Calendar 日历',
         form: 'Form 表单',
+        formItem: 'FormItem 表单项',
         table: 'Table 表格',
       },
       pop: {
@@ -121,6 +122,7 @@ export default {
         menu: 'Data Display',
         calendar: 'Calendar',
         form: 'Form',
+        formItem: 'FormItem',
         table: 'Table',
       },
       pop: {

@@ -1,6 +1,6 @@
 import { Message } from '@lun/components';
 
-const statuses = ['success', 'error', 'warning', 'info'];
+const statuses = ['success', 'error', 'warning', 'info'] as const;
 export default () => {
   return (
     <>

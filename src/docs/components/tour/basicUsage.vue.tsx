@@ -1,5 +1,5 @@
 import { sentence } from 'data';
-import { ref } from 'vue';
+import { ref, onUpdated } from 'vue';
 
 const open = ref(),
   button = ref();
@@ -12,6 +12,6 @@ export default () => (
     <l-button onClick={() => (open.value = true)} ref={button}>
       Open
     </l-button>
-    <l-tour v-update-open={open.value} steps={steps} onAfterClose={() => console.log('closed')}></l-tour>
+    <l-tour v-update-open={open.value} steps={steps} onAfterClose={() => console.log('after closed')}></l-tour>
   </>
 );

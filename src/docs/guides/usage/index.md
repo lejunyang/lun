@@ -7,7 +7,19 @@ lang: zh-CN
 - `@lun/core`：提供组件功能的钩子函数库
 - `@lun/components`：组件库
 - `@lun/theme`：主题库
-- `@lun/react`：为 react 封装的组件库，详细见下文
+- `@lun/react`：为 react19之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+
+## 安装
+
+暂未发布到 npm
+
+::: tip 注
+
+- 如果只需要组件，样式完全自定义的话，直接安装`@lun/components`即可
+- 如果需要主题，只需安装`@lun/theme`（其依赖于`@lun/components`）
+- React 中需额外安装`@lun/react`，使用其导出的组件
+
+:::
 
 ## React 中使用
 
@@ -24,18 +36,6 @@ export default function () {
   return <LInput onUpdate={() => {}} />;
 }
 ```
-
-## 安装
-
-暂未发布到 npm
-
-::: tip 注
-
-- 如果只需要组件，样式完全自定义的话，直接安装`@lun/components`即可
-- 如果需要主题，只需安装`@lun/theme`（其依赖于`@lun/components`）
-- React 中需额外安装`@lun/react`，使用其导出的组件
-
-:::
 
 ## 全量引入
 
@@ -108,12 +108,6 @@ defineButton('my-button', {
 
 ## 兼容性
 
-:::info 注
-<Support :is="true" /> 当前浏览器支持该特性
-<Support :is="false" style="margin-left: 10px;" /> 当前浏览器不支持该特性
-<l-icon name="help" style="margin-left: 10px;" /> 无法检测
-:::
-
 至少需要兼容`customElement`, 以下列出的其他特性为所需版本大于`customElement`的, 若不支持需考虑 polyfill 或移除某些特性
 
 - [customElement](https://caniuse.com/?search=customElement) <SupportInfo chrome="54" edge="79" firefox="63" safari="10.3" />
@@ -131,7 +125,14 @@ defineButton('my-button', {
 
 某些特性需要的版本较高, 但它们在内部有做兼容处理或替代方案, 如下
 
+:::info 注
+<Support :is="true" /> 当前浏览器支持该特性
+<Support :is="false" style="margin-left: 10px;" /> 当前浏览器不支持该特性
+<l-icon name="help" style="margin-left: 10px;" /> 无法检测
+:::
+
 - <Support is="adoptedStyleSheets" /> [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets) <SupportInfo chrome="73" edge="79" firefox="101" safari="16.4" />
+- <Support is="customState" /> [CustomStateSet](https://caniuse.com/?search=CustomStateSet) <SupportInfo chrome="90" edge="90" firefox="126" safari="17.4" />
 - <Support is="Dialog" /> [Dialog](https://caniuse.com/?search=Dialog) <SupportInfo chrome="37" edge="79" firefox="98" safari="15.4" />
 - <Support is="slotAssign" /> [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign) <SupportInfo chrome="86" edge="86" firefox="92" safari="16.4" />
 - <Support is="inputCancel" /> [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel) <SupportInfo chrome="113" edge="113" firefox="91" safari="16.4" />

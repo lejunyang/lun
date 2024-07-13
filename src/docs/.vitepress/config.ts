@@ -92,7 +92,14 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.dataDisplay.calendar, link: wrapLink('/components/calendar/', lang) },
-            { text: locales[lang].sidebar.dataDisplay.form, link: wrapLink('/components/form/', lang) },
+            {
+              text: locales[lang].sidebar.dataDisplay.form,
+              link: wrapLink('/components/form/', lang),
+              collapsed: true,
+              items: [
+                { text: locales[lang].sidebar.dataDisplay.formItem, link: wrapLink('/components/form-item/', lang) },
+              ],
+            },
             // { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/') },
           ],
         },

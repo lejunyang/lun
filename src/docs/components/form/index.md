@@ -48,7 +48,7 @@ React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在Re
 
 以下面的 label3 为例，其 colSpan 为 2，当标签布局为 horizontal 时，若支持 subgrid，这一行放不下，其应该在下一行，但是不使用 subgrid 时，它的 label 和 input 被拆开成两行来。这种情况可以手动为该字段添加`newLine`来避免，或者使用非`horizontal`标签布局
 
-不管何种布局，谨慎往表单下添加其他内容，这很可能会影响表单项的布局
+不管何种布局，谨慎往表单下添加其他内容或包裹什么元素，这会直接影响表单项的布局
 :::
 
 <!-- @Code:layout -->

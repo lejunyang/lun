@@ -16,10 +16,12 @@ import {
   supportCSSHighLight,
   supportCSSSupports,
   supportCSSAnchor,
+  isSupportCustomStateSet,
 } from '@lun/utils';
 
 const features = {
   adoptedStyleSheets: isSupportCSSStyleSheet(),
+  customState: isSupportCustomStateSet(),
   Dialog: supportDialog,
   slotAssign: isSupportSlotAssign(),
   inputCancel: 'unknown',
