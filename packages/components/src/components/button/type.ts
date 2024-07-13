@@ -29,9 +29,16 @@ export const buttonProps = freeze({
   hold: PropNumber(),
   iconName: PropString(),
   iconLibrary: PropString(),
+  /** if specified, value will be copied to clipboard when button is clicked */
+  copyText: PropString(),
 });
 
-export const buttonEmits = freeze({ validClick: null, timeout: null });
+export const buttonEmits = freeze({
+  validClick: null,
+  timeout: null,
+  copySuccess: null,
+  copyFail: (_: Error | void) => true,
+});
 
 export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps> & CommonProps;
 export type ButtonEvents = GetEventPropsFromEmits<typeof buttonEmits>;

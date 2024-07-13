@@ -5,7 +5,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
-import { debounce as dF, isFunction, prevent, throttle as tF } from '@lun/utils';
+import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy } from '@lun/utils';
 import { getCompParts } from 'common';
 
 const name = 'button';
@@ -23,10 +23,14 @@ export const Button = defineSSRCustomElement({
     const handleClick = computed(() => {
       const onClick = async (e?: MouseEvent) => {
         if (!editComputed.interactive) return;
-        const { hold, asyncHandler } = props;
+        const { hold, asyncHandler, copyText } = props;
         if (hold && !holdAnimationDone) return;
         holdAnimationDone = false;
         emit('validClick');
+        if (copyText)
+          Promise.resolve(copy(copyText))
+            .then((res) => (res ? emit('copySuccess') : emit('copyFail')))
+            .catch((e) => emit('copyFail', e));
         if (isFunction(asyncHandler)) {
           editState.loading = true;
           Promise.resolve(asyncHandler(e)).finally(() => (editState.loading = false));
