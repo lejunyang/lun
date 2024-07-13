@@ -1,0 +1,53 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(color-picker) {
+  @include e(panel) {
+    display: flex;
+    flex-direction: column;
+    @include declareVars(
+      (
+        width: panel-width,
+      )
+    );
+  }
+  @include e(palette) {
+    @include declareVars(
+      (
+        height: palette-height,
+      )
+    );
+  }
+  @include e(saturation) {
+    height: 100%;
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        panel-width: 200px,
+        palette-height: 200px,
+      )
+    );
+  }
+
+  @include size(2) {
+    @include setVars(
+      (
+        panel-width: 234px,
+        palette-height: 160px,
+      )
+    );
+  }
+
+  @include size(3) {
+    @include setVars(
+      (
+        panel-width: 200px,
+        palette-height: 200px,
+      )
+    );
+  }
+}

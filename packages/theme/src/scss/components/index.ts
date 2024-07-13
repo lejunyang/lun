@@ -51,12 +51,14 @@ import { importCommonTheme } from '../common/index.ts';
 import { importRangeBasicTheme, importRangeSurfaceTheme } from './range';
 import { importCalendarBasicTheme } from './calendar/index.ts';
 import { importTourBasicTheme } from './tour/index.ts';
+import { importColorPickerBasicTheme } from './color-picker';
 
 export * from './button';
 export * from './calendar';
 export * from './callout';
 export * from './checkbox';
 export * from './checkbox-group';
+export * from './color-picker';
 export * from './dialog';
 export * from './divider';
 export * from './form';
@@ -106,6 +108,7 @@ export const importBasicTheme = once(() => {
   importMentionsBasicTheme();
   importCalendarBasicTheme();
   importTourBasicTheme();
+  importColorPickerBasicTheme();
 });
 
 export const importOutlineTheme = once(() => {
