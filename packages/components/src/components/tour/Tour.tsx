@@ -1,13 +1,14 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView, toElement } from 'utils';
 import { tourEmits, tourProps, TourStep } from './type';
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineDialog, iDialog } from '../dialog';
-import { ensureNumber, isArray, runIfFn, virtualGetMerge } from '@lun/utils';
-import { unrefOrGet, useSetupEvent } from '@lun/core';
+import { ensureNumber, isArray, isElement, runIfFn, virtualGetMerge } from '@lun/utils';
+import { createPopoverRectTarget, unrefOrGet, useSetupEvent } from '@lun/core';
 import { useFloating } from '../popover/useFloating';
 import { getCompParts, intl } from 'common';
+import { hasRect } from '../popover/utils';
 
 const name = 'tour';
 const parts = ['arrow'] as const;
@@ -49,7 +50,10 @@ export const Tour = defineSSRCustomElement({
       ),
     );
 
-    let step: TourStep | undefined;
+    const stepState = reactive({
+      step: undefined as TourStep | undefined,
+      hasTarget: undefined as any,
+    });
     const updateStep = async (offset: number) => {
       const { steps, scrollOptions } = props;
       if (!isArray(steps) || !steps.length) return;
@@ -59,15 +63,17 @@ export const Tour = defineSSRCustomElement({
         stepModel.value = 0;
         return close();
       }
+      let step: TourStep;
       if ((step = steps[i])) {
         emit('updateStep', step);
+        const target = unrefOrGet(step.target);
+        const el = hasRect(target) ? target : toElement(target as any);
         if ((await runIfFn(step.beforeEnter)) === false) return;
-        const el = toElement(unrefOrGet(step.target));
-        if (el) {
-          currentTarget.value = el;
-          scrollIntoView(el, { block: 'center', ...scrollOptions });
-          return true;
-        }
+        stepState.step = step;
+        stepState.hasTarget = el;
+        currentTarget.value = el || createPopoverRectTarget(innerWidth / 2, innerHeight / 2);
+        if (isElement(el)) scrollIntoView(el, { block: 'center', ...scrollOptions, ...step.scrollOptions });
+        return true;
       }
     };
 
@@ -103,6 +109,7 @@ export const Tour = defineSSRCustomElement({
       const { x, y, width, height } = rects?.reference! || {};
       const stepNow = stepModel.value,
         stepMax = isArray(steps) ? steps.length : 0;
+      const { step, hasTarget } = stepState;
       return renderElement(
         'dialog',
         {
@@ -114,16 +121,18 @@ export const Tour = defineSSRCustomElement({
           maskStyle: rects
             ? {
                 boxSizing: 'border-box',
-                borderWidth: `${y - padding}px ${innerWidth - x - width - padding}px ${
-                  innerHeight - y - height - padding
-                }px ${x - padding}px`,
+                borderWidth: hasTarget
+                  ? `${y - padding}px ${innerWidth - x - width - padding}px ${innerHeight - y - height - padding}px ${
+                      x - padding
+                    }px`
+                  : `${innerHeight}px ${innerWidth}px`,
               }
             : {},
           title: step?.title,
         },
         <>
           <slot name={stepNow}>{step?.content}</slot>
-          {showArrow && <div class={ns.e('arrow')} part={compParts[0]} ref={arrowRef} />}
+          {showArrow && hasTarget && <div class={ns.e('arrow')} part={compParts[0]} ref={arrowRef} />}
           <slot name="footer" slot="footer">
             {stepNow > 0 &&
               renderElement('button', { asyncHandler: prevStep, label: intl('tour.prev').d('Prev Step') })}

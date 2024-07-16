@@ -1,15 +1,17 @@
 import { freeze, omit } from '@lun/utils';
 import { GetEventPropsFromEmits, CommonProps, PropNumber, PropObject, PropArray } from 'common';
 import { ExtractPropTypes } from 'vue';
-import { MaybePromise, MaybeRefLikeOrGetter } from '@lun/core';
+import { MaybePromise, MaybeRefLikeOrGetter, VirtualElement } from '@lun/core';
 import { dialogEmits, dialogProps } from '../dialog';
 import { popoverFloatingUIProps } from '../popover/type';
 
 export type TourStep = {
   title?: string;
   content?: string;
-  target: MaybeRefLikeOrGetter<string | Element>;
+  target?: MaybeRefLikeOrGetter<string | Element | VirtualElement>;
   beforeEnter?: () => MaybePromise<boolean | void>;
+  scrollOptions?: ScrollIntoViewOptions;
+  // TODO skip func
 };
 
 export const tourProps = freeze({

@@ -20,6 +20,7 @@ import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted } from '../../hooks';
 import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils';
 import { useListen } from './useListen';
+import { createPopoverRectTarget } from './utils';
 
 export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select' | 'pointerdown';
 
@@ -236,13 +237,10 @@ export function usePopover(_options: UsePopoverOptions) {
         const tx = e.offsetX,
           ty = e.offsetY,
           t = e.target as Element;
+        const { x, y } = getRect(t);
         virtualTarget.value = {
           _p: true,
-          getBoundingClientRect() {
-            // always get new rect
-            const { x, y } = getRect(t);
-            return new DOMRect(tx + x, ty + y, 0, 0);
-          },
+          ...createPopoverRectTarget(tx + x, ty + y),
         };
       } else virtualTarget.value = undefined;
       return triggerResult;

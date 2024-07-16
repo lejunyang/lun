@@ -118,6 +118,7 @@
   @include e(footer) {
     display: flex;
     justify-content: flex-end;
+    margin-block-start: getSpaceValue(1);
     @include declareVars(
       (
         gap: footer-gap,
