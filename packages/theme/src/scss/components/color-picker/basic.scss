@@ -14,14 +14,51 @@
     );
   }
   @include e(palette) {
+    position: relative;
+    overflow: hidden;
     @include declareVars(
       (
         height: palette-height,
+        border-radius: palette-border-radius,
       )
     );
   }
   @include e(saturation) {
     height: 100%;
+  }
+  @include e(thumb) {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    cursor: move;
+    transform: translate(-50%, -50%);
+    border-radius: getRadiusValue(1, 'thumb');
+    box-shadow: 0 0 0 2px white;
+    @include declareVars(
+      (
+        width: thumb-size,
+        height: thumb-size,
+      )
+    );
+  }
+
+  @include e(wrapper) {
+    display: flex;
+    align-items: center;
+  }
+  @include e(ranges) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  @include e(preview) {
+    @include declareVars(
+      (
+        width: preview-size,
+        height: preview-size,
+        border-radius: preview-border-radius,
+      )
+    );
   }
 
   @include size(1) {
@@ -29,6 +66,10 @@
       (
         panel-width: 200px,
         palette-height: 200px,
+        thumb-size: getSpaceValue(2),
+        palette-border-radius: getRadiusValue(1),
+        preview-border-radius: getRadiusValue(1),
+        preview-size: 20px,
       )
     );
   }
@@ -38,6 +79,10 @@
       (
         panel-width: 234px,
         palette-height: 160px,
+        thumb-size: calc(#{getSpaceValue(2)} * 1.5),
+        palette-border-radius: getRadiusValue(1),
+        preview-border-radius: getRadiusValue(1),
+        preview-size: 30px,
       )
     );
   }
@@ -47,6 +92,10 @@
       (
         panel-width: 200px,
         palette-height: 200px,
+        thumb-size: calc(#{getSpaceValue(3)} * 1.5),
+        palette-border-radius: getRadiusValue(1),
+        preview-border-radius: getRadiusValue(1),
+        preview-size: 40px,
       )
     );
   }
