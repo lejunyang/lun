@@ -1,11 +1,13 @@
+import { delay } from '@lun/utils';
 import { sentence } from 'data';
-import { ref, onUpdated } from 'vue';
+import { ref } from 'vue';
 
 const open = ref(),
   button = ref();
 const steps = [
   { target: button, title: 'Step1', content: sentence },
   { target: '[href="/lun/components/theme-provider/"]', title: 'Theme', content: 'This is' },
+  { title: 'Step3', content: 'No target ', beforeEnter: () => delay(2000) },
 ];
 export default () => (
   <>
