@@ -1,20 +1,12 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import {
-  AnyFn,
-  clamp,
-  on,
-  prevent,
-  rafThrottle,
-  runIfFn,
-  numbersEqual,
-  getRect,
-  roundByDPR,
-} from '@lun/utils';
+import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, numbersEqual, getRect, roundByDPR } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
-// greatly inspired by https://www.redblobgames.com/making-of/draggable/
+// https://www.redblobgames.com/making-of/draggable/
+
+export type DraggableLimitType = 'point' | 'bound' | 'center';
 
 export type DraggableElementState = {
   /** x relative to target's original position, can be used in transform */
@@ -26,26 +18,27 @@ export type DraggableElementState = {
   /** initial left when dragging starts */
   iLeft: number;
   iTop: number;
+  /** @private used to calculate relativeX */
   dx: number;
   dy: number;
   dragging: boolean;
-  /** pointer's clientX */
+  /** pointer's current clientX */
   clientX: number;
   clientY: number;
-  /** left edge of target's bounding rect to the viewport */
+  /** from left edge of target's bounding rect to the viewport */
   clientLeft: number;
-  /** top of target's rect */
+  /** from top edge of target's bounding rect to the viewport */
   clientTop: number;
   /** initial clientLeft when dragging starts */
   iClientLeft: number;
   iClientTop: number;
-  limitType?: 'pointer' | 'target';
-  /** offset X of pointer down point to container's left edge */
-  pointerOffsetX: number;
-  pointerOffsetY: number;
-  /** x of pointer when start dragging, relative to the viewport */
-  startX: number;
-  startY: number;
+  limitType?: DraggableLimitType;
+  /** offset X from initial pointer down point to target's left edge */
+  offsetX: number;
+  offsetY: number;
+  /** min x for target that will not overflow the container */
+  minX: number;
+  minY: number;
   pointerId: number;
 };
 
@@ -70,6 +63,7 @@ export function useDraggableArea({
   limitInContainer,
   getTargetRect,
   rememberRelative = true,
+  nested,
 }: {
   /** the container element that contains draggable elements */
   el: MaybeRefLikeOrGetter<Element>;
@@ -87,10 +81,17 @@ export function useDraggableArea({
   onClean?: () => void;
   /** ignore dragging when alt key is pressed */
   ignoreWhenAlt?: boolean;
-  /** used to apply limitation on coordinates so that pointer or target's coordinates can not be out of container when dragging */
-  limitInContainer?: 'pointer' | 'target' | ((target: Element, state?: DraggableElementState) => 'pointer' | 'target');
+  /**
+   * used to apply limitation on coordinates
+   * - 'point': dragging point can not be outside container's boundary
+   * - 'bound': target's boundary can not be outside container's boundary
+   * - 'center': target's center point can not be outside container's boundary
+   */
+  limitInContainer?: DraggableLimitType | ((target: Element, state?: DraggableElementState) => DraggableLimitType);
   getTargetRect?: (target: Element) => DOMRect;
   rememberRelative?: boolean;
+  /** haven't tested */
+  nested?: boolean;
 }) {
   const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
   let draggingCount = 0;
@@ -123,26 +124,27 @@ export function useDraggableArea({
       keyEl = asWhole ? unrefOrGet(el)! : targetEl;
     const state = targetStates.get(keyEl);
     if (!draggable(targetEl, e, state)) return;
-    e.stopPropagation(); // for nested
+    // sometimes we can't stopPropagation, e.g. in popover content(ColorPicker). Popover also listens to pointerdown event to prevent unexpected closing
+    if (nested) e.stopPropagation(); // for nested
     const [clientX, clientY] = finalGetCoord(e);
     const limitType = runIfFn(limitInContainer, targetEl, state);
     const container = unrefOrGet(el)!;
     const { x, y } = getRect(container);
     const { x: tx, y: ty } = finalGetTargetRect(targetEl);
-    // must calculate containerOffset here, not in handleMove, because target's x/y is changing during dragging, small pixels change can make it gradually out of container
-    const pointerOffsetX = clientX - tx,
-      pointerOffsetY = clientY - ty,
-      startX = x + pointerOffsetX,
-      startY = y + pointerOffsetY;
+    // must calculate offset here, not in handleMove, as clientX is always changing
+    const offsetX = clientX - tx, // not using e.offsetX, as we may customize clientX by getCoord
+      offsetY = clientY - ty,
+      minX = x + offsetX,
+      minY = y + offsetY;
     const common = {
       dragging: true,
       clientX,
       clientY,
       limitType,
-      startX,
-      startY,
-      pointerOffsetX,
-      pointerOffsetY,
+      minX,
+      minY,
+      offsetX,
+      offsetY,
       iLeft: tx - x,
       iTop: ty - y,
       iClientLeft: tx,
@@ -199,18 +201,23 @@ export function useDraggableArea({
     const state = targetStates.get(keyEl);
     // check pointerId for touch devices simultaneous dragging
     if (!draggingCount || !state?.dragging || state.pointerId !== e.pointerId) return;
-    e.stopPropagation(); // for nested
+    if (nested) e.stopPropagation(); // for nested
     let [clientX, clientY] = finalGetCoord(e);
-    const { limitType, startX, startY, pointerOffsetX, pointerOffsetY } = state;
+    const { limitType, minX, minY, offsetX, offsetY } = state;
     const { x, y, right, bottom } = getRect(container);
     clientX = roundByDPR(clientX, targetEl);
-    if (limitType === 'pointer') {
+    clientY = roundByDPR(clientY, targetEl);
+    if (limitType === 'point') {
       clientX = clamp(clientX, x, right);
       clientY = clamp(clientY, y, bottom);
-    } else if (limitType === 'target') {
+    } else if (limitType === 'bound') {
       const { width, height } = finalGetTargetRect(targetEl);
-      clientX = clamp(clientX, startX, right - width + pointerOffsetX);
-      clientY = clamp(clientY, startY, bottom - height + pointerOffsetY);
+      clientX = clamp(clientX, minX, right - width + offsetX);
+      clientY = clamp(clientY, minY, bottom - height + offsetY);
+    } else if (limitType === 'center') {
+      const { width, height } = finalGetTargetRect(targetEl);
+      clientX = clamp(clientX, x + offsetX - width / 2, right + offsetX - width / 2);
+      clientY = clamp(clientY, y + offsetY - height / 2, bottom + offsetY - height / 2);
     }
     const relativeX = state.dx + clientX,
       relativeY = state.dy + clientY;
@@ -257,4 +264,6 @@ export function useDraggableArea({
     }
   });
   tryOnScopeDispose(clean);
+
+  return targetStates;
 }

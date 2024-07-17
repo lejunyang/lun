@@ -205,7 +205,7 @@ export const Range = defineSSRCustomElement({
           (props.trackDraggable && processedValues.value.length > 1 && target.hasAttribute('data-track'))
         );
       },
-      limitInContainer: (el) => ((el as HTMLElement).dataset.track ? 'target' : 'pointer'),
+      limitInContainer: (el) => ((el as HTMLElement).dataset.track ? 'bound' : 'point'),
       get axis() {
         return isVertical() ? 'y' : 'x';
       },

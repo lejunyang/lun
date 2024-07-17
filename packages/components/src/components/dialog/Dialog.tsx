@@ -186,7 +186,7 @@ export const Dialog = Object.assign(
         },
         asWhole: true,
         ignoreWhenAlt: true,
-        limitInContainer: 'target',
+        limitInContainer: 'bound',
         getTargetRect() {
           return getRect(panelRef.value!);
         },
