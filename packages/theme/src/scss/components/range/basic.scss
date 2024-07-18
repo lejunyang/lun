@@ -5,9 +5,17 @@
 
 @include b(range) {
   display: flex;
+  flex-wrap: wrap;
+  @include declareReuseVars(
+    (
+      size: size,
+      factor: thumb-factor,
+    )
+  );
   @include m(horizontal) {
-    margin-inline: calc((var(--factor) + 1) * getDeclaredVar(size));
+    margin-inline: calc((getReuseVar(thumb-factor) + 0.5) * getReuseVar(size));
     @include e(rail) {
+      flex: 1 1 100%;
       @include declareVars(
         (
           height: size,
@@ -16,7 +24,7 @@
       @include declareVarValues(
         (
           // 2px box-shadow
-          margin-block: calc(2 * var(--factor) * getDeclaredVar(size) + 2px)
+          margin-block: calc(getReuseVar(thumb-factor) * getReuseVar(size) + 2px)
         )
       );
     }
@@ -30,7 +38,7 @@
       inset-inline-start: calc(getVarValue((range, percent)) * 100%);
     }
     @include e(labels) {
-      display: flex;
+      flex: 1 1 100%;
       @include declareVarValues(
         (
           margin-block-end: (
@@ -46,7 +54,7 @@
     }
   }
   @include m(vertical) {
-    margin-block: calc((var(--factor) + 1) * getDeclaredVar(size));
+    margin-block: calc((getReuseVar(thumb-factor) + 0.5) * getReuseVar(size));
     @include e(rail) {
       flex-direction: column;
       @include declareVars(
@@ -56,7 +64,7 @@
       );
       @include declareVarValues(
         (
-          margin-inline: calc(2 * var(--factor) * getDeclaredVar(size) + 2px),
+          margin-inline: calc(getReuseVar(thumb-factor) * getReuseVar(size) + 2px),
         )
       );
     }
@@ -103,7 +111,6 @@
     }
   }
 
-  --factor: #{getVarValue((range, thumb, factor), 0.25)};
   @include e(rail) {
     display: flex;
     flex: 1;
@@ -114,7 +121,7 @@
     @include declareVarValues(
       (
         background-color: getGrayColor(a3),
-        border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getDeclaredVar(size) / 3),
+        border-radius: Max(getRadiusFactor() * getRadiusThumb(), getRadiusFactor() * getReuseVar(size) / 3),
       )
     );
   }
@@ -125,12 +132,15 @@
     background-color: getAccentColor(a9); // TODO radix-theme uses accent-track...
   }
 
-  --thumb-size: calc(#{getDeclaredVar(size)} + #{getSpaceValue(1)});
   @include e(thumb) {
     position: absolute;
     outline: none;
-    width: var(--thumb-size);
-    height: var(--thumb-size);
+    @include reuseVars(
+      (
+        width: size,
+        height: size,
+      )
+    );
 
     $thumb-shadow: 0 0 0 1px getColor('black', a4);
     &::after {
@@ -139,8 +149,8 @@
       background: white;
       border-radius: getRadiusValue(1, 'thumb');
       box-shadow: $thumb-shadow;
-      inset: calc(-1 * var(--factor) * getDeclaredVar(size));
-      cursor: pointer;
+      inset: calc(-1 * getReuseVar(thumb-factor) * getReuseVar(size));
+      cursor: move;
     }
     &:focus::after {
       box-shadow: $thumb-shadow, 0 0 0 3px getAccentColor(3), 0 0 0 5px getFocusColor();
@@ -178,6 +188,11 @@
     }
   }
 
+  @include setVars(
+    (
+      thumb-factor: 0.5,
+    )
+  );
   @include size(1) {
     @include setVars(
       (
