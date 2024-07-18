@@ -10,6 +10,7 @@
     @include declareVars(
       (
         width: panel-width,
+        gap: panel-gap,
       )
     );
   }
@@ -26,12 +27,10 @@
   @include e(saturation) {
     height: 100%;
   }
+
+  #{getVarName((range, thumb, factor))}: 0.25;
   @include e(thumb) {
-    position: absolute;
-    left: 0;
-    top: 100%;
     cursor: move;
-    transform: translate(-50%, -50%);
     border-radius: getRadiusValue(1, 'thumb');
     box-shadow: 0 0 0 2px white;
     @include declareVars(
@@ -45,13 +44,28 @@
   @include e(wrapper) {
     display: flex;
     align-items: center;
+    @include declareVars(
+      (
+        gap: wrapper-gap,
+      )
+    );
   }
   @include e(ranges) {
     display: flex;
     flex: 1;
     flex-direction: column;
   }
+
+  --mask: conic-gradient(#{getGrayColor(a2)} 0 25%, transparent 0 50%, #{getGrayColor(a2)} 0 75%, transparent 0);
   @include e(preview) {
+    box-shadow: 0 0 0 1px getColor('black', a4);
+    &::after {
+      content: '';
+      display: block;
+      height: 100%;
+      background-size: 50% 50%;
+      background-image: var(--mask);
+    }
     @include declareVars(
       (
         width: preview-size,
@@ -59,6 +73,17 @@
         border-radius: preview-border-radius,
       )
     );
+  }
+
+  @include e(alpha) {
+    &::part(rail)::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-size: 8px 8px;
+      background-image: var(--mask);
+    }
   }
 
   @include size(1) {
@@ -70,6 +95,8 @@
         palette-border-radius: getRadiusValue(1),
         preview-border-radius: getRadiusValue(1),
         preview-size: 20px,
+        wrapper-gap: getSpaceValue(1),
+        panel-gap: getSpaceValue(1),
       )
     );
   }
@@ -83,6 +110,8 @@
         palette-border-radius: getRadiusValue(1),
         preview-border-radius: getRadiusValue(1),
         preview-size: 30px,
+        wrapper-gap: getSpaceValue(1),
+        panel-gap: getSpaceValue(2),
       )
     );
   }
@@ -96,6 +125,8 @@
         palette-border-radius: getRadiusValue(1),
         preview-border-radius: getRadiusValue(1),
         preview-size: 40px,
+        wrapper-gap: getSpaceValue(1),
+        panel-gap: getSpaceValue(3),
       )
     );
   }
