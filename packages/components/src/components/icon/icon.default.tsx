@@ -1,5 +1,6 @@
 import { JSX } from 'vue/jsx-runtime';
 import { IconLibrary } from './icon.registry';
+import { TryGet } from '@lun/utils';
 
 const commonProps = {
   xmlns: 'http://www.w3.org/2000/svg',
@@ -21,7 +22,9 @@ const getDblLeftD = (m: number, l: number) =>
   `M${m}.354 1.646a.5.5 0 0 1 0 .708L${l}.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0`;
 
 const getDown = (attrs: any, transform?: string) => (
-  <svg {...attrs} {...commonProps} transform={transform}>
+  // was using transform={transform} before. but safari doesn't support it. transform attribute in svg element was introduces in SVG2
+  // https://stackoverflow.com/questions/48248512/svg-transform-rotate180-does-not-work-in-safari-11
+  <svg style={transform ? `transform:${transform}` : ''} {...attrs} {...commonProps}>
     <path
       fill-rule="evenodd"
       d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"
@@ -30,7 +33,7 @@ const getDown = (attrs: any, transform?: string) => (
 );
 
 const getDblLeft = (attrs: any, transform?: string) => (
-  <svg {...attrs} {...commonProps} transform={transform}>
+  <svg style={transform ? `transform:${transform}` : ''} {...attrs} {...commonProps}>
     <path fill-rule="evenodd" d={getDblLeftD(8, 2)} />
     <path fill-rule="evenodd" d={getDblLeftD(12, 6)} />
   </svg>
@@ -52,8 +55,8 @@ const icons = {
       />
     </svg>
   ),
-  left: (attrs) => getDown(attrs, 'rotate(90)'),
-  right: (attrs) => getDown(attrs, 'rotate(-90)'),
+  left: (attrs) => getDown(attrs, 'rotate(90deg)'),
+  right: (attrs) => getDown(attrs, 'rotate(-90deg)'),
   plus: (attrs) => (
     <svg {...attrs} {...commonProps}>
       <path
@@ -144,22 +147,24 @@ const icons = {
     </svg>
   ),
   'double-left': (attrs) => getDblLeft(attrs),
-  'double-right': (attrs) => getDblLeft(attrs, 'rotate(180)'),
+  'double-right': (attrs) => getDblLeft(attrs, 'rotate(180deg)'),
 } satisfies Record<string, (attrs: any) => JSX.Element>;
 
 export const defaultIconLibrary: IconLibrary = {
   library: 'default',
   type: 'vnode',
   resolver(name, attrs) {
-    if (name in icons) return icons[name as keyof typeof icons](attrs);
+    if (name in icons) return icons[name as DefaultIconNames](attrs);
     return '';
   },
 };
 
-export interface DefaultIcons {
-  library: 'default' | string;
-  name: keyof typeof icons | string;
+export type DefaultIconNames = keyof typeof icons;
+
+export interface IconInterface {
+  library: 'default';
+  name: DefaultIconNames;
 }
 
-export type IconLibraryValue = DefaultIcons['library'];
-export type IconNameValue = DefaultIcons['name'];
+export type IconLibraryValue = TryGet<IconInterface, 'library', string>;
+export type IconNameValue = TryGet<IconInterface, 'name', string>;
