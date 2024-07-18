@@ -236,6 +236,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   const getRangeInfo = () => {
     const { value } = editRef;
     const range = getRange();
+    if (!range) return range; // found it will return undefined in safari17 when we blur the textarea, and then got "TypeError: Right side of assignment cannot be destructured"
     const { startContainer, endContainer, collapsed, startOffset } = range;
     let startIndex = -1,
       endIndex = -1;
@@ -272,7 +273,9 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   };
 
   const checkTrigger = (e?: KeyboardEvent | MouseEvent | FocusEvent) => {
-    const { startIndex, endIndex, startOffset, endOffset, startContainer, collapsed } = getRangeInfo();
+    const rangeInfo = getRangeInfo()
+    if (!rangeInfo) return cancelTrigger();
+    const { startIndex, endIndex, startOffset, endOffset, startContainer, collapsed } = rangeInfo;
     const item = content.value[endIndex] as MentionSpan;
     let cancel = e?.type === 'blur';
     const { disabled } = unrefOrGet(options);

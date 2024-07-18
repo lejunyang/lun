@@ -3,7 +3,7 @@ import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTrigger
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
-import { AnyFn, getRect, isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
+import { AnyFn, isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { mentionsEmits, mentionsProps } from './type';
 import { definePopover } from '../popover';
@@ -65,12 +65,14 @@ export const Mentions = defineSSRCustomElement({
           },
           onTrigger(param: MentionsTriggerParam) {
             const { endRange, input } = param;
-            const rect = getRect(endRange);
+            // const rect = getRect(endRange);
             // get the rect immediately to fix a bug. found that in safari if use the range as popover target, the position would be incorrect
             // seems that the range endContainer is updated to span, not the text node, and at that time the rect is incorrect for unknown reason
-            target.value = {
-              getBoundingClientRect: () => rect,
-            };
+            // target.value = {
+            //   getBoundingClientRect: () => rect,
+            // };
+            // above issue may be caused by contenteditable=false for mentions span. Fixed rect will lead to position wrong after scroll, remove it.
+            target.value = endRange;
             lastTriggerInput.value = input;
             emit('trigger', param);
           },
