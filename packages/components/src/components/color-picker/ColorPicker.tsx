@@ -16,7 +16,7 @@ const compParts = getCompParts(name, parts);
 
 const hueArr = [];
 for (let i = 0; i <= 360; i += 60) {
-  hueArr.push(`hsl(${i} 100 50)`);
+  hueArr.push(`hsl(${i} 100% 50%)`); // must add '%'. it becomes optional in high browser version.
 }
 const hueBackground = `linear-gradient(to right,${hueArr})`;
 const saturationImage = `linear-gradient(0deg,rgb(0 0 0),transparent), linear-gradient(90deg,rgb(255 255 255),rgb(255 255 255/0))`;
@@ -38,12 +38,23 @@ export const ColorPicker = defineSSRCustomElement({
     const [stateClass] = useCEStates(() => null, ns);
     const railStyle = { background: hueBackground },
       trackStyle = { opacity: 0 };
-    const thumbState = reactive({
-      left: 0,
-      top: 1,
-      relativeX: 0,
-      relativeY: 0,
-    });
+    const thumbState = reactive(
+      {} as {
+        left: number;
+        top: number;
+        relativeX: number;
+        relativeY: number;
+      },
+    );
+    const resetThumb = (left = 1, top: number = 0) => {
+      Object.assign(thumbState, {
+        left,
+        top,
+        relativeX: 0,
+        relativeY: 0,
+      });
+    };
+    resetThumb();
     const thumbStyle = computed(() => {
       const { left, top, relativeX, relativeY } = thumbState;
       return {
@@ -54,12 +65,15 @@ export const ColorPicker = defineSSRCustomElement({
       };
     });
 
-    const hsla = reactive([0, 100, 50, 100]);
+    const hsla = reactive([360, 100, 50, 100]);
+    const updateSL = (saturation: number, brightness: number) =>
+      Object.assign(hsla, hsbToHsl(hsla[0], saturation, brightness));
     const getColor = (alpha?: boolean) => {
       const [h, s, l, a] = hsla;
-      return `hsl(${h} ${s} ${l}${alpha ? `/${a}%` : ''})`;
+      return `hsl(${h} ${s}% ${l}%${alpha ? `/${a}%` : ''})`;
     };
     const color = computed(() => getColor(true));
+    const updateValue = () => (valueModel.value = color.value);
 
     const targetStates = useDraggableArea({
       el: paletteRef,
@@ -68,30 +82,36 @@ export const ColorPicker = defineSSRCustomElement({
         const drag = target === thumb.value;
         if (!drag) {
           // click
-          const { offsetWidth, offsetHeight } = paletteRef.value!;
-          const saturation = offsetX / offsetWidth,
-            top = offsetY / offsetHeight,
+          const { clientWidth, clientHeight } = paletteRef.value!;
+          const saturation = offsetX / clientWidth,
+            top = offsetY / clientHeight,
             brightness = (1 - top) * 100;
-          Object.assign(thumbState, {
-            left: saturation,
-            top,
-            relativeX: 0,
-            relativeY: 0,
-          });
+          resetThumb(saturation, top);
           targetStates.delete(thumb.value!);
-          console.log('hsla', hsla, offsetX, offsetWidth, offsetY, offsetHeight, { saturation, brightness });
-          Object.assign(hsla, hsbToHsl(hsla[0], saturation * 100, brightness));
-          console.log('after hsla', hsla);
+          updateSL(saturation * 100, brightness);
+          updateValue();
         }
         return drag;
       },
       limitInContainer: 'center',
       onMove(_, { relativeX, relativeY }) {
         Object.assign(thumbState, { relativeX, relativeY });
+        const { clientWidth, clientHeight } = paletteRef.value!;
+        updateSL(
+          (thumbState.left + relativeX / clientWidth) * 100,
+          (1 - thumbState.top - relativeY / clientHeight) * 100,
+        );
       },
+      onStop: updateValue,
     });
 
+    const commonRangeProps = {
+      min: 0,
+      step: 1,
+      noTooltip: true,
+    };
     const hueRangeProps = {
+      ...commonRangeProps,
       class: ns.e('hue'),
       part: compParts[3],
       railStyle,
@@ -99,22 +119,24 @@ export const ColorPicker = defineSSRCustomElement({
       max: 360,
       onUpdate({ detail }: CustomEvent) {
         hsla[0] = detail;
-        valueModel.value = color.value;
+        updateValue();
       },
     };
     const alphaRangeProps = {
+      ...commonRangeProps,
       class: ns.e('alpha'),
       part: compParts[4],
       max: 100,
       trackStyle,
       onUpdate({ detail }: CustomEvent) {
         hsla[3] = detail;
-        valueModel.value = color.value;
+        updateValue();
       },
     };
     const triggers = ['click', 'focus'];
     return () => {
       const { popoverProps } = props;
+      const colorVal = color.value;
       return renderElement(
         'popover',
         {
@@ -124,6 +146,7 @@ export const ColorPicker = defineSSRCustomElement({
           showArrow: false,
           ref: popoverRef,
           triggers,
+          style: ns.v({ 'picked-color': colorVal }),
         },
         <>
           <slot></slot>
@@ -133,21 +156,21 @@ export const ColorPicker = defineSSRCustomElement({
                 class={ns.e('saturation')}
                 part={compParts[6]}
                 style={{
-                  backgroundColor: `hsl(${hsla[0]} 100 50)`,
+                  backgroundColor: `hsl(${hsla[0]} 100% 50%)`,
                   backgroundImage: saturationImage,
                 }}
               ></div>
               <div class={ns.e('thumb')} part={compParts[7]} ref={thumb} style={thumbStyle.value}></div>
             </div>
             <div class={ns.e('wrapper')} part={compParts[2]}>
-              <div class={ns.e('preview')} part={compParts[5]} style={{ background: color.value }}></div>
+              <div class={ns.e('preview')} part={compParts[5]} style={{ background: colorVal }}></div>
               <div class={ns.e('ranges')} part={compParts[8]}>
                 {renderElement('range', { ...hueRangeProps, value: hsla[0] })}
                 {renderElement('range', {
                   ...alphaRangeProps,
                   value: hsla[3],
                   railStyle: {
-                    background: `linear-gradient(to right,rgb(255 0 4/0%),${color.value})`,
+                    background: `linear-gradient(to right,rgb(255 0 4/0),${getColor()})`,
                   },
                 })}
               </div>
