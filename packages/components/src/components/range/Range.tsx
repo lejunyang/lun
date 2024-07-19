@@ -251,7 +251,7 @@ export const Range = defineSSRCustomElement({
 
     return () => {
       const { value } = processedValues,
-        { type, labels, tooltipProps, railStyle, trackStyle } = props,
+        { type, labels, tooltipProps, railStyle, trackStyle, noTooltip } = props,
         { editable } = editComputed;
       return (
         <div
@@ -289,13 +289,14 @@ export const Range = defineSSRCustomElement({
               })}
             </div>
           )}
-          {renderElement('tooltip', {
-            content: getTooltip,
-            placement: isVertical() ? 'right' : undefined,
-            ...tooltipProps,
-            class: ns.e('tooltip'),
-            ref: tooltipRef,
-          })}
+          {!noTooltip &&
+            renderElement('tooltip', {
+              content: getTooltip,
+              placement: isVertical() ? 'right' : undefined,
+              ...tooltipProps,
+              class: ns.e('tooltip'),
+              ref: tooltipRef,
+            })}
         </div>
       );
     };

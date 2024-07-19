@@ -8,7 +8,7 @@ import { computed, reactive, ref } from 'vue';
 import { defineSelect } from '../select';
 import { getCompParts } from 'common';
 import { defineRange } from '../range';
-import { hsbToHsl } from '@lun/utils';
+import { hsbToHsl, pick } from '@lun/utils';
 
 const name = 'color-picker';
 const parts = ['panel', 'palette', 'wrapper', 'hue', 'alpha', 'preview', 'saturation', 'thumb', 'ranges'] as const;
@@ -35,7 +35,6 @@ export const ColorPicker = defineSSRCustomElement({
       paletteRef = ref<HTMLElement>(),
       thumb = ref<HTMLElement>();
 
-    const [stateClass] = useCEStates(() => null, ns);
     const railStyle = { background: hueBackground },
       trackStyle = { opacity: 0 };
     const thumbState = reactive(
@@ -133,57 +132,66 @@ export const ColorPicker = defineSSRCustomElement({
         updateValue();
       },
     };
+
+    const [stateClass] = useCEStates(() => pick(props, ['panelOnly']), ns);
+
     const triggers = ['click', 'focus'];
     return () => {
-      const { popoverProps } = props;
+      const { popoverProps, panelOnly } = props;
       const colorVal = color.value;
-      return renderElement(
-        'popover',
-        {
-          placement: 'bottom-start',
-          ...popoverProps,
-          class: stateClass.value,
-          showArrow: false,
-          ref: popoverRef,
-          triggers,
-          style: ns.v({ 'picked-color': colorVal }),
-        },
-        <>
-          <slot></slot>
-          <div class={ns.e('panel')} part={compParts[0]} slot="pop-content">
-            <div class={ns.e('palette')} part={compParts[1]} ref={paletteRef}>
-              <div
-                class={ns.e('saturation')}
-                part={compParts[6]}
-                style={{
-                  backgroundColor: `hsl(${hsla[0]} 100% 50%)`,
-                  backgroundImage: saturationImage,
-                }}
-              ></div>
-              <div class={ns.e('thumb')} part={compParts[7]} ref={thumb} style={thumbStyle.value}></div>
-            </div>
-            <div class={ns.e('wrapper')} part={compParts[2]}>
-              <div class={ns.e('preview')} part={compParts[5]} style={{ background: colorVal }}></div>
-              <div class={ns.e('ranges')} part={compParts[8]}>
-                {renderElement('range', { ...hueRangeProps, value: hsla[0] })}
-                {renderElement('range', {
-                  ...alphaRangeProps,
-                  value: hsla[3],
-                  railStyle: {
-                    background: `linear-gradient(to right,rgb(255 0 4/0),${getColor()})`,
-                  },
-                })}
-              </div>
+      const panelNode = (
+        <div class={[ns.e('panel'), panelOnly && stateClass.value]} part={compParts[0]} slot="pop-content">
+          <div class={ns.e('palette')} part={compParts[1]} ref={paletteRef}>
+            <div
+              class={ns.e('saturation')}
+              part={compParts[6]}
+              style={{
+                backgroundColor: `hsl(${hsla[0]} 100% 50%)`,
+                backgroundImage: saturationImage,
+              }}
+            ></div>
+            <div class={ns.e('thumb')} part={compParts[7]} ref={thumb} style={thumbStyle.value}></div>
+          </div>
+          <div class={ns.e('wrapper')} part={compParts[2]}>
+            <div class={ns.e('preview')} part={compParts[5]} style={{ background: colorVal }}></div>
+            <div class={ns.e('ranges')} part={compParts[8]}>
+              {renderElement('range', { ...hueRangeProps, value: hsla[0] })}
+              {renderElement('range', {
+                ...alphaRangeProps,
+                value: hsla[3],
+                railStyle: {
+                  background: `linear-gradient(to right,rgb(255 0 4/0),${getColor()})`,
+                },
+              })}
             </div>
           </div>
-        </>,
+        </div>
       );
+      return panelOnly
+        ? panelNode
+        : renderElement(
+            'popover',
+            {
+              placement: 'bottom-start',
+              ...popoverProps,
+              class: stateClass.value,
+              showArrow: false,
+              ref: popoverRef,
+              triggers,
+              style: ns.v({ 'picked-color': colorVal }),
+            },
+            <>
+              <slot></slot>
+              {panelNode}
+            </>,
+          );
     };
   },
 });
 
 export type tColorPicker = typeof ColorPicker;
-export type iColorPicker = InstanceType<tColorPicker>;
+export type ColorPickerExpose = {};
+export type iColorPicker = InstanceType<tColorPicker> & ColorPickerExpose;
 
 export const defineColorPicker = createDefineElement(name, ColorPicker, {}, parts, {
   select: defineSelect,

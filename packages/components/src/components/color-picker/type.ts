@@ -1,11 +1,20 @@
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, CommonProps, PropObject, PropString, editStateProps, themeProps } from 'common';
+import {
+  GetEventPropsFromEmits,
+  CommonProps,
+  PropObject,
+  PropString,
+  editStateProps,
+  themeProps,
+  PropBoolean,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const colorPickerProps = freeze({
   ...editStateProps,
   ...themeProps,
   value: PropString(),
+  panelOnly: PropBoolean(),
   popoverProps: PropObject(),
 });
 

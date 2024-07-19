@@ -34,8 +34,8 @@ export type DraggableElementState = {
   iClientTop: number;
   limitType?: DraggableLimitType;
   /** offset X from initial pointer down point to target's left edge */
-  offsetX: number;
-  offsetY: number;
+  iOffsetX: number;
+  iOffsetY: number;
   /** min x for target that will not overflow the container */
   minX: number;
   minY: number;
@@ -132,10 +132,10 @@ export function useDraggableArea({
     const { x, y } = getRect(container);
     const { x: tx, y: ty } = finalGetTargetRect(targetEl);
     // must calculate offset here, not in handleMove, as clientX is always changing
-    const offsetX = clientX - tx, // not using e.offsetX, as we may customize clientX by getCoord
-      offsetY = clientY - ty,
-      minX = x + offsetX,
-      minY = y + offsetY;
+    const iOffsetX = clientX - tx, // not using e.offsetX, as we may customize clientX by getCoord
+      iOffsetY = clientY - ty,
+      minX = x + iOffsetX,
+      minY = y + iOffsetY;
     const common = {
       dragging: true,
       clientX,
@@ -143,8 +143,8 @@ export function useDraggableArea({
       limitType,
       minX,
       minY,
-      offsetX,
-      offsetY,
+      iOffsetX,
+      iOffsetY,
       iLeft: tx - x,
       iTop: ty - y,
       iClientLeft: tx,
@@ -203,7 +203,7 @@ export function useDraggableArea({
     if (!draggingCount || !state?.dragging || state.pointerId !== e.pointerId) return;
     if (nested) e.stopPropagation(); // for nested
     let [clientX, clientY] = finalGetCoord(e);
-    const { limitType, minX, minY, offsetX, offsetY } = state;
+    const { limitType, minX, minY, iOffsetX, iOffsetY } = state;
     const { x, y, right, bottom } = getRect(container);
     clientX = roundByDPR(clientX, targetEl);
     clientY = roundByDPR(clientY, targetEl);
@@ -212,12 +212,12 @@ export function useDraggableArea({
       clientY = clamp(clientY, y, bottom);
     } else if (limitType === 'bound') {
       const { width, height } = finalGetTargetRect(targetEl);
-      clientX = clamp(clientX, minX, right - width + offsetX);
-      clientY = clamp(clientY, minY, bottom - height + offsetY);
+      clientX = clamp(clientX, minX, right - width + iOffsetX);
+      clientY = clamp(clientY, minY, bottom - height + iOffsetY);
     } else if (limitType === 'center') {
       const { width, height } = finalGetTargetRect(targetEl);
-      clientX = clamp(clientX, x + offsetX - width / 2, right + offsetX - width / 2);
-      clientY = clamp(clientY, y + offsetY - height / 2, bottom + offsetY - height / 2);
+      clientX = clamp(clientX, x + iOffsetX - width / 2, right + iOffsetX - width / 2);
+      clientY = clamp(clientY, y + iOffsetY - height / 2, bottom + iOffsetY - height / 2);
     }
     const relativeX = state.dx + clientX,
       relativeY = state.dy + clientY;
@@ -227,14 +227,18 @@ export function useDraggableArea({
       (numbersEqual(relativeY, state.relativeY) || axis === 'x')
     )
       return;
-    const newState = getState({
-      ...state,
-      relativeX,
-      relativeY,
-      clientX,
-      clientY,
-    });
-    emitMove(targetEl, newState, state, keyEl);
+    emitMove(
+      targetEl,
+      getState({
+        ...state,
+        relativeX,
+        relativeY,
+        clientX,
+        clientY,
+      }),
+      state,
+      keyEl,
+    );
   };
 
   let lastEl: Element | null,

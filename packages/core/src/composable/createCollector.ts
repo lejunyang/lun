@@ -17,7 +17,7 @@ import {
   onUnmounted,
   shallowReactive,
 } from 'vue';
-import { getPreviousMatchElInTree, toGetterDescriptors } from '@lun/utils';
+import { getPreviousMatchElInTree, isString, toGetterDescriptors } from '@lun/utils';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
@@ -32,7 +32,7 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 };
 
 /**
- * create a collector used for collecting component instance between Parent Component and Children Components
+ * create a collector used for collecting component instances between Parent Component and Children Components
  * @param options `name` `parent` `child` and `parentExtra` are used for dev experience.
  * `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
  * `parentExtra` is used to infer type of parent extra provide data
@@ -66,7 +66,7 @@ export function createCollector<
   getChildEl?: (node: Node) => Element;
 }) {
   const { sort, name, onlyForProp, getParentEl, getChildEl } = options || {};
-  const finalOnlyFor = onlyForProp && typeof onlyForProp !== 'string' ? 'onlyFor' : onlyForProp;
+  const finalOnlyFor = onlyForProp && !isString(onlyForProp) ? 'onlyFor' : onlyForProp;
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name || Date.now()}` : '');
 

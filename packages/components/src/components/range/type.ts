@@ -26,6 +26,7 @@ export const rangeProps = freeze({
   trackDraggable: PropBoolean(),
   tooltipProps: PropObject(),
   tooltipFormatter: PropFunction<(value: string) => string>(),
+  noTooltip: PropBoolean(),
   railStyle: PropObject<CSSProperties>(),
   trackStyle: PropObject<CSSProperties>(),
 });
