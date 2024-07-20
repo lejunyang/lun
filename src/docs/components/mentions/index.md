@@ -3,6 +3,8 @@ title: Mentions 提及
 lang: zh-CN
 ---
 
+该组件用于文本域中需要动态显示高亮块的场景，比如@提及某人、#提及话题等。
+
 该组件基于`contenteditable`以及`Selection`实现，但是目前`Selection in Shadow DOM`有问题，各浏览器实现各不相同，参考[这个](https://stackoverflow.com/questions/62054839/shadowroot-getselection)
 
 - `Safari`: 通过`Window.getSelection`无法获取Shadow DOM内的节点。17 版本之后 Safari 提供[`Selection.getComposedRanges`](https://developer.mozilla.org/en-US/docs/Web/API/Selection/getComposedRanges)，这也是[标准](https://w3c.github.io/selection-api/#dom-selection-getcomposedrange)正在推进的，但是兼容性堪忧（[Can I Use](https://caniuse.com/?search=getComposedRanges)）

@@ -15,6 +15,7 @@ export default {
       dataInput: {
         menu: '输入组件',
         checkbox: 'Checkbox 复选框',
+        colorPicker: 'ColorPicker 颜色选择',
         datePicker: 'DatePicker 时间选择',
         filePicker: 'FilePicker 文件选择',
         input: 'Input 输入',
@@ -108,6 +109,7 @@ export default {
       dataInput: {
         menu: 'Data Input',
         checkbox: 'Checkbox',
+        colorPicker: 'ColorPicker',
         datePicker: 'DatePicker',
         filePicker: 'FilePicker',
         input: 'Input',

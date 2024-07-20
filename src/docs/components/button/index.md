@@ -42,6 +42,12 @@ clearTimeout(): void;
 
 <!-- @Code:countdown -->
 
+## 复制文本
+
+通过`copyText`属性可以便捷地添加点击复制功能
+
+<!-- @Code:copyText -->
+
 ## 块级按钮
 
 <!-- @Code:block -->

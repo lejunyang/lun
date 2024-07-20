@@ -76,6 +76,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           collapsed: false,
           items: [
             { text: locales[lang].sidebar.dataInput.checkbox, link: wrapLink('/components/checkbox/', lang) },
+            { text: locales[lang].sidebar.dataInput.colorPicker, link: wrapLink('/components/color-picker/', lang) },
             { text: locales[lang].sidebar.dataInput.datePicker, link: wrapLink('/components/date-picker/', lang) },
             { text: locales[lang].sidebar.dataInput.filePicker, link: wrapLink('/components/file-picker/', lang) },
             { text: locales[lang].sidebar.dataInput.input, link: wrapLink('/components/input/', lang) },
