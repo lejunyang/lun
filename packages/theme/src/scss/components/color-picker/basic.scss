@@ -86,6 +86,23 @@
     }
   }
 
+  @include is(panel-only) {
+    @include declareVars(
+      (
+        padding: panel-only-padding,
+        border-radius: panel-only-border-radius,
+      )
+    );
+    @include declareVarValues(
+      (
+        border: (
+          panel-only-border,
+          1px solid getColor('black', a4),
+        ),
+      )
+    );
+  }
+
   @include size(1) {
     @include setVars(
       (
@@ -97,6 +114,8 @@
         preview-size: 20px,
         wrapper-gap: getSpaceValue(1),
         panel-gap: getSpaceValue(1),
+        panel-only-padding: getSpaceValue(1),
+        panel-only-border-radius: getRadiusValue(1),
       )
     );
   }
@@ -112,6 +131,8 @@
         preview-size: 30px,
         wrapper-gap: getSpaceValue(1),
         panel-gap: getSpaceValue(2),
+        panel-only-padding: getSpaceValue(2),
+        panel-only-border-radius: getRadiusValue(2),
       )
     );
   }
@@ -127,6 +148,8 @@
         preview-size: 40px,
         wrapper-gap: getSpaceValue(1),
         panel-gap: getSpaceValue(3),
+        panel-only-padding: getSpaceValue(3),
+        panel-only-border-radius: getRadiusValue(3),
       )
     );
   }
