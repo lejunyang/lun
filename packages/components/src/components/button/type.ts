@@ -11,8 +11,10 @@ import {
   PropNumber,
   PropResponsive,
   CommonProps,
+  PropObjOrStr,
 } from 'common';
 import { freeze } from '@lun/utils';
+import { MaybeRefLikeOrGetter } from '@lun/core';
 
 export const buttonProps = freeze({
   ...editStateProps,
@@ -30,7 +32,7 @@ export const buttonProps = freeze({
   iconName: PropString(),
   iconLibrary: PropString(),
   /** if specified, value will be copied to clipboard when button is clicked */
-  copyText: PropString(),
+  copyText: PropObjOrStr<MaybeRefLikeOrGetter<string>>(),
 });
 
 export const buttonEmits = freeze({

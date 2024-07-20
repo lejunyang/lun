@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit } from '@lun/core';
+import { unrefOrGet, useSetupEdit } from '@lun/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
@@ -27,8 +27,9 @@ export const Button = defineSSRCustomElement({
         if (hold && !holdAnimationDone) return;
         holdAnimationDone = false;
         emit('validClick');
-        if (copyText)
-          Promise.resolve(copy(copyText))
+        const text = unrefOrGet(copyText);
+        if (text)
+          Promise.resolve(copy(text))
             .then((res) => (res ? emit('copySuccess') : emit('copyFail')))
             .catch((e) => emit('copyFail', e));
         if (isFunction(asyncHandler)) {
