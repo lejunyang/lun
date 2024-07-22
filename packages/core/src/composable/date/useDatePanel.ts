@@ -9,6 +9,7 @@ import {
 } from '../../presets';
 import { ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 import {
+  capitalize,
   isArray,
   isArrowDownEvent,
   isArrowLeftEvent,
@@ -89,7 +90,12 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   max?: DateValueType;
   lessThan?: DateValueType;
   moreThan?: DateValueType;
-  disableDate?: ((date: DateValueType, info: { type: DatePanelType; selecting?: DateValueType }) => boolean) | boolean;
+  disableDate?:
+    | ((
+        date: DateValueType,
+        info: { type: DatePanelType; selecting?: DateValueType; pickingType: DatePanelType },
+      ) => boolean)
+    | boolean;
   hidePreviewDates?: boolean;
   getCell: (target: HTMLElement) => [number, number] | undefined;
   onSelect?: (
@@ -103,6 +109,7 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
 /** [rows, cols] */
 const gridMap = {
   d: [6, 7],
+  w: [6, 7],
   M: [4, 3],
   Q: [1, 4],
   y: [4, 3],
@@ -122,11 +129,30 @@ const defaultFormatMap = {
   d: 'D',
 } as Record<BaseDateType | ExtendBaseDateType, string>;
 
+const year = 'year',
+  quarter = 'quarter',
+  month = 'month',
+  week = 'week',
+  date = 'date';
+const panelTypes = [year, quarter, month, week, date] as const;
+const panelTypeChain = {
+  [year]: [year] as const,
+  [quarter]: [year, quarter] as const,
+  [month]: [year, month] as const,
+  [week]: [year, month, week] as const,
+  [date]: [year, month, date] as const,
+};
+
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
   const { value, viewDate, getCell, onSelect, getFocusing, enablePrevCells, enableNextCells, beforeViewChange } =
     options;
+  /** intermediate panel type when user is picking a part of a date(e.g. picking the year for a date) */
+  const pickingType = ref() as Ref<DatePanelType>;
+  watchEffect(() => {
+    pickingType.value = options.type || 'date';
+  });
 
   // --------- Methods ----------
   const {
@@ -136,8 +162,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     isAfter,
     type: { get, add: typeAdd, endOf, startOf },
   } = presets.date;
-  const { isSame, add, set } = createDateTypeMethods(() => options.type);
-  const { parse, format, getWeekFirstDay, getShortMonths, getShortWeekDays } = useDateParseFormat(options);
+  const { isSame, add, set } = createDateTypeMethods(() => pickingType.value);
+  const { parse, format, getWeekFirstDay, getShortMonths } = useDateParseFormat(options);
 
   const getWeekStartDate = (value: DateValueType) => {
     const weekFirstDay = getWeekFirstDay();
@@ -156,7 +182,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   };
-  const getProcessedType = () => processType(options.type);
+  const getProcessedType = () => processType(pickingType.value);
   const getPanelOffset = () => panelOffsetMap[getProcessedType()];
   const viewStartOf = (date: DateValueType) => {
     const [t, offset] = getPanelOffset();
@@ -184,8 +210,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     else return add(viewStartDate, -offset / 10); // year and decade
   };
   const getCellText = (date: DateValueType, specifiedType?: DatePanelType) => {
-    let { type, shortMonths } = options;
-    const finalType = specifiedType || type;
+    let { shortMonths } = options;
+    const finalType = specifiedType || pickingType.value;
     const formatStr = unrefOrGet(options[`${finalType}Format`]);
     switch (finalType) {
       // case 'date':
@@ -193,7 +219,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       //   shortWeekDays ||= runIfFn(getShortWeekDays) || [];
       //   return formatStr ? format(date, formatStr) : shortWeekDays[(i + weekFirstDay) % 7];
       case 'month':
-        shortMonths ||= runIfFn(getShortMonths) || [];
+        if (!isArray(shortMonths)) shortMonths = runIfFn(getShortMonths) || [];
         return formatStr
           ? format(date, formatStr)
           : shortMonths[get('M', date)] || format(date, defaultFormatMap[processType(finalType)]);
@@ -240,6 +266,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
   const isOverlapping = ([start1, end1]: DateValueType[], [start2, end2]: DateValueType[]) =>
     isBefore(start1, end2) && isBefore(start2, end1);
 
+  const isLastPickingType = () => pickingType.value === options.type;
+
   const getSelectState = (target: DateValueType) => {
     const ranges = multiRangeValues.value,
       range = rangeValue.value,
@@ -253,9 +281,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
         rangeEnd: false,
         inRange: false,
         oneDayRange: false,
-        selectingStart: isSame(target, selectingRange[0]) || isSingleSelecting,
-        selectingEnd: isSame(target, selectingRange[1]) || isSingleSelecting,
-        inSelecting: isInRange(target, selectingRange),
+        selectingStart: isLastPickingType() && (isSame(target, selectingRange[0]) || isSingleSelecting),
+        selectingEnd: isLastPickingType() && (isSame(target, selectingRange[1]) || isSingleSelecting),
+        inSelecting: isLastPickingType() && isInRange(target, selectingRange),
       };
     const checkRange = (range: DateValueType[]) => {
       res.rangeStart ||= isSame(range[0], target);
@@ -263,6 +291,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
         res.rangeStart ||
         (res.inRange ||= isInRange(target, range));
     };
+    if (!isLastPickingType()) return res;
     if (ranges)
       ranges.forEach(checkRange); // do not use find, need to check all. cause for one date, it can be two ranges' edge
     else if (range) checkRange(range);
@@ -307,7 +336,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
         const offset = row * cols + col;
         const currentDate = add(panelStartDate, offset);
         if (!col) rowKey = cellInfo[row].key = panelStartDateStr + '-' + row;
-        const disabled = runIfFn(disableDate, currentDate, { type, selecting }) || !!isOutOfLimit.value(currentDate);
+        const disabled =
+          runIfFn(disableDate, currentDate, { type, selecting, pickingType: pickingType.value }) ||
+          !!isOutOfLimit.value(currentDate);
         const inView = isInView(currentDate, viewStartDate);
         if (inView) rowAllPreview = false;
         cellInfo[row][col] = {
@@ -336,9 +367,9 @@ export function useDatePanel(options: UseDatePanelOptions) {
     return cellInfo;
   };
 
-  const getViewDate = () =>
-    unrefOrGet(viewDate) ||
+  const getInitialViewDate = () =>
     viewStartOf(multiRangeValues.value?.[0]?.[0] || rangeValue.value?.[0] || values.value[0] || getNow());
+  const getViewDate = () => unrefOrGet(viewDate) || getInitialViewDate();
   if (!viewDate.value) viewDate.value = getViewDate();
   const cells = computed(() => getCells(getViewDate()));
   /** cells for previous date panel */
@@ -361,6 +392,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     viewDate.value = typeAdd(type ?? t, viewDate.value, (offset ?? _offset) * (next ? 1 : -1));
     direction.value = next ? 'right' : 'left';
   };
+  const getIndexOfType = (type: DatePanelType) => panelTypes.findIndex((t) => t === type);
   const methods = {
     nextMonth: createMethod(true, 'M', 1),
     prevMonth: createMethod(false, 'M', 1),
@@ -368,6 +400,17 @@ export function useDatePanel(options: UseDatePanelOptions) {
     prevYear: createMethod(false, 'y', 1),
     nextView: createMethod(true),
     prevView: createMethod(false),
+    ...(Object.fromEntries(
+      panelTypes.map((t) => [
+        `show${capitalize(t)}Panel`,
+        () => {
+          if (getIndexOfType(options.type) >= getIndexOfType(t)) {
+            pickingType.value = t;
+            viewDate.value = getInitialViewDate();
+          }
+        },
+      ]),
+    ) as Record<`show${Capitalize<DatePanelType>}Panel`, () => void>),
   };
 
   /** will call handle if cell is found in event path */
@@ -386,6 +429,15 @@ export function useDatePanel(options: UseDatePanelOptions) {
     return isCell!;
   };
   const selectCell = async ({ date }: UseDatePanelCell) => {
+    const { type } = options,
+      pType = pickingType.value;
+    if (pType !== type) {
+      const chain = panelTypeChain[type];
+      const index = chain.findIndex((t) => t === pType);
+      pickingType.value = chain[index + 1];
+      viewDate.value = viewStartOf(date);
+      return;
+    }
     const selectViewStart = viewStartOf(date);
     if (!isSame(selectViewStart, viewDate.value)) {
       direction.value = isBefore(
@@ -480,7 +532,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
       });
     },
     onFocusin(e: FocusEvent) {
-      handleIfCell(e, ({ date }) => (state.focusing = date));
+      // check isLastPickingType in case of updating focusing when changing picking type by selectCell
+      handleIfCell(e, ({ date }) => isLastPickingType() && (state.focusing = date));
     },
     onFocusout(e: FocusEvent) {
       handleIfCell(e, () => (state.focusing = null));
@@ -493,6 +546,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     methods,
     handlers,
     direction,
+    onTransitionEnd: () => (direction.value = undefined),
     prevCells,
     nextCells,
     expose: {
@@ -500,5 +554,6 @@ export function useDatePanel(options: UseDatePanelOptions) {
       formatDate: format,
       getCellText,
     },
+    pickingType,
   };
 }
