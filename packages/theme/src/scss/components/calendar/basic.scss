@@ -16,7 +16,7 @@
     text-align: center;
     display: grid;
     @supports (grid-template-rows: subgrid) {
-      grid-template-columns: repeat(getRVarValue(cols), max-content);
+      grid-template-columns: repeat(getRVarValue(cols), 1fr);
     }
   }
 
@@ -31,7 +31,7 @@
       grid-template: auto/subgrid;
     }
     @supports not (grid-template-rows: subgrid) {
-      grid-template-columns: repeat(getRVarValue(cols), max-content);
+      grid-template-columns: repeat(getRVarValue(cols), 1fr);
     }
   }
 
@@ -44,7 +44,7 @@
       grid-template: auto/subgrid;
     }
     @supports not (grid-template-rows: subgrid) {
-      grid-template-columns: repeat(getRVarValue(cols), max-content);
+      grid-template-columns: repeat(getRVarValue(cols), 1fr);
     }
   }
 

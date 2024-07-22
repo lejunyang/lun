@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useTypeModel, useValueModel, useViewDate } from 'hooks';
 import { getCompParts, intl } from 'common';
 import {
   createDateLocaleMethods,
@@ -25,11 +25,12 @@ import {
 } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
 import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
-import { GlobalStaticConfig } from 'config';
 
 const name = 'calendar';
 const parts = ['root', 'content', 'head', 'body', 'cell', 'inner', 'wrapper', 'header'] as const;
 const compParts = getCompParts(name, parts);
+
+const panelTypes = ['date', 'week', 'month', 'quarter', 'year'] as const;
 export const Calendar = defineSSRCustomElement({
   name,
   props: calendarProps,
@@ -40,23 +41,31 @@ export const Calendar = defineSSRCustomElement({
     useSetupEdit();
     const context = useContextConfig();
     const viewDate = useViewDate(props),
-      valueModel = useValueModel(props, { shouldEmit: false });
+      valueModel = useValueModel(props, { shouldEmit: false }),
+      typeModel = useTypeModel(props);
     const focusingInner = ref<HTMLElement>(),
       wrapper = ref<HTMLElement>();
 
     const lang = () => context.lang;
-    const getFormat = (field: keyof typeof props, defaultFormat: string) =>
-      props[field] || intl(`date.${field}`).d(defaultFormat);
+    const getFormat = (field: keyof typeof props) => props[field] || intl(`date.${field}`).d(''); // must add .d('') or it would be String object and always be truthy
+    const [_toDateType, _toWeekType, toMonthType, _toQuarterType, toYearType] = panelTypes.map(
+      (t) => () => (typeModel.value = t),
+    );
 
     const scrollable = () => props.scrollable || supportTouch;
     const { cells, methods, direction, handlers, prevCells, nextCells, state, expose } = useDatePanel(
       virtualGetMerge(
         {
-          type: 'date' as const,
+          get type() {
+            return typeModel.value || 'date';
+          },
           lang,
           value: valueModel,
           viewDate,
-          cellFormat: () => getFormat('cellFormat', 'D'),
+          ...(Object.fromEntries(panelTypes.map((t) => [`${t}Format`, () => getFormat(`${t}Format`)])) as Record<
+            'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat',
+            () => string
+          >),
           getCell({ dataset: { row, col } }: HTMLElement) {
             if (row && col) return [+row, +col] as [number, number];
           },
@@ -156,10 +165,7 @@ export const Calendar = defineSSRCustomElement({
     });
     onBeforeUnmount(() => observer?.disconnect());
 
-    const {
-      type: { get },
-    } = GlobalStaticConfig.date;
-    const { getShortMonths, getShortWeekDays, getWeekFirstDay, format } = createDateLocaleMethods(lang);
+    const { getShortWeekDays, getWeekFirstDay } = createDateLocaleMethods(lang);
 
     const [stateClass] = useCEStates(() => null, ns);
     useCEExpose({ ...methods, ...expose }, toGetterDescriptors(state));
@@ -197,16 +203,16 @@ export const Calendar = defineSSRCustomElement({
     };
 
     return () => {
-      let { shortMonths, shortWeekDays, monthBeforeYear, mini } = props;
-      shortMonths ||= runIfFn(getShortMonths) || [];
+      let { shortWeekDays, monthBeforeYear, mini } = props;
       shortWeekDays ||= runIfFn(getShortWeekDays) || [];
       const weekFirstDay = getWeekFirstDay(),
-        view = viewDate.value,
-        monthFormat = getFormat('monthFormat', '');
+        view = viewDate.value;
       const yearMonth = [
-        <button class={[ns.e('year'), ns.e('info-btn')]}>{format(view, getFormat('yearFormat', 'YYYY'))}</button>,
-        <button class={[ns.e('month'), ns.e('info-btn')]}>
-          {monthFormat ? format(view, monthFormat) : shortMonths[get('M', view)]}
+        <button class={[ns.e('year'), ns.e('info-btn')]} onClick={toYearType}>
+          {expose.getCellText(view, 'year')}
+        </button>,
+        <button class={[ns.e('month'), ns.e('info-btn')]} onClick={toMonthType}>
+          {expose.getCellText(view, 'month')}
         </button>,
       ];
       const row0 = cells.value[0] || [];
@@ -230,17 +236,19 @@ export const Calendar = defineSSRCustomElement({
             </div>
           </slot>
           <div class={ns.e('content')} part={compParts[1]} style={ns.v({ cols: row0.length })}>
-            <div class={ns.e('head')} part={compParts[2]}>
-              {row0.map((_, i) => {
-                return (
-                  <div class={[ns.e('cell'), ns.em('cell', 'head')]} part={compParts[4]}>
-                    <div class={ns.e('inner')} part={compParts[5]}>
-                      {shortWeekDays[(i + weekFirstDay) % 7]}
+            {typeModel.value === 'date' && (
+              <div class={ns.e('head')} part={compParts[2]}>
+                {row0.map((_, i) => {
+                  return (
+                    <div class={[ns.e('cell'), ns.em('cell', 'head')]} part={compParts[4]}>
+                      <div class={ns.e('inner')} part={compParts[5]}>
+                        {shortWeekDays[(i + weekFirstDay) % 7]}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
             {scrollable() ? (
               <div class={ns.e('wrapper')} ref={wrapper} part={compParts[6]}>
                 {getCellNodes(prevCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'prev'))}

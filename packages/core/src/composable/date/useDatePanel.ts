@@ -64,13 +64,17 @@ export type UseDatePanelCells = (UseDatePanelCell[] & { key: string; allPreviewD
 export type UseDatePanelOptions = ToAllMaybeRefLike<
   {
     lang: string;
-    cellFormat: string;
     getFocusing: HTMLElement;
     enablePrevCells?: boolean;
     enableNextCells?: boolean;
     value: DateValueType | DateValueType[] | [DateValueType, DateValueType][];
+    dateFormat: string;
+    yearFormat: string;
+    monthFormat: string;
+    quarterFormat: string;
+    weekFormat: string;
   },
-  'lang' | 'cellFormat'
+  'lang' | 'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat'
 > & {
   viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
   format?: string;
@@ -79,6 +83,8 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
   range?: boolean;
   multiple?: boolean;
   type: DatePanelType;
+  shortMonths?: string[];
+  shortWeekDays?: string[];
   min?: DateValueType;
   max?: DateValueType;
   lessThan?: DateValueType;
@@ -96,8 +102,11 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
 
 /** [rows, cols] */
 const gridMap = {
-  date: [6, 7],
-} as Record<DatePanelType, [number, number]>;
+  d: [6, 7],
+  M: [4, 3],
+  Q: [1, 4],
+  y: [4, 3],
+} as Record<BaseDateType | ExtendBaseDateType, [number, number]>;
 /** date offset for each panel type */
 const panelOffsetMap = {
   de: ['y', 100],
@@ -108,20 +117,16 @@ const panelOffsetMap = {
   d: ['M', 1],
 } as Record<BaseDateType | ExtendBaseDateType, [BaseDateType, number]>;
 
+const defaultFormatMap = {
+  y: 'YYYY',
+  d: 'D',
+} as Record<BaseDateType | ExtendBaseDateType, string>;
+
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
     throw new Error(__DEV__ ? 'Must set date preset methods before using Date related components' : '');
-  const {
-    value,
-    cellFormat,
-    viewDate,
-    getCell,
-    onSelect,
-    getFocusing,
-    enablePrevCells,
-    enableNextCells,
-    beforeViewChange,
-  } = options;
+  const { value, viewDate, getCell, onSelect, getFocusing, enablePrevCells, enableNextCells, beforeViewChange } =
+    options;
 
   // --------- Methods ----------
   const {
@@ -132,7 +137,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     type: { get, add: typeAdd, endOf, startOf },
   } = presets.date;
   const { isSame, add, set } = createDateTypeMethods(() => options.type);
-  const { parse, format, getWeekFirstDay } = useDateParseFormat(options);
+  const { parse, format, getWeekFirstDay, getShortMonths, getShortWeekDays } = useDateParseFormat(options);
 
   const getWeekStartDate = (value: DateValueType) => {
     const weekFirstDay = getWeekFirstDay();
@@ -151,7 +156,8 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (start && end) return isBefore(start, end) ? [start, end] : [end, start];
     else return [];
   };
-  const getPanelOffset = () => panelOffsetMap[processType(options.type)];
+  const getProcessedType = () => processType(options.type);
+  const getPanelOffset = () => panelOffsetMap[getProcessedType()];
   const viewStartOf = (date: DateValueType) => {
     const [t, offset] = getPanelOffset();
     const base = startOf(t, date);
@@ -176,6 +182,24 @@ export function useDatePanel(options: UseDatePanelOptions) {
     if (t === 'M') return getWeekStartDate(viewStartDate);
     else if (t === 'y' && offset === 1) return viewStartDate;
     else return add(viewStartDate, -offset / 10); // year and decade
+  };
+  const getCellText = (date: DateValueType, specifiedType?: DatePanelType) => {
+    let { type, shortMonths } = options;
+    const finalType = specifiedType || type;
+    const formatStr = unrefOrGet(options[`${finalType}Format`]);
+    switch (finalType) {
+      // case 'date':
+      //   const weekFirstDay = getWeekFirstDay();
+      //   shortWeekDays ||= runIfFn(getShortWeekDays) || [];
+      //   return formatStr ? format(date, formatStr) : shortWeekDays[(i + weekFirstDay) % 7];
+      case 'month':
+        shortMonths ||= runIfFn(getShortMonths) || [];
+        return formatStr
+          ? format(date, formatStr)
+          : shortMonths[get('M', date)] || format(date, defaultFormatMap[processType(finalType)]);
+      default:
+        return format(date, formatStr || defaultFormatMap[processType(finalType)]);
+    }
   };
   // --------- Methods ----------
 
@@ -268,7 +292,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       viewEndDate = viewEndOf(viewDate),
       panelStartDate = panelStartOf(viewStartDate);
     const { type, disableDate } = options;
-    const grid = gridMap[type];
+    const grid = gridMap[getProcessedType()];
     const [rows, cols] = grid;
     const now = getNow();
     const { selecting, hovering, focusing } = state;
@@ -304,7 +328,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
               return rangeStart || rangeEnd || selectingStart || selectingEnd || singleSelected;
             },
           },
-          text: format(currentDate, unrefOrGet(cellFormat)),
+          text: getCellText(currentDate),
         };
       }
       cellInfo[row].allPreviewDates = rowAllPreview;
@@ -400,8 +424,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     } else runIfFn(onSelect, date, format(date));
   };
   const getOffsetDate = (date: DateValueType, e: KeyboardEvent) => {
-    const { type } = options;
-    const cols = gridMap[type][1];
+    const cols = gridMap[getProcessedType()][1];
     const offset = isArrowUpEvent(e)
       ? -cols
       : isArrowDownEvent(e)
@@ -475,6 +498,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
     expose: {
       parseDate: parse,
       formatDate: format,
+      getCellText,
     },
   };
 }

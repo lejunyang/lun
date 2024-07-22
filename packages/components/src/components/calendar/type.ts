@@ -1,4 +1,4 @@
-import { DateValueType } from '@lun/core';
+import { DatePanelType, DateValueType } from '@lun/core';
 import { freeze } from '@lun/utils';
 import {
   GetEventPropsFromEmits,
@@ -19,15 +19,18 @@ type DateStr = string | string[] | string[][];
 export const calendarProps = freeze({
   ...themeProps,
   ...editStateProps,
+  type: PropString<DatePanelType>(),
   value: PropObjOrStr<DateStr | DateRaw>(),
   viewDate: PropObject<DateValueType>(),
   range: PropBoolean(),
   multiple: PropBoolean(),
   format: PropString(),
   yearFormat: PropString(),
+  quarterFormat: PropString(),
   monthFormat: PropString(),
   monthBeforeYear: PropBoolean(),
-  cellFormat: PropString(),
+  weekFormat: PropString(),
+  dateFormat: PropString(),
   shortMonths: PropArray<string[]>(),
   shortWeekDays: PropArray<string[]>(),
   showTime: PropBoolean(),

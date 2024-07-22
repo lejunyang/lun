@@ -99,3 +99,8 @@ export const useViewDate = createUseModel({
   defaultKey: 'viewDate',
   defaultEvent: 'updateViewDate',
 }) as UseModel<'viewDate'>;
+
+export const useTypeModel = createUseModel({
+  defaultKey: 'type',
+  defaultEvent: 'updateType',
+}) as UseModel<'type'>;
