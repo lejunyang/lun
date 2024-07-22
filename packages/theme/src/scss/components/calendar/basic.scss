@@ -88,10 +88,6 @@
         border-radius: cell-border-radius,
       )
     );
-    &:focus {
-      outline: 2px solid getAccentColor(8);
-      outline-offset: -1px;
-    }
   }
 
   @include em(cell, body, true) {
@@ -333,4 +329,24 @@
 .slideRight-leave-active,
 .slideDown-leave-active {
   animation-delay: 2ms;
+}
+
+.date-enter-from,
+.date-enter-from {
+  scale: 1.05;
+  opacity: 0;
+}
+
+.date-enter-to,
+.date-enter-to {
+  scale: 1;
+  opacity: 1;
+}
+
+.date-enter-active {
+  transition: all 0.2s;
+}
+
+.date-leave-active {
+  display: none;
 }

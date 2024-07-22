@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useCEExpose, useCEStates, useNamespace, useTypeModel, useValueModel, useViewDate } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { getCompParts, intl } from 'common';
 import {
   createDateLocaleMethods,
@@ -41,65 +41,62 @@ export const Calendar = defineSSRCustomElement({
     useSetupEdit();
     const context = useContextConfig();
     const viewDate = useViewDate(props),
-      valueModel = useValueModel(props, { shouldEmit: false }),
-      typeModel = useTypeModel(props);
+      valueModel = useValueModel(props, { shouldEmit: false });
     const focusingInner = ref<HTMLElement>(),
       wrapper = ref<HTMLElement>();
 
     const lang = () => context.lang;
     const getFormat = (field: keyof typeof props) => props[field] || intl(`date.${field}`).d(''); // must add .d('') or it would be String object and always be truthy
-    const [_toDateType, _toWeekType, toMonthType, _toQuarterType, toYearType] = panelTypes.map(
-      (t) => () => (typeModel.value = t),
-    );
 
     const scrollable = () => props.scrollable || supportTouch;
-    const { cells, methods, direction, handlers, prevCells, nextCells, state, expose } = useDatePanel(
-      virtualGetMerge(
-        {
-          get type() {
-            return typeModel.value || 'date';
-          },
-          lang,
-          value: valueModel,
-          viewDate,
-          ...(Object.fromEntries(panelTypes.map((t) => [`${t}Format`, () => getFormat(`${t}Format`)])) as Record<
-            'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat',
-            () => string
-          >),
-          getCell({ dataset: { row, col } }: HTMLElement) {
-            if (row && col) return [+row, +col] as [number, number];
-          },
-          onSelect(value: any, valueStr: any) {
-            valueModel.value = valueStr;
-            emit('update', {
-              value: valueStr,
-              raw: value,
-            });
-          },
-          getFocusing: focusingInner,
-          enablePrevCells: scrollable,
-          enableNextCells: scrollable,
-          async beforeViewChange(offset: number) {
-            if (scrollable()) {
-              // >> 31 => positive: 0 negative: -1
-              const { value } = wrapper;
-              const target = value!.children[1 + ((offset >> 31) | 1)] as HTMLElement;
-              const { x, width } = getRect(target),
-                { x: wx } = getRect(value!);
-              if (Math.abs(x - wx) > width / 2) {
-                scrollIntoView(target, {
-                  behavior: 'smooth',
-                });
-                const { promise, resolve } = withResolvers();
-                scrollEnd = resolve;
-                return promise;
+    const { cells, methods, direction, onTransitionEnd, handlers, prevCells, nextCells, state, expose, pickingType } =
+      useDatePanel(
+        virtualGetMerge(
+          {
+            get type() {
+              return props.type || 'date';
+            },
+            lang,
+            value: valueModel,
+            viewDate,
+            ...(Object.fromEntries(panelTypes.map((t) => [`${t}Format`, () => getFormat(`${t}Format`)])) as Record<
+              'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat',
+              () => string
+            >),
+            getCell({ dataset: { row, col } }: HTMLElement) {
+              if (row && col) return [+row, +col] as [number, number];
+            },
+            onSelect(value: any, valueStr: any) {
+              valueModel.value = valueStr;
+              emit('update', {
+                value: valueStr,
+                raw: value,
+              });
+            },
+            getFocusing: focusingInner,
+            enablePrevCells: scrollable,
+            enableNextCells: scrollable,
+            async beforeViewChange(offset: number) {
+              if (scrollable()) {
+                // >> 31 => positive: 0 negative: -1
+                const { value } = wrapper;
+                const target = value!.children[1 + ((offset >> 31) | 1)] as HTMLElement;
+                const { x, width } = getRect(target),
+                  { x: wx } = getRect(value!);
+                if (Math.abs(x - wx) > width / 2) {
+                  scrollIntoView(target, {
+                    behavior: 'smooth',
+                  });
+                  const { promise, resolve } = withResolvers();
+                  scrollEnd = resolve;
+                  return promise;
+                }
               }
-            }
+            },
           },
-        },
-        props,
-      ),
-    );
+          props,
+        ),
+      );
 
     let scrollEnd: (() => void) | null, observer: IntersectionObserver | undefined;
     onMounted(() => {
@@ -167,7 +164,7 @@ export const Calendar = defineSSRCustomElement({
 
     const { getShortWeekDays, getWeekFirstDay } = createDateLocaleMethods(lang);
 
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(() => ({ [pickingType.value]: 1 }), ns);
     useCEExpose({ ...methods, ...expose }, toGetterDescriptors(state));
 
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => {
@@ -208,10 +205,10 @@ export const Calendar = defineSSRCustomElement({
       const weekFirstDay = getWeekFirstDay(),
         view = viewDate.value;
       const yearMonth = [
-        <button class={[ns.e('year'), ns.e('info-btn')]} onClick={toYearType}>
+        <button class={[ns.e('year'), ns.e('info-btn')]} data-method="showYearPanel">
           {expose.getCellText(view, 'year')}
         </button>,
-        <button class={[ns.e('month'), ns.e('info-btn')]} onClick={toMonthType}>
+        <button class={[ns.e('month'), ns.e('info-btn')]} data-method="showMonthPanel">
           {expose.getCellText(view, 'month')}
         </button>,
       ];
@@ -236,7 +233,7 @@ export const Calendar = defineSSRCustomElement({
             </div>
           </slot>
           <div class={ns.e('content')} part={compParts[1]} style={ns.v({ cols: row0.length })}>
-            {typeModel.value === 'date' && (
+            {pickingType.value === 'date' && (
               <div class={ns.e('head')} part={compParts[2]}>
                 {row0.map((_, i) => {
                   return (
@@ -256,7 +253,10 @@ export const Calendar = defineSSRCustomElement({
                 {getCellNodes(nextCells as ComputedRef<UseDatePanelCells>, ns.em('body', 'next'))}
               </div>
             ) : (
-              <Transition name={direction.value ? 'slide' + capitalize(direction.value) : ''}>
+              <Transition
+                name={direction.value ? 'slide' + capitalize(direction.value) : 'date'}
+                onAfterEnter={onTransitionEnd}
+              >
                 {getCellNodes(cells)}
               </Transition>
             )}
