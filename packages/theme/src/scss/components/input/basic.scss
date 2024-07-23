@@ -23,7 +23,8 @@
   position: relative;
   vertical-align: bottom;
 
-  @include declareVars((font-size, line-height));
+  @include declareReuseVars((font-size, line-height), true);
+  @include declareReuseVars((block-size, padding-inline-start, letter-spacing, border-radius));
 
   :is(&:hover, &:focus-within) {
     @include isN(empty) {
@@ -52,10 +53,6 @@
     position: relative;
     cursor: text;
     box-sizing: border-box;
-    @include is(float-label) {
-      position: absolute;
-      display: inline-block;
-    }
   }
 
   label {
@@ -96,7 +93,7 @@
     inline-size: 100%;
     line-height: inherit;
 
-    @include declareVars((block-size, font-size, padding-inline-start, letter-spacing));
+    @include reuseVars((block-size, font-size, padding-inline-start, letter-spacing));
 
     // placeholder and selection
     &::placeholder {
@@ -156,14 +153,14 @@
     z-index: 0;
     pointer-events: none;
     outline-color: transparent;
-    @include declareVars((border-radius));
+    @include reuseVars((border-radius));
     .#{$B}:focus-within & {
       outline: 2px solid getFocusColor();
       outline-offset: -1px;
     }
   }
   @include e(addon) {
-    @include declareVars((border-radius));
+    @include reuseVars((border-radius));
   }
 
   @include is(with-prepend) {
@@ -195,9 +192,9 @@
     align-items: center;
     justify-content: center; // minus icon needs this
     box-sizing: border-box;
+    @include reuseVars((block-size));
     @include declareVars(
       (
-        block-size: block-size,
         min-inline-size: slot-min-inline-size,
         padding-inline: slot-padding-inline,
       )
@@ -233,8 +230,10 @@
     position: relative;
   }
 
-  // ----------------- float label -----------------
-  @include is(float-label, false, true) {
+  // ----------------- float label, carousel label -----------------
+  @include em(label, special, true) {
+    position: absolute;
+    display: inline-block;
     inset-block-start: 0;
     z-index: 1;
     transition: all 0.3s ease-out;
@@ -244,9 +243,9 @@
     text-overflow: ellipsis;
     --base: 100%;
     // use input's font-size, line-height, block-size
-    @include declareVars((font-size, line-height, block-size));
+    @include reuseVars((font-size, line-height, block-size));
     // use input's padding-inline-start as label's inset-inline-start
-    @include declareVars(
+    @include reuseVars(
       (
         inset-inline-start: padding-inline-start,
       )
@@ -254,10 +253,14 @@
     @include declareVarValues(
       (
         // reduce two paddings, limit the width of label
-        max-inline-size: calc(var(--base) - #{getDeclaredVar(padding-inline-start)} * 2)
+        max-inline-size: calc(var(--base) - #{getReuseVar(padding-inline-start)} * 2)
       )
     );
-
+  }
+  @include em(label, has-carousel, true) {
+    overflow: hidden;
+  }
+  @include em(label, float, true) {
     .#{$B}:focus-within &,
     .#{getIsN(empty, $B, true)} & {
       inset-block-start: -50%;
@@ -292,7 +295,7 @@
       }
     }
   }
-  // ----------------- float label -----------------
+  // ----------------- float label, carousel label -----------------
 
   // ----------------- tag-container -----------------
   @include e(tag-container) {
@@ -317,7 +320,7 @@
       )
     );
     @include is(no-tags) {
-      @include declareVars(
+      @include reuseVars(
         (
           // tag-container-padding is smaller than input's padding, it's weird when input is empty, so use input's padding when no tags
           padding-inline-start
