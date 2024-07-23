@@ -1,4 +1,4 @@
-import { computed, ref, mergeProps } from 'vue';
+import { computed, ref, mergeProps, Transition } from 'vue';
 import {
   useSetupEdit,
   useMultipleInput,
@@ -15,9 +15,10 @@ import { isEmpty, isArray, runIfFn, raf } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
-import { getCompParts, InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
+import { getCompParts, getTransitionProps, InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
 import { GlobalStaticConfig } from 'config';
 import usePassword from './Input.password';
+import { useAutoUpdateLabel } from './hooks';
 
 const name = 'input';
 const parts = [
@@ -41,6 +42,7 @@ const parts = [
   'float-label',
   'float-background',
   'multi-input-wrapper',
+  'carousel-label',
 ] as const;
 const compParts = getCompParts(name, parts);
 export const Input = defineSSRCustomElement({
@@ -200,13 +202,17 @@ export const Input = defineSSRCustomElement({
       refLikeToDescriptors({ input: inputRef, innerValue: valueModel }),
     );
 
+    const label = useAutoUpdateLabel(props);
+
     return () => {
       const { disabled, readonly, editable } = editComputed;
-      const { multiple, placeholder, labelType, label, wrapTags, spellcheck, autofocus, tagRemoveIcon } = props;
-      const type = localType.value;
-      const inputType = type === 'number' || type === 'password' ? type : 'text';
-      const floatLabel = label || placeholder;
-      const hasFloatLabel = labelType === 'float' && floatLabel;
+      const { multiple, placeholder, labelType, wrapTags, spellcheck, autofocus, tagRemoveIcon } = props;
+      const type = localType.value,
+        inputType = type === 'number' || type === 'password' ? type : 'text';
+      const finalLabel = label.value || placeholder,
+        hasFloatLabel = labelType === 'float' && finalLabel,
+        hasCarouselLabel = labelType === 'carousel' && finalLabel,
+        hasSpecialLabel = hasFloatLabel || hasCarouselLabel;
       const { empty, withPrepend, withAppend } = states;
       const hidePlaceholderForMultiple = multiple && !empty;
       const input = (
@@ -220,13 +226,19 @@ export const Input = defineSSRCustomElement({
           part={compParts[1]}
           class={[ns.e('inner-input')]}
           value={finalInputVal.value}
-          placeholder={hasFloatLabel || hidePlaceholderForMultiple ? undefined : placeholder}
+          placeholder={hasSpecialLabel || hidePlaceholderForMultiple ? undefined : placeholder}
           disabled={disabled}
           readonly={readonly}
           size={hidePlaceholderForMultiple ? 1 : undefined}
           {...inputHandlers}
         />
       );
+      const wrapTransition = (node: any) =>
+        hasCarouselLabel ? (
+          <Transition {...getTransitionProps(props, 'carouselLabel', 'slideDown')}>{node}</Transition>
+        ) : (
+          node
+        );
       return (
         <span part={compParts[0]} class={[stateClass.value, ns.m(type)]} onPointerdown={rootOnPointerDown}>
           <div
@@ -235,15 +247,27 @@ export const Input = defineSSRCustomElement({
           >
             <slot {...prependSlot.slotProps}></slot>
           </div>
-          <label class={ns.e('label')} part={compParts[2]}>
-            {hasFloatLabel && (
-              <div class={[ns.e('label'), ns.is('float-label')]} part={compParts[17]}>
-                {floatLabel}
-                <div class={ns.em('label', 'float-background')} part={compParts[18]}>
-                  {floatLabel}
-                </div>
-              </div>
-            )}
+          <label class={[ns.e('label'), hasCarouselLabel && ns.em('label', 'has-carousel')]} part={compParts[2]}>
+            {hasSpecialLabel &&
+              wrapTransition(
+                <div
+                  key={hasCarouselLabel ? finalLabel : undefined}
+                  class={[
+                    ns.e('label'),
+                    hasFloatLabel && ns.em('label', 'float'),
+                    hasCarouselLabel && ns.em('label', 'carousel'),
+                    hasSpecialLabel && ns.em('label', 'special'),
+                  ]}
+                  part={compParts[hasFloatLabel ? 17 : 20]}
+                >
+                  {finalLabel}
+                  {hasFloatLabel && (
+                    <div class={ns.em('label', 'float-background')} part={compParts[18]}>
+                      {finalLabel}
+                    </div>
+                  )}
+                </div>,
+              )}
             {numberStepIcons.value?.minus}
             <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty)]} part={compParts[5]}>
               <slot {...prefixSlot.slotProps}></slot>

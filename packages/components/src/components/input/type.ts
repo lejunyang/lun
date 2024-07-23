@@ -7,11 +7,14 @@ import {
   PropFunction,
   PropNumber,
   PropObjOrFunc,
+  PropObjOrStr,
   PropStrOrArr,
   PropString,
   Status,
+  createTransitionProps,
   editStateProps,
   themeProps,
+  transitionProp,
 } from 'common';
 import { TagProps } from '../tag/type';
 import { Constructor, freeze } from '@lun/utils';
@@ -45,6 +48,7 @@ export type BaseInputProps = Partial<BaseInputSetupProps>;
 export const inputProps = freeze({
   ...baseInputProps,
   ...themeProps,
+  ...createTransitionProps('carouselLabel'),
   value: PropStrOrArr(Number as any as Constructor<number | number[]>),
   multiple: PropBoolean(),
   /** determines whether to allow duplicate tags when it's multiple input */
@@ -56,8 +60,8 @@ export const inputProps = freeze({
   tagRemoveIcon: PropBoolean(),
   /** separator used to split current input string when it's multiple input */
   separator: PropString(RegExp),
-  label: PropString(),
-  labelType: PropString<'float'>(),
+  label: PropObjOrStr<string | { values: string[]; interval: number }>(),
+  labelType: PropString<'float' | 'carousel'>(),
   showLengthInfo: PropBoolean(),
   showClearIcon: PropBoolean(),
   status: PropString<Status>(),

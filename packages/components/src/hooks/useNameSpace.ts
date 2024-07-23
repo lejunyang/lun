@@ -54,7 +54,7 @@ export const useNamespace = (
   });
   const b = (blockSuffix = '') => _bem(namespace.value, block, blockSuffix, '', '');
   const e = (element?: string) => (element ? _bem(namespace.value, block, '', element, '') : '');
-  const m = (modifier?: string) => (modifier ? _bem(namespace.value, block, '', '', modifier) : '');
+  const m = (modifier?: string | false) => (modifier ? _bem(namespace.value, block, '', '', modifier) : '');
   const be = (blockSuffix?: string, element?: string) =>
     blockSuffix && element ? _bem(namespace.value, block, blockSuffix, element, '') : '';
   const em = (element?: string, modifier?: string) =>
