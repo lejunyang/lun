@@ -30,6 +30,8 @@ export const messageProps = freeze({
 });
 
 export const messageEmits = freeze({
+  open: null,
+  afterOpen: null,
   close: null,
   afterClose: null,
 });
@@ -40,6 +42,7 @@ export type MessageOpenConfig = {
   duration?: number | string;
   resetDurationOnHover?: boolean;
 } & CalloutProps &
+  MessageEvents &
   HTMLAttributes &
   Omit<ReservedProps, 'key'>;
 

@@ -13,7 +13,7 @@ import {
 } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
-import { isFunction, objectKeys, omit } from '@lun/utils';
+import { capitalize, objectKeys, omit, runIfFn } from '@lun/utils';
 import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
@@ -116,21 +116,18 @@ export const Message = Object.assign(
         },
       } as MessageMethods;
 
-      const createHandleClose = (type: 'close' | 'afterClose') => {
-        const event = type === 'close' ? 'onClose' : 'onAfterClose';
+      type Event = 'close' | 'afterClose' | 'open' | 'afterOpen';
+      const createHandleClose = (type: Event) => {
+        const event = `on${capitalize(type)}` as `on${Capitalize<Event>}`;
         return (el: any) => {
           const { key } = el.dataset;
-          const config = calloutMap[key!];
-          if (config) {
-            const handler = config[event];
-            if (isFunction(handler)) handler(new CustomEvent(type));
-          }
+          runIfFn(calloutMap[key!]?.[event], new CustomEvent<undefined>(type));
           emit(type as any);
         };
       };
       const transitionHandlers = {
-        onEnter() {},
-        onAfterEnter() {},
+        onEnter: createHandleClose('open'),
+        onAfterEnter: createHandleClose('afterOpen'),
         onLeave: createHandleClose('close'),
         onAfterLeave: createHandleClose('afterClose'),
       } as BaseTransitionProps;
