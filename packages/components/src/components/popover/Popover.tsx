@@ -19,7 +19,7 @@ import {
   usePopover,
   useSetupEvent,
 } from '@lun/core';
-import { createDefineElement } from 'utils';
+import { closePopover, createDefineElement, openPopover } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import {
   getCachedComputedStyle,
@@ -95,9 +95,9 @@ export const Popover = defineSSRCustomElement({
             return runIfFn(props.beforeOpen, actualTarget.value);
           },
           onOpen() {
-            const popover = popRef.value;
-            const p = positionedRef.value;
-            if (popover) popover.showPopover();
+            const popover = popRef.value,
+              p = positionedRef.value;
+            openPopover(popRef);
             return !!(popover || p);
           },
           target: innerTarget,
@@ -312,14 +312,14 @@ export const Popover = defineSSRCustomElement({
         emit('close');
       },
       onAfterLeave() {
-        popRef.value?.hidePopover();
+        closePopover(popRef);
         isShow.value = false;
         emit('afterClose');
       },
     } satisfies BaseTransitionProps;
 
     const wrapTransition = (node: any) => (
-      <Transition {...getTransitionProps(props)} {...transitionHandler}>
+      <Transition {...getTransitionProps(props, 'pop', 'fade')} {...transitionHandler}>
         {node}
       </Transition>
     );
@@ -380,7 +380,6 @@ export const definePopover = createDefineElement(
     offset: 4,
     showArrow: true,
     useTransform: false,
-    transition: 'fade',
     popWidth: 'max-content',
     arrowPosition: 'auto',
     arrowOffset: 15,

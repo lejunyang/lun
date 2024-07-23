@@ -40,7 +40,7 @@ export const popoverFloatingUIProps = freeze({
 });
 
 export const popoverProps = freeze({
-  ...createTransitionProps(),
+  ...createTransitionProps('pop'),
   /** note that it will not inherit edit state's disabled */
   disabled: PropObjOrBool<MaybeRefLikeOrGetter<boolean>>(),
   /** used to manually set the open state of popover */

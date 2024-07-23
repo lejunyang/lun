@@ -1,4 +1,4 @@
-import { PropType } from 'vue';
+import { PropType, TransitionProps } from 'vue';
 import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun/utils';
 import { Responsive } from '../hooks/useBreakpoint';
 
@@ -37,6 +37,8 @@ export const valueProp = { ...PropBoolOrStr(Object, Number), default: undefined 
 export const PropResponsive = cacheFunctionResult(createPropFactory(Object, Number, String)) as <T>() => {
   type: PropType<Responsive<T>>;
 };
+
+export const transitionProp = PropObjOrStr<string | TransitionProps>();
 
 export const sizeProp = PropResponsive<string | number>();
 

@@ -251,7 +251,7 @@ export const Dialog = Object.assign(
           >
             {render(
               <>
-                <Transition {...getTransitionProps(props, 'mask')}>
+                <Transition {...getTransitionProps(props, 'mask', 'bgFade')}>
                   <div
                     v-show={maskShow.value}
                     class={ns.e('mask')}
@@ -262,7 +262,7 @@ export const Dialog = Object.assign(
                     {...maskHandlers}
                   />
                 </Transition>
-                <Transition {...getTransitionProps(props, 'panel')} {...panelTransitionHandlers}>
+                <Transition {...getTransitionProps(props, 'panel', 'scale')} {...panelTransitionHandlers}>
                   <div
                     v-show={isOpen.value}
                     class={ns.e('panel')}
@@ -350,8 +350,6 @@ export const defineDialog = createDefineElement(
   {
     escapeClosable: true,
     width: '450px',
-    panelTransition: 'scale',
-    maskTransition: 'bgFade',
   },
   parts,
   {

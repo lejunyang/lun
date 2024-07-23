@@ -95,7 +95,7 @@ export const defineTooltip = createDefineElement(
   name,
   Tooltip,
   {
-    transition: 'scale',
+    popTransition: 'scale',
     // anchorName: 'tooltip',
   },
   parts,

@@ -33,7 +33,7 @@ export const Tag = defineSSRCustomElement({
 
     return () => {
       return (
-        <Transition {...getTransitionProps(props)} {...handlers}>
+        <Transition {...getTransitionProps(props, 'remove', 'scaleOut')} {...handlers}>
           {!removed.value && (
             <span
               class={ns.t}
@@ -62,14 +62,6 @@ export const Tag = defineSSRCustomElement({
 export type tTag = typeof Tag;
 export type iTag = InstanceType<tTag>;
 
-export const defineTag = createDefineElement(
-  name,
-  Tag,
-  {
-    transition: 'scaleOut',
-  },
-  parts,
-  {
-    icon: defineIcon,
-  },
-);
+export const defineTag = createDefineElement(name, Tag, {}, parts, {
+  icon: defineIcon,
+});

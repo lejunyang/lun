@@ -1,10 +1,18 @@
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, PropBoolean, PropObject, PropString, themeProps, createTransitionProps, CommonProps } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropObject,
+  PropString,
+  themeProps,
+  createTransitionProps,
+  CommonProps,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const tagProps = freeze({
   ...themeProps,
-  ...createTransitionProps(),
+  ...createTransitionProps('remove'),
   label: PropString(),
   removable: PropBoolean(),
   removeIconProps: PropObject(),

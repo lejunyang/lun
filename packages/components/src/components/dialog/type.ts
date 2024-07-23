@@ -20,8 +20,7 @@ import { freeze } from '@lun/utils';
 export const dialogProps = freeze({
   ...editStateProps,
   ...themeProps,
-  ...createTransitionProps('panel'),
-  ...createTransitionProps('mask'),
+  ...createTransitionProps('panel', 'mask'),
   open: undefBoolProp,
   container: PropObjOrStr<HTMLElement | string>(),
   noMask: PropBoolean(),
