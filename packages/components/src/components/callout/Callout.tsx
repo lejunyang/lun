@@ -5,6 +5,7 @@ import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { useNamespace } from 'hooks';
 import { getTransitionProps, renderStatusIcon, getCompParts } from 'common';
+import { runIfFn } from '@lun/utils';
 
 const name = 'callout';
 const parts = ['root', 'icon', 'close-icon', 'content', 'message', 'description'] as const;
@@ -16,7 +17,10 @@ export const Callout = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const closed = ref(false);
-    const close = () => (closed.value = true);
+    const close = () => {
+      if (runIfFn(props.beforeClose) === false) return;
+      closed.value = true;
+    };
     const handlers = {
       onLeave() {
         emit('close');
@@ -39,7 +43,7 @@ export const Callout = defineSSRCustomElement({
         message = message.message;
       }
       return (
-        <Transition {...getTransitionProps(props)} {...handlers}>
+        <Transition {...getTransitionProps(props, 'close', 'scaleOut')} {...handlers}>
           {!closed.value && (
             <span class={ns.t} part={compParts[0]} data-status={status}>
               <slot name="icon">
@@ -78,14 +82,6 @@ export const Callout = defineSSRCustomElement({
 export type tCallout = typeof Callout;
 export type iCallout = InstanceType<tCallout>;
 
-export const defineCallout = createDefineElement(
-  name,
-  Callout,
-  {
-    transition: 'scaleOut',
-  },
-  parts,
-  {
-    icon: defineIcon,
-  },
-);
+export const defineCallout = createDefineElement(name, Callout, {}, parts, {
+  icon: defineIcon,
+});

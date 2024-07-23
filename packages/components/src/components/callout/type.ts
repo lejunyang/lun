@@ -3,6 +3,7 @@ import {
   CommonProps,
   GetEventPropsFromEmits,
   PropBoolean,
+  PropFunction,
   PropObject,
   PropString,
   Status,
@@ -13,7 +14,7 @@ import { ExtractPropTypes } from 'vue';
 
 export const calloutProps = freeze({
   ...themeProps,
-  ...createTransitionProps(),
+  ...createTransitionProps('close'),
   message: PropString(Error),
   description: PropString(),
   iconName: PropString(),
@@ -21,6 +22,7 @@ export const calloutProps = freeze({
   iconProps: PropObject(),
   closable: PropBoolean(),
   closeIconProps: PropObject(),
+  beforeClose: PropFunction<() => boolean | void>(),
   status: PropString<Status>(),
 });
 
