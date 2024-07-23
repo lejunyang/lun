@@ -97,7 +97,7 @@ export function refLikesToGetters<M extends Record<string | number | symbol, May
   };
 }
 
-export function refToGetter<T extends { value: object } | undefined | null>(
+export function proxyObjectRef<T extends { value: object } | undefined | null>(
   target: T,
 ): T extends { value: infer V } ? Readonly<V> : {} {
   if (!target) return {} as any;
@@ -120,5 +120,5 @@ export function refToGetter<T extends { value: object } | undefined | null>(
 
 /** similar to vue's computed, but wrapped with a proxy, so we don't need .value anymore, only use it when getter returns a object */
 export function objectComputed<T extends AnyObject>(getter: () => T) {
-  return refToGetter(computed(getter));
+  return proxyObjectRef(computed(getter));
 }

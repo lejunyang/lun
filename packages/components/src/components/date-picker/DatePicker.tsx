@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement } from 'utils';
+import { closePopover, createDefineElement, renderElement } from 'utils';
 import { datePickerEmits, datePickerProps } from './type';
 import { defineCalendar, iCalendar } from '../calendar';
 import { defineInput, iInput } from '../input';
@@ -30,7 +30,7 @@ export const DatePicker = defineSSRCustomElement({
             // it's calendar's update
             inputModel.value = valueModel.value = val.value;
             emit('update', val);
-            if (!props.multiple) popoverRef.value?.delayClosePopover(true);
+            if (!props.multiple) closePopover(popoverRef, true, true);
           } else {
             // it's input's update
             const newDate = parse(val);

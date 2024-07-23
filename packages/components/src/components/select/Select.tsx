@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed, ref, mergeProps, nextTick } from 'vue';
-import { createDefineElement, renderElement } from 'utils';
+import { closePopover, createDefineElement, openPopover, renderElement } from 'utils';
 import { selectEmits, selectProps, selectPropsOfPopover } from './type';
 import { definePopover, iPopover } from '../popover/Popover';
 import { refLikeToDescriptors, useSelectMethods, useSetupEdit, useTempState } from '@lun/core';
@@ -58,7 +58,7 @@ export const Select = defineSSRCustomElement({
         return (hideOptionWhenSelected && multiple && isSelected) || !filterResult;
       },
       onSingleSelect(value) {
-        if (props.autoClose && !isNilOrEmptyStr(value)) popoverRef.value?.delayClosePopover(true);
+        if (props.autoClose && !isNilOrEmptyStr(value)) closePopover(popoverRef, true);
       },
     });
 
@@ -195,7 +195,7 @@ export const Select = defineSSRCustomElement({
           unique: true,
           onInput() {
             const pop = popoverRef.value;
-            if (!pop?.isOpen) pop.openPopover();
+            if (!pop?.isOpen) openPopover(popoverRef);
           },
           onUpdate: (e: CustomEvent) => {
             const value = e.detail;
