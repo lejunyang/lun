@@ -1,5 +1,14 @@
 import { Side } from '@floating-ui/vue';
-import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropObjOrStr, PropString, Status, createTransitionProps } from 'common';
+import {
+  CommonProps,
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropNumber,
+  PropObjOrStr,
+  PropString,
+  Status,
+  createTransitionProps,
+} from 'common';
 import { ExtractPropTypes, HTMLAttributes, ReservedProps } from 'vue';
 import { CalloutProps, calloutProps } from '../callout/type';
 import { MaybeRefLikeOrGetter } from '@lun/core';
@@ -7,7 +16,7 @@ import { freeze } from '@lun/utils';
 
 export const messageProps = freeze({
   ...calloutProps,
-  ...createTransitionProps('callout'),
+  ...createTransitionProps('close', 'callout'),
   /** determine the implementation type of popover */
   type: PropString<'popover' | 'normal' | 'teleport'>(),
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */

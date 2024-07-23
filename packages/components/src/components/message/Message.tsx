@@ -1,7 +1,16 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement } from 'utils';
+import { createDefineElement, openPopover, renderElement } from 'utils';
 import { MessageMethods, MessageOpenConfig, messageEmits, messageProps } from './type';
-import { BaseTransitionProps, CSSProperties, TransitionGroup, computed, reactive, ref, watchEffect } from 'vue';
+import {
+  BaseTransitionProps,
+  CSSProperties,
+  TransitionGroup,
+  computed,
+  onBeforeUnmount,
+  reactive,
+  ref,
+  watchEffect,
+} from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
 import { isFunction, objectKeys, omit } from '@lun/utils';
@@ -9,6 +18,7 @@ import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
+import { refLikeToDescriptors } from '@lun/core';
 
 const name = 'message';
 const parts = ['root'] as const;
@@ -60,19 +70,23 @@ export const Message = Object.assign(
       });
 
       watchEffect(() => {
-        const root = rootRef.value;
-        if (show.value && root) {
-          if (isPopover.value) {
-            root.showPopover();
-          }
-        }
+        if (show.value && isPopover.value) openPopover(rootRef);
       });
 
+      const clearTimer = (key: string | number) => {
+        clearTimeout(keyTimerMap[key]);
+        delete keyTimerMap[key];
+      };
+      const startTimer = (key: string | number, duration: string | number | undefined) => {
+        if (duration !== null && duration !== 'none') {
+          keyTimerMap[key] = setTimeout(() => methods.close(key), +duration!);
+        }
+      };
       const methods = {
         open(config) {
           config = {
             ...omit(props, ['type', 'placement', 'to']),
-            ...getTransitionProps(props, 'callout'),
+            ...getTransitionProps(props, 'close'),
             status: config?.type,
             ...config,
             class: ns.e('callout'),
@@ -82,26 +96,23 @@ export const Message = Object.assign(
           if (config.duration === undefined) config.duration = 3000;
           const { duration } = config;
           if (calloutMap[key]) {
-            clearTimeout(keyTimerMap[key]);
+            clearTimer(key);
             calloutMap[key] = { ...calloutMap[key], ...config };
           } else {
             calloutMap[key] = config;
             showCount.value++;
           }
-          if (duration !== null && duration !== 'none') {
-            keyTimerMap[key] = setTimeout(() => methods.close(key), +duration);
-          }
+          startTimer(key, duration);
         },
         close(key) {
-          const config = calloutMap[key];
-          if (config) {
-            clearTimeout(keyTimerMap[key]);
+          if (calloutMap[key]) {
+            clearTimer(key);
             delete calloutMap[key];
             showCount.value--;
           }
         },
         closeAll() {
-          Object.keys(calloutMap).forEach(methods.close);
+          objectKeys(calloutMap).forEach(methods.close);
         },
       } as MessageMethods;
 
@@ -125,21 +136,24 @@ export const Message = Object.assign(
       } as BaseTransitionProps;
       const getCalloutHandlers = (key: string | number) => ({
         onPointerenter() {
-          const config = calloutMap[key];
-          if (config.resetDurationOnHover) {
-            clearTimeout(keyTimerMap[key]);
-            delete keyTimerMap[key];
-          }
+          if (calloutMap[key]?.resetDurationOnHover) clearTimer(key);
         },
         onPointerleave() {
-          const { resetDurationOnHover, duration } = calloutMap[key];
-          if (resetDurationOnHover && duration !== null && duration !== 'none') {
-            keyTimerMap[key] = setTimeout(() => methods.close(key), +duration!);
-          }
+          const config = calloutMap[key];
+          if (config?.resetDurationOnHover) startTimer(key, config.duration);
         },
+        // return false to prevent default close behavior in callout
+        beforeClose: () => (methods.close(key), false),
       });
 
-      useCEExpose(methods);
+      onBeforeUnmount(() => Object.values(keyTimerMap).forEach((t) => clearTimeout(t)));
+
+      useCEExpose(
+        methods,
+        refLikeToDescriptors({
+          showCount,
+        }),
+      );
 
       const [wrapTeleport, vnodeHandlers] = useTeleport(props, () => type.value === 'teleport');
 
@@ -154,7 +168,7 @@ export const Message = Object.assign(
             v-show={show.value}
             {...vnodeHandlers}
           >
-            <TransitionGroup {...getTransitionProps(props)} {...transitionHandlers}>
+            <TransitionGroup {...getTransitionProps(props, 'callout', 'message')} {...transitionHandlers}>
               {objectKeys(calloutMap).flatMap((key) => {
                 const callout = calloutMap[key];
                 return callout
@@ -184,10 +198,10 @@ export const defineMessage = createDefineElement(
   name,
   Message,
   {
-    transition: 'message',
     resetDurationOnHover: true,
     placement: 'top',
     offset: 10,
+    closable: true,
   },
   parts,
   {
