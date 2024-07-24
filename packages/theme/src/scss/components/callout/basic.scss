@@ -10,11 +10,12 @@ pre {
 @include b(callout) {
   display: flex;
   @include declareVars((padding, border-radius, gap));
+  @include declareReuseVars((message-font-size, message-line-height, description-font-size, description-line-height));
 
   @include e(content) {
   }
   @include e(message) {
-    @include declareVars(
+    @include reuseVars(
       (
         font-size: message-font-size,
         line-height: message-line-height,
@@ -24,63 +25,80 @@ pre {
   @include e(description) {
     @include declareVars(
       (
+        // margin-top: description-margin-top, // TODO refactor grid layout
+      )
+    );
+    @include reuseVars(
+      (
         font-size: description-font-size,
         line-height: description-line-height,
       )
     );
   }
   @include e(icon) {
-    font-size: calc(var(--message-font-size) * 1.4);
+    font-size: calc(getReuseVar(message-font-size) * 1.2);
     flex-shrink: 0;
+    position: relative;
+    top: calc((getReuseVar(message-line-height) - getReuseVar(message-font-size) / 0.83) / 2);
   }
   @include e(close-icon) {
     cursor: pointer;
     position: relative;
-    top: calc((var(--message-line-height) - var(--message-font-size)) / 2);
-    @include declareVars(
+    top: calc((getReuseVar(message-line-height) - getReuseVar(message-font-size)) / 2);
+    @include reuseVars(
       (
         font-size: message-font-size,
-        line-height: message-line-height,
       )
     );
+    @include is(description-only) {
+      top: calc((getReuseVar(description-line-height) - getReuseVar(description-font-size)) / 2);
+      @include reuseVars(
+        (
+          font-size: description-font-size,
+        )
+      );
+    }
   }
 
   @include size(1) {
     @include setVars(
       (
-        padding: getSpaceValue(2),
+        padding: getSpaceValue(3),
         gap: getSpaceValue(1),
         border-radius: getRadiusValue(3),
         message-font-size: getFontSizeValue(2),
         description-font-size: getFontSizeValue(1),
         message-line-height: getLineHeightValue(2),
         description-line-height: getLineHeightValue(1),
+        description-margin-top: getSpaceValue(1),
       )
     );
   }
   @include size(2) {
     @include setVars(
       (
-        padding: getSpaceValue(3),
+        padding: getSpaceValue(4),
         gap: getSpaceValue(2),
         border-radius: getRadiusValue(4),
         message-font-size: getFontSizeValue(3),
         description-font-size: getFontSizeValue(2),
         message-line-height: getLineHeightValue(3),
         description-line-height: getLineHeightValue(2),
+        description-margin-top: getSpaceValue(2),
       )
     );
   }
   @include size(3) {
     @include setVars(
       (
-        padding: getSpaceValue(4),
+        padding: getSpaceValue(5),
         gap: getSpaceValue(3),
         border-radius: getRadiusValue(5),
         message-font-size: getFontSizeValue(4),
         description-font-size: getFontSizeValue(3),
         message-line-height: getLineHeightValue(4),
         description-line-height: getLineHeightValue(3),
+        description-margin-top: getSpaceValue(3),
       )
     );
   }

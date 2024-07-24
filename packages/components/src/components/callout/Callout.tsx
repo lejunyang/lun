@@ -35,11 +35,11 @@ export const Callout = defineSSRCustomElement({
       let stack: any;
       if (message instanceof Error) {
         status = 'error';
-        // remove first line of stack, and remove leading spaces
+        // remove first line of stack, and remove leading and trailing spaces
         // 'stack' of Error is non-standard, consider adding a process func
         let lines = message.stack?.split('\n') || [];
         lines.shift();
-        stack = <pre>{lines.map((i) => '  ' + i.trimStart() + '\n')}</pre>;
+        stack = <pre>{lines.map((i) => i.trim() + '\n')}</pre>;
         message = message.message;
       }
       return (
@@ -69,7 +69,7 @@ export const Callout = defineSSRCustomElement({
                   ...props.closeIconProps,
                   onClick: close,
                   part: compParts[2],
-                  class: ns.e('close-icon'),
+                  class: [ns.e('close-icon'), description && !message && ns.is('description-only')],
                 })}
             </span>
           )}
