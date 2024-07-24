@@ -14,10 +14,10 @@ import {
   createTransitionProps,
   editStateProps,
   themeProps,
-  transitionProp,
 } from 'common';
 import { TagProps } from '../tag/type';
 import { Constructor, freeze } from '@lun/utils';
+import { AutoUpdateLabel } from './hooks';
 
 export const baseInputProps = {
   ...editStateProps,
@@ -60,7 +60,7 @@ export const inputProps = freeze({
   tagRemoveIcon: PropBoolean(),
   /** separator used to split current input string when it's multiple input */
   separator: PropString(RegExp),
-  label: PropObjOrStr<string | { values: string[]; interval: number }>(),
+  label: PropObjOrStr<string | AutoUpdateLabel>(),
   labelType: PropString<'float' | 'carousel'>(),
   showLengthInfo: PropBoolean(),
   showClearIcon: PropBoolean(),
@@ -91,6 +91,8 @@ export const inputEmits = freeze({
   tagsRemove: (_removedTags: string[] | number[]) => null,
   enterDown: null,
 });
+
+export type { AutoUpdateLabel };
 
 export type InputSetupProps = ExtractPropTypes<typeof inputProps> & CommonProps;
 export type InputEvents = GetEventPropsFromEmits<typeof inputEmits>;

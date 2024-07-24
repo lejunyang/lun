@@ -1,7 +1,9 @@
 import { isArray, isObject } from '@lun/utils';
 import { onBeforeUnmount, ref, watchEffect } from 'vue';
 
-export function useAutoUpdateLabel(props: { label?: string | { values: string[]; interval: number } }) {
+export type AutoUpdateLabel = { interval: number; values?: string[] };
+
+export function useAutoUpdateLabel(props: { label?: string | AutoUpdateLabel }) {
   const labelRef = ref<string>();
   let i: number, timer: any;
   const clean = () => {
@@ -13,15 +15,15 @@ export function useAutoUpdateLabel(props: { label?: string | { values: string[];
     clean();
     const { label } = props;
     if (isObject(label)) {
-      const { values, interval } = label as { values: string[]; interval: number };
-      if (interval > 0 && isArray(values) && values.length) {
-        labelRef.value = values[i];
-        timer = setInterval(() => {
-          ++i;
+      const { values, interval } = label as AutoUpdateLabel;
+      const updateVal = () => {
+        if (isArray(values) && values.length) {
+          labelRef.value = values[i++];
           if (i >= values.length) i = 0;
-          labelRef.value = values[i];
-        }, interval);
-      } else labelRef.value = String(label || '');
+        } else labelRef.value = String(label || '');
+      };
+      updateVal();
+      if (interval > 0) timer = setInterval(updateVal, interval);
     } else labelRef.value = label;
   });
   onBeforeUnmount(clean);
