@@ -34,6 +34,7 @@ export const messageEmits = freeze({
   afterOpen: null,
   close: null,
   afterClose: null,
+  allClosed: null,
 });
 
 export type MessageOpenConfig = {

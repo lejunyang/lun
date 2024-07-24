@@ -35,7 +35,9 @@ export const Message = Object.assign(
         else return objectKeys(popSupport).find((i) => popSupport[i]);
       });
       const rootRef = ref<HTMLElement>();
-      const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({});
+      const calloutMap = reactive<Record<string | number, MessageOpenConfig>>({}),
+        /** keep the callout config after delete it from calloutMap, so that we can access it in onLeave and onAfterLeave */
+        tempCalloutMap: Record<string | number, MessageOpenConfig> = {};
       const keyTimerMap = {} as Record<string | number, ReturnType<typeof setTimeout>>;
       const showCount = ref(0);
       const show = computed(() => showCount.value > 0);
@@ -87,28 +89,26 @@ export const Message = Object.assign(
           config = {
             ...omit(props, ['type', 'placement', 'to']),
             ...getTransitionProps(props, 'close'),
+            variant: ns.getT('variant'), // TODO seems that still need other theme props
             status: config?.type,
             ...config,
             class: ns.e('callout'),
           };
           const key = (config.key ||= Date.now());
           (config as any)['data-key'] = key;
+          Object.assign(config, getCalloutHandlers(config));
           if (config.duration === undefined) config.duration = 3000;
           const { duration } = config;
           if (calloutMap[key]) {
             clearTimer(key);
             calloutMap[key] = { ...calloutMap[key], ...config };
-          } else {
-            calloutMap[key] = config;
-            showCount.value++;
-          }
+          } else calloutMap[key] = config;
           startTimer(key, duration);
         },
         close(key) {
-          if (calloutMap[key]) {
+          if ((tempCalloutMap[key] = calloutMap[key])) {
             clearTimer(key);
             delete calloutMap[key];
-            showCount.value--;
           }
         },
         closeAll() {
@@ -116,31 +116,46 @@ export const Message = Object.assign(
         },
       } as MessageMethods;
 
-      type Event = 'close' | 'afterClose' | 'open' | 'afterOpen';
-      const createHandleClose = (type: Event) => {
+      type Event = keyof typeof messageEmits;
+      const createHandle = (type: Event, afterFn?: (el: any, key: any) => void) => {
         const event = `on${capitalize(type)}` as `on${Capitalize<Event>}`;
         return (el: any) => {
           const { key } = el.dataset;
-          runIfFn(calloutMap[key!]?.[event], new CustomEvent<undefined>(type));
+          runIfFn((calloutMap[key!] || tempCalloutMap[key])?.[event], new CustomEvent<undefined>(type));
           emit(type as any);
+          afterFn?.(el, key);
         };
       };
+      const allClosed = createHandle('allClosed');
       const transitionHandlers = {
-        onEnter: createHandleClose('open'),
-        onAfterEnter: createHandleClose('afterOpen'),
-        onLeave: createHandleClose('close'),
-        onAfterLeave: createHandleClose('afterClose'),
+        onEnter: createHandle('open', () => showCount.value++),
+        onAfterEnter: createHandle('afterOpen'),
+        onLeave: createHandle('close'),
+        onAfterLeave: createHandle('afterClose', (el, key) => {
+          if (!--showCount.value) allClosed(el);
+          delete tempCalloutMap[key];
+        }),
       } as BaseTransitionProps;
-      const getCalloutHandlers = (key: string | number) => ({
-        onPointerenter() {
-          if (calloutMap[key]?.resetDurationOnHover) clearTimer(key);
+      // must destruct to get original beforeClose
+      const getCalloutHandlers = ({
+        key,
+        beforeClose,
+        resetDurationOnHover,
+        duration,
+        onPointerenter,
+        onPointerleave,
+      }: MessageOpenConfig) => ({
+        onPointerenter: resetDurationOnHover
+          ? (e: PointerEvent) => (clearTimer(key!), runIfFn(onPointerenter, e))
+          : onPointerenter,
+        onPointerleave: resetDurationOnHover
+          ? (e: PointerEvent) => (startTimer(key!, duration), runIfFn(onPointerleave, e))
+          : onPointerleave,
+        beforeClose: () => {
+          if (runIfFn(beforeClose) === false) return false;
+          // return false to prevent default close behavior in callout
+          return methods.close(key!), false;
         },
-        onPointerleave() {
-          const config = calloutMap[key];
-          if (config?.resetDurationOnHover) startTimer(key, config.duration);
-        },
-        // return false to prevent default close behavior in callout
-        beforeClose: () => (methods.close(key), false),
       });
 
       onBeforeUnmount(() => Object.values(keyTimerMap).forEach((t) => clearTimeout(t)));
@@ -166,17 +181,7 @@ export const Message = Object.assign(
             {...vnodeHandlers}
           >
             <TransitionGroup {...getTransitionProps(props, 'callout', 'message')} {...transitionHandlers}>
-              {objectKeys(calloutMap).flatMap((key) => {
-                const callout = calloutMap[key];
-                return callout
-                  ? [
-                      renderElement('callout', {
-                        ...callout,
-                        ...getCalloutHandlers(key),
-                      }),
-                    ]
-                  : [];
-              })}
+              {Object.values(calloutMap).map((callout) => callout && renderElement('callout', callout))}
             </TransitionGroup>
           </div>
         );
