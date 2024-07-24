@@ -16,6 +16,10 @@
 
 <!-- @Code:displayError -->
 
+## 不同变体
+
+<!-- @Code:differentVariants -->
+
 ## 不同大小
 
 <!-- @Code:differentSizes -->

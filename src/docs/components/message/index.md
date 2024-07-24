@@ -36,6 +36,14 @@ lang: zh-CN
 
 <!-- @Code:otherTypes -->
 
+## 自动关闭
+
+通过 `duration` 属性可以让消息在指定时间后自动关闭，单位为毫秒，不指定（`undefined`）则默认为 3000（3 秒），若为`null`或字符串`none`，则不会自动关闭，小于等于 0 或其他非法值会使其打开后立即关闭
+
+`resetDurationOnHover` 属性可以使得鼠标移入时移除计时器，移出后重新计时，默认为 `true`
+
+<!-- @Code:duration -->
+
 <script setup>
   import { supportPopover } from '@lun/utils';
 </script>

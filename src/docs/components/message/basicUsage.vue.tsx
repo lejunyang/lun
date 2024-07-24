@@ -11,6 +11,9 @@ export default () => (
         onClick={() =>
           msg.value?.open({
             type: status,
+            onAllClosed() {
+              console.log('All closed')
+            }
           })
         }
       >
