@@ -32,7 +32,10 @@ export const GlobalContextConfig = reactive({
     });
   })(),
   theme: {
-    variant: 'surface',
+    variant: {
+      common: 'surface',
+      message: 'soft',
+    },
     size: {
       initial: '1',
       sm: '2',

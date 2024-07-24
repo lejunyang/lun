@@ -60,6 +60,9 @@
 @include b(message) {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  overflow: visible; // to make box-shadow of callout can be seen
   @include declareVars((gap));
   @include setVars(
     (
@@ -131,6 +134,9 @@
   @include e(callout) {
     display: flex;
     justify-content: center;
+    pointer-events: all;
+    box-shadow: getShadowSpread(3); // add box-shadow directly on callout, not on its root element, so that it won't affect box-shadow of surface variant
+    @include declareVars((border-radius)); // border-radius should be same as callout's
     .message-leave-active ~ & {
       @include declareVars(
         (
@@ -150,6 +156,7 @@
     @include setVars(
       (
         gap: getSpaceValue(2),
+        border-radius: getRadiusValue(3),
       )
     );
   }
@@ -157,6 +164,7 @@
     @include setVars(
       (
         gap: getSpaceValue(3),
+        border-radius: getRadiusValue(4),
       )
     );
   }
@@ -164,6 +172,7 @@
     @include setVars(
       (
         gap: getSpaceValue(4),
+        border-radius: getRadiusValue(5),
       )
     );
   }
