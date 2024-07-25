@@ -21,7 +21,7 @@ export const DocPip = defineSSRCustomElement({
   props: docPipProps,
   emits: docPipEmits,
   setup(props, { emit }) {
-    const { slotRef } = useSlot();
+    const [getSlot, , , slotRef] = useSlot();
     const { CE } = getCurrentInstance()!;
 
     let pipWindow: Window | undefined,
@@ -146,7 +146,7 @@ export const DocPip = defineSSRCustomElement({
     onBeforeUnmount(methods.closePip);
 
     useCEExpose(methods);
-    return () => <slot ref={slotRef}></slot>;
+    return () => getSlot();
   },
 });
 

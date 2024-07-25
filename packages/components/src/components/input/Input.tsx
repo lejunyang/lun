@@ -121,9 +121,9 @@ export const Input = defineSSRCustomElement({
         empty: isEmpty(valueModel.value) && !valueForMultiple.value,
         multiple: props.multiple,
         required: validateProps.value.required,
-        withPrepend: !prependSlot.empty.value,
-        withAppend: !appendSlot.empty.value,
-        withRenderer: !rendererSlot.empty.value,
+        withPrepend: !prependEmpty.value,
+        withAppend: !appendEmpty.value,
+        withRenderer: !rendererEmpty.value,
       }),
       ns,
     );
@@ -167,11 +167,11 @@ export const Input = defineSSRCustomElement({
       });
     };
 
-    const prependSlot = useSlot({ name: 'prepend' });
-    const prefixSlot = useSlot({ name: 'prefix' });
-    const suffixSlot = useSlot({ name: 'suffix' });
-    const appendSlot = useSlot({ name: 'append' });
-    const rendererSlot = useSlot({ name: 'renderer' });
+    const [prependSlot, prependEmpty] = useSlot('prepend');
+    const [prefixSlot, prefixEmpty] = useSlot('prefix');
+    const [suffixSlot, suffixEmpty] = useSlot('suffix');
+    const [appendSlot, appendEmpty] = useSlot('append');
+    const [rendererSlot, rendererEmpty] = useSlot('renderer');
 
     const [passwordIcon, localType, togglePassword] = usePassword(() => validateProps.value.type, ns);
 
@@ -245,7 +245,7 @@ export const Input = defineSSRCustomElement({
             class={[ns.e('slot'), ns.e('prepend'), ns.e('addon'), ns.isOr('empty', !withPrepend)]}
             part={compParts[3]}
           >
-            <slot {...prependSlot.slotProps}></slot>
+            {prependSlot()}
           </div>
           <label class={[ns.e('label'), hasCarouselLabel && ns.em('label', 'has-carousel')]} part={compParts[2]}>
             {hasSpecialLabel &&
@@ -269,15 +269,15 @@ export const Input = defineSSRCustomElement({
                 </div>,
               )}
             {numberStepIcons.value?.minus}
-            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixSlot.empty)]} part={compParts[5]}>
-              <slot {...prefixSlot.slotProps}></slot>
+            <div class={[ns.e('slot'), ns.e('prefix'), ns.isOr('empty', prefixEmpty)]} part={compParts[5]}>
+              {prefixSlot()}
             </div>
             <span class={ns.e('wrapper')} part={compParts[4]}>
               {/* render when value is defined，in case it covers float label and placeholder */}
               {/* TODO support custom renderer when multiple */}
               {!empty && !multiple && (
                 <div class={[ns.e('inner-input'), ns.e('renderer')]} part={compParts[7]}>
-                  <slot {...rendererSlot.slotProps}></slot>
+                  {rendererSlot()}
                 </div>
               )}
               {multiple ? (
@@ -336,16 +336,13 @@ export const Input = defineSSRCustomElement({
                 ns.e('slot'),
                 ns.e('suffix'),
                 props.showClearIcon && ns.is('with-clear'),
-                ns.isOr(
-                  'empty',
-                  suffixSlot.empty.value && !clearIcon.value && !statusIcon.value && !passwordIcon.value,
-                ),
+                ns.isOr('empty', suffixEmpty.value && !clearIcon.value && !statusIcon.value && !passwordIcon.value),
               ]}
               part={compParts[8]}
             >
               {clearIcon.value}
               {passwordIcon.value}
-              <slot {...suffixSlot.slotProps}></slot>
+              {suffixSlot()}
               {statusIcon.value}
             </span>
             {props.showLengthInfo && (
@@ -360,7 +357,7 @@ export const Input = defineSSRCustomElement({
             class={[ns.e('slot'), ns.e('append'), ns.e('addon'), ns.isOr('empty', !withAppend)]}
             part={compParts[10]}
           >
-            <slot {...appendSlot.slotProps}></slot>
+            {appendSlot()}
           </div>
         </span>
       );

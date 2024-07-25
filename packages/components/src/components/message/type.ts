@@ -44,8 +44,7 @@ export type MessageOpenConfig = {
   resetDurationOnHover?: boolean;
 } & CalloutProps &
   MessageEvents &
-  HTMLAttributes &
-  Omit<ReservedProps, 'key'>;
+  HTMLAttributes;
 
 export type MessageSetupProps = ExtractPropTypes<typeof messageProps> & CommonProps;
 export type MessageEvents = GetEventPropsFromEmits<typeof messageEmits>;

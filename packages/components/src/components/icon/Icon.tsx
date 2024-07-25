@@ -3,7 +3,7 @@ import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
-import { isFunction } from '@lun/utils';
+import { isFunction, isString } from '@lun/utils';
 import { getCompParts } from 'common';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
@@ -25,9 +25,10 @@ export const Icon = defineSSRCustomElement({
     let prevName: string, prevLibrary: string;
     watchEffect(async () => {
       const { library, name } = props;
-      const libraryOption = config.iconRegistryMap[props.library!];
+      const libraryOption = config.iconRegistryMap[library!];
       if (!library || !name || !libraryOption) return;
-      const cache = iconResolveCache.get(`${library}.${name}`);
+      const key = `${library}.${name}`,
+        cache = iconResolveCache.get(key);
       if (cache) {
         state.type = cache.type;
         state.src = cache.src;
@@ -37,7 +38,7 @@ export const Icon = defineSSRCustomElement({
       mutator = isFunction(mutator) ? mutator : (i) => i;
       try {
         let result = await resolver(name, attrs);
-        if (type === 'html-url' && typeof result === 'string') {
+        if (type === 'html-url' && isString(result)) {
           // if type is `html-url`, do a fetch to get html text
           result = (await GlobalStaticConfig.iconRequest(result))!;
           if (!result) return;
@@ -53,21 +54,20 @@ export const Icon = defineSSRCustomElement({
         state.src = '';
         switch (type) {
           case 'html':
-            if (typeof result === 'string') state.src = result;
+            if (isString(result)) state.src = result;
             state.type = type;
             break;
           case 'svg-sprite-href':
-            if (typeof result === 'string') state.src = result;
+            if (isString(result)) state.src = result;
             state.type = type;
             break;
           case 'vnode':
             if (isVNode(result)) state.src = result;
-            state.type = 'vnode';
+            state.type = type;
             break;
         }
-        if (state.src && typeof state.src === 'string') {
-          const key = `${library}.${name}`,
-            prevKey = `${prevLibrary}.${prevName}`;
+        if (isString(state.src)) {
+          const prevKey = `${prevLibrary}.${prevName}`;
           const currentNum = renderedIconNumMap.get(key),
             prevNum = renderedIconNumMap.get(prevKey);
           if (prevLibrary !== library && prevName !== name) {
@@ -88,11 +88,12 @@ export const Icon = defineSSRCustomElement({
     });
 
     onUnmounted(() => {
-      if (props.library && props.name) {
-        const key = `${props.library}.${props.name}`;
-        const currentNum = renderedIconNumMap.get(key);
+      const { library, name, autoClearCache } = props;
+      if (library && name) {
+        const key = `${library}.${name}`,
+          currentNum = renderedIconNumMap.get(key);
         if (currentNum) renderedIconNumMap.set(key, currentNum - 1);
-        if (props.autoClearCache && currentNum === 1) {
+        if (autoClearCache && currentNum === 1) {
           renderedIconNumMap.delete(key);
           iconResolveCache.delete(key);
         }
