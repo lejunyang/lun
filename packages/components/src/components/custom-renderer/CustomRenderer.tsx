@@ -4,10 +4,13 @@ import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick,
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
 import { customRendererProps } from './type';
-import { isArray, isHTMLTemplateElement, isNode, runIfFn } from '@lun/utils';
+import { isArray, isHTMLTemplateElement, isNode, isObject, runIfFn } from '@lun/utils';
 import { generateWithTemplate } from './utils';
 
 const name = 'custom-renderer';
+
+const isRaw = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
+const isSupportedType = (type: any) => ['vnode', 'html', 'text'].includes(type);
 
 const options = {
   name,
@@ -26,9 +29,6 @@ const options = {
     let lastRenderer: CustomRendererRegistry | undefined;
     let renderer: CustomRendererRegistry | undefined;
     let lastType: 'html' | 'vnode' | undefined;
-
-    const isSupportedType = (type: any) => ['vnode', 'html', 'text'].includes(type);
-    const isRaw = (content: unknown) => ['string', 'number', 'boolean'].includes(typeof content);
 
     watchEffect((onCleanup) => {
       let cleared = false;
@@ -136,6 +136,11 @@ const options = {
 };
 
 export const VCustomRenderer = defineComponent(options);
+
+export const renderCustom = (source: any) => {
+  if (isVNode(source) || isRaw(source)) return source;
+  return h(VCustomRenderer, isObject(source) && 'content' in source ? source : { content: source });
+};
 
 export const CustomRenderer = defineSSRCustomElement({
   ...options,

@@ -1,12 +1,18 @@
-import { h, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
+import { h, onBeforeUnmount, ref, shallowRef, watch, watchEffect } from 'vue';
 import { useShadowDom } from './shadowDom';
-import { isElement, isSupportSlotAssign, isText } from '@lun/utils';
+import { isElement, isSupportSlotAssign, isText, isTruthyOrZero } from '@lun/utils';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
+import { renderCustom } from '../components/custom-renderer/CustomRenderer';
 
-export function useSlot(props?: any) {
-  const slotRef = ref<HTMLSlotElement>();
-  const slotted = ref(false);
-  const empty = ref(true);
+/**
+ * @param name
+ * @returns [getSlotNode, empty, slotted, slotRef]
+ */
+export function useSlot(name?: string, getCustomContent?: MaybeRefLikeOrGetter<any>) {
+  const slotRef = ref<HTMLSlotElement>(),
+    slotted = ref(false),
+    empty = ref(true),
+    contentRef = shallowRef();
   const onSlotchange = () => {
     const el = slotRef.value;
     if (el?.assignedNodes().length) {
@@ -17,18 +23,35 @@ export function useSlot(props?: any) {
       empty.value = !el?.childNodes.length;
     }
   };
-  const slotProps = {
-    ...props,
-    ref: slotRef,
-    onSlotchange,
-  };
+
+  getCustomContent &&
+    watchEffect(() => {
+      const content = unrefOrGet(getCustomContent);
+      if (isTruthyOrZero(content)) {
+        contentRef.value = content;
+        slotted.value = true;
+        empty.value = false;
+      }
+    });
+
   watch(slotRef, onSlotchange);
-  return {
-    slotRef,
-    slotted,
+  return [
+    (children?: any) => {
+      if (contentRef.value) return renderCustom(contentRef.value);
+      return h(
+        'slot',
+        {
+          name,
+          ref: slotRef,
+          onSlotchange,
+        },
+        children!,
+      );
+    },
     empty,
-    slotProps,
-  };
+    slotted,
+    slotRef,
+  ] as const;
 }
 
 export function useManualSlot(
