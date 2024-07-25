@@ -2,8 +2,8 @@ import { freeze } from '@lun/utils';
 import {
   CommonProps,
   GetEventPropsFromEmits,
-  PropBoolean,
   PropFunction,
+  PropObjOrBool,
   PropObject,
   PropString,
   Status,
@@ -15,15 +15,16 @@ import { ExtractPropTypes } from 'vue';
 export const calloutProps = freeze({
   ...themeProps,
   ...createTransitionProps('close'),
-  message: PropString(Error),
-  description: PropString(),
+  message: {},
+  description: {},
   iconName: PropString(),
   iconLibrary: PropString(),
   iconProps: PropObject(),
-  closable: PropBoolean(),
-  closeIconProps: PropObject(),
+  /** truthy value to show the close icon, it can also be props of icon  */
+  closable: PropObjOrBool(),
   beforeClose: PropFunction<() => boolean | void>(),
   status: PropString<Status>(),
+  // TODO add messageStyle descriptionStyle
 });
 
 export const calloutEmits = freeze({
