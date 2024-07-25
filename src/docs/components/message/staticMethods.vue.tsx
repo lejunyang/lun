@@ -7,13 +7,15 @@ export default () => {
       <l-button
         onClick={() =>
           Message.open({
-            description: 'Description',
+            message: 'message',
           })
         }
         label="点击展示"
       />
       {statuses.map((s) => (
-        <l-button status={s} onClick={() => Message[s](s)}>{s}</l-button>
+        <l-button status={s} onClick={() => Message[s](s)}>
+          {s}
+        </l-button>
       ))}
     </>
   );

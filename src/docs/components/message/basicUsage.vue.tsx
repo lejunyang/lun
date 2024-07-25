@@ -12,8 +12,8 @@ export default () => (
           msg.value?.open({
             type: status,
             onAllClosed() {
-              console.log('All closed')
-            }
+              console.log('All closed');
+            },
           })
         }
       >

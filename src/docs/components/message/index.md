@@ -3,10 +3,28 @@ title: Message 消息
 lang: zh-CN
 ---
 
-- `l-message`元素是一个消息容器，你需要自行将其渲染到某个地方，并通过该元素的方法来创建或关闭消息
-- `l-message`的属性会作为公共属性，在打开消息时与传入的设置合并
-
 ## 基本使用
+
+- `l-message`元素是一个消息容器，你需要自行将其渲染到某个地方，并通过该元素的方法来创建或关闭消息。每一条消息为一个`Callout`，其支持`Callout`的所有属性，因此`message`和`description`均支持[自定义渲染](/components/custom-renderer/)
+
+```ts
+type MessageExpose = {
+  open(config?: MessageOpenConfig): void;
+  close(key: string | number): void;
+  closeAll(): void;
+};
+
+type MessageOpenConfig = {
+  key?: string | number;
+  type?: Status;
+  duration?: number | string;
+  resetDurationOnHover?: boolean;
+} & CalloutProps &
+  MessageEvents &
+  HTMLAttributes;
+```
+
+- `l-message`本身的属性会作为公共属性，在打开消息时与传入的设置合并。
 
 <!-- @Code:basicUsage -->
 

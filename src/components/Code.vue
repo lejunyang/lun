@@ -51,7 +51,7 @@
               d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5m5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5M0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5m10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0z"
             />
           </svg>
-          <svg v-bind="commonSVGProps" @click="resetCodes">
+          <svg v-bind="commonSVGProps" @click="resetCode">
             <title>{{ locales[userLang]?.components.resetCode }}</title>
             <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
             <path
@@ -145,11 +145,15 @@ const codesMap = reactive({
   reactTSX: props.reactTSX,
 } as Record<string, string>);
 
-const resetCodes = () => {
+const resetCode = () => {
   objectKeys(codesMap).forEach((key) => {
     codesMap[key] = (props as any)[key];
   });
   rendererProps.key = Date.now();
+  if (initialized.value) {
+    showGenerated.value = true;
+    handleCodeChange();
+  }
 };
 
 const goToGithubSource = () => {
@@ -162,7 +166,7 @@ const rendererProps = reactive({
   content: undefined as any,
   type: undefined as any,
   preferHtml: true,
-  key: undefined,
+  key: undefined as any,
 });
 
 const handleCodeChange = debounce(async () => {
