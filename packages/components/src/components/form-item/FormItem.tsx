@@ -1,5 +1,13 @@
 import { defineSSRCustomElement } from 'custom';
-import { isNumberInputType, UseFormReturn, useSetupEdit, useSetupEvent } from '@lun/core';
+import {
+  createDateLocaleMethods,
+  getDefaultTimeFormat,
+  isDatePanelType,
+  isNumberInputType,
+  UseFormReturn,
+  useSetupEdit,
+  useSetupEvent,
+} from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, formItemEmits, formItemProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace } from 'hooks';
@@ -25,7 +33,7 @@ import {
   virtualGetMerge,
 } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
-import { GlobalStaticConfig } from 'config';
+import { GlobalStaticConfig, useContextConfig } from 'config';
 import { innerValidator } from './formItem.validate';
 import { getConditionValue } from './utils';
 import { getCompParts } from 'common';
@@ -38,6 +46,8 @@ export const FormItem = defineSSRCustomElement({
   props: formItemProps,
   emits: formItemEmits,
   setup(itemProps, { emit: e, attrs }) {
+    const contextConfig = useContextConfig();
+    const { parse } = createDateLocaleMethods(() => contextConfig.lang);
     const formContext = FormItemCollector.child();
     const { parent, layoutInfo } = formContext || {};
     const props = computed(() =>
@@ -211,18 +221,16 @@ export const FormItem = defineSSRCustomElement({
 
     const validateProps = computed(() => {
       const { min, max, lessThan, greaterThan, len, step, precision, type, required, label, pattern } = props.value;
-      const transformType = isNumberInputType(type) ? 'number' : null;
-      // TODO type === 'date'
       return {
         type,
         required: (runIfFn(required, formContext) ?? localRequired.value) || false,
-        min: transform(min, transformType),
-        max: transform(max, transformType),
-        lessThan: transform(lessThan, transformType),
-        greaterThan: transform(greaterThan, transformType),
-        len: transform(len, transformType),
-        step: transform(step, transformType),
-        precision: transform(precision, transformType),
+        min: transform(min, type),
+        max: transform(max, type),
+        lessThan: transform(lessThan, type),
+        greaterThan: transform(greaterThan, type),
+        len: transform(len, type),
+        step: transform(step, type),
+        precision: transform(precision, type),
         pattern,
         label,
       };
@@ -257,18 +265,32 @@ export const FormItem = defineSSRCustomElement({
 
     /**
      * transform prop like min, max, lessThan, greaterThan, len, step, precision.
-     * If it's number, return it;
-     * if it's string, consider it as a path of other field, try to get it from formContext, check if the value is number, return if true, otherwise return undefined
+     * If it's a valid value for that type, return it;
+     * else if it's string, consider it as a path of other field, try to get it from formContext, check if the value is valid, return if true, otherwise return undefined
      */
-    const transform = (val: any, type?: string | null) => {
-      if (!type || typeof val === type) return val;
+    const transform = (val: any, type?: string) => {
+      const {
+        math: { isNaN, toNumber, isNumber },
+        date: { isValid },
+      } = GlobalStaticConfig;
+      let transformType: string;
+
+      if (isNumberInputType(type) && ((transformType = 'number'), typeof val === transformType)) return val;
+      else if (isDatePanelType(type) && (transformType = 'date')) {
+        const tVal = parse(val, getDefaultTimeFormat({ type }));
+        if (isValid(tVal)) return tVal;
+      }
+
+      if (!transformType!) return val;
       if (!isPlainString(val)) return;
       const valueOfOtherField = formContext.form.getValue(val);
       switch (type) {
         case 'number':
-          const { isNaN, toNumber, isNumber } = GlobalStaticConfig.math;
           const numVal = toNumber(val);
           return isNaN(numVal) ? (isNumber(valueOfOtherField) ? valueOfOtherField : undefined) : numVal;
+        case 'date':
+          const dateVal = parse(valueOfOtherField, getDefaultTimeFormat({ type }));
+          if (isValid(dateVal)) return dateVal;
       }
     };
 
@@ -377,7 +399,7 @@ export const FormItem = defineSSRCustomElement({
       hooks.onFormItemDisconnected.exec(param);
       switch (props.value.unmountBehavior) {
         case 'delete':
-          console.log('delete')
+          console.log('delete');
           return deletePath(path.value);
         case 'toNull':
           return setValue(path.value, null);

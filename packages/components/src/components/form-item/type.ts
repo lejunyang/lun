@@ -17,7 +17,7 @@ import {
   themeProps,
   undefBoolProp,
 } from 'common';
-import { MaybePromise, CollectorContext, InputType } from '@lun/core';
+import { MaybePromise, CollectorContext, InputType, DatePanelType } from '@lun/core';
 import { ComponentKey } from 'config';
 import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
@@ -34,7 +34,7 @@ export type ValidateMessages = {
 export type Condition = 'all-truthy' | 'some-truthy' | 'all-falsy' | 'some-falsy';
 
 export const formItemRuleProps = {
-  type: PropString<InputType>(), // can it be auto detected?
+  type: PropString<InputType | DatePanelType>(), // can it be auto detected?
   required: PropBoolOrFunc<boolean | ((formContext: FormProvideExtra) => boolean | undefined | null)>(),
   min: PropNumber(),
   max: PropNumber(),
@@ -135,7 +135,7 @@ export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> &
   };
 
 export type Rule = {
-  type?: InputType;
+  type?: InputType | DatePanelType;
   min?: number;
   max?: number;
   required?: boolean;

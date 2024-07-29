@@ -142,6 +142,8 @@ const panelTypeChain = {
   [week]: [year, month, week] as const,
   [date]: [year, month, date] as const,
 };
+const panelTypeSet = new Set(panelTypes);
+export const isDatePanelType = (type: any): type is DatePanelType => panelTypeSet.has(type);
 
 export function useDatePanel(options: UseDatePanelOptions) {
   if (!presets.date)
