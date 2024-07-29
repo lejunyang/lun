@@ -4,7 +4,13 @@ import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 
 // inspired by @vue/use useVModel
 
-interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false, T = O[K]> {
+interface UseModelOptions<
+  O,
+  K extends keyof O,
+  Passive extends boolean = false,
+  HasRaw extends boolean = false,
+  T = O[K],
+> {
   passive?: Passive;
   eventName?: string;
   deep?: boolean;
@@ -13,6 +19,11 @@ interface UseModelOptions<O, K extends keyof O, Passive extends boolean = false,
   shouldEmit?: false | ((v: T) => boolean);
   emit?: (name: string, ...args: any[]) => void;
   key?: K;
+  /** if hasRaw is true, the value will be wrapped in an object with `value` and `raw` properties.
+   * `raw` will be used to store complex object so that we can avoid unnecessary parse and stringify every time the value changes
+   * e.g. Calendar component. value will be { value: string, raw?: Dayjs }
+   */
+  hasRaw?: HasRaw;
 }
 
 /*! #__NO_SIDE_EFFECTS__ */
@@ -29,14 +40,15 @@ export function createUseModel<DK extends string, E extends () => any>({
   handleDefaultEmit?: (fn: AnyFn, vm: ComponentInternalInstance) => AnyFn;
   extra?: E;
   getFromExtra?: (extra: ReturnType<E> & {}) => any;
-  setByExtra?: (extra: ReturnType<E> & {}, value: any) => void;
+  setByExtra?: (extra: ReturnType<E> & {}, value: any, raw?: undefined) => void;
 }) {
   return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
     props: P,
     options?: UseModelOptions<P, K, Passive>,
   ) {
     const extraData = extra && extra();
-    let { passive = true, eventName, deep, extraSource, shouldEmit, clone, emit, key } = options || {};
+    let { passive = true, eventName, deep, extraSource, shouldEmit, clone, emit, key, hasRaw } = options || {};
+    if (hasRaw) passive = true;
     key = key || (defaultKey as unknown as K);
     const event = eventName || defaultEvent;
     const vm = getCurrentInstance();
@@ -44,16 +56,11 @@ export function createUseModel<DK extends string, E extends () => any>({
       emit = vm.emit || vm.proxy?.$emit?.bind(vm.proxy);
       if (handleDefaultEmit) emit = handleDefaultEmit(emit, vm);
     }
-    const cloneFn = (val: P[K]) =>
-      !clone ? val : isFunction(clone) ? clone(val) : JSON.parse(JSON.stringify(val));
+    const cloneFn = (val: P[K]) => (!clone ? val : isFunction(clone) ? clone(val) : JSON.parse(JSON.stringify(val)));
     const getter = () => {
       const value = extraData && getFromExtra && getFromExtra(extraData);
       if (value !== undefined) return value;
-      return props[key!] !== undefined
-        ? cloneFn(props[key!])
-        : isFunction(extraSource)
-        ? extraSource()
-        : undefined;
+      return props[key!] !== undefined ? cloneFn(props[key!]) : isFunction(extraSource) ? extraSource() : undefined;
     };
     const triggerEmit = (value: P[K]) => {
       if (shouldEmit === false) return;
@@ -63,20 +70,21 @@ export function createUseModel<DK extends string, E extends () => any>({
     };
     if (passive) {
       const initialValue = getter();
-      const proxy = ref<P[K]>(initialValue!);
+      const proxy = ref<any>(hasRaw ? { value: initialValue } : initialValue!);
       let isUpdating = false;
       watch(getter, (v) => {
-        if (!isUpdating) {
+        if (!isUpdating && (!hasRaw || (v !== proxy.value.value && v !== proxy.value.raw))) {
           isUpdating = true;
-          (proxy as any).value = v;
+          (proxy as any).value = hasRaw ? { value: v } : v;
           nextTick(() => (isUpdating = false));
         }
       });
       watch(
         proxy,
         (v) => {
-          if (!isUpdating && (v !== getter() || deep)) {
-            if (extraData && setByExtra) setByExtra(extraData, v);
+          const get = getter();
+          if (!isUpdating && ((hasRaw ? v.value !== get && v.raw !== get : v !== get) || deep)) {
+            if (extraData && setByExtra) setByExtra(extraData, v, hasRaw ? v.raw : undefined);
             triggerEmit(v as P[K]);
           }
         },
@@ -107,4 +115,8 @@ export interface UseModel<DK extends string> {
     props: P,
     options?: UseModelOptions<P, K, true>,
   ): Ref<UnwrapRef<P[K]>>;
+  <P extends Record<string | symbol, unknown>, K extends keyof P = DK>(
+    props: P,
+    options?: UseModelOptions<P, K, true, true>,
+  ): Ref<{ value: UnwrapRef<P[K]>; raw?: any }>;
 }
