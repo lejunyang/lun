@@ -5,7 +5,7 @@ import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
 import { getFirstOfIterable, isElement, isString, supportCustomElement } from '@lun/utils';
 import { PropString } from 'common';
-import { useContextStyles } from 'hooks';
+import { useContextStyles } from '../hooks/useStyles';
 
 export function getElementFirstName(comp: ComponentKey) {
   return getFirstOfIterable(GlobalStaticConfig.actualNameMap[comp]);

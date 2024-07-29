@@ -295,3 +295,15 @@
     }
   }
 }
+
+@mixin color($c) {
+  $currentSelector: #{$namespace + $common-separator + 'color' + config.$modifier-separator + $c};
+  @if map.get($with-where-map, 'modifier') {
+    $currentSelector: #{':where(' + $currentSelector + ')'};
+  }
+  @at-root {
+    #{$currentSelector} {
+      @content;
+    }
+  }
+}

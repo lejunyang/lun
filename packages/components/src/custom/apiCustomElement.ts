@@ -28,7 +28,7 @@ import {
   VueElementConstructor,
   ComponentObjectPropsOptions,
 } from 'vue';
-import { preprocessComponentOptions } from '../utils';
+import { preprocessComponentOptions } from '../utils/component'; // don't import it from '../utils' in case of circular dependencies (utils/component import hooks, useSlots import VCustomRenderer)
 import { hyphenate, toNumberIfValid, isFunction, isCSSStyleSheet, copyCSSStyleSheetsIfNeed } from '@lun/utils';
 import { virtualParentMap } from './virtualParent';
 

@@ -158,6 +158,15 @@
       outline: 2px solid getFocusColor();
       outline-offset: -1px;
     }
+    .#{$B}#{getIs(in-status, '', true)}:focus-within & {
+      outline: 2px solid getSemanticColor('error');
+    }
+  }
+  @include is(in-status) {
+    @include e('background') {
+      outline: 2px solid getSemanticColor('error');
+      outline-offset: -1px;
+    }
   }
   @include e(addon) {
     @include reuseVars((border-radius));

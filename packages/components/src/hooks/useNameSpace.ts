@@ -126,6 +126,7 @@ export const useNamespace = (
       getSizeClass(),
       is('high-contrast', highContrast),
       is('dark', isDark()),
+      is('in-status', isStatus(statusVal)),
       finalColor && _bem(value, 'color', '', '', finalColor),
     ];
   });
