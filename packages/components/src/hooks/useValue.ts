@@ -1,7 +1,7 @@
 import type { UseModel } from '@lun/core';
 import { createUseModel } from '@lun/core';
 import { FormInputCollector } from '../components/form-item/collector';
-import { computed, getCurrentInstance } from 'vue';
+import { computed, getCurrentInstance, Ref } from 'vue';
 import { Status } from 'common';
 import { pickNonNil } from '@lun/utils';
 import { formItemRuleProps } from '../components/form-item/type';
@@ -21,9 +21,9 @@ export const useValueModel = createUseModel({
     const [context, vm] = extra;
     return context.getValue(vm);
   },
-  setByExtra(extra, value) {
+  setByExtra(extra, value, raw) {
     const [context, vm] = extra;
-    context.setValue(vm, value);
+    context.setValue(vm, value, raw);
   },
 }) as UseModel<'value'>;
 
@@ -99,3 +99,6 @@ export const useViewDate = createUseModel({
   defaultKey: 'viewDate',
   defaultEvent: 'updateViewDate',
 }) as UseModel<'viewDate'>;
+
+export const createGetterForHasRawModel = (model: Ref<{ value: any; raw?: any }>) => () =>
+  model.value.raw || model.value.value;

@@ -2,7 +2,7 @@ import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy, stringToPath,
 import { ProcessedFormParams, UseFormOptions } from './useForm';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
-  const { formData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
+  const { formData, rawData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
   const methods = {
     isPlainName(name?: string) {
       if (!name) return false;
@@ -10,16 +10,22 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       const parent = itemToFormMap.get(formItem!);
       return !!(formItem?.props.plainName ?? parent?.props.plainName);
     },
-    getValue(path: string | string[] | null | undefined) {
+    getValue(path: string | string[] | null | undefined, raw?: boolean) {
       if (!path) return;
-      if (isArray(path) || !methods.isPlainName(path)) return objectGet(formData.value, path);
-      else return formData.value[path];
+      const source = raw ? rawData.value : formData.value;
+      if (isArray(path) || !methods.isPlainName(path)) return objectGet(source, path);
+      else return source[path];
     },
-    setValue(path: string | string[] | null | undefined, value: any) {
+    setValue(path: string | string[] | null | undefined, value: any, rawValue?: any) {
       if (!path) return;
-      if (isArray(path) || !methods.isPlainName(path)) objectSet(formData.value, path, value);
-      else formData.value[path] = value;
-      hooks.onUpdateValue.exec({ formData: formData.value, path, value });
+      if (isArray(path) || !methods.isPlainName(path)) {
+        objectSet(formData.value, path, value);
+        objectSet(rawData.value, path, rawValue);
+      } else {
+        formData.value[path] = value;
+        rawData.value[path] = rawValue;
+      }
+      hooks.onUpdateValue.exec({ formData: formData.value, path, value, rawData: rawData.value });
     },
     deletePath(path: string | string[] | null | undefined) {
       if (!path) return;
@@ -29,12 +35,28 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
         const last = path.pop();
         if (!path.length) {
           delete formData.value[last!];
+          delete rawData.value[last!];
         } else {
           const obj = objectGet(formData.value, path);
-          if (isObject(obj)) delete obj[last!];
+          if (isObject(obj)) {
+            delete obj[last!];
+          }
+          const rawObj = objectGet(rawData.value, path);
+          if (isObject(rawObj)) {
+            delete rawObj[last!];
+          }
         }
-      } else delete formData.value[path];
-      hooks.onUpdateValue.exec({ formData: formData.value, path, isDelete: true, value: undefined });
+      } else {
+        delete formData.value[path];
+        delete rawData.value[path];
+      }
+      hooks.onUpdateValue.exec({
+        formData: formData.value,
+        path,
+        isDelete: true,
+        value: undefined,
+        rawData: rawData.value,
+      });
     },
     resetFormData() {
       formData.value = deepCopy(options.defaultFormData || {});

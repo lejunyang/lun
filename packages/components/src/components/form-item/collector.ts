@@ -5,7 +5,7 @@ import { FormItemProps, Rule } from './type';
 
 export type FormItemProvideExtra = {
   getValue(vm?: ComponentInternalInstance | null): any;
-  setValue(vm?: ComponentInternalInstance | null, value?: any): void;
+  setValue(vm?: ComponentInternalInstance | null, value?: any, raw?: any): void;
   status: ComputedRef<Status | undefined>;
   validateProps: ComputedRef<Rule>;
 };

@@ -5,6 +5,7 @@ import { FormMethods } from './useForm.methods';
 
 type UpdateValueParam = {
   formData: any;
+  rawData: any;
   path: string | string[];
   value: any;
   isDelete?: boolean

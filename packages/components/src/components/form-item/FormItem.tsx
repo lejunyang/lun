@@ -236,7 +236,7 @@ export const FormItem = defineSSRCustomElement({
       };
     });
 
-    const getOrSetValue = (vm?: ComponentInternalInstance, value?: any) => {
+    const getOrSetValue = (vm?: ComponentInternalInstance, value?: any, raw?: any) => {
       const { setValue, getValue } = formContext.form;
       const { array } = props.value;
       if (!path.value) return;
@@ -245,7 +245,7 @@ export const FormItem = defineSSRCustomElement({
       if (!array) return getOrSet(path.value, value);
       const index = inputContext.getChildVmIndex(vm);
       if (index === undefined) return;
-      return getOrSet(toArrayIfNotNil(path.value).concat(String(index)), value);
+      return getOrSet(toArrayIfNotNil(path.value).concat(String(index)), value, raw);
     };
 
     const inputContext = FormInputCollector.parent({
@@ -253,12 +253,12 @@ export const FormItem = defineSSRCustomElement({
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
-        const { hooks, getValue, formData } = formContext.form;
+        const { hooks, getValue, formData, rawData } = formContext.form;
         if (!array || !path.value) return;
         const value = getValue(path.value);
         if (isArray(value)) {
           value.splice(index, 1);
-          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, formData });
+          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, formData, rawData });
         }
       },
     });

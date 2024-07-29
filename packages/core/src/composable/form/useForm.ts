@@ -20,6 +20,7 @@ export type UseFormOptions<Data extends CommonObject = CommonObject> = {
 export type ProcessedFormParams<Data extends CommonObject = CommonObject> = {
   options: UseFormOptions<Data>;
   formData: Ref<Data>;
+  rawData: Ref<any>;
   formState: Ref<FormState>;
   hooks: FormHooks;
   getDefaultFormState(): FormState;
@@ -35,7 +36,8 @@ export function useForm<
     ..._options,
     config: reactive(_options?.config || {}),
   } as UseFormOptions;
-  const formData = ref(deepCopy(options.defaultFormData || {})) as Ref<Data>;
+  const formData = ref(deepCopy(options.defaultFormData || {})) as Ref<Data>,
+    rawData = ref({});
   const getDefaultFormState = () =>
     deepCopy({ errors: {}, isDirty: false, dirtyFields: new Set<string>(), ...options.defaultFormState });
   const formState = ref(getDefaultFormState());
@@ -49,6 +51,7 @@ export function useForm<
   const param = {
     options,
     formData,
+    rawData,
     formState,
     hooks,
     getDefaultFormState,
@@ -84,6 +87,7 @@ export function useForm<
     set formData(value) {
       if (__DEV__ && !isObject(value)) throw new Error('formData must be an object');
       formData.value = value;
+      rawData.value = value;
     },
     get formState() {
       return formState.value;
@@ -91,6 +95,9 @@ export function useForm<
     set formState(value) {
       if (__DEV__ && !isObject(value)) throw new Error('formState must be an object');
       formState.value = value;
+    },
+    get rawData() {
+      return rawData.value;
     },
     ...methods,
     hooks,
