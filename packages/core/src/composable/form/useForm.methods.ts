@@ -2,7 +2,7 @@ import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy, stringToPath,
 import { ProcessedFormParams, UseFormOptions } from './useForm';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
-  const { formData, rawData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
+  const { data, rawData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
   const methods = {
     isPlainName(name?: string) {
       if (!name) return false;
@@ -12,20 +12,20 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
     },
     getValue(path: string | string[] | null | undefined, raw?: boolean) {
       if (!path) return;
-      const source = raw ? rawData.value : formData.value;
+      const source = raw ? rawData.value : data.value;
       if (isArray(path) || !methods.isPlainName(path)) return objectGet(source, path);
       else return source[path];
     },
     setValue(path: string | string[] | null | undefined, value: any, rawValue?: any) {
       if (!path) return;
       if (isArray(path) || !methods.isPlainName(path)) {
-        objectSet(formData.value, path, value);
+        objectSet(data.value, path, value);
         objectSet(rawData.value, path, rawValue);
       } else {
-        formData.value[path] = value;
+        data.value[path] = value;
         rawData.value[path] = rawValue;
       }
-      hooks.onUpdateValue.exec({ formData: formData.value, path, value, rawData: rawData.value });
+      hooks.onUpdateValue.exec({ data: data.value, path, value, rawData: rawData.value });
     },
     deletePath(path: string | string[] | null | undefined) {
       if (!path) return;
@@ -34,10 +34,10 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
         if (!path.length) return;
         const last = path.pop();
         if (!path.length) {
-          delete formData.value[last!];
+          delete data.value[last!];
           delete rawData.value[last!];
         } else {
-          const obj = objectGet(formData.value, path);
+          const obj = objectGet(data.value, path);
           if (isObject(obj)) {
             delete obj[last!];
           }
@@ -47,11 +47,11 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
           }
         }
       } else {
-        delete formData.value[path];
+        delete data.value[path];
         delete rawData.value[path];
       }
       hooks.onUpdateValue.exec({
-        formData: formData.value,
+        data: data.value,
         path,
         isDelete: true,
         value: undefined,
@@ -59,7 +59,7 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       });
     },
     resetFormData() {
-      formData.value = deepCopy(options.defaultFormData || {});
+      data.value = deepCopy(options.defaultData || {});
       hooks.onFormReset.exec(undefined);
     },
     resetFormState() {

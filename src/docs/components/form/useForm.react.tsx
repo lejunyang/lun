@@ -3,7 +3,7 @@ import { useReactForm, LForm, LFormItem, LInput } from '@lun/react';
 const C = () => {
   const form = useReactForm(
     {
-      defaultFormData: {
+      defaultData: {
         form1: {
           input1: 1,
         },
@@ -30,7 +30,7 @@ const C = () => {
           </LFormItem>
         </LForm>
       </div>
-      <pre>formData: {JSON.stringify(form.current.formData)}</pre>
+      <pre>data: {JSON.stringify(form.current.data)}</pre>
     </>
   );
 };

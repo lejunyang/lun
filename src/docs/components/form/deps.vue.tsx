@@ -5,14 +5,14 @@ const options = ['all-truthy', 'some-truthy', 'all-falsy', 'some-falsy'];
 export default () => {
   return (
     <l-form
-      defaultFormData={{
+      defaultData={{
         disableWhenDep: ['all-falsy'],
         clearWhenDepChange: true,
         requireWhenDep: ['all-truthy'],
       }}
       itemProps={({ formContext, formItemProps }) => ({
         element: props.includes(formItemProps.name) ? 'switch' : 'input',
-        ...pick(formContext.form.formData, props),
+        ...pick(formContext.form.data, props),
       })}
       cols={1}
     >

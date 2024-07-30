@@ -157,7 +157,7 @@ export const Form = defineSSRCustomElement({
           }
         }
         if (!newForm) {
-          newForm = useForm(pick(props, ['defaultFormData', 'defaultFormState']));
+          newForm = useForm(pick(props, ['defaultData', 'defaultFormState']));
         }
         newForm.hooks.onFormConnected.exec(vm);
         cleanOnUpdate = newForm.hooks.onUpdateValue.use(onUpdate);

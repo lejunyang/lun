@@ -3,7 +3,7 @@ import { isPreferDark } from '@lun/utils';
 import { text } from 'data';
 
 const form = useForm({
-  defaultFormData: {
+  defaultData: {
     content: ['watermark', 'the second line'],
     color: isPreferDark() ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.15)',
     rotate: -22,
@@ -16,7 +16,7 @@ const form = useForm({
 
 export default () => (
   <>
-    <l-watermark {...form.formData} mutable>
+    <l-watermark {...form.data} mutable>
       {text.repeat(5)}
     </l-watermark>
     <l-form

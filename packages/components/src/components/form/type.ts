@@ -27,7 +27,7 @@ export const formProps = freeze({
   ...themeProps,
   // intent to use prop `form` originally, but found `form` will be considered as a string attribute. It's vue's behavior, see vuejs/core/packages/runtime-dom/src/patchProp.ts. use `instance` instead
   instance: PropObject<MaybeRefLikeOrGetter<UseFormReturn>>(),
-  defaultFormData: PropObject(),
+  defaultData: PropObject(),
   defaultFormState: PropObject(),
   /**
    * determine whether the name of form-items of current form are plain or not, plain means the name will be considered as a single string path, will not try transform it into nested path
@@ -64,7 +64,7 @@ export const formProps = freeze({
 });
 
 export const formEmits = freeze({
-  update: emitConstructor<{ formData: Record<string, any>; path: string[] | string; value: any; isDelete?: boolean }>(),
+  update: emitConstructor<{ data: Record<string, any>; path: string[] | string; value: any; isDelete?: boolean }>(),
 });
 
 export type FormSetupProps = ExtractPropTypes<typeof formProps> & CommonProps;

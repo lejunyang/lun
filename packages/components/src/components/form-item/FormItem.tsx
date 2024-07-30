@@ -253,12 +253,12 @@ export const FormItem = defineSSRCustomElement({
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
-        const { hooks, getValue, formData, rawData } = formContext.form;
+        const { hooks, getValue, data, rawData } = formContext.form;
         if (!array || !path.value) return;
         const value = getValue(path.value);
         if (isArray(value)) {
           value.splice(index, 1);
-          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, formData, rawData });
+          hooks.onUpdateValue.exec({ path: path.value, isDelete: true, value: undefined, data, rawData });
         }
       },
     });
@@ -296,7 +296,7 @@ export const FormItem = defineSSRCustomElement({
 
     const depInfo = computed(() => {
       // Get deps from the formItem' props, not the merged props, to avoid a dead loop case
-      // In the code case of doc form validation, we set an object literal itemProps to the form, and we use JSON.stringify to render formData and formError.
+      // In the code case of doc form validation, we set an object literal itemProps to the form, and we use JSON.stringify to render data and formError.
       // Whenever we update a field, the form will rerender and itemProps will be recreated. Then props.value updates, depInfo updates, triggering depChange validation
       // Receive a new validation error, rerender and enter a dead loop
       // So ignore deps from the form, as it is commonly defined in formItem itself
@@ -340,7 +340,7 @@ export const FormItem = defineSSRCustomElement({
 
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
       const {
-        form: { getValue, formData, setError },
+        form: { getValue, data, setError },
         parent,
       } = formContext;
       const value = getValue(path.value);
@@ -348,7 +348,7 @@ export const FormItem = defineSSRCustomElement({
       const stopEarly = stopValidate === 'first';
       const { validators } = props.value;
       const errors = toArrayIfNotNil(
-        innerValidator(value, formData, validateProps.value, validateMessages.value),
+        innerValidator(value, data, validateProps.value, validateMessages.value),
       ) as string[];
       if (stopEarly && errors.length) {
         setError(path.value, errors);
@@ -368,7 +368,7 @@ export const FormItem = defineSSRCustomElement({
       await Promise.allSettled(
         finalValidators.map(async (validator) => {
           if (!isFunction(validator) || stopped) return;
-          return Promise.resolve(validator(value, formData, validateProps.value)).then(collect).catch(collect);
+          return Promise.resolve(validator(value, data, validateProps.value)).then(collect).catch(collect);
         }),
       );
       !aborted && setError(path.value, errors);

@@ -2,7 +2,7 @@ import { useForm } from '@lun/core';
 import { ref } from 'vue';
 
 const form = useForm({
-  defaultFormData: {
+  defaultData: {
     replaceChPeriodMark: true,
     type: 'number-text',
   },
@@ -37,7 +37,7 @@ export default () => {
           label="输入试试"
           newLine
           colSpan={3}
-          elementProps={form.formData}
+          elementProps={form.data}
           onUpdate={(e) => {
             console.log('e.detail', e.detail);
             v.value = e.detail;

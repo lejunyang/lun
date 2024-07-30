@@ -1,7 +1,7 @@
 export default () => {
   return (
     <l-form
-      defaultFormData={{ restrict: 'a' }}
+      defaultData={{ restrict: 'a' }}
       itemProps={({ formItemProps, formContext }) => ({
         element: 'input',
         label: formItemProps.name !== 'restrict' ? `restrictWhen=${formItemProps.name}` : undefined,

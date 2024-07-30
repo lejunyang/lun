@@ -1,7 +1,7 @@
 import { useForm } from '@lun/core';
 
 const form = useForm({
-  defaultFormData: {
+  defaultData: {
     cols: '2',
     obj: {
       input1: '对象里的字段',
@@ -18,7 +18,7 @@ export default function () {
     <div>
       <l-form
         instance={form}
-        cols={form.formData.cols}
+        cols={form.data.cols}
         onUpdate={(e) => {
           console.log('form update', e.detail);
         }}
@@ -28,15 +28,15 @@ export default function () {
         </l-form-item>
         <l-form-item name="array" array label="数组">
           <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-            {Array.isArray(form.formData.array) &&
-              form.formData.array.map((_, index) => (
+            {Array.isArray(form.data.array) &&
+              form.data.array.map((_, index) => (
                 <l-input key={index}>
-                  <l-button slot="append" onClick={() => form.formData.array.splice(index, 1)} variant="ghost">
+                  <l-button slot="append" onClick={() => form.data.array.splice(index, 1)} variant="ghost">
                     删除
                   </l-button>
                 </l-input>
               ))}
-            <l-button onClick={() => form.formData.array.push(null)}>添加</l-button>
+            <l-button onClick={() => form.data.array.push(null)}>添加</l-button>
           </div>
         </l-form-item>
         <l-form-item name="obj.input1" label="对象1">
@@ -66,8 +66,8 @@ export default function () {
         </l-form-item>
       </l-form>
       <pre>
-        formData:
-        {JSON.stringify(form.formData, (key, value) => {
+        data:
+        {JSON.stringify(form.data, (key, value) => {
           if (key === 'file') {
             return value?.name;
           } else return value;

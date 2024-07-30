@@ -1,7 +1,7 @@
 import { useForm } from '@lun/core';
 
 const form = useForm({
-  defaultFormData: {
+  defaultData: {
     form1: {
       input1: 1,
     },
@@ -26,6 +26,6 @@ export default () => (
         </l-form-item>
       </l-form>
     </div>
-    <pre>formData: {JSON.stringify(form.formData)}</pre>
+    <pre>data: {JSON.stringify(form.data)}</pre>
   </>
 );

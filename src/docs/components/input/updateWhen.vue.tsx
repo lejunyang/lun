@@ -7,7 +7,7 @@ const instance = useForm();
 export default () => {
   return (
     <>
-      <pre style="flex-basis: 100%">value: {instance.formData.input}</pre>
+      <pre style="flex-basis: 100%">value: {instance.data.input}</pre>
       <l-form cols={1} instance={instance}>
         <l-form-item name="input" label={`updateWhen="input"`}>
           <l-input updateWhen="input" />
@@ -19,7 +19,7 @@ export default () => {
           <l-input updateWhen="change" />
         </l-form-item>
       </l-form>
-      <pre style="flex-basis: 100%">multiple values: {JSON.stringify(instance.formData.multi)}</pre>
+      <pre style="flex-basis: 100%">multiple values: {JSON.stringify(instance.data.multi)}</pre>
       <l-form cols={1} instance={instance}>
         <l-form-item name="multi" label={`updateWhen="input"`}>
           <l-input updateWhen="input" multiple />

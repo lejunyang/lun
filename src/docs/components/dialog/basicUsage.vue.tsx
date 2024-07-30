@@ -5,7 +5,7 @@ import { sentence, text } from 'data';
 
 const open = ref(false);
 const form = useForm({
-  defaultFormData: {
+  defaultData: {
     maskClosable: false,
     escapeClosable: true,
     headerDraggable: true,
@@ -41,10 +41,10 @@ export default function () {
           help="是否在pending时禁用，pending指Dialog自带的按钮进入加载状态，当回调返回Promise时会如此"
         />
       </l-form>
-      <pre>{JSON.stringify(form.formData)}</pre>
+      <pre>{JSON.stringify(form.data)}</pre>
       <l-button onClick={() => (open.value = !open.value)}>打开</l-button>
       <l-dialog
-        {...form.formData}
+        {...form.data}
         open={open.value}
         title={sentence}
         onUpdate={(e) => (open.value = e.detail)}

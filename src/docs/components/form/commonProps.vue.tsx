@@ -8,7 +8,7 @@ export default () => (
       elementProps: {
         variant: formItemProps.name === 'switch' ? undefined : 'soft',
         color: formItemProps.name === 'field2' ? 'teal' : 'tomato',
-        size: formContext.form.formData.switch ? '3' : '2',
+        size: formContext.form.data.switch ? '3' : '2',
       },
     })}
   >

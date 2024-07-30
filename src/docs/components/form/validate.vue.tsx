@@ -1,7 +1,7 @@
 import { useForm } from '@lun/core';
 
 const form = useForm({
-  defaultFormData: {
+  defaultData: {
     step: 1,
     precision: 0,
   },
@@ -18,7 +18,7 @@ export default () => {
         <l-form-item name="total" label="总量" required min="0" type="number" newLine />
         <l-form-item name="used" label="已使用" required min="0" max="total" type="number" deps="total" />
       </l-form>
-      <pre>formData: {JSON.stringify(form.formData)}</pre>
+      <pre>data: {JSON.stringify(form.data)}</pre>
       <pre>formErrors: {JSON.stringify(form.formState.errors)}</pre>
     </div>
   );

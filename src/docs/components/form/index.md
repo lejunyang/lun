@@ -16,7 +16,7 @@ lang: zh-CN
 <!-- @Code:useForm -->
 
 :::info 注
-React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在React中渲染 formData 和 formState 也可以响应式更新
+React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在React中渲染 data 和 formState 也可以响应式更新
 :::
 
 ## 表单布局
