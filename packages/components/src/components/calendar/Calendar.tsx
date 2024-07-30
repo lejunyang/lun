@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
+import { createGetterForHasRawModel, useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { getCompParts, intl } from 'common';
 import {
   createDateLocaleMethods,
@@ -37,11 +37,11 @@ export const Calendar = defineSSRCustomElement({
   emits: calendarEmits,
   setup(props, { emit: e }) {
     const ns = useNamespace(name);
-    const emit = useSetupEvent<typeof e>();
+    useSetupEvent<typeof e>();
     useSetupEdit();
     const context = useContextConfig();
     const viewDate = useViewDate(props),
-      valueModel = useValueModel(props, { shouldEmit: false });
+      valueModel = useValueModel(props, { hasRaw: true });
     const focusingInner = ref<HTMLElement>(),
       wrapper = ref<HTMLElement>();
 
@@ -57,7 +57,7 @@ export const Calendar = defineSSRCustomElement({
               return props.type || 'date';
             },
             lang,
-            value: valueModel,
+            value: createGetterForHasRawModel(valueModel),
             viewDate,
             ...(Object.fromEntries(panelTypes.map((t) => [`${t}Format`, () => getFormat(`${t}Format`)])) as Record<
               'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat',
@@ -67,11 +67,10 @@ export const Calendar = defineSSRCustomElement({
               if (row && col) return [+row, +col] as [number, number];
             },
             onSelect(value: any, valueStr: any) {
-              valueModel.value = valueStr;
-              emit('update', {
+              valueModel.value = {
                 value: valueStr,
                 raw: value,
-              });
+              };
             },
             getFocusing: focusingInner,
             enablePrevCells: scrollable,
@@ -204,13 +203,16 @@ export const Calendar = defineSSRCustomElement({
       shortWeekDays ||= runIfFn(getShortWeekDays) || [];
       const weekFirstDay = getWeekFirstDay(),
         view = viewDate.value;
+      const pickingDate = pickingType.value === 'date';
       const yearMonth = [
         <button class={[ns.e('year'), ns.e('info-btn')]} data-method="showYearPanel">
           {expose.getCellText(view, 'year')}
         </button>,
-        <button class={[ns.e('month'), ns.e('info-btn')]} data-method="showMonthPanel">
-          {expose.getCellText(view, 'month')}
-        </button>,
+        pickingDate && (
+          <button class={[ns.e('month'), ns.e('info-btn')]} data-method="showMonthPanel">
+            {expose.getCellText(view, 'month')}
+          </button>
+        ),
       ];
       const row0 = cells.value[0] || [];
       return (
@@ -233,7 +235,7 @@ export const Calendar = defineSSRCustomElement({
             </div>
           </slot>
           <div class={ns.e('content')} part={compParts[1]} style={ns.v({ cols: row0.length })}>
-            {pickingType.value === 'date' && (
+            {pickingDate && (
               <div class={ns.e('head')} part={compParts[2]}>
                 {row0.map((_, i) => {
                   return (

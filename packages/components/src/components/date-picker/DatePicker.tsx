@@ -5,7 +5,7 @@ import { defineCalendar, iCalendar } from '../calendar';
 import { defineInput, iInput } from '../input';
 import { definePopover, iPopover } from '../popover';
 import { useDateParseFormat, useSetupEdit, useSetupEvent } from '@lun/core';
-import { useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
+import { createGetterForHasRawModel, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { ref } from 'vue';
 import { isObject, virtualGetMerge } from '@lun/utils';
 import { useContextConfig } from 'config';
@@ -28,14 +28,16 @@ export const DatePicker = defineSSRCustomElement({
         update(val) {
           if (isObject(val) && 'raw' in val) {
             // it's calendar's update
-            inputModel.value = valueModel.value = val.value;
-            emit('update', val);
+            valueModel.value = val;
+            inputModel.value = val.value;
             if (!props.multiple) closePopover(popoverRef, true, true);
           } else {
             // it's input's update
             const newDate = parse(val);
             if (newDate) {
-              valueModel.value = newDate;
+              valueModel.value = {
+                value: newDate,
+              };
               emit('update', {
                 raw: newDate,
                 value: (inputModel.value = format(newDate)), // TODO multiple
@@ -55,11 +57,13 @@ export const DatePicker = defineSSRCustomElement({
     );
 
     const viewDate = useViewDate(props),
-      valueModel = useValueModel(props, { shouldEmit: false }),
-      inputModel = ref(format(parse(valueModel.value)) || undefined); // TODO multiple. consider moving multiple and range to useDateParseFormat
+      valueModel = useValueModel(props, { hasRaw: true }),
+      inputModel = ref(format(parse(valueModel.value.value)) || undefined); // TODO multiple. consider moving multiple and range to useDateParseFormat
     const popoverRef = ref<iPopover>(),
       calendarRef = ref<iCalendar>(),
       inputRef = ref<iInput>();
+
+    const getValue = createGetterForHasRawModel(valueModel);
 
     const [stateClass] = useCEStates(() => null, ns);
     // TODO expose
@@ -82,7 +86,7 @@ export const DatePicker = defineSSRCustomElement({
         content: renderElement('calendar', {
           ...rest,
           ref: calendarRef,
-          value: valueModel.value,
+          value: getValue(),
           viewDate: viewDate.value,
         }),
       });
