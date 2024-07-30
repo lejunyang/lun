@@ -6,31 +6,21 @@ import { inherit, isObject } from '@lun/utils';
 
 const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
+export type DynamicStyleValue =
+  | ((vm: ComponentInternalInstance, compName: OpenShadowComponentKey, context: any) => string | undefined)
+  | string;
+
 export const GlobalContextConfig = reactive({
   namespace: 'l',
   lang: 'zh-CN',
   iconRegistryMap,
-  dynamicStyles: (() => {
-    const original = openShadowComponents.reduce((result, name) => {
+  dynamicStyles: openShadowComponents.reduce(
+    (result, name) => {
       result[name] = [];
       return result;
-    }, {} as Record<'common' | OpenShadowComponentKey, ((vm: ComponentInternalInstance, compName: OpenShadowComponentKey, context: any) => string)[]>);
-    const commonStyles = [] as ((
-      vm: ComponentInternalInstance,
-      compName: OpenShadowComponentKey,
-      context: any,
-    ) => string)[];
-    return new Proxy(original, {
-      get(target, p, receiver) {
-        if (p === 'common') return commonStyles;
-        if (!(p in original)) {
-          // vue will access this, _v_raw _v_skip...
-          return Reflect.get(target, p, receiver);
-        }
-        return [...commonStyles, ...Reflect.get(target, p, receiver)].filter(Boolean);
-      },
-    });
-  })(),
+    },
+    { common: [] } as any as Record<'common' | OpenShadowComponentKey, DynamicStyleValue[]>,
+  ),
   theme: {
     variant: {
       common: 'surface',

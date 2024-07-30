@@ -14,9 +14,9 @@ export function useContextStyles(name: OpenShadowComponentKey) {
   }
   const context = useContextConfig();
   const { dynamicStyles } = context;
-  const styles = toArrayIfNotNil(dynamicStyles[name]).concat(
-    () => (vm.props.innerStyle as string) || '',
-  );
+  const styles = toArrayIfNotNil(dynamicStyles.common)
+    .concat(toArrayIfNotNil(dynamicStyles[name]))
+    .concat(() => (vm.props.innerStyle as string) || '');
   if (name === 'teleport-holder') {
     styles.push(...componentsWithTeleport.flatMap((name) => dynamicStyles[name]));
   }
