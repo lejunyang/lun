@@ -3,7 +3,7 @@ import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
 export function processStringStyle<B extends boolean>(
-  style: string,
+  style: string | undefined | null,
   noSheet?: B,
 ): B extends true ? string : string | CSSStyleSheet {
   style = String(style || '');

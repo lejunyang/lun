@@ -80,7 +80,7 @@ export * from './textarea';
 export * from './theme-provider';
 export * from './tour';
 
-export const importBasicTheme = once(() => {
+export const importBasicTheme = () => {
   importThemeProviderBasicTheme();
   importButtonBasicTheme();
   importIconBasicTheme();
@@ -109,28 +109,28 @@ export const importBasicTheme = once(() => {
   importCalendarBasicTheme();
   importTourBasicTheme();
   importColorPickerBasicTheme();
-});
+};
 
-export const importOutlineTheme = once(() => {
+export const importOutlineTheme = () => {
   importButtonOutlineTheme();
   importCalloutOutlineTheme();
   importTagOutlineTheme();
-});
+};
 
-export const importSoftTheme = once(() => {
+export const importSoftTheme = () => {
   importButtonSoftTheme();
   importCalloutSoftTheme();
   importCheckboxSoftTheme();
   importInputSoftTheme();
   importTagSoftTheme();
-});
+};
 
-export const importSolidTheme = once(() => {
+export const importSolidTheme = () => {
   importButtonSolidTheme();
   importTagSolidTheme();
-});
+};
 
-export const importSurfaceTheme = once(() => {
+export const importSurfaceTheme = () => {
   importButtonSurfaceTheme();
   importCalloutSurfaceTheme();
   importCheckboxSurfaceTheme();
@@ -141,12 +141,12 @@ export const importSurfaceTheme = once(() => {
   importMentionsSurfaceTheme();
   importRadioSurfaceTheme();
   importRangeSurfaceTheme();
-});
+};
 
-export const importGhostTheme = once(() => {
+export const importGhostTheme = () => {
   importButtonGhostTheme();
   importInputGhostTheme();
-});
+};
 
 export const autoImportTheme = once(() => {
   importCommonTheme();
