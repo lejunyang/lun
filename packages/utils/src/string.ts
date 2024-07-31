@@ -1,12 +1,12 @@
 import { cacheStringFunction } from './function';
 import { isRegExp, isString } from './is';
 
-export function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+export function capitalize<S extends string>(str: S) {
+  return (str.charAt(0).toUpperCase() + str.slice(1)) as Capitalize<S>;
 }
 
-export function uncapitalize(str: string) {
-  return str.charAt(0).toLowerCase() + str.slice(1);
+export function uncapitalize<S extends string>(str: S) {
+  return (str.charAt(0).toLowerCase() + str.slice(1)) as Uncapitalize<S>;
 }
 
 /**
