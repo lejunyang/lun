@@ -36,11 +36,12 @@ export const formProps = freeze({
   plainName: undefBoolProp,
   validators: PropObject<FormValidators>(),
   /**
-   * determine the validate early stop strategy.
-   * if it's 'first', then stop validating when first error occurs;
-   * 'form-item' is similar to 'first', but it will finish all validators of the same form-item
+   * determine the early stop strategy of validation.
+   * if it's 'first-error', will stop validating when first error occurs;
+   * if it's 'first-item', will finish all validators of the form-item having errors and then stop validating
    */
-  stopValidate: PropString<'first' | 'form-item'>(),
+  stopValidate: PropString<'first-error' | 'first-item'>(),
+  /** //TODO */
   scrollToFirstError: PropBoolean(),
   validateMessages: PropObject<ValidateMessages>(),
 

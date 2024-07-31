@@ -391,7 +391,6 @@ export const defineInput = createDefineElement(
     transformWhen: 'notComposing',
     showClearIcon: true,
     separator: /[\s,]/,
-    showStatusIcon: true,
     stepControl: 'up-down',
     required: undefined,
     normalizeNumber: true,

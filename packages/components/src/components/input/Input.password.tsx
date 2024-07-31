@@ -1,15 +1,12 @@
 import { useNamespace } from 'hooks';
-import { InputType, useEdit } from '@lun/core';
+import { useEdit } from '@lun/core';
 import { renderElement } from 'utils';
 import { computed, ref, watch } from 'vue';
 
 /**
  * @returns [passwordIconRef, localType, togglePassword]
  */
-export default function (
-  type: () => InputType | undefined,
-  ns: ReturnType<typeof useNamespace>,
-) {
+export default function (type: () => any, ns: ReturnType<typeof useNamespace>) {
   const show = ref(false),
     isP = () => type() === 'password',
     localType = ref(type());

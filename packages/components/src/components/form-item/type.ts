@@ -23,7 +23,13 @@ import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
 import { freeze } from '@lun/utils';
 
-export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<string | string[] | undefined>;
+export type ValidatorResult = { status: Status; message?: string };
+
+export type Validator = (
+  value: any,
+  data: any,
+  rule: Rule,
+) => MaybePromise<string | string[] | ValidatorResult | ValidatorResult[] | undefined>;
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
 
@@ -80,6 +86,8 @@ export const formItemProps = freeze({
    */
   helpType: PropString<'newLine' | 'tooltip' | 'icon'>(),
   tipType: PropString<'newLine' | 'tooltip'>(),
+  tipShowStatusIcon: PropBoolean(),
+  visibleStatuses: PropStrOrArr<Status | Status[]>(),
   maxValidationMsg: PropNumber(),
 
   // props for layout

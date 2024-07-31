@@ -23,6 +23,7 @@ import {
   isPlainString,
   noop,
   objectGet,
+  promiseTry,
   runIfFn,
   simpleObjectEquals,
   stringToPath,
@@ -36,10 +37,10 @@ import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { innerValidator } from './formItem.validate';
 import { getConditionValue } from './utils';
-import { getCompParts } from 'common';
+import { getCompParts, renderStatusIcon, Status, statuses } from 'common';
 
 const name = 'form-item';
-const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line'] as const;
+const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line', 'tip-line'] as const;
 const compParts = getCompParts(name, parts);
 export const FormItem = defineSSRCustomElement({
   name,
@@ -55,15 +56,19 @@ export const FormItem = defineSSRCustomElement({
     );
     const ns = useNamespace(name, { parent });
     const [_editComputed, editState] = useSetupEdit();
-    const itemErrors = computed(() => {
-      return formContext?.form.getError(path.value);
-    });
-    const status = computed(() => props.value.status || (isEmpty(itemErrors.value) ? undefined : 'error'));
+    const itemStatuses = computed(() => formContext?.form.getStatusMessages(path.value) || {});
+    const isStatusVisible = (status: string) =>
+      !isEmpty(itemStatuses.value[status]) &&
+      (toArrayIfTruthy(props.value.visibleStatuses || 'error') as string[]).includes(status);
+    const status = computed(() => props.value.status || (statuses.find(isStatusVisible) as Status));
 
     const validateWhenSet = computed(() => toNoneNilSet(props.value.validateWhen || 'blur'));
     const revalidateWhenSet = computed(() => toNoneNilSet(props.value.revalidateWhen));
     const canValidate = (trigger: ValidateTrigger) => {
-      return validateWhenSet.value.has(trigger) || (!isEmpty(itemErrors.value) && revalidateWhenSet.value.has(trigger));
+      return (
+        validateWhenSet.value.has(trigger) ||
+        (!isEmpty(itemStatuses.value.error) && revalidateWhenSet.value.has(trigger))
+      );
     };
     const contentHandlers = {
       onInput() {
@@ -79,20 +84,34 @@ export const FormItem = defineSSRCustomElement({
     };
 
     const tips = computed(() => {
-      const { tip, tipType, help, helpType, maxValidationMsg } = props.value;
-      let msgs = itemErrors.value?.length ? itemErrors.value : [],
-        noError = !msgs.length;
-      if (noError) {
-        if (tipType === 'tooltip' && tip) msgs = [tip];
-        else if (helpType === 'tooltip' && help) msgs = [help]; // helpType='newLine' is processed and displayed in the content
-      }
-      if (maxValidationMsg != null) msgs = msgs.slice(0, +maxValidationMsg);
+      const { tip, tipType, help, helpType, maxValidationMsg, tipShowStatusIcon } = props.value;
+      const visibleStatuses = statuses.filter(isStatusVisible),
+        noStatusMsg = !visibleStatuses.length,
+        showTooltip = tipType === 'tooltip';
+      const getMsgs = (classStr = ns.e('form-tooltip'), part?: string) =>
+        visibleStatuses.flatMap((status) =>
+          itemStatuses.value[status].map((m, i) =>
+            +maxValidationMsg! >= i + 1 ? undefined : (
+              <div class={[classStr, ns.is('error', !noStatusMsg)]} part={part}>
+                {tipShowStatusIcon && renderStatusIcon(status)}
+                {String(m)}
+              </div>
+            ),
+          ),
+        );
+      const finalTip = (helpType === 'tooltip' && help) || (showTooltip && tip);
       return {
-        tooltip: tipType === 'tooltip' && msgs.map((msg) => <div>{String(msg)}</div>),
+        tooltip: noStatusMsg
+          ? finalTip && [<div class={ns.e('form-tooltip')}>{finalTip}</div>] // wrap with array because of useErrorTooltip isDisabled condition
+          : showTooltip && getMsgs(),
         newLine:
           tipType === 'newLine' &&
-          msgs.map((msg) => (
-            <div class={[ns.e('tooltip'), ns.e('line-tip'), ns.is('error', !noError)]}>{String(msg)}</div>
+          (noStatusMsg ? (
+            <div class={ns.e('line-tip')} part={compParts[7]}>
+              {String(tip)}
+            </div>
+          ) : (
+            getMsgs(ns.e('line-tip'), compParts[7])
           )),
       };
     });
@@ -105,7 +124,7 @@ export const FormItem = defineSSRCustomElement({
     );
 
     const elementRef = useErrorTooltip(() => tips.value.tooltip, {
-      isDisabled: () => !(tips.value.tooltip as []).length,
+      isDisabled: () => !(tips.value.tooltip as [])?.length,
     });
     const helpIconDisabled = computed(() => {
       const { help, helpType } = props.value;
@@ -194,12 +213,12 @@ export const FormItem = defineSSRCustomElement({
                 <slot />
               </span>
             )}
+            {tips.value.newLine}
             {helpType === 'newLine' && help && (
               <div class={[ns.e('help'), ns.e('line-tip')]} part={compParts[6]}>
                 {help}
               </div>
             )}
-            {tips.value.newLine}
           </span>
         </div>
       );
@@ -271,14 +290,14 @@ export const FormItem = defineSSRCustomElement({
     const transform = (val: any, type?: string) => {
       const {
         math: { isNaN, toNumber, isNumber },
-        date: { isValid },
+        // date: { isValid } // do not get date here, as date preset is not a must
       } = GlobalStaticConfig;
       let transformType: string;
 
       if (isNumberInputType(type) && ((transformType = 'number'), typeof val === transformType)) return val;
       else if (isDatePanelType(type) && (transformType = 'date')) {
         const tVal = parse(val, getDefaultTimeFormat({ type }));
-        if (isValid(tVal)) return tVal;
+        if (GlobalStaticConfig.date.isValid(tVal)) return tVal;
       }
 
       if (!transformType!) return val;
@@ -290,7 +309,7 @@ export const FormItem = defineSSRCustomElement({
           return isNaN(numVal) ? (isNumber(valueOfOtherField) ? valueOfOtherField : undefined) : numVal;
         case 'date':
           const dateVal = parse(valueOfOtherField, getDefaultTimeFormat({ type }));
-          if (isValid(dateVal)) return dateVal;
+          if (GlobalStaticConfig.date.isValid(dateVal)) return dateVal;
       }
     };
 
@@ -340,18 +359,18 @@ export const FormItem = defineSSRCustomElement({
 
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
       const {
-        form: { getValue, data, setError },
+        form: { getValue, data, setStatusMessages },
         parent,
       } = formContext;
       const value = getValue(path.value);
       const { stopValidate, validators: formValidators } = parent!.props;
-      const stopEarly = stopValidate === 'first';
+      const stopEarly = stopValidate === 'first-error';
       const { validators } = props.value;
       const errors = toArrayIfNotNil(
         innerValidator(value, data, validateProps.value, validateMessages.value),
       ) as string[];
       if (stopEarly && errors.length) {
-        setError(path.value, errors);
+        setStatusMessages(path.value, errors);
         return errors;
       }
       const finalValidators = toArrayIfNotNil(validators).concat(
@@ -360,7 +379,7 @@ export const FormItem = defineSSRCustomElement({
       let stopped = false,
         aborted = false;
       onCleanUp && onCleanUp(() => ((stopped = true), (aborted = true)));
-      const collect = (error?: string | string[]) => {
+      const collect = (error?: any) => {
         if (stopped) return;
         errors.push(...toArrayIfTruthy(error));
         if (stopEarly && errors.length) stopped = true;
@@ -368,17 +387,19 @@ export const FormItem = defineSSRCustomElement({
       await Promise.allSettled(
         finalValidators.map(async (validator) => {
           if (!isFunction(validator) || stopped) return;
-          return Promise.resolve(validator(value, data, validateProps.value)).then(collect).catch(collect);
+          return promiseTry(() => validator(value, data, validateProps.value))
+            .then(collect)
+            .catch(collect);
         }),
       );
-      !aborted && setError(path.value, errors);
+      !aborted && setStatusMessages(path.value, errors);
       return errors;
     };
 
     const param = { item: inputContext.vm!, form: formContext.parent! };
     const onValidate: Parameters<UseFormReturn['hooks']['onValidate']['use']>[0] = async (_, { stopExec }) => {
       const errors = await validate();
-      if (errors.length && formContext.parent?.props.stopValidate === 'form-item') stopExec();
+      if (errors.length && formContext.parent?.props.stopValidate === 'first-item') stopExec();
     };
     let cleanFn: AnyFn = noop;
     watch(
@@ -426,6 +447,7 @@ export const defineFormItem = createDefineElement(
     tipType: 'tooltip',
     required: undefined, // must, for runIfFn(required, formContext) ?? localRequired.value
     validateWhen: ['blur', 'depChange'],
+    tipShowStatusIcon: true,
   },
   parts,
   {
