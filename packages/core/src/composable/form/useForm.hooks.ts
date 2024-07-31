@@ -26,7 +26,7 @@ export const getHooks = () => ({
   // validate
   onValidate:
     createAsyncHook<
-      (param: Omit<ProcessedFormParams, 'hooks'> & Pick<FormMethods, 'appendError' | 'setError'>) => void
+      (param: Omit<ProcessedFormParams, 'hooks'> & Pick<FormMethods, 'setStatusMessages'>) => void
     >(),
 });
 

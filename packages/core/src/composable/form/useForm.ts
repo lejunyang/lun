@@ -4,8 +4,19 @@ import { FormHooks, FormHooksOptions, createFormHooks } from './useForm.hooks';
 import { CommonObject, deepCopy, isObject } from '@lun/utils';
 import { LocalEditState } from '../../hooks/useSetupEdit';
 
+export type FormItemStatusMessage =
+  | string
+  | string[]
+  | { status: string; message: string }
+  | { status: string; message: string }[];
+
+export type MaybeFormItemPath = string | string[] | null | undefined;
+
 export type FormState = {
-  errors: Record<string, any>;
+  /**
+   * { field1: { status1: ['msg'], status2: ['msg'] } }
+   */
+  statusMessages: Record<string, Record<string, string[]>>;
   isDirty: boolean;
   dirtyFields: Set<string>;
 } & LocalEditState;
@@ -39,7 +50,12 @@ export function useForm<
   const data = ref(deepCopy(options.defaultData || {})) as Ref<Data>,
     rawData = ref({});
   const getDefaultFormState = () =>
-    deepCopy({ errors: {}, isDirty: false, dirtyFields: new Set<string>(), ...options.defaultFormState });
+    deepCopy({
+      isDirty: false,
+      dirtyFields: new Set<string>(),
+      statusMessages: {},
+      ...options.defaultFormState,
+    });
   const formState = ref(getDefaultFormState());
   const hooks = createFormHooks(options);
   const forms = new Set<ComponentInternalInstance>();

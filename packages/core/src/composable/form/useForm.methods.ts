@@ -1,5 +1,15 @@
-import { objectSet, objectGet, deepCopy, isArray, toArrayIfTruthy, stringToPath, isObject } from '@lun/utils';
-import { ProcessedFormParams, UseFormOptions } from './useForm';
+import {
+  objectSet,
+  objectGet,
+  deepCopy,
+  isArray,
+  toArrayIfTruthy,
+  stringToPath,
+  isObject,
+  isString,
+  pick,
+} from '@lun/utils';
+import { FormItemStatusMessage, MaybeFormItemPath, ProcessedFormParams, UseFormOptions } from './useForm';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
   const { data, rawData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
@@ -10,13 +20,13 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       const parent = itemToFormMap.get(formItem!);
       return !!(formItem?.props.plainName ?? parent?.props.plainName);
     },
-    getValue(path: string | string[] | null | undefined, raw?: boolean) {
+    getValue(path: MaybeFormItemPath, raw?: boolean) {
       if (!path) return;
       const source = raw ? rawData.value : data.value;
       if (isArray(path) || !methods.isPlainName(path)) return objectGet(source, path);
       else return source[path];
     },
-    setValue(path: string | string[] | null | undefined, value: any, rawValue?: any) {
+    setValue(path: MaybeFormItemPath, value: any, rawValue?: any) {
       if (!path) return;
       if (isArray(path) || !methods.isPlainName(path)) {
         objectSet(data.value, path, value);
@@ -27,7 +37,7 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       }
       hooks.onUpdateValue.exec({ data: data.value, path, value, rawData: rawData.value });
     },
-    deletePath(path: string | string[] | null | undefined) {
+    deletePath(path: MaybeFormItemPath) {
       if (!path) return;
       if (!isArray(path) && !methods.isPlainName(path)) path = stringToPath(path);
       if (isArray(path)) {
@@ -66,28 +76,33 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       formState.value = getDefaultFormState();
     },
     async validate() {
-      await hooks.onValidate.exec({ ...params, setError: methods.setError, appendError: methods.appendError });
-      return params.formState.value.errors;
+      await hooks.onValidate.exec({ ...params, ...pick(methods, ['setStatusMessages']) });
+      return params.formState.value.statusMessages;
     },
-    clearErrors() {
-      formState.value.errors = {};
+    clearStatusMessages() {
+      formState.value.statusMessages = {};
     },
-    setError(path: string | string[] | null | undefined, error: string | string[] | null) {
-      if (!path) return;
-      if (isArray(path)) objectSet(formState.value.errors, path, error);
-      else formState.value.errors[path] = error;
+    setStatusMessages(path: MaybeFormItemPath, statusMsg: FormItemStatusMessage) {
+      if (!path || !statusMsg) return;
+      const finalStatusMsgs = {} as Record<string, string[]>;
+      toArrayIfTruthy(statusMsg).forEach((m) => {
+        let msg: string;
+        const status = isString(m) ? ((msg = m), 'error') : ((msg = m.message), m.status);
+        if (status && msg) (finalStatusMsgs[status] ||= []).push(msg);
+      });
+      if (isArray(path)) objectSet(formState.value.statusMessages, path, finalStatusMsgs);
+      else formState.value.statusMessages[path] = finalStatusMsgs;
     },
-    getError(path: string | string[] | null | undefined): any[] {
-      if (!path) return [];
-      let result: any;
-      if (isArray(path)) result = objectGet(formState.value.errors, path);
-      else result = formState.value.errors[path];
-      return toArrayIfTruthy(result);
-    },
-    appendError(path: string | string[], error: string | string[]) {
-      if (!error || !error.length) return;
-      const errors = methods.getError(path);
-      methods.setError(path, errors.concat(...toArrayIfTruthy(error)));
+    getStatusMessages<Status>(
+      path: MaybeFormItemPath,
+      status?: Status,
+    ): Status extends string ? string[] : Record<string, string[]> {
+      // @ts-ignore
+      if (!path) return status ? [] : {};
+      const target = isArray(path)
+        ? objectGet(formState.value.statusMessages, path)
+        : formState.value.statusMessages[path];
+      return status ? target?.[status] || [] : target || {};
     },
   };
   return methods;
