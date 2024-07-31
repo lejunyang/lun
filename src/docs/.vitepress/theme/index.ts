@@ -19,7 +19,7 @@ import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
 import './style.css';
-import { on } from '@lun/utils';
+// import { on } from '@lun/utils';
 
 let once = false;
 
@@ -91,19 +91,19 @@ export default {
       console.log('GlobalContextConfig', GlobalContextConfig);
       Object.assign(window, { GlobalStaticConfig, GlobalContextConfig });
       defineAllComponents();
-      const observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          console.debug(entry.entryType + ' performance issue observed', entry);
-        }
-      });
-      observer.observe({ entryTypes: ['longtask', 'long-animation-frame', 'event'] });
-      // Load when the page is activated
-      on(document, 'prerenderingchange', () => {
-        console.debug(`The page has been activated!`);
+      // const observer = new PerformanceObserver((list) => {
+      //   for (const entry of list.getEntries()) {
+      //     console.debug(entry.entryType + ' performance issue observed', entry);
+      //   }
+      // });
+      // observer.observe({ entryTypes: ['longtask', 'long-animation-frame', 'event'] });
+      // // Load when the page is activated
+      // on(document, 'prerenderingchange', () => {
+      //   console.debug(`The page has been activated!`);
 
-        const activationStart = Math.round((performance.getEntriesByType('navigation')[0] as any).activationStart);
-        console.debug(`The page was activated at: ${activationStart}`);
-      });
+      //   const activationStart = Math.round((performance.getEntriesByType('navigation')[0] as any).activationStart);
+      //   console.debug(`The page was activated at: ${activationStart}`);
+      // });
     }
   }) as (typeof Theme)['enhanceApp'],
 };
