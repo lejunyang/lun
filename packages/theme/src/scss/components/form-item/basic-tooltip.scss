@@ -1,0 +1,48 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(form-item) {
+  @include e(form-tooltip) {
+    display: flex;
+    align-items: center;
+    @include declareVars(
+      (
+        font-size: form-tooltip-font-size,
+        line-height: form-tooltip-font-size,
+        gap: form-tooltip-gap,
+      )
+    );
+  }
+}
+
+@include b(popover) {
+  @include size(1) {
+    @include setVars(
+      (
+        form-tooltip-line-height: getLineHeightValue(1),
+        form-tooltip-font-size: getFontSizeValue(1),
+        form-tooltip-gap: getSpaceValue(1),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        form-tooltip-line-height: getLineHeightValue(2),
+        form-tooltip-font-size: getFontSizeValue(2),
+        form-tooltip-gap: getSpaceValue(1),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        form-tooltip-line-height: getLineHeightValue(3),
+        form-tooltip-font-size: getFontSizeValue(3),
+        form-tooltip-gap: getSpaceValue(2),
+      )
+    );
+  }
+}

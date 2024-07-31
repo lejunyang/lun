@@ -158,9 +158,9 @@
     @include setVars(
       (
         content-padding: getSpaceValue(1),
-        arrow-size: getSpaceValue(2),
-        arrow-hypot: getSpaceValue(2, true),
-        border-radius: getRadiusValue(4),
+        arrow-size: getSpaceValue(1),
+        arrow-hypot: getSpaceValue(1, true),
+        border-radius: getRadiusValue(2),
       )
     );
   }
@@ -168,9 +168,9 @@
     @include setVars(
       (
         content-padding: getSpaceValue(2),
-        arrow-size: getSpaceValue(3),
-        arrow-hypot: getSpaceValue(3, true),
-        border-radius: getRadiusValue(4),
+        arrow-size: getSpaceValue(2),
+        arrow-hypot: getSpaceValue(2, true),
+        border-radius: getRadiusValue(3),
       )
     );
   }
@@ -178,9 +178,9 @@
     @include setVars(
       (
         content-padding: getSpaceValue(4),
-        arrow-size: getSpaceValue(4),
-        arrow-hypot: getSpaceValue(4, true),
-        border-radius: getRadiusValue(5),
+        arrow-size: getSpaceValue(3),
+        arrow-hypot: getSpaceValue(3, true),
+        border-radius: getRadiusValue(4),
       )
     );
   }
@@ -188,8 +188,8 @@
     @include setVars(
       (
         content-padding: getSpaceValue(5),
-        arrow-size: getSpaceValue(5),
-        arrow-hypot: getSpaceValue(5, true),
+        arrow-size: getSpaceValue(4),
+        arrow-hypot: getSpaceValue(4, true),
         border-radius: getRadiusValue(5),
       )
     );

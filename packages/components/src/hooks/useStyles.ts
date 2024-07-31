@@ -12,8 +12,7 @@ export function useContextStyles(name: OpenShadowComponentKey) {
     error('useContextStyles must be called inside setup()');
     return;
   }
-  const context = useContextConfig();
-  const { dynamicStyles } = context;
+  const context = useContextConfig(), { dynamicStyles } = context;
   const styles = toArrayIfNotNil(dynamicStyles.common)
     .concat(toArrayIfNotNil(dynamicStyles[name]))
     .concat(() => (vm.props.innerStyle as string) || '');
@@ -57,5 +56,5 @@ export function useContextStyles(name: OpenShadowComponentKey) {
       shadowRoot.adoptedStyleSheets.push(...cloned);
     }
   });
-  return computed(() => textStyles.map((i) => h('style', { type: 'text/css' }, i())));
+  return computed(() => textStyles.map((i) => h('style', {}, i())));
 }

@@ -48,7 +48,7 @@
     );
   }
 
-  @include e(tooltip) {
+  @include e(form-tooltip) {
     @include is(error) {
       color: getSemanticColor(error);
     }
