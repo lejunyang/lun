@@ -1,0 +1,15 @@
+.tips-move,
+.tips-enter-active,
+.tips-leave-active {
+  transition: all 0.3s;
+}
+
+.tips-enter-from,
+.tips-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.tips-leave-active {
+  position: absolute;
+}

@@ -2,6 +2,7 @@
 @use '../../mixins/theme' as *;
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
+@use './basic-common.scss';
 
 @include b(form-item) {
   @include e(required-mark) {
@@ -37,6 +38,23 @@
     );
   }
 
+  @include declareReuseVars((tips-margin-block-start));
+  @include e(tips) {
+    flex: 1 0 100%;
+    @include reuseVars(
+      (
+        margin-block-start: tips-margin-block-start,
+      )
+    );
+  }
+  @include e(help) {
+    @include reuseVars(
+      (
+        margin-block-start: tips-margin-block-start,
+      )
+    );
+  }
+
   @include e(line-tip) {
     flex: 1 0 100%;
     color: getGrayColor(11);
@@ -46,11 +64,14 @@
         font-size: line-tip-font-size,
       )
     );
-  }
-
-  @include e(form-tooltip) {
-    @include is(error) {
-      color: getSemanticColor(error);
+    @include is(status-message) {
+      display: flex;
+      align-items: center;
+      @include declareVars(
+        (
+          gap: line-status-message-gap,
+        )
+      );
     }
   }
 
@@ -80,6 +101,8 @@
         content-line-height: getSpaceValue(6),
         line-tip-line-height: getLineHeightValue(2),
         line-tip-font-size: getFontSizeValue(2),
+        line-status-message-gap: getSpaceValue(1),
+        tips-margin-block-start: getSpaceValue(1),
       )
     );
     @include is(vertical-label) {
@@ -98,6 +121,8 @@
         content-line-height: getSpaceValue(7),
         line-tip-line-height: getLineHeightValue(3),
         line-tip-font-size: getFontSizeValue(3),
+        line-status-message-gap: getSpaceValue(2),
+        tips-margin-block-start: getSpaceValue(2),
       )
     );
     @include is(vertical-label) {
