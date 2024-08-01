@@ -4,12 +4,13 @@ import {
   getDefaultTimeFormat,
   isDatePanelType,
   isNumberInputType,
+  objectComputed,
   UseFormReturn,
   useSetupEdit,
   useSetupEvent,
 } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { ValidateTrigger, formItemEmits, formItemProps } from './type';
+import { ValidateTrigger, ValidatorStatusResult, formItemEmits, formItemProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector, useErrorTooltip, useHelpTooltip } from '../form/collector';
 import { ComponentInternalInstance, computed, onBeforeUnmount, ref, watch, watchEffect, normalizeStyle } from 'vue';
@@ -36,8 +37,9 @@ import {
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { innerValidator } from './formItem.validate';
-import { getConditionValue } from './utils';
+import { getConditionValue, processStatusMsgs } from './utils';
 import { getCompParts, renderStatusIcon, Status, statuses } from 'common';
+import { wrapTransition } from './form-item.tip-transition';
 
 const name = 'form-item';
 const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line', 'tip-line'] as const;
@@ -83,7 +85,7 @@ export const FormItem = defineSSRCustomElement({
       },
     };
 
-    const tips = computed(() => {
+    const tips = objectComputed(() => {
       const { tip, tipType, help, helpType, maxValidationMsg, tipShowStatusIcon } = props.value;
       const visibleStatuses = statuses.filter(isStatusVisible),
         noStatusMsg = !visibleStatuses.length,
@@ -92,27 +94,39 @@ export const FormItem = defineSSRCustomElement({
         visibleStatuses.flatMap((status) =>
           itemStatuses.value[status].map((m, i) =>
             +maxValidationMsg! >= i + 1 ? undefined : (
-              <div class={[classStr, ns.is('error', !noStatusMsg)]} part={part}>
+              <div key={i + m} class={[classStr, ns.is('status-message', !noStatusMsg)]} part={part}>
                 {tipShowStatusIcon && renderStatusIcon(status)}
-                {String(m)}
+                {m}
               </div>
             ),
           ),
         );
       const finalTip = (helpType === 'tooltip' && help) || (showTooltip && tip);
       return {
-        tooltip: noStatusMsg
-          ? finalTip && [<div class={ns.e('form-tooltip')}>{finalTip}</div>] // wrap with array because of useErrorTooltip isDisabled condition
-          : showTooltip && getMsgs(),
-        newLine:
+        hasTooltip: noStatusMsg ? finalTip : showTooltip,
+        tooltip: wrapTransition(
+          noStatusMsg
+            ? finalTip && (
+                <div key="tip" class={ns.e('form-tooltip')}>
+                  {finalTip}
+                </div>
+              )
+            : showTooltip && getMsgs(),
+          props,
+          { class: ns.e('tips') },
+        ),
+        newLine: wrapTransition(
           tipType === 'newLine' &&
-          (noStatusMsg ? (
-            <div class={ns.e('line-tip')} part={compParts[7]}>
-              {String(tip)}
-            </div>
-          ) : (
-            getMsgs(ns.e('line-tip'), compParts[7])
-          )),
+            (noStatusMsg ? (
+              <div key="tip" class={ns.e('line-tip')} part={compParts[7]}>
+                {String(tip)}
+              </div>
+            ) : (
+              getMsgs(ns.e('line-tip'), compParts[7])
+            )),
+          props,
+          { class: ns.e('tips') },
+        ),
       };
     });
     const [stateClass, states] = useCEStates(
@@ -123,8 +137,8 @@ export const FormItem = defineSSRCustomElement({
       ns,
     );
 
-    const elementRef = useErrorTooltip(() => tips.value.tooltip, {
-      isDisabled: () => !(tips.value.tooltip as [])?.length,
+    const elementRef = useErrorTooltip(() => tips.tooltip, {
+      isDisabled: () => !tips.hasTooltip,
     });
     const helpIconDisabled = computed(() => {
       const { help, helpType } = props.value;
@@ -213,7 +227,7 @@ export const FormItem = defineSSRCustomElement({
                 <slot />
               </span>
             )}
-            {tips.value.newLine}
+            {tips.newLine}
             {helpType === 'newLine' && help && (
               <div class={[ns.e('help'), ns.e('line-tip')]} part={compParts[6]}>
                 {help}
@@ -366,12 +380,14 @@ export const FormItem = defineSSRCustomElement({
       const { stopValidate, validators: formValidators } = parent!.props;
       const stopEarly = stopValidate === 'first-error';
       const { validators } = props.value;
-      const errors = toArrayIfNotNil(
-        innerValidator(value, data, validateProps.value, validateMessages.value),
-      ) as string[];
-      if (stopEarly && errors.length) {
-        setStatusMessages(path.value, errors);
-        return errors;
+      const result = toArrayIfNotNil(innerValidator(value, data, validateProps.value, validateMessages.value)) as (
+        | string
+        | ValidatorStatusResult
+      )[];
+      let errorCount = 0;
+      if (stopEarly && result.length) {
+        setStatusMessages(path.value, result);
+        return [result, result.length] as const;
       }
       const finalValidators = toArrayIfNotNil(validators).concat(
         ...toArrayIfNotNil(objectGet(formValidators, path.value)),
@@ -381,8 +397,10 @@ export const FormItem = defineSSRCustomElement({
       onCleanUp && onCleanUp(() => ((stopped = true), (aborted = true)));
       const collect = (error?: any) => {
         if (stopped) return;
-        errors.push(...toArrayIfTruthy(error));
-        if (stopEarly && errors.length) stopped = true;
+        const [msgs, count] = processStatusMsgs(error);
+        result.push(...msgs);
+        errorCount += count;
+        if (stopEarly && count) stopped = true;
       };
       await Promise.allSettled(
         finalValidators.map(async (validator) => {
@@ -392,14 +410,14 @@ export const FormItem = defineSSRCustomElement({
             .catch(collect);
         }),
       );
-      !aborted && setStatusMessages(path.value, errors);
-      return errors;
+      !aborted && setStatusMessages(path.value, result);
+      return [result, errorCount] as const;
     };
 
     const param = { item: inputContext.vm!, form: formContext.parent! };
     const onValidate: Parameters<UseFormReturn['hooks']['onValidate']['use']>[0] = async (_, { stopExec }) => {
-      const errors = await validate();
-      if (errors.length && formContext.parent?.props.stopValidate === 'first-item') stopExec();
+      const [, errorCount] = await validate();
+      if (errorCount && formContext.parent?.props.stopValidate === 'first-item') stopExec();
     };
     let cleanFn: AnyFn = noop;
     watch(

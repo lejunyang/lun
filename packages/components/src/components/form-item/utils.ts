@@ -1,5 +1,5 @@
-import { toArrayIfNotNil } from '@lun/utils';
-import { Condition } from './type';
+import { isString, toArrayIfNotNil, toArrayIfTruthy } from '@lun/utils';
+import { Condition, ValidatorStatusResult } from './type';
 
 export function getConditionValue(
   { allFalsy, someFalsy, noneFalsy }: { allFalsy: boolean; someFalsy: boolean; noneFalsy: boolean; depValues: any[] },
@@ -25,4 +25,19 @@ export function getConditionValue(
     if (result === false) return false;
   }
   return !!result;
+}
+
+export function processStatusMsgs(msgs: any) {
+  let errorCount = 0;
+  const res = toArrayIfTruthy(msgs)
+    .map((m) => {
+      if (isString(m)) return errorCount++, m;
+      else if (m?.message) {
+        const status = m.status || 'error';
+        if (status === 'error') errorCount++;
+        return { message: m.message, status };
+      }
+    })
+    .filter(Boolean) as (string | ValidatorStatusResult)[];
+  return [res, errorCount] as const;
 }

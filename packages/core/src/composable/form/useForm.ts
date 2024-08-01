@@ -4,11 +4,13 @@ import { FormHooks, FormHooksOptions, createFormHooks } from './useForm.hooks';
 import { CommonObject, deepCopy, isObject } from '@lun/utils';
 import { LocalEditState } from '../../hooks/useSetupEdit';
 
-export type FormItemStatusMessage =
-  | string
+export type FormItemStatusMessage = { status?: string; message: string };
+export type MaybeFormItemStatusMessages =
+  | FormItemStatusMessage[]
   | string[]
-  | { status: string; message: string }
-  | { status: string; message: string }[];
+  | string
+  | FormItemStatusMessage
+  | (string | FormItemStatusMessage)[];
 
 export type MaybeFormItemPath = string | string[] | null | undefined;
 

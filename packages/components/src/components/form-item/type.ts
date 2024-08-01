@@ -12,6 +12,7 @@ import {
   PropStrOrArr,
   PropString,
   Status,
+  createTransitionProps,
   editStateProps,
   sizeProp,
   themeProps,
@@ -23,13 +24,10 @@ import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
 import { freeze } from '@lun/utils';
 
-export type ValidatorResult = { status: Status; message?: string };
+export type ValidatorStatusResult = { status?: Status; message: string };
+export type ValidatorResult = string | string[] | ValidatorStatusResult | ValidatorStatusResult[] | undefined;
 
-export type Validator = (
-  value: any,
-  data: any,
-  rule: Rule,
-) => MaybePromise<string | string[] | ValidatorResult | ValidatorResult[] | undefined>;
+export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<ValidatorResult>;
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
 
@@ -89,6 +87,7 @@ export const formItemProps = freeze({
   tipShowStatusIcon: PropBoolean(),
   visibleStatuses: PropStrOrArr<Status | Status[]>(),
   maxValidationMsg: PropNumber(),
+  ...createTransitionProps('tip'),
 
   // props for layout
   rowSpan: PropNumber(),

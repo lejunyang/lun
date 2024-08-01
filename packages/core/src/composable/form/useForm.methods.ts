@@ -9,7 +9,7 @@ import {
   isString,
   pick,
 } from '@lun/utils';
-import { FormItemStatusMessage, MaybeFormItemPath, ProcessedFormParams, UseFormOptions } from './useForm';
+import { MaybeFormItemStatusMessages, MaybeFormItemPath, ProcessedFormParams, UseFormOptions } from './useForm';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
   const { data, rawData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
@@ -82,13 +82,14 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
     clearStatusMessages() {
       formState.value.statusMessages = {};
     },
-    setStatusMessages(path: MaybeFormItemPath, statusMsg: FormItemStatusMessage) {
+    setStatusMessages(path: MaybeFormItemPath, statusMsg: MaybeFormItemStatusMessages) {
       if (!path || !statusMsg) return;
       const finalStatusMsgs = {} as Record<string, string[]>;
       toArrayIfTruthy(statusMsg).forEach((m) => {
+        if (!m) return;
         let msg: string;
-        const status = isString(m) ? ((msg = m), 'error') : ((msg = m.message), m.status);
-        if (status && msg) (finalStatusMsgs[status] ||= []).push(msg);
+        const status = isString(m) ? ((msg = m), 'error') : ((msg = m.message), m.status || 'error');
+        if (msg) (finalStatusMsgs[status] ||= []).push(msg);
       });
       if (isArray(path)) objectSet(formState.value.statusMessages, path, finalStatusMsgs);
       else formState.value.statusMessages[path] = finalStatusMsgs;
