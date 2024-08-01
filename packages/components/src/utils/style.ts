@@ -1,4 +1,4 @@
-import { isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
+import { isHTMLElement, isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
@@ -29,4 +29,9 @@ export function assignProps(target: HTMLElement, ...props: Record<string, any>[]
     if (isString(style)) target.style.cssText = style as string;
     else Object.assign(target.style, style);
   }
+}
+
+export function setHeightVar(el: any) {
+  if (!isHTMLElement(el)) return;
+  el.style.setProperty('--height', `${el.offsetHeight}px`);
 }
