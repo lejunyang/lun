@@ -71,7 +71,7 @@ export const Tour = defineSSRCustomElement({
         if ((await runIfFn(step.beforeEnter)) === false) return;
         stepState.step = step;
         stepState.hasTarget = el;
-        currentTarget.value = el || createPopoverRectTarget(innerWidth / 2, innerHeight / 2);
+        currentTarget.value = el || createPopoverRectTarget(() => [innerWidth / 2, innerHeight / 2]);
         if (isElement(el)) scrollIntoView(el, { block: 'center', ...scrollOptions, ...step.scrollOptions });
         return true;
       }

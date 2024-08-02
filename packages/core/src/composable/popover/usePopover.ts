@@ -233,14 +233,16 @@ export function usePopover(_options: UsePopoverOptions) {
 
     const activatePointerTarget = (e: MouseEvent, triggerResult?: boolean | void) => {
       if (triggerResult !== false && _options.pointerTarget === 'coord') {
-        // do not use clientX, use offsetX + target rect x instead, in case target updates its position
+        // do not use clientX, use offsetX + target rect x instead, and make sure getBoundingClientRect is dynamic, in case target updates its position(e.g. scrolling)
         const tx = e.offsetX,
           ty = e.offsetY,
           t = e.target as Element;
-        const { x, y } = getRect(t);
         virtualTarget.value = {
           _p: true,
-          ...createPopoverRectTarget(tx + x, ty + y),
+          ...createPopoverRectTarget(() => {
+            const { x, y } = getRect(t);
+            return [tx + x, ty + y];
+          }),
         };
       } else virtualTarget.value = undefined;
       return triggerResult;
