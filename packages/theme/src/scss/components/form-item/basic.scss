@@ -41,11 +41,13 @@
   @include declareReuseVars((tips-margin-block-start));
   @include e(tips) {
     flex: 1 0 100%;
-    @include reuseVars(
-      (
-        margin-block-start: tips-margin-block-start,
-      )
-    );
+    &:not(:empty) {
+      @include reuseVars(
+        (
+          margin-block-start: tips-margin-block-start,
+        )
+      );
+    }
   }
   @include e(help) {
     @include reuseVars(

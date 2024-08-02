@@ -90,7 +90,7 @@ export const FormItem = defineSSRCustomElement({
       const visibleStatuses = statuses.filter(isStatusVisible),
         noStatusMsg = !visibleStatuses.length,
         showTooltip = tipType === 'tooltip';
-      const getMsgs = (classStr = ns.e('form-tooltip'), part?: string) =>
+      const getMsgs = (classStr = ns.e('form-tooltip'), part = '') =>
         visibleStatuses.flatMap((status) =>
           itemStatuses.value[status].map((m, i) =>
             +maxValidationMsg! >= i + 1 ? undefined : (
@@ -101,29 +101,32 @@ export const FormItem = defineSSRCustomElement({
             ),
           ),
         );
-      const finalTip = (helpType === 'tooltip' && help) || (showTooltip && tip);
+      const finalTip = (helpType === 'tooltip' && help) || (showTooltip && tip),
+        hasTooltip = noStatusMsg ? finalTip : showTooltip,
+        hasNewLine = tipType === 'newLine';
       return {
-        hasTooltip: noStatusMsg ? finalTip : showTooltip,
+        hasTooltip,
         tooltip: wrapTransition(
-          noStatusMsg
-            ? finalTip && (
-                <div key="tip" class={ns.e('form-tooltip')}>
-                  {finalTip}
-                </div>
-              )
-            : showTooltip && getMsgs(),
+          hasTooltip &&
+            (noStatusMsg
+              ? finalTip && (
+                  <div key="tip" class={ns.e('form-tooltip')}>
+                    {finalTip}
+                  </div>
+                )
+              : showTooltip && getMsgs()),
           props,
           { class: ns.e('tips') },
         ),
         newLine: wrapTransition(
-          tipType === 'newLine' &&
-            (noStatusMsg ? (
-              <div key="tip" class={ns.e('line-tip')} part={compParts[7]}>
-                {String(tip)}
-              </div>
-            ) : (
-              getMsgs(ns.e('line-tip'), compParts[7])
-            )),
+          hasNewLine &&
+            (noStatusMsg
+              ? tip && (
+                  <div key="tip" class={ns.e('line-tip')} part={compParts[7]}>
+                    {tip}
+                  </div>
+                )
+              : getMsgs(ns.e('line-tip'), compParts[7])),
           props,
           { class: ns.e('tips') },
         ),

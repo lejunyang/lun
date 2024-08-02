@@ -25,7 +25,7 @@ import { FormProvideExtra } from '../form';
 import { freeze } from '@lun/utils';
 
 export type ValidatorStatusResult = { status?: Status; message: string };
-export type ValidatorResult = string | string[] | ValidatorStatusResult | ValidatorStatusResult[] | undefined;
+export type ValidatorResult = string | string[] | ValidatorStatusResult | ValidatorStatusResult[] | undefined | null;
 
 export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<ValidatorResult>;
 

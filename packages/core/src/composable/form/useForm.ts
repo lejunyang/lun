@@ -34,6 +34,7 @@ export type ProcessedFormParams<Data extends CommonObject = CommonObject> = {
   options: UseFormOptions<Data>;
   data: Ref<Data>;
   rawData: Ref<any>;
+  // TODO add formData(FormData), it will remove disabled fields by default
   formState: Ref<FormState>;
   hooks: FormHooks;
   getDefaultFormState(): FormState;

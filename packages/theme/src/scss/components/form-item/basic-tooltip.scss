@@ -5,6 +5,15 @@
 @use './basic-common.scss';
 
 @include b(form-item) {
+  @include e(tips) {
+    display: flex;
+    flex-direction: column;
+    @include declareVars(
+      (
+        gap: tips-gap,
+      )
+    );
+  }
   @include e(form-tooltip) {
     display: flex;
     align-items: center;
@@ -25,6 +34,7 @@
         form-tooltip-line-height: getLineHeightValue(1),
         form-tooltip-font-size: getFontSizeValue(1),
         form-tooltip-gap: getSpaceValue(1),
+        tips-gap: getSpaceValue(1),
       )
     );
   }
@@ -34,6 +44,7 @@
         form-tooltip-line-height: getLineHeightValue(2),
         form-tooltip-font-size: getFontSizeValue(2),
         form-tooltip-gap: getSpaceValue(1),
+        tips-gap: getSpaceValue(1),
       )
     );
   }
@@ -43,6 +54,7 @@
         form-tooltip-line-height: getLineHeightValue(3),
         form-tooltip-font-size: getFontSizeValue(3),
         form-tooltip-gap: getSpaceValue(2),
+        tips-gap: getSpaceValue(2),
       )
     );
   }
