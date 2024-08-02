@@ -8,7 +8,7 @@ export function getTransitionProps<N extends string>(
 ) {
   const key = `${name}Transition` as const,
     val = props[key];
-  return isString(val) ? { name: (val as string) || defaultName } : { name: defaultName, ...val };
+  return isString(val) ? { name: (val as string) ?? defaultName } : { name: defaultName, ...val };
 }
 
 export function createTransitionProps<S extends string[]>(...names: S) {

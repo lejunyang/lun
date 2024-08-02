@@ -138,7 +138,7 @@ const options = {
 export const VCustomRenderer = defineComponent(options);
 
 export const renderCustom = (source: any) => {
-  if (isVNode(source) || isRaw(source)) return source;
+  if (source == null || isVNode(source) || isRaw(source)) return source;
   return h(VCustomRenderer, isObject(source) && 'content' in source ? source : { content: source });
 };
 

@@ -32,6 +32,7 @@ export const Tag = defineSSRCustomElement({
     useCEExpose({ focus });
 
     return () => {
+      const { label, removable } = props;
       return (
         <Transition {...getTransitionProps(props, 'remove', 'scaleOut')} {...handlers}>
           {!removed.value && (
@@ -42,11 +43,12 @@ export const Tag = defineSSRCustomElement({
               tabindex={attrs.tabindex as any}
               style={attrs.style as any}
             >
-              <slot>{props.label}</slot>
-              {props.removable &&
+              <slot>{label}</slot>
+              {removable &&
                 renderElement('icon', {
                   name: 'x',
-                  ...props.removeIconProps,
+                  // @ts-ignore
+                  ...removable,
                   onClick: remove,
                   part: compParts[1],
                   class: ns.e('icon'),
