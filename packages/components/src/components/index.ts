@@ -35,6 +35,7 @@ import { defineCalendar } from './calendar';
 import { defineDatePicker } from './date-picker';
 import { defineTour } from './tour/Tour';
 import { defineColorPicker } from './color-picker';
+import { defineTabs } from './tabs';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -67,6 +68,7 @@ export function defineAllComponents() {
   defineSelectOption();
   defineSpin();
   defineSwitch();
+  defineTabs();
   defineTag();
   defineTooltip();
   defineFilePicker();
@@ -154,6 +156,7 @@ export * from './range';
 export * from './select';
 export * from './spin';
 export * from './switch';
+export * from './tabs';
 export * from './tag';
 export * from './teleport-holder';
 export * from './textarea';
