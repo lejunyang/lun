@@ -2,7 +2,7 @@
 import { ComponentInternalInstance, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { isArray, isPreferDark, isString } from '@lun/utils';
-import { isStatus, Status, ThemeProps, themeProps } from 'common';
+import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
 import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun/core';
@@ -118,7 +118,18 @@ export const useNamespace = (
       highContrast = getActualThemeValue<boolean>('highContrast'),
       color = getActualThemeValue('color'),
       statusVal = unrefOrGet(status) || getActualThemeValue('status');
-    const finalColor = isStatus(statusVal) ? statusVal : color;
+    let finalColor: any;
+    switch (GlobalStaticConfig.colorPriority) {
+      case 'color-first':
+        finalColor = color || (isStatus(statusVal) && statusVal);
+        break;
+      case 'status-first':
+        finalColor = isStatus(statusVal) ? statusVal : color;
+        break;
+      default:
+        finalColor = isHighlightStatus(statusVal) ? statusVal : color;
+        break;
+    }
     const { value } = namespace;
     return [
       b(),
@@ -126,7 +137,7 @@ export const useNamespace = (
       getSizeClass(),
       is('high-contrast', highContrast),
       is('dark', isDark()),
-      is('in-status', isStatus(statusVal)),
+      is('highlight-status', isHighlightStatus(statusVal)),
       finalColor && _bem(value, 'color', '', '', finalColor),
     ];
   });

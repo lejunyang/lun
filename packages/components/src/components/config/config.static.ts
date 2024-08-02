@@ -39,6 +39,8 @@ export const openShadowComponents = freeze([
   'select-optgroup',
   'spin',
   'switch',
+  'tabs',
+  'tab-panel',
   'tag',
   holderName,
   'textarea',
@@ -51,6 +53,8 @@ export type ComponentKey = (typeof components)[number];
 export type OpenShadowComponentKey = (typeof openShadowComponents)[number];
 
 export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string | CSSStyleSheet)[]>;
+
+export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 
 const styles = openShadowComponents.reduce(
   (result, name) => {
@@ -103,6 +107,13 @@ export const GlobalStaticConfig = new Proxy(
     /** whether wrap &#64;layer for components' styles. will use it as layer name if it's truthy string, or use 'lun' as default */
     wrapCSSLayer: supportCSSLayer as boolean | string,
     stylePreprocessor: (css: string) => css,
+    /**
+     * 'status' and 'color', these two theme props can affect the actual color of components. 'colorPriority' determines which one will be used first.
+     * - `highlight-first`: use 'status' first if it's highlight status(error and warning). this is the default behavior
+     * - `status-first`: use 'status' first
+     * - `color-first`: use 'color' first
+     */
+    colorPriority: '' as ColorPriority,
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
     computedStyles: new Proxy(styles, {
