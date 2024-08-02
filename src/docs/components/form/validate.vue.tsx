@@ -19,7 +19,7 @@ export default () => {
         <l-form-item name="used" label="已使用" required min="0" max="total" type="number" deps="total" />
       </l-form>
       <pre>data: {JSON.stringify(form.data)}</pre>
-      <pre>formErrors: {JSON.stringify(form.formState.errors)}</pre>
+      <pre>formErrors: {JSON.stringify(form.formState.statusMessages)}</pre>
     </div>
   );
 };
