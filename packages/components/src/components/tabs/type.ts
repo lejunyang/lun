@@ -15,6 +15,7 @@ export type TabItem = {
 export const tabsProps = freeze({
   ...themeProps,
   ...createTransitionProps('panel'),
+  type: PropString<'horizontal' | 'vertical'>(),
   activeSlot: PropString(),
   defaultActiveSlot: PropString(),
   items: PropArray<TabItem[]>(),
