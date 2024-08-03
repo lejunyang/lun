@@ -40,7 +40,7 @@ export const openShadowComponents = freeze([
   'spin',
   'switch',
   'tabs',
-  'tab-panel',
+  'tab-item',
   'tag',
   holderName,
   'textarea',

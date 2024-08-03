@@ -8,6 +8,7 @@ import { getCompParts, getTransitionProps } from 'common';
 import { isArray, setStyle } from '@lun/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useSetupEvent } from '@lun/core';
+import { TabsCollector } from './collector';
 
 const name = 'tabs';
 const parts = ['root', 'nav', 'content', 'wrapper', 'panel', 'tab', 'label'] as const;
@@ -24,6 +25,11 @@ export const Tabs = defineSSRCustomElement({
     let controlled = false,
       activeIndex: number;
     const wrapperRef = ref<HTMLDivElement>();
+    const context = TabsCollector.parent({
+      extraProvide: {
+        active: localActive,
+      },
+    });
 
     watchEffect(() => {
       const { activeSlot, defaultActiveSlot } = props;

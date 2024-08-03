@@ -106,7 +106,6 @@ export function createDefineElement(
   };
 }
 
-/*@__NO_SIDE_EFFECTS__*/
 export function createImportStyle(compKey: OpenShadowComponentKey | 'common', style: string) {
   return once(() => {
     GlobalStaticConfig.styles[compKey].push(processStringStyle(style));

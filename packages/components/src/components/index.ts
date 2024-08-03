@@ -36,6 +36,7 @@ import { defineDatePicker } from './date-picker';
 import { defineTour } from './tour/Tour';
 import { defineColorPicker } from './color-picker';
 import { defineTabs } from './tabs';
+import { defineTabItem } from './tabs/TabItem';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -69,6 +70,7 @@ export function defineAllComponents() {
   defineSpin();
   defineSwitch();
   defineTabs();
+  defineTabItem();
   defineTag();
   defineTooltip();
   defineFilePicker();
