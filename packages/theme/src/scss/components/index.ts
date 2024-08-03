@@ -52,6 +52,8 @@ import { importRangeBasicTheme, importRangeSurfaceTheme } from './range';
 import { importCalendarBasicTheme } from './calendar/index.ts';
 import { importTourBasicTheme } from './tour/index.ts';
 import { importColorPickerBasicTheme } from './color-picker';
+import { importTabsBasicTheme } from './tabs';
+import { importTabItemBasicTheme } from './tab-item';
 
 export * from './button';
 export * from './calendar';
@@ -75,6 +77,8 @@ export * from './select-optgroup';
 export * from './select-option';
 export * from './spin';
 export * from './switch';
+export * from './tabs';
+export * from './tab-item';
 export * from './tag';
 export * from './textarea';
 export * from './theme-provider';
@@ -109,6 +113,8 @@ export const importBasicTheme = () => {
   importCalendarBasicTheme();
   importTourBasicTheme();
   importColorPickerBasicTheme();
+  importTabsBasicTheme();
+  importTabItemBasicTheme();
 };
 
 export const importOutlineTheme = () => {

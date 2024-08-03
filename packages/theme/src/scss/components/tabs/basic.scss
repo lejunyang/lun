@@ -1,0 +1,95 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+:host {
+  display: block;
+}
+
+@include b(tabs) {
+  display: flex;
+  @include e(wrapper) {
+    display: flex;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  @include m(horizontal) {
+    flex-direction: column;
+  }
+  @include m(vertical) {
+    @include e(wrapper) {
+      flex-direction: column;
+    }
+  }
+
+  @include e(tab) {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: getGrayColor(a11);
+    @include declareVars(
+      (
+        height: tab-height,
+        padding: tab-padding,
+        font-size: tab-font-size,
+      )
+    );
+    @include hover {
+      color: getGrayColor(12);
+      @include setVars(
+        (
+          tab-background: getGrayColor(a3),
+        )
+      );
+    }
+    @include is(disabled) {
+      cursor: not-allowed;
+    }
+    @include is(active) {
+      color: getGrayColor(12);
+    }
+  }
+
+  @include e(label) {
+    @include declareReuseVars(
+      (
+        background: tab-background,
+      ),
+      true
+    );
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        tab-height: getSpaceValue(6),
+        tab-padding: getSpaceValue(2) getSpaceValue(3),
+        tab-font-size: getFontSizeValue(1),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        tab-height: getSpaceValue(7),
+        tab-padding: getSpaceValue(3) getSpaceValue(4),
+        tab-font-size: getFontSizeValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        tab-height: getSpaceValue(8),
+        tab-padding: getSpaceValue(4) getSpaceValue(5),
+        tab-font-size: getFontSizeValue(3),
+      )
+    );
+  }
+}
