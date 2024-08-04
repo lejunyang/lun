@@ -52,6 +52,7 @@ export default {
       layout: {
         menu: '布局组件',
         divider: 'Divider 分割线',
+        tabs: 'Tabs 标签组',
       },
       guides: {
         usage: '如何使用',
@@ -146,6 +147,7 @@ export default {
       layout: {
         menu: 'Layout',
         divider: 'Divider',
+        tabs: 'Tabs',
       },
       guides: {
         usage: 'Usage',

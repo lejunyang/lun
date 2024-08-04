@@ -129,7 +129,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
         {
           text: locales[lang].sidebar.layout.menu,
           collapsed: false,
-          items: [{ text: locales[lang].sidebar.layout.divider, link: wrapLink('/components/divider/', lang) }],
+          items: [
+            { text: locales[lang].sidebar.layout.divider, link: wrapLink('/components/divider/', lang) },
+            { text: locales[lang].sidebar.layout.tabs, link: wrapLink('/components/tabs/', lang) },
+          ],
         },
         {
           text: locales[lang].sidebar.other.menu,
