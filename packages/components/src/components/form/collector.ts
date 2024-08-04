@@ -1,8 +1,9 @@
-import { UseFormReturn, createCollector, getHostOfRootShadow } from '@lun/core';
+import { UseFormReturn, createCollector } from '@lun/core';
 import { FormProps, FormSetupProps } from './type';
 import { FormItemProps } from '../form-item/type';
 import { useTooltipManage } from 'hooks';
 import { ComputedRef } from 'vue';
+import { getCollectorOptions } from 'common';
 
 export type FormProvideExtra = {
   form: UseFormReturn;
@@ -29,14 +30,9 @@ export type FormProvideExtra = {
   }>;
 };
 
-export const FormItemCollector = createCollector({
-  name: 'FormItem',
-  parent: null as any as FormProps,
-  child: null as any as FormItemProps,
-  sort: true,
-  parentExtra: null as any as FormProvideExtra,
-  getChildEl: getHostOfRootShadow,
-});
+export const FormItemCollector = createCollector<FormProps, FormItemProps, FormProvideExtra>(
+  getCollectorOptions('form', true),
+);
 
 export const [provideErrorTooltip, useErrorTooltip] = useTooltipManage();
 export const [provideHelpTooltip, useHelpTooltip] = useTooltipManage();

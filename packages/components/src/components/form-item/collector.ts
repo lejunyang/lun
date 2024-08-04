@@ -1,6 +1,6 @@
-import { createCollector, getHostOfRootShadow } from '@lun/core';
+import { createCollector } from '@lun/core';
 import { ComponentInternalInstance, ComputedRef } from 'vue';
-import { Status } from 'common';
+import { getCollectorOptions, Status } from 'common';
 import { FormItemProps, Rule } from './type';
 
 export type FormItemProvideExtra = {
@@ -10,10 +10,6 @@ export type FormItemProvideExtra = {
   validateProps: ComputedRef<Rule>;
 };
 
-export const FormInputCollector = createCollector({
-  name: 'FormInput',
-  parent: null as any as FormItemProps,
-  sort: true,
-  parentExtra: null as any as FormItemProvideExtra,
-  getChildEl: getHostOfRootShadow,
-});
+export const FormInputCollector = createCollector<FormItemProps, any, FormItemProvideExtra>(
+  getCollectorOptions('form-input', true),
+);

@@ -2,6 +2,7 @@ import { renderElement } from 'utils';
 import { Status } from './type';
 import { supportPopover } from '@lun/utils';
 import { ComponentKey } from 'config';
+import { ComponentInternalInstance } from 'vue';
 
 export * from './editStateProps';
 export * from './intl';
@@ -51,3 +52,18 @@ export const getCompParts = <N extends ComponentKey, P extends readonly string[]
   parts.map((p) => `${p} ${name}-${p}`) as {
     [key in keyof P]: `${P[key]} ${N}-${P[key]}`;
   };
+
+const vmToCE = (vm: ComponentInternalInstance) => vm.CE;
+
+const collectorOptions = {
+  getParentEl: vmToCE,
+  getChildEl: vmToCE,
+  collectOnSetup: true,
+};
+
+export const getCollectorOptions = (name?: string, sort?: boolean, onlyForProp?: boolean) => ({
+  ...collectorOptions,
+  name,
+  sort,
+  onlyForProp,
+});
