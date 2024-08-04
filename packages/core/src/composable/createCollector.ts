@@ -12,10 +12,10 @@ import {
   inject,
   onMounted,
   onBeforeUnmount,
-  markRaw,
   ref,
   onUnmounted,
   shallowReactive,
+  reactive,
 } from 'vue';
 import { getPreviousMatchElInTree, isString, toGetterDescriptors } from '@lun/utils';
 
@@ -31,11 +31,13 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
   getIndex(child: any): number | undefined;
 };
 
+const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
+
 /**
- * create a collector used for collecting component instances between Parent Component and Children Components
- * @param options `name` `parent` `child` and `parentExtra` are used for dev experience.
- * `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
+ * create a collector used for collecting component instances between Parent Component and Children Components.\
+ * First two typescript generics `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
  * `parentExtra` is used to infer type of parent extra provide data
+ * @param options
  * @param options.sort when it's true, children collected in parent will be sorted according to their dom tree order, otherwise they are just in mount order
  * @param options.onlyForProp parent collects all children by default, use this to collect those only with same prop and propValue with parent. If it's a truthy value but not string, it will be considered as `onlyFor`
  * @returns
@@ -44,6 +46,7 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 export function createCollector<
   P extends any = Data,
   C extends any = Data,
+  PE extends any = Data,
   ParentProps = P extends VueElementConstructor<infer T>
     ? T
     : P extends ComponentObjectPropsOptions
@@ -54,27 +57,25 @@ export function createCollector<
     : P extends ComponentObjectPropsOptions
     ? ExtractPropTypes<P>
     : C,
-  PE extends Data = Data,
 >(options?: {
   name?: string;
-  parent?: P;
-  child?: C;
-  parentExtra?: PE;
   sort?: boolean;
   onlyForProp?: boolean | string;
-  getParentEl?: (node: Node) => Element;
-  getChildEl?: (node: Node) => Element;
+  getParentEl?: (vm: InstanceWithProps<NoInfer<ParentProps>>) => Element;
+  getChildEl?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => Element;
+  collectOnSetup?: boolean;
 }) {
-  const { sort, name, onlyForProp, getParentEl, getChildEl } = options || {};
+  const {
+    sort,
+    name,
+    onlyForProp,
+    getParentEl = defaultGetEl,
+    getChildEl = defaultGetEl,
+    collectOnSetup,
+  } = options || {};
   const finalOnlyFor = onlyForProp && !isString(onlyForProp) ? 'onlyFor' : onlyForProp;
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name || Date.now()}` : '');
-
-  const finalGetChildEl = (vm: UnwrapRef<InstanceWithProps<ChildProps>>) => {
-    let el = vm.proxy?.$el;
-    if (getChildEl) el = getChildEl(el);
-    return el as Element | undefined;
-  };
 
   const parent = (params?: {
     extraProvide?: PE;
@@ -82,45 +83,39 @@ export function createCollector<
     onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number) => void;
   }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
-    const childrenElIndexMap = new Map<Element, number>(); // need to iterate, use Map other than WeakMap, remember clear when unmount
+    const childrenElIndexMap = reactive(new Map<Element, number>()); // need to iterate, use Map other than WeakMap, remember clear when unmount
     const childrenVmElMap = new WeakMap<any, Element>(); // use `UnwrapRef<InstanceWithProps<ChildProps>>` as key will make FormItemCollector's type error...
     const state = shallowReactive({
       parentMounted: false,
       parentEl: null as Element | null,
     });
-    const indexUpdate = ref();
-    const notifyIndexUpdate = () => (indexUpdate.value = Date.now());
     const { extraProvide, lazyChildren = true, onChildRemoved } = params || {};
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
-    if (instance) instance = markRaw(instance);
     if (instance) {
       onMounted(() => {
         state.parentMounted = true;
-        state.parentEl = instance!.proxy?.$el as Element;
-        if (getParentEl) state.parentEl = getParentEl(state.parentEl);
-        items.value.forEach((child, index) => {
-          const el = finalGetChildEl(child);
-          if (el) childrenElIndexMap.set(el, index);
-        });
-        notifyIndexUpdate();
+        state.parentEl = getParentEl(instance);
+        if (!collectOnSetup) {
+          items.value.forEach((child, index) => {
+            const el = getChildEl(child as any);
+            if (el) childrenElIndexMap.set(el, index);
+          });
+        }
       });
       onUnmounted(() => {
         childrenElIndexMap.clear();
         items.value = [];
-        notifyIndexUpdate();
       });
     }
-    const getChildVmIndex = (childVm: any) => {
-      indexUpdate.value; // trigger computed
-      return childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
-    };
+    const getChildVmIndex = (childVm: any) => childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
 
     const provideContext = Object.assign(extraProvide || {}, {
       [COLLECTOR_KEY]: true,
       parent: instance,
       items,
       addItem(child) {
-        if (child && child.proxy?.$el) {
+        const el = child && getChildEl(child as any)!;
+        if (el) {
           // if 'onlyFor' is defined, accepts child only with the same value
           if (
             finalOnlyFor &&
@@ -128,8 +123,7 @@ export function createCollector<
             child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
           )
             return;
-          const el = finalGetChildEl(child)!;
-          Object.assign(el, { [CHILD_KEY]: true });
+          (el as any)[CHILD_KEY] = true;
           childrenVmElMap.set(child, el);
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
           // otherwise, we find previous child in dom order to insert the index
@@ -155,9 +149,9 @@ export function createCollector<
                 if (index > prevIndex && otherEl !== el) childrenElIndexMap.set(otherEl, index + 1);
               }
             }
-            notifyIndexUpdate();
           } else {
             items.value.push(child);
+            if (collectOnSetup) childrenElIndexMap.set(el, items.value.length - 1);
           }
         }
       },
@@ -174,7 +168,6 @@ export function createCollector<
               const el = childrenVmElMap.get(vm);
               el && childrenElIndexMap.set(el, i);
             }
-            notifyIndexUpdate();
             if (onChildRemoved) onChildRemoved(child as any, index);
           }
         }
@@ -196,7 +189,6 @@ export function createCollector<
   };
   const child = <T = undefined>(collect = true, defaultContext?: T) => {
     let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
-    if (instance) instance = markRaw(instance);
     type C = CollectorContext<
       ParentProps,
       ChildProps,
@@ -220,7 +212,8 @@ export function createCollector<
         },
       });
       if (collect) {
-        onMounted(() => context!.addItem(instance));
+        const performCollect = () => context!.addItem(instance);
+        collectOnSetup ? performCollect() : onMounted(performCollect);
         onBeforeUnmount(() => context!.removeItem(instance));
       }
     }
@@ -231,6 +224,3 @@ export function createCollector<
 
 export type CollectorParentReturn<P = Data> = ReturnType<ReturnType<typeof createCollector<P>>['parent']>;
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
-
-// it's a must if sort is enabled and render return a fragment, as getPreviousMatchElInTree will not work for fragment node
-export const getHostOfRootShadow = (el: Node) => (el.parentNode as ShadowRoot).host;
