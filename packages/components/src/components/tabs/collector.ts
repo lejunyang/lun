@@ -1,12 +1,9 @@
-import { createCollector, getHostOfRootShadow } from '@lun/core';
-import { Ref } from 'vue';
+import { createCollector } from '@lun/core';
+import { getCollectorOptions } from 'common';
+import { TabItemProps, TabsProps } from './type';
 
 export type TabsProvide = {
-  active: Ref<string>;
+  isActive: (slot?: string, index?: number) => boolean;
 };
 
-export const TabsCollector = createCollector({
-  sort: true,
-  getChildEl: getHostOfRootShadow,
-  parentExtra: 1 as any as TabsProvide,
-});
+export const TabsCollector = createCollector<TabsProps, TabItemProps, TabsProvide>(getCollectorOptions('tabs', true));

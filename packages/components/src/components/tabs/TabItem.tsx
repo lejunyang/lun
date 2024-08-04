@@ -15,11 +15,10 @@ export const TabItem = defineSSRCustomElement({
   setup(props, { attrs }) {
     const ns = useNamespace(name);
     const context = TabsCollector.child();
-    // TODO change collect? not using onMounted, start collecting when setup
     return () => {
       const { slot } = attrs;
       return (
-        <div class={ns.t} v-show={context?.active.value === (slot ?? String(context?.index))} part={compParts[0]}>
+        <div class={ns.t} v-show={context?.isActive(slot as string, context?.index)} part={compParts[0]}>
           <slot></slot>
         </div>
       );
