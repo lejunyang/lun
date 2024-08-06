@@ -1,4 +1,4 @@
-import { freeze } from '@lun/utils';
+import { Constructor, freeze } from '@lun/utils';
 import { GetEventPropsFromEmits, PropBoolean, themeProps, createTransitionProps, CommonProps, PropArray, PropString } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -6,7 +6,7 @@ export type TabItem = {
   slot?: string;
   label: string;
   closable?: boolean;
-  content: any;
+  content?: any;
   forceRender?: boolean;
   destroyInactive?: boolean;
   disabled?: boolean;
@@ -16,8 +16,8 @@ export const tabsProps = freeze({
   ...themeProps,
   ...createTransitionProps('panel'),
   type: PropString<'horizontal' | 'vertical'>(),
-  activeSlot: PropString(),
-  defaultActiveSlot: PropString(),
+  activeSlot: PropString(Number as any as Constructor<number>),
+  defaultActiveSlot: PropString(Number as any as Constructor<number>),
   items: PropArray<TabItem[]>(),
   closable: PropBoolean(),
   forceRender: PropBoolean(),
@@ -34,7 +34,11 @@ export type TabsSetupProps = ExtractPropTypes<typeof tabsProps> & CommonProps;
 export type TabsEvents = GetEventPropsFromEmits<typeof tabsEmits>;
 export type TabsProps = Partial<TabsSetupProps> & TabsEvents;
 
-export const tabItemProps = freeze({});
+export const tabItemProps = freeze({
+  slot: PropString(),
+  label: PropString(),
+  disabled: PropBoolean(),
+});
 
 export const tabItemEmits = freeze({});
 

@@ -2,10 +2,10 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { TransitionGroup, computed, onMounted, ref, watchEffect } from 'vue';
+import { TransitionGroup, computed, nextTick, onMounted, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { isArray, setStyle, toPxIfNum } from '@lun/utils';
+import { isArray, isTruthyOrZero, setStyle, toPxIfNum } from '@lun/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useSetupEvent } from '@lun/core';
 import { TabsCollector } from './collector';
@@ -23,6 +23,7 @@ export const Tabs = defineSSRCustomElement({
     const localActive = ref();
     const showedKeys = new Set();
     let controlled = false,
+      usingItems = false,
       activeIndex: number;
     const wrapperRef = ref<HTMLDivElement>();
     const isActive = (slot?: string, index?: number) => {
@@ -37,38 +38,53 @@ export const Tabs = defineSSRCustomElement({
 
     watchEffect(() => {
       const { activeSlot, defaultActiveSlot } = props;
-      if ((controlled = activeSlot != null)) localActive.value = activeSlot;
-      else if (defaultActiveSlot != null) localActive.value = defaultActiveSlot;
-      if (localActive.value != null) showedKeys.add(localActive.value);
+      let active: any;
+      if ((controlled = activeSlot != null)) active = localActive.value = activeSlot;
+      else if (defaultActiveSlot != null) active = localActive.value = defaultActiveSlot;
+      // if (localActive.value != null) showedKeys.add(localActive.value); // read localActive will collect it as a dependency
+      if (active != null) showedKeys.add(active);
     });
 
+    const getTabClickHandler = (slot: string, i: number, disabled?: boolean) => () => {
+      if (!disabled) {
+        emit('update', slot);
+        if (!controlled) {
+          localActive.value = slot;
+          showedKeys.add(slot);
+          updateVar(i);
+        }
+      }
+    };
     const tabs = computed(() =>
-      isArray(props.items)
-        ? props.items
-            .map((t, i) => {
-              const slot = String(t.slot || ''); // ignore falsy slot, will use index number as key, do not convert index number to string(as there may be some items having number string as its slot)
-              return {
-                ...t,
-                slot,
-                onClick: () => {
-                  if (!t.disabled) {
-                    emit('update', slot);
-                    if (!controlled) {
-                      localActive.value = slot;
-                      showedKeys.add(slot);
-                      updateVar(i);
-                    }
-                  }
-                },
-              };
-            })
-            .filter(Boolean)
-        : [],
+      (usingItems = isArray(props.items))
+        ? props.items.filter(Boolean).map((t, i) => {
+            const slot = String(t.slot || ''); // ignore falsy slot, will use index number as key, do not convert index number to string(as there may be some items having number string as its slot)
+            return {
+              ...t,
+              slot,
+              onClick: getTabClickHandler(slot, i, t.disabled),
+            };
+          })
+        : null,
+    );
+    const childrenTabs = computed(() =>
+      context.value.flatMap(({ props: { label, slot, disabled } }, i) => {
+        if (!slot) return [];
+        return [
+          {
+            slot: slot as string,
+            disabled,
+            label,
+            onClick: getTabClickHandler(slot, i, disabled),
+          },
+        ];
+      }),
     );
 
     const updateVar = (index = activeIndex) => {
-      const el = wrapperRef.value!.children[index] as HTMLElement,
-        label = el.children[0] as HTMLElement;
+      const el = wrapperRef.value!.children[index] as HTMLElement;
+      if (!el) return;
+      const label = el.children[0] as HTMLElement;
       setStyle(
         el,
         ns.v({
@@ -79,7 +95,7 @@ export const Tabs = defineSSRCustomElement({
         }),
       );
     };
-    // TODO hover: set hover vars
+
     onMounted(() => updateVar());
     return () => {
       const { destroyInactive, forceRender, type } = props;
@@ -92,46 +108,53 @@ export const Tabs = defineSSRCustomElement({
         <div class={[ns.t, ns.m(type)]} part={compParts[0]}>
           <div class={ns.e('nav')} part={compParts[1]}>
             <div class={ns.e('wrapper')} part={compParts[3]} ref={wrapperRef}>
-              {tabs.value.map((t, i) => (
-                <div
-                  class={[ns.e('tab'), ns.is('disabled', t.disabled), ns.is('active', isActive(t.slot, i))]}
-                  part={compParts[5]}
-                  onClick={t.onClick}
-                >
-                  <span class={ns.e('label')} part={compParts[6]}>
-                    {t.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <TransitionGroup {...getTransitionProps(props, 'panel', 'panel')} {...transitionAttrs}>
-            {tabs.value
-              .map((t, i) => {
-                const key = t.slot || i;
+              {(tabs.value || childrenTabs.value).map((t, i) => {
                 const active = isActive(t.slot, i);
                 if (active) {
                   activeIndex = i;
                   showedKeys.add(t.slot);
-                  if (controlled) updateVar(i);
+                  if (controlled) nextTick(() => updateVar(i));
                 }
                 return (
-                  (active ||
-                    (t.forceRender ?? forceRender) ||
-                    (showedKeys.has(key) && !(t.destroyInactive ?? destroyInactive))) && (
-                    <div
-                      key={key}
-                      class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
-                      part={compParts[4]}
-                      v-show={active}
-                    >
-                      {renderCustom(t.content)}
-                    </div>
-                  )
+                  <div
+                    class={[ns.e('tab'), ns.is('disabled', t.disabled), ns.is('active', active)]}
+                    part={compParts[5]}
+                    onClick={t.onClick}
+                  >
+                    <span class={ns.e('label')} part={compParts[6]}>
+                      {t.label}
+                    </span>
+                  </div>
                 );
-              })
-              // must filter, TransitionGroup requires valid child with key
-              .filter(Boolean)}
+              })}
+            </div>
+          </div>
+          <TransitionGroup {...getTransitionProps(props, 'panel', 'panel')} {...transitionAttrs}>
+            {usingItems ? (
+              tabs
+                .value!.map((t, i) => {
+                  const key = t.slot || i;
+                  const active = isActive(t.slot, i);
+                  return (
+                    (active ||
+                      (t.forceRender ?? forceRender) ||
+                      (showedKeys.has(key) && !(t.destroyInactive ?? destroyInactive))) && (
+                      <div
+                        key={key}
+                        class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
+                        part={compParts[4]}
+                        v-show={active}
+                      >
+                        {renderCustom(t.content)}
+                      </div>
+                    )
+                  );
+                })
+                // must filter, TransitionGroup requires valid child with key
+                .filter(Boolean)
+            ) : (
+              <slot name={localActive.value} v-show={isTruthyOrZero(localActive.value)}></slot>
+            )}
           </TransitionGroup>
         </div>
       );

@@ -12,11 +12,11 @@ export const TabItem = defineSSRCustomElement({
   name,
   props: tabItemProps,
   emits: tabItemEmits,
-  setup(props, { attrs }) {
+  setup(props) {
     const ns = useNamespace(name);
     const context = TabsCollector.child();
     return () => {
-      const { slot } = attrs;
+      const { slot } = props;
       return (
         <div class={ns.t} v-show={context?.isActive(slot as string, context?.index)} part={compParts[0]}>
           <slot></slot>
