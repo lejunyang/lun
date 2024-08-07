@@ -1,5 +1,13 @@
 import { Constructor, freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, PropBoolean, themeProps, createTransitionProps, CommonProps, PropArray, PropString } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropBoolean,
+  themeProps,
+  createTransitionProps,
+  CommonProps,
+  PropArray,
+  PropString,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type TabItem = {
@@ -25,7 +33,7 @@ export const tabsProps = freeze({
 });
 
 export const tabsEmits = freeze({
-  update: (_: string) => null,
+  update: (_: string | number) => null,
   remove: null,
   afterRemove: null,
 });
@@ -38,6 +46,7 @@ export const tabItemProps = freeze({
   slot: PropString(),
   label: PropString(),
   disabled: PropBoolean(),
+  ...createTransitionProps('panel'),
 });
 
 export const tabItemEmits = freeze({});

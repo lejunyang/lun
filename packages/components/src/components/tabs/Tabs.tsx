@@ -24,15 +24,33 @@ export const Tabs = defineSSRCustomElement({
     const showedKeys = new Set();
     let controlled = false,
       usingItems = false,
-      activeIndex: number;
+      activeIndex: number,
+      lastActiveIndex: number;
     const wrapperRef = ref<HTMLDivElement>();
     const isActive = (slot?: string, index?: number) => {
       const { value } = localActive;
       return value == null ? index === 0 : value === slot || value === index;
     };
+    const getTransitionName = () => {
+      lastActiveIndex ??= -1;
+      const { type } = props;
+      const res =
+        type === 'vertical'
+          ? activeIndex > lastActiveIndex
+            ? 'slideDown'
+            : 'slideUp'
+          : activeIndex > lastActiveIndex
+          ? 'slideRight'
+            : 'slideLeft';
+      console.log('res', res);
+      return res;
+    };
+    const transitionEnd = () => (lastActiveIndex = activeIndex);
     const context = TabsCollector.parent({
       extraProvide: {
         isActive,
+        getTransitionName,
+        transitionEnd,
       },
     });
 
@@ -47,11 +65,11 @@ export const Tabs = defineSSRCustomElement({
 
     const getTabClickHandler = (slot: string, i: number, disabled?: boolean) => () => {
       if (!disabled) {
-        emit('update', slot);
+        const final = slot || i;
+        emit('update', final);
         if (!controlled) {
-          localActive.value = slot;
-          showedKeys.add(slot);
-          updateVar(i);
+          localActive.value = final;
+          showedKeys.add(final);
         }
       }
     };
@@ -86,12 +104,14 @@ export const Tabs = defineSSRCustomElement({
       if (!el) return;
       const label = el.children[0] as HTMLElement;
       setStyle(
-        el,
+        wrapperRef.value,
         ns.v({
           'active-label-width': toPxIfNum(label.offsetWidth),
           'active-label-height': toPxIfNum(label.offsetHeight),
+          'active-label-left': toPxIfNum(label.offsetLeft),
           'active-tab-width': toPxIfNum(el.offsetWidth),
           'active-tab-height': toPxIfNum(el.offsetHeight),
+          'active-tab-left': toPxIfNum(el.offsetLeft),
         }),
       );
     };
@@ -112,8 +132,8 @@ export const Tabs = defineSSRCustomElement({
                 const active = isActive(t.slot, i);
                 if (active) {
                   activeIndex = i;
-                  showedKeys.add(t.slot);
-                  if (controlled) nextTick(() => updateVar(i));
+                  showedKeys.add(t.slot || i);
+                  nextTick(() => updateVar(i));
                 }
                 return (
                   <div
@@ -129,7 +149,11 @@ export const Tabs = defineSSRCustomElement({
               })}
             </div>
           </div>
-          <TransitionGroup {...getTransitionProps(props, 'panel', 'panel')} {...transitionAttrs}>
+          <TransitionGroup
+            {...getTransitionProps(props, 'panel', getTransitionName())}
+            {...transitionAttrs}
+            onAfterEnter={transitionEnd}
+          >
             {usingItems ? (
               tabs
                 .value!.map((t, i) => {

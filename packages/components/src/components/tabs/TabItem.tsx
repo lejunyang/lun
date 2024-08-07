@@ -1,9 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabItemEmits, tabItemProps } from './type';
-import { getCompParts } from 'common';
+import { getCompParts, getTransitionProps } from 'common';
 import { TabsCollector } from './collector';
 import { useNamespace } from 'hooks';
+import { Transition } from 'vue';
 
 const name = 'tab-item';
 const parts = ['root'] as const;
@@ -18,9 +19,14 @@ export const TabItem = defineSSRCustomElement({
     return () => {
       const { slot } = props;
       return (
-        <div class={ns.t} v-show={context?.isActive(slot as string, context?.index)} part={compParts[0]}>
-          <slot></slot>
-        </div>
+        <Transition
+          {...getTransitionProps(props, 'panel', context?.getTransitionName?.())}
+          onAfterEnter={context?.transitionEnd}
+        >
+          <div class={ns.t} v-show={context?.isActive(slot as string, context?.index)} part={compParts[0]}>
+            <slot></slot>
+          </div>
+        </Transition>
       );
     };
   },
