@@ -5,6 +5,7 @@
 
 :host {
   display: block;
+  width: 100%;
 }
 
 @include b(tabs) {
@@ -12,8 +13,19 @@
   @include e(wrapper) {
     display: flex;
     scrollbar-width: none;
+    position: relative;
     &::-webkit-scrollbar {
       display: none;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      height: 2px;
+      bottom: 0;
+      background-color: getAccentColor(9);
+      left: getVarValue(tabs-active-tab-left);
+      width: getVarValue(tabs-active-tab-width);
+      transition: left 0.3s, width 0.3s;
     }
   }
   @include m(horizontal) {
@@ -60,17 +72,29 @@
     @include declareReuseVars(
       (
         background: tab-background,
+        padding: label-padding,
+        border-radius: label-border-radius,
       ),
       true
     );
+  }
+
+  @include e(content) {
+    overflow: hidden;
+    display: grid;
+  }
+  @include e(panel) {
+    grid-area: 1/1;
   }
 
   @include size(1) {
     @include setVars(
       (
         tab-height: getSpaceValue(6),
-        tab-padding: getSpaceValue(2) getSpaceValue(3),
+        tab-padding: getSpaceValue(1) getSpaceValue(2),
+        label-padding: getSpaceValue(1) getSpaceValue(1),
         tab-font-size: getFontSizeValue(1),
+        label-border-radius: getRadiusValue(1),
       )
     );
   }
@@ -78,8 +102,10 @@
     @include setVars(
       (
         tab-height: getSpaceValue(7),
-        tab-padding: getSpaceValue(3) getSpaceValue(4),
+        tab-padding: getSpaceValue(2) getSpaceValue(2),
+        label-padding: getSpaceValue(1) getSpaceValue(2),
         tab-font-size: getFontSizeValue(2),
+        label-border-radius: getRadiusValue(2),
       )
     );
   }
@@ -87,8 +113,10 @@
     @include setVars(
       (
         tab-height: getSpaceValue(8),
-        tab-padding: getSpaceValue(4) getSpaceValue(5),
+        tab-padding: getSpaceValue(2) getSpaceValue(3),
+        label-padding: getSpaceValue(2) getSpaceValue(2),
         tab-font-size: getFontSizeValue(3),
+        label-border-radius: getRadiusValue(3),
       )
     );
   }
