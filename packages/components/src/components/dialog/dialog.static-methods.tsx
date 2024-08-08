@@ -1,4 +1,4 @@
-import { assignProps, getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
+import { assignProps, createLunElement, getFirstThemeProvider, toElement } from 'utils';
 import { DialogProps, dialogProps } from './type';
 import { HTMLAttributes, nextTick } from 'vue';
 import { objectKeys } from '@lun/utils';
@@ -61,9 +61,7 @@ export const methods = {
     ];
 
     container = (getContainer && toElement(getContainer())) || getFirstThemeProvider() || document.body;
-    const dialogName = getElementFirstName('dialog')!;
-    if (__DEV__ && !dialogName) throw new Error('dialog component is not registered, please register it first.');
-    const dialog = document.createElement(dialogName) as iDialog;
+    const dialog = createLunElement('dialog') as iDialog;
 
     if (!destroyOnClose) {
       args.unshift(initialDialogProps); // add initial props so that previous props will be reset

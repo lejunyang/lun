@@ -11,6 +11,12 @@ export function getElementFirstName(comp: ComponentKey) {
   return getFirstOfIterable(GlobalStaticConfig.actualNameMap[comp]);
 }
 
+export function createLunElement(comp: ComponentKey) {
+  const name = getElementFirstName(comp)!;
+  if (__DEV__ && !comp) throw new Error(`${comp} component is not registered, please register it first.`);
+  return document.createElement(name);
+}
+
 export function isLunComponent(el: any, comp: ComponentKey) {
   return isElement(el) && GlobalStaticConfig.actualNameMap[comp]?.has(el.tagName.toLowerCase());
 }
