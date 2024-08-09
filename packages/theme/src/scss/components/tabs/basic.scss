@@ -5,7 +5,6 @@
 
 :host {
   display: block;
-  width: 100%;
 }
 
 @include b(tabs) {
@@ -14,6 +13,13 @@
     display: flex;
     scrollbar-width: none;
     position: relative;
+    box-sizing: border-box;
+    @include declareVars(
+      (
+        gap: wrapper-gap,
+      )
+    );
+    @include declareVars((font-size, line-height));
     &::-webkit-scrollbar {
       display: none;
     }
@@ -30,6 +36,13 @@
   }
   @include m(horizontal) {
     flex-direction: column;
+    @include e(wrapper) {
+      @include declareVars(
+        (
+          height: horizontal-wrapper-height,
+        )
+      );
+    }
   }
   @include m(vertical) {
     @include e(wrapper) {
@@ -47,18 +60,12 @@
     color: getGrayColor(a11);
     @include declareVars(
       (
-        height: tab-height,
         padding: tab-padding,
-        font-size: tab-font-size,
       )
     );
     @include hover {
       color: getGrayColor(12);
-      @include setVars(
-        (
-          tab-background: getGrayColor(a3),
-        )
-      );
+      background: getGrayColor(a3);
     }
     @include is(disabled) {
       cursor: not-allowed;
@@ -71,7 +78,6 @@
   @include e(label) {
     @include declareReuseVars(
       (
-        background: tab-background,
         padding: label-padding,
         border-radius: label-border-radius,
       ),
@@ -90,33 +96,36 @@
   @include size(1) {
     @include setVars(
       (
-        tab-height: getSpaceValue(6),
-        tab-padding: getSpaceValue(1) getSpaceValue(2),
-        label-padding: getSpaceValue(1) getSpaceValue(1),
-        tab-font-size: getFontSizeValue(1),
-        label-border-radius: getRadiusValue(1),
+        horizontal-wrapper-height: getSpaceValue(6),
+        wrapper-gap: getSpaceValue(1),
+        tab-padding: getSpaceValue(2) getSpaceValue(3),
+        font-size: getFontSizeValue(1),
+        line-height: getLineHeightValue(1),
+        label-border-radius: getRadiusValue(1)
       )
     );
   }
   @include size(2) {
     @include setVars(
       (
-        tab-height: getSpaceValue(7),
-        tab-padding: getSpaceValue(2) getSpaceValue(2),
-        label-padding: getSpaceValue(1) getSpaceValue(2),
-        tab-font-size: getFontSizeValue(2),
-        label-border-radius: getRadiusValue(2),
+        horizontal-wrapper-height: getSpaceValue(7),
+        wrapper-gap: getSpaceValue(2),
+        tab-padding: getSpaceValue(3) getSpaceValue(4),
+        font-size: getFontSizeValue(2),
+        line-height: getLineHeightValue(2),
+        label-border-radius: getRadiusValue(2)
       )
     );
   }
   @include size(3) {
     @include setVars(
       (
-        tab-height: getSpaceValue(8),
-        tab-padding: getSpaceValue(2) getSpaceValue(3),
-        label-padding: getSpaceValue(2) getSpaceValue(2),
-        tab-font-size: getFontSizeValue(3),
-        label-border-radius: getRadiusValue(3),
+        horizontal-wrapper-height: getSpaceValue(8),
+        wrapper-gap: getSpaceValue(3),
+        tab-padding: getSpaceValue(4) getSpaceValue(5),
+        font-size: getFontSizeValue(3),
+        line-height: getLineHeightValue(3),
+        label-border-radius: getRadiusValue(3)
       )
     );
   }

@@ -5,7 +5,7 @@ import { defineIcon } from '../icon/Icon';
 import { TransitionGroup, computed, nextTick, onMounted, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { isArray, isTruthyOrZero, setStyle, toPxIfNum } from '@lun/utils';
+import { capitalize, isArray, isTruthyOrZero, setStyle, toPxIfNum } from '@lun/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useSetupEvent } from '@lun/core';
 import { TabsCollector } from './collector';
@@ -41,8 +41,7 @@ export const Tabs = defineSSRCustomElement({
             : 'slideUp'
           : activeIndex > lastActiveIndex
           ? 'slideRight'
-            : 'slideLeft';
-      console.log('res', res);
+          : 'slideLeft';
       return res;
     };
     const transitionEnd = () => (lastActiveIndex = activeIndex);
@@ -102,17 +101,19 @@ export const Tabs = defineSSRCustomElement({
     const updateVar = (index = activeIndex) => {
       const el = wrapperRef.value!.children[index] as HTMLElement;
       if (!el) return;
-      const label = el.children[0] as HTMLElement;
+      const label = el.children[0] as HTMLElement,
+        fields = ['width', 'height', 'left', 'top'];
       setStyle(
         wrapperRef.value,
-        ns.v({
-          'active-label-width': toPxIfNum(label.offsetWidth),
-          'active-label-height': toPxIfNum(label.offsetHeight),
-          'active-label-left': toPxIfNum(label.offsetLeft),
-          'active-tab-width': toPxIfNum(el.offsetWidth),
-          'active-tab-height': toPxIfNum(el.offsetHeight),
-          'active-tab-left': toPxIfNum(el.offsetLeft),
-        }),
+        ns.v(
+          fields.reduce((res, f) => {
+            // @ts-ignore
+            res[`active-label-${f}`] = toPxIfNum(label[`offset${capitalize(f)}`]);
+            // @ts-ignore
+            res[`active-tab-${f}`] = toPxIfNum(el[`offset${capitalize(f)}`]);
+            return res;
+          }, {}),
+        ),
       );
     };
 
