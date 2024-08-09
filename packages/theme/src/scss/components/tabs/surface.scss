@@ -1,0 +1,13 @@
+@use '../../mixins/bem' as *;
+@use '../../mixins/theme' as *;
+@use '../../mixins/function' as *;
+@use '../../mixins/config' as *;
+
+@include b(tabs) {
+  @include variant(surface) {
+    @include e(wrapper) {
+    }
+    @include e(tab) {
+    }
+  }
+}
