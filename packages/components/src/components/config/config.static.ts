@@ -6,6 +6,7 @@ import {
 } from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun/core';
+import { reduceFromComps } from './utils';
 
 const holderName = 'teleport-holder';
 export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
@@ -56,13 +57,7 @@ export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string 
 
 export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 
-const styles = openShadowComponents.reduce(
-  (result, name) => {
-    result[name] = [];
-    return result;
-  },
-  { common: [] } as unknown as ComponentStyles,
-);
+const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], true) as ComponentStyles;
 
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
@@ -114,6 +109,7 @@ export const GlobalStaticConfig = new Proxy(
      * - `color-first`: use 'color' first
      */
     colorPriority: '' as ColorPriority,
+    availableVariants: reduceFromComps(() => new Set<string>()),
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
     computedStyles: new Proxy(styles, {

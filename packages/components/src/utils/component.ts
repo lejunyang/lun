@@ -112,9 +112,10 @@ export function createDefineElement(
   };
 }
 
-export function createImportStyle(compKey: OpenShadowComponentKey | 'common', style: string) {
+export function createImportStyle(compKey: OpenShadowComponentKey | 'common', style: string, variantName?: string) {
   return once(() => {
-    GlobalStaticConfig.styles[compKey].push(processStringStyle(style));
+    GlobalStaticConfig.styles[compKey]?.push(processStringStyle(style));
+    if (variantName) GlobalStaticConfig.availableVariants[compKey as OpenShadowComponentKey]?.add(variantName);
   });
 }
 

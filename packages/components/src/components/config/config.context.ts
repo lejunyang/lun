@@ -1,8 +1,9 @@
 import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
-import { OpenShadowComponentKey, openShadowComponents } from './config.static';
+import { OpenShadowComponentKey } from './config.static';
 import { ThemeConfig } from 'common';
 import { inherit, isObject } from '@lun/utils';
+import { reduceFromComps } from './utils';
 
 const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 
@@ -14,13 +15,7 @@ export const GlobalContextConfig = reactive({
   namespace: 'l',
   lang: 'zh-CN',
   iconRegistryMap,
-  dynamicStyles: openShadowComponents.reduce(
-    (result, name) => {
-      result[name] = [];
-      return result;
-    },
-    { common: [] } as any as Record<'common' | OpenShadowComponentKey, DynamicStyleValue[]>,
-  ),
+  dynamicStyles: reduceFromComps(() => [] as DynamicStyleValue[], true),
   theme: {
     variant: {
       common: 'surface',
