@@ -52,7 +52,7 @@ import { importRangeBasicTheme, importRangeSurfaceTheme } from './range';
 import { importCalendarBasicTheme } from './calendar/index.ts';
 import { importTourBasicTheme } from './tour/index.ts';
 import { importColorPickerBasicTheme } from './color-picker';
-import { importTabsBasicTheme } from './tabs';
+import { importTabsBasicTheme, importTabsSolidTheme } from './tabs';
 import { importTabItemBasicTheme } from './tab-item';
 
 export * from './button';
@@ -134,6 +134,7 @@ export const importSoftTheme = () => {
 export const importSolidTheme = () => {
   importButtonSolidTheme();
   importTagSolidTheme();
+  importTabsSolidTheme();
 };
 
 export const importSurfaceTheme = () => {

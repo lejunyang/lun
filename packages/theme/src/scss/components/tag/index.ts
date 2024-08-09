@@ -6,7 +6,7 @@ import solid from './solid.scss?inline';
 import surface from './surface.scss?inline';
 
 export const importTagBasicTheme = createImportStyle('tag', basic);
-export const importTagOutlineTheme = createImportStyle('tag', outline);
-export const importTagSoftTheme = createImportStyle('tag', soft);
-export const importTagSolidTheme = createImportStyle('tag', solid);
-export const importTagSurfaceTheme = createImportStyle('tag', surface)
+export const importTagSurfaceTheme = createImportStyle('tag', surface, 'surface');
+export const importTagOutlineTheme = createImportStyle('tag', outline, 'outline');
+export const importTagSoftTheme = createImportStyle('tag', soft, 'soft');
+export const importTagSolidTheme = createImportStyle('tag', solid, 'solid');

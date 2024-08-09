@@ -5,6 +5,6 @@ import soft from './soft.scss?inline';
 import ghost from './ghost.scss?inline';
 
 export const importInputBasicTheme = createImportStyle('input', basic);
-export const importInputSoftTheme = createImportStyle('input', soft);
-export const importInputSurfaceTheme = createImportStyle('input', surface);
-export const importInputGhostTheme = createImportStyle('input', ghost);
+export const importInputSurfaceTheme = createImportStyle('input', surface, 'surface');
+export const importInputSoftTheme = createImportStyle('input', soft, 'soft');
+export const importInputGhostTheme = createImportStyle('input', ghost, 'ghost');
