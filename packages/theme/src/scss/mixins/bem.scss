@@ -16,8 +16,18 @@
 @mixin e($element, $underParent: null) {
   // $E: $element !global;
   $selector: &;
-  $E: #{$B + config.$element-separator + $element} !global;
-  $currentSelector: #{'.' + $E};
+  $currentSelector: '';
+  @if type-of($element) == 'list' {
+    @each $e in $element {
+      $comma: '';
+      @if $currentSelector != '' {
+        $comma: ',';
+      }
+      $currentSelector: $currentSelector + $comma + '.' + $B + config.$element-separator + $e;
+    }
+  } @else {
+    $currentSelector: #{'.' + $B + config.$element-separator + $element} ;
+  }
 
   @if $underParent == null {
     $underParent: hitAllSpecialNestRule($selector);

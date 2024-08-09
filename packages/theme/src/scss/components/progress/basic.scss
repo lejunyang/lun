@@ -156,7 +156,7 @@
       );
     }
   }
-  @include e(line) {
+  @include e((line, page-top)) {
     position: absolute;
     left: 0;
     width: getRVarValue(value);
@@ -171,5 +171,11 @@
         ),
       )
     );
+  }
+
+  @include m(page-top) {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
   }
 }
