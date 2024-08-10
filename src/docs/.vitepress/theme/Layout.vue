@@ -32,7 +32,7 @@ import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
 import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount } from 'vue';
 import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
-import { GlobalContextConfig, iProgress, Progress } from '@lun/components';
+import { GlobalContextConfig, Progress } from '@lun/components';
 import Giscus from '@giscus/vue';
 import { on, AnyFn, withResolvers } from '@lun/utils';
 
@@ -155,7 +155,7 @@ const circleGrow = () => {
   );
 };
 
-let pageProgress: ReturnType<iProgress['createPageTopProgress']>;
+let pageProgress: ReturnType<(typeof Progress)['createPageTopProgress']>;
 
 onMounted(() => {
   pageProgress = Progress.createPageTopProgress({ destroyOnDone: false });

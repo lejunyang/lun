@@ -3,6 +3,8 @@ title: Button 按钮
 lang: zh-CN
 ---
 
+<CompThemePanel comp="button" contrast :props="{ label: 'button' }" />
+
 ## 基本使用
 
 按钮里的内容由子节点（默认插槽）或`label`属性决定，子节点的优先级更高
@@ -31,7 +33,7 @@ lang: zh-CN
 
 ## 倒计时
 
-`l-button`DOM 上有`setTimeout`方法，可用于快速设置一个倒计时。单位为毫秒，默认间隔1s
+`l-button`DOM 上有`setTimeout`方法，可用于快速设置一个倒计时。单位为毫秒，默认间隔 1s
 
 ```ts
 setTimeout(timeout: number, getCountdownTxt?: (remain: number) => string, interval?: number): void;
