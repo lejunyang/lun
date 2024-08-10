@@ -57,7 +57,7 @@ export const methods = {
       clearInterval(id);
       progress.strokeStyle = { transition: '0.2s' }; // change to ease and then stop
       progress.value = 100;
-      const { promise, resolve } = withResolvers();
+      const [promise, resolve] = withResolvers();
       stopResolve = resolve;
       return promise;
     };

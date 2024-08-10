@@ -98,7 +98,7 @@ export const Dialog = Object.assign(
                   containerShowing.set(container, showing);
                   lastContainer.value = undefined;
                 }
-                const { promise, resolve } = withResolvers();
+                const [promise, resolve] = withResolvers();
                 dialogLeaveResolver = resolve;
                 return promise;
               }

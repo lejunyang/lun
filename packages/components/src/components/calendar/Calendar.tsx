@@ -86,7 +86,7 @@ export const Calendar = defineSSRCustomElement({
                   scrollIntoView(target, {
                     behavior: 'smooth',
                   });
-                  const { promise, resolve } = withResolvers();
+                  const [promise, resolve] = withResolvers();
                   scrollEnd = resolve;
                   return promise;
                 }
