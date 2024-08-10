@@ -143,7 +143,7 @@ export const Dialog = Object.assign(
       watchEffect(() => {
         const el = dialogRef.value,
           mask = maskRef.value!;
-        if (!el) return;
+        if (!el || !mask) return;
         if (at(containerShowing.get(lastContainer.value!), -1) === el) mask.style.display = '';
         else mask.style.display = 'none';
       });
@@ -249,27 +249,27 @@ export const Dialog = Object.assign(
             title=""
             style={{ zIndex: zIndex.dialog }}
           >
-            {render(
-              <>
-                <Transition {...getTransitionProps(props, 'mask', 'bgFade')}>
-                  <div
-                    v-show={maskShow.value}
-                    class={ns.e('mask')}
-                    part={compParts[1]}
-                    ref={maskRef}
-                    tabindex={-1}
-                    style={maskStyle}
-                    {...maskHandlers}
-                  />
-                </Transition>
-                <Transition {...getTransitionProps(props, 'panel', 'scale')} {...panelTransitionHandlers}>
-                  <div
-                    v-show={isOpen.value}
-                    class={ns.e('panel')}
-                    ref={panelRef}
-                    part={compParts[2]}
-                    style={{ width: width.value, ...panelStyle }}
-                  >
+            <Transition {...getTransitionProps(props, 'mask', 'bgFade')}>
+              <div
+                v-show={maskShow.value}
+                class={ns.e('mask')}
+                part={compParts[1]}
+                ref={maskRef}
+                tabindex={-1}
+                style={maskStyle}
+                {...maskHandlers}
+              />
+            </Transition>
+            <Transition {...getTransitionProps(props, 'panel', 'scale')} {...panelTransitionHandlers}>
+              <div
+                v-show={isOpen.value}
+                class={ns.e('panel')}
+                ref={panelRef}
+                part={compParts[2]}
+                style={{ width: width.value, ...panelStyle }}
+              >
+                {render(
+                  <>
                     {!noCloseBtn &&
                       renderElement(
                         'button',
@@ -322,10 +322,10 @@ export const Dialog = Object.assign(
                         <slot name="footer-end"></slot>
                       </footer>
                     )}
-                  </div>
-                </Transition>
-              </>,
-            )}
+                  </>,
+                )}
+              </div>
+            </Transition>
           </Tag>
         );
       };

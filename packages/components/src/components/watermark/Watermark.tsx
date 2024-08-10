@@ -16,10 +16,33 @@ import {
   watchEffect,
 } from 'vue';
 import { useWatermark } from '@lun/core';
-import { isTruthyOrZero, objectKeys, raf } from '@lun/utils';
+import { isTruthyOrZero, objectKeys, raf, setStyle } from '@lun/utils';
 
 const name = 'watermark';
-const ceStyle = `display: block !important; position: relative !important; inset: 0px !important; visibility: visible !important; opacity: 1 !important; transform: none !important; clip-path: none !important; animation: auto ease 0s 1 normal none running none !important; translate: none !important; scale: none !important;`;
+const none = 'none',
+  full = '100%';
+const commonStyle = {
+    width: full,
+    height: full,
+    display: 'block',
+    visibility: 'visible',
+    contentVisibility: 'visible',
+  } satisfies CSSProperties,
+  ceStyle = {
+    ...commonStyle,
+    position: 'relative',
+    inset: '0px',
+    opacity: 1,
+    transform: none,
+    clipPath: none,
+    animation: none,
+    translate: none,
+    scale: none,
+    maxHeight: full,
+    maxWidth: full,
+    overflow: 'hidden', // in case of transforming children out of container to avoid watermark cover
+  } satisfies CSSProperties;
+let ceStyleString = '';
 const isTruthyOrZeroOrFalse = (v: any) => isTruthyOrZero(v) || v === false;
 
 export const Watermark = defineSSRCustomElement({
@@ -29,8 +52,8 @@ export const Watermark = defineSSRCustomElement({
     mode: 'closed',
   },
   onPropUpdate(key, value, ce) {
-    if (key === 'style' && value !== ceStyle) {
-      ce.style.cssText = ceStyle;
+    if (key === 'style' && ceStyleString && value !== ceStyleString) {
+      ce.style.cssText = ceStyleString;
       return false;
     }
   },
@@ -83,8 +106,12 @@ export const Watermark = defineSSRCustomElement({
     // In either MutationObserver callback or disconnectedCallback, CE.isConnected is false, we can't get CE.parentElement, need to store it in mount
     let CEParent: HTMLElement,
       CENext: Node | null = null;
+    if (ceStyleString) CE.style.cssText = ceStyleString;
+    else {
+      setStyle(CE, ceStyle, true);
+      ceStyleString = CE.style.cssText;
+    }
     onMounted(() => {
-      CE.style.cssText = ceStyle;
       CEParent = CE.parentElement!;
       shadowRoot = markDiv.value!.parentNode as ShadowRoot;
       ceObserver.observe(CEParent, { childList: true }); // if observe CE, the callback will be triggered very lately, after onBeforeUnmount
@@ -128,17 +155,13 @@ export const Watermark = defineSSRCustomElement({
         zIndex,
       } = (isImage ? { ...freezedProps, ...freezedProps.imageProps } : freezedProps) as any;
       const style = {
+        ...commonStyle, // need display block in case add 'hidden' attr in dev tool
         position: 'absolute',
-        display: 'block', // in case add 'hidden' attr in dev tool
         top: '0px',
         left: '0px',
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
+        pointerEvents: none,
         backgroundRepeat: 'repeat',
         backgroundImage: `url("${watermark.value[0]}")`,
-        visibility: 'visible',
-        contentVisibility: 'visible',
         backgroundPosition: '',
         backgroundSize: `${Math.floor(watermark.value[1])}px`,
         zIndex,
