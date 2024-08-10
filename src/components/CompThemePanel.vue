@@ -1,59 +1,68 @@
 <template>
-  <ClientOnly>
-    <div>
-      <l-tabs defaultActiveSlot="ThemeColors">
-        <l-tab-item slot="ThemeColors" label="Theme Colors">
-          <div
-            class="grid"
-            :style="{
-              gridTemplateColumns: `repeat(${variants.length + 1}, 1fr)`,
-            }"
-          >
-            <div></div>
-            <template v-for="v in variants">
-              <div class="gray-tip">{{ v }}</div>
-            </template>
-            <div class="gray-tip">accent color</div>
-            <template v-for="v in variants">
-              <div class="cell">
-                <Component :variant="v" />
-                <Component v-if="contrast" :variant="v" highContrast />
-              </div>
-            </template>
-            <div class="gray-tip">gray color</div>
-            <template v-for="v in variants">
-              <div class="cell">
-                <Component :variant="v" color="gray" />
-                <Component v-if="contrast" :variant="v" color="gray" highContrast />
-              </div>
-            </template>
+  <l-tabs defaultActiveSlot="ThemeColors">
+    <l-tab-item slot="ThemeColors" label="Theme Colors">
+      <div
+        class="grid"
+        :style="{
+          gridTemplateColumns: `repeat(${variants.length + 1}, 1fr)`,
+        }"
+      >
+        <div></div>
+        <template v-for="v in variants">
+          <div class="gray-tip">{{ v }}</div>
+        </template>
+        <div class="gray-tip">accent color</div>
+        <template v-for="v in variants">
+          <div class="cell">
+            <component :is="compName" v-bind="other" :variant="v" />
+            <component :is="compName" v-bind="other" v-if="includeContrast" :variant="v" highContrast />
           </div>
-        </l-tab-item>
-        <l-tab-item slot="AllColors" label="All Colors">
-          <div
-            class="grid"
-            :style="{
-              gridTemplateColumns: `repeat(${variants.length + 1}, 1fr)`,
-            }"
-          >
-            <div></div>
-            <template v-for="v in variants">
-              <div class="gray-tip">{{ v }}</div>
-            </template>
-            <template v-for="color in themeColors">
-              <div class="gray-tip">{{ color }}</div>
-              <template v-for="v in variants">
-                <div class="cell">
-                  <Component :variant="v" :color="color" />
-                  <Component v-if="contrast" :variant="v" :color="color" highContrast />
-                </div>
-              </template>
-            </template>
+        </template>
+        <div class="gray-tip">gray color</div>
+        <template v-for="v in variants">
+          <div class="cell">
+            <component :is="compName" v-bind="other" :variant="v" color="gray" />
+            <component :is="compName" v-bind="other" v-if="includeContrast" :variant="v" color="gray" highContrast />
           </div>
-        </l-tab-item>
-      </l-tabs>
-    </div>
-  </ClientOnly>
+        </template>
+        <template v-if="includeDisabled">
+          <div class="gray-tip">disabled</div>
+          <template v-for="v in variants">
+            <component :is="compName" v-bind="other" :variant="v" color="gray" disabled />
+          </template>
+        </template>
+      </div>
+    </l-tab-item>
+    <l-tab-item slot="AllColors" label="All Colors">
+      <div
+        class="grid"
+        :style="{
+          gridTemplateColumns: `repeat(${variants.length + 1}, 1fr)`,
+        }"
+      >
+        <div></div>
+        <template v-for="v in variants">
+          <div class="gray-tip">{{ v }}</div>
+        </template>
+        <template v-for="color in themeColors">
+          <div class="gray-tip">{{ color }}</div>
+          <template v-for="v in variants">
+            <div class="cell">
+              <component :is="compName" v-bind="other" :variant="v" :color="color" />
+              <component
+                :is="compName"
+                v-bind="other"
+                v-if="includeContrast"
+                :variant="v"
+                :color="color"
+                highContrast
+              />
+            </div>
+          </template>
+        </template>
+      </div>
+    </l-tab-item>
+  </l-tabs>
 </template>
 
 <script setup lang="ts">
@@ -63,8 +72,9 @@ import { computed, ref, h } from 'vue';
 const props = defineProps<{
   comp: OpenShadowComponentKey;
   maxSize?: number;
-  props?: Record<string, any>;
-  contrast?: boolean;
+  other?: Record<string, any>;
+  includeContrast?: boolean;
+  includeDisabled?: boolean;
 }>();
 
 const variants = Array.from(GlobalStaticConfig.availableVariants[props.comp] || []) as string[];
@@ -78,7 +88,7 @@ const sizes = computed(() =>
     })),
 );
 
-const Component = (attrs) => h('l-' + props.comp, { ...attrs, ...props.props });
+const compName = computed(() => `l-${props.comp}`);
 </script>
 
 <style scoped>

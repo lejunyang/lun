@@ -3,7 +3,7 @@ title: Button 按钮
 lang: zh-CN
 ---
 
-<CompThemePanel comp="button" contrast :props="{ label: 'button' }" />
+<CompThemePanel comp="button" includeContrast includeDisabled :other="{ label: 'button' }" />
 
 ## 基本使用
 
@@ -53,18 +53,6 @@ clearTimeout(): void;
 ## 块级按钮
 
 <!-- @Code:block -->
-
-## 不同变体
-
-<!-- @Code:differentVariants -->
-
-## 高对比
-
-<!-- @Code:highContrast -->
-
-## 不同颜色
-
-<!-- @Code:differentColors -->
 
 ## 不同大小
 
