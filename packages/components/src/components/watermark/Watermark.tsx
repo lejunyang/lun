@@ -3,11 +3,11 @@ import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName, renderElement } from 'utils';
 import { useNamespace } from 'hooks';
 import {
+  CSSProperties,
   VNode,
   computed,
   getCurrentInstance,
   inject,
-  nextTick,
   onBeforeUnmount,
   onMounted,
   provide,
@@ -16,7 +16,7 @@ import {
   watchEffect,
 } from 'vue';
 import { useWatermark } from '@lun/core';
-import { isTruthyOrZero, objectKeys } from '@lun/utils';
+import { isTruthyOrZero, objectKeys, raf } from '@lun/utils';
 
 const name = 'watermark';
 const ceStyle = `display: block !important; position: relative !important; inset: 0px !important; visibility: visible !important; opacity: 1 !important; transform: none !important; clip-path: none !important; animation: auto ease 0s 1 normal none running none !important; translate: none !important; scale: none !important;`;
@@ -39,13 +39,12 @@ export const Watermark = defineSSRCustomElement({
     const { mutable } = props;
     const freezedProps = mutable ? props : reactive({ ...props });
     const { CE } = getCurrentInstance()!;
-    const markDiv = ref<HTMLDivElement>();
-    let shadowRoot: ShadowRoot, lastStyle: string;
+    const markDiv = ref<HTMLDivElement>(),
+      slotWrapper = ref<HTMLDivElement>();
+    let shadowRoot: ShadowRoot, lastWatermarkStyle: string, lastSlotWrapperStyle: string;
 
     if (!mutable) {
-      const mayNeedUpdateKeys = new Set(
-        objectKeys(props).filter((k) => !isTruthyOrZeroOrFalse(props[k])),
-      );
+      const mayNeedUpdateKeys = new Set(objectKeys(props).filter((k) => !isTruthyOrZeroOrFalse(props[k])));
       const stop = watchEffect(() => {
         for (const key of Array.from(mayNeedUpdateKeys)) {
           if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(props[key])) {
@@ -68,13 +67,15 @@ export const Watermark = defineSSRCustomElement({
     });
 
     const shadowRootObserver = new MutationObserver((mutations) => {
-      const div = markDiv.value!;
+      const div = markDiv.value!,
+        wrapper = slotWrapper.value!;
       for (const m of mutations) {
         if (m.type === 'childList' && m.removedNodes.length) {
           shadowRoot.append(...m.removedNodes);
         }
-        if (m.type === 'attributes' && m.attributeName === 'style' && div.style.cssText !== lastStyle) {
-          div.style.cssText = lastStyle;
+        if (m.type === 'attributes' && m.attributeName === 'style') {
+          if (div.style.cssText !== lastWatermarkStyle) div.style.cssText = lastWatermarkStyle;
+          if (wrapper.style.cssText !== lastSlotWrapperStyle) wrapper.style.cssText = lastSlotWrapperStyle;
         }
       }
     });
@@ -99,7 +100,7 @@ export const Watermark = defineSSRCustomElement({
       ceObserver.disconnect();
       shadowRootObserver.disconnect();
       const children = CE.childNodes;
-      nextTick(() => {
+      raf(() => {
         if (CEParent?.isConnected) {
           const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
           Object.assign(newEl, freezedProps);
@@ -128,6 +129,7 @@ export const Watermark = defineSSRCustomElement({
       } = (isImage ? { ...freezedProps, ...freezedProps.imageProps } : freezedProps) as any;
       const style = {
         position: 'absolute',
+        display: 'block', // in case add 'hidden' attr in dev tool
         top: '0px',
         left: '0px',
         width: '100%',
@@ -136,10 +138,11 @@ export const Watermark = defineSSRCustomElement({
         backgroundRepeat: 'repeat',
         backgroundImage: `url("${watermark.value[0]}")`,
         visibility: 'visible',
+        contentVisibility: 'visible',
         backgroundPosition: '',
         backgroundSize: `${Math.floor(watermark.value[1])}px`,
         zIndex,
-      };
+      } satisfies CSSProperties;
       const gapXCenter = gapX / 2,
         gapYCenter = gapY / 2;
       offsetLeft = offsetLeft === 'half-gap' || !isTruthyOrZero(offsetLeft) ? gapXCenter : offsetLeft;
@@ -163,19 +166,27 @@ export const Watermark = defineSSRCustomElement({
       const { value } = markDiv;
       if (value) {
         Object.assign(value.style, markStyle.value);
-        lastStyle = value.style.cssText;
+        lastWatermarkStyle = value.style.cssText;
       }
+      lastSlotWrapperStyle = slotWrapper.value?.style.cssText || '';
     });
 
     // provide render to show watermark in dialog, provide watermark to reuse
     WatermarkContext.provide({
       render: (nodes) =>
-        freezedProps.noInherit ? nodes : renderElement(name, { ...freezedProps, reuse: true }, nodes),
+        freezedProps.noInherit ? nodes : renderElement(name, { ...freezedProps, reuse: true, id: name }, nodes),
       watermark,
     });
+    const slotStyle = {
+      position: 'relative' as const,
+      zIndex: 0,
+    };
+    // slot needs to be wrapped with a low z-index div to make it below the watermark
     return () => (
       <>
-        <slot></slot>
+        <div style={slotStyle} ref={slotWrapper}>
+          <slot></slot>
+        </div>
         <div ref={markDiv}></div>
       </>
     );
