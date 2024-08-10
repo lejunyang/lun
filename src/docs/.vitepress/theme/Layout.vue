@@ -30,9 +30,9 @@
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
-import { watchEffect, nextTick, provide, reactive, onMounted } from 'vue';
+import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount } from 'vue';
 import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
-import { GlobalContextConfig } from '@lun/components';
+import { GlobalContextConfig, iProgress, Progress } from '@lun/components';
 import Giscus from '@giscus/vue';
 import { on, AnyFn, withResolvers } from '@lun/utils';
 
@@ -51,7 +51,7 @@ const { isDark, lang, page } = useData();
 let lastClickX = 0,
   lastClickY = 0;
 
-const swapZ = (scale = 0.8, duration = 500) => {
+const swapZ = (name = 'root', scale = 0.8, duration = 500) => {
   document.documentElement.animate(
     [
       {
@@ -66,7 +66,7 @@ const swapZ = (scale = 0.8, duration = 500) => {
     {
       duration,
       easing: 'ease-in-out',
-      pseudoElement: '::view-transition-old(root)',
+      pseudoElement: `::view-transition-old(${name})`,
     },
   );
   document.documentElement.animate(
@@ -83,7 +83,7 @@ const swapZ = (scale = 0.8, duration = 500) => {
     {
       duration,
       easing: 'ease-in-out',
-      pseudoElement: '::view-transition-new(root)',
+      pseudoElement: `::view-transition-new(${name})`,
     },
   );
 };
@@ -155,7 +155,10 @@ const circleGrow = () => {
   );
 };
 
+let pageProgress: ReturnType<iProgress['createPageTopProgress']>;
+
 onMounted(() => {
+  pageProgress = Progress.createPageTopProgress({ destroyOnDone: false });
   on(
     document,
     'click',
@@ -166,6 +169,7 @@ onMounted(() => {
     { capture: true },
   );
 });
+onBeforeUnmount(() => pageProgress.destroy());
 
 const animationPool = [pullToSides, swapZ, polygonSlide, circleGrow];
 const randomAnimate = async (update: AnyFn) => {
@@ -186,10 +190,13 @@ const toggleAppearanceWithTransition = () => {
 provide('toggle-appearance', toggleAppearanceWithTransition);
 
 const router = useRouter();
-let routeResolve: (() => void) | undefined, transitionPromise: Promise<any> | undefined;
+let routeResolve: (() => void) | undefined, transitionReady: Promise<any> | undefined;
+
+// TODO use container transition, not page transition
 router.onBeforeRouteChange = () => {
+  // pageProgress.start();
   if (document.startViewTransition) {
-    transitionPromise = document.startViewTransition(() => {
+    transitionReady = document.startViewTransition(async () => {
       const { promise, resolve } = withResolvers();
       routeResolve = resolve;
       return promise;
@@ -201,10 +208,11 @@ router.onAfterRouteChanged = async () => {
     routeResolve();
     routeResolve = undefined;
   }
-  if (transitionPromise) {
-    await transitionPromise;
-    transitionPromise = undefined;
-    swapZ(0.95, 300);
+  // pageProgress.stop();
+  if (transitionReady) {
+    await transitionReady;
+    transitionReady = undefined;
+    swapZ('content', 0.95, 300);
   }
 };
 
@@ -217,6 +225,9 @@ watchEffect(() => {
 </script>
 
 <style>
+.VPDoc > .container {
+  view-transition-name: content;
+}
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
