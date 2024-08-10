@@ -2,7 +2,7 @@
 
 import { ComputedRef, computed, ref, watchEffect } from 'vue';
 import { unrefOrGet, MaybeRefLikeOrGetter } from '../../utils/ref';
-import { isHTMLImageElement, toArrayIfNotNil } from '@lun/utils';
+import { isHTMLImageElement, isPreferDark, toArrayIfNotNil } from '@lun/utils';
 
 export const FontGap = 3;
 
@@ -77,7 +77,7 @@ export function useWatermark(
   const size = computed(() => {
     let defaultWidth = 120;
     let defaultHeight = 64;
-    let { width, height, fontSize, fontFamily, content, imageProps } = unrefOrGet(options);
+    let { width, height, fontSize = 16, fontFamily = 'sans-serif', content, imageProps } = unrefOrGet(options);
     if (imageRef.value) {
       return [imageProps?.width || defaultWidth, imageProps?.height || defaultHeight];
     }
@@ -117,7 +117,8 @@ export function useWatermark(
       opacity,
       rotate = -22,
       ratio = globalThis.devicePixelRatio || 1,
-      color = 'rgba(0,0,0,.15)',
+      color = isPreferDark() ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.15)',
+      // color = 'rgba(0,0,0,.15)',
       fontSize = 16,
       fontWeight = 'normal',
       fontStyle = 'normal',
