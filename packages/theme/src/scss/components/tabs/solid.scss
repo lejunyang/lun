@@ -7,11 +7,6 @@
   @include variant(solid) {
     @include e(wrapper) {
       background: getGrayColor(a3);
-      @include declareVars(
-        (
-          padding: wrapper-padding,
-        )
-      );
       @include declareReuseVars((border-radius), true);
       &::after {
         background-color: getAccentColor(a9);
@@ -19,7 +14,6 @@
         top: getVarValue(tabs-active-tab-top);
         width: getVarValue(tabs-active-tab-width);
         height: getVarValue(tabs-active-tab-height);
-        transition: 0.3s;
         @include reuseVars((border-radius));
       }
     }
@@ -29,10 +23,20 @@
         color: getAccentColor(contrast);
         z-index: 1;
       }
+      @include hover {
+        &::after {
+          inset: 0;
+        }
+      }
     }
     @include e(label) {
     }
 
+    @include setVars(
+      (
+        label-padding: 0,
+      )
+    );
     @include size(1, false) {
       @include setVars(
         (
@@ -46,7 +50,8 @@
         (
           border-radius: getRadiusValue(4, 'full'),
           wrapper-padding: getSpaceValue(1),
-          tab-padding: getSpaceValue(1) getSpaceValue(3),
+          tab-padding-block: getSpaceValue(1),
+          tab-padding-inline: getSpaceValue(3),
         )
       );
     }
@@ -55,7 +60,8 @@
         (
           border-radius: getRadiusValue(5, 'full'),
           wrapper-padding: getSpaceValue(2),
-          tab-padding: getSpaceValue(2) getSpaceValue(4),
+          tab-padding-block: getSpaceValue(2),
+          tab-padding-inline: getSpaceValue(4),
         )
       );
     }

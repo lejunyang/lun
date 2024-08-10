@@ -3,6 +3,11 @@
 @use '../../mixins/function' as *;
 @use '../../mixins/config' as *;
 
+:host {
+  display: block;
+  overflow: auto;
+}
+
 @include b(tab-item) {
   
 }

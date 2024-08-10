@@ -17,21 +17,20 @@
     @include declareVars(
       (
         gap: wrapper-gap,
+        padding: wrapper-padding,
       )
     );
     @include declareVars((font-size, line-height));
+    @include declareReuseVars((border-radius));
     &::-webkit-scrollbar {
       display: none;
     }
     &::after {
       content: '';
       position: absolute;
-      height: 2px;
-      bottom: 0;
       background-color: getAccentColor(9);
-      left: getVarValue(tabs-active-tab-left);
       width: getVarValue(tabs-active-tab-width);
-      transition: left 0.3s, width 0.3s;
+      transition: 0.3s;
     }
   }
   @include m(horizontal) {
@@ -42,11 +41,25 @@
           height: horizontal-wrapper-height,
         )
       );
+      &::after {
+        height: 2px;
+        bottom: 0;
+        left: getVarValue(tabs-active-tab-left);
+      }
     }
   }
   @include m(vertical) {
     @include e(wrapper) {
       flex-direction: column;
+      &::after {
+        width: 2px;
+        inset-inline-end: 0;
+        top: getVarValue(tabs-active-tab-top);
+        height: getVarValue(tabs-active-tab-height);
+      }
+    }
+    @include e(tab) {
+      @include declareVars((height: vertical-tab-height));
     }
   }
 
@@ -58,14 +71,24 @@
     flex-shrink: 0;
     cursor: pointer;
     color: getGrayColor(a11);
-    @include declareVars(
+    position: relative;
+    @include declareReuseVars(
       (
-        padding: tab-padding,
-      )
+        padding-inline: tab-padding-inline,
+        padding-block: tab-padding-block,
+      ),
+      true
     );
     @include hover {
       color: getGrayColor(12);
-      background: getGrayColor(a3);
+      &::after {
+        content: '';
+        position: absolute;
+        inset-inline: getReuseVar(tab-padding-inline);
+        inset-block: getReuseVar(tab-padding-block);
+        background: getGrayColor(a3);
+        @include reuseVars((border-radius));
+      }
     }
     @include is(disabled) {
       cursor: not-allowed;
@@ -97,11 +120,15 @@
     @include setVars(
       (
         horizontal-wrapper-height: getSpaceValue(6),
+        vertical-tab-height: getSpaceValue(5),
+        wrapper-padding: getSpaceValue(1),
         wrapper-gap: getSpaceValue(1),
-        tab-padding: getSpaceValue(2) getSpaceValue(3),
+        tab-padding-block: getSpaceValue(1),
+        tab-padding-inline: getSpaceValue(1),
+        label-padding: 0 getSpaceValue(1),
         font-size: getFontSizeValue(1),
         line-height: getLineHeightValue(1),
-        label-border-radius: getRadiusValue(1)
+        border-radius: getRadiusValue(1),
       )
     );
   }
@@ -109,11 +136,15 @@
     @include setVars(
       (
         horizontal-wrapper-height: getSpaceValue(7),
+        vertical-tab-height: getSpaceValue(6),
+        wrapper-padding: getSpaceValue(1),
         wrapper-gap: getSpaceValue(2),
-        tab-padding: getSpaceValue(3) getSpaceValue(4),
+        tab-padding-block: getSpaceValue(1),
+        tab-padding-inline: getSpaceValue(1),
+        label-padding: 0 getSpaceValue(2),
         font-size: getFontSizeValue(2),
         line-height: getLineHeightValue(2),
-        label-border-radius: getRadiusValue(2)
+        border-radius: getRadiusValue(2),
       )
     );
   }
@@ -121,11 +152,15 @@
     @include setVars(
       (
         horizontal-wrapper-height: getSpaceValue(8),
+        vertical-tab-height: getSpaceValue(7),
+        wrapper-padding: getSpaceValue(2),
         wrapper-gap: getSpaceValue(3),
-        tab-padding: getSpaceValue(4) getSpaceValue(5),
+        tab-padding-block: getSpaceValue(2),
+        tab-padding-inline: getSpaceValue(2),
+        label-padding: 0 getSpaceValue(2),
         font-size: getFontSizeValue(3),
         line-height: getLineHeightValue(3),
-        label-border-radius: getRadiusValue(3)
+        border-radius: getRadiusValue(3),
       )
     );
   }
