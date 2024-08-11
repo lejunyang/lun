@@ -4,10 +4,10 @@
 @use '../../mixins/config' as *;
 
 :host {
-  display: block;
-  overflow: auto;
+  display: contents;
 }
 
 @include b(tab-item) {
-  
+  overflow: auto;
+  grid-area: 1/1;
 }

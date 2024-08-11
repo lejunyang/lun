@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { TransitionGroup, computed, nextTick, onMounted, ref, watchEffect } from 'vue';
+import { TransitionGroup, computed, getCurrentInstance, nextTick, onMounted, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { capitalize, isArray, isTruthyOrZero, setStyle, toPxIfNum } from '@lun/utils';
@@ -32,7 +32,6 @@ export const Tabs = defineSSRCustomElement({
       return value == null ? index === 0 : value === slot || value === index;
     };
     const getTransitionName = () => {
-      lastActiveIndex ??= -1;
       const { type } = props;
       const res =
         type === 'vertical'
@@ -133,6 +132,7 @@ export const Tabs = defineSSRCustomElement({
                 const active = isActive(t.slot, i);
                 if (active) {
                   activeIndex = i;
+                  lastActiveIndex ??= i;
                   showedKeys.add(t.slot || i);
                   nextTick(() => updateVar(i));
                 }
@@ -155,31 +155,30 @@ export const Tabs = defineSSRCustomElement({
             {...transitionAttrs}
             onAfterEnter={transitionEnd}
           >
-            {usingItems ? (
-              tabs
-                .value!.map((t, i) => {
-                  const key = t.slot || i;
-                  const active = isActive(t.slot, i);
-                  return (
-                    (active ||
-                      (t.forceRender ?? forceRender) ||
-                      (showedKeys.has(key) && !(t.destroyInactive ?? destroyInactive))) && (
-                      <div
-                        key={key}
-                        class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
-                        part={compParts[4]}
-                        v-show={active}
-                      >
-                        {renderCustom(t.content)}
-                      </div>
-                    )
-                  );
-                })
-                // must filter, TransitionGroup requires valid child with key
+            {usingItems
+              ? tabs
+                  .value!.map((t, i) => {
+                    const key = t.slot || i;
+                    const active = isActive(t.slot, i);
+                    return (
+                      (active ||
+                        (t.forceRender ?? forceRender) ||
+                        (showedKeys.has(key) && !(t.destroyInactive ?? destroyInactive))) && (
+                        <div
+                          key={key}
+                          class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
+                          part={compParts[4]}
+                          v-show={active}
+                        >
+                          {renderCustom(t.content)}
+                        </div>
+                      )
+                    );
+                  })
+                  // must filter, TransitionGroup requires valid child with key
                 .filter(Boolean)
-            ) : (
-              <slot name={localActive.value} v-show={isTruthyOrZero(localActive.value)}></slot>
-            )}
+              // render all slots to have transition on children
+              : childrenTabs.value.map((t) => <slot key={t.slot} name={t.slot}></slot>)}
           </TransitionGroup>
         </div>
       );

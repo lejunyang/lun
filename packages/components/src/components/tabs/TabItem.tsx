@@ -18,12 +18,14 @@ export const TabItem = defineSSRCustomElement({
     const context = TabsCollector.child();
     return () => {
       const { slot } = props;
+      const show = context?.isActive(slot as string, context?.index); // NEED whole rerender when show changes to get new transition name
+      // Before this was in v-show attr, that div would be Transition's default slot after transpiled. when show changed, only that div rerendered
       return (
         <Transition
           {...getTransitionProps(props, 'panel', context?.getTransitionName?.())}
           onAfterEnter={context?.transitionEnd}
         >
-          <div class={ns.t} v-show={context?.isActive(slot as string, context?.index)} part={compParts[0]}>
+          <div class={ns.t} v-show={show} part={compParts[0]}>
             <slot></slot>
           </div>
         </Transition>

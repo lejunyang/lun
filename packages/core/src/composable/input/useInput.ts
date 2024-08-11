@@ -24,7 +24,7 @@ export type InputType = 'string' | 'text' | 'number' | 'number-text' | 'password
 
 export type UseInputOptions = {
   value?: MaybeRefLikeOrGetter<string | number>;
-  type?: InputType;
+  type?: any;
   multiple?: boolean;
   disabled?: boolean;
   onChange: (val: string | number | null, targetValue?: string) => void;
@@ -138,6 +138,7 @@ export function useInput(
     if (!restrictWhen.size) restrictWhen.add('notComposing');
     return {
       ...processNumOptions(result),
+      type: (isNumberInputType(result.type) ? result.type : 'text') as InputType,
       updateWhen: updateWhen as Set<InputPeriod>,
       transformWhen,
       restrictWhen,

@@ -9,6 +9,7 @@
 
 @include b(tabs) {
   display: flex;
+  @include declareVars((gap));
   @include e(wrapper) {
     display: flex;
     scrollbar-width: none;
@@ -59,7 +60,11 @@
       }
     }
     @include e(tab) {
-      @include declareVars((height: vertical-tab-height));
+      @include declareVars(
+        (
+          height: vertical-tab-height,
+        )
+      );
     }
   }
 
@@ -119,6 +124,7 @@
   @include size(1) {
     @include setVars(
       (
+        gap: getSpaceValue(1),
         horizontal-wrapper-height: getSpaceValue(6),
         vertical-tab-height: getSpaceValue(5),
         wrapper-padding: getSpaceValue(1),
@@ -135,6 +141,7 @@
   @include size(2) {
     @include setVars(
       (
+        gap: getSpaceValue(2),
         horizontal-wrapper-height: getSpaceValue(7),
         vertical-tab-height: getSpaceValue(6),
         wrapper-padding: getSpaceValue(1),
@@ -151,6 +158,7 @@
   @include size(3) {
     @include setVars(
       (
+        gap: getSpaceValue(3),
         horizontal-wrapper-height: getSpaceValue(8),
         vertical-tab-height: getSpaceValue(7),
         wrapper-padding: getSpaceValue(2),
