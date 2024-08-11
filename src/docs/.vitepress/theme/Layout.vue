@@ -194,25 +194,32 @@ let routeResolve: (() => void) | undefined, transitionReady: Promise<any> | unde
 
 // TODO use container transition, not page transition
 router.onBeforeRouteChange = () => {
-  // pageProgress.start();
+  pageProgress.start();
+};
+// @ts-ignore
+router.onAfterPageLoad = async () => {
+  await pageProgress.stop();
   if (document.startViewTransition) {
+    const transition = withResolvers();
     transitionReady = document.startViewTransition(async () => {
       const { promise, resolve } = withResolvers();
       routeResolve = resolve;
+      transition.resolve();
       return promise;
     }).ready;
+    return transition.promise;
   }
 };
 router.onAfterRouteChanged = async () => {
   if (routeResolve) {
+    await nextTick();
     routeResolve();
     routeResolve = undefined;
   }
-  // pageProgress.stop();
   if (transitionReady) {
     await transitionReady;
     transitionReady = undefined;
-    swapZ('content', 0.95, 300);
+    // swapZ('content', 0.95, 300);
   }
 };
 
@@ -232,6 +239,35 @@ watchEffect(() => {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+@keyframes swapLeave {
+  from {
+    scale: 1;
+    opacity: 1;
+  }
+  to {
+    scale: 0.9;
+    opacity: 0;
+  }
+}
+
+@keyframes swapEnter {
+  from {
+    scale: 0.9;
+    opacity: 0;
+  }
+  to {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+::view-transition-old(content) {
+  animation: swapLeave 0.3s ease-in-out;
+}
+::view-transition-new(content) {
+  animation: swapEnter 0.3s ease-in-out;
 }
 
 giscus-widget::part(iframe) {

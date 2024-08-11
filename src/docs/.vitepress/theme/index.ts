@@ -49,10 +49,10 @@ export default {
 
     importCommonTheme();
     importBasicTheme();
-    importOutlineTheme();
-    importSoftTheme();
-    importSolidTheme();
     importSurfaceTheme();
+    importOutlineTheme();
+    importSolidTheme();
+    importSoftTheme();
     importGhostTheme();
 
     // lazy import react
