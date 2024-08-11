@@ -2,13 +2,14 @@ packages:
   - 'packages/*'
 
 catalog:
-  vite: ^5.3.3
+  vite: ^5.4.0
   vite-plugin-dts: ^3.9.1
   '@vitejs/plugin-vue': ^5.0.5
   '@vitejs/plugin-vue-jsx': ^3.1.0
   vitest: ^2.0.1
-  vue: ^3.4.31
-  vue-tsc: ^2.0.26
+  vue: ^3.4.37
+  '@vue/runtime-dom': ^3.4.37
+  vue-tsc: ^2.0.29
   react: rc
   react-dom: rc
   typescript: ^5.5.3

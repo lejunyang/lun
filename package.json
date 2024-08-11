@@ -26,10 +26,10 @@
     "@lun/utils": "workspace:^",
     "@vueuse/core": "^10.11.0",
     "esbuild-wasm": "^0.21.5",
-    "monaco-editor": "^0.49.0",
+    "monaco-editor": "^0.50.0",
     "react": "rc",
     "react-dom": "rc",
-    "vue": "^3.4.31"
+    "vue": "catalog:"
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",
@@ -39,16 +39,16 @@
     "@lun/plugins": "workspace:^",
     "@rollup/plugin-replace": "^5.0.7",
     "@types/dom-view-transitions": "^1.0.4",
-    "@types/node": "^20.14.9",
+    "@types/node": "^22.2.0",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
-    "@vue/runtime-dom": "^3.4.31",
+    "@vue/runtime-dom": "catalog:",
     "cross-env": "catalog:",
     "cypress": "^13.13.0",
     "happy-dom": "^14.12.3",
-    "new-javascript": "^0.4.3",
+    "new-javascript": "^0.4.7",
     "postcss-logical": "catalog:",
     "rimraf": "catalog:",
     "sass": "^1.77.6",
@@ -56,17 +56,22 @@
     "v-lazy-show": "^0.2.4",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitepress": "1.3.0",
-    "vitest": "^2.0.1",
+    "vitepress": "1.3.2",
+    "vitest": "^2.0.5",
     "vue-tsc": "catalog:"
   },
   "resolutions": {
-    "vite": "^5.3.3",
+    "vite": "^5.4.0",
     "@vueuse/core": "^10.11.0",
     "postcss": "^8.4.30",
     "typescript": "^5.5.3",
-    "vue": "^3.4.31",
+    "vue": "^3.4.37",
     "@floating-ui/utils": "^0.2.4",
     "@floating-ui/dom": "^1.6.7"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "vitepress@1.3.2": "patches/vitepress@1.3.2.patch"
+    }
   }
 }

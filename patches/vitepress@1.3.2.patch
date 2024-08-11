@@ -1,0 +1,12 @@
+diff --git a/dist/client/app/router.js b/dist/client/app/router.js
+index 3deaefe382586bdff92597fd8daf85b14bbc4f73..bb046ddf64b0a542ecda715c9453442830159f51 100644
+--- a/dist/client/app/router.js
++++ b/dist/client/app/router.js
+@@ -46,6 +46,7 @@ export function createRouter(loadPageModule, fallbackComponent) {
+                 if (!comp) {
+                     throw new Error(`Invalid route component: ${comp}`);
+                 }
++                await router.onAfterPageLoad?.()
+                 route.path = inBrowser ? pendingPath : withBase(pendingPath);
+                 route.component = markRaw(comp);
+                 route.data = import.meta.env.PROD
