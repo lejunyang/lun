@@ -24,11 +24,11 @@ export const methods = {
         zIndex,
       },
     });
-    const hide = () => (progress.style.cssText = `opacity: 0;transition: 0.1s;pointer-events: none;`);
+    const hide = () => (progress.style.cssText = `opacity:0;pointer-events:none;`);
     hide();
-    const init = () => {
+    const init = (clearProgressInline = true) => {
       value = 0;
-      progress.style.cssText = ``;
+      if (clearProgressInline) progress.style.cssText = ``;
       Object.assign(progress, {
         value,
         strokeStyle: {
@@ -49,7 +49,7 @@ export const methods = {
       stopResolve?.();
       stopResolve = null;
       if (destroyOnDone) progress.remove();
-      else hide();
+      else hide(), init(false); // reset to initial state after hide, in case of flash(100 -> 0) at next start
     });
     container.append(progress);
     /** returns a promise that resolves when the progress is done */
