@@ -37,6 +37,7 @@ import { defineTour } from './tour/Tour';
 import { defineColorPicker } from './color-picker';
 import { defineTabs } from './tabs';
 import { defineTabItem } from './tabs/TabItem';
+import { defineAccordion } from './accordion';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -46,6 +47,9 @@ export function defineAllComponents() {
   defineWatermark();
   defineThemeProvider();
   defineTeleportHolder();
+  defineAccordion();
+  defineTabs();
+  defineTabItem();
   defineForm();
   defineFormItem();
   defineButton();
@@ -69,8 +73,6 @@ export function defineAllComponents() {
   defineSelectOption();
   defineSpin();
   defineSwitch();
-  defineTabs();
-  defineTabItem();
   defineTag();
   defineTooltip();
   defineFilePicker();
@@ -133,6 +135,7 @@ export const autoDefine = once(() => {
 });
 
 export * from './animation';
+export * from './accordion';
 export * from './button';
 export * from './calendar';
 export * from './callout';

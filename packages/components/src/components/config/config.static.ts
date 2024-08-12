@@ -13,6 +13,8 @@ export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as
 export const noShadowComponents = freeze(['custom-renderer'] as const);
 export const closedShadowComponents = freeze(['watermark'] as const);
 export const openShadowComponents = freeze([
+  'accordion',
+  'accordion-group',
   'button',
   'calendar',
   'callout',
