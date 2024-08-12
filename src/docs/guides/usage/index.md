@@ -108,13 +108,15 @@ defineButton('my-button', {
 
 ## 兼容性
 
-至少需要兼容`customElement`, 以下列出的其他特性为所需版本大于`customElement`的, 若不支持需考虑 polyfill 或移除某些特性
+至少需要兼容`customElement`, 考虑到以下特性版本要求不高, 若不支持你需要自行 polyfill 或不使用某些特性，CSS可考虑使用全局配置`stylePreprocessor`处理或自行编写样式
 
 - [customElement](https://caniuse.com/?search=customElement) <SupportInfo chrome="54" edge="79" firefox="63" safari="10.3" />
 - [BigInt](https://caniuse.com/?search=BigInt) <SupportInfo chrome="67" edge="79" firefox="68" safari="14" />
 - [flatMap](https://caniuse.com/?search=flatMap) <SupportInfo chrome="69" edge="79" firefox="62" safari="12" />
 - [fromEntries](https://caniuse.com/?search=fromEntries) <SupportInfo chrome="73" edge="79" firefox="63" safari="12.1" />
 - [Named capture group](https://caniuse.com/?search=Named%20capture%20group) <SupportInfo chrome="64" edge="79" firefox="78" safari="11.1" />
+- [IntersectionObserver](https://caniuse.com/?search=IntersectionObserver) <SupportInfo chrome="58" edge="16" firefox="55" safari="12.1" />
+- [ResizeObserver](https://caniuse.com/?search=ResizeObserver) <SupportInfo chrome="64" edge="79" firefox="69" safari="13.1" />
 - [CSS gap in flex](https://caniuse.com/?search=flex-gap) <SupportInfo chrome="84" edge="84"  firefox="63" safari="14.1" />
 - [CSS :where :is](https://caniuse.com/?search=where) <SupportInfo chrome="88" edge="88" firefox="78" safari="14" />
 - [CSS Logical Properties](https://caniuse.com/?search=CSS%20Logical%20Properties) <SupportInfo chrome="89" edge="89" firefox="66" safari="15" />

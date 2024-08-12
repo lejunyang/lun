@@ -1,11 +1,11 @@
 const items = [
   {
     label: 'Tab 1',
-    content: 'Content of tab 1',
+    panel: 'Content of tab 1',
   },
   {
     label: 'Tab 2',
-    content: 'Content of tab 2',
+    panel: 'Content of tab 2',
   },
 ];
 export default () => {

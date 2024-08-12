@@ -17,6 +17,8 @@ lang: zh-CN
 
 :::warning 注
 由于实现限制，无法快速连续滚动
+
+FIXME 高刷新率好像有问题
 :::
 
 <!-- @Code:scrollable -->

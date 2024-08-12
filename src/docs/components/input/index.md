@@ -3,6 +3,8 @@ title: Input 输入
 lang: zh-CN
 ---
 
+<CompThemePanel comp="input" includeContrast includeDisabled :other="{ value: 'value' }" />
+
 ## 基本使用
 
 <!-- @Code:basicUsage -->
@@ -67,10 +69,6 @@ lang: zh-CN
 没有设置`maxLength`时展示当前字数，设置`maxLength`时两者一起展示。多值时以当前输入的字符为准
 
 <!-- @Code:showLengthInfo -->
-
-## 不同变体
-
-<!-- @Code:differentVariants -->
 
 ## 自定义更新时机
 

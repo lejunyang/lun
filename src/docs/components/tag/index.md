@@ -7,6 +7,8 @@ lang: zh-CN
   import { themeColors } from '@lun/components';
 </script>
 
+<CompThemePanel comp="tag" includeContrast includeDisabled :other="{ label: 'tag' }" />
+
 ## 基本使用
 
 <!-- @Code:basicUsage -->

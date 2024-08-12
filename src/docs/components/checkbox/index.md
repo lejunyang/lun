@@ -3,9 +3,7 @@ title: Checkbox 复选框
 lang: zh-CN
 ---
 
-<script setup>
-import { themeColors } from '@lun/components';
-</script>
+<CompThemePanel comp="checkbox" includeContrast includeDisabled :other="{ label: 'label', checked: true }" />
 
 ## 基本使用
 
@@ -30,21 +28,3 @@ import { themeColors } from '@lun/components';
 ## 纵向选项组
 
 <!-- @Code:verticalGroup -->
-
-## 不同变体
-
-<!-- @Code:differentVariants -->
-
-## 不同颜色
-
-<div class="container">
-  <l-checkbox v-for="color in themeColors" :color="color" checked>{{ color }}</l-checkbox>
-</div>
-
-## 不同大小
-
-<div class="container">
-  <l-checkbox size="1">size1</l-checkbox>
-  <l-checkbox size="2">size2</l-checkbox>
-  <l-checkbox size="3">size3</l-checkbox>
-</div>

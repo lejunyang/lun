@@ -5,7 +5,6 @@ hero:
   name: Lun
   text: 基于Vue3的跨框架Web组件库
   tagline: 个人学习，勿用于生产环境
-  image: ' '
   actions:
     - theme: brand
       text: 开始

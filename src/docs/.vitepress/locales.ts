@@ -51,6 +51,7 @@ export default {
       },
       layout: {
         menu: '布局组件',
+        accordion: 'Accordion 手风琴',
         divider: 'Divider 分割线',
         tabs: 'Tabs 标签组',
       },
@@ -92,6 +93,8 @@ export default {
       editInGithub: '前往Github编辑',
       codeSelect: '点击切换示例代码所用语言',
       noUseCase: '暂未编写用例，你可以点击右下角编辑自行尝试',
+      themeVariants: '变体与主题色',
+      colorsVariants: '变体与所有颜色',
     },
   },
   en: {
@@ -146,6 +149,7 @@ export default {
       },
       layout: {
         menu: 'Layout',
+        accordion: 'Accordion',
         divider: 'Divider',
         tabs: 'Tabs',
       },
@@ -187,6 +191,8 @@ export default {
       editInGithub: 'Edit in Github',
       codeSelect: 'Click to change the code of this use case',
       noUseCase: 'No use case founded, you can click the bottom right icon to edit and try it yourself',
+      themeVariants: 'Variants & Theme color',
+      colorsVariants: 'Variants & All colors',
     },
   },
 };

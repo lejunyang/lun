@@ -1,3 +1,10 @@
+---
+title: Callout 提示框 
+lang: zh-CN
+---
+
+<CompThemePanel comp="callout" :other="{ message: 'Message', description: 'This is a description' }" />
+
 ## 基本使用
 
 <!-- @Code:basicUsage -->
