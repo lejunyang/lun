@@ -2,10 +2,10 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { TransitionGroup, computed, nextTick, onMounted, ref, watchEffect } from 'vue';
+import { TransitionGroup, computed, nextTick, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { capitalize, isArray, setStyle, toPxIfNum } from '@lun/utils';
+import { capitalize, isArray, isSupportResizeObserver, setStyle, toPxIfNum } from '@lun/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useSetupEvent } from '@lun/core';
 import { TabsCollector } from './collector';
@@ -97,8 +97,8 @@ export const Tabs = defineSSRCustomElement({
       }),
     );
 
-    const updateVar = (index = activeIndex) => {
-      const el = wrapperRef.value!.children[index] as HTMLElement;
+    const updateVar = () => {
+      const el = wrapperRef.value!.children[activeIndex] as HTMLElement;
       if (!el) return;
       const label = el.children[0] as HTMLElement,
         fields = ['width', 'height', 'left', 'top'];
@@ -116,7 +116,14 @@ export const Tabs = defineSSRCustomElement({
       );
     };
 
-    onMounted(() => updateVar());
+    let observer: ResizeObserver;
+    if (isSupportResizeObserver()) {
+      // must use ResizeObserver to update CSS vars, as tab's label may get updated, or tabs may not be renderer(display: none) on mounted, at that time offsetWidth is 0
+      observer = new ResizeObserver(updateVar);
+      onMounted(() => observer.observe(wrapperRef.value!));
+      onBeforeUnmount(() => observer.disconnect());
+    }
+
     return () => {
       const { destroyInactive, forceRender, type, noPanel } = props;
       const transitionAttrs = {
@@ -134,7 +141,7 @@ export const Tabs = defineSSRCustomElement({
                   activeIndex = i;
                   lastActiveIndex ??= i;
                   showedKeys.add(t.slot || i);
-                  nextTick(() => updateVar(i));
+                  nextTick(updateVar);
                 }
                 return (
                   <div

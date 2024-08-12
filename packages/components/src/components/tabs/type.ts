@@ -28,7 +28,9 @@ export const tabsProps = freeze({
   defaultActiveSlot: PropString(Number),
   items: PropArray<TabItem[]>(),
   closable: PropBoolean(),
+  /** common forceRender for items */
   forceRender: PropBoolean(),
+  /** common destroyInactive for items */
   destroyInactive: PropBoolean(),
   noPanel: PropBoolean(),
 });
