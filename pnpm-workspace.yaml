@@ -9,6 +9,7 @@ catalog:
   vitest: ^2.0.1
   vue: ^3.4.37
   '@vue/runtime-dom': ^3.4.37
+  '@vue/compiler-core': ^3.4.37
   vue-tsc: ^2.0.29
   react: rc
   react-dom: rc
