@@ -14,7 +14,7 @@ export type TabItem = {
   slot?: string;
   label: string;
   closable?: boolean;
-  content?: any;
+  panel?: any;
   forceRender?: boolean;
   destroyInactive?: boolean;
   disabled?: boolean;
@@ -24,12 +24,13 @@ export const tabsProps = freeze({
   ...themeProps,
   ...createTransitionProps('panel'),
   type: PropString<'horizontal' | 'vertical'>(),
-  activeSlot: PropString(Number as any as Constructor<number>),
-  defaultActiveSlot: PropString(Number as any as Constructor<number>),
+  activeSlot: PropString(Number),
+  defaultActiveSlot: PropString(Number),
   items: PropArray<TabItem[]>(),
   closable: PropBoolean(),
   forceRender: PropBoolean(),
   destroyInactive: PropBoolean(),
+  noPanel: PropBoolean(),
 });
 
 export const tabsEmits = freeze({

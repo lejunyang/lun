@@ -3,11 +3,14 @@ import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun/utils';
 import { Responsive } from '../hooks/useBreakpoint';
 
 const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => {
-  return <T extends UnwrapPrimitive<InstanceType<Presets[number]>>, C extends Constructor[] = []>(
+  return <
+    T extends UnwrapPrimitive<InstanceType<Presets[number]>> = UnwrapPrimitive<InstanceType<Presets[number]>>,
+    C extends Constructor[] = [],
+  >(
     ...constructors: C
   ) => {
     return {
-      type: [...types, ...constructors] as unknown as PropType<T | InstanceType<C[number]>>,
+      type: [...types, ...constructors] as unknown as PropType<T | UnwrapPrimitive<InstanceType<C[number]>>>,
     };
   };
 };

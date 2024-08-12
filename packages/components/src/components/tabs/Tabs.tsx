@@ -2,10 +2,10 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { TransitionGroup, computed, getCurrentInstance, nextTick, onMounted, ref, watchEffect } from 'vue';
+import { TransitionGroup, computed, nextTick, onMounted, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { capitalize, isArray, isTruthyOrZero, setStyle, toPxIfNum } from '@lun/utils';
+import { capitalize, isArray, setStyle, toPxIfNum } from '@lun/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useSetupEvent } from '@lun/core';
 import { TabsCollector } from './collector';
@@ -118,7 +118,7 @@ export const Tabs = defineSSRCustomElement({
 
     onMounted(() => updateVar());
     return () => {
-      const { destroyInactive, forceRender, type } = props;
+      const { destroyInactive, forceRender, type, noPanel } = props;
       const transitionAttrs = {
         tag: 'div',
         class: ns.e('content'),
@@ -150,36 +150,38 @@ export const Tabs = defineSSRCustomElement({
               })}
             </div>
           </div>
-          <TransitionGroup
-            {...getTransitionProps(props, 'panel', getTransitionName())}
-            {...transitionAttrs}
-            onAfterEnter={transitionEnd}
-          >
-            {usingItems
-              ? tabs
-                  .value!.map((t, i) => {
-                    const key = t.slot || i;
-                    const active = isActive(t.slot, i);
-                    return (
-                      (active ||
-                        (t.forceRender ?? forceRender) ||
-                        (showedKeys.has(key) && !(t.destroyInactive ?? destroyInactive))) && (
-                        <div
-                          key={key}
-                          class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
-                          part={compParts[4]}
-                          v-show={active}
-                        >
-                          {renderCustom(t.content)}
-                        </div>
-                      )
-                    );
-                  })
-                  // must filter, TransitionGroup requires valid child with key
-                .filter(Boolean)
-              // render all slots to have transition on children
-              : childrenTabs.value.map((t) => <slot key={t.slot} name={t.slot}></slot>)}
-          </TransitionGroup>
+          {!noPanel && (
+            <TransitionGroup
+              {...getTransitionProps(props, 'panel', getTransitionName())}
+              {...transitionAttrs}
+              onAfterEnter={transitionEnd}
+            >
+              {usingItems
+                ? tabs
+                    .value!.map((t, i) => {
+                      const key = t.slot || i;
+                      const active = isActive(t.slot, i);
+                      return (
+                        (active ||
+                          (t.forceRender ?? forceRender) ||
+                          (showedKeys.has(key) && !(t.destroyInactive ?? destroyInactive))) && (
+                          <div
+                            key={key}
+                            class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
+                            part={compParts[4]}
+                            v-show={active}
+                          >
+                            {renderCustom(t.panel)}
+                          </div>
+                        )
+                      );
+                    })
+                    // must filter, TransitionGroup requires valid child with key
+                    .filter(Boolean)
+                : // render all slots to have transition on children
+                  childrenTabs.value.map((t) => <slot key={t.slot} name={t.slot}></slot>)}
+            </TransitionGroup>
+          )}
         </div>
       );
     };
