@@ -108,31 +108,6 @@ const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
   display: flex;
   flex-direction: column;
   gap: 10px;
-  l-radio-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  l-radio {
-    .circle {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      outline-offset: 2px;
-    }
-    // cannot use ',' for these three selectors, as they would all fail if one of them is not supported
-    &[data-checked] .circle {
-      outline: 2px solid var(--l-accent-9);
-    }
-    @supports not selector(:state(a)) {
-      &:--checked .circle {
-        outline: 2px solid var(--l-accent-9);
-      }
-    }
-    &:state(checked) .circle {
-      outline: 2px solid var(--l-accent-9);
-    }
-  }
   .size-radio-label {
     color: var(--l-gray-12);
   }
@@ -168,6 +143,33 @@ const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
   }
   .radius-full {
     border-start-start-radius: 80%;
+  }
+}
+.theme-panel, .theme-home-panel {
+  l-radio-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  l-radio {
+    .circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      outline-offset: 2px;
+    }
+    // cannot use ',' for these three selectors, as they would all fail if one of them is not supported
+    &[data-checked] .circle {
+      outline: 2px solid var(--l-accent-9);
+    }
+    @supports not selector(:state(a)) {
+      &:--checked .circle {
+        outline: 2px solid var(--l-accent-9);
+      }
+    }
+    &:state(checked) .circle {
+      outline: 2px solid var(--l-accent-9);
+    }
   }
 }
 .VPSocialLinks.VPNavBarSocialLinks {

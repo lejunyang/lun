@@ -34,6 +34,7 @@ const features = {
   color: supportCSSSupports && CSS.supports('color', 'color(display-p3 1 1 1)'),
   docPip: supportDocumentPictureInPicture,
   highlight: supportCSSHighLight,
+  overflowClipMargin: supportCSSSupports && CSS.supports('overflow-clip-margin', '1px'),
 };
 
 const props = defineProps<{

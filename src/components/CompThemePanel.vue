@@ -1,10 +1,10 @@
 <template>
   <l-tabs defaultActiveSlot="ThemeColors">
-    <l-tab-item slot="ThemeColors" label="Theme Colors">
+    <l-tab-item slot="ThemeColors" :label="locales[lang]?.components.themeVariants">
       <div
         class="grid"
         :style="{
-          gridTemplateColumns: `repeat(${variants.length + 1}, 1fr)`,
+          gridTemplateColumns: `auto repeat(${variants.length}, 1fr)`,
         }"
       >
         <div></div>
@@ -33,11 +33,11 @@
         </template>
       </div>
     </l-tab-item>
-    <l-tab-item slot="AllColors" label="All Colors">
+    <l-tab-item slot="AllColors" :label="locales[lang]?.components.colorsVariants">
       <div
         class="grid"
         :style="{
-          gridTemplateColumns: `repeat(${variants.length + 1}, 1fr)`,
+          gridTemplateColumns: `auto repeat(${variants.length}, 1fr)`,
         }"
       >
         <div></div>
@@ -68,6 +68,8 @@
 <script setup lang="ts">
 import { OpenShadowComponentKey, GlobalStaticConfig, renderElement, themeColors } from '@lun/components';
 import { computed, ref, h } from 'vue';
+import { useData } from 'vitepress';
+import locales from '../docs/.vitepress/locales';
 
 const props = defineProps<{
   comp: OpenShadowComponentKey;
@@ -76,6 +78,8 @@ const props = defineProps<{
   includeContrast?: boolean;
   includeDisabled?: boolean;
 }>();
+
+const { lang } = useData();
 
 const variants = Array.from(GlobalStaticConfig.availableVariants[props.comp] || []) as string[];
 
