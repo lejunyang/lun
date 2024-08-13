@@ -5,6 +5,49 @@
       <template #nav-bar-content-after>
         <ThemeConfigPanel :theme="theme" :lang="lang as any" :animate="randomAnimate" />
       </template>
+      <template #home-hero-image>
+        <div class="theme-home-panel" v-show="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'">
+          <l-radio-group class="color-group" size="3" v-update="theme.color">
+            <l-radio
+              v-for="color in themeColors"
+              :key="color"
+              :value="color"
+              :color="color"
+              no-indicator
+              :title="color"
+            >
+              <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
+            </l-radio>
+          </l-radio-group>
+          <l-tabs
+            v-update-activeSlot="theme.radius"
+            class="radius-tabs"
+            no-panel
+            type="vertical"
+            :items="radiusTabs"
+            variant="solid"
+          ></l-tabs>
+          <div class="start">
+            <l-button class="start-button" variant="solid" style="transform: translateX(-30px)">Get Started</l-button>
+            <l-button class="start-button" variant="soft" style="transform: translateX(-20px)">View</l-button>
+            <l-input variant="soft" value="input" style="transform: translateX(-10px)" />
+            <l-radio-group v-update="theme.size" style="">
+              <l-radio value="1">1</l-radio>
+              <l-radio value="2" variant="surface">2</l-radio>
+              <l-radio value="3" high-contrast>3</l-radio>
+            </l-radio-group>
+          </div>
+          <VPSwitchAppearance class="appearance-switch" />
+          <l-color-picker class="color-picker" panel-only></l-color-picker>
+          <l-callout
+            class="callout"
+            variant="soft"
+            icon-name="info"
+            message="Try out above"
+            :description="text"
+          ></l-callout>
+        </div>
+      </template>
       <template #doc-after>
         <ClientOnly>
           <Giscus
@@ -30,11 +73,13 @@
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
+import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
 import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount } from 'vue';
 import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
-import { GlobalContextConfig, Progress } from '@lun/components';
+import { GlobalContextConfig, Progress, themeColors, activeBreakpoint } from '@lun/components';
 import Giscus from '@giscus/vue';
 import { on, AnyFn, withResolvers } from '@lun/utils';
+import { text } from '../../../utils/data';
 
 const Layout = Theme.Layout;
 
@@ -46,6 +91,9 @@ const theme = reactive({
   radius: 'medium',
   scale: '1',
 });
+
+const radiuses = ['none', 'small', 'medium', 'large', 'full'];
+const radiusTabs = radiuses.map((r) => ({ slot: r, label: r }));
 
 const { isDark, lang, page } = useData();
 let lastClickX = 0,
@@ -192,7 +240,6 @@ provide('toggle-appearance', toggleAppearanceWithTransition);
 const router = useRouter();
 let routeResolve: (() => void) | undefined, transitionReady: Promise<any> | undefined;
 
-// TODO use container transition, not page transition
 router.onBeforeRouteChange = () => {
   pageProgress.start();
 };
@@ -219,7 +266,7 @@ router.onAfterRouteChanged = async () => {
   if (transitionReady) {
     await transitionReady;
     transitionReady = undefined;
-    // swapZ('content', 0.95, 300);
+    swapZ('root', 0.95, 300);
   }
 };
 
@@ -231,9 +278,9 @@ watchEffect(() => {
 });
 </script>
 
-<style>
+<style lang="scss">
 .VPDoc > .container {
-  view-transition-name: content;
+  // view-transition-name: content; // this has some issues if new page has stored scroll position
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -272,5 +319,69 @@ watchEffect(() => {
 
 giscus-widget::part(iframe) {
   margin-top: 24px;
+}
+
+@keyframes floatY {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+  70% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.theme-home-panel {
+  display: grid;
+  position: relative;
+  justify-items: center;
+  align-items: center;
+  grid-template-columns: repeat(3, auto);
+  & > * {
+    animation: floatY 10s ease infinite;
+  }
+  & :hover {
+    animation-play-state: paused;
+  }
+  .color-group {
+    grid-area: 1/1/1/4;
+    animation-delay: -3s;
+    position: relative;
+    inset-inline-start: -10%;
+    inset-block-start: -10%;
+  }
+  .radius-tabs {
+    grid-area: 2/3;
+    animation-delay: -1s;
+  }
+  .appearance-switch {
+    grid-area: 3/1;
+    animation-delay: -2s;
+  }
+  .start {
+    grid-area: 2/1;
+    animation-delay: -1.5s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .color-picker {
+    animation-delay: -2.5s;
+    grid-area: 2/2;
+  }
+  .callout {
+    grid-area: 3/2/3/4;
+    position: relative;
+    inset-inline-start: 10%;
+    inset-block-start: 10%;
+  }
 }
 </style>

@@ -132,3 +132,12 @@
 :not(:defined) {
   visibility: hidden;
 }
+
+.VPHome .image-bg {
+  opacity: 0.5;
+}
+
+.VPHome .container .image {
+  position: relative;
+  z-index: 12; /** in case the title and description cover the image */
+}
