@@ -458,10 +458,10 @@ export class VueElement extends BaseClass {
           };
         }
 
-        const dispatch = (event: string, ...args: any[]) => {
+        const dispatch = (event: string, init: EventInit | undefined, ...args: any[]) => {
           this.dispatchEvent(
             new CustomEvent(event, {
-              ...this._def.customEventInit?.[event],
+              ...init,
               detail: args.length === 1 ? args[0] : args, // if there is only one argument, take it out
             }),
           );
@@ -471,9 +471,10 @@ export class VueElement extends BaseClass {
         instance.emit = (event: string, ...args: any[]) => {
           // dispatch both the raw and hyphenated versions of an event
           // to match Vue behavior
-          dispatch(event, ...args);
+          const init = this._def.customEventInit?.[event];
+          dispatch(event, init, ...args);
           if (hyphenate(event) !== event) {
-            dispatch(hyphenate(event), ...args);
+            dispatch(hyphenate(event), init, ...args);
           }
         };
 

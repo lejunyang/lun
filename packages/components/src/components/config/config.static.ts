@@ -114,18 +114,6 @@ export const GlobalStaticConfig = new Proxy(
     availableVariants: reduceFromComps(() => new Set<string>()),
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
-    computedStyles: new Proxy(styles, {
-      get(target, p, receiver) {
-        const commons = Reflect.get(target, 'common', receiver);
-        const targetStyles = Reflect.get(target, p, receiver);
-        if (p === 'common') return [...commons];
-        else if (p === holderName)
-          return commons
-            .concat(targetStyles)
-            .concat(...componentsWithTeleport.map((name) => Reflect.get(target, name, receiver)));
-        return commons.concat(targetStyles);
-      },
-    }),
     /** must define the breakpoints from smallest to largest */
     breakpoints: {
       xs: '520px',
@@ -148,6 +136,19 @@ export const GlobalStaticConfig = new Proxy(
     customRendererMap: getInitialCustomRendererMap(),
     animationRegistry: getInitialDefaultAnimationRegistry(),
     elAnimationRegistry: getInitialElementAnimationRegistry(),
+    /**
+     * define every components' event init map, it's used to initialize the event object when dispatch event
+     * every entry accepts object or array value:
+     * - object value: `{ button: { composed: true, bubbles: true } }`, the object will be used for every event for that component
+     * - array value: `{ button: [{ composed: true }, { validClick: { bubbles: true } }] }` the first value will be used for every event, the second object can be the corresponding event's init(event name must be camelCase)
+     */
+    eventInitMap: reduceFromComps(
+      () =>
+        ({} as
+          | Omit<CustomEventInit, 'detail'>
+          | [Omit<CustomEventInit, 'detail'>, Record<string, Omit<CustomEventInit, 'detail'>>]),
+      true,
+    ),
     ...(presets as Omit<import('@lun/core').Presets, 'date'> & {
       /**
        * @example

@@ -1,9 +1,15 @@
-import { ComponentKey, GlobalContextConfig, GlobalStaticConfig, OpenShadowComponentKey } from 'config';
+import {
+  ComponentKey,
+  componentsWithTeleport,
+  GlobalContextConfig,
+  GlobalStaticConfig,
+  OpenShadowComponentKey,
+} from 'config';
 import { ComponentInternalInstance, ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
-import { getFirstOfIterable, isElement, isString, once, supportCustomElement } from '@lun/utils';
+import { fromObject, getFirstOfIterable, isArray, isElement, isString, once, supportCustomElement } from '@lun/utils';
 import { PropString } from 'common';
 import { useContextStyles } from '../hooks/useStyles';
 
@@ -128,26 +134,37 @@ export function createImportDynamicStyle(
   return once(() => GlobalContextConfig.dynamicStyles[compKey].push(style));
 }
 
+const getComputedStyles = once(() => {
+  const { styles } = GlobalStaticConfig;
+  return fromObject(styles, (k, v) => [
+    k,
+    k === 'teleport-holder'
+      ? styles.common.concat(v).concat(...componentsWithTeleport.map((c) => styles[c]) as any)
+      : styles.common.concat(v),
+  ]);
+});
+
 export function preprocessComponentOptions(options: ComponentOptions) {
   const compKey = options.name as ComponentKey;
   if (compKey && compKey in GlobalStaticConfig.defaultProps) {
-    const { props, setup, shadowOptions } = options;
-    const propsClone = { ...props };
+    const { props, setup, shadowOptions, emits } = options;
+    const propsClone = { ...props }; // clone because props is freezed
+    const getEventInit = (e: string) => {
+      const { eventInitMap } = GlobalStaticConfig;
+      const eventInit = eventInitMap[compKey as OpenShadowComponentKey],
+        { common } = eventInitMap;
+      const result = isArray(common) ? { ...common[0], ...common[1]?.[e] } : common;
+      return isArray(eventInit) ? { ...result, ...eventInit[0], ...eventInit[1]?.[e] } : { ...result, ...eventInit };
+    };
     Object.defineProperties(options, {
-      name: {
-        get() {
-          return GlobalStaticConfig.nameMap[compKey];
-        },
-      },
       styles: {
-        get() {
-          return compKey in GlobalStaticConfig.computedStyles
-            ? GlobalStaticConfig.computedStyles[compKey as OpenShadowComponentKey]
-            : undefined;
-        },
+        get: () => getComputedStyles()[compKey],
       },
       props: {
-        get: () => setDefaultsForPropOptions(propsClone, GlobalStaticConfig.defaultProps[compKey]),
+        get: once(() => setDefaultsForPropOptions(propsClone, GlobalStaticConfig.defaultProps[compKey])),
+      },
+      customEventInit: {
+        get: once(() => fromObject(emits || {}, (k) => [k, getEventInit(k)] as const)),
       },
     });
     options.inheritAttrs ||= false;
