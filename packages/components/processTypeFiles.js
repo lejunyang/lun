@@ -14,10 +14,12 @@ const reactTypes = [];
 
 components.forEach((componentTag) => {
   const componentCamelName = camelize(capitalize(componentTag));
-  const propType = `import('./index').${componentCamelName}Props`;
+  const propType = `import('./index').${componentCamelName}Props`,
+    instanceType = `import('./index').i${componentCamelName}`;
   const vueCompType = `Vue.DefineComponent<${propType}>`;
-  const vuePropType = `Vue.HTMLAttributes &  Vue.ReservedProps & ${propType}`;
-  const reactPropType = `React.HTMLAttributes<HTMLElement> & ${propType}`;
+  // tried Omit<Vue.ReservedProps, 'ref'> & { ref?: string | Vue.Ref<${instanceType}> | ((el: ${instanceType} | null) => void) }, but ref doesn't work as expected
+  const vuePropType = `Vue.HTMLAttributes & Vue.ReservedProps & ${propType}`;
+  const reactPropType = `React.HTMLAttributes<HTMLElement> & React.RefAttributes<${instanceType}> & ${propType}`;
   vueCompTypes.push(`    L${componentCamelName}: ${vueCompType};`);
   vueJSXTypes.push(`      'l-${componentTag}': ${vuePropType};`);
   htmlTypes.push(`    'l-${componentTag}': import('./index').t${componentCamelName};`);
