@@ -267,7 +267,9 @@
     );
   }
   @include em(label, has-carousel, true) {
-    overflow: hidden;
+    // overflow: hidden; // it will clip the outline when focus
+    overflow: clip;
+    overflow-clip-margin: 1px;
   }
   @include em(label, float, true) {
     .#{$B}:focus-within &,

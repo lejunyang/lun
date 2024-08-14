@@ -46,7 +46,7 @@ export const themeProps = {
   highContrast: undefBoolProp,
   appearance: PropString<'light' | 'dark'>(),
   scale: PropNumber(),
-  // TODO grayColor
+  grayColor: PropString<GrayColors>(),
 };
 
 export type ThemeProps = ExtractPropTypes<typeof themeProps>;
