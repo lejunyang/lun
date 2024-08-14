@@ -29,8 +29,6 @@ export declare const GlobalStaticConfig: {
   preferCSSStyleSheet: boolean;
   /** define every components' static styles, also can set global common style with `common` key */
   styles: ComponentStyles;
-  /** readonly */
-  computedStyles: Readonly<ComponentStyles>;
   /** must define the breakpoints from smallest to largest */
   breakpoints: {
     xs: string;
@@ -48,6 +46,13 @@ export declare const GlobalStaticConfig: {
   animationRegistry: Record<string | symbol, ElementAnimation>;
   /** useless for now, consider to remove it */
   elAnimationRegistry: WeakMap<Element, Record<string | symbol, ElementAnimation>>;
+  /**
+   * define every components' event init map, it's used to initialize the event object when dispatch event
+   * every entry accepts object or array value:
+   * - object value: `{ button: { composed: true, bubbles: true } }`, the object will be used for every event for that component
+   * - array value: `{ button: [{ composed: true }, { validClick: { bubbles: true } }] }` the first value will be used for every event, the second object can be the corresponding event's init(event name must be camelCase)
+   */
+  eventInitMap: Record<ComponentKey | 'common', Omit<CustomEventInit, 'detail'> | [Omit<CustomEventInit, 'detail'>, Record<string, Omit<CustomEventInit, 'detail'>>])>
   /** define the math preset methods used to process numbers */
   math: Required<MathMethods<number>>;
   /** define the date preset methods used to process dates */

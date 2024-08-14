@@ -3,11 +3,17 @@ title: 如何使用
 lang: zh-CN
 ---
 
+目前提供以下的库：
 - `@lun/utils`：js 工具函数库
 - `@lun/core`：提供组件功能的钩子函数库
 - `@lun/components`：组件库
 - `@lun/theme`：主题库
-- `@lun/react`：为 react19之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+- `@lun/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+- `@lun/plugins`: 为 JSX 或 Vue template 提供自定义指令
+
+:::tip 注
+在使用本组件库之前，你需要了解[自定义元素](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)的相关知识，只需知道如何使用即可，无需了解如何创建
+:::
 
 ## 安装
 
@@ -23,7 +29,7 @@ lang: zh-CN
 
 ## React 中使用
 
-React 是目前流行 web 框架唯一不支持`customElement`的，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
+React 是目前流行 web 框架中唯一不支持`customElement`的，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
 
 React 19 即将支持`customElement`，但目前还处于实验阶段。本文档使用的是 React 19 RC，在文档的 React 代码中可正常使用自定义元素。
 
@@ -65,8 +71,19 @@ importSolidTheme();
 defineAllComponents();
 ```
 
-- 全量引入的组件会使用`GlobalStaticConfig.namespace`加上组件本身的名字作为命名，例如`namespace`默认为`l`，那么`button`组件的默认名字便是`l-button`。引入组件后你便可以在任何地方使用它们
 - 全局静态配置需要在组件被使用前修改，但最好在定义前就统一修改，因为`namespace`在定义时就会使用
+- 全量引入的组件会使用`GlobalStaticConfig.namespace`加上组件本身的名字作为命名，例如`namespace`默认为`l`，那么`button`组件的默认名字便是`l-button`。引入组件后你便可以在任何地方使用它们
+- 为保证视觉效果，你需要自行向页面添加类似于下面的样式，在组件未定义时隐藏它们，以避免它们的 children 被渲染出来而造成闪烁
+
+```css
+:not(:defined) {
+  visibility: hidden;
+}
+/** or */
+:not(:defined) {
+  opacity: 0;
+}
+```
 
 ## 动态引入
 
@@ -106,9 +123,63 @@ defineButton('my-button', {
 需要这么做的原因是，大部分组件都有继承关系，部分状态由父组件提供。在 SSR 场景下，页面上的元素已经存在，如果子组件先被定义，此时它无法探测到父组件（组件未被定义时是无效组件），等父组件再被定义时子组件也不会被更新，便会出现问题
 :::
 
+## TS 支持
+
+目前提供了`Vue`和`React`的组件类型定义，你需要在 TS 配置对应引入`@lun/components/elements-types-vue`或`@lun/components/elements-types-react`
+
+需要注意的是，提供的类型文件是针对默认`namespace`，也就是`l-button`, `l-input`等以`l`开头的组件，如果你自定义了命名空间，可以仿造以下示例编写
+
+```ts
+// Vue
+import * as Vue from 'vue';
+// Vue template
+declare module 'vue' {
+  interface GlobalComponents {
+    LButton: Vue.DefineComponent<import('@lun/components').ButtonProps>;
+  }
+}
+// Vue JSX
+declare module 'vue/jsx-runtime' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'l-button': Vue.HTMLAttributes & Vue.ReservedProps & import('@lun/components').ButtonProps;
+    }
+  }
+}
+
+// React
+import * as React from 'react';
+declare module 'react/jsx-runtime' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'l-button': React.HTMLAttributes<HTMLElement> & React.RefAttributes<import('./index').iButton> & import('@lun/components').ButtonProps;
+    }
+  }
+}
+```
+
+每个组件都有一个class和两个类型，注意区分
+```ts
+import { Button, tButton, iButton } from '@lun/components';
+Button // 组件的class，这是值，不是类型，一般用不到
+tButton // 组件class的类型，相当于typeof Button
+iButton // 组件实例的类型，相当于InstanceType<typeof tButton>
+```
+
+当需要组件实例类型时，你可以像下面这样使用：
+```ts
+import { iButton } from '@lun/components';
+const button = document.querySelector('l-button') as iButton;
+button.asyncHandler = () => console.log('');
+
+const buttonRef = ref<iButton>();
+const render = () => <l-button ref={buttonRef}></l-button>;
+```
+
+
 ## 兼容性
 
-至少需要兼容`customElement`, 考虑到以下特性版本要求不高, 若不支持你需要自行 polyfill 或不使用某些特性，CSS可考虑使用全局配置`stylePreprocessor`处理或自行编写样式
+至少需要兼容`customElement`, 考虑到以下特性版本要求不高, 若不支持你需要自行 polyfill 或不使用某些特性，CSS 可考虑使用全局配置`stylePreprocessor`处理或自行编写样式
 
 - [customElement](https://caniuse.com/?search=customElement) <SupportInfo chrome="54" edge="79" firefox="63" safari="10.3" />
 - [BigInt](https://caniuse.com/?search=BigInt) <SupportInfo chrome="67" edge="79" firefox="68" safari="14" />
@@ -146,10 +217,11 @@ defineButton('my-button', {
 - <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid) <SupportInfo chrome="117" edge="117" firefox="71" safari="16" />
 - <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>) <SupportInfo chrome="111" edge="111" firefox="113" safari="15" />
 
-某些特性无法做兼容，但它们影响不大，只是出于技术探索添加了那些特性，不使用那些功能即可
+某些特性无法或不好做兼容，但它们影响不大，不使用那些功能即可
 
 - <Support is="docPip" /> [`doc-pip`](/components/doc-pip/): [DocumentPictureInPicture](https://caniuse.com/?search=DocumentPictureInPicture) <SupportInfo chrome="116" edge="116" firefox="no" safari="no" />
 - <Support is="highlight" /> [`mentions`](/components/mentions/): [CSS highlight](https://caniuse.com/?search=highlight) <SupportInfo chrome="105" edge="105" firefox="no" safari="17.2" />
+- <Support is="overflowClipMargin" /> [`input`](/components/input/#轮播标签): [CSS overflow-clip-margin](https://caniuse.com/?search=overflow-clip-margin) <SupportInfo chrome="90" edge="90" firefox="102" safari="no" />
 
 <script setup>
   import { inBrowser } from '@lun/utils';

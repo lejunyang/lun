@@ -3,6 +3,10 @@ title: Calendar 日历
 lang: zh-CN
 ---
 
+:::warning 注
+Highly experimental
+:::
+
 ## 基本使用
 
 默认选择单个日期，设置`multiple`可选择多个日期；设置`range`时可选择一个日期范围，同时设置`multiple`和`range`时可选择多个日期范围，多个范围之间不能重叠，但一个区间的结尾可以与另一个区间的开始相同

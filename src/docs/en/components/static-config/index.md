@@ -30,8 +30,6 @@ export declare const GlobalStaticConfig: {
   preferCSSStyleSheet: boolean;
   /** define every components' static styles, also can set global common style with `common` key */
   styles: ComponentStyles;
-  /** readonly */
-  computedStyles: Readonly<ComponentStyles>;
   /** must define the breakpoints from smallest to largest */
   breakpoints: {
     xs: string;
