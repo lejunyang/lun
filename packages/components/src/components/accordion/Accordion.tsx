@@ -1,10 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, setHeightVar } from 'utils';
+import { createDefineElement } from 'utils';
 import { accordionEmits, accordionProps } from './type';
 import { useNamespace, useOpenModel, useSlot } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { defineIcon } from '../icon';
 import { Transition } from 'vue';
+import { useSetupEdit } from '@lun/core';
 
 const name = 'accordion';
 const parts = ['root', 'header', 'content'] as const;
@@ -16,6 +17,7 @@ export const Accordion = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const openModel = useOpenModel(props);
+    useSetupEdit();
 
     const [renderHeader] = useSlot('header', () => props.header);
     const [renderContent] = useSlot('', () => props.content);
@@ -25,16 +27,16 @@ export const Accordion = defineSSRCustomElement({
     };
     return () => {
       return (
-        <details class={ns.t} part={compParts[0]} open={openModel.value} onToggle={handleToggle}>
-          <summary class={ns.e('header')} part={compParts[1]}>
+        <div class={ns.t} part={compParts[0]}>
+          <div class={ns.e('header')} part={compParts[1]} onClick={handleToggle}>
             {renderHeader()}
-          </summary>
-          <Transition {...getTransitionProps(props, 'content')} onEnter={setHeightVar}>
+          </div>
+          <Transition {...getTransitionProps(props, 'content', 'height')}>
             <div class={ns.e('content')} part={compParts[2]} v-show={openModel.value}>
               {renderContent()}
             </div>
           </Transition>
-        </details>
+        </div>
       );
     };
   },
