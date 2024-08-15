@@ -1,4 +1,4 @@
-import { Constructor, freeze } from '@lun/utils';
+import { freeze } from '@lun/utils';
 import {
   GetEventPropsFromEmits,
   PropBoolean,
@@ -10,7 +10,7 @@ import {
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
-export type TabItem = {
+export type TabItemObject = {
   slot?: string;
   label: string;
   closable?: boolean;
@@ -26,7 +26,7 @@ export const tabsProps = freeze({
   type: PropString<'horizontal' | 'vertical'>(),
   activeSlot: PropString(Number),
   defaultActiveSlot: PropString(Number),
-  items: PropArray<TabItem[]>(),
+  items: PropArray<TabItemObject[]>(),
   closable: PropBoolean(),
   /** common forceRender for items */
   forceRender: PropBoolean(),

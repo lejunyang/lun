@@ -15,7 +15,7 @@ export const GlobalContextConfig = reactive({
   namespace: 'l',
   lang: 'zh-CN',
   iconRegistryMap,
-  dynamicStyles: reduceFromComps(() => [] as DynamicStyleValue[], true),
+  dynamicStyles: reduceFromComps(() => [] as DynamicStyleValue[], false),
   theme: {
     variant: {
       common: 'surface',

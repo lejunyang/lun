@@ -35,9 +35,8 @@ import { defineCalendar } from './calendar';
 import { defineDatePicker } from './date-picker';
 import { defineTour } from './tour/Tour';
 import { defineColorPicker } from './color-picker';
-import { defineTabs } from './tabs';
-import { defineTabItem } from './tabs/TabItem';
-import { defineAccordion } from './accordion';
+import { defineTabs, defineTabItem } from './tabs';
+import { defineAccordion, defineAccordionGroup } from './accordion';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -47,6 +46,7 @@ export function defineAllComponents() {
   defineWatermark();
   defineThemeProvider();
   defineTeleportHolder();
+  defineAccordionGroup();
   defineAccordion();
   defineTabs();
   defineTabItem();

@@ -59,7 +59,7 @@ export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string 
 
 export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 
-const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], true) as ComponentStyles;
+const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], false) as ComponentStyles;
 
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
@@ -91,15 +91,9 @@ export const GlobalStaticConfig = new Proxy(
       });
       return result;
     })(),
-    actualNameMap: components.reduce((result, name) => {
-      result[name] = new Set();
-      return result;
-    }, {} as Record<ComponentKey, Set<string>>),
+    actualNameMap: reduceFromComps(() => new Set<string>()),
     /** define default props of every component */
-    defaultProps: components.reduce((result, name) => {
-      result[name] = {};
-      return result;
-    }, {} as Record<ComponentKey, Record<string, any>>),
+    defaultProps: reduceFromComps(() => ({} as Record<string, any>)),
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** whether wrap &#64;layer for components' styles. will use it as layer name if it's truthy string, or use 'lun' as default */
     wrapCSSLayer: supportCSSLayer as boolean | string,
@@ -111,7 +105,7 @@ export const GlobalStaticConfig = new Proxy(
      * - `color-first`: use 'color' first
      */
     colorPriority: '' as ColorPriority,
-    availableVariants: reduceFromComps(() => new Set<string>()),
+    availableVariants: reduceFromComps(() => new Set<string>(), false, false),
     /** define every components' static styles, also can set global common style with `common` key */
     styles,
     /** must define the breakpoints from smallest to largest */
@@ -147,7 +141,6 @@ export const GlobalStaticConfig = new Proxy(
         ({} as
           | Omit<CustomEventInit, 'detail'>
           | [Omit<CustomEventInit, 'detail'>, Record<string, Omit<CustomEventInit, 'detail'>>]),
-      true,
     ),
     ...(presets as Omit<import('@lun/core').Presets, 'date'> & {
       /**

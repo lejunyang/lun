@@ -1,14 +1,22 @@
-import { OpenShadowComponentKey, openShadowComponents } from './config.static';
+import { ComponentKey, components, OpenShadowComponentKey, openShadowComponents } from './config.static';
 
-export function reduceFromComps<T>(getter: () => T, includeCommon: true): Record<'common' | OpenShadowComponentKey, T>;
+export function reduceFromComps<T>(getter: () => T): Record<ComponentKey, T>;
 
-export function reduceFromComps<T>(getter: () => T): Record<OpenShadowComponentKey, T>;
+export function reduceFromComps<T>(getter: () => T, allComp: true): Record<ComponentKey, T>;
 
-export function reduceFromComps<T, I>(getter: () => T, includeCommon?: I) {
-  const res = openShadowComponents.reduce((result, name) => {
+export function reduceFromComps<T>(getter: () => T, allComp: false): Record<'common' | OpenShadowComponentKey, T>;
+
+export function reduceFromComps<T>(
+  getter: () => T,
+  allComp: false,
+  includeCommon: false,
+): Record<OpenShadowComponentKey, T>;
+
+export function reduceFromComps<T>(getter: () => T, allComp = true, includeCommon?: boolean) {
+  const res = (allComp ? components : openShadowComponents).reduce((result, name) => {
     result[name] = getter();
     return result;
   }, {} as any);
-  if (includeCommon) res.common = getter();
+  if (includeCommon !== false && !allComp) res.common = getter();
   return res;
 }
