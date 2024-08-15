@@ -69,3 +69,16 @@ export const useCheckboxMethods = (options: UseSelectOptions) => {
     toggle: result.toggle,
   };
 };
+
+export const useGroupOpenMethods = (options: UseSelectOptions) => {
+  const result = useSelectMethods(options);
+  return {
+    isOpen: result.isSelected,
+    openAll: result.selectAll,
+    closeAll: result.unselectAll,
+    openChildren: result.select,
+    closeChildren: result.unselect,
+    reverseChildren: result.reverse,
+    toggleChild: result.toggle,
+  };
+};
