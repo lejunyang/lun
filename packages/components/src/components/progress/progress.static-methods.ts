@@ -44,16 +44,18 @@ export const methods = {
       progress.value = value;
     };
 
-    let id: any, stopResolve: any;
+    let id: any, stopResolve: any, started: boolean;
     on(progress, 'done', () => {
       stopResolve?.();
       stopResolve = null;
       if (destroyOnDone) progress.remove();
       else hide(), init(false); // reset to initial state after hide, in case of flash(100 -> 0) at next start
+      started = false;
     });
     container.append(progress);
     /** returns a promise that resolves when the progress is done */
     const stop = () => {
+      if (!started || !progress.isConnected) return;
       clearInterval(id);
       progress.strokeStyle = { transition: '0.2s' }; // change to ease and then stop
       progress.value = 100;
@@ -64,6 +66,7 @@ export const methods = {
     return {
       start(instant = true) {
         if (!progress.isConnected) return;
+        started = true;
         clearInterval(id);
         init();
         instant && raf(inc);
