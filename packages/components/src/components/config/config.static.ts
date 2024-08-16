@@ -141,6 +141,8 @@ export const GlobalStaticConfig = new Proxy(
         ({} as
           | Omit<CustomEventInit, 'detail'>
           | [Omit<CustomEventInit, 'detail'>, Record<string, Omit<CustomEventInit, 'detail'>>]),
+      true,
+      true,
     ),
     ...(presets as Omit<import('@lun/core').Presets, 'date'> & {
       /**

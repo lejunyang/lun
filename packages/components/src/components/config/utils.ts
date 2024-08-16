@@ -4,6 +4,12 @@ export function reduceFromComps<T>(getter: () => T): Record<ComponentKey, T>;
 
 export function reduceFromComps<T>(getter: () => T, allComp: true): Record<ComponentKey, T>;
 
+export function reduceFromComps<T>(
+  getter: () => T,
+  allComp: true,
+  includeCommon: true,
+): Record<ComponentKey | 'common', T>;
+
 export function reduceFromComps<T>(getter: () => T, allComp: false): Record<'common' | OpenShadowComponentKey, T>;
 
 export function reduceFromComps<T>(

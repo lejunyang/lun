@@ -6,7 +6,10 @@ const getHeightHandler = ({ duration }: TransitionProps, isEnter = true) =>
   ((el, done) => {
     if (!isHTMLElement(el)) return;
     const height = el.offsetHeight,
-      frames = [{ height: '0px' }, { height: `${height}px` }];
+      frames = [
+        { height: '0px', opacity: 0 },
+        { height: `${height}px`, opacity: 1 },
+      ];
     // @ts-ignore
     const finalDur = isObject(duration) ? (isEnter ? duration.enter : duration.leave) : duration;
     const ani = el.animate(isEnter ? frames : frames.reverse(), {
