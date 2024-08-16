@@ -39,13 +39,9 @@
           </div>
           <VPSwitchAppearance class="appearance-switch" />
           <l-color-picker class="color-picker" panel-only></l-color-picker>
-          <l-callout
-            class="callout"
-            variant="soft"
-            icon-name="info"
-            message="Try out above"
-            :description="text"
-          ></l-callout>
+          <l-callout class="callout" variant="soft" icon-name="info" message="Try out around">
+            <l-popover triggers="select" content="This is help text" slot="description">{{ calloutText }}</l-popover>
+          </l-callout>
         </div>
       </template>
       <template #doc-after>
@@ -75,13 +71,15 @@ import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
 import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
 import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount } from 'vue';
-import ThemeConfigPanel from '../../../components/ThemeConfigPanel.vue';
+import ThemeConfigPanel from './ThemeConfigPanel.vue';
 import { GlobalContextConfig, Progress, themeColors, activeBreakpoint } from '@lun/components';
 import Giscus from '@giscus/vue';
 import { on, AnyFn, withResolvers } from '@lun/utils';
-import { text } from '../../../utils/data';
+import { text } from '../utils/data';
 
 const Layout = Theme.Layout;
+
+const calloutText = 'Try selecting some text here~~ ' + text;
 
 const theme = reactive({
   color: 'indigo',
@@ -241,11 +239,14 @@ const router = useRouter();
 let routeResolve: (() => void) | undefined, transitionReady: Promise<any> | undefined;
 
 router.onBeforeRouteChange = () => {
+  console.debug('on before route change');
   pageProgress.start();
 };
 // @ts-ignore
 router.onAfterPageLoad = async () => {
+  console.debug('on after page load');
   await pageProgress.stop();
+  console.debug('page loading bar stopped');
   if (document.startViewTransition) {
     const transition = withResolvers();
     transitionReady = document.startViewTransition(async () => {

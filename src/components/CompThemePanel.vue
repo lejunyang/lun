@@ -1,5 +1,5 @@
 <template>
-  <l-tabs defaultActiveSlot="ThemeColors">
+  <l-tabs default-active-slot="ThemeColors">
     <l-tab-item slot="ThemeColors" :label="locales[lang]?.components.themeVariants">
       <div
         class="grid"

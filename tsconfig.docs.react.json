@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
     "composite": true,
+    "baseUrl": ".",
     "jsx": "preserve",
     "jsxImportSource": "react",
-    "types": ["@lun/components/dist/elements-types-react"],
+    "types": ["./packages/components/dist/elements-types-react"],
     "paths": {
-      "data": ["./src/utils/data.ts"]
+      "data": ["./src/utils/data.ts"],
+      "@lun/components": ["./packages/components/index.ts"],
+      "@lun/core": ["./packages/core/index.ts"]
     }
   },
   "include": ["src/docs/**/*.react.tsx"]

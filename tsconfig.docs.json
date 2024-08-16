@@ -1,11 +1,11 @@
 {
   "references": [
     {
-      "path": "./tsconfig.docs.vue.json",
+      "path": "./tsconfig.docs.vue.json"
     },
     {
-      "path": "./tsconfig.docs.react.json",
-    },
+      "path": "./tsconfig.docs.react.json"
+    }
   ],
   "compilerOptions": {
     "composite": true,
@@ -18,9 +18,16 @@
     "strict": false,
     "paths": {
       "data": ["./src/utils/data.ts"],
-    }
+      "@lun/components": ["./packages/components/index.ts"],
+      "@lun/core": ["./packages/core/index.ts"]
+    },
+    "types": ["./packages/components/dist/elements-types-vue.d.ts"]
   },
-  "exclude": [
-    "src/docs/.vitepress",
+  "exclude": ["src/docs/.vitepress/cache", "src/docs/.vitepress/dist", "src/docs/.vitepress/temp"],
+  "include": [
+    "./src/utils/*.ts",
+    "./utils/**/*.ts",
+    "global.d.ts",
+    "./packages/components/dist/elements-types-vue.d.ts"
   ]
 }

@@ -14,7 +14,7 @@ import {
 import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
 import { Dayjs } from '@lun/core/date-dayjs';
-import Layout from './Layout.vue';
+import Layout from '../../../components/Layout.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';

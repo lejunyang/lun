@@ -2,26 +2,13 @@
   "extends": "./tsconfig.base.json",
   "references": [
     {
-      "path": "./tsconfig.docs.json",
+      "path": "./tsconfig.docs.json"
     }
   ],
-  "exclude": [
-    "src/docs/.vitepress/cache",
-    "src/docs/.vitepress/dist",
-    "src/docs/.vitepress/temp",
-  ],
-  "include": [
-    "src/docs/.vitepress/**/*.ts",
-    "src/docs/.vitepress/**/*.vue",
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "utils/**/*.ts",
-    "global.d.ts",
-  ],
+  "files": [],
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["@types/dom-view-transitions"],
-  }
+    "types": ["@types/dom-view-transitions"]
+  },
+  "include": ["./packages/components/dist/elements-types-vue.d.ts"]
 }
