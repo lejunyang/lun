@@ -9,6 +9,7 @@ import {
   PropNumOrArr,
   PropString,
   editStateProps,
+  PropObjOrStr,
 } from 'common';
 import { freeze } from '@lun/utils';
 
@@ -21,6 +22,9 @@ export const accordionProps = freeze({
   open: undefBoolProp,
   /** unique name of current accordion in accordion-group */
   name: PropString(),
+  iconPosition: PropString<'start' | 'end'>(),
+  iconName: PropObjOrStr<string | { open?: string; close?: string }>(),
+  iconLibrary: PropObjOrStr<string | { open?: string; close?: string }>(),
 });
 
 export const accordionEmits = freeze({
