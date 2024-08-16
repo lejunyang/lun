@@ -1,0 +1,54 @@
+@use '../../mixins' as *;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+@include b(accordion) {
+  @include declareVars((padding, border-bottom));
+  @include setVars(
+    (
+      border-bottom: 1px solid getGrayColor(a4),
+    )
+  );
+
+  @include e(header) {
+    display: flex;
+    align-items: center;
+  }
+
+  @include e(indicator) {
+    transition: transform 0.3s;
+    @include is(end) {
+      margin-inline-start: auto;
+    }
+  }
+  @include is(open) {
+    @include e(indicator) {
+      transform: rotate(90deg);
+    }
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        padding: getSpaceValue(1) 0,
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        padding: getSpaceValue(2) 0,
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        padding: getSpaceValue(3) 0,
+      )
+    );
+  }
+}
