@@ -1,24 +1,56 @@
-@use '../../mixins/bem' as *;
-@use '../../mixins/theme' as *;
-@use '../../mixins/function' as *;
-@use '../../mixins/config' as *;
+@use '../../mixins' as *;
 
 @include b(tabs) {
   @include variant(solid) {
+    @include m(horizontal) {
+      @include declareReuseVars(
+        (
+          border-radius: horizontal-border-radius,
+        )
+      );
+    }
+    @include m(vertical) {
+      @include declareReuseVars(
+        (
+          border-radius: vertical-border-radius,
+        )
+      );
+    }
     @include e(wrapper) {
       background: getGrayColor(a3);
-      @include declareReuseVars((border-radius), true);
+      @include reuseVars(
+        (
+          border-radius: (
+            horizontal-border-radius,
+            vertical-border-radius,
+          ),
+        )
+      );
       &::after {
         background-color: getAccentColor(a9);
         left: getVarValue(tabs-active-tab-left);
         top: getVarValue(tabs-active-tab-top);
         width: getVarValue(tabs-active-tab-width);
         height: getVarValue(tabs-active-tab-height);
-        @include reuseVars((border-radius));
+        @include reuseVars(
+          (
+            border-radius: (
+              horizontal-border-radius,
+              vertical-border-radius,
+            ),
+          )
+        );
       }
     }
     @include e(tab) {
-      @include reuseVars((border-radius));
+      @include reuseVars(
+        (
+          border-radius: (
+            horizontal-border-radius,
+            vertical-border-radius,
+          ),
+        )
+      );
       @include is(active) {
         color: getAccentColor(contrast);
         z-index: 1;
@@ -40,7 +72,8 @@
     @include size(1, false) {
       @include setVars(
         (
-          border-radius: getRadiusValue(3, 'full'),
+          horizontal-border-radius: getRadiusValue(3, 'full'),
+          vertical-border-radius: getRadiusValue(3),
           wrapper-padding: getSpaceValue(1),
         )
       );
@@ -48,7 +81,8 @@
     @include size(2, false) {
       @include setVars(
         (
-          border-radius: getRadiusValue(4, 'full'),
+          horizontal-border-radius: getRadiusValue(4, 'full'),
+          vertical-border-radius: getRadiusValue(4),
           wrapper-padding: getSpaceValue(1),
           tab-padding-block: getSpaceValue(1),
           tab-padding-inline: getSpaceValue(3),
@@ -58,7 +92,8 @@
     @include size(3, false) {
       @include setVars(
         (
-          border-radius: getRadiusValue(5, 'full'),
+          horizontal-border-radius: getRadiusValue(5, 'full'),
+          vertical-border-radius: getRadiusValue(5),
           wrapper-padding: getSpaceValue(2),
           tab-padding-block: getSpaceValue(2),
           tab-padding-inline: getSpaceValue(4),
