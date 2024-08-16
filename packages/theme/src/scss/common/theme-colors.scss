@@ -12,11 +12,6 @@ $color: $default-accent-color;
     @include semanticColor($name, getColor($value, 9));
   }
 
-  // map gray colors
-  // @each $color in $gray-color-list {
-  //   @include mapGrayColor($color);
-  // }
-
   // contrast color
   @include generateContrastColor();
 }

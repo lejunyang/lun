@@ -2,6 +2,7 @@
 @use 'function' as *;
 @use 'sass:map';
 @use 'sass:list';
+@use 'sass:selector';
 
 // block
 @mixin b($block: '') {
@@ -26,7 +27,7 @@
       $currentSelector: $currentSelector + $comma + '.' + $B + config.$element-separator + $e;
     }
   } @else {
-    $currentSelector: #{'.' + $B + config.$element-separator + $element} ;
+    $currentSelector: #{'.' + $B + config.$element-separator + $element};
   }
 
   @if $underParent == null {
@@ -67,11 +68,22 @@
   $selector: &;
   $currentSelector: '';
   @each $unit in $modifier {
-    $currentSelector: #{$currentSelector + $selector + config.$modifier-separator + $unit};
-    @if map.get(config.$with-where-map, 'modifier') {
-      $currentSelector: #{':where(' + $currentSelector + ')'};
+    @if $currentSelector != '' {
+      $currentSelector: #{$currentSelector + ','};
     }
-    $currentSelector: #{$currentSelector + ','};
+    @if containsModifier($selector) {
+      $part: '.' + $B + config.$modifier-separator + $unit;
+      @if map.get(config.$with-where-map, 'modifier') {
+        $part: #{':where(' + $part + ')'};
+      }
+      $currentSelector: #{$currentSelector + selector.unify($selector, $part)};
+    } @else {
+      $part: $selector + config.$modifier-separator + $unit;
+      @if map.get(config.$with-where-map, 'modifier') {
+        $part: #{':where(' + $part + ')'};
+      }
+      $currentSelector: #{$currentSelector + $part};
+    }
   }
   @at-root {
     #{$currentSelector} {
@@ -328,7 +340,11 @@
 @mixin reuseVars($varListOrMap) {
   @each $name, $alias in $varListOrMap {
     @if $alias {
-      #{$name}: var(--_#{$alias});
+      @if type-of($alias) == 'list' {
+        #{$name}: var(--_#{list.nth($alias, 1)}, var(--_#{list.nth($alias, 2)}));
+      } @else {
+        #{$name}: var(--_#{$alias});
+      }
     } @else {
       #{$name}: var(--_#{$name});
     }

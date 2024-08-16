@@ -1,7 +1,4 @@
-@use '../../mixins/bem' as *;
-@use '../../mixins/theme' as *;
-@use '../../mixins/function' as *;
-@use '../../mixins/config' as *;
+@use '../../mixins' as *;
 
 :host {
   display: contents; // it's for 'hideOptionWhenSelected' feature. Although we set display:none in shadow dom, we can't set 'display: none' for option element, and that will lead to an extra flex gap

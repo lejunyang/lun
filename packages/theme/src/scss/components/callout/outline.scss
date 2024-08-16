@@ -1,7 +1,4 @@
-@use '../../mixins/bem' as *;
-@use '../../mixins/theme' as *;
-@use '../../mixins/function' as *;
-@use '../../mixins/config' as *;
+@use '../../mixins' as *;
 
 @include b(callout) {
   @include variant(outline) {

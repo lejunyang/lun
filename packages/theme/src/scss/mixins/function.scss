@@ -73,6 +73,18 @@
     @return false;
   }
 }
+
+/// if contains 'variant'
+@function containsVariant($selector) {
+  $selector: selectorToString($selector);
+
+  @if str-index($selector, config.$modifier-separator + 'variant') {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
 // if contains `--` `.is-` or `:`
 @function hitAllSpecialNestRule($selector) {
   @return containsModifier($selector) or containWhenFlag($selector) or containPseudoClass($selector);

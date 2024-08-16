@@ -1,4 +1,4 @@
-@use "bem" as *;
-@use "config" as *;
-@use "function" as *;
-@use "theme" as *;
+@forward "bem";
+@forward "config";
+@forward "function";
+@forward "theme";
