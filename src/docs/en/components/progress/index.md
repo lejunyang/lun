@@ -8,6 +8,12 @@ lang: zh-CN
 
 <!-- @Code:line -->
 
+## 页面加载进度
+
+`Progress`拥有静态方法`createPageTopProgress`，其会往页面顶部添加一个永不结束的进度条，直到手动关闭。
+
+<!-- @Code:pageTop -->
+
 ## 波浪
 
 <!-- @Code:wave -->

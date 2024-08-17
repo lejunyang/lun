@@ -8,14 +8,7 @@
       <template #home-hero-image>
         <div class="theme-home-panel" v-show="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'">
           <l-radio-group class="color-group" size="3" v-update="theme.color">
-            <l-radio
-              v-for="color in themeColors"
-              :key="color"
-              :value="color"
-              :color="color"
-              no-indicator
-              :title="color"
-            >
+            <l-radio v-for="color in themeColors" :value="color" :color="color" no-indicator :title="color">
               <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
             </l-radio>
           </l-radio-group>
@@ -28,19 +21,19 @@
             variant="solid"
           ></l-tabs>
           <div class="start">
-            <l-button class="start-button" variant="solid" style="transform: translateX(-30px)">Get Started</l-button>
-            <l-button class="start-button" variant="soft" style="transform: translateX(-20px)">View</l-button>
-            <l-input variant="soft" value="input" style="transform: translateX(-10px)" />
-            <l-radio-group v-update="theme.size" style="">
+            <l-input variant="soft" value="input" style="transform: translateX(-30px)"></l-input>
+            <l-radio-group v-update="theme.size" style="transform: translateX(-20px)">
               <l-radio value="1">1</l-radio>
               <l-radio value="2" variant="surface">2</l-radio>
               <l-radio value="3" high-contrast>3</l-radio>
             </l-radio-group>
+            <l-button class="start-button" variant="solid" style="transform: translateX(-10px)">Get Started</l-button>
+            <l-button class="start-button" variant="soft">View</l-button>
           </div>
           <VPSwitchAppearance class="appearance-switch" />
           <l-color-picker class="color-picker" panel-only></l-color-picker>
-          <l-callout class="callout" variant="soft" icon-name="info" message="Try out around">
-            <l-popover triggers="select" content="This is help text" slot="description">{{ calloutText }}</l-popover>
+          <l-callout class="callout" variant="soft" icon-name="info" message="Try selecting some text below">
+            <l-popover triggers="select" content="This is help text" slot="description">{{ text }}</l-popover>
           </l-callout>
         </div>
       </template>
@@ -78,8 +71,6 @@ import { on, AnyFn, withResolvers } from '@lun/utils';
 import { text } from '../utils/data';
 
 const Layout = Theme.Layout;
-
-const calloutText = 'Try selecting some text here~~ ' + text;
 
 const theme = reactive({
   color: 'indigo',
@@ -372,6 +363,7 @@ giscus-widget::part(iframe) {
     animation-delay: -1.5s;
     display: flex;
     flex-direction: column;
+    align-items: end;
     gap: 10px;
   }
   .color-picker {

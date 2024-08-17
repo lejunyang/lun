@@ -6,8 +6,17 @@ lang: zh-CN
 
 customElement 的一个局限性便在于很难自定义其内容，slot 也无法做到像 vue 那样的作用域插槽，该组件便是为了去渲染需要高度自定义的内容
 
-- `l-custom-renderer`通过`content`属性来指定需要自定义渲染的内容，其可以为函数，当为函数时视为 getter
-- `l-custom-renderer`通过`type`属性来指定渲染的类型，若不指定则会自动检测，默认支持 vnode, html 字符串和 HTMLTemplateElement，通过调用`registerCustomRenderer`可自定义其他渲染器。自定义渲染器需要提供的函数如下所示，必须提供`isValidContent`和`onMounted`
+```ts
+export type CustomRendererProps = {
+  content: unknown;
+  type?: string;
+  preferHtml?: boolean;
+};
+```
+
+- 通过`content`属性来指定需要自定义渲染的内容。其可以为函数，当为函数时视为 getter，可以在函数参数中获取 Vue 的 h 函数；其还可以为 HTMLTemplateElement，会[特殊规则](#渲染-htmltemplateelement)进行渲染
+- 通过`type`属性来指定渲染的类型(默认支持`vnode`, `html`和`text`)，若不指定则会自动检测，HTMLTemplateElement 不需要指定 type\
+  通过调用`registerCustomRenderer`可自定义其他渲染器。自定义渲染器需要提供的函数如下所示，必须提供`isValidContent`和`onMounted`
 
 ```ts
 export type CustomRendererRegistry = {
@@ -20,7 +29,10 @@ export type CustomRendererRegistry = {
 export function registerCustomRenderer(type: string, registry: CustomRendererRegistry);
 ```
 
-- 部分内部组件的使用了自定义渲染器，如 input 的 tagRenderer，popover 的 content 等等
+- 部分组件的部分属性支持自定义渲染，例如 Callout 的 message 和 description 属性，它们可以传递这样的值：
+  - 字符串、数字、Vnode：直接渲染
+  - 包含 content 属性的对象：使用CustomRenderer，会将该对象视为 CustomRenderer 的属性，传递给它并渲染
+  - 其他值：使用CustomRenderer，直接作为`content`属性传递给 CustomRenderer
 
 ## 渲染 ReactElement
 
@@ -57,7 +69,15 @@ registerCustomRenderer('react', {
 
 <!-- @Code:reactElement -->
 
+::: info 注
+虽然可以通过这种方式渲染 React 元素，但这样效率堪忧，且多出来许多 dom 节点，不如直接使用 Vnode 渲染
+:::
+
 ## 渲染 HTMLTemplateElement
+
+::: warning 警告
+该功能高度实验性，如果有类似于这样的[提案](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/DOM-Parts-Declarative-Template.md)进入标准，可能直接废弃该功能并转为支持标准
+:::
 
 为了使`template`能够动态渲染某些内容，内部有如下的生成替换规则：
 

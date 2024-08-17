@@ -13,4 +13,29 @@ button.addEventListener('validClick', () => {})
 button.addEventListener('valid-click', () => {})
 ```
 
-派发的事件均为`CustomEvent`，**不会冒泡**，通过`event.detail`可获取传递的数据（如果有的话）。
+派发的事件均为`CustomEvent`，通过`event.detail`可获取传递的数据（如果有的话）。事件的其他参数均为默认，也就是`bubbles: false, cancelable: false, composed: false`，**默认不冒泡， 不可取消，不会穿越 Shadow DOM 边界**。如果需要修改，可通过`GlobalStaticConfig.eventInitMap`进行配置，支持配置每个组件所有事件的默认参数，或某个事件的默认参数
+
+```js
+// 如果是对象，则该组件所有事件使用这个对象初始化
+GlobalStaticConfig.eventInitMap.button = {
+  bubbles: true,
+  cancelable: true,
+  composed: true
+}
+// 如果是数组，第一个对象用于所有对象初始化，第二个对象用于指定某个事件的初始化
+GlobalStaticConfig.eventInitMap.button = [
+  {
+    bubbles: true,
+  },
+  {
+    // key必须为驼峰格式
+    validClick: {
+      composed: true
+    }
+  }
+]
+
+// 也可以针对所有组件设置相同的
+GlobalStaticConfig.eventInitMap.common = {}
+GlobalStaticConfig.eventInitMap.common = []
+```

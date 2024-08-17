@@ -7,9 +7,9 @@ catalog:
   '@vitejs/plugin-vue': ^5.0.5
   '@vitejs/plugin-vue-jsx': ^3.1.0
   vitest: ^2.0.1
-  vue: ^3.4.37
-  '@vue/runtime-dom': ^3.4.37
-  '@vue/compiler-core': ^3.4.37
+  vue: ^3.4.38
+  '@vue/runtime-dom': ^3.4.38
+  '@vue/compiler-core': ^3.4.38
   vue-tsc: ^2.0.29
   react: rc
   react-dom: rc

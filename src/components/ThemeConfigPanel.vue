@@ -19,13 +19,13 @@
     <div slot="pop-content" class="theme-panel">
       <strong>{{ locales[lang]?.components.color }}</strong>
       <l-radio-group size="3" v-update="theme.color">
-        <l-radio v-for="color in themeColors" :key="color" :value="color" :color="color" no-indicator :title="color">
+        <l-radio v-for="color in themeColors" :value="color" :color="color" no-indicator :title="color">
           <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
         </l-radio>
       </l-radio-group>
       <strong>{{ locales[lang]?.components.grayColor }}</strong>
       <l-radio-group size="3" v-update="theme['gray-color']">
-        <l-radio v-for="color in grayColors" :key="color" :value="color" :color="color" no-indicator :title="color">
+        <l-radio v-for="color in grayColors" :value="color" :color="color" no-indicator :title="color">
           <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
         </l-radio>
       </l-radio-group>
@@ -45,14 +45,14 @@
       </l-radio-group>
       <strong>{{ locales[lang]?.components.radius }}</strong>
       <l-radio-group size="3" v-update="theme.radius" no-indicator style="row-gap: 0">
-        <l-radio class="radius-radio" v-for="radius in radiuses" :value="radius" :key="radius" :radius="radius">
+        <l-radio class="radius-radio" v-for="radius in radiuses" :value="radius" :radius="radius">
           <div class="wrapper"><div :class="`radius-image radius-${radius}`"></div></div>
           <div class="radius-text">{{ radius }}</div>
         </l-radio>
       </l-radio-group>
       <strong>{{ locales[lang]?.components.scale }}</strong>
       <l-radio-group size="2" v-update="theme.scale" type="card" style="--l-radio-group-gap: 12px">
-        <l-radio v-for="scale in scales" :value="scale" :key="scale">
+        <l-radio v-for="scale in scales" :value="scale">
           {{ (+scale * 100).toFixed(0) + '%' }}
         </l-radio>
       </l-radio-group>
