@@ -26,7 +26,7 @@ import { defineWatermark } from './watermark/Watermark';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
-import { once, supportCustomElement } from '@lun/utils';
+import { capitalize, once, supportCustomElement } from '@lun/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
@@ -37,59 +37,91 @@ import { defineTour } from './tour/Tour';
 import { defineColorPicker } from './color-picker';
 import { defineTabs, defineTabItem } from './tabs';
 import { defineAccordion, defineAccordionGroup } from './accordion';
+import { camelize } from 'vue';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
   // found that provide and inject are strongly rely on the dom order of the elements, as in defineCustomElement parent is searched by parentNode and instanceof
   // In SSR, if elements are already in the document and the parent is defined after the child, it will not work
   // So we need to define the providers first
-  defineWatermark();
-  defineThemeProvider();
-  defineTeleportHolder();
-  defineAccordionGroup();
-  defineAccordion();
-  defineTabs();
-  defineTabItem();
-  defineForm();
-  defineFormItem();
-  defineButton();
-  defineMessage();
-  defineCalendar();
-  defineCallout();
-  defineCheckboxGroup();
-  defineCheckbox();
-  defineCustomRenderer();
-  defineDatePicker();
-  defineDialog();
-  defineDivider();
-  defineIcon();
-  defineInput();
-  definePopover();
-  defineRadioGroup();
-  defineRadio();
-  defineRange();
-  defineSelect();
-  defineSelectOptgroup();
-  defineSelectOption();
-  defineSpin();
-  defineSwitch();
-  defineTag();
-  defineTooltip();
-  defineFilePicker();
-  defineProgress();
-  defineTextarea();
-  defineMentions();
-  defineDocPip();
-  defineTour();
-  defineColorPicker();
+  const comps = {
+    defineWatermark,
+    defineThemeProvider,
+    defineTeleportHolder,
+    defineAccordionGroup,
+    defineAccordion,
+    defineTabs,
+    defineTabItem,
+    defineForm,
+    defineFormItem,
+    defineButton,
+    defineMessage,
+    defineCalendar,
+    defineCallout,
+    defineCheckboxGroup,
+    defineCheckbox,
+    defineCustomRenderer,
+    defineDatePicker,
+    defineDialog,
+    defineDivider,
+    defineIcon,
+    defineInput,
+    definePopover,
+    defineRadioGroup,
+    defineRadio,
+    defineRange,
+    defineSelect,
+    defineSelectOptgroup,
+    defineSelectOption,
+    defineSpin,
+    defineSwitch,
+    defineTag,
+    defineTooltip,
+    defineFilePicker,
+    defineProgress,
+    defineTextarea,
+    defineMentions,
+    defineDocPip,
+    defineTour,
+    defineColorPicker,
+  };
+  // first define those already exist in the document for SSR
+  discover(document.body, (comp) => {
+    // @ts-ignore
+    comps[`define${capitalize(camelize(comp))}`]?.();
+  });
+  Object.values(comps).forEach((d) => d());
 }
 
 export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];
-export const autoDefine = once(() => {
+const discover = (root: Element, defineFn?: (componentName: string) => void) => {
   const { namespace, defaultProps } = GlobalStaticConfig;
+  const rootTagName = root.tagName.toLowerCase();
+  const prefix = namespace + '-';
+  const rootIsLunElement = rootTagName.startsWith(prefix);
+  const reg = new RegExp(`^${prefix}`);
+  const componentNames = [...root.querySelectorAll(':not(:defined)')].flatMap((el) => {
+    const name = el.tagName.toLowerCase().replace(reg, '');
+    return name in defaultProps ? [name] : [];
+  });
+
+  if (rootIsLunElement && !customElements.get(rootTagName)) {
+    componentNames.unshift(rootTagName.replace(reg, ''));
+  }
+  const componentsToRegister = [...new Set(componentNames)];
+  return componentsToRegister.map((componentName) => {
+    __internal_defineSubscriber.forEach((f) => f(componentName));
+    return defineFn
+      ? defineFn(componentName)
+      : import(`./${componentName}/${componentName}.define.ts`).catch(() => {
+          // some components may not have define.ts file, like radio-group
+        });
+  });
+};
+export const autoDefine = once(() => {
   const undefinedSet = new Set();
   components.forEach((comp) => {
-    const tagName = namespace + '-' + comp;
+    const tagName = GlobalStaticConfig.namespace + '-' + comp;
     if (!customElements.get(tagName)) {
       undefinedSet.add(comp);
       customElements.whenDefined(tagName).then(() => {
@@ -100,27 +132,7 @@ export const autoDefine = once(() => {
       });
     }
   });
-  const discover = (root: Element) => {
-    const rootTagName = root.tagName.toLowerCase();
-    const prefix = namespace + '-';
-    const rootIsLunElement = rootTagName.startsWith(prefix);
-    const reg = new RegExp(`^${prefix}`);
-    const componentNames = [...root.querySelectorAll(':not(:defined)')].flatMap((el) => {
-      const name = el.tagName.toLowerCase().replace(reg, '');
-      return name in defaultProps ? [name] : [];
-    });
 
-    if (rootIsLunElement && !customElements.get(rootTagName)) {
-      componentNames.unshift(rootTagName.replace(reg, ''));
-    }
-    const componentsToRegister = [...new Set(componentNames)];
-    return componentsToRegister.map((componentName) => {
-      __internal_defineSubscriber.forEach((f) => f(componentName));
-      return import(`./${componentName}/${componentName}.define.ts`).catch(() => {
-        // some components may not have define.ts file, like radio-group
-      });
-    });
-  };
   const observer = new MutationObserver((mutations) => {
     for (const { addedNodes } of mutations) {
       for (const node of addedNodes) {
