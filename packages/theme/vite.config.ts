@@ -7,4 +7,9 @@ export default getViteConfig('@lun/theme', {
       // plugins: [postcssLogical()],
     },
   },
+  build: {
+    lib: {
+      entry: ['./index.ts', './src/custom/custom.ts'],
+    },
+  },
 });
