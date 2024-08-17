@@ -13,6 +13,7 @@ import {
 } from '@lun/theme';
 import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
+import { importCustomDynamicColors } from '@lun/theme/custom';
 import { Dayjs } from '@lun/core/date-dayjs';
 import Layout from '../../../components/Layout.vue';
 import Code from '../../../components/Code.vue';
@@ -54,6 +55,7 @@ export default {
     importSolidTheme();
     importSoftTheme();
     importGhostTheme();
+    importCustomDynamicColors();
 
     // lazy import react
     (async () => {

@@ -9,7 +9,7 @@ import { ComponentInternalInstance, ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
-import { fromObject, getFirstOfIterable, isArray, isElement, isString, once, supportCustomElement } from '@lun/utils';
+import { fromObject, getFirstOfIterable, isArray, isElement, isString, once, runIfFn, supportCustomElement } from '@lun/utils';
 import { PropString } from 'common';
 import { useContextStyles } from '../hooks/useStyles';
 
@@ -118,8 +118,9 @@ export function createDefineElement(
   };
 }
 
-export function createImportStyle(compKey: OpenShadowComponentKey | 'common', style: string, variantName?: string) {
+export function createImportStyle(compKey: OpenShadowComponentKey | 'common', style: string | (() => string), variantName?: string) {
   return once(() => {
+    style = runIfFn(style);
     GlobalStaticConfig.styles[compKey]?.push(processStringStyle(style));
     if (variantName) GlobalStaticConfig.availableVariants[compKey as OpenShadowComponentKey]?.add(variantName);
   });

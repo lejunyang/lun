@@ -47,6 +47,7 @@ export default defineConfig({
             '@lun/plugins': processPath('./packages/plugins/index'),
             '@lun/components': processPath('./packages/components/index'),
             '@lun/core/date-dayjs': processPath('./packages/core/src/presets/date.dayjs.ts'),
+            '@lun/theme/custom': processPath('./packages/theme/src/custom/custom.ts'),
             '@lun/core': processPath('./packages/core/index'),
             '@lun/utils': processPath('./packages/utils/index'),
             '@lun/theme': processPath('./packages/theme/src'),

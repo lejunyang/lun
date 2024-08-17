@@ -5,7 +5,7 @@ import {
   TGlobalContextConfig,
 } from '@lun/components';
 import { GlobalStaticConfig } from '@lun/components';
-import { once, toPxIfNum } from '@lun/utils';
+import { toPxIfNum } from '@lun/utils';
 import commonStyles from './index.scss?inline';
 
 export const importCommonDynamicTheme = createImportDynamicStyle('common', (vm, name, context) => {
@@ -33,7 +33,7 @@ export const importCommonDynamicTheme = createImportDynamicStyle('common', (vm, 
   return scaleStyle + spaceStyle;
 });
 
-export const importCommonStaticTheme = once(createImportStyle('common', commonStyles));
+export const importCommonStaticTheme = createImportStyle('common', commonStyles);
 
 export const importCommonTheme = () => {
   importCommonStaticTheme();

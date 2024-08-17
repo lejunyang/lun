@@ -12,6 +12,7 @@
     "paths": {
       "data": ["./src/utils/data.ts"],
       "@lun/components": ["./packages/components/index.ts"],
+      "@lun/theme/custom": ["./packages/theme/src/custom/custom.ts"],
       "@lun/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
       "@lun/core": ["./packages/core/index.ts"]
     }
@@ -23,6 +24,8 @@
     "./src/docs/.vitepress/theme/Layout.vue",
     "./src/utils/*.ts",
     "./src/docs/.vitepress/**/*.ts",
-    "./packages/components/dist/elements-types-vue.d.ts"
+    "./packages/components/dist/elements-types-vue.d.ts",
+    "./packages/core/src/presets/date.dayjs.ts",
+    "./packages/theme/src/custom/custom.ts"
   ]
 }

@@ -31,7 +31,7 @@
             <l-button class="start-button" variant="soft">View</l-button>
           </div>
           <VPSwitchAppearance class="appearance-switch" />
-          <l-color-picker class="color-picker" panel-only></l-color-picker>
+          <l-color-picker class="color-picker" panel-only @update="pickColorUpdate"></l-color-picker>
           <l-callout class="callout" variant="soft" icon-name="info" message="Try selecting some text below">
             <l-popover triggers="select" content="This is help text" slot="description">{{ text }}</l-popover>
           </l-callout>
@@ -83,6 +83,10 @@ const theme = reactive({
 
 const radiuses = ['none', 'small', 'medium', 'large', 'full'];
 const radiusTabs = radiuses.map((r) => ({ slot: r, label: r }));
+
+const pickColorUpdate = (e: CustomEvent) => {
+  theme.color = e.detail;
+}
 
 const { isDark, lang, page } = useData();
 let lastClickX = 0,
