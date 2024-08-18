@@ -2,9 +2,8 @@ import {
   createImportDynamicStyle,
   getThemeValueFromInstance,
   GlobalStaticConfig,
-  grayColors,
   TGlobalContextConfig,
-  themeColors,
+  allColorSet,
 } from '@lun/components';
 import { generateRadixColors } from './custom';
 
@@ -12,15 +11,12 @@ export const importCustomDynamicColors = createImportDynamicStyle('common', (vm,
   const { namespace } = context as TGlobalContextConfig;
   const n = namespace || GlobalStaticConfig.namespace;
   const { commonSeparator } = GlobalStaticConfig;
-  const getTheme = (prop: string) => {
-    const contextTheme = context[prop] as any;
-    return getThemeValueFromInstance(vm, prop) || contextTheme?.[name] || contextTheme?.common || contextTheme;
-  };
+  const getTheme = (prop: string) => getThemeValueFromInstance(vm, prop, context, name);
   const color = getTheme('color');
   function getVarName(...list: (string | number)[]) {
     return '--' + n + commonSeparator + list.join(commonSeparator);
   }
-  if (color && !themeColors.includes(color) && !grayColors.includes(color)) {
+  if (color && !allColorSet.has(color)) {
     const appearance = getTheme('appearance');
     const { accentScale, accentScaleAlpha } = generateRadixColors({
       appearance,

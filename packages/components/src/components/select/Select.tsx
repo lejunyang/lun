@@ -10,7 +10,7 @@ import { defineSelectOption } from './SelectOption';
 import { defineSelectOptgroup } from './SelectOptgroup';
 import {
   CommonOption,
-  getAllThemeValuesFromInstance,
+  getAllThemeValues,
   useCEExpose,
   useCEStates,
   useNamespace,
@@ -65,7 +65,7 @@ export const Select = defineSSRCustomElement({
     const customTagProps = (value: any) => {
       const child = valueToChild(value);
       return {
-        ...(child ? getAllThemeValuesFromInstance(child) : themeProps.value),
+        ...(child ? getAllThemeValues(child) : themeProps.value),
         label: child?.props.label || value,
       };
     };

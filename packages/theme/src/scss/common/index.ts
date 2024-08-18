@@ -1,7 +1,7 @@
 import {
   createImportDynamicStyle,
   createImportStyle,
-  getThemeValueFromInstance,
+  getThemeValue,
   TGlobalContextConfig,
 } from '@lun/components';
 import { GlobalStaticConfig } from '@lun/components';
@@ -9,11 +9,11 @@ import { toPxIfNum } from '@lun/utils';
 import commonStyles from './index.scss?inline';
 
 export const importCommonDynamicTheme = createImportDynamicStyle('common', (vm, name, context) => {
-  const { theme, namespace } = context as TGlobalContextConfig;
-  const themeScale = theme.scale as any;
+  const { namespace } = context as TGlobalContextConfig;
   const n = namespace || GlobalStaticConfig.namespace;
   const { commonSeparator } = GlobalStaticConfig;
-  const scale = getThemeValueFromInstance(vm, 'scale') || themeScale?.[name] || themeScale?.common || themeScale;
+  const getTheme = (prop: string) => getThemeValue(vm, prop, context, name);
+  const scale = getTheme('scale');
 
   function getVarName(...list: (string | number)[]) {
     return '--' + n + commonSeparator + list.join(commonSeparator);

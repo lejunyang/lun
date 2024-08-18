@@ -1,7 +1,7 @@
 // derived from element-plus
 import { ComponentInternalInstance, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
-import { isArray, isPreferDark, isString } from '@lun/utils';
+import { isArray, isPreferDark, isString, objectKeys } from '@lun/utils';
 import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
@@ -23,18 +23,27 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
 };
 
 const vmParentMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>();
-export const getThemeValueFromInstance = (
+/** @private */
+export const getThemeValue = (
   vm: ComponentInternalInstance | null | undefined,
   key: keyof ThemeProps,
+  context?: any,
+  compName?: string,
 ): any => {
   const result = vm?.props[key],
     parent = vmParentMap.get(vm!);
-  return result || (parent && getThemeValueFromInstance(parent, key));
+  const theme = context?.theme?.[key];
+  return (
+    result ||
+    (parent && getThemeValue(parent, key)) ||
+    (theme && ((compName && theme[compName]) || theme.common || theme))
+  );
 };
-export const getAllThemeValuesFromInstance = (vm: ComponentInternalInstance | null | undefined) => {
-  return Object.keys(themeProps).reduce((result, k) => {
-    const key = k as keyof ThemeProps;
-    result[key] = getThemeValueFromInstance(vm, key);
+
+/** @private */
+export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefined) => {
+  return objectKeys(themeProps).reduce((result, k) => {
+    result[k] = getThemeValue(vm, k);
     return result;
   }, {} as Record<keyof ThemeProps, any>);
 };
@@ -96,8 +105,7 @@ export const useNamespace = (
 
   const contextConfig = useContextConfig();
   const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme'] | 'status') => {
-    const theme = contextConfig?.theme[key];
-    return (getThemeValueFromInstance(vm, key) || (theme as any)?.[block] || (theme as any)?.common || theme) as T;
+    return getThemeValue(vm, key, contextConfig, block) as T;
   };
 
   const isDark = () => {
