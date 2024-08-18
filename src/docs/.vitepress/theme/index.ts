@@ -59,12 +59,8 @@ export default {
 
     // lazy import react
     (async () => {
-      const {
-        default: { isValidElement, cloneElement },
-      } = await import('react');
-      const {
-        default: { createRoot },
-      } = await import('react-dom/client');
+      const { isValidElement, cloneElement } = await import('react');
+      const { createRoot } = await import('react-dom/client');
       const reactRootMap = new WeakMap();
       registerCustomRenderer('react', {
         isValidContent(content) {

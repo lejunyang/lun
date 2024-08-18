@@ -85,6 +85,9 @@ export const supportCSSAnchor = supportCSSSupports && CSS.supports('inset-area',
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
 
+export const supportCSSDisplayP3 = supportCSSSupports && CSS.supports('color', 'color(display-p3 1 1 1)');
+export const supportCSSOklch = supportCSSSupports && CSS.supports('color', 'oklch(1% 1 1)');
+
 export const supportTouch = inBrowser && 'ontouchstart' in document.body;
 
 export const isSupportSlotAssign = cacheFunctionResult(() => isFunction(HTMLSlotElement.prototype.assign));

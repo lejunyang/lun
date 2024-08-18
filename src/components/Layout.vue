@@ -32,7 +32,7 @@
           </div>
           <VPSwitchAppearance class="appearance-switch" />
           <l-color-picker class="color-picker" panel-only @update="pickColorUpdate"></l-color-picker>
-          <l-callout class="callout" variant="soft" icon-name="info" message="Try selecting some text below">
+          <l-callout class="callout" variant="soft" icon-name="info" message="Try selecting some text below" :iconProps="{style: { color: 'var(--l-accent-9)' }}">
             <l-popover triggers="select" content="This is help text" slot="description">{{ text }}</l-popover>
           </l-callout>
         </div>
