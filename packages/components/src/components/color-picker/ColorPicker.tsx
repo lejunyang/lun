@@ -71,7 +71,7 @@ export const ColorPicker = defineSSRCustomElement({
       const [h, s, l, a] = hsla;
       return `hsl(${h} ${s}% ${l}%${alpha ? `/${a}%` : ''})`;
     };
-    const color = computed(() => getColor(true));
+    const color = computed(() => getColor(!props.noAlpha));
     const updateValue = () => (valueModel.value = color.value);
 
     const targetStates = useDraggableArea({
@@ -137,7 +137,7 @@ export const ColorPicker = defineSSRCustomElement({
 
     const triggers = ['click', 'focus'];
     return () => {
-      const { popoverProps, panelOnly } = props;
+      const { popoverProps, panelOnly, noAlpha } = props;
       const colorVal = color.value;
       const panelNode = (
         <div class={[ns.e('panel'), panelOnly && stateClass.value]} part={compParts[0]} slot="pop-content">
@@ -156,13 +156,14 @@ export const ColorPicker = defineSSRCustomElement({
             <div class={ns.e('preview')} part={compParts[5]} style={{ background: colorVal }}></div>
             <div class={ns.e('ranges')} part={compParts[8]}>
               {renderElement('range', { ...hueRangeProps, value: hsla[0] })}
-              {renderElement('range', {
-                ...alphaRangeProps,
-                value: hsla[3],
-                railStyle: {
-                  background: `linear-gradient(to right,rgb(255 0 4/0),${getColor()})`,
-                },
-              })}
+              {!noAlpha &&
+                renderElement('range', {
+                  ...alphaRangeProps,
+                  value: hsla[3],
+                  railStyle: {
+                    background: `linear-gradient(to right,rgb(255 0 4/0),${getColor()})`,
+                  },
+                })}
             </div>
           </div>
         </div>

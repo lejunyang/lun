@@ -31,7 +31,7 @@
             <l-button class="start-button" variant="soft">View</l-button>
           </div>
           <VPSwitchAppearance class="appearance-switch" />
-          <l-color-picker class="color-picker" panel-only @update="pickColorUpdate"></l-color-picker>
+          <l-color-picker class="color-picker" panel-only no-alpha @update="pickColorUpdate"></l-color-picker>
           <l-callout class="callout" variant="soft" icon-name="info" message="Try selecting some text below" :iconProps="{style: { color: 'var(--l-accent-9)' }}">
             <l-popover triggers="select" content="This is help text" slot="description">{{ text }}</l-popover>
           </l-callout>
@@ -53,6 +53,7 @@
             :lang="lang"
             :theme="isDark ? 'dark' : 'light'"
             :key="page.filePath"
+            v-if="!page.filePath.includes('palette')"
           />
         </ClientOnly>
       </template>

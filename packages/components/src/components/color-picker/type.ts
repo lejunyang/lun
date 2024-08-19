@@ -16,6 +16,7 @@ export const colorPickerProps = freeze({
   value: PropString(),
   panelOnly: PropBoolean(),
   popoverProps: PropObject(),
+  noAlpha: PropBoolean(),
 });
 
 export const colorPickerEmits = freeze({
