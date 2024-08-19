@@ -4,6 +4,7 @@ export default {
       home: '主页',
       guide: '指南',
       components: '组件',
+      palette: '调色',
     },
     sidebar: {
       basic: {
@@ -102,6 +103,7 @@ export default {
       home: 'Home',
       guide: 'Guide',
       components: 'Components',
+      palette: 'Palette',
     },
     sidebar: {
       basic: {

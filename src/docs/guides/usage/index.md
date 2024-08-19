@@ -220,7 +220,7 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 某些特性无法或不好做兼容，但它们影响不大，不使用那些功能即可
 
 - <Support is="docPip" /> [`doc-pip`](/components/doc-pip/): [DocumentPictureInPicture](https://caniuse.com/?search=DocumentPictureInPicture) <SupportInfo chrome="116" edge="116" firefox="no" safari="no" />
-- <Support is="highlight" /> [`mentions`](/components/mentions/): [CSS highlight](https://caniuse.com/?search=highlight) <SupportInfo chrome="105" edge="105" firefox="no" safari="17.2" />
+- <Support is="highlight" /> [`mentions`](/components/mentions/): [CSS highlight](https://caniuse.com/?search=highlight) <SupportInfo chrome="105" edge="105" firefox="132" safari="17.2" />
 - <Support is="overflowClipMargin" /> [`input`](/components/input/#轮播标签): [CSS overflow-clip-margin](https://caniuse.com/?search=overflow-clip-margin) <SupportInfo chrome="90" edge="90" firefox="102" safari="no" />
 
 <script setup>

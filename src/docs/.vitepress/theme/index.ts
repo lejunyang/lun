@@ -16,6 +16,7 @@ import '@lun/core/date-dayjs';
 import { importCustomDynamicColors } from '@lun/theme/custom';
 import { Dayjs } from '@lun/core/date-dayjs';
 import Layout from '../../../components/Layout.vue';
+import Palette from '../../../components/Palette.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
@@ -39,6 +40,7 @@ export default {
     once = true;
 
     app.component('Code', Code);
+    app.component('Palette', Palette);
     app.component('Support', Support);
     app.component('SupportInfo', SupportInfo);
     app.component('CompThemePanel', CompThemePanel);

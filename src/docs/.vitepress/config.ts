@@ -17,6 +17,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
       { text: locales[lang].nav.home, link: wrapLink('/', lang) },
       { text: locales[lang].nav.guide, link: wrapLink('/guides/usage/', lang) },
       { text: locales[lang].nav.components, link: wrapLink('/components/button/', lang) },
+      { text: locales[lang].nav.palette, link: wrapLink('/palette/', lang) },
     ],
     sidebar: {
       [wrapLink('/guides/', lang)]: [
