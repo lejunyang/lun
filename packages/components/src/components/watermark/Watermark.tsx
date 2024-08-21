@@ -40,6 +40,7 @@ const commonStyle = {
     scale: none,
     maxHeight: full,
     maxWidth: full,
+    filter: none,
     overflow: 'hidden', // in case of transforming children out of container to avoid watermark cover
   } satisfies CSSProperties;
 let ceStyleString = '';
@@ -63,8 +64,10 @@ export const Watermark = defineSSRCustomElement({
     const freezedProps = mutable ? props : reactive({ ...props });
     const { CE } = getCurrentInstance()!;
     const markDiv = ref<HTMLDivElement>(),
-      slotWrapper = ref<HTMLDivElement>();
+      slotWrapper = ref<HTMLDivElement>(),
+      slotEl = ref<HTMLSlotElement>();
     let shadowRoot: ShadowRoot, lastWatermarkStyle: string, lastSlotWrapperStyle: string;
+    const allowedChildren = new WeakSet();
 
     if (!mutable) {
       const mayNeedUpdateKeys = new Set(objectKeys(props).filter((k) => !isTruthyOrZeroOrFalse(props[k])));
@@ -91,10 +94,21 @@ export const Watermark = defineSSRCustomElement({
 
     const shadowRootObserver = new MutationObserver((mutations) => {
       const div = markDiv.value!,
-        wrapper = slotWrapper.value!;
+        wrapper = slotWrapper.value!,
+        slot = slotEl.value!;
       for (const m of mutations) {
-        if (m.type === 'childList' && m.removedNodes.length) {
-          shadowRoot.append(...m.removedNodes);
+        if (m.type === 'childList') {
+          // disable adding other nodes into shadowRoot
+          m.addedNodes.forEach((n) => {
+            if (!allowedChildren.has(n)) n.parentNode?.removeChild(n);
+          });
+          if ([...m.removedNodes].find((n) => allowedChildren.has(n))) {
+            shadowRootObserver.disconnect();
+            slot.remove();
+            wrapper.append(slot);
+            shadowRoot.append(wrapper, div);
+            observeRoot();
+          }
         }
         if (m.type === 'attributes' && m.attributeName === 'style') {
           if (div.style.cssText !== lastWatermarkStyle) div.style.cssText = lastWatermarkStyle;
@@ -106,20 +120,25 @@ export const Watermark = defineSSRCustomElement({
     // In either MutationObserver callback or disconnectedCallback, CE.isConnected is false, we can't get CE.parentElement, need to store it in mount
     let CEParent: HTMLElement,
       CENext: Node | null = null;
+    const observeRoot = () =>
+      shadowRootObserver.observe(shadowRoot, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+      });
     if (ceStyleString) CE.style.cssText = ceStyleString;
     else {
       setStyle(CE, ceStyle, true);
       ceStyleString = CE.style.cssText;
     }
     onMounted(() => {
+      allowedChildren.add(slotWrapper.value!);
+      allowedChildren.add(slotWrapper.value!.firstElementChild!);
+      allowedChildren.add(markDiv.value!);
       CEParent = CE.parentElement!;
       shadowRoot = markDiv.value!.parentNode as ShadowRoot;
       ceObserver.observe(CEParent, { childList: true }); // if observe CE, the callback will be triggered very lately, after onBeforeUnmount
-      shadowRootObserver.observe(shadowRoot, {
-        childList: true,
-        attributes: true,
-        subtree: true,
-      });
+      observeRoot();
     });
 
     // onBeforeUnmount is ensured, it will be triggered after disconnectedCallback
@@ -128,6 +147,7 @@ export const Watermark = defineSSRCustomElement({
       shadowRootObserver.disconnect();
       const children = CE.childNodes;
       raf(() => {
+        // TODO remove old CE if it's still connected
         if (CEParent?.isConnected) {
           const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
           Object.assign(newEl, freezedProps);
@@ -208,7 +228,7 @@ export const Watermark = defineSSRCustomElement({
     return () => (
       <>
         <div style={slotStyle} ref={slotWrapper}>
-          <slot></slot>
+          <slot ref={slotEl}></slot>
         </div>
         <div ref={markDiv}></div>
       </>
