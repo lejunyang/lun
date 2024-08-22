@@ -26,21 +26,25 @@ export const importCustomDynamicColors = createImportDynamicStyle('common', (vm,
     return allColorSet.has(name) && RadixColors[name + (isDark ? 'Dark' : '')][name + '9'];
   };
   if ((color && !allColorSet.has(color)) || (grayColor && !allColorSet.has(grayColor))) {
-    const { accentScale, accentScaleAlpha, accentContrast, accentSurface } = generateRadixColors({
-      appearance,
-      accent: getKeywordColor(color) || color, // some keywords are not standard css colors(like slate, bronze)
-      background: isDark ? '#111111' : '#FFFFFF',
-      gray: getKeywordColor(grayColor) || grayColor,
-    });
-    return `:host{${accentScale.map((c, i) => `${getVar(['accent', i + 1], c)}`).join('')}${accentScaleAlpha
-      .map((c, i) => `${getVar(['accent', 'a' + (i + 1)], c)}`)
-      .join('')}${getVar(['color', 'surface', 'accent'], accentSurface)}${getVar(
-      ['accent', '9', 'contrast'],
-      accentContrast,
-    )}${getVar(['color', 'focus'], accentScale[7])}${getVar(['color', 'selection'], accentScaleAlpha[4])}${getVar(
-      ['color', 'autofill'],
-      accentScaleAlpha[2],
-    )}}`;
+    const { accentScale, accentScaleAlpha, accentContrast, accentSurface, grayScale, grayScaleAlpha } =
+      generateRadixColors({
+        appearance,
+        accent: getKeywordColor(color) || color, // some keywords are not standard css colors(like slate, bronze)
+        background: isDark ? '#111111' : '#FFFFFF',
+        gray: getKeywordColor(grayColor) || grayColor,
+      });
+    const styles = [
+      accentScale.map((c, i) => `${getVar(['accent', i + 1], c)}`).join(''),
+      accentScaleAlpha.map((c, i) => `${getVar(['accent', 'a' + (i + 1)], c)}`).join(''),
+      grayScale.map((c, i) => `${getVar(['gray', i + 1], c)}`).join(''),
+      grayScaleAlpha.map((c, i) => `${getVar(['gray', 'a' + (i + 1)], c)}`).join(''),
+      getVar(['color', 'surface', 'accent'], accentSurface),
+      getVar(['accent', '9', 'contrast'], accentContrast),
+      getVar(['color', 'focus'], accentScale[7]),
+      getVar(['color', 'selection'], accentScaleAlpha[4]),
+      getVar(['color', 'autofill'], accentScaleAlpha[2]),
+    ];
+    return `:host{${styles.join('')}}`;
   }
   return '';
 });
