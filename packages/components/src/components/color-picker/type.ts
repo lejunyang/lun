@@ -14,6 +14,7 @@ export const colorPickerProps = freeze({
   ...editStateProps,
   ...themeProps,
   value: PropString(),
+  defaultValue: PropObject<number[]>(),
   panelOnly: PropBoolean(),
   popoverProps: PropObject(),
   noAlpha: PropBoolean(),

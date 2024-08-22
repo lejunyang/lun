@@ -4,11 +4,11 @@ import { colorPickerEmits, colorPickerProps } from './type';
 import { iPopover } from '../popover';
 import { useDraggableArea, useSetupEdit, useSetupEvent } from '@lun/core';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
 import { defineSelect } from '../select';
 import { getCompParts } from 'common';
 import { defineRange } from '../range';
-import { hsbToHsl, pick } from '@lun/utils';
+import { hsbToHsl, hslToHsb, isArray, pick } from '@lun/utils';
 
 const name = 'color-picker';
 const parts = ['panel', 'palette', 'wrapper', 'hue', 'alpha', 'preview', 'saturation', 'thumb', 'ranges'] as const;
@@ -65,14 +65,27 @@ export const ColorPicker = defineSSRCustomElement({
     });
 
     const hsla = reactive([360, 100, 50, 100]);
-    const updateSL = (saturation: number, brightness: number) =>
-      Object.assign(hsla, hsbToHsl(hsla[0], saturation, brightness));
+    let updated = false;
+    const updateSL = (saturation: number, brightness: number) => (
+      (updated = true), Object.assign(hsla, hsbToHsl(hsla[0], saturation, brightness))
+    );
+    const stop = watchEffect(() => {
+      const { defaultValue } = props;
+      if (updated) return stop();
+      if (isArray(defaultValue)) {
+        const hsb = hslToHsb(...(defaultValue as [number, number, number]));
+        resetThumb(hsb[1] / 100, hsb[2] / 100);
+        defaultValue[3] ??= 100;
+        Object.assign(hsla, defaultValue);
+        nextTick(() => stop()); // stop in next tick in case access it during initialization
+      }
+    });
     const getColor = (alpha?: boolean) => {
       const [h, s, l, a] = hsla;
       return `hsl(${h} ${s}% ${l}%${alpha ? `/${a}%` : ''})`;
     };
     const color = computed(() => getColor(!props.noAlpha));
-    const updateValue = () => (valueModel.value = color.value);
+    const updateValue = () => ((updated = true), (valueModel.value = color.value));
 
     const targetStates = useDraggableArea({
       el: paletteRef,
