@@ -38,9 +38,13 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
         entry: './index.ts',
         name: name.replace(/[@/]\w/g, (s) => s.slice(1).toUpperCase()),
         fileName: (format, entryName) => {
+          const ext = format === 'es' ? '.js' : '.cjs';
+          if (entryName.includes('define')) {
+            return `defines/${dev ? 'dev' : 'prod'}-${format}/${entryName}${ext}`;
+          }
           return entryName.includes('index')
-            ? `${fileName}.${dev ? 'development' : 'production'}${format === 'es' ? '.js' : '.cjs'}`
-            : `${entryName}.${dev ? 'development' : 'production'}${format === 'es' ? '.js' : '.cjs'}`;
+            ? `${fileName}.${dev ? 'development' : 'production'}${ext}`
+            : `${entryName}.${dev ? 'development' : 'production'}${ext}`;
         },
         ...viteConfig?.build?.lib,
       },
@@ -49,6 +53,9 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       rollupOptions: {
         external: ['vue', /@lun\/.+/, 'react', 'dayjs'],
         output: {
+          chunkFileNames(info) {
+            return `chunks/${dev ? 'dev' : 'prod'}-[format]/[name].[hash].js`;
+          },
           ...viteConfig?.build?.rollupOptions?.output,
           globals: {
             vue: 'Vue',
