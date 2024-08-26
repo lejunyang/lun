@@ -1,9 +1,4 @@
-import {
-  createImportDynamicStyle,
-  createImportStyle,
-  getThemeValue,
-  TGlobalContextConfig,
-} from '@lun/components';
+import { createImportDynamicStyle, createImportStyle, getThemeValue, TGlobalContextConfig } from '@lun/components';
 import { GlobalStaticConfig } from '@lun/components';
 import { toPxIfNum } from '@lun/utils';
 import commonStyles from './index.scss?inline';
@@ -39,3 +34,5 @@ export const importCommonTheme = () => {
   importCommonStaticTheme();
   importCommonDynamicTheme();
 };
+
+export * from './color';
