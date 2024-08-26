@@ -4,6 +4,7 @@ lang: zh-CN
 ---
 
 目前提供以下的库：
+
 - `@lun/utils`：js 工具函数库
 - `@lun/core`：提供组件功能的钩子函数库
 - `@lun/components`：组件库
@@ -49,6 +50,8 @@ export default function () {
 import { GlobalStaticConfig, defineAllComponents } from '@lun/components';
 import {
   importCommonTheme,
+  importAllColors,
+  importAllP3Colors,
   importBasicTheme,
   importSurfaceTheme,
   importOutlineTheme,
@@ -58,6 +61,12 @@ import {
 
 // 定义组件前设置想要更改的全局静态配置
 GlobalStaticConfig.xx = xx;
+
+// 引入所有的预设主题色
+importAllColors(); // 如果需要自定义请参考导航栏中的“调色”一栏
+// 如果需要P3广色域支持
+// importAllP3Colors();
+
 // 引入组件内部公共样式
 importCommonTheme();
 // 引入所有组件的基础主题
@@ -152,21 +161,25 @@ import * as React from 'react';
 declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
-      'l-button': React.HTMLAttributes<HTMLElement> & React.RefAttributes<import('./index').iButton> & import('@lun/components').ButtonProps;
+      'l-button': React.HTMLAttributes<HTMLElement> &
+        React.RefAttributes<import('./index').iButton> &
+        import('@lun/components').ButtonProps;
     }
   }
 }
 ```
 
-每个组件都有一个class和两个类型，注意区分
+每个组件都有一个 class 和两个类型，注意区分
+
 ```ts
 import { Button, tButton, iButton } from '@lun/components';
-Button // 组件的class，这是值，不是类型，一般用不到
-tButton // 组件class的类型，相当于typeof Button
-iButton // 组件实例的类型，相当于InstanceType<typeof tButton>
+Button; // 组件的class，这是值，不是类型，一般用不到
+tButton; // 组件class的类型，相当于typeof Button
+iButton; // 组件实例的类型，相当于InstanceType<typeof tButton>
 ```
 
 当需要组件实例类型时，你可以像下面这样使用：
+
 ```ts
 import { iButton } from '@lun/components';
 const button = document.querySelector('l-button') as iButton;
@@ -175,7 +188,6 @@ button.asyncHandler = () => console.log('');
 const buttonRef = ref<iButton>();
 const render = () => <l-button ref={buttonRef}></l-button>;
 ```
-
 
 ## 兼容性
 

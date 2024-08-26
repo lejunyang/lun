@@ -10,6 +10,8 @@ import {
   importSoftTheme,
   importSolidTheme,
   importGhostTheme,
+  importAllColors,
+  importAllP3Colors,
 } from '@lun/theme';
 import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
@@ -50,6 +52,8 @@ export default {
       console.warn(msg);
     };
 
+    importAllColors();
+    importAllP3Colors();
     importCommonTheme();
     importBasicTheme();
     importSurfaceTheme();
