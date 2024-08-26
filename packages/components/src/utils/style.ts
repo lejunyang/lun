@@ -4,12 +4,13 @@ import { mergeProps } from 'vue';
 
 export function processStringStyle<B extends boolean>(
   style: string | undefined | null,
+  isStatic = true,
   noSheet?: B,
 ): B extends true ? string : string | CSSStyleSheet {
   style = String(style || '');
   const { wrapCSSLayer, preferCSSStyleSheet, stylePreprocessor } = GlobalStaticConfig;
   if (supportCSSLayer && wrapCSSLayer) {
-    style = `@layer ${isString(wrapCSSLayer) ? wrapCSSLayer : 'lun'} {${style}}`;
+    style = `@layer ${isString(wrapCSSLayer) ? wrapCSSLayer : isStatic ? 'lun-static' : 'lun-dynamic'} {${style}}`;
   }
   style = stylePreprocessor(style);
   if (isSupportCSSStyleSheet() && preferCSSStyleSheet && !noSheet) {
@@ -30,4 +31,3 @@ export function assignProps(target: HTMLElement, ...props: Record<string, any>[]
     else Object.assign(target.style, style);
   }
 }
-

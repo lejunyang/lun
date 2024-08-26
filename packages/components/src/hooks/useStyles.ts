@@ -24,7 +24,7 @@ export function useContextStyles(name: OpenShadowComponentKey) {
   const adopt = isSupportCSSStyleSheet() && GlobalStaticConfig.preferCSSStyleSheet;
   styles.forEach((s) => {
     if (!s) return;
-    const css = () => processStringStyle(runIfFn(s, vm, name, context), true);
+    const css = () => processStringStyle(runIfFn(s, vm, name, context), false, true);
     if (adopt) {
       const sheet = new CSSStyleSheet() as CSSStyleSheet & { _clone?: CSSStyleSheet; _css: () => string };
       sheet._css = css;
