@@ -1,6 +1,9 @@
 {
   "name": "lun",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -11,11 +14,12 @@
     "docs:build": "node ./utils/generateAndLinkDocs.js && node ./buildDoc.js",
     "docs:preview": "vitepress preview src/docs",
     "test": "vitest",
-    "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha"
+    "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha",
+    "release": "pnpm publish -r --access public --no-git-checks"
   },
   "engines": {
     "node": ">=18",
-    "pnpm": ">=9.5.0"
+    "pnpm": ">=9.9.0"
   },
   "dependencies": {
     "@giscus/vue": "^3.0.0",
@@ -36,6 +40,7 @@
     "@types/react-dom": "npm:types-react-dom@rc"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.7",
     "@lun/plugins": "workspace:^",
     "@rollup/plugin-replace": "^5.0.7",
     "@types/dom-view-transitions": "^1.0.4",
@@ -61,13 +66,13 @@
     "vue-tsc": "catalog:"
   },
   "resolutions": {
-    "vite": "^5.4.0",
+    "vite": "catalog:",
     "@vueuse/core": "^10.11.0",
     "postcss": "^8.4.30",
-    "typescript": "^5.5.3",
-    "vue": "^3.4.38",
-    "@floating-ui/utils": "^0.2.4",
-    "@floating-ui/dom": "^1.6.7"
+    "typescript": "catalog:",
+    "vue": "catalog:",
+    "@floating-ui/utils": "catalog:",
+    "@floating-ui/dom": "catalog:"
   },
   "pnpm": {
     "patchedDependencies": {

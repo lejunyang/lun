@@ -1,10 +1,21 @@
 {
   "name": "@lun/components",
-  "private": true,
   "version": "0.0.1-alpha.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/components"
+  },
+  "bugs": {
+    "url": "https://github.com/lejunyang/lun/issues"
+  },
+  "homepage": "https://lejunyang.github.io/lun/",
   "exports": {
     ".": {
       "require": "./dist/index.js",
@@ -12,7 +23,6 @@
       "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json",
-    "./dist/*": "./dist/*",
     "./elements-types-vue": {
       "types": "./dist/elements-types-vue.d.ts"
     },
@@ -22,7 +32,8 @@
     "./elements-types-html": {
       "types": "./dist/elements-types-html.d.ts"
     },
-    "./define/*": "./dist/*.define.production.js"
+    "./define/*": "./dist/defines/dev-es/*.define.js",
+    "./dist/*": "./dist/*"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -42,7 +53,7 @@
     "@lun/utils": "workspace:^"
   },
   "peerDependencies": {
-    "vue": "^3.2.0"
+    "vue": "^3.4.0"
   },
   "devDependencies": {
     "@floating-ui/core": "^1.6.4",

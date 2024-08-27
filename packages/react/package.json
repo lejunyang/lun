@@ -4,8 +4,17 @@
   "description": "",
   "type": "module",
   "files": [
-    "./dist"
+    "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/lejunyang/lun/issues"
+  },
+  "homepage": "https://lejunyang.github.io/lun/",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

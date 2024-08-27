@@ -13,6 +13,7 @@
       "data": ["./src/utils/data.ts"],
       "@lun/components": ["./packages/components/index.ts"],
       "@lun/theme/custom": ["./packages/theme/src/custom/custom.ts"],
+      "@lun/theme": ["./packages/theme/src/index.ts"],
       "@lun/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
       "@lun/core": ["./packages/core/index.ts"]
     }

@@ -5,6 +5,18 @@
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/plugins"
+  },
+  "bugs": {
+    "url": "https://github.com/lejunyang/lun/issues"
+  },
+  "homepage": "https://lejunyang.github.io/lun/",
   "exports": {
     ".": {
       "require": "./dist/index.js",
