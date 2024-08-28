@@ -146,7 +146,6 @@ export const autoDefine = once(() => {
   discover(document.body);
 });
 
-export * from './animation';
 export * from './accordion';
 export * from './button';
 export * from './calendar';

@@ -42,10 +42,6 @@ export declare const GlobalStaticConfig: {
   /** function used to process html string before pass it to v-html, you can use this to do XSS filter */
   vHtmlPreprocessor: (html: string) => string;
   customRendererMap: Record<string | symbol, CustomRendererRegistry>;
-  /** useless for now, consider to remove it */
-  animationRegistry: Record<string | symbol, ElementAnimation>;
-  /** useless for now, consider to remove it */
-  elAnimationRegistry: WeakMap<Element, Record<string | symbol, ElementAnimation>>;
   /**
    * define every components' event init map, it's used to initialize the event object when dispatch event
    * every entry accepts object or array value:

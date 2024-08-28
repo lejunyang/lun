@@ -1,9 +1,5 @@
 import { freeze, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { error } from '../../utils';
-import {
-  getInitialDefaultAnimationRegistry,
-  getInitialElementAnimationRegistry,
-} from '../animation/animation.registry';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun/core';
 import { reduceFromComps } from './utils';
@@ -128,8 +124,6 @@ export const GlobalStaticConfig = new Proxy(
     /** function used to process html string before pass it to v-html, you can use this to do XSS filter */
     vHtmlPreprocessor: (html: string) => html,
     customRendererMap: getInitialCustomRendererMap(),
-    animationRegistry: getInitialDefaultAnimationRegistry(),
-    elAnimationRegistry: getInitialElementAnimationRegistry(),
     /**
      * define every components' event init map, it's used to initialize the event object when dispatch event
      * every entry accepts object or array value:
