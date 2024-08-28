@@ -38,6 +38,7 @@ import { defineColorPicker } from './color-picker';
 import { defineTabs, defineTabItem } from './tabs';
 import { defineAccordion, defineAccordionGroup } from './accordion';
 import { camelize } from 'vue';
+import { defineText } from './text/Text';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -84,6 +85,7 @@ export function defineAllComponents() {
     defineDocPip,
     defineTour,
     defineColorPicker,
+    defineText,
   };
   // first define those already exist in the document for SSR
   discover(document.body, (comp) => {
@@ -175,6 +177,7 @@ export * from './switch';
 export * from './tabs';
 export * from './tag';
 export * from './teleport-holder';
+export * from './text';
 export * from './textarea';
 export * from './theme-provider';
 export * from './tooltip';

@@ -42,6 +42,7 @@ export const openShadowComponents = freeze([
   'tab-item',
   'tag',
   holderName,
+  'text',
   'textarea',
   'theme-provider',
   'tooltip',

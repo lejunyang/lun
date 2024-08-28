@@ -56,6 +56,7 @@ import { importTabsBasicTheme, importTabsSolidTheme } from './tabs';
 import { importTabItemBasicTheme } from './tab-item';
 import { importAccordionGroupBasicTheme } from './accordion-group/index.ts';
 import { importAccordionBasicTheme } from './accordion/index.ts';
+import { importTextBasicTheme } from './text';
 
 export * from './button';
 export * from './calendar';
@@ -82,6 +83,7 @@ export * from './switch';
 export * from './tabs';
 export * from './tab-item';
 export * from './tag';
+export * from './text';
 export * from './textarea';
 export * from './theme-provider';
 export * from './tour';
@@ -119,6 +121,7 @@ export const importBasicTheme = () => {
   importColorPickerBasicTheme();
   importTabsBasicTheme();
   importTabItemBasicTheme();
+  importTextBasicTheme();
 };
 
 export const importOutlineTheme = () => {
