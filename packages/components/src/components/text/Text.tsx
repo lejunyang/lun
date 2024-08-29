@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement } from 'utils';
+import { createDefineElement, createImportStyle } from 'utils';
 import { textEmits, textProps } from './type';
 
 const name = 'text';
@@ -11,11 +11,7 @@ export const Text = defineSSRCustomElement({
   setup(props) {
     return () => {
       const { text } = props;
-      return (
-        <>
-          {text}
-        </>
-      );
+      return text;
     };
   },
 });
@@ -23,4 +19,16 @@ export const Text = defineSSRCustomElement({
 export type tText = typeof Text;
 export type iText = InstanceType<tText>;
 
-export const defineText = createDefineElement(name, Text, {}, parts, {});
+const ellipsisStyle = `white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
+export const defineText = createDefineElement(name, Text, {}, parts, {
+  // as this is mandatory style for ellipsis, put it in component, not in theme
+  common: createImportStyle(
+    name,
+    `:host([ellipsis]){display:inline-block;${ellipsisStyle}}` +
+      `:host([ellipsis=left]){direction:rtl}` +
+      `:host([ellipsis=right]){direction:ltr}` +
+      `:host([ellipsis=middle]){text-overflow:unset}` +
+      // how to have a opposite direction?
+      `:host([ellipsis=middle])::before{content:attr(text);float:right;direction:rtl;width:50%;background:inherit;position:relative;background:white;${ellipsisStyle}}`,
+  ),
+});
