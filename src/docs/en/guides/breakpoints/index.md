@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 响应式断点
 lang: zh-CN
@@ -49,3 +48,5 @@ import { activeBreakpoint } from '@lun/components';
 <script setup>
 import { activeBreakpoint } from '@lun/components';
 </script>
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

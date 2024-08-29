@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: FormItem 表单项
 lang: zh-CN
@@ -46,3 +45,5 @@ export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<Vali
 - `toUndefined`: 卸载后值设置为`undefined`
 
 <!-- @Code:unmountBehavior -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Radio 单选框
 lang: zh-CN
@@ -33,3 +32,5 @@ lang: zh-CN
 ## 不同圆角
 
 <!-- @Code:differentRadius -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Progress 进度
 lang: zh-CN
@@ -21,3 +20,4 @@ lang: zh-CN
 :::warning 注
 波浪的面积并非跟随value的值线性变化，在value接近0或接近100时尤为如此，较小的value变化可能不是很明显
 :::
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Icon 图标
 lang: zh-CN
@@ -73,3 +72,5 @@ registerIconLibrary({
   },
 });
 ```
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

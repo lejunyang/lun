@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 预设
 lang: zh-CN
@@ -33,3 +32,5 @@ declare module '@lun/core' {
   }
 }
 ```
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

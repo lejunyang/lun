@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Popover 弹出
 lang: zh-CN
@@ -18,13 +17,13 @@ lang: zh-CN
 - 右键触发`contextmenu`：右键时触发，点击其他地方关闭
 - 选中触发`select`：选中文本且选中内容与`l-popover`的目标有交集时触发，此时弹框的位置与选中区域有关，失去选中或其他方式触发均会关闭
 
-设置多个值则它们的触发和关闭方式共同生效，默认值为`[hover, click, edit]`
+设置多个值则它们的触发和关闭方式**共同生效**，默认值为`[hover, click, edit]`
 
 <!-- @Code:basicUsage -->
 
 ## 鼠标点击处弹出
 
-对于`click`和`contextmenu`这两种点击触发方式，它们默认以 popover 元素本身的矩形为目标进行定位，如果需要在点击处弹出，则需要设置`pointerTarget`属性为`coord`(默认为`rect`)，这在想要实现菜单时非常有用
+对于`click`和`contextmenu`这两种点击触发方式，它们默认以 popover 元素本身的矩形为目标进行定位，如果需要在点击处弹出，则需要设置`pointerTarget`属性为`coord`(默认为`rect`)，这在想要实现菜单之类的功能时非常有用
 
 <!-- @Code:pointerTarget -->
 
@@ -50,7 +49,7 @@ lang: zh-CN
 通过`strategy`属性指定 Popover 定位方式，可选值为：
 
 - `absolute`：默认值，相对于祖先定位元素进行定位，性能更好，且在页面滚动时表现出色，但祖先为 fixed 时滚动会有一定的视觉延迟。另外，它在某些时候会受到 shadow DOM 的限制，详细见下面的折叠块说明
-- `fixed`：相对于最近 Containing block 进行定位（通常为视口），当 target 也是 fixed 时较为有用，它也可以用于防止被父级裁剪或遮挡，它对 shadow DOM 兼容性更好。但是页面滚动时，重新计算位置会有一定的视觉延迟
+- `fixed`：相对于最近 Fixed Containing block 进行定位（通常为视口），当 target 也是 fixed 时较为有用，它也可以用于防止被父级裁剪或遮挡，它对 shadow DOM 兼容性更好。但是某些情况下页面滚动时，由于 transition 的存在，位置的变动会导致一定的视觉延迟
 
 :::details 当 strategy=absolute 时 Shadow DOM 对 offsetParent 的限制
 strategy=absolute 时是通过 offsetParent 获取祖先元素，但是，被 slotted 的元素无法获取到在里面 shadow 里面的真实 offsetParent，而是会根据其所在自定义元素本身往上寻找 offsetParent。在嵌套 strategy=absolute 时这个限制有可能导致定位错误，但内部对这种情况做了兼容，当`l-popover`为定位元素时优先取其作为内部 offsetParent（**故其默认`position: relative`，请勿修改为 static**）
@@ -59,7 +58,7 @@ strategy=absolute 时是通过 offsetParent 获取祖先元素，但是，被 sl
 通过`type`属性指定 Popover 实现方式, 目前支持以下方式：
 
 - `popover`: 默认值，会使用原生 [`Popover API`](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) 去实现
-- `position`: 当前位置渲染
+- `normal`: 当前位置渲染，会受包含块的影响
 - `teleport`: 将弹出内容渲染到[`teleport-holder`](/components/teleport-holder/)（默认在第一个[`theme-provider`](/components/theme-provider/)下），通过`to`属性可调整渲染位置，**此时`pop-content`插槽将失效，必须通过 `content` 属性来指定弹出框渲染内容**
 
 需要注意的是，若浏览器不支持 Popover，手动指定的 `type` 会被无视，将采用备选方案实现
@@ -70,20 +69,32 @@ strategy=absolute 时是通过 offsetParent 获取祖先元素，但是，被 sl
 
 ## CSS Anchor positioning
 
-<Support is="anchorPosition" /> 当前浏览器{{ supportCSSAnchor ? '' : '不' }}支持 CSS Anchor position
+<Support is="anchorPosition" /> 当前浏览器{{ supportCSSAnchor ? '' : '不' }}支持 CSS Anchor positioning
 
-CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以让浏览器自行将悬浮元素定位到某个元素，避免我们手动计算和更新位置，带来更好的体验和性能，详细介绍可参考[Chrome 文档](https://developer.chrome.com/blog/anchor-positioning-api?hl=zh-cn)
+CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以让浏览器自行将悬浮元素定位到某个元素，避免我们手动计算和更新位置，带来更好的体验和性能，详细介绍可参考[Chrome 文档](https://developer.chrome.com/blog/anchor-positioning-api?hl=zh-cn)或[MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning)
 
-本组件支持该特性，只需设置`anchorName`属性，即可在浏览器支持的情况下开启 CSS Anchor Positioning，此时`type=absolute`和`type=fixed`将不会有明显区别，均有较佳的体验
+本组件支持该特性，只需设置`anchorName`属性给定任意CSS合法名称（不需要以`--`开头），即可在浏览器支持的情况下开启 CSS Anchor Positioning，此时`strategy=absolute`和`strategy=fixed`将不会有明显区别，均有较佳的体验
 
 :::warning 注
 由于该特性对 Shadow DOM 有限制，声明 anchor 定位与 anchor-name 的 CSS 必须在同一个 Shadow Tree 下，否则不会生效，详细请参考[标准](https://drafts.csswg.org/css-anchor-position-1/#target)。因此，该特性在以下情况不会开启：
 
 - **type=teleport**：此时悬浮元素在 teleport-holder 下，如果此时想要使用该特性必须由用户在 document 下利用`::part()`选择器自行声明 Anchor positioning 相关样式
 - **target 为虚拟元素或外部元素**：如 triggers="select"时选中的文本，通过属性手动指定的 target， attachTarget 添加的目标
-  :::
+
+也许未来标准会有进一步的改进，可关注该[issue](https://github.com/w3c/csswg-drafts/issues/9408)
+:::
 
 <!-- @Code:anchorPosition -->
+
+## 自动翻转、偏移
+
+通过`flip`属性可开启自动翻转，`shift`可开启自动偏移，用于在悬浮层超出容器时自动调整位置。它们都是`floating-ui`插件，支持它们各自的参数，不传则为默认参数，具体请参考[文档](https://floating-ui.com/docs/flip)
+
+:::warning 注
+由于这是`floating-ui`插件，使用 CSS Anchor positioning 时是不生效的。这种情况下可通过`popStyle`等方式自行设置`position-try-fallbacks`（Chromium128 之前为`position-try-options`）来让浏览器自行调整，但这种方式会使得箭头定位异常，需要取舍，或许可以等一手[issue1](https://github.com/w3c/csswg-drafts/issues/9271)、[issue2](https://github.com/w3c/csswg-drafts/issues/8171)
+:::
+
+<!-- @Code:plugins -->
 
 ## 虚拟元素
 
@@ -99,7 +110,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 
 ## 聚焦时阻止目标切换
 
-当使用单例监听多个目标时，在某个目标聚焦或编辑时，如果我们想要阻止 popover 因为非聚焦的方式（例如鼠标移入）切换到其他的目标，我们可以使用`preventSwitchWhen`属性，可选值有：
+当使用单例监听多个目标时，在某个目标聚焦或编辑时，如果我们想要阻止popover因为非聚焦的方式（例如鼠标移入）切换到其他的目标，则可以使用`preventSwitchWhen`属性，可选值有：
 
 - `focus`：聚焦时阻止切换目标
 - `edit`：编辑时阻止切换目标
@@ -108,7 +119,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 
 ## 关闭时停止更新
 
-一般来说不会在关闭 popover 的时候更新内容，如果很难避免这种情况（例如在表单里面，字段失焦时触发校验，校验失败的信息在 popover 关闭时就更新上去了，造成闪烁），可以使用`freezeWhenClosing`属性。当开启时，如果 popover 正在关闭，停止`content`属性的更新（`pop-content`插槽不受影响）
+一般来说不会在关闭 popover 的时候更新内容，如果很难避免这种情况（例如在表单里面，字段失焦时触发校验，校验失败的信息在 popover 关闭时就更新上去了，造成闪烁），可以使用`freezeWhenClosing`属性。当开启时，如果 popover 正在关闭，停止`content`属性的更新（注意如果是使用`pop-content`插槽则无法影响）
 
 <!-- @Code:freezeUpdate -->
 
@@ -147,3 +158,5 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 }
 
 </style>
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

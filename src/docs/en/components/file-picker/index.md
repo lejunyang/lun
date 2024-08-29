@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: FilePicker 文件选择
 lang: zh-CN
@@ -52,3 +51,5 @@ import { isSupportFileSystem } from '@lun/utils';
 const tip = isSupportFileSystem() ? '支持' : '不支持';
 
 </script>
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

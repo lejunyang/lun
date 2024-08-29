@@ -137,6 +137,11 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           ],
         },
         {
+          text: locales[lang].sidebar.typography.menu,
+          collapsed: false,
+          items: [{ text: locales[lang].sidebar.typography.text, link: wrapLink('/components/text/', lang) }],
+        },
+        {
           text: locales[lang].sidebar.other.menu,
           collapsed: false,
           items: [

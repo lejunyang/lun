@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Form 表单
 lang: zh-CN
@@ -17,7 +16,7 @@ lang: zh-CN
 <!-- @Code:useForm -->
 
 :::info 注
-React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在React中渲染 formData 和 formState 也可以响应式更新
+React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在React中渲染 data 和 formState 也可以响应式更新
 :::
 
 ## 表单布局
@@ -49,7 +48,7 @@ React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在Re
 
 以下面的 label3 为例，其 colSpan 为 2，当标签布局为 horizontal 时，若支持 subgrid，这一行放不下，其应该在下一行，但是不使用 subgrid 时，它的 label 和 input 被拆开成两行来。这种情况可以手动为该字段添加`newLine`来避免，或者使用非`horizontal`标签布局
 
-不管何种布局，谨慎往表单下添加其他内容，这很可能会影响表单项的布局
+不管何种布局，谨慎往表单下添加其他内容或包裹什么元素，这会直接影响表单项的布局
 :::
 
 <!-- @Code:layout -->
@@ -121,3 +120,5 @@ type elementProps =
 :::
 
 <!-- @Code:validate -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

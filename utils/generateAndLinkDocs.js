@@ -2,8 +2,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const comment = `<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->`;
-const noSymlink = process.argv.slice(2).some((i) => i.includes('no-symlink'));
+const comment = `<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->`;
+const args = process.argv.slice(2);
+const noSymlink = args.some((i) => i.includes('no-symlink')),
+  force = args.some((i) => i.includes('force'));
 
 async function gen(src, dest) {
   try {
@@ -20,11 +22,11 @@ async function gen(src, dest) {
         const srcContent = await fs.readFile(srcPath, 'utf-8');
         if (destStat) {
           const destContent = await fs.readFile(destPath, 'utf-8');
-          if (!destContent.startsWith(comment)) {
+          if (!destContent.endsWith(comment) && !force) {
             continue;
           }
         }
-        fs.writeFile(destPath, `${comment}\n${srcContent}`);
+        fs.writeFile(destPath, `${srcContent}\n${comment}`);
       } else if (!noSymlink && (destIsSymlink === true || destIsSymlink == null)) {
         await fs.symlink(srcPath, destPath);
       }

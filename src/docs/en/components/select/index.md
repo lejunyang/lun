@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Select 下拉列表
 lang: zh-CN
@@ -92,3 +91,4 @@ lang: zh-CN
 
 而且type="teleport"时插槽均失效，你不可以直接在`select`下渲染选项，必须通过`options`属性，故不推荐`select`使用type="teleport"
 :::
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

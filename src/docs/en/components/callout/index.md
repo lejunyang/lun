@@ -1,4 +1,10 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
+---
+title: Callout 提示框 
+lang: zh-CN
+---
+
+<CompThemePanel comp="callout" :other="{ message: 'Message', description: 'This is a description' }" />
+
 ## 基本使用
 
 <!-- @Code:basicUsage -->
@@ -17,6 +23,11 @@
 
 <!-- @Code:displayError -->
 
+## 不同变体
+
+<!-- @Code:differentVariants -->
+
 ## 不同大小
 
 <!-- @Code:differentSizes -->
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

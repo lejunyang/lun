@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 文档使用说明
 lang: zh-CN
@@ -31,3 +30,5 @@ lang: zh-CN
 然后在 `index.md` 中，我们需要以`<!-- @Code:basicUsage -->`注释来引入这些示例。
 
 注意，**必须编写Vue的代码示例**。由于esbuild加载需要时间，为避免明显的白屏时间，内部会直接引入这些Vue的代码示例并展示它们。当esbuild加载完毕后，若用户修改源代码或切换示例语言，便渲染动态生成的用例
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

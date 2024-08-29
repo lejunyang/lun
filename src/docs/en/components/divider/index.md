@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Divider 分割线
 lang: zh-CN
@@ -27,3 +26,5 @@ lang: zh-CN
 
 通过给`divider`元素设置内联`height`样式即可设置分割线高度
 :::
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

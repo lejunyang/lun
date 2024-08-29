@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 监听事件
 lang: zh-CN
@@ -39,3 +38,4 @@ GlobalStaticConfig.eventInitMap.button = [
 GlobalStaticConfig.eventInitMap.common = {}
 GlobalStaticConfig.eventInitMap.common = []
 ```
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

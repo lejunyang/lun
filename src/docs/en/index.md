@@ -5,7 +5,6 @@ hero:
   name: Lun
   text: Web Components base on Vue3
   tagline: Personal leaning only, do not use it in production
-  image: ' '
   actions:
     - theme: brand
       text: Get Started
@@ -17,10 +16,19 @@ features:
   - icon: ✨
     title: Cross Frameworks
     details: Based on Custom Element and Shadow DOM，support all modern web environments
+  - icon: 🎁
+    title: Out of the box
+    details: Cover various practical scenarios, full-featured and easy to use
+  - icon: 🚀
+    title: Fast & Compact
+    details: Relatively small, few KBs per component, only Vue3 and floating-ui as a must
+  - icon: ⚙️
+    title: Type support
+    details: Full typescript support, provide type definition files for Vue and React
   - icon: 🛠️
     title: Easy to configure
-    details: Provide abundant global static and dynamic configurations, making it easy to customize most internal behaviors
+    details: Provide abundant global configurations, easy to customize most internal behaviors
   - icon: 🎨
     title: Easy to prettify
-    details: Fully customize the components' styles, provide a beautiful preset theme similar to @radix/theme
+    details: Able to fully customize the styles, also provide a beautiful preset theme based on @radix/theme
 ---

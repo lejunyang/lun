@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: CustomRenderer 自定义渲染
 lang: zh-CN
@@ -88,3 +87,5 @@ registerCustomRenderer('react', {
 推荐直接使用 Vnode 渲染，如`content={({ h }) => h('div', 'test')}`
 
 <!-- @Code:template -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

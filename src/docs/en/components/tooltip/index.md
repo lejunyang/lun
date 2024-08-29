@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Tooltip 提示
 lang: zh-CN
@@ -62,3 +61,5 @@ attachTarget: (el: Element, options?: {
     white-space: nowrap;
   }
 </style>
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

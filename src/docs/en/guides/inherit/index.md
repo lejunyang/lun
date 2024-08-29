@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 属性继承
 lang: zh-CN
@@ -32,3 +31,5 @@ type EditStateProps = {
 按钮、输入组件、表单组件具有编辑属性。为了方便控制子元素，某些容器组件也加了编辑属性，比如 Dialog、DocPip、ThemeProvider。值得注意的，**Dialog 故意设置了不继承父组件的编辑属性**，毕竟弹窗是一个独立的交互空间。
 
 <!-- @Code:editState -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

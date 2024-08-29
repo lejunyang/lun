@@ -56,6 +56,10 @@ export default {
         divider: 'Divider 分割线',
         tabs: 'Tabs 标签组',
       },
+      typography: {
+        menu: '文字排版',
+        text: 'Text 文字',
+      },
       guides: {
         usage: '如何使用',
         docs: '文档说明',
@@ -154,6 +158,10 @@ export default {
         accordion: 'Accordion',
         divider: 'Divider',
         tabs: 'Tabs',
+      },
+      typography: {
+        menu: 'Typography',
+        text: 'Text',
       },
       guides: {
         usage: 'Usage',

@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Tag 标签
 lang: zh-CN
@@ -7,6 +6,8 @@ lang: zh-CN
 <script setup>
   import { themeColors } from '@lun/components';
 </script>
+
+<CompThemePanel comp="tag" includeContrast includeDisabled :other="{ label: 'tag' }" />
 
 ## 基本使用
 
@@ -33,3 +34,5 @@ lang: zh-CN
 使用`highContrast`来增加文字与背景的对比度
 
 <!-- @Code:highContrast -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

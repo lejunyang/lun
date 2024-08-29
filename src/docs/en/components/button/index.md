@@ -1,8 +1,9 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Button 按钮
 lang: zh-CN
 ---
+
+<CompThemePanel comp="button" includeContrast includeDisabled :other="{ label: 'button' }" />
 
 ## 基本使用
 
@@ -32,7 +33,7 @@ lang: zh-CN
 
 ## 倒计时
 
-`l-button`DOM 上有`setTimeout`方法，可用于快速设置一个倒计时。单位为毫秒，默认间隔1s
+`l-button`DOM 上有`setTimeout`方法，可用于快速设置一个倒计时。单位为毫秒，默认间隔 1s
 
 ```ts
 setTimeout(timeout: number, getCountdownTxt?: (remain: number) => string, interval?: number): void;
@@ -43,24 +44,20 @@ clearTimeout(): void;
 
 <!-- @Code:countdown -->
 
+## 复制文本
+
+通过`copyText`属性可以便捷地添加点击复制功能
+
+<!-- @Code:copyText -->
+
 ## 块级按钮
 
 <!-- @Code:block -->
-
-## 不同变体
-
-<!-- @Code:differentVariants -->
-
-## 高对比
-
-<!-- @Code:highContrast -->
-
-## 不同颜色
-
-<!-- @Code:differentColors -->
 
 ## 不同大小
 
 <!-- @Code:differentSizes -->
 
 <!-- @Code:_devWithIcons -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

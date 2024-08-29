@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Spin 加载中
 lang: zh-CN
@@ -48,3 +47,5 @@ Spin 会继承主题中的 size 和 color，同时也可以通过设置 font-siz
   }
 }
 </style>
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

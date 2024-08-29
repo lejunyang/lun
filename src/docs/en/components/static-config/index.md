@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: StaticConfig 静态配置
 lang: zh-CN
@@ -56,3 +55,5 @@ export declare const GlobalStaticConfig: {
   date: FinalDateMethods<any>;
 };
 ```
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

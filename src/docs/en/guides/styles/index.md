@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 自定义样式
 lang: zh-CN
@@ -40,3 +39,5 @@ GlobalContextConfig.dynamicStyles.button.push((vm) => (vm.props.variant === 'sur
 ```
 
 6. `l-context-config-provider` 同`GlobalContextConfig`，但作用范围为其下的子元素，暂未实现
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

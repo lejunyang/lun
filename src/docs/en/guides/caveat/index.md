@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 注意事项
 lang: zh-CN
@@ -15,3 +14,5 @@ lang: zh-CN
 这是因为`onMounted`在`l-popover`和`l-button`均加载到页面上后就会执行，而自定义元素加载到页面后还需要一个微任务才能完成组件的setup，`l-popover`由于在外层优先完成了setup，便可以在`onMounted`中访问到它的方法。
 
 <!-- @Code:instance -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

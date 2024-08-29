@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Watermark 水印
 lang: zh-CN
@@ -38,3 +37,5 @@ lang: zh-CN
 使用`mutable`属性即可自由更改 Watermark 的属性，而非只能修改一次，该属性仅能在 Watermark 元素加载前设置
 
 <!-- @Code:mutable -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

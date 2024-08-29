@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: DocPip 画中画
 lang: zh-CN
@@ -67,3 +66,5 @@ Custom Element在不同 document 之间移动时，其`adoptedStyleSheets`会被
 <script setup>
 import { supportDocumentPictureInPicture } from '@lun/utils';
 </script>
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

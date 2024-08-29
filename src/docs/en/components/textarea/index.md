@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Textarea 文本域
 lang: zh-CN
@@ -31,3 +30,5 @@ lang: zh-CN
 与 placeholder 不同，浮动标签只能为一行，超出会隐藏
 
 <!-- @Code:floatLabel -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

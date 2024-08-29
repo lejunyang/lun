@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: TeleportHolder 传送门
 lang: zh-CN
@@ -22,3 +21,5 @@ type Props = {
 ## 继承
 
 <!-- @Code:inherit -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

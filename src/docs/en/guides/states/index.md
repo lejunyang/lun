@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: 匹配元素自定义状态
 lang: zh-CN
@@ -37,3 +36,5 @@ Chrome现已支持标准语法，各浏览器的支持情况为：<SupportInfo c
 总的来说，这个特性还无法用于生产环境，目前组件库内部进行了适配，若支持该特性则会为组件添加自定义状态，并且额外添加'--'前缀来适配老版本的 Chromium；如果不支持则选择在元素上添加 data 属性来达到类似的效果，如`data-checked`（该特性由`reflectStateToAttr`全局配置控制，你也可以设置为`always`使之总是添加 data 属性）
 
 每个元素支持的 state 将会在文档上标明，也可以在控制台自行查看，shadowRoot 下根元素大部分带有`is-`的 class 均会反射到自定义状态上
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

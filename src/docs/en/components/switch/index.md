@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Switch 开关
 lang: zh-CN
@@ -51,3 +50,5 @@ lang: zh-CN
 :::tip 注
 对于 Switch，radius 为`large`和`full`时的表现与`medium`相同
 :::
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

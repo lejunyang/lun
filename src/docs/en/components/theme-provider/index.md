@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: ThemeProvider 主题
 lang: zh-CN
@@ -32,3 +31,5 @@ export type ThemeProps = {
   scale?: number;
 };
 ```
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

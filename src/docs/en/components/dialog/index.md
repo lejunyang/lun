@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: Dialog 弹窗
 lang: zh-CN
@@ -10,7 +9,7 @@ lang: zh-CN
 
 :::warning 注
 
-- 默认情况下会组件使用 Top Layer Dialog（若支持），此时即使不渲染 mask，也无法与弹框之外的元素交互。若需要在无 mask 时与其他元素交互，请设置`noTopLayer`，非Top Layer的弹框由于为fixed定位，会受父级[Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)影响
+- 默认情况下会组件使用 Top Layer Dialog（若支持），此时即使不渲染 mask，也无法与弹框之外的元素交互。若需要在无 mask 时与其他元素交互，请设置`noTopLayer`，非 Top Layer 的弹框由于为 fixed 定位，会受父级[Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)影响
 - 浏览器默认会将焦点限制在 Top Layer Dialog 内部，但需要注意的是在聚焦到最后一个元素后，再使用 Tab 导航并不会跳回第一个可聚焦元素。然而在开启`noTopLayer`时，内部模拟的 focus trap 则会在弹框内部循环聚焦。如果需要 Top Layer Dialog 也遵循这个行为，请使用`alwaysTrapFocus`属性。
 - 如果弹框为 Top Layer 或存在蒙层，打开弹框时内部将会锁定页面或其所在容器的滚动，直至最后一个锁定的弹框关闭。如果需要禁用此行为，请设置`noLockScroll`
   :::
@@ -43,6 +42,12 @@ lang: zh-CN
 
 ## 容器内展示
 
-想要`l-dialog`在某个容器里展示，其必须设置`noTopLayer`，并放置于对应容器内，对应容器需要为 fixed 元素的 [Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)。与全屏打开的弹框类似，容器内的弹框也拥有锁定容器滚动、只展示一个蒙层等特性
+想要`l-dialog`在某个容器里展示，其必须设置`noTopLayer`，并放置于对应容器内，对应容器需要为 fixed 元素的 [Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)。与全屏打开的弹框类似，容器内的弹框也拥有锁定容器滚动、只展示一个蒙层等特性，如果开启拖拽，弹窗也会被限制在容器内移动。
+
+:::warning 注
+当容器内的弹框开启拖拽之后，由于默认使用了 transform 定位，这会更改子元素的 Containing Block，导致嵌套的弹框定位异常，如果有类似需求，可设置`noTransform`属性，更改为 left/top 定位
+:::
 
 <!-- @Code:container -->
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

@@ -1,4 +1,3 @@
-<!--this file is copied from chinese md, remove this comment to update it, or it will be overwritten when next build-->
 ---
 title: ContextConfig 上下文配置
 lang: zh-CN
@@ -25,3 +24,5 @@ declare const GlobalContextConfig: {
 }
 ```
 
+
+<!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->
