@@ -9,7 +9,16 @@ import { ComponentInternalInstance, ComponentOptions, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
-import { fromObject, getFirstOfIterable, isArray, isElement, isString, once, runIfFn, supportCustomElement } from '@lun/utils';
+import {
+  fromObject,
+  getFirstOfIterable,
+  isArray,
+  isElement,
+  isString,
+  once,
+  runIfFn,
+  supportCustomElement,
+} from '@lun/utils';
 import { PropString } from 'common';
 import { useContextStyles } from '../hooks/useStyles';
 
@@ -81,7 +90,7 @@ export function createDefineElement<
   },
   parts: readonly string[] | string[],
   dependencies: T,
-): (name?: string, dependencyNames?: Record<keyof T | ExtractChainDepNames<T>, string>) => void;
+): (name?: string, dependencyNames?: Record<Exclude<keyof T, 'common'> | ExtractChainDepNames<T>, string>) => void;
 
 /*@__NO_SIDE_EFFECTS__*/
 export function createDefineElement(
@@ -94,17 +103,18 @@ export function createDefineElement(
   return (name?: string, dependencyNameMap?: Record<string, string>) => {
     if (!supportCustomElement) return;
     const { nameMap, defaultProps, actualNameMap } = GlobalStaticConfig;
-    if (dependencies) {
-      const set = (dependencySet[compKey] ||= new Set());
-      for (const [k, v] of Object.entries(dependencies)) {
-        v(dependencyNameMap?.[k], dependencyNameMap);
-        set.add(k as ComponentKey);
-        if (dependencySet[k as ComponentKey]) dependencySet[k as ComponentKey].forEach((item) => set.add(item));
-      }
-    }
     name ||= nameMap[compKey];
     name = name.toLowerCase();
     if (!customElements.get(name)) {
+      if (dependencies) {
+        const set = (dependencySet[compKey] ||= new Set());
+        for (const [k, v] of Object.entries(dependencies)) {
+          v(dependencyNameMap?.[k], dependencyNameMap);
+          if (k === 'common') continue;
+          set.add(k as ComponentKey);
+          if (dependencySet[k as ComponentKey]) dependencySet[k as ComponentKey].forEach((item) => set.add(item));
+        }
+      }
       if (compDefaultProps) defaultProps[compKey] = compDefaultProps;
       if (parts)
         exportParts[compKey] = parts
@@ -118,7 +128,11 @@ export function createDefineElement(
   };
 }
 
-export function createImportStyle(compKey: OpenShadowComponentKey | 'common', style: string | (() => string), variantName?: string) {
+export function createImportStyle(
+  compKey: OpenShadowComponentKey | 'common',
+  style: string | (() => string),
+  variantName?: string,
+) {
   return once(() => {
     style = runIfFn(style);
     GlobalStaticConfig.styles[compKey]?.push(processStringStyle(style));
@@ -140,7 +154,7 @@ const getComputedStyles = once(() => {
   return fromObject(styles, (k, v) => [
     k,
     k === 'teleport-holder'
-      ? styles.common.concat(v).concat(...componentsWithTeleport.map((c) => styles[c]) as any)
+      ? styles.common.concat(v).concat(...(componentsWithTeleport.map((c) => styles[c]) as any))
       : styles.common.concat(v),
   ]);
 });
