@@ -92,7 +92,7 @@ export const GlobalStaticConfig = new Proxy(
     /** define default props of every component */
     defaultProps: reduceFromComps(() => ({} as Record<string, any>)),
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
-    /** whether wrap &#64;layer for components' styles. will use it as layer name if it's truthy string, or use 'lun' as default */
+    /** whether wrap &#64;layer for components' styles */
     wrapCSSLayer: supportCSSLayer as boolean | string,
     stylePreprocessor: (css: string) => css,
     /**

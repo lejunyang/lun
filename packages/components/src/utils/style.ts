@@ -2,15 +2,24 @@ import { isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
+/**
+ * @param style
+ * @param layerType can be
+ * - 0: it's for style element, will wrap with `@layer lun-style` and prepend `@layer lun-static lun-dynamic lun-style`;
+ * - true: wrap with `@layer lun-static`;
+ * - false: wrap with `@layer lun-dynamic`
+ * @param noSheet
+ */
 export function processStringStyle<B extends boolean>(
   style: string | undefined | null,
-  isStatic = true,
+  layerType: boolean | number = true,
   noSheet?: B,
 ): B extends true ? string : string | CSSStyleSheet {
   style = String(style || '');
   const { wrapCSSLayer, preferCSSStyleSheet, stylePreprocessor } = GlobalStaticConfig;
   if (supportCSSLayer && wrapCSSLayer) {
-    style = `@layer ${isString(wrapCSSLayer) ? wrapCSSLayer : isStatic ? 'lun-static' : 'lun-dynamic'} {${style}}`;
+    if (layerType === 0) style = `@layer lun-static,lun-dynamic,lun-style;@layer lun-style {${style}}`;
+    else style = `@layer ${layerType ? 'lun-static' : 'lun-dynamic'} {${style}}`;
   }
   style = stylePreprocessor(style);
   if (isSupportCSSStyleSheet() && preferCSSStyleSheet && !noSheet) {
