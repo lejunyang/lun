@@ -2,9 +2,14 @@ import { text, chText } from 'data';
 
 export default () => (
   <>
-    <l-text text={text} ellipsis="right"></l-text>
-    <l-text text={text} ellipsis="middle"></l-text>
-    <l-text text={chText} ellipsis="middle"></l-text>
-    <l-text text={text} ellipsis="left"></l-text>
+    end:
+    <l-text text={text} ellipsis></l-text>
+    <br />
+    center:
+    <l-text text={text} ellipsis="center" style="word-break: break-all"></l-text>
+    <l-text text={chText} ellipsis="center"></l-text>
+    <br />
+    start:
+    <l-text text={text} ellipsis="start"></l-text>
   </>
 );
