@@ -16,7 +16,8 @@ export const textProps = freeze({
   text: PropString(),
   as: PropString<'code' | 'link'>(),
   truncate: PropString(),
-  ellipsis: PropBoolOrStr<'left' | 'middle' | 'right' | boolean>(),
+  ellipsisOffset: PropNumber(),
+  ellipsis: PropBoolOrStr<'left' | 'middle' | 'right' | 'start' | 'end' | boolean>(),
   // nice to have
   maxLines: PropNumber(),
 });
