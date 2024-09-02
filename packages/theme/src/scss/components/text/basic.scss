@@ -1,1 +1,17 @@
 @use '../../mixins' as *;
+
+:host {
+  color: getGrayColor(12);
+}
+
+:host([color]) {
+  color: getAccentColor(a11);
+}
+
+:host([color][high-contrast]) {
+  color: getAccentColor(12);
+}
+
+:host([gray-color]) {
+  color: getGrayColor(12);
+}
