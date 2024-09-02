@@ -1,25 +1,19 @@
 import {
   createImportDynamicStyle,
   getThemeValue,
-  GlobalStaticConfig,
-  TGlobalContextConfig,
   allColorSet,
+  getHostStyle,
 } from '@lun/components';
 import * as RadixColors from '@radix-ui/colors';
 import { generateRadixColors } from './custom';
+import { getVarName } from '../scss/utils';
 
 export const importCustomDynamicColors = createImportDynamicStyle('common', (vm, name, context) => {
-  const { namespace } = context as TGlobalContextConfig;
-  const n = namespace || GlobalStaticConfig.namespace;
-  const { commonSeparator } = GlobalStaticConfig;
   const getTheme = (prop: string) => getThemeValue(vm, prop, context, name);
   const color = getTheme('color'),
-    grayColor = getTheme('grayColor');
-  const appearance = getTheme('appearance'),
+    grayColor = getTheme('grayColor'),
+    appearance = getTheme('appearance'),
     isDark = appearance === 'dark';
-  function getVar(list: (string | number)[], value: string) {
-    return '--' + n + commonSeparator + list.join(commonSeparator) + ':' + value + ';';
-  }
 
   const getKeywordColor = (name: string) => {
     // @ts-ignore
@@ -33,18 +27,17 @@ export const importCustomDynamicColors = createImportDynamicStyle('common', (vm,
         background: isDark ? '#111111' : '#FFFFFF',
         gray: getKeywordColor(grayColor) || grayColor,
       });
-    const styles = [
-      accentScale.map((c, i) => `${getVar(['accent', i + 1], c)}`).join(''),
-      accentScaleAlpha.map((c, i) => `${getVar(['accent', 'a' + (i + 1)], c)}`).join(''),
-      grayScale.map((c, i) => `${getVar(['gray', i + 1], c)}`).join(''),
-      grayScaleAlpha.map((c, i) => `${getVar(['gray', 'a' + (i + 1)], c)}`).join(''),
-      getVar(['color', 'surface', 'accent'], accentSurface),
-      getVar(['accent', '9', 'contrast'], accentContrast),
-      getVar(['color', 'focus'], accentScale[7]),
-      getVar(['color', 'selection'], accentScaleAlpha[4]),
-      getVar(['color', 'autofill'], accentScaleAlpha[2]),
-    ];
-    return `:host{${styles.join('')}}`;
+    return getHostStyle([
+      ...accentScale.map((c, i) => [getVarName('accent', i + 1), c] as const),
+      ...accentScaleAlpha.map((c, i) => [getVarName('accent', 'a' + (i + 1)), c] as const),
+      ...grayScale.map((c, i) => [getVarName('gray', i + 1), c] as const),
+      ...grayScaleAlpha.map((c, i) => [getVarName('gray', 'a' + (i + 1)), c] as const),
+      [getVarName('color', 'surface', 'accent'), accentSurface],
+      [getVarName('accent', '9', 'contrast'), accentContrast],
+      [getVarName('color', 'focus'), accentScale[7]],
+      [getVarName('color', 'selection'), accentScaleAlpha[4]],
+      [getVarName('color', 'autofill'), accentScaleAlpha[2]],
+    ]);
   }
   return '';
 });

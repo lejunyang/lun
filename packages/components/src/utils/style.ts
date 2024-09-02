@@ -41,6 +41,19 @@ export function assignProps(target: HTMLElement, ...props: Record<string, any>[]
   }
 }
 
-export function getHostStyle(styleBody: string | string[], selector?: string) {
-  return `:host${selector ? `(${selector})` : ''}{${isArray(styleBody) ? styleBody.join(';') : styleBody}}`;
+export function getHostStyle(
+  styleBody: string | [string, string] | (string | [string, string] | readonly [string, string])[],
+  selector?: string | string[],
+) {
+  return `${
+    isArray(selector) ? selector.map((s) => `:host(${s})`).join(',') : `:host${selector ? `(${selector})` : ''}`
+  }{${
+    isArray(styleBody)
+      ? styleBody.length === 2
+        ? `${styleBody[0]}:${styleBody[1]};`
+        : styleBody.reduce((res, cur) => {
+            return (res += isArray(cur) ? `${cur[0]}:${cur[1]};` : cur + ';');
+          }, '')
+      : styleBody
+  }}`;
 }
