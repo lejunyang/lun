@@ -1,4 +1,4 @@
-import { isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
+import { isArray, isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
 import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
@@ -39,4 +39,8 @@ export function assignProps(target: HTMLElement, ...props: Record<string, any>[]
     if (isString(style)) target.style.cssText = style as string;
     else Object.assign(target.style, style);
   }
+}
+
+export function getHostStyle(styleBody: string | string[], selector?: string) {
+  return `:host${selector ? `(${selector})` : ''}{${isArray(styleBody) ? styleBody.join(';') : styleBody}}`;
 }
