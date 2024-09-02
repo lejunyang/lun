@@ -53,11 +53,11 @@ export const useNamespace = (
   other?: { parent?: ComponentInternalInstance | null; status?: MaybeRefLikeOrGetter<Status> },
 ) => {
   let { parent, status } = other || {};
-  const vm = getCurrentInstance();
+  const vm = getCurrentInstance()!;
   const context = FormInputCollector.child(false); // form-item will be theme parent for all its children
   if (!parent && context) parent = context.parent;
-  parent && vmParentMap.set(vm!, parent);
-  const config = vm && useContextConfig();
+  parent && vmParentMap.set(vm, parent);
+  const config = useContextConfig();
   const namespace = computed(() => {
     return config?.namespace || GlobalStaticConfig.namespace;
   });
@@ -116,6 +116,16 @@ export const useNamespace = (
   const size = useBreakpoint({
     get size() {
       return getActualThemeValue('size');
+    },
+  });
+
+  if (!vm.exposed) vm.exposed = {};
+  Object.defineProperties(vm.exposed, {
+    size: {
+      get: () => size.value || 2,
+    },
+    isDark: {
+      get: isDark,
     },
   });
 
