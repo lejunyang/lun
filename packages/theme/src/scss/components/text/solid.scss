@@ -1,0 +1,22 @@
+@use '../../mixins' as *;
+
+@include b(text) {
+  @at-root {
+    :host([as='code'][variant='solid']) {
+      color: getAccentColor(contrast);
+      background-color: getAccentColor(a9);
+      &::selection {
+        color: getAccentColor(12);
+        background-color: getAccentColor(7);
+      }
+    }
+    :host([as='code'][variant='solid'][high-contrast]) {
+      color: getAccentColor(1);
+      background-color: getAccentColor(12);
+      &::selection {
+        color: getAccentColor(1);
+        background-color: getAccentColor(a11);
+      }
+    }
+  }
+}

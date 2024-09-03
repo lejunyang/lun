@@ -1,5 +1,9 @@
 import { createImportDynamicStyle, createImportStyle, getHostStyle } from '@lun/components';
 import basic from './basic.scss?inline';
+import outline from './outline.scss?inline';
+import soft from './soft.scss?inline';
+import solid from './solid.scss?inline';
+import surface from './surface.scss?inline';
 import { getVarValue } from '../../utils';
 
 const importTextDynamic = createImportDynamicStyle('text', (vm, _name, _context) => {
@@ -19,3 +23,8 @@ export const importTextBasicTheme = () => {
   importBasic();
   importTextDynamic();
 };
+
+export const importTextSurfaceTheme = createImportStyle('text', surface, 'surface');
+export const importTextSoftTheme = createImportStyle('text', soft, 'soft');
+export const importTextOutlineTheme = createImportStyle('text', outline, 'outline');
+export const importTextSolidTheme = createImportStyle('text', solid, 'solid');

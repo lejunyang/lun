@@ -56,7 +56,13 @@ import { importTabsBasicTheme, importTabsSolidTheme } from './tabs';
 import { importTabItemBasicTheme } from './tab-item';
 import { importAccordionGroupBasicTheme } from './accordion-group/index.ts';
 import { importAccordionBasicTheme } from './accordion/index.ts';
-import { importTextBasicTheme } from './text';
+import {
+  importTextBasicTheme,
+  importTextOutlineTheme,
+  importTextSoftTheme,
+  importTextSolidTheme,
+  importTextSurfaceTheme,
+} from './text';
 
 export * from './button';
 export * from './calendar';
@@ -128,6 +134,7 @@ export const importOutlineTheme = () => {
   importButtonOutlineTheme();
   importCalloutOutlineTheme();
   importTagOutlineTheme();
+  importTextOutlineTheme();
 };
 
 export const importSoftTheme = () => {
@@ -136,12 +143,14 @@ export const importSoftTheme = () => {
   importCheckboxSoftTheme();
   importInputSoftTheme();
   importTagSoftTheme();
+  importTextSoftTheme();
 };
 
 export const importSolidTheme = () => {
   importButtonSolidTheme();
   importTagSolidTheme();
   importTabsSolidTheme();
+  importTextSolidTheme();
 };
 
 export const importSurfaceTheme = () => {
@@ -155,6 +164,7 @@ export const importSurfaceTheme = () => {
   importMentionsSurfaceTheme();
   importRadioSurfaceTheme();
   importRangeSurfaceTheme();
+  importTextSurfaceTheme();
 };
 
 export const importGhostTheme = () => {
