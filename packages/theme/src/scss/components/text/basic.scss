@@ -15,3 +15,16 @@
 :host([gray-color]) {
   color: getGrayColor(12);
 }
+
+@include b(text) {
+  @at-root {
+    :host([as='code']) {
+      --fm: 'Menlo', 'Consolas (Custom)', 'Bitstream Vera Sans Mono', monospace, 'Apple Color Emoji', 'Segoe UI Emoji';
+      @include declareVarValues(
+        (
+          font-family: var(--fm),
+        )
+      );
+    }
+  }
+}
