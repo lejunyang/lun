@@ -7,6 +7,12 @@ lang: zh-CN
 
 <!-- @Code:basicUsage -->
 
+## 代码片段
+
+使用`as="code"`可以将文本渲染为代码片段
+
+<CompThemePanel comp="text" includeContrast :other="{ text: 'Code', as: 'code' }" />
+
 ## 单行超出隐藏
 
 添加`ellipsis`属性即可使元素在限定宽度的容器中隐藏超出的内容，并显示省略号。省略号的位置默认为文档方向结束(`end`)位置，可以设置`start`或`center`，其他所有值均视为`end`。
@@ -26,3 +32,20 @@ lang: zh-CN
 通过`ellipsisOffset`可设置省略号偏移的字符数，偏移的字符数以`ellipsis`的位置决定，例如当为`end`时偏移从`text`末尾算起，不支持`ellipsis=center`
 
 <!-- @Code:ellipsisOffset -->
+
+
+## 不同颜色
+
+文字颜色默认受主题中的`grayColor`影响，主动设置`color`属性可以使文字颜色为主题色，但如果同时设置了`grayColor`属性，则优先使用灰色。
+
+:::warning 注
+文字组件的颜色需要在组件上直接设置，目前不会继承全局设置或父元素的主题色
+:::
+
+<!-- @Code:colors -->
+
+## 不同大小
+
+不同于一般的组件，Text组件支持1～9的size设置
+
+<!-- @Code:sizes -->
