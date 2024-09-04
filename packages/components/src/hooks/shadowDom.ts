@@ -134,3 +134,19 @@ export function useCEStates<
   onBeforeUnmount(() => stop?.());
   return [computed(() => (ns ? [ns.t, ns.is(hyphenatedStates)] : '')), states] as const;
 }
+
+/** auto update custom element's default aria attributes */
+export function useAria(
+  ariaGetter: () => Partial<
+    Omit<
+      ElementInternals,
+      'states' | 'shadowRoot' | 'form' | 'labels' | 'willValidate' | 'validity' | 'validationMessage'
+    >
+  >,
+) {
+  const { CE } = getCurrentInstance()!;
+  watchEffect(() => {
+    const aria = ariaGetter();
+    aria && Object.assign((CE as any as { _internals: ElementInternals })._internals, aria);
+  });
+}
