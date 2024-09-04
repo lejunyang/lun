@@ -20,9 +20,39 @@
   @at-root {
     :host([as='code']) {
       --fm: 'Menlo', 'Consolas (Custom)', 'Bitstream Vera Sans Mono', monospace, 'Apple Color Emoji', 'Segoe UI Emoji';
+      --p: 0.1em 0.25em;
       @include declareVarValues(
         (
-          font-family: var(--fm),
+          font-family: (
+            code-font-family,
+            var(--fm),
+          ),
+          padding: (
+            code-padding,
+            var(--p),
+          ),
+          border-radius: (
+            code-border-radius,
+            calc((0.5px + 0.2em) * getVarValue(($radius-name, factor))),
+          ),
+        )
+      );
+    }
+
+    :host([as='blockquote']) {
+      box-sizing: border-box;
+      --pis: min(#{getSpaceValue(5)}, max(#{getSpaceValue(3)}, 0.5em));
+      --bis: max(#{getSpaceValue(1)}, 0.25em) solid #{getAccentColor(a6)};
+      @include declareVarValues(
+        (
+          padding-inline-start: (
+            blockquote-padding-inline-start,
+            var(--pis),
+          ),
+          border-inline-start: (
+            blockquote-border-inline-start,
+            var(--bis),
+          ),
         )
       );
     }

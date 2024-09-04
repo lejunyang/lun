@@ -6,6 +6,7 @@
       color: getAccentColor(contrast);
       background-color: getAccentColor(a9);
       &::selection {
+        // in chrome devtools, we can see --l-accent-7 is undefined in ::selection, but it actually works, don't know why
         color: getAccentColor(12);
         background-color: getAccentColor(7);
       }
