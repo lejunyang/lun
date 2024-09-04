@@ -49,7 +49,7 @@ export function getHostStyle(
     isArray(selector) ? selector.map((s) => `:host(${s})`).join(',') : `:host${selector ? `(${selector})` : ''}`
   }{${
     isArray(styleBody)
-      ? styleBody.length === 2
+      ? styleBody.length === 2 && !isArray(styleBody[0]) && !styleBody[0].includes(':')
         ? `${styleBody[0]}:${styleBody[1]};`
         : styleBody.reduce((res, cur) => {
             return (res += isArray(cur) ? `${cur[0]}:${cur[1]};` : cur + ';');

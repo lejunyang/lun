@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, createImportStyle, getHostStyle } from 'utils';
+import { createDefineElement, createImportStyle, error, getHostStyle } from 'utils';
 import { textEmits, textProps } from './type';
 import { getCurrentInstance } from 'vue';
 import { getCachedComputedStyle } from '@lun/utils';
 import { getCompParts } from 'common';
-import { useNamespace } from 'hooks';
+import { useAria, useNamespace, useSlot } from 'hooks';
 
 const name = 'text';
 const parts = ['ellipsis', 'inner', 'offset'] as const;
@@ -20,10 +20,23 @@ export const Text = defineSSRCustomElement({
     useNamespace(name);
     const { CE } = getCurrentInstance()!,
       styleMap = getCachedComputedStyle(CE);
+
+    useAria(() => ({
+      role: props.as!,
+    }));
+
+    const [renderText] = useSlot('', () => props.text);
     return () => {
       const { text = '', ellipsisOffset, ellipsis } = props,
         dir = styleMap.direction,
         offset = +ellipsisOffset!;
+      if (__DEV__ && (offset || ellipsis === 'center') && !text) {
+        error(
+          `'ellipsisOffset' or 'ellipsis=center' is set but 'text' is empty on`,
+          CE,
+          `If you want to use ellipsis, please use 'text' prop instead of default slot`,
+        );
+      }
       const getReverse = (text: string, cls?: any) => {
         return (
           <span class={['ellipsis', cls]} dir={dirReverse[dir]} part={compParts[0]}>
@@ -42,7 +55,7 @@ export const Text = defineSSRCustomElement({
             // if we just use one span, though the ellipsis appear on the other side, the end symbol may be missed
             getReverse(text.slice(offset)),
           ];
-        return getReverse(text);
+        return getReverse(renderText());
       } else if (ellipsis === 'center')
         return [
           dir === 'ltr' ? (
@@ -61,7 +74,7 @@ export const Text = defineSSRCustomElement({
           </span>,
           <span part={compParts[2]}>{text.slice(-offset)}</span>,
         ];
-      return text;
+      return renderText();
     };
   },
 });
@@ -73,10 +86,10 @@ export const defineText = createDefineElement(name, Text, {}, parts, {
   // as this is mandatory style for ellipsis, put it in component, not in theme
   common: createImportStyle(
     name,
-    `:host([ellipsis]){display:inline-block}` +
-      `:host(:where([ellipsis]:not([ellipsis=start],[ellipsis=center]))){${ellipsisStyle}}` +
-      `:host([ellipsis=center]){height:1.5em;line-height:1.5;${hidden}}` +
-      `:host([ellipsis=start]),:host([ellipsis-offset]){display:inline-flex;min-width:0}` +
+    getHostStyle('display:inline-block', '[ellipsis]') +
+      getHostStyle(ellipsisStyle, ':where([ellipsis]:not([ellipsis=start],[ellipsis=center]))') +
+      getHostStyle(['height:1.5em', 'line-height:1.5', hidden], '[ellipsis=center]') +
+      getHostStyle(['display:inline-flex', 'min-width:0'], ['[ellipsis=start]', '[ellipsis-offset]']) +
       `.ellipsis{${ellipsisStyle}flex:1}` +
       `.float{float:right;width:50%;}`,
   ),
