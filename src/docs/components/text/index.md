@@ -5,13 +5,27 @@ lang: zh-CN
 
 ## 基本使用
 
+Text组件可以直接使用`text`属性设置文本内容，也可以直接在children中渲染文本。但需要注意的是，某些情况必须使用属性设置，例如下面介绍的`ellipsisOffset`以及`ellipsis=center`
+
 <!-- @Code:basicUsage -->
 
 ## 代码片段
 
 使用`as="code"`可以将文本渲染为代码片段
 
+:::warning 主题属性
+文字组件的主题属性，除了size可以继承父组件或使用全局设置，其他属性均需要在组件上直接设置
+
+这是因为shadowRoot里没有再包裹一层元素，可能会考虑变更
+:::
+
 <CompThemePanel comp="text" includeContrast :other="{ text: 'Code', as: 'code' }" />
+
+## 引用片段
+
+使用`as="blockquote"`可以将文本渲染为引用片段
+
+<!-- @Code:blockquote -->
 
 ## 单行超出隐藏
 
@@ -37,10 +51,6 @@ lang: zh-CN
 ## 不同颜色
 
 文字颜色默认受主题中的`grayColor`影响，主动设置`color`属性可以使文字颜色为主题色，但如果同时设置了`grayColor`属性，则优先使用灰色。
-
-:::warning 注
-文字组件的颜色需要在组件上直接设置，目前不会继承全局设置或父元素的主题色
-:::
 
 <!-- @Code:colors -->
 

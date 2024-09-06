@@ -32,7 +32,8 @@
       <ul>
         <li>若应用只需某个固定的颜色，那么我们预先挑选并引入生成的样式，从而避免引入所有的颜色，大幅度减少样式体积</li>
         <li>
-          若需要用户动态自定义颜色，则需引入全部颜色(约29kB gzip)，并需要<code>colorjs</code>和<code>bezier-easing</code>运行时，这大约需额外引入23kB(gzip)
+          若需要用户动态自定义颜色，则需引入全部颜色(约29kB
+          gzip)，并需要<code>colorjs</code>和<code>bezier-easing</code>运行时，这大约需额外引入23kB(gzip)
         </li>
       </ul>
     </details>
@@ -67,6 +68,12 @@
         <l-range value="40"></l-range>
       </div>
 
+      <div style="grid-area: 3/1; display: flex; flex-direction: column; gap: 5px; align-self: start">
+        <l-text as="blockquote">{{ text }}</l-text>
+        <l-text as="blockquote" color="amber">{{ text }}</l-text>
+        <l-text as="blockquote" color="tomato" gray-color="gray">{{ text }}</l-text>
+      </div>
+
       <l-calendar style="grid-area: 3/3"></l-calendar>
     </div>
   </div>
@@ -74,6 +81,8 @@
 
 <script setup lang="ts">
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
+import { text } from '../utils/data';
+
 const scales = Array(12)
   .fill(0)
   .map((_, i) => i + 1);
