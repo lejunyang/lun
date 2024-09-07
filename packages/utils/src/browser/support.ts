@@ -46,6 +46,8 @@ export const isSupportCustomStateSet = cacheFunctionResult(
   () => isSupportElementInternals() && typeof CustomStateSet === 'function',
 );
 
+export const isSupportScrollEnd = cacheFunctionResult(() => inBrowser && 'onscrollend' in document);
+
 export const supportCustomElement = typeof customElements === 'object' && customElements;
 
 export const isSupportPlaintextEditable = cacheFunctionResult(() => {

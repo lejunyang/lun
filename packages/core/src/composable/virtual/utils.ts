@@ -1,4 +1,4 @@
-import { objectKeys } from '@lun/utils';
+import { nearestBinarySearch, objectKeys } from '@lun/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 
 export const getFurthestMeasurement = (
@@ -29,3 +29,14 @@ export const getFurthestMeasurement = (
 
   return objectKeys(laneFurthestMeasurement).length === options.lanes ? measurements[furthestIndex!] : null;
 };
+
+export function calculateRange(measurements: UseVirtualMeasurement[], containerSize: number, scrollOffset: number) {
+  const count = measurements.length - 1;
+  const startIndex = nearestBinarySearch(0, count, (index) => measurements[index].offsetStart, scrollOffset);
+  let endIndex = startIndex;
+
+  while (endIndex < count && measurements[endIndex].offsetEnd < scrollOffset + containerSize) {
+    endIndex++;
+  }
+  return [startIndex, endIndex] as const;
+}

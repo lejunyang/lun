@@ -2,8 +2,11 @@ import { MaybeRefLikeOrGetter } from '../../utils';
 
 export type UseVirtualOptions = {
   container: MaybeRefLikeOrGetter<HTMLElement>;
+  initialContainerSize?: MaybeRefLikeOrGetter<number>;
+  observeContainerResize?: boolean;
+  horizontal?: boolean;
   disabled?: boolean | ((items: any[]) => boolean);
-  overscan?: number;
+  overscan?: number | ((items: any[], containerSize: number) => number);
   items: MaybeRefLikeOrGetter<any[]>;
   itemKey: string | ((item: any, index: number) => string | number);
   itemSize: number | ((item: any, index: number) => number);
@@ -16,9 +19,10 @@ export type UseVirtualOptions = {
 
 export type UseVirtualMeasurement = {
   index: number;
+  key: any;
+  item: any;
   offsetStart: number;
   offsetEnd: number;
   size: number;
-  key: any;
   lane: number;
 };
