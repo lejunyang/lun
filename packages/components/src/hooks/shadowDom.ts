@@ -90,7 +90,7 @@ export function useCEStates<
   // must in mount, form-item need to be set on mount
   onCEMount(({ CE }) => {
     const stateSet = (CE as any)._internals?.states as Set<string>;
-    const { reflectStateToAttr } = GlobalStaticConfig;
+    const { reflectStateToAttr, stateAttrType, statePrefix } = GlobalStaticConfig;
     const setAttr = reflectStateToAttr === 'always' || (reflectStateToAttr === 'auto' && !stateSet);
 
     const handleState = (k: string, v: any, addState = true) => {
@@ -112,8 +112,13 @@ export function useCEStates<
       }
       const camelK = camelize(k); // dataset only accepts camelCase
       if (setAttr) {
-        if (v) CE.dataset[camelK] = '';
-        delete CE.dataset[camelK];
+        if (stateAttrType === 'dataset') {
+          if (v) CE.dataset[camelK] = '';
+          else delete CE.dataset[camelK];
+        } else if (stateAttrType === 'class') {
+          if (v) CE.classList.add(statePrefix + k);
+          else CE.classList.remove(statePrefix + k);
+        }
       }
     };
 

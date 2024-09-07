@@ -75,7 +75,9 @@ export const GlobalStaticConfig = new Proxy(
      * if set to 'always', the states will always be reflected to attribute,
      * if set to 'auto', the states will be reflected to attribute when native CustomElementState is not supported,
      */
-    reflectStateToAttr: 'auto' as 'always' | 'never' | 'auto',
+    reflectStateToAttr: 'always' as 'always' | 'never' | 'auto',
+    /** determine whether to use dataset or class to reflect component's state to attribute */
+    stateAttrType: 'dataset' as 'dataset' | 'class',
     nameMap: (() => {
       const result = {} as { readonly [k in ComponentKey]: string };
       components.forEach((name) => {

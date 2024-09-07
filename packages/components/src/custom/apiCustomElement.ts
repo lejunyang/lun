@@ -379,8 +379,8 @@ export class VueElement extends BaseClass {
   }
 
   protected _setAttr(key: string) {
-    // ignore data- and aria- attrs
-    if (key.startsWith('data-') || key.startsWith('aria-')) return;
+    // ignore class, data- and aria- attrs
+    if (key === 'class' || key.startsWith('data-') || key.startsWith('aria-')) return;
     let value: any = this.hasAttribute(key) ? this.getAttribute(key) : undefined;
     const camelKey = camelize(key);
     if (this._numberProps && this._numberProps[camelKey]) {
