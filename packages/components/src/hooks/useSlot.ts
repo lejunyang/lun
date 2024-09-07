@@ -1,6 +1,6 @@
 import { h, onBeforeUnmount, ref, shallowRef, watch, watchEffect } from 'vue';
 import { useShadowDom } from './shadowDom';
-import { isElement, isSupportSlotAssign, isText, isTruthyOrZero } from '@lun/utils';
+import { arrayFrom, isElement, isSupportSlotAssign, isText, isTruthyOrZero } from '@lun/utils';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
 import { renderCustom } from '../components/custom-renderer/CustomRenderer';
 
@@ -75,8 +75,8 @@ export function useManualSlot(
     if (!value || !CE) return;
     const toBeSlotted = (last = (
       name
-        ? Array.from(CE.children).filter((i) => i.slot === name)
-        : Array.from(CE.childNodes).filter((i) => isElement(i) || isText(i))
+        ? arrayFrom(CE.children).filter((i) => i.slot === name)
+        : arrayFrom(CE.childNodes).filter((i) => isElement(i) || isText(i))
     ).map((i) => i.cloneNode(true) as Element | Text));
     unrefOrGet(target)?.append(...toBeSlotted);
     value.assign(...toBeSlotted);

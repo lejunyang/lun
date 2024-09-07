@@ -4,6 +4,7 @@ import { getWindow } from './dom';
 import { isElement } from './is';
 import { isSupportCSSStyleSheet } from './support';
 import { toNumberIfValid } from '../number';
+import { arrayFrom } from '../array';
 
 const styleCommentRE = /\/\*[^]*?\*\//g;
 
@@ -62,7 +63,7 @@ export function needCopyCSSStyleSheet(targetSheet: CSSStyleSheet, currentNode?: 
 export function copyCSSStyleSheet(sheet: CSSStyleSheet, defaultWindow?: typeof globalThis | null) {
   const cloned = new (defaultWindow || globalThis).CSSStyleSheet();
   // must pass index to insertRule to keep the order, it defaults to 0
-  Array.from(sheet.cssRules).forEach((rule, index) => cloned.insertRule(rule.cssText, index));
+  arrayFrom(sheet.cssRules, (rule, index) => cloned.insertRule(rule.cssText, index));
   return cloned;
 }
 

@@ -1,5 +1,6 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import {
+  arrayFrom,
   getDeepestActiveElement,
   getFirstOfIterable,
   getNextMatchElInTree,
@@ -137,7 +138,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
       (e.target as HTMLInputElement).value = '';
       onInputUpdate && onInputUpdate('');
     }
-    const final = unique ? Array.from(uniqueResult) : result;
+    const final = unique ? arrayFrom(uniqueResult) : result;
     onTagsAdd && added.length && onTagsAdd(added);
     return +maxTags! >= 0 ? final.slice(0, +maxTags!) : final;
   };

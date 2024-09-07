@@ -10,6 +10,7 @@ import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
 import {
+  arrayFrom,
   fromObject,
   getFirstOfIterable,
   isArray,
@@ -119,7 +120,7 @@ export function createDefineElement(
       if (parts)
         exportParts[compKey] = parts
           .map((p) => compKey + '-' + p)
-          .concat(Array.from(dependencySet[compKey] || []).map((k) => exportParts[k]))
+          .concat(arrayFrom(dependencySet[compKey] || [], (k) => exportParts[k]))
           .filter(Boolean)
           .join(',');
       actualNameMap[compKey].add(name);

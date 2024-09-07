@@ -1,4 +1,4 @@
-import { getFirstOfIterable, toNoneNilSet } from '@lun/utils';
+import { arrayFrom, getFirstOfIterable, toNoneNilSet } from '@lun/utils';
 import { ToMaybeRefLike, unrefOrGet } from '../../utils';
 
 export type UseSelectOptions<T = any> = ToMaybeRefLike<
@@ -17,7 +17,7 @@ export function useSelectMethods(options: UseSelectOptions) {
   const methods = {
     isSelected: (value: any) => !!unrefOrGet(valueSet)?.has(value),
     selectAll() {
-      if (isMultiple()) onChange(Array.from(unrefOrGet(allValues) || []));
+      if (isMultiple()) onChange(arrayFrom(unrefOrGet(allValues) || []));
     },
     unselectAll() {
       onChange(isMultiple() ? [] : null);
@@ -25,7 +25,7 @@ export function useSelectMethods(options: UseSelectOptions) {
     select(...values: any[]) {
       if (isMultiple()) {
         const v = toNoneNilSet(unrefOrGet(valueSet), values);
-        onChange(Array.from(v));
+        onChange(arrayFrom(v));
       } else if (values[0] != null) onChange(values[0]);
     },
     unselect(...values: any[]) {
@@ -33,7 +33,7 @@ export function useSelectMethods(options: UseSelectOptions) {
       if (isMultiple()) {
         const result = new Set(v);
         values.forEach((i) => result.delete(i));
-        onChange(Array.from(result));
+        onChange(arrayFrom(result));
       } else {
         if (values[0] === undefined || getFirstOfIterable(unrefOrGet(valueSet)!) === values[0]) onChange(null);
       }
@@ -46,8 +46,8 @@ export function useSelectMethods(options: UseSelectOptions) {
           if (result.has(i)) result.delete(i);
           else result.add(i);
         });
-        onChange(Array.from(result));
-      } else onChange(!unrefOrGet(valueSet)?.size ? Array.from(all)[0] : null);
+        onChange(arrayFrom(result));
+      } else onChange(!unrefOrGet(valueSet)?.size ? arrayFrom(all)[0] : null);
     },
     toggle(value: any) {
       if (methods.isSelected(value)) methods.unselect(value);

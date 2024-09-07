@@ -4,7 +4,7 @@ import { createDefineElement, error } from 'utils';
 import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
-import { AnyFn, isArray, isString, isSupportFileSystem, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
+import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystem, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer';
 import { isAbort } from './utils';
 
@@ -125,7 +125,7 @@ export const FilePicker = defineSSRCustomElement({
       onChange(e: Event) {
         picked = true;
         const input = e.target as HTMLInputElement;
-        const f = Array.from(input.files!);
+        const f = arrayFrom(input.files!);
         clean(!f.length);
         processFiles(f);
         input.value = ''; // clear files
@@ -146,12 +146,13 @@ export const FilePicker = defineSSRCustomElement({
     const extensions = getProcessedProp('extensions');
 
     const inputAccept = computed(() => {
-      return Array.from(mimeTypes.value).concat(Array.from(extensions.value)).join(',');
+      return arrayFrom(mimeTypes.value).concat(arrayFrom(extensions.value)).join(',');
     });
 
     async function pickDir() {
       const files: File[] = [];
       async function read(directory: FileSystemDirectoryHandle) {
+        // @ts-ignore
         for await (const entry of directory.values()) {
           if (entry.kind === 'file') {
             files.push(await (entry as FileSystemFileHandle).getFile());
@@ -188,7 +189,7 @@ export const FilePicker = defineSSRCustomElement({
           processFiles(files);
         } else {
           const mimes = mimeTypes.value,
-            exts = Array.from(extensions.value);
+            exts = arrayFrom(extensions.value);
           const types: FileOpenTypeOption[] = [];
           if (mimes.size) {
             let i = 0;

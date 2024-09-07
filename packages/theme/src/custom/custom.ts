@@ -17,6 +17,7 @@ import {
   clone,
   contrastAPCA,
 } from 'colorjs.io/fn';
+import { arrayFrom } from '@lun/utils';
 
 // derived from radix custom colors
 
@@ -43,7 +44,7 @@ const arrayOf12 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
 const grayScaleNames = grayColors;
 
-const scaleNames = Array.from(allColorSet);
+const scaleNames = arrayFrom(allColorSet);
 
 const lightColors = Object.fromEntries(
   scaleNames.map((scaleName) => [scaleName, Object.values(RadixColors[`${scaleName}P3`]).map(toOklch)]),

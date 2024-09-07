@@ -16,7 +16,7 @@ import {
   watchEffect,
 } from 'vue';
 import { useWatermark } from '@lun/core';
-import { isTruthyOrZero, objectKeys, raf, setStyle } from '@lun/utils';
+import { arrayFrom, isTruthyOrZero, objectKeys, raf, setStyle } from '@lun/utils';
 
 const name = 'watermark';
 const none = 'none',
@@ -72,7 +72,7 @@ export const Watermark = defineSSRCustomElement({
     if (!mutable) {
       const mayNeedUpdateKeys = new Set(objectKeys(props).filter((k) => !isTruthyOrZeroOrFalse(props[k])));
       const stop = watchEffect(() => {
-        for (const key of Array.from(mayNeedUpdateKeys)) {
+        for (const key of arrayFrom(mayNeedUpdateKeys)) {
           if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(props[key])) {
             // @ts-ignore
             freezedProps[key] = props[key];

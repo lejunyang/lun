@@ -1,3 +1,4 @@
+import { arrayFrom } from '../array';
 import { isHTMLElement, isHTMLSlotElement } from './is';
 import { isOverflow } from './overflow';
 import { getCachedComputedStyle } from './style';
@@ -122,8 +123,8 @@ export function getTabbableElements(root: HTMLElement): [HTMLElement[], HTMLElem
       el.assignedElements({ flatten: true }).forEach(walk);
     }
 
-    if (el.shadowRoot) Array.from(el.shadowRoot.children).forEach(walk);
-    else Array.from(el.children).forEach(walk);
+    if (el.shadowRoot) arrayFrom(el.shadowRoot.children, walk);
+    else arrayFrom(el.children, walk);
   }
 
   walk(root);
@@ -131,7 +132,7 @@ export function getTabbableElements(root: HTMLElement): [HTMLElement[], HTMLElem
   // Is this worth having? Most sorts will always add increased overhead. And positive tabindexes shouldn't really be used.
   // So is it worth being right? Or fast?
   return [
-    Array.from(tabbableElements).sort((a, b) => {
+    arrayFrom(tabbableElements).sort((a, b) => {
       // Make sure we sort by tabindex.
       const aTabindex = Number(a.getAttribute('tabindex')) || 0;
       const bTabindex = Number(b.getAttribute('tabindex')) || 0;

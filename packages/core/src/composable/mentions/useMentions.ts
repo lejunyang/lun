@@ -1,7 +1,7 @@
 import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, toArrayIfNotNil } from '@lun/utils';
+import { arrayFrom, isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, toArrayIfNotNil } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly } from 'vue';
 import { getText, rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
@@ -245,7 +245,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
       // I try to reset selection and range to the first text span node, but it doesn't work, so just handle this case here
       startIndex = endIndex = 0;
     } else {
-      const children = Array.from(value!.children);
+      const children = arrayFrom(value!.children);
       for (const i in children) {
         const el = children[i];
         // startContainer is Text node or span node

@@ -1,4 +1,4 @@
-import { isArray, isFunction, isString } from './is';
+import { isArray, isFunction, isNumber, isString } from './is';
 
 export function toArrayIfNotNil<T>(
   target: T,
@@ -27,7 +27,7 @@ export function toNoneNilSet<T extends (Iterable<any> | null | undefined)[]>(
   const result = new Set();
   args.forEach((arg) => {
     if (isString(arg)) result.add(arg); // string is iterable
-    else if (isIterable(arg)) Array.from(arg).forEach((item) => item != null && result.add(item));
+    else if (isIterable(arg)) arrayFrom(arg).forEach((item) => item != null && result.add(item));
     else if (arg != null) result.add(arg);
   });
   return result as any;
@@ -50,3 +50,15 @@ export function at(arr: any[] | undefined | null, index: number) {
   if (index < 0 || index >= length) return undefined;
   return arr[index];
 }
+
+export function arrayFrom<V>(length: number): V[];
+export function arrayFrom<V>(length: number, mapVal?: (val: undefined, index: number) => V): V[];
+export function arrayFrom<T>(arr: ArrayLike<T> | Iterable<T>): T[];
+export function arrayFrom<T, V>(arr: ArrayLike<T> | Iterable<T>, mapVal: (val: T, index: number) => V): V[];
+
+/** simply like arrayFrom, but can take a number as the first argument to create an array of that length */
+export function arrayFrom(lengthOrArrayLike: number | ArrayLike<any> | Iterable<any>, mapVal?: any) {
+  return arrayFrom(isNumber(lengthOrArrayLike) ? { length: lengthOrArrayLike } : lengthOrArrayLike, mapVal);
+}
+
+arrayFrom(new Set());

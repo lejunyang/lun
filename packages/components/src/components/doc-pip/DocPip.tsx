@@ -2,6 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, error, getElementFirstName } from 'utils';
 import { DocPipAcceptStyle, docPipEmits, docPipProps } from './type';
 import {
+  arrayFrom,
   copyCSSStyleSheetsIfNeed,
   isCSSStyleSheet,
   isHTMLStyleElement,
@@ -76,7 +77,7 @@ export const DocPip = defineSSRCustomElement({
           pipDocument.adoptedStyleSheets = copyCSSStyleSheetsIfNeed(shadowRoot.adoptedStyleSheets, pipWindow);
         }
         // copy style nodes
-        const styleNodes = Array.from(shadowRoot.querySelectorAll('style')).map((n) => n.cloneNode(true));
+        const styleNodes = arrayFrom(shadowRoot.querySelectorAll('style'), (n) => n.cloneNode(true));
         const { head } = pipDocument;
         head.append(...styleNodes);
 

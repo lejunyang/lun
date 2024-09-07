@@ -16,6 +16,7 @@ import {
   toPxIfNum,
   runIfFn,
   getRect,
+  arrayFrom,
 } from '@lun/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 import { getCompParts } from 'common';
@@ -231,7 +232,7 @@ export const Range = defineSSRCustomElement({
         nextTick(() => {
           const { value } = labelWrapEl;
           if (value) {
-            const children = Array.from(value.children);
+            const children = arrayFrom(value.children);
             setStyle(value, {
               [ns.vn('max-label-width')]: toPxIfNum(Math.max(...children.map((e) => (e as HTMLElement).offsetWidth))),
               [ns.vn('max-label-height')]: toPxIfNum(Math.max(...children.map((e) => (e as HTMLElement).offsetHeight))),

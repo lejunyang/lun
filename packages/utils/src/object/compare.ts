@@ -1,10 +1,12 @@
 import { isArray } from '../is';
 import { runIfFn } from '../function';
+import { arrayFrom } from '../array';
+
 export function simpleObjectEquals(obj1: any, obj2: any, depths = Infinity): boolean {
   if (Object.is(obj1, obj2) || (obj1 == null && obj2 == null)) return true;
   if (obj1 && obj2 && typeof obj1 === 'object' && typeof obj2 === 'object' && depths) {
     const keys = new Set(Object.keys(obj1).concat(Object.keys(obj2)));
-    return Array.from(keys).every((key) => simpleObjectEquals(obj1[key], obj2[key], depths - 1));
+    return arrayFrom(keys).every((key) => simpleObjectEquals(obj1[key], obj2[key], depths - 1));
   }
   return false;
 }

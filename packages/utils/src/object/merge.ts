@@ -5,6 +5,7 @@ import { objectGet, objectKeys } from './value';
 import { AnyFn } from '../type';
 import { fromObject } from './process';
 import { runIfFn } from '../function';
+import { arrayFrom } from '../array';
 
 // /**
 //  * property of `source` will overwrite target only when related property of `target` is null or undefined\
@@ -208,7 +209,7 @@ export type MergeObjects<T extends unknown[]> = T extends [infer First, ...infer
   : {};
 
 function getKeys<T extends (Record<string | symbol, any> | null | undefined)[]>(...targets: T) {
-  return Array.from(
+  return arrayFrom(
     targets.reduce<Set<string | symbol>>((result, cur) => {
       if (cur) {
         // must use bind on set, or it will throw Method Set.prototype.add called on incompatible receiver undefined
