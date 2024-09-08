@@ -6,11 +6,12 @@ export type UseVirtualOptions = {
   observeContainerSize?: boolean;
   horizontal?: boolean;
   disabled?: boolean | ((items: any[]) => boolean);
-  overscan?: number | ((items: any[], containerSize: number) => number);
+  overscan?: number | [number, number] | ((items: any[], containerSize: number) => number | [number, number]);
   items: MaybeRefLikeOrGetter<any[]>;
   indexAttribute?: string;
   itemKey: string | ((item: any, index: number) => string | number);
-  itemSize: number | ((item: any, index: number) => number);
+  estimatedSize?: number | ((item: any, index: number) => number);
+  fixedSize?: number | ((item: any, index: number) => number);
   observeItemSize?: boolean;
   paddingStart?: number;
   scrollMargin?: number;
@@ -28,4 +29,12 @@ export type UseVirtualMeasurement = {
   offsetEnd: number;
   size: number;
   lane: number;
+};
+
+export type UseVirtualState = {
+  scrollOffset: number;
+  scrollAdjustments: number;
+  scrollDirection: 'forward' | 'backward' | null;
+  scrolling: boolean;
+  containerSize: number;
 };

@@ -14,6 +14,7 @@ import {
   isSupportScrollEnd,
   on,
   runIfFn,
+  toArrayIfNotNil,
 } from '@lun/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
@@ -31,6 +32,7 @@ export function useVirtual(options: UseVirtualOptions) {
   const state = reactive({
     scrollOffset: ensureNumber(runIfFn(options.initialScrollOffset), 0),
     scrollAdjustments: 0,
+    scrollDirection: null as 'forward' | 'backward' | null,
     scrolling: false,
     containerSize: unrefOrGet(options.initialContainerSize) || 0,
   });
@@ -43,6 +45,7 @@ export function useVirtual(options: UseVirtualOptions) {
   };
   const updateScroll = (offset: number, isScrolling: boolean) => {
     state.scrollAdjustments = 0;
+    state.scrollDirection = isScrolling ? (state.scrollOffset < offset ? 'forward' : 'backward') : null;
     state.scrollOffset = offset;
     state.scrolling = isScrolling;
   };
@@ -111,7 +114,7 @@ export function useVirtual(options: UseVirtualOptions) {
 
   const measurements = computed<UseVirtualMeasurement[]>((old) => {
     old ||= [];
-    const { items, itemKey, itemSize, disabled, lanes, gap, paddingStart, scrollMargin } = options;
+    const { items, itemKey, fixedSize, estimatedSize, disabled, lanes, gap, paddingStart, scrollMargin } = options;
     const lanesNum = ensureNumber(lanes, 1);
     const itemsArr = unrefOrGet(items);
     if (!isArray(itemsArr) || runIfFn(disabled, itemsArr)) {
@@ -135,7 +138,7 @@ export function useVirtual(options: UseVirtualOptions) {
       const offsetStart = furtherMeasurement
         ? furtherMeasurement.offsetEnd + ensureNumber(gap, 0)
         : ensureNumber(paddingStart, 0) + ensureNumber(scrollMargin, 0);
-      const size = keySizeMap.get(key) ?? runIfFn(itemSize, item, minI);
+      const size = keySizeMap.get(key) ?? runIfFn(fixedSize || estimatedSize, item, minI);
       if (__DEV__ && !(size > 0)) {
         console.error('[useVirtual] Invalid item size for item at index ' + minI + '.');
       }
@@ -174,11 +177,13 @@ export function useVirtual(options: UseVirtualOptions) {
   const renderItems = computed(() => {
     const { items, disabled, overscan } = options;
     const itemsArr = unrefOrGet(items),
-      overscanNum = ensureNumber(runIfFn(overscan, itemsArr, state.containerSize), 10);
+      overscanArr = toArrayIfNotNil(runIfFn(overscan, itemsArr, state));
+    overscanArr[0] = ensureNumber(overscanArr[0], 10);
+    overscanArr[1] = ensureNumber(overscanArr[1], overscanArr[0]);
     if (!isArray(itemsArr) || runIfFn(disabled, itemsArr)) return [];
     const [start, end] = calculateRange(measurements.value, state.containerSize, state.scrollOffset);
-    const finalStart = Math.max(0, start - overscanNum),
-      finalEnd = Math.min(itemsArr.length, end + overscanNum);
+    const finalStart = Math.max(0, start - overscanArr[0]),
+      finalEnd = Math.min(itemsArr.length, end + overscanArr[1]);
     return measurements.value.slice(finalStart, finalEnd);
   });
 }
