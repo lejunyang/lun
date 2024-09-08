@@ -15,7 +15,8 @@
       "@lun/theme/custom": ["./packages/theme/src/custom/custom.ts"],
       "@lun/theme": ["./packages/theme/src/index.ts"],
       "@lun/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
-      "@lun/core": ["./packages/core/index.ts"]
+      "@lun/core": ["./packages/core/index.ts"],
+      "@lun/utils": ["./packages/utils/index.ts"]
     }
   },
   "include": [
@@ -28,6 +29,8 @@
     "./packages/components/dist/elements-types-vue.d.ts",
     "./packages/core/src/presets/date.dayjs.ts",
     "./packages/theme/src/custom/custom.ts",
+    "./packages/theme/src/index.ts",
+    "./packages/utils/index.ts",
     "./vite.config.ts"
   ]
 }

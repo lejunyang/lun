@@ -1,13 +1,9 @@
+import { arrayFrom } from '@lun/utils';
+
 export default function () {
-  return (
-    <>
-      {Array(4)
-        .fill(0)
-        .map((_, i) => (
-          <l-popover size={i + 1} content={`Size ${i + 1}`}>
-            <l-button>Size {i + 1}</l-button>
-          </l-popover>
-        ))}
-    </>
-  );
+  return arrayFrom(4, (_, i) => (
+    <l-popover size={i + 1} content={`Size ${i + 1}`}>
+      <l-button>Size {i + 1}</l-button>
+    </l-popover>
+  ));
 }

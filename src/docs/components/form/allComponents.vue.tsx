@@ -1,4 +1,5 @@
 import { useForm } from '@lun/core';
+import { arrayFrom } from '@lun/utils';
 
 const form = useForm({
   defaultData: {
@@ -9,9 +10,7 @@ const form = useForm({
     array: [null],
   },
 });
-const options = Array(2)
-  .fill(0)
-  .map((_, index) => ({ value: `option${index}`, label: `option${index}` }));
+const options = arrayFrom(2, (_, index) => ({ value: `option${index}`, label: `option${index}` }));
 
 export default function () {
   return (

@@ -82,10 +82,9 @@
 <script setup lang="ts">
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
 import { text } from '../utils/data';
+import { arrayFrom } from '@lun/utils';
 
-const scales = Array(12)
-  .fill(0)
-  .map((_, i) => i + 1);
+const scales = arrayFrom(12, (_, i) => i + 1);
 
 const tabs = [1, 2, 3, 4].map((i) => ({ slot: i, label: `Tab ${i}` }));
 
