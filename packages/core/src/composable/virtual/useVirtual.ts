@@ -16,8 +16,10 @@ import {
   runIfFn,
 } from '@lun/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
-import { calculateRange, getFurthestMeasurement } from './utils';
+import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
 import { tryOnScopeDispose } from '../../hooks';
+
+// inspired by tanstack/virtual
 
 const listenOption = { passive: true };
 
@@ -33,15 +35,24 @@ export function useVirtual(options: UseVirtualOptions) {
     containerSize: unrefOrGet(options.initialContainerSize) || 0,
   });
 
+  const getSize = (rect: DOMRect | ResizeObserverSize) =>
+    (rect as DOMRect)[options.horizontal ? 'width' : 'height'] ||
+    (rect as ResizeObserverSize)[options.horizontal ? 'inlineSize' : 'blockSize'];
   const setContainerSize = (rect: DOMRect | ResizeObserverSize) => {
-    state.containerSize =
-      (rect as DOMRect)[options.horizontal ? 'width' : 'height'] ||
-      (rect as ResizeObserverSize)[options.horizontal ? 'inlineSize' : 'blockSize'];
+    state.containerSize = getSize(rect);
   };
   const updateScroll = (offset: number, isScrolling: boolean) => {
     state.scrollAdjustments = 0;
     state.scrollOffset = offset;
     state.scrolling = isScrolling;
+  };
+  const getIndex = (target: Element) => {
+    const val = target.getAttribute(options.indexAttribute || 'data-index');
+    if (val == null) {
+      if (__DEV__) console.error('[useVirtual] Missing index attribute for element', target);
+      return -1;
+    }
+    return +val!;
   };
 
   let cleanFns: AnyFn[] = [];
@@ -53,7 +64,7 @@ export function useVirtual(options: UseVirtualOptions) {
 
   watchEffect(() => {
     clean();
-    const { container, observeContainerResize } = options;
+    const { container, observeContainerSize } = options;
     const containerEl = unrefOrGet(container);
     if (!isHTMLElement(containerEl)) return;
     isRTL = getCachedComputedStyle(containerEl).direction === 'rtl';
@@ -90,14 +101,9 @@ export function useVirtual(options: UseVirtualOptions) {
     // initial container size
     setContainerSize(getRect(containerEl));
     // resize
-    if (!observeContainerResize) return;
+    if (!observeContainerSize) return;
     const observer = new targetWin.ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry?.borderBoxSize) {
-        const box = entry.borderBoxSize[0];
-        if (box) return setContainerSize(box);
-      }
-      setContainerSize(getRect(containerEl));
+      setContainerSize(getEntryBorderSize(entries[0]) || getRect(containerEl));
     });
     observer.observe(containerEl, { box: 'border-box' });
     cleanFns.push(() => observer.disconnect());
@@ -146,9 +152,23 @@ export function useVirtual(options: UseVirtualOptions) {
     return newMeasurements;
   });
 
-  const measureElement = (el: Element, index: number) => {
-    if (isElement(el)) {
+  const updateItemSize = (index: number, size: number) => {};
+  const updateMeasure = (el: Element, entry?: ResizeObserverEntry) => {
+    const index = getIndex(el);
+    const measurement = measurements.value[index];
+    if (!measurement) return;
+    const { key } = measurement,
+      prevEl = keyElementMap.get(key);
+    if (el !== prevEl) {
+      if (prevEl) itemsObserver?.unobserve(prevEl);
+      itemsObserver?.observe(el);
+      keyElementMap.set(key, el);
     }
+    if (el.isConnected) updateItemSize(index, Math.round(getSize(getEntryBorderSize(entry) || getRect(el))));
+  };
+  const itemsObserver = options.observeItemSize ? new ResizeObserver((entries) => {}) : null;
+  const measureElement = (el: Element) => {
+    if (isElement(el)) updateMeasure(el);
   };
 
   const renderItems = computed(() => {

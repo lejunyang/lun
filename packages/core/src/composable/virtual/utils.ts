@@ -40,3 +40,5 @@ export function calculateRange(measurements: UseVirtualMeasurement[], containerS
   }
   return [startIndex, endIndex] as const;
 }
+
+export const getEntryBorderSize = (entry?: ResizeObserverEntry) => entry?.borderBoxSize?.[0]
