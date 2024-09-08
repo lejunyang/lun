@@ -2,7 +2,9 @@ import { computed, reactive, watchEffect, setBlockTracking } from 'vue';
 import { unrefOrGet } from '../../utils';
 import {
   AnyFn,
+  debounce,
   ensureNumber,
+  getCachedComputedStyle,
   getRect,
   getWindow,
   isArray,
@@ -22,9 +24,11 @@ const listenOption = { passive: true };
 export function useVirtual(options: UseVirtualOptions) {
   const keyElementMap = new Map<any, Element>(),
     keySizeMap = reactive(new Map<any, number>());
-  let pendingMeasuredIndex: number = -1;
+  let pendingMeasuredIndex: number = -1,
+    isRTL = false;
   const state = reactive({
     scrollOffset: ensureNumber(runIfFn(options.initialScrollOffset), 0),
+    scrollAdjustments: 0,
     scrolling: false,
     containerSize: unrefOrGet(options.initialContainerSize) || 0,
   });
@@ -33,6 +37,11 @@ export function useVirtual(options: UseVirtualOptions) {
     state.containerSize =
       (rect as DOMRect)[options.horizontal ? 'width' : 'height'] ||
       (rect as ResizeObserverSize)[options.horizontal ? 'inlineSize' : 'blockSize'];
+  };
+  const updateScroll = (offset: number, isScrolling: boolean) => {
+    state.scrollAdjustments = 0;
+    state.scrollOffset = offset;
+    state.scrolling = isScrolling;
   };
 
   let cleanFns: AnyFn[] = [];
@@ -47,30 +56,48 @@ export function useVirtual(options: UseVirtualOptions) {
     const { container, observeContainerResize } = options;
     const containerEl = unrefOrGet(container);
     if (!isHTMLElement(containerEl)) return;
+    isRTL = getCachedComputedStyle(containerEl).direction === 'rtl';
     const targetWin = getWindow(containerEl);
 
-    // scroll to initial position
+    // TODO scroll to initial position
 
-    const handle = (rect: DOMRect | ResizeObserverSize) => {
-      setContainerSize(rect);
-      // notify
-    };
+    // -------- scroll --------
+    let scrollEndDebounce: AnyFn;
+    const updateOffset = (scrolling = false) =>
+      updateScroll(
+        // when it's RTL, scrollLeft is negative
+        options.horizontal ? containerEl.scrollLeft * (isRTL ? -1 : 1) : containerEl.scrollTop,
+        scrolling,
+      );
+    isSupportScrollEnd()
+      ? cleanFns.push(on(containerEl, 'scrollend', () => updateOffset(), listenOption))
+      : (scrollEndDebounce = debounce(() => updateOffset(), options.scrollEndDelay || 150));
+    cleanFns.push(
+      on(
+        containerEl,
+        'scroll',
+        () => {
+          updateOffset(true);
+          scrollEndDebounce?.();
+        },
+        listenOption,
+      ),
+    );
+    // update initial scroll offset
+    updateOffset();
+    // -------- scroll --------
 
-    // scroll
-    cleanFns.push(on(containerEl, 'scroll', () => {}, listenOption));
-    isSupportScrollEnd() && cleanFns.push(on(containerEl, 'scrollend', () => {}, listenOption));
-
-    handle(getRect(containerEl));
-
+    // initial container size
+    setContainerSize(getRect(containerEl));
     // resize
     if (!observeContainerResize) return;
     const observer = new targetWin.ResizeObserver((entries) => {
       const entry = entries[0];
       if (entry?.borderBoxSize) {
         const box = entry.borderBoxSize[0];
-        if (box) return handle(box);
+        if (box) return setContainerSize(box);
       }
-      handle(getRect(containerEl));
+      setContainerSize(getRect(containerEl));
     });
     observer.observe(containerEl, { box: 'border-box' });
     cleanFns.push(() => observer.disconnect());

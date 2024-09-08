@@ -15,6 +15,7 @@ export type UseVirtualOptions = {
   gap?: number;
   lanes?: number;
   initialScrollOffset?: MaybeRefLikeOrGetter<number>;
+  scrollEndDelay?: number;
 };
 
 export type UseVirtualMeasurement = {
