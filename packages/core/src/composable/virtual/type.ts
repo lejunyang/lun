@@ -19,6 +19,7 @@ export type UseVirtualOptions = {
   lanes?: number;
   initialScrollOffset?: MaybeRefLikeOrGetter<number>;
   scrollEndDelay?: number;
+  shouldAdjustScroll?: (measurement: UseVirtualMeasurement, delta: number, state: UseVirtualState) => boolean;
 };
 
 export type UseVirtualMeasurement = {

@@ -27,8 +27,9 @@ const listenOption = { passive: true };
 export function useVirtual(options: UseVirtualOptions) {
   const keyElementMap = new Map<any, Element>(),
     keySizeMap = reactive(new Map<any, number>());
-  let pendingMeasuredIndex: number = -1,
-    isRTL = false;
+  let pendingMeasuredIndex = -1,
+    isRTL = false,
+    containerEl: HTMLElement;
   const state = reactive({
     scrollOffset: ensureNumber(runIfFn(options.initialScrollOffset), 0),
     scrollAdjustments: 0,
@@ -49,6 +50,12 @@ export function useVirtual(options: UseVirtualOptions) {
     state.scrollOffset = offset;
     state.scrolling = isScrolling;
   };
+  const syncScroll = (behavior?: 'auto' | 'smooth') => {
+    containerEl.scrollTo({
+      [options.horizontal ? 'left' : 'top']: state.scrollOffset + state.scrollAdjustments,
+      behavior,
+    });
+  };
   const getIndex = (target: Element) => {
     const val = target.getAttribute(options.indexAttribute || 'data-index');
     if (val == null) {
@@ -68,12 +75,13 @@ export function useVirtual(options: UseVirtualOptions) {
   watchEffect(() => {
     clean();
     const { container, observeContainerSize } = options;
-    const containerEl = unrefOrGet(container);
+    containerEl = unrefOrGet(container)!;
     if (!isHTMLElement(containerEl)) return;
     isRTL = getCachedComputedStyle(containerEl).direction === 'rtl';
     const targetWin = getWindow(containerEl);
 
     // TODO scroll to initial position
+    // syncScroll();
 
     // -------- scroll --------
     let scrollEndDebounce: AnyFn;
@@ -155,7 +163,23 @@ export function useVirtual(options: UseVirtualOptions) {
     return newMeasurements;
   });
 
-  const updateItemSize = (index: number, size: number) => {};
+  const updateItemSize = (index: number, size: number) => {
+    const measurement = measurements.value[index];
+    if (!measurement) return;
+    const itemSize = keySizeMap.get(measurement.key) ?? measurement.size;
+    const delta = size - itemSize;
+    if (!delta) {
+      if (
+        runIfFn(options.shouldAdjustScroll, measurement, delta, state) ||
+        measurement.offsetStart < state.scrollOffset + state.scrollAdjustments
+      ) {
+        state.scrollAdjustments += delta;
+        syncScroll();
+      }
+      pendingMeasuredIndex = pendingMeasuredIndex >= 0 ? Math.min(pendingMeasuredIndex, index) : index;
+      keySizeMap.set(measurement.key, size);
+    }
+  };
   const updateMeasure = (el: Element, entry?: ResizeObserverEntry) => {
     const index = getIndex(el);
     const measurement = measurements.value[index];
@@ -169,12 +193,24 @@ export function useVirtual(options: UseVirtualOptions) {
     }
     if (el.isConnected) updateItemSize(index, Math.round(getSize(getEntryBorderSize(entry) || getRect(el))));
   };
-  const itemsObserver = options.observeItemSize ? new ResizeObserver((entries) => {}) : null;
-  const measureElement = (el: Element) => {
+  const itemsObserver = options.observeItemSize
+    ? new ResizeObserver((entries) => {
+        entries.forEach((e) => updateMeasure(e.target, e));
+      })
+    : null;
+  const measureElement = (el?: Element | null) => {
+    if (!el) {
+      keyElementMap.forEach((el, key) => {
+        if (!el.isConnected) {
+          itemsObserver?.unobserve(el);
+          keyElementMap.delete(key);
+        }
+      });
+    }
     if (isElement(el)) updateMeasure(el);
   };
 
-  const renderItems = computed(() => {
+  const virtualItems = computed(() => {
     const { items, disabled, overscan } = options;
     const itemsArr = unrefOrGet(items),
       overscanArr = toArrayIfNotNil(runIfFn(overscan, itemsArr, state));
@@ -186,4 +222,10 @@ export function useVirtual(options: UseVirtualOptions) {
       finalEnd = Math.min(itemsArr.length, end + overscanArr[1]);
     return measurements.value.slice(finalStart, finalEnd);
   });
+
+  return {
+    virtualItems,
+    measureElement,
+    updateItemSize,
+  };
 }
