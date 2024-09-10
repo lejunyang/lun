@@ -6,7 +6,7 @@ import { reduceFromComps } from './utils';
 
 const holderName = 'teleport-holder';
 export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
-export const noShadowComponents = freeze(['custom-renderer'] as const);
+export const noShadowComponents = freeze(['custom-renderer', 'virtual-renderer'] as const);
 export const closedShadowComponents = freeze(['watermark'] as const);
 export const openShadowComponents = freeze([
   'accordion',
