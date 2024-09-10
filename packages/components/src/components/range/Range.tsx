@@ -258,7 +258,7 @@ export const Range = defineSSRCustomElement({
         <div
           class={[stateClass.value, ns.m(type)]}
           part={compParts[0]}
-          style={ns.v({ min: value.length > 1 ? at(value, 0)[1] : 0, max: at(value, -1)[1] })}
+          style={ns.v({ min: value.length > 1 ? at(value, 0)![1] : 0, max: at(value, -1)?.[1] })}
           ref={rootEl}
           {...handlers}
         >

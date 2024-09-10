@@ -144,7 +144,6 @@ export const renderCustom = (source: any) => {
 
 export const CustomRenderer = defineSSRCustomElement({
   ...options,
-  inheritAttrs: false,
   shadowOptions: null,
   onCE(_instance, ce) {
     ce.style.display = 'contents';

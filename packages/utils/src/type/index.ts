@@ -17,12 +17,8 @@ export type UnwrapPrimitive<T> = T extends String
   ? bigint
   : T extends Symbol
   ? symbol
-  : T extends Array<infer A> // Array and Function need to be placed before Object
+  : T extends Array<infer A>
   ? A[]
-  : T extends Function
-  ? AnyFn
-  : T extends Object
-  ? object
   : T;
 
 export type ExcludeNumberAndSymbol<T> = T extends number | symbol ? never : T;

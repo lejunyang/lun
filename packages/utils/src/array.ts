@@ -40,7 +40,7 @@ export function getFirstOfIterable<T>(iterable?: Iterable<T>): T | undefined {
   }
 }
 
-export function at(arr: any[] | undefined | null, index: number) {
+export function at<T>(arr: T[] | undefined | null, index: number): T | undefined {
   if (!arr) return;
   if (arr.at) return arr.at(index);
   const { length } = arr;

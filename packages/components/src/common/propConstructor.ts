@@ -30,6 +30,13 @@ export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array 
 export const PropNumOrArr = cacheFunctionResult(
   createPropFactory(String, Number, Array as Constructor<string[] | number[] | null>),
 );
+export const PropStrOrFunc = cacheFunctionResult(createPropFactory(String, Function));
+export const PropNumOrFunc = cacheFunctionResult(createPropFactory(Number, String, Function));
+
+export const Prop = <T>() =>
+  ({} as any as {
+    type: PropType<T>;
+  });
 
 /**
  * it's for prop 'value' of some components, like select-option, checkbox, radio... their value can be anything but empty string ''
