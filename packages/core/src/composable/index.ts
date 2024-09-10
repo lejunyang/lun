@@ -6,6 +6,7 @@ export * from './input';
 export * from './mentions';
 export * from './popover';
 export * from './select';
+export * from './virtual';
 export * from './watermark';
 export * from './createCollector';
 export * from './createHooks';

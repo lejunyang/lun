@@ -2,18 +2,24 @@ import { MaybeRefLikeOrGetter } from '../../utils';
 
 export type UseVirtualOptions = {
   container: MaybeRefLikeOrGetter<HTMLElement>;
-  initialContainerSize?: MaybeRefLikeOrGetter<number>;
-  observeContainerSize?: boolean;
   horizontal?: boolean;
-  disabled?: boolean | ((items: any[]) => boolean);
-  overscan?: number | [number, number] | ((items: any[], containerSize: number) => number | [number, number]);
-  items: MaybeRefLikeOrGetter<any[]>;
+  items?: MaybeRefLikeOrGetter<unknown[]>;
+  itemKey?: string | ((item: any, index: number) => string | number);
   indexAttribute?: string;
-  itemKey: string | ((item: any, index: number) => string | number);
-  estimatedSize?: number | ((item: any, index: number) => number);
-  fixedSize?: number | ((item: any, index: number) => number);
-  observeItemSize?: boolean;
+  estimatedSize?: number | string | ((item: any, index: number) => number);
+  fixedSize?: number | string | ((item: any, index: number) => number);
+  disabled?: boolean | ((items: any[]) => boolean);
+  overscan?:
+    | number
+    | string
+    | null
+    | [number, number]
+    | ((items: any[], containerSize: number) => number | [number, number]);
+  initialContainerSize?: MaybeRefLikeOrGetter<number | string>;
+  observeContainerSize?: boolean;
+
   paddingStart?: number;
+  paddingEnd?: number;
   scrollMargin?: number;
   gap?: number;
   lanes?: number;

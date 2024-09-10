@@ -1,13 +1,13 @@
-import { computed, reactive, watchEffect, setBlockTracking } from 'vue';
-import { unrefOrGet } from '../../utils';
+import { computed, reactive, watchEffect } from 'vue';
+import { objectComputed, unrefOrGet } from '../../utils';
 import {
   AnyFn,
+  at,
   debounce,
   ensureNumber,
   getCachedComputedStyle,
   getRect,
   getWindow,
-  isArray,
   isElement,
   isFunction,
   isHTMLElement,
@@ -22,9 +22,31 @@ import { tryOnScopeDispose } from '../../hooks';
 
 // inspired by tanstack/virtual
 
-const listenOption = { passive: true };
+const listenOption = { passive: true },
+  observeOption = { box: 'border-box' } as const;
 
-export function useVirtual(options: UseVirtualOptions) {
+export function useVirtualList(options: UseVirtualOptions) {
+  const processedOptions = objectComputed(() => {
+    const { lanes, gap, paddingEnd, paddingStart, scrollMargin, items, overscan, disabled, estimatedSize, fixedSize } =
+      options;
+    const lanesNum = ensureNumber(lanes, 1),
+      itemsArr = toArrayIfNotNil(unrefOrGet(items)),
+      overscanArr = toArrayIfNotNil(runIfFn(overscan, itemsArr, state));
+    let temp: number, disable: boolean;
+    if ((disable = (!estimatedSize && !fixedSize) || !itemsArr.length || runIfFn(disabled, itemsArr)))
+      keySizeMap.clear();
+    return {
+      lanes: lanesNum < 1 ? 1 : lanesNum | 0,
+      gap: ensureNumber(gap, 0),
+      paddingEnd: ensureNumber(paddingEnd, 0),
+      paddingStart: ensureNumber(paddingStart, 0),
+      scrollMargin: ensureNumber(scrollMargin, 0),
+      items: itemsArr,
+      overscan: [(temp = ensureNumber(overscanArr[0], 10)), ensureNumber(overscanArr[1], temp)],
+      disabled: disable,
+    };
+  });
+
   const keyElementMap = new Map<any, Element>(),
     keySizeMap = reactive(new Map<any, number>());
   let pendingMeasuredIndex = -1,
@@ -35,7 +57,7 @@ export function useVirtual(options: UseVirtualOptions) {
     scrollAdjustments: 0,
     scrollDirection: null as 'forward' | 'backward' | null,
     scrolling: false,
-    containerSize: unrefOrGet(options.initialContainerSize) || 0,
+    containerSize: +unrefOrGet(options.initialContainerSize)! || 0,
   });
 
   const getSize = (rect: DOMRect | ResizeObserverSize) =>
@@ -116,37 +138,31 @@ export function useVirtual(options: UseVirtualOptions) {
     const observer = new targetWin.ResizeObserver((entries) => {
       setContainerSize(getEntryBorderSize(entries[0]) || getRect(containerEl));
     });
-    observer.observe(containerEl, { box: 'border-box' });
+    observer.observe(containerEl, observeOption);
     cleanFns.push(() => observer.disconnect());
   });
 
   const measurements = computed<UseVirtualMeasurement[]>((old) => {
     old ||= [];
-    const { items, itemKey, fixedSize, estimatedSize, disabled, lanes, gap, paddingStart, scrollMargin } = options;
-    const lanesNum = ensureNumber(lanes, 1);
-    const itemsArr = unrefOrGet(items);
-    if (!isArray(itemsArr) || runIfFn(disabled, itemsArr)) {
-      setBlockTracking(-1);
-      keySizeMap.clear();
-      setBlockTracking(1);
-      return [];
-    }
+    const { itemKey, fixedSize, estimatedSize } = options;
+    const { items, lanes, gap, paddingStart, scrollMargin, disabled } = processedOptions;
+    if (disabled) return [];
 
     let minI = pendingMeasuredIndex > 0 ? pendingMeasuredIndex : 0;
     pendingMeasuredIndex = -1;
     const newMeasurements = old.slice(0, minI--);
-    while (++minI < itemsArr.length) {
-      const item: any = itemsArr[minI];
-      let key = isFunction(itemKey) ? itemKey(item, minI) : item?.[itemKey];
+    while (++minI < items.length) {
+      const item: any = items[minI];
+      let key = isFunction(itemKey) ? itemKey(item, minI) : item?.[itemKey!];
       if (__DEV__ && key == null) {
         key = minI;
         console.error('[useVirtual] Missing key for item at index ' + minI + '.');
       }
-      const furtherMeasurement = lanesNum > 1 ? getFurthestMeasurement(options, old, minI) : old[minI - 1];
+      const furtherMeasurement = lanes > 1 ? getFurthestMeasurement(options, old, minI) : old[minI - 1];
       const offsetStart = furtherMeasurement
         ? furtherMeasurement.offsetEnd + ensureNumber(gap, 0)
         : ensureNumber(paddingStart, 0) + ensureNumber(scrollMargin, 0);
-      const size = keySizeMap.get(key) ?? runIfFn(fixedSize || estimatedSize, item, minI);
+      const size = keySizeMap.get(key) ?? +runIfFn(fixedSize || estimatedSize, item, minI);
       if (__DEV__ && !(size > 0)) {
         console.error('[useVirtual] Invalid item size for item at index ' + minI + '.');
       }
@@ -157,7 +173,7 @@ export function useVirtual(options: UseVirtualOptions) {
         offsetEnd: offsetStart + size,
         size,
         key,
-        lane: furtherMeasurement ? furtherMeasurement.lane : minI % lanesNum,
+        lane: furtherMeasurement ? furtherMeasurement.lane : minI % lanes,
       };
     }
     return newMeasurements;
@@ -188,12 +204,12 @@ export function useVirtual(options: UseVirtualOptions) {
       prevEl = keyElementMap.get(key);
     if (el !== prevEl) {
       if (prevEl) itemsObserver?.unobserve(prevEl);
-      itemsObserver?.observe(el);
+      itemsObserver?.observe(el, observeOption);
       keyElementMap.set(key, el);
     }
     if (el.isConnected) updateItemSize(index, Math.round(getSize(getEntryBorderSize(entry) || getRect(el))));
   };
-  const itemsObserver = options.observeItemSize
+  const itemsObserver = options.estimatedSize
     ? new ResizeObserver((entries) => {
         entries.forEach((e) => updateMeasure(e.target, e));
       })
@@ -211,21 +227,27 @@ export function useVirtual(options: UseVirtualOptions) {
   };
 
   const virtualItems = computed(() => {
-    const { items, disabled, overscan } = options;
-    const itemsArr = unrefOrGet(items),
-      overscanArr = toArrayIfNotNil(runIfFn(overscan, itemsArr, state));
-    overscanArr[0] = ensureNumber(overscanArr[0], 10);
-    overscanArr[1] = ensureNumber(overscanArr[1], overscanArr[0]);
-    if (!isArray(itemsArr) || runIfFn(disabled, itemsArr)) return [];
+    const { items, overscan, disabled } = processedOptions;
+    if (disabled) return [];
     const [start, end] = calculateRange(measurements.value, state.containerSize, state.scrollOffset);
-    const finalStart = Math.max(0, start - overscanArr[0]),
-      finalEnd = Math.min(itemsArr.length, end + overscanArr[1]);
+    const finalStart = Math.max(0, start - overscan[0]),
+      finalEnd = Math.min(items.length, end + overscan[1]);
     return measurements.value.slice(finalStart, finalEnd);
+  });
+
+  const totalSize = computed(() => {
+    const { value } = measurements,
+      { paddingStart, lanes, scrollMargin, paddingEnd } = processedOptions;
+    let end: number;
+    if (!value.length) end = ensureNumber(paddingStart, 0);
+    else end = lanes === 1 ? at(value, -1)?.offsetEnd || 0 : Math.max(...value.slice(-lanes).map((v) => v.offsetEnd));
+    return end - scrollMargin + paddingEnd;
   });
 
   return {
     virtualItems,
     measureElement,
     updateItemSize,
+    totalSize,
   };
 }
