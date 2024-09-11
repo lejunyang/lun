@@ -67,6 +67,7 @@ export function useVirtualList(options: UseVirtualOptions) {
     state.containerSize = getSize(rect);
   };
   const updateScroll = (offset: number, isScrolling: boolean) => {
+    if (offset === state.scrollOffset) return; // in case horizontal scroll happens in vertical mode
     state.scrollAdjustments = 0;
     state.scrollDirection = isScrolling ? (state.scrollOffset < offset ? 'forward' : 'backward') : null;
     state.scrollOffset = offset;
@@ -153,12 +154,8 @@ export function useVirtualList(options: UseVirtualOptions) {
     const newMeasurements = old.slice(0, minI--);
     while (++minI < items.length) {
       const item: any = items[minI];
-      let key = isFunction(itemKey) ? itemKey(item, minI) : item?.[itemKey!];
-      if (__DEV__ && key == null) {
-        key = minI;
-        console.error('[useVirtual] Missing key for item at index ' + minI + '.');
-      }
-      const furtherMeasurement = lanes > 1 ? getFurthestMeasurement(options, old, minI) : old[minI - 1];
+      let key = isFunction(itemKey) ? itemKey(item, minI) : item?.[itemKey!] ?? minI;
+      const furtherMeasurement = lanes > 1 ? getFurthestMeasurement(options, old, minI) : newMeasurements[minI - 1];
       const offsetStart = furtherMeasurement
         ? furtherMeasurement.offsetEnd + ensureNumber(gap, 0)
         : ensureNumber(paddingStart, 0) + ensureNumber(scrollMargin, 0);
@@ -244,10 +241,21 @@ export function useVirtualList(options: UseVirtualOptions) {
     return end - scrollMargin + paddingEnd;
   });
 
+  const wrapperStyle = computed(() => {
+    const { horizontal } = options;
+    return {
+      position: 'relative' as const,
+      [horizontal ? 'width' : 'height']: `${totalSize.value}px`,
+      [horizontal ? 'height' : 'width']: '100%',
+      overflow: 'hidden',
+    };
+  });
+
   return {
     virtualItems,
     measureElement,
     updateItemSize,
     totalSize,
+    wrapperStyle,
   };
 }

@@ -1,19 +1,20 @@
 import { defineSSRCustomElement } from 'custom';
-import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick, defineComponent, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { createDefineElement } from 'utils';
 import { virtualRendererProps, VirtualRendererSetupProps } from './type';
 import { useVirtualList } from '@lun/core';
-import { virtualGetMerge } from '@lun/utils';
+import { virtualGetMerge, isFunction } from '@lun/utils';
+import { renderCustom } from '../custom-renderer';
 
 const name = 'virtual-renderer';
 
 const options = {
   name,
   props: virtualRendererProps,
-  setup(props: VirtualRendererSetupProps) {
+  setup(props: VirtualRendererSetupProps, { attrs }: any) {
     const container = ref<HTMLElement>();
 
-    const virtual = useVirtualList(
+    const { wrapperStyle, virtualItems } = useVirtualList(
       virtualGetMerge(
         {
           container,
@@ -22,7 +23,14 @@ const options = {
       ),
     );
     return () => {
-      return <div ref={container}></div>;
+      const { renderer } = props;
+      return (
+        <div ref={container} {...attrs} style={{ overflow: 'auto' }}>
+          <div style={wrapperStyle.value}>
+            {isFunction(renderer) ? virtualItems.value.map((i) => renderCustom(renderer(i))) : null}
+          </div>
+        </div>
+      );
     };
   },
 };

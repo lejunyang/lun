@@ -56,9 +56,9 @@ export function arrayFrom<V>(length: number, mapVal?: (val: undefined, index: nu
 export function arrayFrom<T>(arr: ArrayLike<T> | Iterable<T>): T[];
 export function arrayFrom<T, V>(arr: ArrayLike<T> | Iterable<T>, mapVal: (val: T, index: number) => V): V[];
 
-/** simply like arrayFrom, but can take a number as the first argument to create an array of that length */
+/** simply like Array.from, but can take a number as the first argument to create an array of that length */
 export function arrayFrom(lengthOrArrayLike: number | ArrayLike<any> | Iterable<any>, mapVal?: any) {
-  return arrayFrom(isNumber(lengthOrArrayLike) ? { length: lengthOrArrayLike } : lengthOrArrayLike, mapVal);
+  return Array.from(isNumber(lengthOrArrayLike) ? { length: lengthOrArrayLike } : lengthOrArrayLike, mapVal);
 }
 
 arrayFrom(new Set());
