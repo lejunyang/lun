@@ -27,6 +27,7 @@
     "./src/utils/*.ts",
     "./src/docs/.vitepress/**/*.ts",
     "./packages/components/dist/elements-types-vue.d.ts",
+    "./packages/components/index.ts",
     "./packages/core/src/presets/date.dayjs.ts",
     "./packages/theme/src/custom/custom.ts",
     "./packages/theme/src/index.ts",

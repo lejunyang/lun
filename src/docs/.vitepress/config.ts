@@ -150,6 +150,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
             { text: locales[lang].sidebar.other.staticConfig, link: wrapLink('/components/static-config/', lang) },
             { text: locales[lang].sidebar.other.teleport, link: wrapLink('/components/teleport-holder/', lang) },
             { text: locales[lang].sidebar.other.themeProvider, link: wrapLink('/components/theme-provider/', lang) },
+            { text: locales[lang].sidebar.other.virtual, link: wrapLink('/components/virtual-renderer/', lang) },
           ],
         },
       ],

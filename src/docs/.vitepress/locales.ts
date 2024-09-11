@@ -78,6 +78,7 @@ export default {
         staticConfig: 'StaticConfig 静态配置',
         teleport: 'TeleportHolder 传送门',
         themeProvider: 'ThemeProvider 主题',
+        virtual: 'VirtualRenderer 虚拟渲染',
       },
     },
     components: {
@@ -181,6 +182,7 @@ export default {
         staticConfig: 'StaticConfig',
         teleport: 'TeleportHolder',
         themeProvider: 'ThemeProvider',
+        virtual: 'VirtualRenderer 虚拟渲染',
       },
     },
     components: {
