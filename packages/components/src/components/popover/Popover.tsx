@@ -83,6 +83,7 @@ export const Popover = defineSSRCustomElement({
       popContentHandlers,
       options,
       activeExtraTarget,
+      activeExtraTargetOptions,
       methods,
       virtualTarget,
       isOpen,
@@ -274,7 +275,11 @@ export const Popover = defineSSRCustomElement({
               class={ns.e('arrow')}
             ></div>
           )}
-          {!contentNode && !isTeleport() ? <slot name="pop-content" /> : contentNode}
+          {!contentNode && !isTeleport() ? (
+            <slot name={activeExtraTargetOptions.value?.slotName || 'pop-content'} />
+          ) : (
+            contentNode
+          )}
         </>
       );
     };

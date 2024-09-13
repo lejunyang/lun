@@ -13,11 +13,15 @@ export default () => (
         <l-button color={color[t.value]} id={`target` + i}>
           target {i} {t.value}
         </l-button>
-        <l-button onClick={() => ((t.value = 'attached'), get('pop-extra')?.attachTarget(get(`target` + i)))}>
-          attach
+        <l-button
+          onClick={() => (
+            (t.value = 'attached'), get('pop-extra')?.attachTarget(get(`target` + i), { slotName: `target` + i })
+          )}
+        >
+          click to attach
         </l-button>
         <l-button onClick={() => ((t.value = 'detached'), get('pop-extra')?.detachTarget(get(`target` + i)))}>
-          detach
+          click to detach
         </l-button>
       </div>
     ))}
@@ -25,6 +29,7 @@ export default () => (
       <l-popover id="pop-extra">
         <l-button onClick={() => targets.value.push({ value: '' })}>add target</l-button>
         <div slot="pop-content">pop content</div>
+        <div slot="target0">target0's pop content</div>
       </l-popover>
     </div>
   </>

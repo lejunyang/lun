@@ -18,33 +18,10 @@ import {
 } from '@lun/utils';
 import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted } from '../../hooks';
-import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils';
+import { objectComputed, unrefOrGet } from '../../utils';
 import { useListen } from './useListen';
 import { createPopoverRectTarget } from './utils';
-
-export type PopoverTrigger = 'hover' | 'focus' | 'edit' | 'click' | 'contextmenu' | 'select' | 'pointerdown';
-
-export interface PopoverAttachTargetOptions {
-  isDisabled?: MaybeRefLikeOrGetter<boolean>;
-}
-
-export type UsePopoverOptions = {
-  /** manually control the open state of popover */
-  open?: boolean;
-  disabled?: MaybeRefLikeOrGetter<boolean>;
-  onOpen: () => void | boolean;
-  beforeOpen?: () => void | boolean;
-  target: MaybeRefLikeOrGetter<Element | VirtualElement>;
-  pop: MaybeRefLikeOrGetter<Element>;
-  triggers?: PopoverTrigger | PopoverTrigger[];
-  openDelay?: number | string;
-  closeDelay?: number | string;
-  toggleMode?: boolean;
-  targetFocusThreshold?: number;
-  preventSwitchWhen?: 'focus' | 'edit';
-  pointerTarget?: 'rect' | 'coord';
-  onPopContentClose?: (e: Event) => void;
-};
+import { PopoverAttachTargetOptions, PopoverTrigger, UsePopoverOptions } from './type';
 
 export function usePopover(_options: UsePopoverOptions) {
   const isOpen = ref(false),
@@ -180,15 +157,20 @@ export function usePopover(_options: UsePopoverOptions) {
   // ------------------ extra targets ------------------
   // it's to support attaching events of triggering popover on other elements in an imperative manner
   const extraTargetsMap = reactive(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
-    extraTargetsOptionMap = new WeakMap<Element, PopoverAttachTargetOptions>();
+    extraTargetsOptionMap = reactive(new WeakMap<Element, PopoverAttachTargetOptions>());
   const activeExtraTarget = ref(),
     activeExtraTargetOptions = computed(() => extraTargetsOptionMap.get(activeExtraTarget.value));
   const methods = {
     attachTarget(target?: Element, options: PopoverAttachTargetOptions = {}) {
-      if (!isElement(target) || extraTargetsMap.has(target)) return;
+      let originalOptions = extraTargetsOptionMap.get(target!);
+      if (!isElement(target)) return;
+      if (originalOptions && originalOptions !== options) {
+        extraTargetsOptionMap.set(target, options);
+        return;
+      }
       const targetHandlers = createTargetHandlers((e, method) => {
         if (method === 'open') {
-          if (unrefOrGet(options.isDisabled)) return false;
+          if (unrefOrGet(extraTargetsOptionMap.get(target)?.isDisabled)) return false;
           // consider pointerdown also as focusin, or pointerdown can be prevented because of needPrevent when switching targets
           if (e.type !== 'focusin' && e.type !== 'pointerdown' && needPrevent(e, false)) {
             return false;
@@ -356,6 +338,7 @@ export function usePopover(_options: UsePopoverOptions) {
   // ------------------ selection ------------------
   const handleSelect = createTrigger('select', 'open', (e) => {
     const selection = getWindow(e.target as any).getSelection();
+    // FIXME try using popover for callout's description, it doesn't work because of selection in shadow DOM
     if (!selection || selection.type !== 'Range') {
       // virtualTarget.value = null; // do not clear virtualTarget here, if we clear it, actual pop target will update and then position shifts. we delay it to next open in createTrigger.
       return 'close';

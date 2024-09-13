@@ -182,4 +182,5 @@ export * from './textarea';
 export * from './theme-provider';
 export * from './tooltip';
 export * from './tour';
+export * from './virtual-renderer';
 export * from './watermark';

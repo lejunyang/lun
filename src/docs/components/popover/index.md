@@ -104,7 +104,9 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 
 ## 单例监听多个目标
 
-`l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了为每一个元素包裹一个 popover
+`l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了要为每一个元素包裹一个 popover
+
+`attachTarget`第二个参数可以指定`slotName`，当目标元素激活popover时会切换为该插槽展示，而不是默认的`pop-content`插槽，以此便可以根据目标元素动态设置弹出内容。如果是通过`content`属性设置弹出内容，则可以使用函数，从参数中可以获取当前激活的目标元素以动态渲染内容
 
 <!-- @Code:extraTargets -->
 
