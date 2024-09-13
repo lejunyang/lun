@@ -8,7 +8,7 @@ import {
   PropResponsive,
   PropNumber,
 } from 'common';
-import { ExtractPropTypes } from 'vue';
+import { AnchorHTMLAttributes, ExtractPropTypes } from 'vue';
 
 export const textProps = freeze({
   ...themeProps,
@@ -26,4 +26,4 @@ export const textEmits = freeze({});
 
 export type TextSetupProps = ExtractPropTypes<typeof textProps> & CommonProps;
 export type TextEvents = GetEventPropsFromEmits<typeof textEmits>;
-export type TextProps = Partial<TextSetupProps> & TextEvents;
+export type TextProps = Partial<TextSetupProps> & TextEvents & AnchorHTMLAttributes;

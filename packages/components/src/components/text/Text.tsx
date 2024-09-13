@@ -7,7 +7,7 @@ import { getCompParts } from 'common';
 import { useAria, useNamespace, useSlot } from 'hooks';
 
 const name = 'text';
-const parts = ['ellipsis', 'inner', 'offset'] as const;
+const parts = ['ellipsis', 'inner', 'offset', 'link'] as const;
 const compParts = getCompParts(name, parts);
 const hidden = 'overflow:hidden;',
   ellipsisStyle = hidden + `white-space:nowrap;text-overflow:ellipsis;`,
@@ -16,7 +16,7 @@ export const Text = defineSSRCustomElement({
   name,
   props: textProps,
   emits: textEmits,
-  setup(props) {
+  setup(props, { attrs }) {
     useNamespace(name);
     const { CE } = getCurrentInstance()!,
       styleMap = getCachedComputedStyle(CE);
@@ -24,10 +24,30 @@ export const Text = defineSSRCustomElement({
     useAria(() => ({
       role: props.as!,
     }));
+    const isLink = () => props.as === 'link';
+    const wrapIfAsLink = (children: any) =>
+      isLink() ? (
+        <a {...attrs} part={compParts[3]}>
+          {children}
+        </a>
+      ) : (
+        children
+      );
+    const getReverse = (text: string, isRoot: boolean = false, cls?: any) => {
+      const El = isLink() && isRoot ? 'a' : 'span',
+        dir = styleMap.direction;
+      return (
+        <El class={['ellipsis', cls]} dir={dirReverse[dir]} part={compParts[0]}>
+          <span dir={dir} part={compParts[1]}>
+            {text}
+          </span>
+        </El>
+      );
+    };
 
     const [renderText] = useSlot('', () => props.text);
     return () => {
-      const { text = '', ellipsisOffset, ellipsis } = props,
+      const { text = '', ellipsisOffset, ellipsis, as } = props,
         dir = styleMap.direction,
         offset = +ellipsisOffset!;
       if (__DEV__ && (offset || ellipsis === 'center') && !text) {
@@ -37,44 +57,35 @@ export const Text = defineSSRCustomElement({
           `If you want to use ellipsis, please use 'text' prop instead of default slot`,
         );
       }
-      const getReverse = (text: string, cls?: any) => {
-        return (
-          <span class={['ellipsis', cls]} dir={dirReverse[dir]} part={compParts[0]}>
-            <span dir={dir} part={compParts[1]}>
-              {text}
-            </span>
-          </span>
-        );
-      };
 
       if (ellipsis === 'start') {
         if (offset)
-          return [
+          return wrapIfAsLink([
             <span part={compParts[2]}>{text.slice(0, offset)}</span>,
             // the outer span uses dir-reverse to make the ellipsis appear on the other side, and inner span uses same dir as CE to make text and symbols right
             // if we just use one span, though the ellipsis appear on the other side, the end symbol may be missed
             getReverse(text.slice(offset)),
-          ];
-        return getReverse(renderText());
+          ]);
+        return getReverse(renderText(), true);
       } else if (ellipsis === 'center')
-        return [
+        return wrapIfAsLink([
           dir === 'ltr' ? (
-            getReverse(text, `float`)
+            getReverse(text, false, `float`)
           ) : (
             <span class="ellipsis float" part={compParts[0]}>
               {text}
             </span>
           ),
           text,
-        ];
+        ]);
       else if (ellipsis && offset)
-        return [
+        return wrapIfAsLink([
           <span class="ellipsis" part={compParts[0]}>
             {text.slice(0, -offset)}
           </span>,
           <span part={compParts[2]}>{text.slice(-offset)}</span>,
-        ];
-      return renderText();
+        ]);
+      return wrapIfAsLink(renderText());
     };
   },
 });

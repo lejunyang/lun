@@ -188,6 +188,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     if (!noShadow) propsClone.innerStyle = PropString();
     const originalSetup = setup;
     options.setup = (props: any, ctx: any) => {
+      // const newCtx = { ...ctx, attrs: omit(ctx.attrs, ['style']) }; // TODO consider remove class and style from attrs(do not use emit, use proxy as attrs can be updated); add emit getter
       const setupResult = originalSetup?.(props, ctx);
       if (noShadow) return setupResult;
       const styleNodes = useContextStyles(compKey as OpenShadowComponentKey);
