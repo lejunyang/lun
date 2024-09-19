@@ -5,7 +5,7 @@ import {
   GlobalStaticConfig,
   OpenShadowComponentKey,
 } from 'config';
-import { ComponentInternalInstance, ComponentOptions, h } from 'vue';
+import { ComponentInternalInstance, ComponentOptions, getCurrentInstance, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
@@ -188,8 +188,17 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     if (!noShadow) propsClone.innerStyle = PropString();
     const originalSetup = setup;
     options.setup = (props: any, ctx: any) => {
-      // const newCtx = { ...ctx, attrs: omit(ctx.attrs, ['style']) }; // TODO consider remove class and style from attrs(do not use emit, use proxy as attrs can be updated); add emit getter
-      const setupResult = originalSetup?.(props, ctx);
+      const vm = getCurrentInstance()!;
+      const newCtx = {
+        ...ctx,
+        // attrs: new Proxy(ctx.attrs, {
+        //   ownKeys(target) {
+        //     return objectKeys(ctx.attrs).filter((k) => k !== 'class' && k !== 'style');
+        //   },
+        // }),
+        emit: (event: string, ...args: any[]) => vm.emit(event, ...args),
+      };
+      const setupResult = originalSetup?.(props, newCtx);
       if (noShadow) return setupResult;
       const styleNodes = useContextStyles(compKey as OpenShadowComponentKey);
       return () => [styleNodes?.value, setupResult()];
