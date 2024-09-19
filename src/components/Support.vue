@@ -6,7 +6,7 @@
 import { computed } from 'vue';
 import {
   isSupportCSSStyleSheet,
-  isSupportFileSystem,
+  isSupportFileSystemAccess,
   isSupportSlotAssign,
   supportCSSLayer,
   supportDialog,
@@ -26,7 +26,7 @@ const features = {
   slotAssign: isSupportSlotAssign(),
   inputCancel: 'unknown',
   popover: supportPopover,
-  showOpenFilePicker: isSupportFileSystem(),
+  showOpenFilePicker: isSupportFileSystemAccess(),
   getComposedRanges: typeof Selection !== 'undefined' && 'getComposedRanges' in Selection.prototype,
   anchorPosition: supportCSSAnchor,
   layer: supportCSSLayer,

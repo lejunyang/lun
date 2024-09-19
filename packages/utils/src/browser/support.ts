@@ -18,7 +18,7 @@ export const isInputSupportPicker = cacheFunctionResult(
 );
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
-export const isSupportFileSystem = cacheFunctionResult(() => {
+export const isSupportFileSystemAccess = cacheFunctionResult(() => {
   if (!inBrowser) return;
   // ToDo: Remove this check once Permissions Policy integration
   // has happened, tracked in

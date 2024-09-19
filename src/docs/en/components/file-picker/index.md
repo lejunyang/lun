@@ -47,8 +47,8 @@ lang: zh-CN
 <!-- @Code:maxSize -->
 
 <script setup>
-import { isSupportFileSystem } from '@lun/utils';
-const tip = isSupportFileSystem() ? '支持' : '不支持';
+import { isSupportFileSystemAccess } from '@lun/utils';
+const tip = isSupportFileSystemAccess() ? '支持' : '不支持';
 
 </script>
 

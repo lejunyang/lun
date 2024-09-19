@@ -4,7 +4,7 @@ import { createDefineElement, error } from 'utils';
 import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
-import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystem, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
+import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystemAccess, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
 import { VCustomRenderer } from '../custom-renderer';
 import { isAbort } from './utils';
 
@@ -183,7 +183,7 @@ export const FilePicker = defineSSRCustomElement({
       if (loadingWhenPick) editState.loading = true;
       let needFallback = false;
 
-      if (preferFileApi && isSupportFileSystem()) {
+      if (preferFileApi && isSupportFileSystemAccess()) {
         if (directory) {
           const files = await pickDir();
           processFiles(files);
