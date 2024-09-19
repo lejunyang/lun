@@ -241,6 +241,14 @@ export function useVirtualList(options: UseVirtualOptions) {
     return end - scrollMargin + paddingEnd;
   });
 
+  const offsets = computed(() => {
+    const { value } = virtualItems,
+      { scrollMargin } = processedOptions;
+    return value.length
+      ? [Math.max(0, value[0].offsetStart - scrollMargin), Math.max(0, totalSize.value - at(value, -1)!.offsetEnd)]
+      : [0, 0];
+  });
+
   const wrapperStyle = computed(() => {
     const { horizontal } = options;
     return {
@@ -257,5 +265,6 @@ export function useVirtualList(options: UseVirtualOptions) {
     updateItemSize,
     totalSize,
     wrapperStyle,
+    offsets,
   };
 }
