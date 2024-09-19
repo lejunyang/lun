@@ -15,17 +15,18 @@ const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => 
   };
 };
 
+const objConstructor = Object as Constructor<Record<string, any>>;
 export const PropString = cacheFunctionResult(createPropFactory(String));
 export const PropNumber = cacheFunctionResult(createPropFactory(Number, String));
 export const PropBoolean = cacheFunctionResult(createPropFactory(Boolean));
 export const PropBoolOrStr = cacheFunctionResult(createPropFactory(Boolean, String));
 export const PropBoolOrFunc = cacheFunctionResult(createPropFactory(Boolean, Function));
-export const PropObject = cacheFunctionResult(createPropFactory(Object));
+export const PropObject = cacheFunctionResult(createPropFactory(objConstructor));
 export const PropArray = cacheFunctionResult(createPropFactory(Array));
 export const PropFunction = cacheFunctionResult(createPropFactory(Function));
-export const PropObjOrFunc = cacheFunctionResult(createPropFactory(Object, Function));
-export const PropObjOrStr = cacheFunctionResult(createPropFactory(Object, String));
-export const PropObjOrBool = cacheFunctionResult(createPropFactory(Boolean, Object));
+export const PropObjOrFunc = cacheFunctionResult(createPropFactory(objConstructor, Function));
+export const PropObjOrStr = cacheFunctionResult(createPropFactory(objConstructor, String));
+export const PropObjOrBool = cacheFunctionResult(createPropFactory(Boolean, objConstructor));
 export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array as Constructor<string[] | null>));
 export const PropNumOrArr = cacheFunctionResult(
   createPropFactory(String, Number, Array as Constructor<string[] | number[] | null>),

@@ -42,6 +42,7 @@ import { virtualParentMap } from '../../custom/virtualParent';
 import { processPopSize, useAnchorPosition } from './popover.anchor-position';
 import { useFloating } from './useFloating';
 import { hasRect } from './utils';
+import { useAutoAttach } from './popover.auto-attach';
 
 const name = 'popover';
 const parts = ['content', 'native', 'arrow'] as const;
@@ -54,7 +55,6 @@ export const Popover = defineSSRCustomElement({
     const ns = useNamespace(name);
     const emit = useSetupEvent<typeof e>();
     const /** pop content element with type=popover */ popRef = ref<HTMLDivElement>(),
-      slotRef = ref<HTMLSlotElement>(),
       /** pop content element when type=position or teleport */ positionedRef = ref<HTMLDivElement>(),
       arrowRef = ref<HTMLElement>();
     const type = computed(() => {
@@ -113,6 +113,8 @@ export const Popover = defineSSRCustomElement({
         props,
       ),
     );
+
+    const slotRef = useAutoAttach(props, methods);
 
     const actualTarget = computed(() => unrefOrGetMulti(virtualTarget, activeExtraTarget, innerTarget));
     /** current popover target */

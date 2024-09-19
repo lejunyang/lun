@@ -49,6 +49,8 @@ export const popoverProps = freeze({
   freezeWhenClosing: PropBoolean(),
   /** used to manually set the anchor target of popover */
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
+  /** specify the attribute name of slotted children to automatically attach them as popover's targets */
+  autoAttachAttr: PropString(),
   /** determine the implementation type of popover */
   type: PropString<'popover' | 'normal' | 'teleport'>(),
   /** used to turn on CSS anchor positioning and specify the anchor-name for custom element itself */
