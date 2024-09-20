@@ -71,7 +71,9 @@ export function useAnchorPosition(options: {
       return isOn.value
         ? ({
             positionAnchor: unrefOrGet(inner) ? unrefOrGet(name) : null, // anchor-name can not cross shadow tree... we only set positionAnchor when it's inner anchorName
+            // was inset-area before, then spec changed it to position-area, setting both
             insetArea,
+            positionArea: insetArea,
             [insetReverseMap[side] || 'top']: toPxIfNum(unrefOrGet(offset) || 0),
             position: options.strategy || 'absolute',
             width: processPopSize(popWidth, true),

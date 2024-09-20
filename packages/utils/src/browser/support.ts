@@ -81,8 +81,10 @@ export const supportCSSScrollbarGutter = supportCSSSupports && CSS.supports('scr
 
 export const supportCSSSubgrid = supportCSSSupports && CSS.supports('grid-template-rows', 'subgrid');
 
-// check anchor-name before, change to inset-area because anchor-name is experimental in chromium 117~124, but css anchor position is not fully supported
-export const supportCSSAnchor = supportCSSSupports && CSS.supports('inset-area', 'top span-all');
+// was checking anchor-name before, changed to inset-area because although anchor-name is experimental in chromium 117~124, but css anchor position is not fully supported
+// renamed to position-area
+export const supportCSSAnchor =
+  (supportCSSSupports && CSS.supports('inset-area', 'top span-all')) || CSS.supports('position-area', 'top span-all');
 
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
