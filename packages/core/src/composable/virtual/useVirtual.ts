@@ -155,7 +155,8 @@ export function useVirtualList(options: UseVirtualOptions) {
     while (++minI < items.length) {
       const item: any = items[minI];
       let key = isFunction(itemKey) ? itemKey(item, minI) : item?.[itemKey!] ?? minI;
-      const furtherMeasurement = lanes > 1 ? getFurthestMeasurement(options, old, minI) : newMeasurements[minI - 1];
+      const furtherMeasurement =
+        lanes > 1 ? getFurthestMeasurement(options, newMeasurements, minI) : newMeasurements[minI - 1];
       const offsetStart = furtherMeasurement
         ? furtherMeasurement.offsetEnd + ensureNumber(gap, 0)
         : ensureNumber(paddingStart, 0) + ensureNumber(scrollMargin, 0);
@@ -224,11 +225,12 @@ export function useVirtualList(options: UseVirtualOptions) {
   };
 
   const virtualItems = computed(() => {
-    const { items, overscan, disabled } = processedOptions;
+    const { items, overscan, disabled, lanes } = processedOptions;
     if (disabled) return [];
     const [start, end] = calculateRange(measurements.value, state.containerSize, state.scrollOffset);
     const finalStart = Math.max(0, start - overscan[0]),
-      finalEnd = Math.min(items.length, end + overscan[1]);
+      // if lanes > 1, need to add extra items
+      finalEnd = Math.min(items.length, end + overscan[1] + (lanes - 1));
     return measurements.value.slice(finalStart, finalEnd);
   });
 
@@ -266,5 +268,6 @@ export function useVirtualList(options: UseVirtualOptions) {
     totalSize,
     wrapperStyle,
     offsets,
+    state,
   };
 }

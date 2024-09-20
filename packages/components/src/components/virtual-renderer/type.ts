@@ -23,6 +23,8 @@ export const virtualRendererProps = freeze({
   >(),
   initialContainerSize: PropNumber(),
   observeContainerSize: PropBoolean(),
+  gap: PropNumber(),
+  lanes: PropNumber(),
 });
 
 export const virtualRendererEmits = freeze({});

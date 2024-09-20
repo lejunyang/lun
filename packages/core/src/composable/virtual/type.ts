@@ -18,11 +18,11 @@ export type UseVirtualOptions = {
   initialContainerSize?: MaybeRefLikeOrGetter<number | string>;
   observeContainerSize?: boolean;
 
-  paddingStart?: number;
-  paddingEnd?: number;
-  scrollMargin?: number;
-  gap?: number;
-  lanes?: number;
+  paddingStart?: number | string;
+  paddingEnd?: number | string;
+  scrollMargin?: number | string;
+  gap?: number | string;
+  lanes?: number | string;
   initialScrollOffset?: MaybeRefLikeOrGetter<number>;
   scrollEndDelay?: number;
   shouldAdjustScroll?: (measurement: UseVirtualMeasurement, delta: number, state: UseVirtualState) => boolean;
