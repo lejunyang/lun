@@ -36,6 +36,7 @@ export const openShadowComponents = freeze([
   'select',
   'select-option',
   'select-optgroup',
+  'skeleton',
   'spin',
   'switch',
   'tabs',

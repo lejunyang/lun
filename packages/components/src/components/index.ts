@@ -39,6 +39,7 @@ import { defineTabs, defineTabItem } from './tabs';
 import { defineAccordion, defineAccordionGroup } from './accordion';
 import { camelize } from 'vue';
 import { defineText } from './text/Text';
+import { defineSkeleton } from './skeleton';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -86,6 +87,7 @@ export function defineAllComponents() {
     defineTour,
     defineColorPicker,
     defineText,
+    defineSkeleton,
   };
   // first define those already exist in the document for SSR
   discover(document.body, (comp) => {
@@ -172,6 +174,7 @@ export * from './progress';
 export * from './radio';
 export * from './range';
 export * from './select';
+export * from './skeleton';
 export * from './spin';
 export * from './switch';
 export * from './tabs';
