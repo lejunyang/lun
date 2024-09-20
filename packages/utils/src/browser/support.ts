@@ -86,6 +86,8 @@ export const supportCSSSubgrid = supportCSSSupports && CSS.supports('grid-templa
 export const supportCSSAnchor =
   (supportCSSSupports && CSS.supports('inset-area', 'top span-all')) || CSS.supports('position-area', 'top span-all');
 
+export const supportCSSAutoHeightTransition = supportCSSSupports && CSS.supports('height', 'calc-size(auto)');
+  
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
 

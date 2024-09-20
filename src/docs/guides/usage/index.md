@@ -228,6 +228,7 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 - <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer) <SupportInfo chrome="99" edge="99" firefox="97" safari="15.4" />
 - <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid) <SupportInfo chrome="117" edge="117" firefox="71" safari="16" />
 - <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>) <SupportInfo chrome="111" edge="111" firefox="113" safari="15" />
+- <Support is="height" /> [CSS auto height transition](<https://caniuse.com/?search=calc-size>) <SupportInfo chrome="129" edge="129" firefox="no" safari="no" />
 
 某些特性无法或不好做兼容，但它们影响不大，不使用那些功能即可
 

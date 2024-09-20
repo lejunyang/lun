@@ -17,6 +17,7 @@ import {
   supportCSSSupports,
   supportCSSAnchor,
   isSupportCustomStateSet,
+  supportCSSAutoHeightTransition,
 } from '@lun/utils';
 
 const features = {
@@ -35,6 +36,7 @@ const features = {
   docPip: supportDocumentPictureInPicture,
   highlight: supportCSSHighLight,
   overflowClipMargin: supportCSSSupports && CSS.supports('overflow-clip-margin', '1px'),
+  height: supportCSSAutoHeightTransition,
 };
 
 const props = defineProps<{

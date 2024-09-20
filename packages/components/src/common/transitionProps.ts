@@ -1,15 +1,19 @@
-import { isHTMLElement, isObject, isString } from '@lun/utils';
+import { isHTMLElement, isObject, isString, supportCSSAutoHeightTransition } from '@lun/utils';
 import { transitionProp } from './propConstructor';
 import { TransitionProps } from 'vue';
 
 const getHeightHandler = ({ duration }: TransitionProps, isEnter = true) =>
   ((el, done) => {
     if (!isHTMLElement(el)) return;
-    const height = el.offsetHeight,
-      frames = [
-        { height: '0px', opacity: 0 },
-        { height: `${height}px`, opacity: 1 },
-      ];
+    const frames = [
+      // add overflow:hidden because of scrollbar, see https://css-tricks.com/hide-scrollbars-during-an-animation/
+      { height: '0px', opacity: 0, overflow: 'hidden' },
+      {
+        height: supportCSSAutoHeightTransition ? 'calc-size(auto)' : `${el.offsetHeight}px`,
+        opacity: 1,
+        overflow: 'hidden',
+      },
+    ];
     // @ts-ignore
     const finalDur = isObject(duration) ? (isEnter ? duration.enter : duration.leave) : duration;
     const ani = el.animate(isEnter ? frames : frames.reverse(), {
