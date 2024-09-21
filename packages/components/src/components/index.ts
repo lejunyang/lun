@@ -40,6 +40,7 @@ import { defineAccordion, defineAccordionGroup } from './accordion';
 import { camelize } from 'vue';
 import { defineText } from './text/Text';
 import { defineSkeleton } from './skeleton';
+import { defineVirtualRenderer } from './virtual-renderer';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -88,6 +89,7 @@ export function defineAllComponents() {
     defineColorPicker,
     defineText,
     defineSkeleton,
+    defineVirtualRenderer,
   };
   // first define those already exist in the document for SSR
   discover(document.body, (comp) => {

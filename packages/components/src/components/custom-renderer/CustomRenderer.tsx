@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { GlobalStaticConfig } from 'config';
 import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick, defineComponent, h } from 'vue';
 import { CustomRendererRegistry } from './renderer.registry';
@@ -145,7 +145,7 @@ export const renderCustom = (source: any) => {
   return h(VueCustomRenderer, isObject(source) && 'content' in source ? source : { content: source });
 };
 
-export const CustomRenderer = defineSSRCustomElement({
+export const CustomRenderer = defineCustomElement({
   ...options,
   shadowOptions: null,
   onCE(_instance, ce) {

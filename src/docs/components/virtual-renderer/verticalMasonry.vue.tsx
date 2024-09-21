@@ -1,12 +1,11 @@
-import { VVirtualRenderer } from '@lun/components';
 import { arrayFrom } from '@lun/utils';
 
 export default () => {
   const items = arrayFrom(1000, () => 50 + Math.round(Math.random() * 200));
   return (
     <>
-      <VVirtualRenderer
-        style={{ height: '400px', width: '612px', flexShrink: 0 }}
+      <l-virtual-renderer
+        style={{ height: '400px', width: '612px', flexShrink: 0, overflow: 'auto' }}
         observeContainerSize
         items={items}
         estimatedSize={(i) => i}
