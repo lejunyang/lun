@@ -182,8 +182,17 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       customEventInit: {
         get: once(() => fromObject(emits || {}, (k) => [k, getEventInit(k)] as const)),
       },
+      ignoreAttrs: {
+        get: () => {
+          const { ignoreAttrsUpdate } = GlobalStaticConfig;
+          return ignoreAttrsUpdate[compKey] || ignoreAttrsUpdate.common;
+        },
+      },
     });
     options.inheritAttrs ||= false;
+    options.onConnected = (CE: HTMLElement, parent: HTMLElement) => {
+      CE.toggleAttribute('data-root', !parent); // set root attr for root element
+    };
     const noShadow = shadowOptions === null || shadowOptions?.mode === 'closed';
     if (!noShadow) propsClone.innerStyle = PropString();
     const originalSetup = setup;

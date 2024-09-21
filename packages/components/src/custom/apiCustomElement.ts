@@ -43,6 +43,8 @@ import {
   freeze,
   isArray,
   objectKeys,
+  toArrayIfNotNil,
+  isRegExp,
 } from '@lun/utils';
 import { virtualParentMap } from './virtualParent';
 
@@ -66,6 +68,8 @@ export interface CustomElementOptions {
   customEventInit?: EventInitMap;
   onPropUpdate?: PropUpdateCallback;
   onCE?: CECallback;
+  onConnected?: (CE: VueElement, parent?: VueElement) => void;
+  ignoreAttrs?: (string | RegExp)[];
 }
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
@@ -257,11 +261,11 @@ const warnHandler = (msg: string, _: any, trace: string) => {
   // vue app validates component name... but we use 'input', 'button' as component name, ignore that
   if (msg.includes('Do not use built-in or reserved')) return;
   // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
-  if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead')) return;
+  if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead'))
+    return;
   console.warn(msg, msg.includes('Extraneous non-props') || msg.includes('hydrate') ? '\n' + trace : undefined, _);
 };
 
-const rootAttrName = 'data-root';
 const shadowRootMap = new WeakMap<HTMLElement, ShadowRoot>();
 
 export class VueElement extends BaseClass implements ComponentCustomElementInterface {
@@ -348,7 +352,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     this._connected = true;
 
     const parent = (this._parent = this._findParent());
-    this.toggleAttribute(rootAttrName, !parent); // set root attr for root element
+    if (isFunction(this._def.onConnected)) this._def.onConnected(this, parent);
 
     if (!this._instance) {
       if (this._resolved) {
@@ -503,8 +507,12 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   }
 
   protected _setAttr(key: string) {
-    // ignore class, data- and aria- attrs
-    if (key === 'class' || key.startsWith('data-') || key.startsWith('aria-')) return;
+    if (
+      toArrayIfNotNil(this._def.ignoreAttrs).some(
+        (pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key)),
+      )
+    )
+      return;
     const has = this.hasAttribute(key);
     let value: any = has ? this.getAttribute(key) : REMOVAL;
     const camelKey = camelize(key);
@@ -647,6 +655,5 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   /**
    * @internal
    */
-  _removeChildStyle(_comp: ConcreteComponent): void {
-  }
+  _removeChildStyle(_comp: ConcreteComponent): void {}
 }

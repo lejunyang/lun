@@ -58,6 +58,7 @@ export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string 
 export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 
 const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], false) as ComponentStyles;
+const commonIgnored = ['class', 'part', 'exportparts', /^data-/, /^aria-/];
 
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
@@ -79,6 +80,19 @@ export const GlobalStaticConfig = new Proxy(
     reflectStateToAttr: 'always' as 'always' | 'never' | 'auto',
     /** determine whether to use dataset or class to reflect component's state to attribute */
     stateAttrType: 'dataset' as 'dataset' | 'class',
+    /** determine what attributes to ignore, so that they won't trigger component's update. different from other configurations, 'common' options will not be merged with other components' options. */
+    ignoreAttrsUpdate: Object.assign(
+      reduceFromComps(() => null as (string | RegExp)[] | null, true, true),
+      {
+        common: ['style', ...commonIgnored],
+        // below components use style attr, so need to override the common
+        divider: commonIgnored,
+        form: commonIgnored,
+        'form-item': commonIgnored,
+        tag: commonIgnored,
+        tooltip: commonIgnored,
+      },
+    ),
     nameMap: (() => {
       const result = {} as { readonly [k in ComponentKey]: string };
       components.forEach((name) => {
