@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
 import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, renderElement, warn } from 'utils';
-import { useCEStates, useCheckedModel, useNamespace } from 'hooks';
+import { useCEStates, useCheckedModel, useExpose, useNamespace } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -17,7 +17,7 @@ export const Checkbox = defineSSRCustomElement({
   props: checkboxProps,
   emits: checkboxEmits,
   formAssociated: true,
-  setup(props, { expose, emit: e }) {
+  setup(props, { emit: e }) {
     const checkboxContext = CheckboxCollector.child();
     const ns = useNamespace(name, { parent: checkboxContext?.parent });
     const emit = useSetupEvent<typeof e>();
@@ -84,7 +84,7 @@ export const Checkbox = defineSSRCustomElement({
       ns,
     );
 
-    expose(refLikesToGetters({ disabled: () => editComputed.disabled }));
+    useExpose(refLikesToGetters({ disabled: () => editComputed.disabled }));
     return () => {
       const isChecked = checked.value,
         isIntermediate = intermediate.value;

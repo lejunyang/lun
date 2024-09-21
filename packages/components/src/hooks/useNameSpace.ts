@@ -6,6 +6,7 @@ import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'com
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
 import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun/core';
+import { useExpose } from 'hooks';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -119,15 +120,17 @@ export const useNamespace = (
     },
   });
 
-  if (!vm.exposed) vm.exposed = {};
-  Object.defineProperties(vm.exposed, {
-    size: {
-      get: () => size.value || 2,
+  useExpose(
+    {},
+    {
+      size: {
+        get: () => size.value || 2,
+      },
+      isDark: {
+        get: isDark,
+      },
     },
-    isDark: {
-      get: isDark,
-    },
-  });
+  );
 
   const getSizeClass = () => m('size') + '-' + (size.value || 2);
 

@@ -2,11 +2,11 @@ import { defineSSRCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
 import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEStates, useNamespace } from 'hooks';
+import { useCEStates, useExpose, useNamespace } from 'hooks';
 import { selectOptionProps } from './type';
 import { SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
-import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { SelectCollector } from './collector';
 import { getCompParts } from 'common';
 
@@ -16,7 +16,7 @@ const compParts = getCompParts(name, parts);
 export const SelectOption = defineSSRCustomElement({
   name,
   props: selectOptionProps,
-  setup(props, { expose }) {
+  setup(props) {
     const selectContext = SelectCollector.child(!props.excludeFromSelect, props.selectContext);
     const optgroup = SelectOptgroupContext.inject();
     if (!selectContext) {
@@ -37,7 +37,7 @@ export const SelectOption = defineSSRCustomElement({
     const active = computed(() => selectContext.isActive(vm));
 
     const disabled = () => editComputed.disabled;
-    expose(refLikesToGetters({ hidden, selected, disabled })); // expose it to Select
+    useExpose(refLikesToGetters({ hidden, selected, disabled })); // expose it to Select
     const [stateClass] = useCEStates(() => ({ selected, active, underGroup: optgroup }), ns);
 
     const handlers = {
@@ -62,7 +62,7 @@ export const SelectOption = defineSSRCustomElement({
           <slot name="start"></slot>
           <span class={ns.e('label')} part={compParts[1]}>
             {content ? (
-              <VCustomRenderer content={content} type={type} preferHtml={preferHtml} />
+              <VueCustomRenderer content={content} type={type} preferHtml={preferHtml} />
             ) : (
               <slot>{props.label}</slot>
             )}
