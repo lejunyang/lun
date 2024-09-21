@@ -108,7 +108,7 @@ export const Icon = defineSSRCustomElement({
           return (
             <span
               style={{ display: 'contents' }}
-              v-html={GlobalStaticConfig.vHtmlPreprocessor(state.src as string)}
+              v-html={GlobalStaticConfig.htmlPreprocessor(state.src as string)}
             ></span>
           );
         case 'svg-sprite-href':

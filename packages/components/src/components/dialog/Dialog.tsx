@@ -4,7 +4,7 @@ import { dialogEmits, dialogProps } from './type';
 import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
-import { VCustomRenderer } from '../custom-renderer';
+import { VueCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import {
   refLikeToDescriptors,
@@ -296,7 +296,7 @@ export const Dialog = Object.assign(
                     <div class={[ns.e('content')]} part={compParts[5]}>
                       <slot>
                         {content && (
-                          <VCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />
+                          <VueCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />
                         )}
                       </slot>
                     </div>

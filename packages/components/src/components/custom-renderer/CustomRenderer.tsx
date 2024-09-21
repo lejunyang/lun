@@ -6,6 +6,7 @@ import { createDefineElement } from 'utils';
 import { customRendererProps } from './type';
 import { isArray, isHTMLTemplateElement, isNode, isObject, runIfFn } from '@lun/utils';
 import { generateWithTemplate } from './utils';
+import { useCE } from 'hooks';
 
 const name = 'custom-renderer';
 
@@ -23,7 +24,9 @@ const options = {
     },
     { attrs }: { attrs: Record<string, any> },
   ) {
-    const div = shallowRef<HTMLDivElement>();
+    const CE = useCE(),
+      div = shallowRef<HTMLDivElement>();
+    const getTarget = () => CE || div.value;
     const vnode = shallowRef();
     let mounted = false;
     let lastRenderer: CustomRendererRegistry | undefined;
@@ -61,7 +64,7 @@ const options = {
 
       // renderer changed, should trigger onBeforeUnmount of the last one
       if (lastRenderer !== renderer && lastRenderer?.onBeforeUnmount && mounted) {
-        lastRenderer.onBeforeUnmount(content, div.value!);
+        lastRenderer.onBeforeUnmount(content, getTarget());
       }
       // no valid renderer, check the content if it is string, number or vnode, render it if yes
       if (!renderer) {
@@ -72,7 +75,7 @@ const options = {
         if (nextType === 'html') {
           if (isNode(content)) {
             updateHtml = () => {
-              const d = div.value;
+              const d = getTarget();
               if (!d || cleared) return;
               d.innerHTML = '';
               if (isHTMLTemplateElement(content)) content = generateWithTemplate(content, attrs);
@@ -80,8 +83,8 @@ const options = {
             };
           } else {
             updateHtml = () => {
-              if (!div.value || cleared) return;
-              div.value.innerHTML = GlobalStaticConfig.vHtmlPreprocessor(String(content ?? ''));
+              if (!getTarget() || cleared) return;
+              getTarget().innerHTML = GlobalStaticConfig.htmlPreprocessor(String(content ?? ''));
             };
           }
         }
@@ -94,9 +97,9 @@ const options = {
             // next is html, we need clear before and wait until nextTick so that the vnode can unmount correctly
             vnode.value = null;
             nextTick(updateHtml);
-          } else if (lastType === 'html' && div.value) {
+          } else if (lastType === 'html' && getTarget()) {
             // next is vnode
-            div.value.innerHTML = '';
+            getTarget().innerHTML = '';
             vnode.value = content;
           }
         }
@@ -104,10 +107,10 @@ const options = {
 
       if (mounted && renderer) {
         const updateOrMount = () => {
-          if (!renderer || !div.value || cleared) return;
+          if (!renderer || !getTarget() || cleared) return;
           // if renderer changed, should mount a new one
           const func = lastRenderer === renderer ? renderer?.onUpdated : renderer.onMounted;
-          func && func(content, div.value, attrs);
+          func && func(content, getTarget(), attrs);
           lastRenderer = renderer;
         };
         if (lastType === 'vnode') {
@@ -121,25 +124,25 @@ const options = {
 
     onMounted(() => {
       mounted = true;
-      if (renderer && div.value) {
-        renderer.onMounted(runIfFn(props.content), div.value, attrs);
+      if (renderer && getTarget()) {
+        renderer.onMounted(runIfFn(props.content), getTarget(), attrs);
       }
     });
     onBeforeUnmount(() => {
       mounted = false;
-      if (renderer?.onBeforeUnmount && div.value) {
-        renderer.onBeforeUnmount(props.content, div.value);
+      if (renderer?.onBeforeUnmount && getTarget()) {
+        renderer.onBeforeUnmount(props.content, getTarget());
       }
     });
-    return () => vnode.value ?? <div ref={div} style="display: contents"></div>;
+    return () => vnode.value ?? (CE ? null : <div ref={div} style="display: contents"></div>);
   },
 };
 
-export const VCustomRenderer = defineComponent(options);
+export const VueCustomRenderer = defineComponent(options);
 
 export const renderCustom = (source: any) => {
   if (source == null || isVNode(source) || isRaw(source)) return source;
-  return h(VCustomRenderer, isObject(source) && 'content' in source ? source : { content: source });
+  return h(VueCustomRenderer, isObject(source) && 'content' in source ? source : { content: source });
 };
 
 export const CustomRenderer = defineSSRCustomElement({

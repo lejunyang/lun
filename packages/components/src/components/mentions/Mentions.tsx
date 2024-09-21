@@ -9,7 +9,7 @@ import { mentionsEmits, mentionsProps } from './type';
 import { definePopover } from '../popover';
 import { defineSelectOption } from '../select';
 import { useSelect } from '../select/useSelect';
-import { VCustomRenderer } from '../custom-renderer';
+import { VueCustomRenderer } from '../custom-renderer';
 import { getCompParts } from 'common';
 
 const name = 'mentions';
@@ -87,7 +87,7 @@ export const Mentions = defineSSRCustomElement({
             if (!mentionRenderer) return;
             else
               return (item: MentionSpan, necessaryProps: Record<string, any>) => (
-                <VCustomRenderer content={mentionRenderer(item, necessaryProps)} />
+                <VueCustomRenderer content={mentionRenderer(item, necessaryProps)} />
               );
           },
         },

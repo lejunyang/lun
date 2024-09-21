@@ -6,7 +6,7 @@
         <slot></slot>
       </div>
       <div :class="`code-container ${loading ? 'disabled' : ''}`" v-if="showGenerated && initialized">
-        <VCustomRenderer v-bind="rendererProps"></VCustomRenderer>
+        <VueCustomRenderer v-bind="rendererProps"></VueCustomRenderer>
       </div>
       <div class="code-block-footer">
         <l-select
@@ -76,7 +76,7 @@
 <script setup lang="tsx">
 import { ref, reactive, watchEffect, defineAsyncComponent, computed, h } from 'vue';
 import { debounce, objectKeys, runIfFn, isFunction } from '@lun/utils';
-import { VCustomRenderer } from '@lun/components';
+import { VueCustomRenderer } from '@lun/components';
 import { runVueTSXCode, runReactTSXCode } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';

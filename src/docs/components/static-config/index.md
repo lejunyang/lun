@@ -39,8 +39,8 @@ export declare const GlobalStaticConfig: {
   };
   /** function used to request icon url, should return html string */
   iconRequest: (url?: string | null) => Promise<string | undefined>;
-  /** function used to process html string before pass it to v-html, you can use this to do XSS filter */
-  vHtmlPreprocessor: (html: string) => string;
+  /** function used to process html string before using it, you can use this to do XSS filter */
+  htmlPreprocessor: (html: string) => string;
   customRendererMap: Record<string | symbol, CustomRendererRegistry>;
   /**
    * define every components' event init map, it's used to initialize the event object when dispatch event

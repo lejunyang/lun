@@ -4,9 +4,9 @@ import { isFunction } from '@lun/utils';
 
 export type CustomRendererRegistry = {
   isValidContent: (content: any) => boolean;
-  onMounted: (content: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
-  onUpdated?: (content: any, target: HTMLDivElement, otherProps: Record<string | symbol, unknown>) => void;
-  onBeforeUnmount?: (content: any, target: HTMLDivElement) => void;
+  onMounted: (content: any, target: HTMLElement, otherProps: Record<string | symbol, unknown>) => void;
+  onUpdated?: (content: any, target: HTMLElement, otherProps: Record<string | symbol, unknown>) => void;
+  onBeforeUnmount?: (content: any, target: HTMLElement) => void;
   clone?: (content?: any) => any;
 };
 

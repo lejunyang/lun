@@ -125,8 +125,8 @@ export const GlobalStaticConfig = new Proxy(
         if (response.ok) return result;
       }
     },
-    /** function used to process html string before pass it to v-html, you can use this to do XSS filter */
-    vHtmlPreprocessor: (html: string) => html,
+    /** function used to process html string before using it, you can use this to do XSS filter */
+    htmlPreprocessor: (html: string) => html,
     customRendererMap: getInitialCustomRendererMap(),
     /**
      * define every components' event init map, it's used to initialize the event object when dispatch event

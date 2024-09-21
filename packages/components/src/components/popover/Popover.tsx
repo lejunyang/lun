@@ -6,7 +6,6 @@ import {
   watchEffect,
   Transition,
   BaseTransitionProps,
-  getCurrentInstance,
   reactive,
   nextTick,
   watchPostEffect,
@@ -32,8 +31,8 @@ import {
   virtualGetMerge,
   getRect,
 } from '@lun/utils';
-import { useCEExpose, useNamespace } from 'hooks';
-import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { useCE, useCEExpose, useNamespace } from 'hooks';
+import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { ElementRects } from '@floating-ui/vue';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
@@ -65,7 +64,7 @@ export const Popover = defineSSRCustomElement({
       isTopLayer = () => type.value === 'popover';
 
     const contextZIndex = useContextConfig('zIndex');
-    const { CE } = getCurrentInstance()!;
+    const CE = useCE();
     const [wrapTeleport, vnodeHandlers] = useTeleport(props, isTeleport);
 
     /** actual pop content element ref */
@@ -257,7 +256,7 @@ export const Popover = defineSSRCustomElement({
         freezeWhenClosing && isClosing.value
           ? cacheContent
           : (cacheContent = (finalContent = runIfFn(content, currentTarget.value)) && (
-              <VCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
+              <VueCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
             ));
 
       return (

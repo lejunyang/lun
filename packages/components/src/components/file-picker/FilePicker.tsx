@@ -5,7 +5,7 @@ import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
 import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystemAccess, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
-import { VCustomRenderer } from '../custom-renderer';
+import { VueCustomRenderer } from '../custom-renderer';
 import { isAbort } from './utils';
 
 // TODO drop support
@@ -280,7 +280,7 @@ export const FilePicker = defineSSRCustomElement({
             {...inputHandlers}
           />
           <slot {...slotHandlers}></slot>
-          {content && <VCustomRenderer content={content} type={filesRendererType} />}
+          {content && <VueCustomRenderer content={content} type={filesRendererType} />}
         </>
       );
     };

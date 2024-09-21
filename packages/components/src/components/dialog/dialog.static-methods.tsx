@@ -4,7 +4,7 @@ import { HTMLAttributes, nextTick } from 'vue';
 import { objectKeys } from '@lun/utils';
 import { iDialog } from './Dialog';
 import { Status, renderStatusIcon } from 'common';
-import { VCustomRenderer } from '../custom-renderer';
+import { VueCustomRenderer } from '../custom-renderer';
 
 const initialDialogProps = objectKeys(dialogProps).reduce((acc, key) => {
   acc[key] = undefined;
@@ -32,7 +32,7 @@ const createStatusMethod = (status: Status) => {
         <>
           {renderStatusIcon(status, { style: { visibility: title ? 'hidden' : 'visible' } })}
           <div part="confirm-content">
-            {content && <VCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />}
+            {content && <VueCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />}
           </div>
         </>
       ),

@@ -12,7 +12,7 @@ import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils'
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
 import { isEmpty, isArray, runIfFn, raf } from '@lun/utils';
-import { VCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
 import { getCompParts, getTransitionProps, InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
@@ -302,7 +302,7 @@ export const Input = defineSSRCustomElement({
                       });
                       if (props.tagRenderer)
                         return (
-                          <VCustomRenderer
+                          <VueCustomRenderer
                             {...tagProps}
                             type={props.tagRendererType}
                             content={props.tagRenderer(v, index)}
