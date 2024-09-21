@@ -59,6 +59,7 @@
     "@floating-ui/core": "^1.6.4",
     "@rollup/plugin-replace": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "catalog:",
     "cross-env": "catalog:",
     "glob": "^10.4.2",
     "postcss-logical": "catalog:",
@@ -68,6 +69,8 @@
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:",
     "vue": "catalog:",
+    "@vue/runtime-dom": "catalog:",
+    "@vue/runtime-core": "catalog:",
     "vue-tsc": "catalog:"
   }
 }

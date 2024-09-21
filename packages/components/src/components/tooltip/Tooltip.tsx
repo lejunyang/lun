@@ -3,9 +3,9 @@ import { tooltipEmits, tooltipProps } from './type';
 import { createDefineElement, renderElement } from 'utils';
 import { definePopover, iPopover } from '../popover/Popover';
 import { refLikeToDescriptors, useOverflowWatcher, unrefOrGet } from '@lun/core';
-import { useCEExpose } from 'hooks';
+import { useCE, useCEExpose } from 'hooks';
 import { getFirstOfIterable, getInnerTextOfSlot, runIfFn, supportCSSAnchor } from '@lun/utils';
-import { getCurrentInstance, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useContextConfig } from 'config';
 
 const name = 'tooltip';
@@ -15,7 +15,7 @@ const Tooltip = defineSSRCustomElement({
   props: tooltipProps,
   emits: tooltipEmits,
   setup(props, { attrs, emit }) {
-    const { CE } = getCurrentInstance()!;
+    const CE = useCE();
     const { methods, targetOptionMap, openSet } = useOverflowWatcher({
       isDisabled: () => unrefOrGet(props.disabled),
       onOverflowChange(param) {

@@ -1,12 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
 import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName, renderElement } from 'utils';
-import { useNamespace } from 'hooks';
+import { useCE, useNamespace } from 'hooks';
 import {
   CSSProperties,
   VNode,
   computed,
-  getCurrentInstance,
   inject,
   onBeforeUnmount,
   onMounted,
@@ -62,7 +61,7 @@ export const Watermark = defineSSRCustomElement({
     const { getColor } = useNamespace(name);
     const { mutable } = props;
     const freezedProps = mutable ? props : reactive({ ...props });
-    const { CE } = getCurrentInstance()!;
+    const CE = useCE();
     const markDiv = ref<HTMLDivElement>(),
       slotWrapper = ref<HTMLDivElement>(),
       slotEl = ref<HTMLSlotElement>();

@@ -53,7 +53,7 @@ export const getCompParts = <N extends ComponentKey, P extends readonly string[]
     [key in keyof P]: `${P[key]} ${N}-${P[key]}`;
   };
 
-const vmToCE = (vm: ComponentInternalInstance) => vm.CE;
+const vmToCE = (vm: ComponentInternalInstance) => vm.ce!;
 
 const collectorOptions = {
   getParentEl: vmToCE,

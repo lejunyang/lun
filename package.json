@@ -50,6 +50,7 @@
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
     "@vue/runtime-dom": "catalog:",
+    "@vue/runtime-core": "catalog:",
     "cross-env": "catalog:",
     "cypress": "^13.13.0",
     "happy-dom": "^14.12.3",

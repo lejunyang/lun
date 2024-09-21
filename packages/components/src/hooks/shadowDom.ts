@@ -15,6 +15,10 @@ import {
 } from 'vue';
 import { useNamespace } from './useNameSpace';
 import { GlobalStaticConfig } from '../components/config/config.static';
+import { VueElement } from 'custom';
+
+/** get current host custom element */
+export const useCE = () => getCurrentInstance()!.ce! as VueElement;
 
 export function onCEMount(CB?: (state: { rootChildNode: Node; shadowRoot: ShadowRoot; CE: HTMLElement }) => void) {
   const vm = getCurrentInstance();
@@ -56,7 +60,7 @@ export function useShadowDom<CE extends HTMLElement = HTMLElement, RootNode exte
  * expose something to Custom Element
  */
 export function useCEExpose(expose: Record<string | symbol, any>, extraDescriptors?: PropertyDescriptorMap) {
-  const { CE } = getCurrentInstance()!;
+  const CE = useCE();
   Object.defineProperties(CE, Object.getOwnPropertyDescriptors(expose));
   if (extraDescriptors) Object.defineProperties(CE, extraDescriptors);
 }
@@ -149,7 +153,7 @@ export function useAria(
     >
   >,
 ) {
-  const { CE } = getCurrentInstance()!;
+  const CE = useCE();
   watchEffect(() => {
     const aria = ariaGetter();
     aria && Object.assign((CE as any as { _internals: ElementInternals })._internals, aria);

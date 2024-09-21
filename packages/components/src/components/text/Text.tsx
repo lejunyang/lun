@@ -1,10 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, error, getHostStyle } from 'utils';
 import { textEmits, textProps } from './type';
-import { getCurrentInstance } from 'vue';
 import { getCachedComputedStyle } from '@lun/utils';
 import { getCompParts } from 'common';
-import { useAria, useNamespace, useSlot } from 'hooks';
+import { useAria, useCE, useNamespace, useSlot } from 'hooks';
 
 const name = 'text';
 const parts = ['ellipsis', 'inner', 'offset', 'link'] as const;
@@ -18,7 +17,7 @@ export const Text = defineSSRCustomElement({
   emits: textEmits,
   setup(props, { attrs }) {
     useNamespace(name);
-    const { CE } = getCurrentInstance()!,
+    const CE = useCE(),
       styleMap = getCachedComputedStyle(CE);
 
     useAria(() => ({

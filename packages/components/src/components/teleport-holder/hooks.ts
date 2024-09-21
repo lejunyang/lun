@@ -31,8 +31,8 @@ export function useTeleport<
     {
       onVnodeBeforeMount: (({ el }) => {
         // TODO need to test change 'when' dynamically
-        if (isElement(el) && vm?.CE && unrefOrGet(when)) {
-          virtualParentMap.set(el, vm.CE);
+        if (isElement(el) && vm?.ce && unrefOrGet(when)) {
+          virtualParentMap.set(el, vm.ce);
         } else virtualParentMap.delete(el as any);
       }) as (v: VNode) => void,
     },

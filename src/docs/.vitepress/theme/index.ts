@@ -49,7 +49,10 @@ export default {
     app.config.warnHandler = (msg, _vm, _trace) => {
       // ignore injection not found warning
       if (msg.includes('injection') && msg.includes('not found')) return;
-      console.warn(msg);
+      // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
+      if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead'))
+        return;
+      console.warn(msg, _vm, _trace);
     };
 
     importAllColors();

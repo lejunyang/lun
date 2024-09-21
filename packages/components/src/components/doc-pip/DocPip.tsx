@@ -10,8 +10,8 @@ import {
   toArrayIfNotNil,
   toNumberOrUndefined,
 } from '@lun/utils';
-import { useBreakpoint, useCEExpose, useSlot } from 'hooks';
-import { getCurrentInstance, onBeforeUnmount, ref, watchEffect } from 'vue';
+import { useBreakpoint, useCE, useCEExpose, useSlot } from 'hooks';
+import { onBeforeUnmount, ref, watchEffect } from 'vue';
 import { useAdoptedSheetsSnapshot, useSetupEdit } from '@lun/core';
 import { on } from '@lun/utils';
 import { useContextConfig } from '../config/config.context';
@@ -23,7 +23,7 @@ export const DocPip = defineSSRCustomElement({
   emits: docPipEmits,
   setup(props, { emit }) {
     const [getSlot, , , slotRef] = useSlot();
-    const { CE } = getCurrentInstance()!;
+    const CE = useCE();
 
     let pipWindow: Window | undefined,
       slotNodes: Node[] = [],
