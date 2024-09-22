@@ -1,12 +1,11 @@
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, themeProps, createTransitionProps, CommonProps, PropBoolean } from 'common';
+import { GetEventPropsFromEmits, themeProps, createTransitionProps, CommonProps, editStateProps } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const skeletonProps = freeze({
   ...themeProps,
-  ...createTransitionProps('loaded'),
-  animated: PropBoolean(),
-  loaded: PropBoolean(),
+  ...editStateProps,
+  ...createTransitionProps('load'),
 });
 
 export const skeletonEmits = freeze({});
