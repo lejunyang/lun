@@ -1,7 +1,7 @@
 // derived from element-plus
 import { ComponentInternalInstance, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
-import { isArray, isPreferDark, isString, objectKeys } from '@lun/utils';
+import { fromObject, isArray, isPreferDark, isString, objectKeys } from '@lun/utils';
 import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
@@ -49,6 +49,7 @@ export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefin
   }, {} as Record<keyof ThemeProps, any>);
 };
 
+// TODO split useNameSpace
 export const useNamespace = (
   block: string,
   other?: { parent?: ComponentInternalInstance | null; status?: MaybeRefLikeOrGetter<Status> },
@@ -58,21 +59,19 @@ export const useNamespace = (
   const context = FormInputCollector.child(false); // form-item will be theme parent for all its children
   if (!parent && context) parent = context.parent;
   parent && vmParentMap.set(vm, parent);
-  const config = useContextConfig();
-  const namespace = computed(() => {
-    return config?.namespace || GlobalStaticConfig.namespace;
-  });
-  const b = (blockSuffix = '') => _bem(namespace.value, block, blockSuffix, '', '');
-  const e = (element?: string) => (element ? _bem(namespace.value, block, '', element, '') : '');
-  const m = (modifier?: string | false) => (modifier ? _bem(namespace.value, block, '', '', modifier) : '');
+
+  const { namespace, statePrefix, colorPriority } = GlobalStaticConfig;
+  const b = (blockSuffix = '') => _bem(namespace, block, blockSuffix, '', '');
+  const e = (element?: string) => (element ? _bem(namespace, block, '', element, '') : '');
+  const m = (modifier?: string | false) => (modifier ? _bem(namespace, block, '', '', modifier) : '');
   const be = (blockSuffix?: string, element?: string) =>
-    blockSuffix && element ? _bem(namespace.value, block, blockSuffix, element, '') : '';
+    blockSuffix && element ? _bem(namespace, block, blockSuffix, element, '') : '';
   const em = (element?: string, modifier?: string) =>
-    element && modifier ? _bem(namespace.value, block, '', element, modifier) : '';
+    element && modifier ? _bem(namespace, block, '', element, modifier) : '';
   const bm = (blockSuffix?: string, modifier?: string) =>
-    blockSuffix && modifier ? _bem(namespace.value, block, blockSuffix, '', modifier) : '';
+    blockSuffix && modifier ? _bem(namespace, block, blockSuffix, '', modifier) : '';
   const bem = (blockSuffix?: string, element?: string, modifier?: string) =>
-    blockSuffix && element && modifier ? _bem(namespace.value, block, blockSuffix, element, modifier) : '';
+    blockSuffix && element && modifier ? _bem(namespace, block, blockSuffix, element, modifier) : '';
   const is: {
     (name: string, state: any): string;
     (name: string): string;
@@ -80,11 +79,11 @@ export const useNamespace = (
   } = (name: string | Record<string, any>, ...args: any) => {
     if (isString(name)) {
       const state = args.length >= 1 ? args[0] : true;
-      return name && unrefOrGetState(state) ? `${GlobalStaticConfig.statePrefix}${name}` : '';
+      return name && unrefOrGetState(state) ? `${statePrefix}${name}` : '';
     } else {
       let cls = '';
       for (const key in name) {
-        if (unrefOrGetState(name[key])) cls += `${GlobalStaticConfig.statePrefix}${key} `;
+        if (unrefOrGetState(name[key])) cls += `${statePrefix}${key} `;
       }
       return cls;
     }
@@ -102,7 +101,7 @@ export const useNamespace = (
     return styles;
   };
 
-  const vn = (name: string, addBlock = true) => `--${namespace.value}${addBlock ? `-${block}` : ''}-${name}`;
+  const vn = (name: string, addBlock = true) => `--${namespace}${addBlock ? `-${block}` : ''}-${name}`;
 
   const contextConfig = useContextConfig();
   const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme'] | 'status') => {
@@ -140,7 +139,7 @@ export const useNamespace = (
       color = getActualThemeValue('color'),
       statusVal = unrefOrGet(status) || getActualThemeValue('status');
     let finalColor: any;
-    switch (GlobalStaticConfig.colorPriority) {
+    switch (colorPriority) {
       case 'color-first':
         finalColor = color || (isStatus(statusVal) && statusVal);
         break;
@@ -151,7 +150,7 @@ export const useNamespace = (
         finalColor = isHighlightStatus(statusVal) ? statusVal : color;
         break;
     }
-    const { value } = namespace;
+
     return [
       b(),
       variant && m(`variant-${variant}`),
@@ -159,7 +158,7 @@ export const useNamespace = (
       is('high-contrast', highContrast),
       is('dark', isDark()),
       is('highlight-status', isHighlightStatus(statusVal)),
-      finalColor && _bem(value, 'color', '', '', finalColor),
+      finalColor && _bem(namespace, 'color', '', '', finalColor),
     ];
   });
 
@@ -174,7 +173,6 @@ export const useNamespace = (
   };
 
   return {
-    namespace,
     /** block */
     b,
     /** element */
@@ -205,6 +203,9 @@ export const useNamespace = (
     /** get theme class */
     get t() {
       return themeClass.value;
+    },
+    themes() {
+      return fromObject(themeProps, (k) => [k, getActualThemeValue(k)] as const) as Record<keyof ThemeProps, any>
     },
     /** get size class */
     s: getSizeClass,

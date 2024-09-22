@@ -12,7 +12,6 @@ export type DynamicStyleValue =
   | string;
 
 export const GlobalContextConfig = reactive({
-  namespace: 'l',
   lang: 'zh-CN',
   iconRegistryMap,
   dynamicStyles: reduceFromComps(() => [] as DynamicStyleValue[], false),
