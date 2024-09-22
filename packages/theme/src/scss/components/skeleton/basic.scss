@@ -1,0 +1,23 @@
+@use '../../mixins' as *;
+
+:host {
+  display: inline-block;
+  position: relative;
+}
+
+@include b(skeleton) {
+  @keyframes pulse {
+    from {
+      background: getGrayColor(3);
+    }
+    to {
+      background: getGrayColor(4);
+    }
+  }
+  animation: pulse 1s infinite alternate-reverse;
+  border-radius: getRadiusValue(1, 'full');
+  pointer-events: none;
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+}

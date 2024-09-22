@@ -63,6 +63,7 @@ import {
   importTextSolidTheme,
   importTextSurfaceTheme,
 } from './text';
+import { importSkeletonBasicTheme } from './skeleton';
 
 export * from './button';
 export * from './calendar';
@@ -84,6 +85,7 @@ export * from './range';
 export * from './select';
 export * from './select-optgroup';
 export * from './select-option';
+export * from './skeleton';
 export * from './spin';
 export * from './switch';
 export * from './tabs';
@@ -128,6 +130,7 @@ export const importBasicTheme = () => {
   importTabsBasicTheme();
   importTabItemBasicTheme();
   importTextBasicTheme();
+  importSkeletonBasicTheme();
 };
 
 export const importOutlineTheme = () => {
