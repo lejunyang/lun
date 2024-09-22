@@ -46,7 +46,7 @@ export const Text = defineSSRCustomElement({
 
     const [renderText] = useSlot('', () => props.text);
     return () => {
-      const { text = '', ellipsisOffset, ellipsis, as } = props,
+      const { text = '', ellipsisOffset, ellipsis } = props,
         dir = styleMap.direction,
         offset = +ellipsisOffset!;
       if (__DEV__ && (offset || ellipsis === 'center') && !text) {

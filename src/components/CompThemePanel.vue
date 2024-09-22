@@ -14,21 +14,21 @@
         <div class="gray-tip">accent color</div>
         <template v-for="v in variants">
           <div class="cell">
-            <component :is="compName" v-bind="other" :variant="v" />
-            <component :is="compName" v-bind="other" v-if="includeContrast" :variant="v" highContrast />
+            <component :is="compName" v-bind="otherProps" :variant="v" />
+            <component :is="compName" v-bind="otherProps" v-if="includeContrast" :variant="v" highContrast />
           </div>
         </template>
         <div class="gray-tip">gray color</div>
         <template v-for="v in variants">
           <div class="cell">
-            <component :is="compName" v-bind="other" :variant="v" color="gray" />
-            <component :is="compName" v-bind="other" v-if="includeContrast" :variant="v" color="gray" highContrast />
+            <component :is="compName" v-bind="otherProps" :variant="v" color="gray" />
+            <component :is="compName" v-bind="otherProps" v-if="includeContrast" :variant="v" color="gray" highContrast />
           </div>
         </template>
         <template v-if="includeDisabled">
           <div class="gray-tip">disabled</div>
           <template v-for="v in variants">
-            <component :is="compName" v-bind="other" :variant="v" color="gray" disabled />
+            <component :is="compName" v-bind="otherProps" :variant="v" color="gray" disabled />
           </template>
         </template>
       </div>
@@ -48,10 +48,10 @@
           <div class="gray-tip">{{ color }}</div>
           <template v-for="v in variants">
             <div class="cell">
-              <component :is="compName" v-bind="other" :variant="v" :color="color" />
+              <component :is="compName" v-bind="otherProps" :variant="v" :color="color" />
               <component
                 :is="compName"
-                v-bind="other"
+                v-bind="otherProps"
                 v-if="includeContrast"
                 :variant="v"
                 :color="color"
@@ -78,6 +78,8 @@ const props = defineProps<{
   includeContrast?: boolean;
   includeDisabled?: boolean;
 }>();
+
+const otherProps = computed(() => props.other || {})
 
 const { lang } = useData();
 

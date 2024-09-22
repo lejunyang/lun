@@ -3,13 +3,14 @@ import {
   getThemeValue,
   allColorSet,
   getHostStyle,
+  ThemeProps,
 } from '@lun/components';
 import * as RadixColors from '@radix-ui/colors';
 import { generateRadixColors } from './custom';
 import { getVarName } from '../scss/utils';
 
 export const importCustomDynamicColors = createImportDynamicStyle('common', (vm, name, context) => {
-  const getTheme = (prop: string) => getThemeValue(vm, prop, context, name);
+  const getTheme = (prop: keyof ThemeProps) => getThemeValue(vm, prop, context, name);
   const color = getTheme('color'),
     grayColor = getTheme('grayColor'),
     appearance = getTheme('appearance'),

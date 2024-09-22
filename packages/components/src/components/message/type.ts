@@ -9,7 +9,7 @@ import {
   Status,
   createTransitionProps,
 } from 'common';
-import { ExtractPropTypes, HTMLAttributes, ReservedProps } from 'vue';
+import { ExtractPropTypes, HTMLAttributes } from 'vue';
 import { CalloutProps, calloutProps } from '../callout/type';
 import { MaybeRefLikeOrGetter } from '@lun/core';
 import { freeze } from '@lun/utils';

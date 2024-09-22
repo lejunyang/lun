@@ -75,24 +75,25 @@ export const supportCSSApi = typeof CSS === 'object' && CSS;
 export const supportCSSHighLight =
   supportCSSApi && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
 
-export const supportCSSSupports = supportCSSApi && isFunction(CSS.supports);
+let supports: typeof CSS.supports;
+export const supportCSSSupports = supportCSSApi && isFunction((supports = CSS.supports));
 
-export const supportCSSScrollbarGutter = supportCSSSupports && CSS.supports('scrollbar-gutter', 'stable');
+export const supportCSSScrollbarGutter = supportCSSSupports && supports!('scrollbar-gutter', 'stable');
 
-export const supportCSSSubgrid = supportCSSSupports && CSS.supports('grid-template-rows', 'subgrid');
+export const supportCSSSubgrid = supportCSSSupports && supports!('grid-template-rows', 'subgrid');
 
 // was checking anchor-name before, changed to inset-area because although anchor-name is experimental in chromium 117~124, but css anchor position is not fully supported
 // renamed to position-area
 export const supportCSSAnchor =
-  (supportCSSSupports && CSS.supports('inset-area', 'top span-all')) || CSS.supports('position-area', 'top span-all');
+  supportCSSSupports && (supports!('inset-area', 'top span-all') || supports!('position-area', 'top span-all'));
 
-export const supportCSSAutoHeightTransition = supportCSSSupports && CSS.supports('height', 'calc-size(auto)');
-  
+export const supportCSSAutoHeightTransition = supportCSSSupports && supports!('height', 'calc-size(auto)');
+
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
 
-export const supportCSSDisplayP3 = supportCSSSupports && CSS.supports('color', 'color(display-p3 1 1 1)');
-export const supportCSSOklch = supportCSSSupports && CSS.supports('color', 'oklch(1% 1 1)');
+export const supportCSSDisplayP3 = supportCSSSupports && supports!('color', 'color(display-p3 1 1 1)');
+export const supportCSSOklch = supportCSSSupports && supports!('color', 'oklch(1% 1 1)');
 
 export const supportTouch = inBrowser && 'ontouchstart' in document.body;
 

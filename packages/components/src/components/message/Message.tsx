@@ -88,8 +88,8 @@ export const Message = Object.assign(
         open(config) {
           config = {
             ...omit(props, ['type', 'placement', 'to']),
-            ...getTransitionProps(props, 'close'),
-            variant: ns.getT('variant'), // TODO seems that still need other theme props
+            closeTransition: getTransitionProps(props, 'close'),
+            ...ns.themes(),
             status: config?.type,
             ...config,
             class: ns.e('callout'),

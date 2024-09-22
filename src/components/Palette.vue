@@ -86,7 +86,7 @@ import { arrayFrom } from '@lun/utils';
 
 const scales = arrayFrom(12, (_, i) => i + 1);
 
-const tabs = [1, 2, 3, 4].map((i) => ({ slot: i, label: `Tab ${i}` }));
+const tabs = [1, 2, 3, 4].map((i) => ({ slot: '' + i, label: `Tab ${i}` }));
 
 // const defaultAccentRGB = [61, 99, 221];
 const defaultAccentHSL = [225.75, 70.17543859649123, 55.294117647058826];

@@ -1,10 +1,10 @@
-import { createImportDynamicStyle, createImportStyle, getThemeValue, getHostStyle } from '@lun/components';
+import { createImportDynamicStyle, createImportStyle, getThemeValue, getHostStyle, ThemeProps } from '@lun/components';
 import { toPxIfNum } from '@lun/utils';
 import commonStyles from './index.scss?inline';
 import { getVarName, getVarValue } from '../utils';
 
 export const importCommonDynamicTheme = createImportDynamicStyle('common', (vm, name, context) => {
-  const getTheme = (prop: string) => getThemeValue(vm, prop, context, name);
+  const getTheme = (prop: keyof ThemeProps) => getThemeValue(vm, prop, context, name);
   const scale = getTheme('scale');
 
   const scaleVar = getVarValue(['scale']);
