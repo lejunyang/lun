@@ -22,6 +22,11 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
         dts({
           rollupTypes: true,
           tsconfigPath: './tsconfig.build.json',
+          bundledPackages: ['@lun/*'],
+          rollupOptions: {
+            // showVerboseMessages: true,
+            // showDiagnostics: true,
+          },
           // beforeWriteFile(filePath, content) {
           //   if (filePath.includes('define')) return false; // don't emit type file for component define files
           //   else return { filePath, content };
