@@ -3,11 +3,12 @@ title: ContextConfig 上下文配置
 lang: zh-CN
 ---
 
+暂时不全且未作说明，待补充。
+
 ## 类型
 
 ```ts
 declare const GlobalContextConfig: {
-  namespace: string;
   lang: string;
   iconRegistryMap: Record<string, IconLibrary>;
   dynamicStyles: Record<OpenShadowComponentKey | 'common', ((vm: ComponentInternalInstance) => string)[]>

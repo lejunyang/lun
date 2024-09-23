@@ -6,7 +6,7 @@ export default () => (
     <l-text text={text} ellipsis></l-text>
     <br />
     center:
-    <l-text text={text} ellipsis="center" style="word-break: break-all"></l-text>
+    <l-text text={text} ellipsis="center"></l-text>
     <l-text text={chText} ellipsis="center"></l-text>
     <br />
     start:

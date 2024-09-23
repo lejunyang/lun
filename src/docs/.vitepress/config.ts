@@ -73,6 +73,18 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           ].filter(Boolean),
         },
         {
+          text: locales[lang].sidebar.other.menu,
+          collapsed: false,
+          items: [
+            { text: locales[lang].sidebar.other.renderer, link: wrapLink('/components/custom-renderer/', lang) },
+            { text: locales[lang].sidebar.other.contextConfig, link: wrapLink('/components/context-config/', lang) },
+            { text: locales[lang].sidebar.other.staticConfig, link: wrapLink('/components/static-config/', lang) },
+            { text: locales[lang].sidebar.other.teleport, link: wrapLink('/components/teleport-holder/', lang) },
+            { text: locales[lang].sidebar.other.themeProvider, link: wrapLink('/components/theme-provider/', lang) },
+            { text: locales[lang].sidebar.other.virtual, link: wrapLink('/components/virtual-renderer/', lang) },
+          ],
+        },
+        {
           text: locales[lang].sidebar.dataInput.menu,
           collapsed: false,
           items: [
@@ -123,6 +135,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           items: [
             { text: locales[lang].sidebar.feedback.callout, link: wrapLink('/components/callout/', lang) },
             { text: locales[lang].sidebar.feedback.progress, link: wrapLink('/components/progress/', lang) },
+            { text: locales[lang].sidebar.feedback.skeleton, link: wrapLink('/components/skeleton/', lang) },
             { text: locales[lang].sidebar.feedback.spin, link: wrapLink('/components/spin/', lang) },
             { text: locales[lang].sidebar.feedback.watermark, link: wrapLink('/components/watermark/', lang) },
           ],
@@ -140,18 +153,6 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           text: locales[lang].sidebar.typography.menu,
           collapsed: false,
           items: [{ text: locales[lang].sidebar.typography.text, link: wrapLink('/components/text/', lang) }],
-        },
-        {
-          text: locales[lang].sidebar.other.menu,
-          collapsed: false,
-          items: [
-            { text: locales[lang].sidebar.other.renderer, link: wrapLink('/components/custom-renderer/', lang) },
-            { text: locales[lang].sidebar.other.contextConfig, link: wrapLink('/components/context-config/', lang) },
-            { text: locales[lang].sidebar.other.staticConfig, link: wrapLink('/components/static-config/', lang) },
-            { text: locales[lang].sidebar.other.teleport, link: wrapLink('/components/teleport-holder/', lang) },
-            { text: locales[lang].sidebar.other.themeProvider, link: wrapLink('/components/theme-provider/', lang) },
-            { text: locales[lang].sidebar.other.virtual, link: wrapLink('/components/virtual-renderer/', lang) },
-          ],
         },
       ],
     },
