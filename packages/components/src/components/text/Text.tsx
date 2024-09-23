@@ -16,7 +16,7 @@ export const Text = defineSSRCustomElement({
   props: textProps,
   emits: textEmits,
   setup(props, { attrs }) {
-    useNamespace(name);
+    const ns = useNamespace(name);
     const CE = useCE(),
       styleMap = getCachedComputedStyle(CE);
 
@@ -26,7 +26,7 @@ export const Text = defineSSRCustomElement({
     const isLink = () => props.as === 'link';
     const wrapIfAsLink = (children: any) =>
       isLink() ? (
-        <a {...attrs} part={compParts[3]}>
+        <a class={ns.is('disabled', props.disabled)} {...attrs} part={compParts[3]}>
           {children}
         </a>
       ) : (
@@ -36,7 +36,7 @@ export const Text = defineSSRCustomElement({
       const El = isLink() && isRoot ? 'a' : 'span',
         dir = styleMap.direction;
       return (
-        <El class={['ellipsis', cls]} dir={dirReverse[dir]} part={compParts[0]}>
+        <El class={['ellipsis', cls, ns.is('disabled', props.disabled)]} dir={dirReverse[dir]} part={compParts[0]}>
           <span dir={dir} part={compParts[1]}>
             {text}
           </span>

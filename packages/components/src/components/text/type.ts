@@ -7,6 +7,7 @@ import {
   PropBoolOrStr,
   PropResponsive,
   PropNumber,
+  PropBoolean,
 } from 'common';
 import { AnchorHTMLAttributes, ExtractPropTypes } from 'vue';
 
@@ -20,6 +21,8 @@ export const textProps = freeze({
   ellipsis: PropBoolOrStr<'start' | 'end' | 'center' | boolean>(),
   // nice to have
   maxLines: PropNumber(),
+  /** for as='link' */
+  disabled: PropBoolean(),
 });
 
 export const textEmits = freeze({});
