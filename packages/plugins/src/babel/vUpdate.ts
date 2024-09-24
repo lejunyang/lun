@@ -8,7 +8,7 @@ import type * as BabelTypes from '@babel/types';
  * 
  * Both TARGET and FROM are optional, Target defaults to 'value', FROM defaults to none(EXPR = e.detail)
  */
-export const vUpdateForBabel= ({ types: t }: typeof BabelCore): BabelCore.PluginObj => {
+export const vUpdate = ({ types: t }: typeof BabelCore): BabelCore.PluginObj => {
   return {
     name: '@lun/babel-plugin-jsx-vUpdate',
     visitor: {

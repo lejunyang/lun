@@ -14,9 +14,9 @@ import {
  *
  * Both TARGET and FROM are optional, Target defaults to 'value', FROM defaults to none(EXPR = e.detail)
  */
-export const vUpdateForVueTemplate = createStructuralDirectiveTransform(
+export const vUpdate = createStructuralDirectiveTransform(
   /update(-\w+)?/,
-  (node, vUpdateDirective, context) => {
+  (node, vUpdateDirective, _context) => {
     if (node.type !== NodeTypes.ELEMENT) {
       throw new Error(`v-update can only be used on element`);
     }

@@ -8,7 +8,7 @@
       "path": "./tsconfig.test.json"
     }
   ],
-  "include": ["./src/**/*.ts", "./index.ts"],
+  "include": ["src/**/*.ts", "../../global.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "declarationDir": "dist"

@@ -3,8 +3,6 @@
   "version": "0.0.1-alpha.0",
   "description": "",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
   "files": [
     "dist"
   ],
@@ -18,14 +16,18 @@
   },
   "homepage": "https://lejunyang.github.io/lun/",
   "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+    "./vue": {
+      "require": "./dist/lun-plugins-vue.production.cjs",
+      "import": "./dist/lun-plugins-vue.production.js",
+      "types": "./dist/vue.index.d.ts"
+    },
+    "./babel": {
+      "require": "./dist/lun-plugins-babel.production.cjs",
+      "import": "./dist/lun-plugins-babel.production.js",
+      "types": "./dist/babel.index.d.ts"
     },
     "./package.json": "./package.json"
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
