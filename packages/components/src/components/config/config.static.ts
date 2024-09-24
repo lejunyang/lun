@@ -93,6 +93,8 @@ export const GlobalStaticConfig = new Proxy(
         tooltip: commonIgnored,
       },
     ),
+    /** define transformers to transform element's attributes to props */
+    attrTransform: reduceFromComps(() => ({} as Record<string, (val: string | null) => any>), true, true),
     nameMap: (() => {
       const result = {} as { readonly [k in ComponentKey]: string };
       components.forEach((name) => {

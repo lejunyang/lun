@@ -70,6 +70,7 @@ export interface CustomElementOptions {
   onCE?: CECallback;
   onConnected?: (CE: VueElement, parent?: VueElement) => void;
   ignoreAttrs?: (string | RegExp)[];
+  attrTransform?: (key: string, val: string | null, CE: VueElement) => any;
 }
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
@@ -507,17 +508,15 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   }
 
   protected _setAttr(key: string) {
-    if (
-      toArrayIfNotNil(this._def.ignoreAttrs).some(
-        (pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key)),
-      )
-    )
+    const { ignoreAttrs, attrTransform } = this._def;
+    if (toArrayIfNotNil(ignoreAttrs).some((pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key))))
       return;
     const has = this.hasAttribute(key);
     let value: any = has ? this.getAttribute(key) : REMOVAL;
     const camelKey = camelize(key);
-    if (has && this._numberProps && this._numberProps[camelKey]) {
-      value = toNumberIfValid(value);
+    if (has) {
+      if (attrTransform) value = attrTransform(key, value, this);
+      else if (this._numberProps?.[camelKey]) value = toNumberIfValid(value);
     }
     this._setProp(camelKey, value, false, true);
   }

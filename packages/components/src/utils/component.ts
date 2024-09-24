@@ -193,6 +193,12 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     options.onConnected = (CE: HTMLElement, parent: HTMLElement) => {
       CE.toggleAttribute('data-root', !parent); // set root attr for root element
     };
+    options.attrTransform = (key: string, value: string | null) => {
+      const { attrTransform } = GlobalStaticConfig;
+      if (attrTransform[compKey][key]) return attrTransform[compKey][key](value);
+      else if (attrTransform.common[key]) return attrTransform.common[key](value);
+      return value;
+    };
     const noShadow = shadowOptions === null || shadowOptions?.mode === 'closed';
     if (!noShadow) propsClone.innerStyle = PropString();
     const originalSetup = setup;

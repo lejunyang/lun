@@ -23,6 +23,6 @@ export function reduceFromComps<T>(getter: () => T, allComp = true, includeCommo
     result[name] = getter();
     return result;
   }, {} as any);
-  if (includeCommon !== false && !allComp) res.common = getter();
-  return res;
+  if (includeCommon || (includeCommon !== false && !allComp)) res.common = getter();
+  return Object.seal(res);
 }
