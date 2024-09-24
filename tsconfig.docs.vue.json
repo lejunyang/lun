@@ -4,6 +4,8 @@
     "composite": true,
     "jsx": "preserve",
     "jsxImportSource": "vue",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "types": [
       "./packages/components/dist/elements-types-vue.d.ts",
       "vite/client",

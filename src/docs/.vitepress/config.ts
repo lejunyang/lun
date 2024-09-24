@@ -3,7 +3,7 @@ import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
 import { replaceCodeTags } from './replaceCodeTags';
 import viteConfig from '../../../vite.config';
-import { vUpdateForVueTemplate } from '@lun/plugins';
+import { vUpdate } from '@lun/plugins/vue';
 
 const wrapLink = (link: string, lang: string) => {
   if (lang === 'zh-CN') return link;
@@ -172,7 +172,7 @@ export default defineConfig({
     template: {
       compilerOptions: {
         isCustomElement: (tag) => tag.startsWith('l-'),
-        nodeTransforms: [transformLazyShow, vUpdateForVueTemplate],
+        nodeTransforms: [transformLazyShow, vUpdate],
       },
     },
   },

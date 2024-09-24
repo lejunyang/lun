@@ -11,7 +11,7 @@ const cProp = 'contentVisibility',
   dProp = 'display';
 let targetValue: 'hidden' | 'none';
 const targetProp =
-  typeof document !== undefined && cProp in document.body.style
+  typeof document !== 'undefined' && cProp in document.body.style
     ? ((targetValue = 'hidden'), cProp)
     : ((targetValue = 'none'), dProp);
 

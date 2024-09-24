@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
-import { vUpdateForBabel } from '@lun/plugins';
+import { vUpdate } from '@lun/plugins/babel';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 const processPath = (path: string) => fileURLToPath(new URL(path, import.meta.url));
@@ -13,7 +13,7 @@ export default defineConfig({
   plugins: [
     vueJsx({
       isCustomElement: (tag) => tag.startsWith('l-'),
-      babelPlugins: [vUpdateForBabel],
+      babelPlugins: [vUpdate],
     }),
   ],
   server: {
@@ -44,7 +44,8 @@ export default defineConfig({
             config: processPath('./packages/components/src/components/config/index'),
             utils: processPath('./packages/components/src/utils/index'),
             hooks: processPath('./packages/components/src/hooks/index'),
-            '@lun/plugins': processPath('./packages/plugins/index'),
+            '@lun/plugins/babel': processPath('./packages/plugins/src/babel/babel.index.ts'),
+            '@lun/plugins/vue': processPath('./packages/plugins/src/vue/vue.index.ts'),
             '@lun/components': processPath('./packages/components/index'),
             '@lun/core/date-dayjs': processPath('./packages/core/src/presets/date.dayjs.ts'),
             '@lun/theme/custom': processPath('./packages/theme/src/custom/custom.ts'),
