@@ -39,7 +39,6 @@ const parts = ['root', 'mask', 'panel', 'header', 'close', 'content', 'footer'] 
 const compParts = getCompParts(name, parts);
 /** a map to store all showing dialogs with mask in each container, to make sure only one mask is shown in each container at the same time. */
 const containerShowing = reactive(new WeakMap<HTMLElement | Window, HTMLElement[]>());
-// FIXME destroyAll 直接把所有dialog移除了，未能触发close，导致document仍被锁定滚动
 export const Dialog = Object.assign(
   defineSSRCustomElement({
     name,
@@ -65,7 +64,8 @@ export const Dialog = Object.assign(
       const [initFocus, restoreFocus] = useFocusTrap();
       let lastActiveElement: HTMLElement | undefined,
         lastContainer = ref<HTMLElement>(),
-        dialogLeaveResolver: (() => void) | undefined;
+        dialogLeaveResolver: (() => void) | undefined,
+        isUnmounting: boolean;
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
         virtualGetMerge(
           {
@@ -98,6 +98,7 @@ export const Dialog = Object.assign(
                   containerShowing.set(container, showing);
                   lastContainer.value = undefined;
                 }
+                if (isUnmounting) return;
                 const [promise, resolve] = withResolvers();
                 dialogLeaveResolver = resolve;
                 return promise;
@@ -164,7 +165,10 @@ export const Dialog = Object.assign(
       };
 
       // emit close event doesn't work in onBeforeUnmount
-      onBeforeUnmount(methods.close);
+      onBeforeUnmount(() => {
+        isUnmounting = true;
+        methods.close();
+      });
 
       useCEExpose(
         {

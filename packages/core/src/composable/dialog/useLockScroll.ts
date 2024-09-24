@@ -13,6 +13,7 @@ import { useTempInlineStyle } from './useTempInlineStyle';
 
 const lockNumMap = new WeakMap<HTMLElement, number>(),
   scrollPositionMap = new WeakMap<HTMLElement, [number, number]>();
+const [storeAndSetStyle, restoreElStyle] = useTempInlineStyle(true);
 export function useLockScroll({
   scrollLeftName = '--lock-scroll-left',
   scrollTopName = '--lock-scroll-top',
@@ -21,8 +22,6 @@ export function useLockScroll({
   scrollTopName?: `--${string}`;
 } = {}) {
   const localLocks = new Set<HTMLElement>();
-
-  const [storeAndSetStyle, restoreElStyle] = useTempInlineStyle(true);
 
   function lock(el: HTMLElement) {
     const prevNum = lockNumMap.get(el);
