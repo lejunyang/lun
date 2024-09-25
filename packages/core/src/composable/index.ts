@@ -10,3 +10,4 @@ export * from './virtual';
 export * from './watermark';
 export * from './createCollector';
 export * from './createHooks';
+export * from './createUseObserver';
