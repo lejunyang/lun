@@ -21,6 +21,12 @@ export declare const GlobalStaticConfig: {
    * if set to 'auto', the states will be reflected to attribute when native CustomElementState is not supported,
    */
   reflectStateToAttr: 'auto' | 'always' | 'never';
+  /** determine whether to use dataset or class to reflect component's state to attribute */
+  stateAttrType: 'dataset' | 'class';
+  /** determine what attributes to ignore, so that they won't trigger component's update. different from other configurations, 'common' options will not be merged with other components' options. */
+  ignoreAttrsUpdate: Record<ComponentKey | 'common', (string | RegExp)[] | null>;
+  /** define transformers to transform element's attributes to props */
+  attrTransform: Record<ComponentKey | 'common', Record<string, (value: string | null) => any>>;
   nameMap: {
     readonly [k in ComponentKey]: string;
   };
