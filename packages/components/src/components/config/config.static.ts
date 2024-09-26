@@ -33,6 +33,7 @@ export const openShadowComponents = freeze([
   'radio',
   'radio-group',
   'range',
+  'scroll-view',
   'select',
   'select-option',
   'select-optgroup',
