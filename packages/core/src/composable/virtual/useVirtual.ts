@@ -5,7 +5,7 @@ import {
   at,
   debounce,
   ensureNumber,
-  getCachedComputedStyle,
+  isRTL,
   getRect,
   getWindow,
   isElement,
@@ -50,7 +50,6 @@ export function useVirtualList(options: UseVirtualOptions) {
   const keyElementMap = new Map<any, Element>(),
     keySizeMap = reactive(new Map<any, number>());
   let pendingMeasuredIndex = -1,
-    isRTL = false,
     containerEl: HTMLElement;
   const state = reactive({
     scrollOffset: ensureNumber(runIfFn(options.initialScrollOffset), 0),
@@ -100,7 +99,6 @@ export function useVirtualList(options: UseVirtualOptions) {
     const { container, observeContainerSize } = options;
     containerEl = unrefOrGet(container)!;
     if (!isHTMLElement(containerEl)) return;
-    isRTL = getCachedComputedStyle(containerEl).direction === 'rtl';
     const targetWin = getWindow(containerEl);
 
     // TODO scroll to initial position
@@ -111,7 +109,7 @@ export function useVirtualList(options: UseVirtualOptions) {
     const updateOffset = (scrolling = false) =>
       updateScroll(
         // when it's RTL, scrollLeft is negative
-        options.horizontal ? containerEl.scrollLeft * (isRTL ? -1 : 1) : containerEl.scrollTop,
+        options.horizontal ? containerEl.scrollLeft * (isRTL(containerEl) ? -1 : 1) : containerEl.scrollTop,
         scrolling,
       );
     isSupportScrollEnd()

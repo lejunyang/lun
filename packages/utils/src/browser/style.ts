@@ -108,3 +108,7 @@ export function getCachedComputedStyle(el: Element): CSSStyleDeclaration {
   }
   return computedStyle;
 }
+
+export function isRTL(el: Element) {
+  return getCachedComputedStyle(el).direction === 'rtl';
+}

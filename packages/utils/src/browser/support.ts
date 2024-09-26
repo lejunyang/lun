@@ -95,6 +95,8 @@ export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
 export const supportCSSDisplayP3 = supportCSSSupports && supports!('color', 'color(display-p3 1 1 1)');
 export const supportCSSOklch = supportCSSSupports && supports!('color', 'oklch(1% 1 1)');
 
+export const supportCSSRegisterProperty = supportCSSSupports && CSS.registerProperty;
+
 export const supportTouch = inBrowser && 'ontouchstart' in document.body;
 
 export const isSupportSlotAssign = cacheFunctionResult(() => isFunction(HTMLSlotElement.prototype.assign));
