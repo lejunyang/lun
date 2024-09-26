@@ -1,20 +1,17 @@
 import { freeze } from '@lun/utils';
-import {
-  GetEventPropsFromEmits,
-  PropString,
-  CommonProps,
-  PropBoolean,
-} from 'common';
+import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropNumOrArr } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const scrollViewProps = freeze({
   observeResize: PropBoolean(),
-  scrollProgressVar: PropString(),
+  scrollXPercentVarName: PropString(),
+  scrollYPercentVarName: PropString(),
   intersectionAttr: PropString(),
+  xThresholds: PropNumOrArr(),
+  yThresholds: PropNumOrArr(),
 });
 
-export const scrollViewEmits = freeze({
-});
+export const scrollViewEmits = freeze({});
 
 export type ScrollViewSetupProps = ExtractPropTypes<typeof scrollViewProps> & CommonProps;
 export type ScrollViewEvents = GetEventPropsFromEmits<typeof scrollViewEmits>;

@@ -3,13 +3,14 @@ import { createDefineElement } from 'utils';
 import { scrollViewEmits, scrollViewProps } from './type';
 import { useCE } from 'hooks';
 import { getCompParts } from 'common';
-import { getRect, isRTL, on } from '@lun/utils';
+import { getRect, isRTL, on, rafThrottle, supportCSSRegisterProperty } from '@lun/utils';
 import { computed, reactive, watchEffect } from 'vue';
 import { useResizeObserver } from '@lun/core';
 
 const name = 'scroll-view';
-const parts = [] as const;
+const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
+const registered = new Set<string>();
 export const ScrollView = defineSSRCustomElement({
   name,
   props: scrollViewProps,
@@ -19,10 +20,31 @@ export const ScrollView = defineSSRCustomElement({
     const state = reactive({
       width: 0,
       height: 0,
-      xScrollOffset: 0,
-      yScrollOffset: 0,
+      scrollXOffset: 0,
+      scrollYOffset: 0,
       scrolling: false,
     });
+    const scrollProgress = computed(
+      () => [state.scrollXOffset / CE.scrollWidth, state.scrollYOffset / CE.scrollHeight] as const,
+    );
+    if (supportCSSRegisterProperty) {
+      const register = (name: string) => {
+        if (!registered.has(name)) {
+          registered.add(name);
+          (supportCSSRegisterProperty as Exclude<typeof supportCSSRegisterProperty, false>)({
+            name: name,
+            syntax: '<number>',
+            initialValue: '0',
+            inherits: false,
+          });
+        }
+      };
+      watchEffect(() => {
+        const { scrollXPercentVarName, scrollYPercentVarName } = props;
+        if (scrollXPercentVarName) register(scrollXPercentVarName);
+        if (scrollYPercentVarName) register(scrollYPercentVarName);
+      });
+    }
 
     const setSize = (rect: DOMRect | ResizeObserverSize) => {
       state.width = (rect as DOMRect).width ?? (rect as ResizeObserverSize).inlineSize;
@@ -39,16 +61,29 @@ export const ScrollView = defineSSRCustomElement({
       },
     });
 
-    on(CE, 'scroll', () => {
-      const xScrollOffset = CE.scrollLeft * (isRTL(CE) ? -1 : 1),
-        yScrollOffset = CE.scrollTop;
-      state.xScrollOffset = xScrollOffset;
-      state.yScrollOffset = yScrollOffset;
-    });
+    on(
+      CE,
+      'scroll',
+      rafThrottle(() => {
+        const scrollXOffset = CE.scrollLeft * (isRTL(CE) ? -1 : 1),
+          scrollYOffset = CE.scrollTop;
+        Object.assign(state, {
+          scrollXOffset,
+          scrollYOffset,
+          scrolling: true,
+        });
+      }),
+    );
 
     return () => {
+      const { scrollXPercentVarName, scrollYPercentVarName } = props,
+        { value } = scrollProgress;
 
-      return <slot style={{}}></slot>;
+      return (
+        <div part={compParts[0]} style={{ [scrollXPercentVarName!]: value[0], [scrollYPercentVarName!]: value[1] }}>
+          <slot></slot>
+        </div>
+      );
     };
   },
 });
@@ -56,4 +91,13 @@ export const ScrollView = defineSSRCustomElement({
 export type tScrollView = typeof ScrollView;
 export type iScrollView = InstanceType<tScrollView>;
 
-export const defineScrollView = createDefineElement(name, ScrollView, {}, parts, {});
+export const defineScrollView = createDefineElement(
+  name,
+  ScrollView,
+  {
+    scrollXPercentVarName: '--scroll-x-percent',
+    scrollYPercentVarName: '---scroll-y-percent',
+  },
+  parts,
+  {},
+);
