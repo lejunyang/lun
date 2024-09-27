@@ -41,6 +41,7 @@ import { camelize } from 'vue';
 import { defineText } from './text/Text';
 import { defineSkeleton } from './skeleton';
 import { defineVirtualRenderer } from './virtual-renderer';
+import { defineScrollView } from './scroll-view';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -90,6 +91,7 @@ export function defineAllComponents() {
     defineText,
     defineSkeleton,
     defineVirtualRenderer,
+    defineScrollView,
   };
   // first define those already exist in the document for SSR
   discover(document.body, (comp) => {
@@ -175,6 +177,7 @@ export * from './popover';
 export * from './progress';
 export * from './radio';
 export * from './range';
+export * from './scroll-view';
 export * from './select';
 export * from './skeleton';
 export * from './spin';
