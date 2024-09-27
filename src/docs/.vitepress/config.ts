@@ -82,6 +82,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           items: [
             { text: locales[lang].sidebar.other.renderer, link: wrapLink('/components/custom-renderer/', lang) },
             { text: locales[lang].sidebar.other.contextConfig, link: wrapLink('/components/context-config/', lang) },
+            { text: locales[lang].sidebar.other.scrollView, link: wrapLink('/components/scroll-view/', lang) },
             { text: locales[lang].sidebar.other.staticConfig, link: wrapLink('/components/static-config/', lang) },
             { text: locales[lang].sidebar.other.teleport, link: wrapLink('/components/teleport-holder/', lang) },
             { text: locales[lang].sidebar.other.themeProvider, link: wrapLink('/components/theme-provider/', lang) },
