@@ -64,6 +64,8 @@ import {
   importTextSurfaceTheme,
 } from './text';
 import { importSkeletonBasicTheme } from './skeleton';
+import { importTreeBasicTheme } from './tree';
+import { importTreeItemBasicTheme } from './tree-item';
 
 export * from './button';
 export * from './calendar';
@@ -95,6 +97,8 @@ export * from './text';
 export * from './textarea';
 export * from './theme-provider';
 export * from './tour';
+export * from './tree';
+export * from './tree-item';
 
 export const importBasicTheme = () => {
   importThemeProviderBasicTheme();
@@ -131,6 +135,8 @@ export const importBasicTheme = () => {
   importTabItemBasicTheme();
   importTextBasicTheme();
   importSkeletonBasicTheme();
+  importTreeBasicTheme();
+  importTreeItemBasicTheme();
 };
 
 export const importOutlineTheme = () => {

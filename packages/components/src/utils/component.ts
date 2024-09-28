@@ -14,6 +14,7 @@ import {
   fromObject,
   getFirstOfIterable,
   isArray,
+  isCSSStyleSheet,
   isElement,
   isString,
   once,
@@ -131,12 +132,12 @@ export function createDefineElement(
 
 export function createImportStyle(
   compKey: OpenShadowComponentKey | 'common',
-  style: string | (() => string),
+  style: string | (() => string) | CSSStyleSheet | (() => CSSStyleSheet),
   variantName?: string,
 ) {
   return once(() => {
     style = runIfFn(style);
-    GlobalStaticConfig.styles[compKey]?.push(processStringStyle(style));
+    GlobalStaticConfig.styles[compKey]?.push(isCSSStyleSheet(style) ? style : processStringStyle(style));
     if (variantName) GlobalStaticConfig.availableVariants[compKey as OpenShadowComponentKey]?.add(variantName);
   });
 }

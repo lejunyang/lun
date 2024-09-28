@@ -1,0 +1,17 @@
+ul {
+  margin: unset;
+  padding: unset;
+}
+
+li {
+  counter-reset: tree-counter;
+  list-style: none;
+  &::before {
+    content: counters(tree-counter, '');
+    font-variant-numeric: tabular-nums; // to make numbers all same size
+    color: transparent;
+  }
+  &[data-root]::before {
+    content: '';
+  }
+}
