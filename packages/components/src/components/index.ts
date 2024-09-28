@@ -42,6 +42,7 @@ import { defineText } from './text/Text';
 import { defineSkeleton } from './skeleton';
 import { defineVirtualRenderer } from './virtual-renderer';
 import { defineScrollView } from './scroll-view';
+import { defineTree, defineTreeItem } from './tree';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -92,6 +93,8 @@ export function defineAllComponents() {
     defineSkeleton,
     defineVirtualRenderer,
     defineScrollView,
+    defineTree,
+    defineTreeItem,
   };
   // first define those already exist in the document for SSR
   discover(document.body, (comp) => {
@@ -190,5 +193,6 @@ export * from './textarea';
 export * from './theme-provider';
 export * from './tooltip';
 export * from './tour';
+export * from './tree';
 export * from './virtual-renderer';
 export * from './watermark';

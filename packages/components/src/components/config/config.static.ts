@@ -49,6 +49,8 @@ export const openShadowComponents = freeze([
   'theme-provider',
   'tooltip',
   'tour',
+  'tree',
+  'tree-item'
 ] as const);
 export const components = freeze([...openShadowComponents, ...noShadowComponents, ...closedShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
