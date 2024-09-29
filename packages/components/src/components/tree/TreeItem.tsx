@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { treeItemEmits, treeItemProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useExpose, useNamespace, useSlot } from 'hooks';
+import { useCEExpose, useExpose, useNamespace, useSlot } from 'hooks';
 import { getCompParts } from 'common';
 import { TreeCollector } from './collector';
 import { toGetterDescriptors, toPxIfNum } from '@lun/utils';
@@ -17,12 +17,14 @@ export const TreeItem = defineSSRCustomElement({
   emits: treeItemEmits,
   setup(props) {
     const ns = useNamespace(name);
-    useSetupEdit();
+    const [editComputed] = useSetupEdit();
 
     const context = TreeCollector.child()!;
     if (__DEV__ && !context) throw new Error(name + ' must be under tree component');
 
-    useExpose({}, toGetterDescriptors(context, { level: 'level', isLeaf: 'isLeaf' }));
+    const contextDesc = toGetterDescriptors(context, ['level', 'isLeaf']);
+    useExpose({}, { ...contextDesc, ...toGetterDescriptors(editComputed, ['disabled']) });
+    useCEExpose({}, contextDesc);
 
     const [renderLabel] = useSlot('label', () => props.label);
     return () => {

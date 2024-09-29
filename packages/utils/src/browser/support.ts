@@ -85,7 +85,7 @@ export const supportCSSSubgrid = supportCSSSupports && supports!('grid-template-
 // was checking anchor-name before, changed to inset-area because although anchor-name is experimental in chromium 117~124, but css anchor position is not fully supported
 // renamed to position-area
 export const supportCSSAnchor =
-  supportCSSSupports && (supports!('inset-area', 'top span-all') || supports!('position-area', 'top span-all'));
+  supportCSSSupports && (supports!('position-area', 'top span-all') || supports!('inset-area', 'top span-all'));
 
 export const supportCSSAutoHeightTransition = supportCSSSupports && supports!('height', 'calc-size(auto)');
 

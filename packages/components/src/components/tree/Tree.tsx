@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { treeEmits, treeProps } from './type';
-import { useNamespace } from 'hooks';
+import { useNamespace, useValueModel } from 'hooks';
 import { getCompParts } from 'common';
 import { TreeCollector } from './collector';
 import { useSetupEdit } from '@lun/core';
@@ -16,6 +16,7 @@ export const Tree = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     useSetupEdit();
+    const valueModel = useValueModel(props);
     const context = TreeCollector.parent();
 
     return () => {

@@ -97,16 +97,43 @@ export function toGetterDescriptors<
 >(
   obj: O,
   propertiesMap?: PM,
+  get?: (obj: O, k: K) => any,
+): {
+  [k in RemappedKey | Exclude<K, PMK>]: PropertyDescriptor;
+};
+
+export function toGetterDescriptors<
+  O extends object,
+  K extends keyof O = keyof O,
+  P extends K = K,
+>(
+  obj: O,
+  propsArr?: P[],
+  get?: (obj: O, k: K) => any,
+): {
+  [k in P]: PropertyDescriptor;
+};
+
+export function toGetterDescriptors<
+  O extends object,
+  K extends keyof O = keyof O,
+  PM extends Partial<Record<K, string | number | symbol>> = Record<K, K>,
+  PMK extends keyof PM = keyof PM,
+  RemappedKey extends string | number | symbol = PM[PMK] extends string | number | symbol ? PM[PMK] : never,
+>(
+  obj: O,
+  propertiesMap?: PM,
   get: (obj: O, k: K) => any = (obj, k) => obj[k],
 ): {
   [k in RemappedKey | Exclude<K, PMK>]: PropertyDescriptor;
 } {
-  const descriptors = {} as any, target = propertiesMap || obj;
+  const descriptors = {} as any,
+    target = propertiesMap || obj, isKeys = isArray(propertiesMap);
   for (const key in target) {
     const newKey = (propertiesMap as any)?.[key] || key;
     descriptors[newKey] = {
       get() {
-        return get(obj, key as any);
+        return get(obj, isKeys ? newKey : key as any);
       },
     };
   }
