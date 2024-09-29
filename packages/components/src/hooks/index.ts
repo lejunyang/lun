@@ -2,6 +2,7 @@ import { getCurrentInstance } from 'vue';
 
 export * from './shadowDom';
 export * from './useBreakpoint';
+export * from './useCollectorValue';
 export * from './useNameSpace';
 export * from './useOptions';
 export * from './useSlot';
