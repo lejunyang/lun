@@ -120,6 +120,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
               ],
             },
             // { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/') },
+            { text: locales[lang].sidebar.dataDisplay.tree, link: wrapLink('/components/tree/', lang) },
           ],
         },
         {

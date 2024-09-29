@@ -33,6 +33,7 @@ export default {
         form: 'Form 表单',
         formItem: 'FormItem 表单项',
         table: 'Table 表格',
+        tree: 'Tree 树',
       },
       pop: {
         menu: '弹出组件',
@@ -140,6 +141,7 @@ export default {
         form: 'Form',
         formItem: 'FormItem',
         table: 'Table',
+        tree: 'Tree',
       },
       pop: {
         menu: 'Pop',
