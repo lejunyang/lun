@@ -11,7 +11,7 @@ li {
     font-variant-numeric: tabular-nums; // to make numbers all same size
     color: transparent;
   }
-  &[data-root]::before {
+  &[data-root='true']::before {
     content: '';
   }
 }

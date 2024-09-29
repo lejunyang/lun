@@ -3,6 +3,7 @@ import { createDefineElement } from 'utils';
 import { treeEmits, treeProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
+import { TreeCollector } from './collector';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -13,6 +14,8 @@ export const Tree = defineSSRCustomElement({
   emits: treeEmits,
   setup(props) {
     const ns = useNamespace(name);
+
+    const context = TreeCollector.parent();
 
     return () => {
       return (
