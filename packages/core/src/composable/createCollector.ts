@@ -28,7 +28,12 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
   items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
   addItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
   removeItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
-  getIndex(child: any): number | undefined;
+  getChildVmIndex(child: any): number | undefined;
+  getChildrenCollect(itemsArr: Ref<InstanceWithProps<ChildProps>[]>): {
+    addItem: (child: UnwrapRef<InstanceWithProps<ChildProps>>) => void;
+    removeItem: (child: UnwrapRef<InstanceWithProps<ChildProps>>) => void;
+    getChildVmIndex: (child: any) => number | undefined;
+  };
 };
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
@@ -80,6 +85,8 @@ export function createCollector<
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name ? '-' + name : ''}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name ? '-' + name : ''}` : '');
 
+  const childrenVmLevelMap = tree ? new WeakMap<any, Ref<number>>() : null;
+
   const parent = (params?: {
     extraProvide?: PE;
     lazyChildren?: boolean;
@@ -102,51 +109,62 @@ export function createCollector<
         items.value = [];
       });
     }
-    const getChildVmIndex = (childVm: any) => items.value.indexOf(childVm);
+
+    const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>) => {
+      const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
+      return {
+        addItem(child: any) {
+          const el = child && getChildEl(child)!,
+            {
+              value,
+              value: { length },
+            } = itemsArr;
+          if (!el) return;
+          // if 'onlyFor' is defined, accepts child only with the same value
+          if (
+            finalOnlyFor &&
+            instance?.props[finalOnlyFor] &&
+            child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
+          )
+            return;
+          (el as any)[CHILD_KEY] = true;
+          childrenVmElMap.set(child, el);
+          // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
+          // otherwise, we find previous child in dom order to insert the index
+          if (state.parentMounted && sort && length) {
+            const getPosition = (i: number) => {
+              const res = el.compareDocumentPosition(getChildEl(value[i] as any));
+              // 4: Node.DOCUMENT_POSITION_FOLLOWING 2: Node.DOCUMENT_POSITION_PRECEDING
+              return res & 4 || res & 2;
+            };
+            let prevIndex = nearestBinarySearch(0, length - 1, getPosition, 3);
+            if (!prevIndex) {
+              // prevIndex is 0, check if we should insert before it or next it
+              const pos = getPosition(0);
+              if (pos & 4) prevIndex -= 1;
+            }
+            value.splice(prevIndex + 1, 0, child);
+          } else {
+            value.push(child);
+          }
+        },
+        removeItem(child: any) {
+          const index = getChildVmIndex(child);
+          if (index > -1) {
+            itemsArr.value.splice(index, 1);
+            if (onChildRemoved) onChildRemoved(child as any, index);
+          }
+        },
+        getChildVmIndex,
+      };
+    };
 
     const provideContext = Object.assign(extraProvide || {}, {
       [COLLECTOR_KEY]: true,
       parent: instance,
       items,
-      addItem(child) {
-        const el = child && getChildEl(child as any)!,
-          {
-            value,
-            value: { length },
-          } = items;
-        if (!el) return;
-        // if 'onlyFor' is defined, accepts child only with the same value
-        if (finalOnlyFor && instance?.props[finalOnlyFor] && child.props[finalOnlyFor] !== instance.props[finalOnlyFor])
-          return;
-        (el as any)[CHILD_KEY] = true;
-        childrenVmElMap.set(child, el);
-        // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
-        // otherwise, we find previous child in dom order to insert the index
-        if (state.parentMounted && sort && length) {
-          const getPosition = (i: number) => {
-            const res = el.compareDocumentPosition(getChildEl(value[i] as any));
-            // 4: Node.DOCUMENT_POSITION_FOLLOWING 2: Node.DOCUMENT_POSITION_PRECEDING
-            return res & 4 || res & 2;
-          };
-          let prevIndex = nearestBinarySearch(0, length - 1, getPosition, 3);
-          if (!prevIndex) {
-            // prevIndex is 0, check if we should insert before it or next it
-            const pos = getPosition(0);
-            if (pos & 4) prevIndex -= 1;
-          }
-          value.splice(prevIndex + 1, 0, child);
-        } else {
-          value.push(child);
-        }
-      },
-      removeItem(child) {
-        const index = getChildVmIndex(child);
-        if (index > -1) {
-          items.value.splice(index, 1);
-          if (onChildRemoved) onChildRemoved(child as any, index);
-        }
-      },
-      getIndex: getChildVmIndex,
+      getChildrenCollect,
+      ...getChildrenCollect(items),
     } as CollectorContext<ParentProps, ChildProps>) as CollectorContext<ParentProps, ChildProps, PE>;
     provide(COLLECTOR_KEY, provideContext);
     return {
@@ -156,8 +174,9 @@ export function createCollector<
       },
       childrenVmElMap,
       vm: instance,
-      getChildVmIndex,
+      getChildVmIndex: provideContext.getChildVmIndex,
       provided: provideContext,
+      getChildVmLevel: (tree ? (child: any) => childrenVmLevelMap!.get(child)?.value : null) as (Tree extends true ? (child: any) => number | undefined : null)
     };
   };
   const child = <T = undefined>(collect = true, defaultContext?: T) => {
@@ -166,40 +185,55 @@ export function createCollector<
       ParentProps,
       ChildProps,
       PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean } & (Tree extends true
-          ? { readonly isLeaf: boolean; readonly level: number }
+          ? {
+              readonly isLeaf: boolean;
+              readonly level: number;
+              readonly nestedItems: InstanceWithProps<ChildProps>[];
+            }
           : {})
     >;
     let context = inject<T extends undefined ? C | undefined : C>(COLLECTOR_KEY, defaultContext as any);
 
-    const treeDescriptors = (() => {
-      if (tree) {
-        const isLeaf = ref(null as null | boolean),
-          level = ref(0);
-        const nestedChildCallback = () => ((isLeaf.value = false), level.value);
-        provide(CHILD_KEY, nestedChildCallback);
-        const callIfNestedChild = inject<typeof nestedChildCallback>(CHILD_KEY);
-        if (callIfNestedChild) level.value = callIfNestedChild() + 1;
-        onMounted(() => {
-          if (isLeaf.value == null) isLeaf.value = true;
-        });
-        return toUnrefGetterDescriptors({ isLeaf, level });
-      }
-    })();
-
     // @ts-ignore
     if (context?.[COLLECTOR_KEY]) {
-      const { getIndex, items } = context;
+      const treeDescriptors = (() => {
+        if (tree) {
+          const isLeaf = ref(null as null | boolean),
+            level = ref(0),
+            nestedItems = ref([]);
+          const provideMethods = {
+            getLevel: () => ((isLeaf.value = false), level.value),
+            ...context.getChildrenCollect(nestedItems),
+          };
+          provide(CHILD_KEY, provideMethods);
+          const parentProvide = inject<typeof provideMethods>(CHILD_KEY);
+          if (parentProvide) {
+            level.value = parentProvide.getLevel() + 1;
+          }
+          childrenVmLevelMap!.set(instance!, level);
+          onMounted(() => {
+            if (isLeaf.value == null) isLeaf.value = true;
+            parentProvide?.addItem(instance!);
+          });
+          onBeforeUnmount(() => {
+            parentProvide?.removeItem(instance!);
+          });
+          return toUnrefGetterDescriptors({ isLeaf, level, nestedItems });
+        }
+      })();
+
+      const { getChildVmIndex, items } = context;
       // create a new context with index and isStart/isEnd props for every child
       context = Object.defineProperties({} as any, {
         ...toGetterDescriptors(context),
         index: {
-          get: () => getIndex(instance) ?? -1,
+          get: () => getChildVmIndex(instance) ?? -1,
         },
         isStart: {
-          get: () => getIndex(instance) === 0,
+          get: () => getChildVmIndex(instance) === 0,
         },
         isEnd: {
-          get: () => getIndex(instance) === items.value.length - 1,
+          get: () => getChildVmIndex(instance) === items.value.length - 1,
         },
         ...treeDescriptors,
       });
