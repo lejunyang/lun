@@ -1,30 +1,24 @@
 import { freeze } from '@lun/utils';
-import {
-  GetEventPropsFromEmits,
-  PropString,
-  themeProps,
-  createTransitionProps,
-  CommonProps,
-  PropObjOrBool,
-  Prop,
-} from 'common';
+import { GetEventPropsFromEmits, themeProps, CommonProps, Prop, valueProp, PropNumber, editStateProps } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const treeProps = freeze({
   ...themeProps,
+  ...editStateProps,
+  indentSize: PropNumber(),
 });
 
-export const treeEmits = freeze({
-});
+export const treeEmits = freeze({});
 
 export type TreeSetupProps = ExtractPropTypes<typeof treeProps> & CommonProps;
 export type TreeEvents = GetEventPropsFromEmits<typeof treeEmits>;
 export type TreeProps = Partial<TreeSetupProps> & TreeEvents;
 
-
 export const treeItemProps = freeze({
   ...themeProps,
-  label: Prop()
+  ...editStateProps,
+  label: Prop(),
+  value: valueProp,
 });
 
 export const treeItemEmits = freeze({});

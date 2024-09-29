@@ -4,6 +4,7 @@ import { treeEmits, treeProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TreeCollector } from './collector';
+import { useSetupEdit } from '@lun/core';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -14,7 +15,7 @@ export const Tree = defineSSRCustomElement({
   emits: treeEmits,
   setup(props) {
     const ns = useNamespace(name);
-
+    useSetupEdit();
     const context = TreeCollector.parent();
 
     return () => {
@@ -30,4 +31,12 @@ export const Tree = defineSSRCustomElement({
 export type tTree = typeof Tree;
 export type iTree = InstanceType<tTree>;
 
-export const defineTree = createDefineElement(name, Tree, {}, parts, {});
+export const defineTree = createDefineElement(
+  name,
+  Tree,
+  {
+    indentSize: 20,
+  },
+  parts,
+  {},
+);

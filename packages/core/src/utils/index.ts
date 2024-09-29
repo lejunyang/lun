@@ -1,5 +1,5 @@
 import { toGetterDescriptors } from '@lun/utils';
-import { MaybeRefLikeOrGetter } from './ref';
+import { MaybeRefLikeOrGetter, unrefOrGet } from './ref';
 
 export * from './ref';
 
@@ -10,5 +10,5 @@ export function toUnrefGetterDescriptors<
   PM extends Partial<Record<K, string>> = Partial<Record<K, string>>,
 >(obj: M, propertiesMap?: PM): Record<PM[keyof PM] & {}, PropertyDescriptor> {
   // @ts-ignore
-  return toGetterDescriptors(propertiesMap, propertiesMap, (_, k) => unrefOrGet(obj)?.[k]);
+  return toGetterDescriptors(obj, propertiesMap, (_, k) => unrefOrGet(obj[k]));
 }
