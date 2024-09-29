@@ -15,9 +15,9 @@ import {
   ref,
   onUnmounted,
   shallowReactive,
-  reactive,
 } from 'vue';
-import { getPreviousMatchElInTree, isString, toGetterDescriptors } from '@lun/utils';
+import { isString, nearestBinarySearch, toGetterDescriptors } from '@lun/utils';
+import { toUnrefGetterDescriptors } from '../utils';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
@@ -47,6 +47,7 @@ export function createCollector<
   P extends any = Data,
   C extends any = Data,
   PE extends any = Data,
+  Tree extends boolean = false,
   ParentProps = P extends VueElementConstructor<infer T>
     ? T
     : P extends ComponentObjectPropsOptions
@@ -64,6 +65,7 @@ export function createCollector<
   getParentEl?: (vm: InstanceWithProps<NoInfer<ParentProps>>) => Element;
   getChildEl?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => Element;
   collectOnSetup?: boolean;
+  tree?: Tree;
 }) {
   const {
     sort,
@@ -72,10 +74,11 @@ export function createCollector<
     getParentEl = defaultGetEl,
     getChildEl = defaultGetEl,
     collectOnSetup,
+    tree,
   } = options || {};
   const finalOnlyFor = onlyForProp && !isString(onlyForProp) ? 'onlyFor' : onlyForProp;
-  const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name || Date.now()}` : '');
-  const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name || Date.now()}` : '');
+  const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name ? '-' + name : ''}` : '');
+  const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name ? '-' + name : ''}` : '');
 
   const parent = (params?: {
     extraProvide?: PE;
@@ -83,7 +86,6 @@ export function createCollector<
     onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number) => void;
   }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
-    const childrenElIndexMap = reactive(new Map<Element, number>()); // need to iterate, use Map other than WeakMap, remember clear when unmount
     const childrenVmElMap = new WeakMap<any, Element>(); // use `UnwrapRef<InstanceWithProps<ChildProps>>` as key will make FormItemCollector's type error...
     const state = shallowReactive({
       parentMounted: false,
@@ -95,81 +97,53 @@ export function createCollector<
       onMounted(() => {
         state.parentMounted = true;
         state.parentEl = getParentEl(instance);
-        if (!collectOnSetup) {
-          items.value.forEach((child, index) => {
-            const el = getChildEl(child as any);
-            if (el) childrenElIndexMap.set(el, index);
-          });
-        }
       });
       onUnmounted(() => {
-        childrenElIndexMap.clear();
         items.value = [];
       });
     }
-    const getChildVmIndex = (childVm: any) => childrenElIndexMap.get(childrenVmElMap.get(childVm)!);
+    const getChildVmIndex = (childVm: any) => items.value.indexOf(childVm);
 
     const provideContext = Object.assign(extraProvide || {}, {
       [COLLECTOR_KEY]: true,
       parent: instance,
       items,
       addItem(child) {
-        const el = child && getChildEl(child as any)!;
-        if (el) {
-          // if 'onlyFor' is defined, accepts child only with the same value
-          if (
-            finalOnlyFor &&
-            instance?.props[finalOnlyFor] &&
-            child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
-          )
-            return;
-          (el as any)[CHILD_KEY] = true;
-          childrenVmElMap.set(child, el);
-          // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
-          // otherwise, we find previous child in dom order to insert the index
-          if (state.parentMounted && sort) {
-            const prev = getPreviousMatchElInTree(el, {
-              isMatch: (el) => (el as any)[CHILD_KEY],
-              shouldStop: (el) => el === state.parentEl,
-            });
-            let prevIndex = childrenElIndexMap.get(prev!);
-            if (prevIndex != null) {
-              items.value.splice(prevIndex + 1, 0, child);
-              childrenElIndexMap.set(el, prevIndex + 1);
-            } else {
-              items.value.unshift(child);
-              childrenElIndexMap.set(el, 0);
-              prevIndex = -1;
-            }
-            // 0 1 2(newOne) 2: prevIndex = 1, 1 + 2 < 4
-            // 0 1 2 3(newOne): prevIndex = 2, 2 + 2 = 4, no need to update
-            if (prevIndex! + 2 < items.value.length) {
-              // update other elements' index
-              for (const [otherEl, index] of childrenElIndexMap.entries()) {
-                if (index > prevIndex && otherEl !== el) childrenElIndexMap.set(otherEl, index + 1);
-              }
-            }
-          } else {
-            items.value.push(child);
-            if (collectOnSetup) childrenElIndexMap.set(el, items.value.length - 1);
+        const el = child && getChildEl(child as any)!,
+          {
+            value,
+            value: { length },
+          } = items;
+        if (!el) return;
+        // if 'onlyFor' is defined, accepts child only with the same value
+        if (finalOnlyFor && instance?.props[finalOnlyFor] && child.props[finalOnlyFor] !== instance.props[finalOnlyFor])
+          return;
+        (el as any)[CHILD_KEY] = true;
+        childrenVmElMap.set(child, el);
+        // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
+        // otherwise, we find previous child in dom order to insert the index
+        if (state.parentMounted && sort && length) {
+          const getPosition = (i: number) => {
+            const res = el.compareDocumentPosition(getChildEl(value[i] as any));
+            // 4: Node.DOCUMENT_POSITION_FOLLOWING 2: Node.DOCUMENT_POSITION_PRECEDING
+            return res & 4 || res & 2;
+          };
+          let prevIndex = nearestBinarySearch(0, length - 1, getPosition, 3);
+          if (!prevIndex) {
+            // prevIndex is 0, check if we should insert before it or next it
+            const pos = getPosition(0);
+            if (pos & 4) prevIndex -= 1;
           }
+          value.splice(prevIndex + 1, 0, child);
+        } else {
+          value.push(child);
         }
       },
       removeItem(child) {
-        if (child) {
-          const el = childrenVmElMap.get(child)!;
-          const index = childrenElIndexMap.get(el);
-          if (index != null) {
-            items.value.splice(index, 1);
-            childrenElIndexMap.delete(el);
-            // update index
-            for (let i = index; i < items.value.length; i++) {
-              const vm = items.value[i];
-              const el = childrenVmElMap.get(vm);
-              el && childrenElIndexMap.set(el, i);
-            }
-            if (onChildRemoved) onChildRemoved(child as any, index);
-          }
+        const index = getChildVmIndex(child);
+        if (index > -1) {
+          items.value.splice(index, 1);
+          if (onChildRemoved) onChildRemoved(child as any, index);
         }
       },
       getIndex: getChildVmIndex,
@@ -180,7 +154,6 @@ export function createCollector<
         if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
         else return [];
       },
-      childrenElIndexMap,
       childrenVmElMap,
       vm: instance,
       getChildVmIndex,
@@ -192,9 +165,27 @@ export function createCollector<
     type C = CollectorContext<
       ParentProps,
       ChildProps,
-      PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean }
+      PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean } & (Tree extends true
+          ? { readonly isLeaf: boolean; readonly level: number }
+          : {})
     >;
     let context = inject<T extends undefined ? C | undefined : C>(COLLECTOR_KEY, defaultContext as any);
+
+    const treeDescriptors = (() => {
+      if (tree) {
+        const isLeaf = ref(null as null | boolean),
+          level = ref(0);
+        const nestedChildCallback = () => ((isLeaf.value = false), level.value);
+        provide(CHILD_KEY, nestedChildCallback);
+        const callIfNestedChild = inject<typeof nestedChildCallback>(CHILD_KEY);
+        if (callIfNestedChild) level.value = callIfNestedChild() + 1;
+        onMounted(() => {
+          if (isLeaf.value == null) isLeaf.value = true;
+        });
+        return toUnrefGetterDescriptors({ isLeaf, level });
+      }
+    })();
+
     // @ts-ignore
     if (context?.[COLLECTOR_KEY]) {
       const { getIndex, items } = context;
@@ -210,6 +201,7 @@ export function createCollector<
         isEnd: {
           get: () => getIndex(instance) === items.value.length - 1,
         },
+        ...treeDescriptors,
       });
       if (collect) {
         const performCollect = () => context!.addItem(instance);
