@@ -1,1 +1,14 @@
 @use '../../mixins' as *;
+
+@include b(tree-item) {
+  @include e(indent) {
+    position: relative;
+  }
+  @include e(toggle) {
+    position: absolute;
+    inset-inline-end: 6px;
+    font-size: 12px;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+  }
+}
