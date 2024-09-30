@@ -3,18 +3,15 @@ import { objectComputed, unrefOrGet } from '../../utils';
 import {
   AnyFn,
   at,
-  debounce,
   ensureNumber,
-  isRTL,
   getRect,
   getWindow,
   isElement,
   isFunction,
   isHTMLElement,
-  isSupportScrollEnd,
-  on,
   runIfFn,
   toArrayIfNotNil,
+  listenScroll,
 } from '@lun/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
@@ -22,8 +19,7 @@ import { tryOnScopeDispose } from '../../hooks';
 
 // inspired by tanstack/virtual
 
-const listenOption = { passive: true },
-  observeOption = { box: 'border-box' } as const;
+const observeOption = { box: 'border-box' } as const;
 
 export function useVirtualList(options: UseVirtualOptions) {
   const processedOptions = objectComputed(() => {
@@ -55,6 +51,7 @@ export function useVirtualList(options: UseVirtualOptions) {
     scrollOffset: ensureNumber(runIfFn(options.initialScrollOffset), 0),
     scrollAdjustments: 0,
     scrollDirection: null as 'forward' | 'backward' | null,
+    forward: false,
     scrolling: false,
     containerSize: +unrefOrGet(options.initialContainerSize)! || 0,
   });
@@ -64,13 +61,6 @@ export function useVirtualList(options: UseVirtualOptions) {
     (rect as ResizeObserverSize)[options.horizontal ? 'inlineSize' : 'blockSize'];
   const setContainerSize = (rect: DOMRect | ResizeObserverSize) => {
     state.containerSize = getSize(rect);
-  };
-  const updateScroll = (offset: number, isScrolling: boolean) => {
-    if (offset === state.scrollOffset) return; // in case horizontal scroll happens in vertical mode
-    state.scrollAdjustments = 0;
-    state.scrollDirection = isScrolling ? (state.scrollOffset < offset ? 'forward' : 'backward') : null;
-    state.scrollOffset = offset;
-    state.scrolling = isScrolling;
   };
   const syncScroll = (behavior?: 'auto' | 'smooth') => {
     containerEl.scrollTo({
@@ -101,33 +91,22 @@ export function useVirtualList(options: UseVirtualOptions) {
     if (!isHTMLElement(containerEl)) return;
     const targetWin = getWindow(containerEl);
 
-    // TODO scroll to initial position
+    // TODO scroll to initial position; set scrollOffset
     // syncScroll();
 
     // -------- scroll --------
-    let scrollEndDebounce: AnyFn;
-    const updateOffset = (scrolling = false) =>
-      updateScroll(
-        // when it's RTL, scrollLeft is negative
-        options.horizontal ? containerEl.scrollLeft * (isRTL(containerEl) ? -1 : 1) : containerEl.scrollTop,
-        scrolling,
-      );
-    isSupportScrollEnd()
-      ? cleanFns.push(on(containerEl, 'scrollend', () => updateOffset(), listenOption))
-      : (scrollEndDebounce = debounce(() => updateOffset(), options.scrollEndDelay || 150));
-    cleanFns.push(
-      on(
-        containerEl,
-        'scroll',
-        () => {
-          updateOffset(true);
-          scrollEndDebounce?.();
-        },
-        listenOption,
-      ),
+    listenScroll(
+      containerEl,
+      (updateState) => {
+        const offset = updateState[options.horizontal ? 'offsetX' : 'offsetY'];
+        if (offset === state.scrollOffset) return; // in case horizontal scroll happens in vertical mode
+        state.scrollAdjustments = 0;
+        state.scrollOffset = offset;
+        state.scrolling = updateState.scrolling;
+        state.forward = updateState[options.horizontal ? 'xForward' : 'yForward'];
+      },
+      options,
     );
-    // update initial scroll offset
-    updateOffset();
     // -------- scroll --------
 
     // initial container size

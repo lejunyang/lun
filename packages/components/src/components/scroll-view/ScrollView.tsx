@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { scrollViewEmits, scrollViewProps } from './type';
 import { useCE } from 'hooks';
 import { getCompParts } from 'common';
-import { getRect, hyphenate, isRTL, on, rafThrottle, supportCSSRegisterProperty } from '@lun/utils';
+import { getRect, hyphenate, listenScroll, supportCSSRegisterProperty } from '@lun/utils';
 import { computed, onMounted, reactive, watchEffect } from 'vue';
 import { useResizeObserver } from '@lun/core';
 
@@ -22,6 +22,7 @@ export const ScrollView = defineSSRCustomElement({
       height: 0,
       scrollXOffset: 0,
       scrollYOffset: 0,
+      scrolling: false,
     });
     const slotState = reactive({
       xOverflow: false,
@@ -76,27 +77,19 @@ export const ScrollView = defineSSRCustomElement({
       },
     });
 
-    on(
-      CE,
-      'scroll',
-      rafThrottle(() => {
-        const scrollXOffset = CE.scrollLeft * (isRTL(CE) ? -1 : 1),
-          scrollYOffset = CE.scrollTop,
-          xForward = scrollXOffset > state.scrollXOffset,
-          yForward = scrollYOffset > state.scrollYOffset;
-        Object.assign(state, {
-          scrollXOffset,
-          scrollYOffset,
-        });
-        Object.assign(slotState, {
-          xForward,
-          xBackward: !xForward,
-          yForward,
-          yBackward: !yForward,
-          // scrolling: true,
-        });
-      }),
-    );
+    listenScroll(CE, ({ xForward, yForward, offsetX, offsetY, scrolling }) => {
+      Object.assign(state, {
+        scrollXOffset: offsetX,
+        scrollYOffset: offsetY,
+        scrolling,
+      });
+      Object.assign(slotState, {
+        xForward,
+        xBackward: !xForward,
+        yForward,
+        yBackward: !yForward,
+      });
+    });
 
     return () => {
       const { scrollXPercentVarName, scrollYPercentVarName } = props,
