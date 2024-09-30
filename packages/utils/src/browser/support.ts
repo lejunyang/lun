@@ -1,5 +1,7 @@
+import { withResolvers } from '../promise';
 import { cacheFunctionResult } from '../function';
 import { isFunction } from '../is';
+import { hideDomAndAppend } from './_internal';
 
 export const isSupportCSSStyleSheet = cacheFunctionResult(
   () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document,
@@ -80,7 +82,8 @@ export const supportCSSSupports = supportCSSApi && isFunction((supports = CSS.su
 
 export const supportCSSScrollbarGutter = supportCSSSupports && supports!('scrollbar-gutter', 'stable');
 
-export const supportCSSSubgrid = supportCSSSupports && supports!('grid-template-rows', 'subgrid');
+const gridRows = 'grid-template-rows';
+export const supportCSSSubgrid = supportCSSSupports && supports!(gridRows, 'subgrid');
 
 // was checking anchor-name before, changed to inset-area because although anchor-name is experimental in chromium 117~124, but css anchor position is not fully supported
 // renamed to position-area
@@ -88,6 +91,35 @@ export const supportCSSAnchor =
   supportCSSSupports && (supports!('position-area', 'top span-all') || supports!('inset-area', 'top span-all'));
 
 export const supportCSSAutoHeightTransition = supportCSSSupports && supports!('height', 'calc-size(auto)');
+
+let gridAnimationResult: boolean | Promise<boolean>, gridChecked: boolean | undefined;
+export const isSupportCSSGridTrackAnimation = () => {
+  if (gridChecked) return gridAnimationResult;
+  if (!inBrowser) return false;
+  gridChecked = true;
+  const grid = document.createElement('div'),
+    inner = document.createElement('div');
+  inner.innerText = '1';
+  grid.append(inner);
+  const [promise, resolve] = withResolvers<boolean>();
+  let failTimer: any;
+  grid.ontransitionstart = (e: TransitionEvent) => {
+    if (e.propertyName === gridRows) {
+      clearTimeout(failTimer);
+      resolve((gridAnimationResult = true));
+      grid.remove();
+    }
+  };
+  hideDomAndAppend(grid, `display:grid;${gridRows}:0fr;transition:${gridRows} 1ms;`);
+  grid.offsetHeight; // trigger reflow, or setting style right after appending DOM cannot trigger transition start
+  // ontransitionstart requires about 10~20ms to be triggered after setting style, use 50ms to timeout
+  failTimer = setTimeout(() => {
+    resolve((gridAnimationResult = false));
+    grid.remove();
+  }, 50);
+  grid.style.setProperty(gridRows, '1fr');
+  return (gridAnimationResult = promise);
+};
 
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';

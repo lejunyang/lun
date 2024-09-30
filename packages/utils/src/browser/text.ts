@@ -1,3 +1,4 @@
+import { hideDomAndAppend } from './_internal';
 import { getCachedComputedStyle } from './style';
 import { inBrowser, supportClipboard } from './support';
 
@@ -15,9 +16,7 @@ export const copyText = (() => {
     if (!document.execCommand) return;
     if (!textarea?.isConnected) {
       textarea = document.createElement('textarea');
-      textarea.ariaHidden = 'true';
-      textarea.style.cssText = 'position:fixed;top:-100px;left:-100px;pointer-events:none;opacity:0;';
-      document.body.appendChild(textarea);
+      hideDomAndAppend(textarea);
     }
     textarea.value = text;
     textarea.select();
