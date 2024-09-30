@@ -1,0 +1,8 @@
+:host([hide-scroll-bar]) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+:host([hide-scroll-bar])::-webkit-scrollbar {
+  display: none;
+}

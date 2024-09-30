@@ -33,7 +33,11 @@ export const ScrollView = defineSSRCustomElement({
       yBackward: false,
     });
     const scrollProgress = computed(
-      () => [state.scrollXOffset / CE.scrollWidth, state.scrollYOffset / CE.scrollHeight] as const,
+      () =>
+        [
+          state.scrollXOffset / (CE.scrollWidth - state.width),
+          state.scrollYOffset / (CE.scrollHeight - state.height),
+        ] as const,
     );
     if (supportCSSRegisterProperty) {
       const register = (name: string) => {

@@ -9,6 +9,7 @@ export const scrollViewProps = freeze({
   intersectionAttr: PropString(),
   xThresholds: PropNumOrArr(),
   yThresholds: PropNumOrArr(),
+  hideScrollBar: PropBoolean(),
 });
 
 export const scrollViewEmits = freeze({});

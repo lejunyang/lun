@@ -66,6 +66,7 @@ import {
 import { importSkeletonBasicTheme } from './skeleton';
 import { importTreeBasicTheme } from './tree';
 import { importTreeItemBasicTheme } from './tree-item';
+import { importScrollViewBasicTheme } from './scroll-view';
 
 export * from './button';
 export * from './calendar';
@@ -84,6 +85,7 @@ export * from './popover';
 export * from './progress';
 export * from './radio';
 export * from './range';
+export * from './scroll-view';
 export * from './select';
 export * from './select-optgroup';
 export * from './select-option';
@@ -137,6 +139,7 @@ export const importBasicTheme = () => {
   importSkeletonBasicTheme();
   importTreeBasicTheme();
   importTreeItemBasicTheme();
+  importScrollViewBasicTheme();
 };
 
 export const importOutlineTheme = () => {
