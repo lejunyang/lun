@@ -2,6 +2,7 @@ import { withResolvers } from '../promise';
 import { cacheFunctionResult } from '../function';
 import { isFunction } from '../is';
 import { hideDomAndAppend } from './_internal';
+import { createElement } from './alias';
 
 export const isSupportCSSStyleSheet = cacheFunctionResult(
   () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document,
@@ -55,8 +56,7 @@ export const supportCustomElement = typeof customElements === 'object' && custom
 export const isSupportPlaintextEditable = cacheFunctionResult(() => {
   if (!inBrowser) return false;
   // https://stackoverflow.com/questions/10672081/how-to-detect-if-browser-supports-plaintext-only-value-in-contenteditable-para
-  const div = document.createElement('div');
-  div.setAttribute('contenteditable', 'PLAINTEXT-ONLY');
+  const div = createElement('div', { contenteditable: 'PLAINTEXT-ONLY' });
   return div.contentEditable === 'plaintext-only';
 });
 
@@ -97,10 +97,7 @@ export const isSupportCSSGridTrackAnimation = () => {
   if (gridChecked) return gridAnimationResult;
   if (!inBrowser) return false;
   gridChecked = true;
-  const grid = document.createElement('div'),
-    inner = document.createElement('div');
-  inner.innerText = '1';
-  grid.append(inner);
+  const grid = createElement('div', { innerHTML: '<div>1</div>' });
   const [promise, resolve] = withResolvers<boolean>();
   let failTimer: any;
   grid.ontransitionstart = (e: TransitionEvent) => {

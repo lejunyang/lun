@@ -4,6 +4,7 @@ import { DocPipAcceptStyle, docPipEmits, docPipProps } from './type';
 import {
   arrayFrom,
   copyCSSStyleSheetsIfNeed,
+  createElement,
   isCSSStyleSheet,
   isHTMLStyleElement,
   supportDocumentPictureInPicture,
@@ -35,11 +36,7 @@ export const DocPip = defineSSRCustomElement({
     const width = useBreakpoint(props, 'width', toNumberOrUndefined),
       height = useBreakpoint(props, 'height', toNumberOrUndefined);
 
-    const getStyleNode = (text: string) => {
-      const style = document.createElement('style');
-      style.textContent = text;
-      return style;
-    };
+    const getStyleNode = (text: string) => createElement('style', { textContent: text });
 
     const [editComputed] = useSetupEdit();
     const theme = useContextConfig('theme');
@@ -106,7 +103,7 @@ export const DocPip = defineSSRCustomElement({
         if (wrapThemeProvider) {
           const tagName = getElementFirstName('theme-provider');
           if (tagName) {
-            const newThemeProvider = document.createElement(tagName);
+            const newThemeProvider = createElement(tagName as any);
             Object.assign(newThemeProvider, theme, editComputed);
             newThemeProvider.append(...slotNodes);
             appendNodes = [newThemeProvider];

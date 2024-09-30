@@ -15,7 +15,7 @@ import {
   watchEffect,
 } from 'vue';
 import { useWatermark } from '@lun/core';
-import { arrayFrom, isTruthyOrZero, objectKeys, raf, setStyle } from '@lun/utils';
+import { arrayFrom, createElement, isTruthyOrZero, objectKeys, raf, setStyle } from '@lun/utils';
 
 const name = 'watermark';
 const none = 'none',
@@ -148,8 +148,7 @@ export const Watermark = defineSSRCustomElement({
       raf(() => {
         // TODO remove old CE if it's still connected
         if (CEParent?.isConnected) {
-          const newEl = document.createElement(getElementFirstName(name) as any) as HTMLElement;
-          Object.assign(newEl, freezedProps);
+          const newEl = createElement(getElementFirstName(name) as any, freezedProps) as HTMLElement;
           if (children.length) newEl.append(...children);
           CEParent.insertBefore(newEl, CENext);
         }

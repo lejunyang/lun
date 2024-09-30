@@ -2,6 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { TeleportHolderProps, teleportHolderProps } from './type';
 import { useContextConfig } from 'config';
+import { createElement } from '@lun/utils';
 
 const name = 'teleport-holder';
 export const TeleportHolder = defineSSRCustomElement({
@@ -31,11 +32,10 @@ export function createTeleportHolderInstance({
   if (!target) target = getFirstThemeProvider();
   const teleportHolderName = getElementFirstName(name)!;
   if (__DEV__ && !teleportHolderName) throw new Error(name + ' component is not registered, please register it first.');
-  const holder = document.createElement(teleportHolderName) as iTeleportHolder;
   const props: TeleportHolderProps = {
     ...initialProps,
   };
-  Object.assign(holder, props);
+  const holder = createElement(teleportHolderName as any, props) as iTeleportHolder;
   (target || document.body).appendChild(holder);
   return holder;
 }

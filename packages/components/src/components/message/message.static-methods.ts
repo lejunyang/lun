@@ -1,7 +1,7 @@
 import { getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { MessageOpenConfig, MessageProps } from './type';
 import { iMessage } from './Message';
-import { isString } from '@lun/utils';
+import { createElement, isString } from '@lun/utils';
 import { Status } from 'common';
 
 let message: iMessage;
@@ -21,7 +21,7 @@ export const methods = {
       const container = (getContainer && toElement(getContainer())) || getFirstThemeProvider() || document.body;
       const messageName = getElementFirstName('message')!;
       if (__DEV__ && !messageName) throw new Error('message component is not registered, please register it first.');
-      message = document.createElement(messageName) as iMessage;
+      message = createElement(messageName as any) as iMessage;
       container.append(message);
     }
     Object.assign(message, {

@@ -11,6 +11,7 @@ import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
 import {
   arrayFrom,
+  createElement,
   fromObject,
   getFirstOfIterable,
   isArray,
@@ -31,7 +32,7 @@ export function getElementFirstName(comp: ComponentKey) {
 export function createLunElement(comp: ComponentKey) {
   const name = getElementFirstName(comp)!;
   if (__DEV__ && !comp) throw new Error(`${comp} component is not registered, please register it first.`);
-  return document.createElement(name);
+  return createElement(name as any);
 }
 
 export function isLunComponent(el: any, comp: ComponentKey) {

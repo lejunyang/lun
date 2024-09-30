@@ -45,6 +45,7 @@ import {
   objectKeys,
   toArrayIfNotNil,
   isRegExp,
+  createElement,
 } from '@lun/utils';
 import { virtualParentMap } from './virtualParent';
 
@@ -627,9 +628,14 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
           sheets.push(css);
           return;
         }
-        const s = document.createElement('style');
-        if (nonce) s.setAttribute('nonce', nonce);
-        s.textContent = css as string;
+        const s = createElement(
+          'style',
+          {
+            nonce,
+            textContent: css,
+          },
+          { skipFalsyValue: true },
+        );
         this.shadowRoot!.appendChild(s);
         // record for HMR
         if (__DEV__) {

@@ -2,7 +2,7 @@
 
 import { ComputedRef, computed, ref, watchEffect } from 'vue';
 import { unrefOrGet, MaybeRefLikeOrGetter } from '../../utils/ref';
-import { isHTMLImageElement, isPreferDark, toArrayIfNotNil } from '@lun/utils';
+import { createElement, isHTMLImageElement, isPreferDark, toArrayIfNotNil } from '@lun/utils';
 
 export const FontGap = 3;
 
@@ -11,7 +11,7 @@ function prepareCanvas(
   height: number,
   ratio: number = 1,
 ): [ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, realWidth: number, realHeight: number] {
-  const canvas = document.createElement('canvas');
+  const canvas = createElement('canvas');
   const ctx = canvas.getContext('2d')!;
 
   const realWidth = width * ratio;
@@ -88,7 +88,7 @@ export function useWatermark(
      */
     if (!width || !height) {
       if (!textCtx) {
-        const canvas = document.createElement('canvas');
+        const canvas = createElement('canvas');
         textCtx = canvas.getContext('2d')!;
       }
       if (textCtx.measureText) {

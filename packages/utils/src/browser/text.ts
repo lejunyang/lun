@@ -1,4 +1,5 @@
 import { hideDomAndAppend } from './_internal';
+import { createElement } from './alias';
 import { getCachedComputedStyle } from './style';
 import { inBrowser, supportClipboard } from './support';
 
@@ -15,7 +16,7 @@ export const copyText = (() => {
         });
     if (!document.execCommand) return;
     if (!textarea?.isConnected) {
-      textarea = document.createElement('textarea');
+      textarea = createElement('textarea');
       hideDomAndAppend(textarea);
     }
     textarea.value = text;
@@ -45,7 +46,7 @@ export const measureTextWidth = (() => {
 
   function getCanvasContext() {
     if (!_context) {
-      _context = document.createElement('canvas').getContext('2d')!;
+      _context = createElement('canvas').getContext('2d')!;
     }
     return _context;
   }

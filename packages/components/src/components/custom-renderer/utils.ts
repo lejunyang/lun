@@ -1,4 +1,4 @@
-import { isString } from '@lun/utils';
+import { createElement, fromObject, isString } from '@lun/utils';
 
 export function generateWithTemplate(template: HTMLTemplateElement, props: Record<string, string>) {
   const {
@@ -14,14 +14,11 @@ export function generateWithTemplate(template: HTMLTemplateElement, props: Recor
 
   const elementName = getValue(element);
   if (elementName && isString(elementName)) {
-    const el = document.createElement(elementName);
-    for (let [key, value] of Object.entries(others)) {
-      value = getValue(value)!;
-      if (!value) return;
-      if (key in el && key !== 'style') (el as any)[key] = value;
-      else el.setAttribute(key, value);
-    }
-    return el;
+    return createElement(
+      elementName as any,
+      fromObject(others, (k, v) => [k, getValue(v)] as const),
+      { skipFalsyValue: true },
+    );
   }
   const content = document.importNode(template.content, true);
   const innerTemplates = content.querySelectorAll('template');

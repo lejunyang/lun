@@ -1,6 +1,7 @@
 import { getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { iPopover } from './Popover';
 import { PopoverProps } from './type';
+import { createElement } from '@lun/utils';
 
 export function createPopoverInstance({
   to,
@@ -10,12 +11,11 @@ export function createPopoverInstance({
   if (!target) target = getFirstThemeProvider();
   const popoverName = getElementFirstName('popover')!;
   if (__DEV__ && !popoverName) throw new Error('popover component is not registered, please register it first.');
-  const popover = document.createElement(popoverName) as iPopover;
   const props: PopoverProps = {
     ...initialProps,
     open: false,
   };
-  Object.assign(popover, props);
+  const popover = createElement(popoverName as any, props) as iPopover;
   (target || document.body).appendChild(popover);
 
   const methods = {
