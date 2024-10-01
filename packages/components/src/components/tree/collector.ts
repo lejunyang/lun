@@ -1,17 +1,23 @@
-import { createCollector, useSelectMethods } from '@lun/core';
-import { ComponentInternalInstance } from 'vue';
-import { CommonProcessedOption } from 'hooks';
+import { createCollector, useCheckboxMethods, useSelectMethods } from '@lun/core';
 import { TreeSetupProps, TreeItemSetupProps } from './type';
 import { getCollectorOptions } from 'common';
 
+type c = ReturnType<typeof useCheckboxMethods>;
 export const TreeCollector = createCollector<
   TreeSetupProps,
   TreeItemSetupProps,
-  ReturnType<typeof useSelectMethods> & {
-    isHidden: (option: CommonProcessedOption) => boolean;
-    isActive: (vm: ComponentInternalInstance) => boolean;
-    activate: (vm: ComponentInternalInstance) => void;
-    deactivate: () => void;
+  {
+    select: ReturnType<typeof useSelectMethods>;
+    check: c;
+    expand: {
+      isExpanded: c['isChecked'];
+      expandAll: c['checkAll'];
+      collapseAll: c['uncheckAll'];
+      toggleExpand: c['toggle'];
+      reverseExpand: c['reverse'];
+      expand: c['check'];
+      collapse: c['uncheck'];
+    };
   },
   true
 >({

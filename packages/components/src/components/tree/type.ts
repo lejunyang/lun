@@ -1,17 +1,32 @@
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, themeProps, CommonProps, Prop, PropNumber, editStateProps, PropArray } from 'common';
+import {
+  GetEventPropsFromEmits,
+  themeProps,
+  CommonProps,
+  Prop,
+  PropNumber,
+  editStateProps,
+  PropArray,
+  PropBoolean,
+  PropBoolOrStr,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const treeProps = freeze({
   ...themeProps,
   ...editStateProps,
-  value: PropArray(),
+  checked: PropArray(),
+  selected: PropArray(),
   expanded: PropArray(),
+  selectable: PropBoolOrStr<boolean | 'multiple'>(),
+  checkable: PropBoolean(),
   indentSize: PropNumber(),
 });
 
 export const treeEmits = freeze({
-  update: (_: any[]) => true,
+  check: (_: any[]) => true,
+  select: (_: any | any[]) => true,
+  expand: (_: any[]) => true,
 });
 
 export type TreeSetupProps = ExtractPropTypes<typeof treeProps> & CommonProps;
