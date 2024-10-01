@@ -2,11 +2,12 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { treeItemEmits, treeItemProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { useCEExpose, useExpose, useNamespace, useSlot } from 'hooks';
-import { getCompParts } from 'common';
+import { useExpose, useNamespace, useSlot, useCEStates, useCEExpose } from 'hooks';
+import { getCompParts, getTransitionProps } from 'common';
 import { TreeCollector } from './collector';
 import { toGetterDescriptors, toPxIfNum } from '@lun/utils';
 import { useSetupEdit } from '@lun/core';
+import { computed, Transition } from 'vue';
 
 const name = 'tree-item';
 const parts = ['root', 'children', 'indent'] as const;
@@ -22,31 +23,53 @@ export const TreeItem = defineSSRCustomElement({
     const context = TreeCollector.child()!;
     if (__DEV__ && !context) throw new Error(name + ' must be under tree component');
 
+    const { expand, select, check } = context;
+    const expanded = computed(() => expand.isExpanded(props.value)),
+      selected = computed(() => select.isSelected(props.value)),
+      checked = computed(() => check.isChecked(props.value));
+    const toggle = () => {
+      if (!editComputed.disabled) {
+        expand.toggleExpand(props.value);
+        select.select(props.value);
+        check.check(props.value);
+      }
+    };
+
     const contextDesc = toGetterDescriptors(context, ['level', 'isLeaf']);
-    useExpose({}, { ...contextDesc, ...toGetterDescriptors(editComputed, ['disabled']) });
+    useExpose(
+      {},
+      {
+        ...contextDesc,
+        ...toGetterDescriptors(editComputed, ['disabled']),
+      },
+    );
     useCEExpose({}, contextDesc);
+    const [stateClass] = useCEStates(() => ({ expanded, selected, checked }), ns);
 
     const [renderLabel] = useSlot('label', () => props.label);
     return () => {
       const { level, isLeaf, parent } = context;
       return (
         <>
-          <li class={ns.t} part={compParts[0]} data-root={level === 0} data-level={level}>
+          <li class={stateClass.value} part={compParts[0]} data-root={level === 0} data-level={level} onClick={toggle}>
             <div
               class={ns.e('indent')}
               part={compParts[2]}
               // TODO level - 1 if all this level tree-items have no children
               style={{ width: toPxIfNum(+(parent!.props.indentSize || 0) * (level + 1)) }}
             >
-              {!isLeaf && renderElement('icon', { name: 'down', class: ns.e('toggle') })}
+              {!isLeaf &&
+                renderElement('icon', { name: 'down', class: [ns.e('toggle'), ns.is('expanded', expanded.value)] })}
             </div>
             {renderLabel()}
           </li>
-          {!isLeaf && (
-            <ul part={compParts[1]}>
-              <slot></slot>
-            </ul>
-          )}
+          <Transition {...getTransitionProps(props, 'expand', 'height')}>
+            {!isLeaf && (
+              <ul part={compParts[1]} v-show={expanded.value}>
+                <slot></slot>
+              </ul>
+            )}
+          </Transition>
         </>
       );
     };

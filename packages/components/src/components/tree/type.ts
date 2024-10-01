@@ -9,6 +9,7 @@ import {
   PropArray,
   PropBoolean,
   PropBoolOrStr,
+  createTransitionProps,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -36,6 +37,7 @@ export type TreeProps = Partial<TreeSetupProps> & TreeEvents;
 export const treeItemProps = freeze({
   ...themeProps,
   ...editStateProps,
+  ...createTransitionProps('expand'),
   label: Prop(),
   value: Prop(),
 });
