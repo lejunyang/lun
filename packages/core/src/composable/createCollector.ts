@@ -85,7 +85,9 @@ export function createCollector<
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name ? '-' + name : ''}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name ? '-' + name : ''}` : '');
 
-  const childrenVmLevelMap = tree ? new WeakMap<any, Ref<number>>() : null;
+  const childrenMap = new WeakMap<any, Ref<InstanceWithProps<ChildProps>[]>>(),
+    childrenVmLevelMap = tree ? new WeakMap<any, Ref<number>>() : null,
+    treeVmParentMap = tree ? new WeakMap<any, any>() : null;
 
   const parent = (params?: {
     extraProvide?: PE;
@@ -111,6 +113,7 @@ export function createCollector<
     }
 
     const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>) => {
+      childrenMap.set(instance, itemsArr as any);
       const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
       return {
         addItem(child: any) {
@@ -172,11 +175,17 @@ export function createCollector<
         if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
         else return [];
       },
-      childrenVmElMap,
+      getChildEl: (vm: any) => childrenVmElMap.get(vm),
       vm: instance,
       getChildVmIndex: provideContext.getChildVmIndex,
       provided: provideContext,
-      getChildVmLevel: (tree ? (child: any) => childrenVmLevelMap!.get(child)?.value : null) as (Tree extends true ? (child: any) => number | undefined : null)
+      getVmTreeChildren: (vm: any) => childrenMap.get(vm)?.value || [],
+      getVmTreeLevel: (tree ? (child: any) => childrenVmLevelMap!.get(child)?.value : null) as Tree extends true
+        ? (child: any) => number | undefined
+        : null,
+      getVmTreeParent: (tree ? (child: any) => treeVmParentMap!.get(child) : null) as Tree extends true
+        ? (child: any) => InstanceWithProps<ChildProps> | undefined
+        : null,
     };
   };
   const child = <T = undefined>(collect = true, defaultContext?: T) => {
@@ -204,11 +213,13 @@ export function createCollector<
           const provideMethods = {
             getLevel: () => ((isLeaf.value = false), level.value),
             ...context.getChildrenCollect(nestedItems),
+            instance,
           };
           provide(CHILD_KEY, provideMethods);
           const parentProvide = inject<typeof provideMethods>(CHILD_KEY);
           if (parentProvide) {
             level.value = parentProvide.getLevel() + 1;
+            treeVmParentMap!.set(instance, parentProvide.instance);
           }
           childrenVmLevelMap!.set(instance!, level);
           onMounted(() => {
