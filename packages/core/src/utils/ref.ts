@@ -58,8 +58,11 @@ export function unrefOrGetState<T extends MaybeRefLikeOrGetter<any>[] | MaybeRef
   return isArray(target) ? unrefOrGetMulti(...target) : unrefOrGet(target);
 }
 
-export type ToAllMaybeRefLike<T extends {}, EnsuredKeys extends keyof T = never> = {
-  [k in keyof T]: MaybeRefLikeOrGetter<T[k], k extends EnsuredKeys ? true : false>;
+export type ToAllMaybeRefLike<T extends {}, EnsuredKeys extends keyof T | true = never> = {
+  [k in keyof T]: MaybeRefLikeOrGetter<
+    T[k],
+    EnsuredKeys extends true ? true : k extends EnsuredKeys | true ? true : false
+  >;
 };
 export type ToMaybeRefLike<
   T extends {},

@@ -9,6 +9,7 @@ import { useCollectorValue } from '../../hooks/useCollectorValue';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
 import { useTreeCheckedValue } from './tree.checked-value';
+import { useTreeCheckMethods } from './tree.check-methods';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -27,20 +28,24 @@ export const Tree = defineSSRCustomElement({
       checkedValueSet = computed(() => new Set(toArrayIfNotNil(checkedModel.value))),
       expandedValueSet = computed(() => new Set(toArrayIfNotNil(expandedModel.value)));
 
+    const [childrenInfo, valueToChild] = useCollectorValue(() => context, true);
     const [correctedCheckedSet, vmCheckedChildrenCountMap] = useTreeCheckedValue(() => context, checkedValueSet);
+    const checkMethods = useTreeCheckMethods({
+      valueSet: correctedCheckedSet,
+      childrenCheckedMap: vmCheckedChildrenCountMap,
+      getContext: () => context,
+      valueToChild,
+      onChange(value) {
+        checkedModel.value = value;
+      },
+      allValues: () => childrenInfo.childrenValuesSet,
+    })
 
     const selectMethods = useSelectMethods({
       multiple: () => props.selectable === 'multiple',
       valueSet: selectedValueSet,
       onChange(value) {
         selectedModel.value = value;
-      },
-      allValues: () => childrenInfo.childrenValuesSet,
-    });
-    const checkMethods = useCheckboxMethods({
-      valueSet: checkedValueSet,
-      onChange(value) {
-        checkedModel.value = value;
       },
       allValues: () => childrenInfo.childrenValuesSet,
     });
@@ -60,7 +65,6 @@ export const Tree = defineSSRCustomElement({
       expand: _expandMethods.check,
       collapse: _expandMethods.uncheck,
     };
-    const [childrenInfo] = useCollectorValue(() => context, true);
     const context = TreeCollector.parent({
       extraProvide: {
         select: selectMethods,
