@@ -15,6 +15,7 @@ import {
   ref,
   onUnmounted,
   shallowReactive,
+  reactive,
 } from 'vue';
 import { isString, nearestBinarySearch, toGetterDescriptors } from '@lun/utils';
 import { toUnrefGetterDescriptors } from '../utils';
@@ -85,8 +86,8 @@ export function createCollector<
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name ? '-' + name : ''}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name ? '-' + name : ''}` : '');
 
-  const childrenMap = new WeakMap<any, Ref<InstanceWithProps<ChildProps>[]>>(),
-    childrenVmLevelMap = tree ? new WeakMap<any, Ref<number>>() : null,
+  const childrenMap = reactive(new WeakMap<any, Ref<InstanceWithProps<ChildProps>[]>>()),
+    childrenVmLevelMap = tree ? reactive(new WeakMap<any, Ref<number>>()) : null,
     treeVmParentMap = tree ? new WeakMap<any, any>() : null;
 
   const parent = (params?: {
@@ -113,7 +114,6 @@ export function createCollector<
     }
 
     const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>) => {
-      childrenMap.set(instance, itemsArr as any);
       const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
       return {
         addItem(child: any) {
@@ -210,6 +210,7 @@ export function createCollector<
           const isLeaf = ref(null as null | boolean),
             level = ref(0),
             nestedItems = ref([]);
+          childrenMap.set(instance, nestedItems);
           const provideMethods = {
             getLevel: () => ((isLeaf.value = false), level.value),
             ...context.getChildrenCollect(nestedItems),
@@ -222,11 +223,14 @@ export function createCollector<
             treeVmParentMap!.set(instance, parentProvide.instance);
           }
           childrenVmLevelMap!.set(instance!, level);
+          const performCollect = () => parentProvide?.addItem(instance!);
+          collectOnSetup ? performCollect() : onMounted(performCollect);
           onMounted(() => {
             if (isLeaf.value == null) isLeaf.value = true;
-            parentProvide?.addItem(instance!);
           });
           onBeforeUnmount(() => {
+            childrenMap.delete(instance);
+            childrenVmLevelMap!.delete(instance!);
             parentProvide?.removeItem(instance!);
           });
           return toUnrefGetterDescriptors({ isLeaf, level, nestedItems });
