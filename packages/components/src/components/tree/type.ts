@@ -10,6 +10,7 @@ import {
   PropBoolean,
   PropBoolOrStr,
   createTransitionProps,
+  PropString,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -21,10 +22,12 @@ export const treeProps = freeze({
   expanded: PropArray(),
   selectable: PropBoolOrStr<boolean | 'multiple'>(),
   checkable: PropBoolean(),
+  checkStrategy: PropString<'tree' | 'separate'>(),
   indentSize: PropNumber(),
 });
 
 export const treeEmits = freeze({
+  update: (_: { checked: any[]; selected: any[] | any; expanded: any[] }) => true,
   check: (_: any[]) => true,
   select: (_: any | any[]) => true,
   expand: (_: any[]) => true,

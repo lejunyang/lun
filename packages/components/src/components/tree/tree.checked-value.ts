@@ -2,19 +2,17 @@ import { watchEffectOnMounted } from '@lun/core';
 import { ComponentInternalInstance, reactive, Ref, ref } from 'vue';
 import { TreeParentContext } from './collector';
 import { at } from '@lun/utils';
+import { createCount, getLevel, getValue, isLeafChild } from './tree.common';
 
 export function useTreeCheckedValue(context: () => TreeParentContext, checkedValueSet: Ref<Set<any>>) {
   const correctedCheckedSet = reactive(new Set<any>()),
     vmCheckedChildrenCountMap = ref(new WeakMap<ComponentInternalInstance, number>());
 
-  const getLevel = (vm: ComponentInternalInstance) => vm.exposed?.level,
-    getValue = (vm: ComponentInternalInstance) => vm.props.value;
   watchEffectOnMounted(() => {
     correctedCheckedSet.clear();
     const checkedChildrenCountMap = new WeakMap<ComponentInternalInstance, number>();
 
-    const countUp = (vm?: ComponentInternalInstance) =>
-      vm && checkedChildrenCountMap.set(vm, (checkedChildrenCountMap.get(vm) || 0) + 1);
+    const countUp = createCount(checkedChildrenCountMap, 1);
     const { value, getVmTreeChildren, getVmTreeParent } = context(),
       checked = checkedValueSet.value;
     let lastNoneLeafLevel: number | undefined,
@@ -39,7 +37,8 @@ export function useTreeCheckedValue(context: () => TreeParentContext, checkedVal
     };
 
     value.forEach((child) => {
-      const { isLeaf, level } = child.exposed || {},
+      const level = getLevel(child),
+        isLeaf = isLeafChild(child),
         childValue = getValue(child),
         isChecked = checked.has(childValue);
 

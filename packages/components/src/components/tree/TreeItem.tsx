@@ -23,15 +23,16 @@ export const TreeItem = defineSSRCustomElement({
     const context = TreeCollector.child()!;
     if (__DEV__ && !context) throw new Error(name + ' must be under tree component');
 
-    const { expand, select, check } = context;
+    const { expand, select, check, parent } = context;
     const expanded = computed(() => expand.isExpanded(props.value)),
       selected = computed(() => select.isSelected(props.value)),
       checked = computed(() => check.isChecked(props.value));
     const toggle = () => {
       if (!editComputed.disabled) {
         expand.toggleExpand(props.value);
-        select.select(props.value);
-        check.check(props.value);
+        const { selectable, checkable } = parent!.props;
+        if (selectable) select.select(props.value);
+        if (checkable) check.check(props.value);
       }
     };
 
