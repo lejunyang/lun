@@ -24,3 +24,5 @@ export const TreeCollector = createCollector<
   ...getCollectorOptions('tree', true),
   tree: true,
 });
+
+export type TreeParentContext = ReturnType<(typeof TreeCollector)['parent']>;

@@ -263,5 +263,5 @@ export function createCollector<
   return { parent, child, COLLECTOR_KEY, CHILD_KEY };
 }
 
-export type CollectorParentReturn<P = Data> = ReturnType<ReturnType<typeof createCollector<P>>['parent']>;
+export type CollectorParentReturn = ReturnType<ReturnType<typeof createCollector>['parent']>;
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;

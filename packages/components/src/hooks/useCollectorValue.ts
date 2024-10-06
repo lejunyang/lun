@@ -1,7 +1,7 @@
-import { createCollector, objectComputed } from '@lun/core';
+import { CollectorParentReturn, objectComputed } from '@lun/core';
 import { ComponentInternalInstance } from 'vue';
 
-export function useCollectorValue(context: () => ReturnType<ReturnType<typeof createCollector>['parent']>, tree?: boolean) {
+export function useCollectorValue(context: () => CollectorParentReturn, tree?: boolean) {
   const childrenInfo = objectComputed(() => {
     const childrenValuesSet = new Set<any>(),
       noneLeafValuesSet = new Set<any>();

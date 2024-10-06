@@ -8,6 +8,7 @@ import { useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
 import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
+import { useTreeCheckedValue } from './tree.checked-value';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -25,6 +26,9 @@ export const Tree = defineSSRCustomElement({
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(selectedModel.value))),
       checkedValueSet = computed(() => new Set(toArrayIfNotNil(checkedModel.value))),
       expandedValueSet = computed(() => new Set(toArrayIfNotNil(expandedModel.value)));
+
+    const [correctedCheckedSet, vmCheckedChildrenCountMap] = useTreeCheckedValue(() => context, checkedValueSet);
+
     const selectMethods = useSelectMethods({
       multiple: () => props.selectable === 'multiple',
       valueSet: selectedValueSet,
