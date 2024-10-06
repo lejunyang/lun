@@ -20,6 +20,7 @@ export const treeProps = freeze({
   checked: PropArray(),
   selected: PropArray(),
   expanded: PropArray(),
+  defaultExpandAll: PropBoolean(),
   selectable: PropBoolOrStr<boolean | 'multiple'>(),
   checkable: PropBoolean(),
   checkStrategy: PropString<'tree' | 'separate'>(),

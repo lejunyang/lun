@@ -26,7 +26,12 @@ export const Tree = defineSSRCustomElement({
       expandedModel = useValueModel(props, { key: 'expanded', eventName: 'expand' });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(selectedModel.value))),
       checkedValueSet = computed(() => new Set(toArrayIfNotNil(checkedModel.value))),
-      expandedValueSet = computed(() => new Set(toArrayIfNotNil(expandedModel.value)));
+      expandedValueSet = computed(() => {
+        const { value } = expandedModel;
+        return props.defaultExpandAll && value == null
+          ? childrenInfo.noneLeafValuesSet
+          : new Set(toArrayIfNotNil(value));
+      });
 
     const [childrenInfo, valueToChild] = useCollectorValue(() => context, true);
     const [correctedCheckedSet, vmCheckedChildrenCountMap] = useTreeCheckedValue(() => context, checkedValueSet);
@@ -39,7 +44,7 @@ export const Tree = defineSSRCustomElement({
         checkedModel.value = value;
       },
       allValues: () => childrenInfo.childrenValuesSet,
-    })
+    });
 
     const selectMethods = useSelectMethods({
       multiple: () => props.selectable === 'multiple',
