@@ -1,14 +1,30 @@
 @use '../../mixins' as *;
 
 @include b(tree-item) {
-  cursor: pointer;
   @include declareVars((border-radius));
-  &:hover {
-    background-color: getGrayColor(a3);
+  @include is(line-selectable) {
+    cursor: pointer;
+    &:where(:hover) {
+      background-color: getGrayColor(a3);
+    }
+    @include is(selected) {
+      background-color: getAccentColor(9);
+      color: getContrastColor(accent);
+    }
   }
-  @include is(selected) {
-    // background-color: getAccentColor(9);
-    // color: getContrastColor(accent);
+  @include is(label-selectable) {
+    @include e(label) {
+      cursor: pointer;
+      &:where(:hover) {
+        background-color: getGrayColor(a3);
+      }
+    }
+  }
+  @include is((label-selectable, selected)) {
+    @include e(label) {
+      background-color: getAccentColor(9);
+      color: getContrastColor(accent);
+    }
   }
 
   @include e(indent) {
