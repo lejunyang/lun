@@ -10,7 +10,7 @@ import { useSetupEdit } from '@lun/core';
 import { computed, Transition } from 'vue';
 
 const name = 'tree-item';
-const parts = ['root', 'children', 'indent'] as const;
+const parts = ['root', 'children', 'indent', 'label'] as const;
 const compParts = getCompParts(name, parts);
 export const TreeItem = defineSSRCustomElement({
   name,
@@ -27,13 +27,23 @@ export const TreeItem = defineSSRCustomElement({
       parentProps = parent!.props;
     const expanded = computed(() => expand.isExpanded(props.value)),
       selected = computed(() => select.isSelected(props.value)),
-      checked = computed(() => check.isChecked(props.value));
-    const toggle = () => {
+      checked = computed(() => check.isChecked(props.value)),
+      isLabelSelectArea = () => parentProps.selectArea === 'label',
+      selectable = () => parentProps.selectable,
+      lineSelectable = () => selectable() && !isLabelSelectArea(),
+      labelSelectable = () => selectable() && isLabelSelectArea(),
+      checkable = () => parentProps.checkable;
+
+    const handleLineClick = () => {
       if (!editComputed.disabled) {
         expand.toggleExpand(props.value);
-        const { selectable, checkable } = parentProps;
-        if (selectable) select.select(props.value);
-        if (checkable) check.check(props.value);
+        if (lineSelectable()) select.select(props.value);
+        if (checkable()) check.check(props.value);
+      }
+    };
+    const handleLabelClick = () => {
+      if (!editComputed.disabled) {
+        if (labelSelectable()) select.select(props.value);
       }
     };
 
@@ -46,14 +56,29 @@ export const TreeItem = defineSSRCustomElement({
       },
     );
     useCEExpose({}, contextDesc);
-    const [stateClass] = useCEStates(() => ({ expanded, selected, checked }), ns);
+    const [stateClass] = useCEStates(
+      () => ({
+        expanded,
+        selected,
+        checked,
+        lineSelectable,
+        labelSelectable,
+      }),
+      ns,
+    );
 
     const [renderLabel] = useSlot('label', () => props.label);
     return () => {
       const { level, isLeaf, parent } = context;
       return (
         <>
-          <li class={stateClass.value} part={compParts[0]} data-root={level === 0} data-level={level} onClick={toggle}>
+          <li
+            class={stateClass.value}
+            part={compParts[0]}
+            data-root={level === 0}
+            data-level={level}
+            onClick={handleLineClick}
+          >
             <div
               class={ns.e('indent')}
               part={compParts[2]}
@@ -63,7 +88,9 @@ export const TreeItem = defineSSRCustomElement({
               {!isLeaf &&
                 renderElement('icon', { name: 'down', class: [ns.e('toggle'), ns.is('expanded', expanded.value)] })}
             </div>
-            {renderLabel()}
+            <span part={compParts[3]} class={ns.e('label')} onClick={handleLabelClick}>
+              {renderLabel()}
+            </span>
           </li>
           <Transition {...getTransitionProps(props, 'expand', 'height')}>
             {!isLeaf && (

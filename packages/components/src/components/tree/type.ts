@@ -22,6 +22,7 @@ export const treeProps = freeze({
   expanded: PropArray(),
   defaultExpandAll: PropBoolean(),
   selectable: PropBoolOrStr<boolean | 'multiple'>(),
+  selectArea: PropString<'line' | 'label'>(),
   checkable: PropBoolean(),
   checkStrategy: PropString<'tree' | 'separate'>(),
   indentSize: PropNumber(),
