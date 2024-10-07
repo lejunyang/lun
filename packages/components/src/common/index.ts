@@ -34,8 +34,8 @@ export function renderStatusIcon(
   return (
     name &&
     renderElement('icon', {
-      'data-status-icon': isStatus(status),
-      [`data-${name}-color`]: !noAccentColor,
+      'data-status-icon': String(isStatus(status)),
+      [`data-${name}-color`]: String(!noAccentColor), // after vue 3.5, it's not adding data attribute if value is true... need to transform it to string
       name: noCircle ? status + '-no-circle' : name,
       ...others,
     })
