@@ -28,6 +28,7 @@ export function useTreeCheckedValue(context: () => TreeParentContext, checkedVal
         children = getVmTreeChildren(topVm),
         parent = getVmTreeParent(topVm);
       // TODO haven't considering disabled children, should add disabled count in useCollectorValue and use it here
+      // add skipChild in createCollector to skip disabled children
       if (checkedCount === children.length) {
         // all children are checked
         correctedCheckedSet.add(getValue(topVm));
@@ -47,14 +48,9 @@ export function useTreeCheckedValue(context: () => TreeParentContext, checkedVal
 
       if (level === lastNoneLeafLevel) traverse(level);
       if (level >= lastNoneLeafLevel! || !level) {
-        if (!isLeaf) {
-          toBeCheckedVmStack.push(child);
-        } else if (checked) {
-          countUp(at(toBeCheckedVmStack, -1));
-        }
-      } else {
-        parentCheckedLevel = undefined;
-      }
+        if (!isLeaf) toBeCheckedVmStack.push(child);
+        else if (isChecked) countUp(at(toBeCheckedVmStack, -1));
+      } else parentCheckedLevel = undefined;
 
       if (!isLeaf) lastNoneLeafLevel = level;
     });

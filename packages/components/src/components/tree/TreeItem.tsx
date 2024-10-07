@@ -1,13 +1,13 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { treeItemEmits, treeItemProps } from './type';
-import { defineIcon } from '../icon/Icon';
 import { useExpose, useNamespace, useSlot, useCEStates, useCEExpose } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { TreeCollector } from './collector';
 import { toGetterDescriptors, toPxIfNum } from '@lun/utils';
 import { useSetupEdit } from '@lun/core';
 import { computed, Transition } from 'vue';
+import { defineCheckbox } from '../checkbox';
 
 const name = 'tree-item';
 const parts = ['root', 'children', 'indent', 'label'] as const;
@@ -28,6 +28,7 @@ export const TreeItem = defineSSRCustomElement({
     const expanded = computed(() => expand.isExpanded(props.value)),
       selected = computed(() => select.isSelected(props.value)),
       checked = computed(() => check.isChecked(props.value)),
+      intermediate = computed(() => check.isIntermediate(props.value)),
       selectable = () => parentProps.selectable,
       isLabelSelectArea = () => parentProps.selectable === 'label',
       lineSelectable = () => selectable() && !isLabelSelectArea(),
@@ -49,6 +50,18 @@ export const TreeItem = defineSSRCustomElement({
       if (!editComputed.disabled) {
         if (labelSelectable()) performSelect(e);
       }
+    };
+
+    const checkboxHandlers = {
+      onClick(e: MouseEvent) {
+        e.stopPropagation();
+        // check.toggle(props.value);
+      },
+      // do not toggle in click event, because it happens before type=checkbox input's change event.
+      // checked -> true, change event happens, checked -> false. then external checked is true, but internal checkModel is false
+      onUpdate() {
+        check.toggle(props.value);
+      },
     };
 
     const contextDesc = toGetterDescriptors(context, ['level', 'isLeaf']);
@@ -92,6 +105,13 @@ export const TreeItem = defineSSRCustomElement({
               {!isLeaf &&
                 renderElement('icon', { name: 'down', class: [ns.e('toggle'), ns.is('expanded', expanded.value)] })}
             </div>
+            {checkable() &&
+              renderElement('checkbox', {
+                checked: checked.value,
+                intermediate: intermediate.value,
+                class: ns.e('checkbox'),
+                ...checkboxHandlers,
+              })}
             <span part={compParts[3]} class={ns.e('label')} onClick={handleLabelClick}>
               {renderLabel()}
             </span>
@@ -113,5 +133,5 @@ export type tTreeItem = typeof TreeItem;
 export type iTreeItem = InstanceType<tTreeItem>;
 
 export const defineTreeItem = createDefineElement(name, TreeItem, {}, parts, {
-  icon: defineIcon,
+  checkbox: defineCheckbox,
 });

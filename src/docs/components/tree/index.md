@@ -21,3 +21,7 @@ Highly experimental
 - 其他值：单选
 
 <!-- @Code:selectable -->
+
+## 节点可勾选
+
+<!-- @Code:checkable -->
