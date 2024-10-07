@@ -28,7 +28,7 @@ export default {
         textarea: 'Textarea 文本域',
       },
       dataDisplay: {
-        menu: '数据展示',
+        menu: '复杂数据',
         calendar: 'Calendar 日历',
         form: 'Form 表单',
         formItem: 'FormItem 表单项',
@@ -136,7 +136,7 @@ export default {
         textarea: 'Textarea',
       },
       dataDisplay: {
-        menu: 'Data Display',
+        menu: 'Complex Data',
         calendar: 'Calendar',
         form: 'Form',
         formItem: 'FormItem',
