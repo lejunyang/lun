@@ -14,6 +14,6 @@ export * from './useValue';
 export function useExpose(obj: Record<string, any>, properties?: PropertyDescriptorMap) {
   const vm = getCurrentInstance()!;
   if (!vm.exposed) vm.exposed = obj;
-  else Object.assign(vm.exposed, obj);
+  else Object.defineProperties(vm.exposed, Object.getOwnPropertyDescriptors(obj));
   if (properties) Object.defineProperties(vm.exposed, properties);
 }

@@ -88,7 +88,7 @@ export function createCollector<
 
   const childrenMap = reactive(new WeakMap<any, Ref<InstanceWithProps<ChildProps>[]>>()),
     childrenVmLevelMap = tree ? reactive(new WeakMap<any, Ref<number>>()) : null,
-    treeVmParentMap = tree ? new WeakMap<any, any>() : null;
+    treeVmParentMap = tree ? reactive(new WeakMap<any, any>()) : null;
 
   const parent = (params?: {
     extraProvide?: PE;
@@ -230,6 +230,7 @@ export function createCollector<
           });
           onBeforeUnmount(() => {
             childrenMap.delete(instance);
+            treeVmParentMap?.delete(instance);
             childrenVmLevelMap!.delete(instance!);
             parentProvide?.removeItem(instance!);
           });

@@ -37,7 +37,7 @@ export function useTreeCheckMethods(
     const { getVmTreeChildren, getVmTreeParent } = getContext();
     const currentVm = valueToChild(value),
       checked = methods.isChecked(value);
-    if (!currentVm || !isUnCheck! !== checked) return;
+    if (!currentVm || (isUnCheck ? !checked : checked)) return;
     const isLeaf = isLeafChild(currentVm),
       parent = getVmTreeParent(currentVm);
     // check/uncheck self
@@ -46,7 +46,7 @@ export function useTreeCheckMethods(
       // it's from children's update, only check parent if all children are checked
       if (updateParent === -1) {
         const checkedChildren = unrefOrGet(childrenCheckedMap).get(currentVm);
-        if (checkedChildren! + 1 !== getVmTreeChildren(currentVm).length) return;
+        if (checkedChildren! !== getVmTreeChildren(currentVm).length) return;
       }
       currentChecked.add(value);
     }
@@ -64,17 +64,30 @@ export function useTreeCheckMethods(
     values.forEach((value) => internalUpdate(value, newSet, 1, isUnCheck));
     if (old.size !== newSet.size) onChange(arrayFrom(newSet));
   };
-  Object.assign(methods, {
-    check(...values: any[]) {
+  const check = (...values: any[]) => {
       internalBatchUpdate(values);
     },
-    uncheck(...values: any[]) {
+    uncheck = (...values: any[]) => {
       internalBatchUpdate(values, 1);
-    },
+    };
+
+  Object.assign(methods, {
+    check,
+    uncheck,
     toggle(value: any) {
-      if (methods.isChecked(value)) methods.uncheck(value);
-      else methods.check(value);
+      if (methods.isChecked(value)) uncheck(value);
+      else check(value);
     },
   });
-  return methods;
+  return {
+    ...methods,
+    isIntermediate(value: any) {
+      const { getVmTreeChildren } = getContext();
+      const currentVm = valueToChild(value);
+      if (!currentVm) return false;
+      const children = getVmTreeChildren(currentVm),
+        checkedChildren = unrefOrGet(childrenCheckedMap).get(currentVm)!;
+      return 0 < checkedChildren && checkedChildren < children.length;
+    },
+  };
 }

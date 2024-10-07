@@ -8,7 +8,9 @@ export const TreeCollector = createCollector<
   TreeItemSetupProps,
   {
     select: ReturnType<typeof useSelectMethods>;
-    check: c;
+    check: c & {
+      isIntermediate: (value: any) => boolean;
+    };
     expand: {
       isExpanded: c['isChecked'];
       expandAll: c['checkAll'];
