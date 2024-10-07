@@ -47,7 +47,7 @@ export const Tree = defineSSRCustomElement({
     });
 
     const selectMethods = useSelectMethods({
-      multiple: () => props.selectable === 'multiple',
+      multiple: () => ['multiple', 'ctrl-multiple'].includes(props.selectMode!),
       valueSet: selectedValueSet,
       onChange(value) {
         selectedModel.value = value;

@@ -28,22 +28,26 @@ export const TreeItem = defineSSRCustomElement({
     const expanded = computed(() => expand.isExpanded(props.value)),
       selected = computed(() => select.isSelected(props.value)),
       checked = computed(() => check.isChecked(props.value)),
-      isLabelSelectArea = () => parentProps.selectArea === 'label',
       selectable = () => parentProps.selectable,
+      isLabelSelectArea = () => parentProps.selectable === 'label',
       lineSelectable = () => selectable() && !isLabelSelectArea(),
       labelSelectable = () => selectable() && isLabelSelectArea(),
       checkable = () => parentProps.checkable;
 
-    const handleLineClick = () => {
+    const performSelect = (e: MouseEvent) => {
+      const method = parentProps.selectMode === 'ctrl-multiple' && !e.ctrlKey ? 'clearAndSelect' : 'select';
+      select[method](props.value);
+    };
+    const handleLineClick = (e: MouseEvent) => {
       if (!editComputed.disabled) {
         expand.toggleExpand(props.value);
-        if (lineSelectable()) select.select(props.value);
+        if (lineSelectable()) performSelect(e);
         if (checkable()) check.check(props.value);
       }
     };
-    const handleLabelClick = () => {
+    const handleLabelClick = (e: MouseEvent) => {
       if (!editComputed.disabled) {
-        if (labelSelectable()) select.select(props.value);
+        if (labelSelectable()) performSelect(e);
       }
     };
 

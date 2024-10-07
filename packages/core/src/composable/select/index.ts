@@ -28,6 +28,10 @@ export function useSelectMethods(options: UseSelectOptions) {
         onChange(arrayFrom(v));
       } else if (values[0] != null) onChange(values[0]);
     },
+    clearAndSelect(...values: any[]) {
+      if (isMultiple()) onChange(values);
+      else onChange(values[0]);
+    },
     unselect(...values: any[]) {
       const v = unrefOrGet(valueSet);
       if (isMultiple()) {
@@ -67,6 +71,7 @@ export const useCheckboxMethods = (options: UseSelectOptions) => {
     uncheck: result.unselect,
     reverse: result.reverse,
     toggle: result.toggle,
+    clearAndCheck: result.clearAndSelect,
   };
 };
 

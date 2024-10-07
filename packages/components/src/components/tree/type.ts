@@ -8,7 +8,6 @@ import {
   editStateProps,
   PropArray,
   PropBoolean,
-  PropBoolOrStr,
   createTransitionProps,
   PropString,
 } from 'common';
@@ -21,8 +20,8 @@ export const treeProps = freeze({
   selected: PropArray(),
   expanded: PropArray(),
   defaultExpandAll: PropBoolean(),
-  selectable: PropBoolOrStr<boolean | 'multiple'>(),
-  selectArea: PropString<'line' | 'label'>(),
+  selectable: PropString<'line' | 'label'>(),
+  selectMode: PropString<'single' | 'multiple' | 'ctrl-multiple'>(),
   checkable: PropBoolean(),
   checkStrategy: PropString<'tree' | 'separate'>(),
   indentSize: PropNumber(),
