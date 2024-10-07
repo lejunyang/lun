@@ -13,7 +13,7 @@ import {
   toHostIfSlot,
   runIfFn,
   prevent,
-  intersectOrHas,
+  setIntersectOrHas,
   getRect,
 } from '@lun/utils';
 import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
@@ -123,7 +123,7 @@ export function usePopover(_options: UsePopoverOptions) {
     (e: Event) => {
       const { triggers, manual } = options;
       // 'edit' same as 'focus'
-      if ((!trigger || intersectOrHas(triggers, trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
+      if ((!trigger || setIntersectOrHas(triggers, trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
         let actualMethod =
           method === 'toggle' ? (_options.toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
         let temp: any = '';

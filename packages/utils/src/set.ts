@@ -1,10 +1,12 @@
 import { isFunction, isSet } from './is';
 
-// @ts-ignore
-const support = isFunction(Set.prototype.intersection);
+const getSupport = (method: string) => isFunction((Set.prototype as any)[method]);
 
-export function intersection(set1: Set<any>, set2: Set<any>) {
-  if (support) {
+const supportIntersect = getSupport('intersection'),
+  supportDiff = getSupport('difference');
+
+export function intersectionOfSets(set1: Set<any>, set2: Set<any>) {
+  if (supportIntersect) {
     // @ts-ignore
     return set1.intersection(set2) as Set<any>;
   } else {
@@ -18,6 +20,24 @@ export function intersection(set1: Set<any>, set2: Set<any>) {
   }
 }
 
-export function intersectOrHas<T>(set: Set<T>, value: Set<T> | T) {
-  return isSet(value) ? !!intersection(set, value).size : set.has(value);
+export function setIntersectOrHas<T>(set: Set<T>, value: Set<T> | T) {
+  return isSet(value) ? !!intersectionOfSets(set, value).size : set.has(value);
+}
+
+export function differenceOfSets<T extends Set<any>>(set1: T, set2: T): T {
+  if (supportDiff) {
+    // @ts-ignore
+    return set1.difference(set2) as T;
+  } else {
+    const res = new Set(set1);
+    if (res.size <= set2.size)
+      for (const item of res) {
+        if (set2.has(item)) res.delete(item);
+      }
+    else
+      for (const item of set2) {
+        if (res.has(item)) res.delete(item);
+      }
+    return res as T;
+  }
 }
