@@ -1,10 +1,7 @@
-name: Release components package
+name: Release packages
 
 on:
   push:
-    branches: ['main']
-    paths:
-      - 'packages/*/package.json'
     tags:
       - v*
 

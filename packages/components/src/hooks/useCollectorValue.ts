@@ -1,4 +1,5 @@
 import { CollectorParentReturn, objectComputed } from '@lun/core';
+import { isLeafChild, isVmDisabled } from '../components/tree/tree.common';
 import { ComponentInternalInstance } from 'vue';
 
 export function useCollectorValue(context: () => CollectorParentReturn, tree?: boolean) {
@@ -9,8 +10,8 @@ export function useCollectorValue(context: () => CollectorParentReturn, tree?: b
     context().value.forEach((child) => {
       const { value } = child.props;
       if (value != null) {
-        !child.exposed?.disabled && childrenValuesSet.add(value); // exclude disabled option from value set
-        if (tree && !child.exposed?.isLeaf) noneLeafValuesSet.add(value);
+        !isVmDisabled(child) && childrenValuesSet.add(value); // exclude disabled option from value set
+        if (tree && !isLeafChild(child)) noneLeafValuesSet.add(value);
         valueToChildMap.set(value, child);
       }
     });
