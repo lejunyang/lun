@@ -50,7 +50,8 @@
     "@floating-ui/utils": "catalog:",
     "@floating-ui/vue": "catalog:",
     "@lun/core": "workspace:^",
-    "@lun/utils": "workspace:^"
+    "@lun/utils": "workspace:^",
+    "@lun/plugins": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.4.0"

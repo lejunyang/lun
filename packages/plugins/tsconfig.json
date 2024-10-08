@@ -11,6 +11,9 @@
   "include": ["src/**/*.ts", "../../global.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
-    "declarationDir": "dist"
+    "declarationDir": "dist",
+    "paths": {
+      "@lun/utils": ["../utils/index.ts"]
+    }
   }
 }

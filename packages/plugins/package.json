@@ -39,6 +39,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@lun/utils": "workspace:^"
+  },
   "peerDependencies": {
     "@vue/compiler-core": "catalog:"
   },

@@ -82,7 +82,7 @@ Cypress.Commands.add('l', (componentName) => {
     container.append(ce);
     return {
       ce,
-      shadowRoot: ce.shadowRoot,
+      shadowRoot: ce.shadowRoot!,
       get vm() {
         return (ce as any)._instance as ComponentInternalInstance;
       },

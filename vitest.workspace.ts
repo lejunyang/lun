@@ -43,7 +43,7 @@ export default defineWorkspace([
       name: '@lun/plugins',
       globals: true,
       root: './packages/plugins',
-      environment: 'node',
+      environment: 'happy-dom',
     },
   },
 ]);

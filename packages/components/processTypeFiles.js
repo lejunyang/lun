@@ -22,7 +22,7 @@ components.forEach((componentTag) => {
   const reactPropType = `React.HTMLAttributes<HTMLElement> & React.RefAttributes<${instanceType}> & ${propType}`;
   vueCompTypes.push(`    L${componentCamelName}: ${vueCompType};`);
   vueJSXTypes.push(`      'l-${componentTag}': ${vuePropType};`);
-  htmlTypes.push(`    'l-${componentTag}': import('./index').t${componentCamelName};`);
+  htmlTypes.push(`    'l-${componentTag}': import('./index').i${componentCamelName};`);
   reactTypes.push(`      'l-${componentTag}': ${reactPropType};`);
 });
 

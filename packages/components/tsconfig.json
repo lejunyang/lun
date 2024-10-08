@@ -24,6 +24,7 @@
       "hooks": ["src/hooks"],
       "@lun/core": ["../core/index.ts"],
       "@lun/utils": ["../utils/index.ts"],
+      "@lun/plugins/vue": ["../plugins/src/vue/vue.index.ts"],
       "@vue/runtime-dom": ["../../node_modules/@vue/runtime-dom"],
       "@vue/runtime-core": ["../../node_modules/@vue/runtime-core"]
     }

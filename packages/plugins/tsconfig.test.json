@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.test.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "paths": {
+      "@lun/utils": ["../utils/index.ts"]
+    }
   },
-  "include": ["./src/__test__/**/*.ts"]
+  "include": ["./src/__test__/**/*.ts", "./src/**/*.ts", "../../global.d.ts", "../utils/index.ts"]
 }

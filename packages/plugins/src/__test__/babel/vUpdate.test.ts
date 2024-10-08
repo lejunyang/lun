@@ -1,10 +1,10 @@
 import * as babel from '@babel/core';
-import { vUpdateForBabel } from '../babel/vUpdate';
+import { vUpdate } from '../../babel/vUpdate';
 
 describe('vUpdate Babel Plugin', () => {
   const transform = (code: string) => {
     return babel.transform(code, {
-      plugins: ['@babel/plugin-syntax-jsx', vUpdateForBabel],
+      plugins: ['@babel/plugin-syntax-jsx', vUpdate],
       filename: 'testFile.ts',
     });
   };
