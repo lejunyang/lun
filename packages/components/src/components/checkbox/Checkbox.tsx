@@ -104,10 +104,10 @@ export const Checkbox = defineSSRCustomElement({
               tabindex={editable ? 0 : undefined}
               onKeydown={handlers.onKeydown}
             >
-              <slot name="checked" v-show={isChecked}>
+              <slot name="checked" v-content={isChecked}>
                 {renderElement('icon', { name: 'check', style: 'width: 100%; height: 100%' })}
               </slot>
-              <slot name="intermediate" v-show={isIntermediate}>
+              <slot name="intermediate" v-content={isIntermediate}>
                 {renderElement('icon', { name: 'dash', style: 'width: 100%; height: 100%' })}
               </slot>
               <input

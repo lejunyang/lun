@@ -177,7 +177,7 @@ export const Message = Object.assign(
             ref={rootRef}
             part={compParts[0]}
             {...rootProps.value}
-            v-show={show.value}
+            v-content={show.value}
             {...vnodeHandlers}
           >
             <TransitionGroup {...getTransitionProps(props, 'callout', 'message')} {...transitionHandlers}>

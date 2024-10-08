@@ -48,7 +48,7 @@ export const Accordion = defineSSRCustomElement({
             {iconPosition === 'end' && icon}
           </div>
           <Transition {...getTransitionProps(props, 'content', 'height')}>
-            <div class={ns.e('content')} part={compParts[2]} v-show={openModel.value}>
+            <div class={ns.e('content')} part={compParts[2]} v-content={openModel.value}>
               {renderContent()}
             </div>
           </Transition>

@@ -291,7 +291,7 @@ export const Popover = defineSSRCustomElement({
           {...popContentHandlers}
           part={isTeleport() ? '' : compParts[0]}
           style={finalFloatingStyles.value}
-          v-show={isOpen.value}
+          v-content={isOpen.value}
           ref={positionedRef}
           class={getRootClass(unrefOrGet(strategy))}
           {...vnodeHandlers}
@@ -338,7 +338,7 @@ export const Popover = defineSSRCustomElement({
             ? wrapTransition(
                 <div
                   {...popContentHandlers}
-                  v-show={isOpen.value}
+                  v-content={isOpen.value}
                   style={finalFloatingStyles.value}
                   part={compParts[0] + ' ' + compParts[1]}
                   popover="manual"

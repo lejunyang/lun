@@ -20,7 +20,7 @@ export const Skeleton = defineSSRCustomElement({
     return () => {
       return [
         <Transition {...getTransitionProps(props, 'load', 'fade')}>
-          <div class={ns.t} part={compParts[0]} v-show={editComputed.loading}>
+          <div class={ns.t} part={compParts[0]} v-content={editComputed.loading}>
             <slot name={name}></slot>
           </div>
         </Transition>,

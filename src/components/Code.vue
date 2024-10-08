@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <div class="code-wrapper" v-show="!devHide" ref="wrapperRef">
+    <div class="code-wrapper" v-content="!devHide" ref="wrapperRef">
       <div :class="`code-container`" v-if="!showGenerated || !initialized">
         <!-- this is to preventing long time white screen before initialized -->
         <slot></slot>
@@ -30,7 +30,7 @@
           </svg>
           <svg
             v-bind="commonSVGProps"
-            v-show="!isFullscreen && isSupported"
+            v-content="!isFullscreen && isSupported"
             @click="toggle"
             style="transform: scale(0.9)"
           >
@@ -42,7 +42,7 @@
           </svg>
           <svg
             v-bind="commonSVGProps"
-            v-show="isFullscreen && isSupported"
+            v-content="isFullscreen && isSupported"
             @click="toggle"
             style="transform: scale(0.9)"
           >

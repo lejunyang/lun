@@ -256,18 +256,6 @@ declare module 'vue' {
   }
 }
 
-// custom element doesn't inherit vue app's context
-const warnHandler = (msg: string, _: any, trace: string) => {
-  // ignore injection not found warning
-  if (msg.includes('injection') && msg.includes('not found')) return;
-  // vue app validates component name... but we use 'input', 'button' as component name, ignore that
-  if (msg.includes('Do not use built-in or reserved')) return;
-  // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
-  if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead'))
-    return;
-  console.warn(msg, msg.includes('Extraneous non-props') || msg.includes('hydrate') ? '\n' + trace : undefined, _);
-};
-
 const shadowRootMap = new WeakMap<HTMLElement, ShadowRoot>();
 
 export class VueElement extends BaseClass implements ComponentCustomElementInterface {
@@ -579,7 +567,6 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
         instance.isCE = true;
         // HMR
         if (__DEV__) {
-          instance.appContext.config.warnHandler = warnHandler;
           instance.ceReload = (newStyles) => {
             // always reset styles
             if (this._styles) {

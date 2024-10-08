@@ -5,7 +5,7 @@ import {
   GlobalStaticConfig,
   OpenShadowComponentKey,
 } from 'config';
-import { ComponentInternalInstance, ComponentOptions, getCurrentInstance, h } from 'vue';
+import { App, ComponentInternalInstance, ComponentOptions, getCurrentInstance, h } from 'vue';
 import { processStringStyle } from './style';
 import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
@@ -23,6 +23,7 @@ import {
   supportCustomElement,
 } from '@lun/utils';
 import { PropString } from 'common';
+import { vContent } from '@lun/plugins/vue';
 import { useContextStyles } from '../hooks/useStyles';
 
 export function getElementFirstName(comp: ComponentKey) {
@@ -162,6 +163,18 @@ const getComputedStyles = once(() => {
   ]);
 });
 
+// custom element doesn't inherit vue app's context
+const warnHandler = (msg: string, _: any, trace: string) => {
+  // ignore injection not found warning
+  if (msg.includes('injection') && msg.includes('not found')) return;
+  // vue app validates component name... but we use 'input', 'button' as component name, ignore that
+  if (msg.includes('Do not use built-in or reserved')) return;
+  // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
+  if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead'))
+    return;
+  console.warn(msg, msg.includes('Extraneous non-props') || msg.includes('hydrate') ? '\n' + trace : undefined, _);
+};
+
 export function preprocessComponentOptions(options: ComponentOptions) {
   const compKey = options.name as ComponentKey;
   if (compKey && compKey in GlobalStaticConfig.defaultProps) {
@@ -194,6 +207,10 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     options.inheritAttrs ||= false;
     options.onConnected = (CE: HTMLElement, parent: HTMLElement) => {
       CE.toggleAttribute('data-root', !parent); // set root attr for root element
+    };
+    options.configureApp = (app: App) => {
+      app.config.warnHandler = warnHandler;
+      app.directive('content', vContent);
     };
     options.attrTransform = (key: string, value: string | null) => {
       const { attrTransform } = GlobalStaticConfig;

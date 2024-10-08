@@ -10,6 +10,7 @@ import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useSetupEvent } from '@lun/core';
 import { TabsCollector } from './collector';
 
+// TODO panel scrollable; can we have height transition when switching?
 const name = 'tabs';
 const parts = ['root', 'nav', 'content', 'wrapper', 'panel', 'tab', 'label'] as const;
 const compParts = getCompParts(name, parts);
@@ -176,7 +177,7 @@ export const Tabs = defineSSRCustomElement({
                             key={key}
                             class={[ns.e('panel'), ns.is('disabled', t.disabled), ns.is('active', active)]}
                             part={compParts[4]}
-                            v-show={active}
+                            v-content={active}
                           >
                             {renderCustom(t.panel)}
                           </div>

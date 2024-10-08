@@ -99,7 +99,7 @@ export const ScrollView = defineSSRCustomElement({
         <span part={compParts[0]} style={{ [scrollXPercentVarName!]: value[0], [scrollYPercentVarName!]: value[1] }}>
           <>
             {Object.entries(slotState).map(([key, value]) => (
-              <slot name={hyphenate(key)} v-show={value}></slot>
+              <slot name={hyphenate(key)} v-content={value}></slot>
             ))}
             <slot></slot>
           </>

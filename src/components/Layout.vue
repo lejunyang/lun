@@ -6,7 +6,7 @@
         <ThemeConfigPanel :theme="theme" :lang="lang as any" :animate="randomAnimate" />
       </template>
       <template #home-hero-image>
-        <div class="theme-home-panel" v-show="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'">
+        <div class="theme-home-panel" v-content="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'">
           <l-radio-group class="color-group" size="3" v-update="theme.color">
             <l-radio v-for="color in themeColors" :value="color" :color="color" no-indicator :title="color">
               <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>

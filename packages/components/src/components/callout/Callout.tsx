@@ -83,7 +83,7 @@ export const Callout = defineSSRCustomElement({
               <div
                 class={ns.e('message')}
                 part={compParts[3]}
-                v-show={!messageEmpty.value}
+                v-content={!messageEmpty.value}
                 style={{ gridColumn: colStart + 1 }}
               >
                 {getMessageSlot()}
@@ -91,7 +91,7 @@ export const Callout = defineSSRCustomElement({
               <div
                 class={ns.e('description')}
                 part={compParts[4]}
-                v-show={!descEmpty.value}
+                v-content={!descEmpty.value}
                 style={{ gridColumn: colStart + 1, gridRow: messageEmpty.value ? 1 : 2 }}
               >
                 {getDescSlot()}

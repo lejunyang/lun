@@ -134,7 +134,12 @@ defineButton('my-button', {
 
 ## TS 支持
 
-目前提供了`Vue`和`React`的组件类型定义，你需要在 TS 配置对应引入`@lun/components/elements-types-vue`或`@lun/components/elements-types-react`
+组件库的组件本身具有完整的类型支持，针对不同的框架，目前提供了以下类型定义：
+- `@lun/components/elements-types-vue`: Vue template 以及 JSX 的组件类型
+- `@lun/components/elements-types-react`: React JSX 组件类型
+- `@lun/components/elements-types-html`: document.createElement 组件类型支持
+
+你需要在 TS 配置文件中对应引入它们
 
 需要注意的是，提供的类型文件是针对默认`namespace`，也就是`l-button`, `l-input`等以`l`开头的组件，如果你自定义了命名空间，可以仿造以下示例编写
 
@@ -175,7 +180,7 @@ declare module 'react/jsx-runtime' {
 import { Button, tButton, iButton } from '@lun/components';
 Button; // 组件的class，这是值，不是类型，一般用不到
 tButton; // 组件class的类型，相当于typeof Button
-iButton; // 组件实例的类型，相当于InstanceType<typeof tButton>
+iButton; // 组件实例的类型，相当于InstanceType<tButton>，这是实际DOM元素的类型
 ```
 
 当需要组件实例类型时，你可以像下面这样使用：
@@ -191,7 +196,7 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 
 ## 兼容性
 
-至少需要兼容`customElement`, 考虑到以下特性版本要求不高, 若不支持你需要自行 polyfill 或不使用某些特性，CSS 可考虑使用全局配置`stylePreprocessor`处理或自行编写样式
+至少需要兼容`customElement`, 考虑到以下特性版本要求不高, 若不支持你需要自行 polyfill 或不使用某些特性，CSS 不兼容可考虑使用全局配置`stylePreprocessor`处理或自行编写样式
 
 - [customElement](https://caniuse.com/?search=customElement) <SupportInfo chrome="54" edge="79" firefox="63" safari="10.3" />
 - [BigInt](https://caniuse.com/?search=BigInt) <SupportInfo chrome="67" edge="79" firefox="68" safari="14" />

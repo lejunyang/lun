@@ -17,6 +17,7 @@ import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
 import { importCustomDynamicColors } from '@lun/theme/custom';
 import { Dayjs } from '@lun/core/date-dayjs';
+import { vContent } from '@lun/plugins/vue';
 import Layout from '../../../components/Layout.vue';
 import Palette from '../../../components/Palette.vue';
 import Code from '../../../components/Code.vue';
@@ -41,6 +42,7 @@ export default {
     if (once) return false;
     once = true;
 
+    app.directive('content', vContent);
     app.component('Code', Code);
     app.component('Palette', Palette);
     app.component('Support', Support);
@@ -66,36 +68,36 @@ export default {
     importGhostTheme();
     importCustomDynamicColors();
 
-    // lazy import react
-    (async () => {
-      const { isValidElement, cloneElement } = await import('react');
-      const { createRoot } = await import('react-dom/client');
-      const reactRootMap = new WeakMap();
-      registerCustomRenderer('react', {
-        isValidContent(content) {
-          return isValidElement(content);
-        },
-        onMounted(content, target) {
-          if (reactRootMap.has(target)) return;
-          const root = createRoot(target);
-          reactRootMap.set(target, root);
-          root.render(content);
-        },
-        onUpdated(content, target) {
-          reactRootMap.get(target)?.render(content);
-        },
-        onBeforeUnmount(target) {
-          reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
-          reactRootMap.delete(target);
-        },
-        clone(content) {
-          return cloneElement(content);
-        },
-      });
-    })();
-
     GlobalStaticConfig.reflectStateToAttr = 'always';
     if (inBrowser) {
+      // lazy import react
+      (async () => {
+        const { isValidElement, cloneElement } = await import('react');
+        const { createRoot } = await import('react-dom/client');
+        const reactRootMap = new WeakMap();
+        registerCustomRenderer('react', {
+          isValidContent(content) {
+            return isValidElement(content);
+          },
+          onMounted(content, target) {
+            if (reactRootMap.has(target)) return;
+            const root = createRoot(target);
+            reactRootMap.set(target, root);
+            root.render(content);
+          },
+          onUpdated(content, target) {
+            reactRootMap.get(target)?.render(content);
+          },
+          onBeforeUnmount(target) {
+            reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
+            reactRootMap.delete(target);
+          },
+          clone(content) {
+            return cloneElement(content);
+          },
+        });
+      })();
+
       console.log('GlobalStaticConfig', GlobalStaticConfig);
       console.log('GlobalContextConfig', GlobalContextConfig);
       Object.assign(window, { GlobalStaticConfig, GlobalContextConfig });

@@ -53,12 +53,12 @@ export const Switch = defineSSRCustomElement({
             </span>
             <span part={compParts[2]} class={ns.e('children')}>
               <Transition name="children">
-                <span v-show={checked} class={ns.e('checked')} part={compParts[4]}>
+                <span v-content={checked} class={ns.e('checked')} part={compParts[4]}>
                   <slot name="checked">{trueText}</slot>
                 </span>
               </Transition>
               <Transition name="children">
-                <span v-show={!checked} class={ns.e('unchecked')} part={compParts[5]}>
+                <span v-content={!checked} class={ns.e('unchecked')} part={compParts[5]}>
                   <slot name="unchecked">{falseText}</slot>
                 </span>
               </Transition>

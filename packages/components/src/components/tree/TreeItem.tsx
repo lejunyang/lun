@@ -118,7 +118,7 @@ export const TreeItem = defineSSRCustomElement({
           </li>
           <Transition {...getTransitionProps(props, 'expand', 'height')}>
             {!isLeaf && (
-              <ul part={compParts[1]} v-show={expanded.value}>
+              <ul part={compParts[1]} v-content={expanded.value}>
                 <slot></slot>
               </ul>
             )}
