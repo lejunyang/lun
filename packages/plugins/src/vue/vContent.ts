@@ -1,23 +1,22 @@
 import type { ObjectDirective } from '@vue/runtime-core';
+import { supportCSSContentVisibility, isHTMLSlotElement } from '@lun/utils';
 
-export const vContentOriginal: unique symbol = Symbol(__DEV__ ? '_vocv' : '');
+export const vContentVisibilityOriginal = Symbol(__DEV__ ? '_vcvo' : '');
+export const vContentSlotDisplayOriginal = Symbol(__DEV__ ? '_vcvdo' : '');
 
 export interface VShowElement extends HTMLElement {
   // _vocv = vue original content visibility
-  [vContentOriginal]: string;
+  [vContentVisibilityOriginal]: string;
+  [vContentSlotDisplayOriginal]: string;
 }
 
-const cProp = 'contentVisibility',
-  dProp = 'display';
-let targetValue: 'hidden' | 'none';
-const targetProp =
-  typeof document !== 'undefined' && cProp in document.body.style
-    ? ((targetValue = 'hidden'), cProp)
-    : ((targetValue = 'none'), dProp);
+const targetValue = supportCSSContentVisibility ? 'hidden' : 'none',
+  targetProp = supportCSSContentVisibility ? 'contentVisibility' : 'display';
 
 export const vContent: ObjectDirective<VShowElement> & { name?: 'content' } = {
   beforeMount(el, { value }, { transition }) {
-    el[vContentOriginal] = el.style[targetProp] === targetValue ? '' : el.style[targetProp];
+    el[vContentVisibilityOriginal] = el.style[targetProp] === targetValue ? '' : el.style[targetProp];
+    if (isHTMLSlotElement(el)) el[vContentSlotDisplayOriginal] = el.style.display;
     if (transition && value) {
       transition.beforeEnter(el);
     } else {
@@ -62,5 +61,8 @@ if (__DEV__) {
 }
 
 function setDisplay(el: VShowElement, value: unknown): void {
-  el.style[targetProp] = value ? el[vContentOriginal] : targetValue;
+  el.style[targetProp] = value ? el[vContentVisibilityOriginal] : targetValue;
+  // for slot element, slotted content is still visible even if content-visibility: hidden, because slot has default display: contents
+  // so we need to add display: block when content-visibility: hidden
+  if (isHTMLSlotElement(el)) el.style.display = value ? el[vContentSlotDisplayOriginal] : 'block';
 }

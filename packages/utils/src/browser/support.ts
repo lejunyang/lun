@@ -126,6 +126,8 @@ export const supportCSSOklch = supportCSSSupports && supports!('color', 'oklch(1
 
 export const supportCSSRegisterProperty = supportCSSSupports && CSS.registerProperty;
 
+export const supportCSSContentVisibility = supportCSSSupports && supports!('content-visibility', 'hidden');
+
 export const supportTouch = inBrowser && 'ontouchstart' in document.body;
 
 export const isSupportSlotAssign = cacheFunctionResult(() => isFunction(HTMLSlotElement.prototype.assign));
