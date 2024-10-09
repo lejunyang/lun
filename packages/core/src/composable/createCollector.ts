@@ -17,7 +17,7 @@ import {
   shallowReactive,
   reactive,
 } from 'vue';
-import { isString, nearestBinarySearch, toGetterDescriptors } from '@lun/utils';
+import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun/utils';
 import { toUnrefGetterDescriptors } from '../utils';
 
 type Data = Record<string, unknown>;
@@ -71,6 +71,7 @@ export function createCollector<
   getParentEl?: (vm: InstanceWithProps<NoInfer<ParentProps>>) => Element;
   getChildEl?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => Element;
   collectOnSetup?: boolean;
+  skipChild?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => boolean;
   tree?: Tree;
 }) {
   const {
@@ -80,6 +81,7 @@ export function createCollector<
     getParentEl = defaultGetEl,
     getChildEl = defaultGetEl,
     collectOnSetup,
+    skipChild,
     tree,
   } = options || {};
   const finalOnlyFor = onlyForProp && !isString(onlyForProp) ? 'onlyFor' : onlyForProp;
@@ -96,7 +98,6 @@ export function createCollector<
     onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number) => void;
   }) => {
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
-    const childrenVmElMap = new WeakMap<any, Element>(); // use `UnwrapRef<InstanceWithProps<ChildProps>>` as key will make FormItemCollector's type error...
     const state = shallowReactive({
       parentMounted: false,
       parentEl: null as Element | null,
@@ -117,12 +118,12 @@ export function createCollector<
       const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
       return {
         addItem(child: any) {
-          const el = child && getChildEl(child)!,
+          if (!child || runIfFn(skipChild, child) === true) return;
+          const el = getChildEl(child)!,
             {
               value,
               value: { length },
             } = itemsArr;
-          if (!el) return;
           // if 'onlyFor' is defined, accepts child only with the same value
           if (
             finalOnlyFor &&
@@ -130,11 +131,9 @@ export function createCollector<
             child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
           )
             return;
-          (el as any)[CHILD_KEY] = true;
-          childrenVmElMap.set(child, el);
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort
           // otherwise, we find previous child in dom order to insert the index
-          if (state.parentMounted && sort && length) {
+          if (el && state.parentMounted && sort && length) {
             const getPosition = (i: number) => {
               const res = el.compareDocumentPosition(getChildEl(value[i] as any));
               // 4: Node.DOCUMENT_POSITION_FOLLOWING 2: Node.DOCUMENT_POSITION_PRECEDING
@@ -175,7 +174,6 @@ export function createCollector<
         if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
         else return [];
       },
-      getChildEl: (vm: any) => childrenVmElMap.get(vm),
       vm: instance,
       getChildVmIndex: provideContext.getChildVmIndex,
       provided: provideContext,
