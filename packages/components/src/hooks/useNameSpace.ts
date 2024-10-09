@@ -7,7 +7,7 @@ import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
 import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun/core';
 import { useExpose } from 'hooks';
-import { rootElements } from 'utils';
+import { rootSet } from 'utils';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -35,15 +35,15 @@ export const getThemeValue = (
 ): any => {
   if (!vm) return;
   const result = vm.props[key],
-    parent = vmParentMap.get(vm!);
-  const theme = context?.theme?.[key];
+    parent = vmParentMap.get(vm!),
+    theme = context?.theme?.[key];
   return (
     result ||
     (parent && !ignoreParent && getThemeValue(parent, key)) ||
     (theme &&
       ((compName && theme[compName]) ||
         // if it ignores parent and is not root element, do not use common theme
-        ((!ignoreParent || rootElements.has(vm.ce!)) && (theme.common || theme))))
+        ((!ignoreParent || rootSet.has(vm.ce!)) && (theme.common || theme))))
   );
 };
 

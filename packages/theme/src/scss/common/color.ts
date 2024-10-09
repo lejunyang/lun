@@ -1,4 +1,4 @@
-import { createImportStyle, createImportDynamicStyle, GlobalStaticConfig } from '@lun/components';
+import { createImportStyle, GlobalStaticConfig } from '@lun/components';
 import { supportCSSDisplayP3 } from '@lun/utils';
 // light
 import {

@@ -607,6 +607,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   }
 
   private _applyStyles(styles: (string | CSSStyleSheet)[] | undefined, _owner?: ConcreteComponent) {
+    if (_owner === this._def) return;
     const nonce = this._def.nonce;
     if (styles && this.shadowRoot) {
       const sheets: CSSStyleSheet[] = [];

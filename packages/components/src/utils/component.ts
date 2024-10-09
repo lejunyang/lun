@@ -176,7 +176,7 @@ const warnHandler = (msg: string, _: any, trace: string) => {
 };
 
 /** elements that are not under any other lun's custom elements */
-export const rootElements = new WeakSet();
+export const rootSet = new WeakSet();
 
 export function preprocessComponentOptions(options: ComponentOptions) {
   const compKey = options.name as ComponentKey;
@@ -209,7 +209,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     });
     options.inheritAttrs ||= false;
     options.onConnected = (CE: HTMLElement, parent: HTMLElement) => {
-      rootElements[parent ? 'add' : 'delete'](CE);
+      rootSet[parent ? 'delete' : 'add'](CE);
       CE.toggleAttribute('data-root', !parent); // set root attr for root element
     };
     options.configureApp = (app: App) => {
