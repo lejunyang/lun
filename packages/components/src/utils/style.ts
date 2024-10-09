@@ -17,11 +17,13 @@ export function processStringStyle<B extends boolean>(
 ): B extends true ? string : string | CSSStyleSheet {
   style = String(style || '');
   const { wrapCSSLayer, preferCSSStyleSheet, stylePreprocessor } = GlobalStaticConfig;
-  if (supportCSSLayer && wrapCSSLayer) {
-    if (layerType === 0) style = `@layer lun-static,lun-dynamic,lun-style;@layer lun-style {${style}}`;
-    else style = `@layer ${layerType ? 'lun-static' : 'lun-dynamic'} {${style}}`;
+  if (style) {
+    if (supportCSSLayer && wrapCSSLayer) {
+      if (layerType === 0) style = `@layer lun-static,lun-dynamic,lun-style;@layer lun-style {${style}}`;
+      else style = `@layer ${layerType ? 'lun-static' : 'lun-dynamic'} {${style}}`;
+    }
+    style = stylePreprocessor(style);
   }
-  style = stylePreprocessor(style);
   if (isSupportCSSStyleSheet() && preferCSSStyleSheet && !noSheet) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(style);

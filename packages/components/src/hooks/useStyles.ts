@@ -1,8 +1,8 @@
-import { copyCSSStyleSheetsIfNeed, runIfFn, isSupportCSSStyleSheet, toArrayIfNotNil } from '@lun/utils';
+import { copyCSSStyleSheetsIfNeed, runIfFn, isSupportCSSStyleSheet, toArrayIfNotNil, getWindow } from '@lun/utils';
 import type { OpenShadowComponentKey } from 'config';
 import { GlobalStaticConfig, componentsWithTeleport, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
-import { onCEMount } from './shadowDom';
+import { useCE } from './shadowDom';
 import { error } from '../utils/console';
 import { processStringStyle } from 'utils';
 
@@ -12,49 +12,46 @@ export function useContextStyles(name: OpenShadowComponentKey) {
     error('useContextStyles must be called inside setup()');
     return;
   }
-  const context = useContextConfig(), { dynamicStyles } = context;
+  const CE = useCE(),
+    root = CE.shadowRoot!,
+    SheetConstructor = getWindow(CE).CSSStyleSheet;
+  const context = useContextConfig(),
+    { dynamicStyles } = context;
   const styles = toArrayIfNotNil(dynamicStyles.common)
     .concat(toArrayIfNotNil(dynamicStyles[name]))
     .concat(() => (vm.props.innerStyle as string) || '');
+
   if (name === 'teleport-holder') {
     styles.push(...componentsWithTeleport.flatMap((name) => dynamicStyles[name]));
   }
-  const sheets: (CSSStyleSheet & { _clone?: CSSStyleSheet; _css: () => string })[] = [];
+  const sheets: [CSSStyleSheet, getCSS: () => string][] = [];
   const textStyles: (() => string)[] = [];
   const adopt = isSupportCSSStyleSheet() && GlobalStaticConfig.preferCSSStyleSheet;
   styles.forEach((s) => {
     if (!s) return;
     const css = () => processStringStyle(runIfFn(s, vm, name, context), false, true);
     if (adopt) {
-      const sheet = new CSSStyleSheet() as CSSStyleSheet & { _clone?: CSSStyleSheet; _css: () => string };
-      sheet._css = css;
-      sheets.push(sheet);
+      const sheet = new SheetConstructor();
+      sheets.push([sheet, css]);
     } else {
       textStyles.push(css);
     }
   });
   watchEffect(() => {
-    sheets.forEach((s) => {
-      s.replaceSync(s._css());
-      if (s._clone) {
-        s._clone.replaceSync(s._css());
-      }
+    sheets.forEach(([s, css]) => {
+      // FIXME 有时候中切换page非常卡，会卡几秒，尤其是英文文档，在性能分析中看到基本是下面替换样式或样式表清理引起了大量的GC，占用了很长的时间。难道是我这台老mac太拉了？
+      const text = css();
+      s.replaceSync(text);
     });
   });
-  onCEMount(({ shadowRoot }) => {
-    if (sheets.length) {
-      // TODO 或许不用管clone，或许可以通过vm.CE去获取window的CSSStyleSheet，这样就不用克隆了
-      // copyCSSStyleSheetsIfNeed is for doc-pip component. when custom-element is moved to another document, it will throw an error: Sharing constructed stylesheets in multiple documents is not allowed
-      // so we must check if the stylesheets are shared between documents, if so, we must clone them
-      const cloned = copyCSSStyleSheetsIfNeed(sheets, shadowRoot);
-      // attach cloned sheet to original sheet, so that it can be updated in watchEffect
-      cloned.forEach((s, i) => {
-        if (s !== sheets[i]) {
-          sheets[i]._clone = s;
-        }
-      });
-      shadowRoot.adoptedStyleSheets.push(...cloned);
-    }
-  });
+  if (sheets.length) {
+    // copyCSSStyleSheetsIfNeed is for doc-pip component. when custom-element is moved to another document, it will throw an error: Sharing constructed stylesheets in multiple documents is not allowed
+    // so we must check if the stylesheets are shared between documents, if so, we must clone them
+    const cloned = copyCSSStyleSheetsIfNeed(
+      sheets.map(([i]) => i),
+      CE,
+    );
+    root.adoptedStyleSheets.push(...cloned);
+  }
   return computed(() => textStyles.map((i) => h('style', {}, i())));
 }
