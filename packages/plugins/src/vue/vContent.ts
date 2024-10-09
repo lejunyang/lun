@@ -13,6 +13,10 @@ export interface VShowElement extends HTMLElement {
 const targetValue = supportCSSContentVisibility ? 'hidden' : 'none',
   targetProp = supportCSSContentVisibility ? 'contentVisibility' : 'display';
 
+/**
+ * Using it like v-show to toggle content visibility of target element.
+ * Do not using it on SVG unless you know the difference of content-visibility: hidden and display: none on SVG
+ */
 export const vContent: ObjectDirective<VShowElement> & { name?: 'content' } = {
   beforeMount(el, { value }, { transition }) {
     el[vContentVisibilityOriginal] = el.style[targetProp] === targetValue ? '' : el.style[targetProp];

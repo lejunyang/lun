@@ -24,4 +24,7 @@ Highly experimental
 
 ## 节点可勾选
 
+设置`checkable`属性便会使树节点渲染出勾选框，通过`checkStrategy`属性可以控制勾选策略，目前有：
+- `tree`: 默认值，父子节点的勾选状态会互相影响。父节点勾选时，所有子节点也会被勾选，所有子节点（除disabled以外）勾选时，父节点也会被勾选
+
 <!-- @Code:checkable -->

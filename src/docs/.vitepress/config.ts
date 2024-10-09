@@ -195,21 +195,7 @@ export default defineConfig({
     },
   },
   vite: viteConfig,
-  head: [
-    [
-      'script',
-      {
-        type: 'speculationrules',
-      },
-      `{
-  "prerender": [
-    {
-      "urls": ["/lun/components/button/", "/lun/guides/usage/"]
-    }
-  ]
-}`,
-    ],
-  ],
+  head: [],
   lastUpdated: true,
   themeConfig: {
     search: {
@@ -257,6 +243,12 @@ export default defineConfig({
           text: '上次更新于',
           formatOptions: { dateStyle: 'medium', timeStyle: undefined, forceLocale: true },
         },
+        editLink: {
+          text: '在Github编辑此页',
+          pattern(payload) {
+            return `https://github.com/lejunyang/lun/tree/main/src/docs/${payload.relativePath}`;
+          },
+        },
       },
     },
     en: {
@@ -266,6 +258,12 @@ export default defineConfig({
         lastUpdated: {
           text: 'Last updated at',
           formatOptions: { dateStyle: 'medium', timeStyle: undefined, forceLocale: true },
+        },
+        editLink: {
+          text: 'Edit this page on Github',
+          pattern(payload) {
+            return `https://github.com/lejunyang/lun/tree/main/src/docs/${payload.relativePath}`;
+          },
         },
         ...getThemeConfig('en'),
       },

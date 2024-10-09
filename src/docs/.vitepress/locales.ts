@@ -190,7 +190,7 @@ export default {
         staticConfig: 'StaticConfig',
         teleport: 'TeleportHolder',
         themeProvider: 'ThemeProvider',
-        virtual: 'VirtualRenderer 虚拟渲染',
+        virtual: 'VirtualRenderer',
       },
     },
     components: {

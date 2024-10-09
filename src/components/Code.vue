@@ -30,7 +30,7 @@
           </svg>
           <svg
             v-bind="commonSVGProps"
-            v-content="!isFullscreen && isSupported"
+            v-show="!isFullscreen && isSupported"
             @click="toggle"
             style="transform: scale(0.9)"
           >
@@ -42,7 +42,7 @@
           </svg>
           <svg
             v-bind="commonSVGProps"
-            v-content="isFullscreen && isSupported"
+            v-show="isFullscreen && isSupported"
             @click="toggle"
             style="transform: scale(0.9)"
           >
