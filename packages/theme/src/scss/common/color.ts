@@ -555,7 +555,7 @@ export const importAllColors = createImportStyle('common', () => {
   return gen(light) + gen(dark, 1) + gen([blackA, whiteA], -1);
 });
 
-export const importAllP3Colors = createImportDynamicStyle('common', () => {
+export const importAllP3Colors = createImportStyle('common', () => {
   return supportCSSDisplayP3 && matchMedia('(color-gamut: p3)').matches
     ? gen(lightP3) + gen(darkP3, 1) + +gen([blackP3A, whiteP3A], -1)
     : '';

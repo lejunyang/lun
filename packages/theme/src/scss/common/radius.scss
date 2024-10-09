@@ -46,7 +46,7 @@
     }
 
     // needs to be set on every element with a radius attribute, or it will just inherit the value from the theme-provider
-    :host(:is([#{$radius-name}], [data-#{$radius-name}])) {
+    :host(:is([#{$radius-name}], [data-#{$radius-name}], [data-root])) {
       @for $i from 1 through length($radius-list) {
         $size: nth($radius-list, $i);
         #{getVarName(($radius-name, $i))}: calc(#{$size} * #{getScaleValue()} * var(#{$factor}));

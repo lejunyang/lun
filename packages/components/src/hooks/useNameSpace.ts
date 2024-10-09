@@ -7,6 +7,7 @@ import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
 import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun/core';
 import { useExpose } from 'hooks';
+import { rootElements } from 'utils';
 
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
@@ -30,14 +31,19 @@ export const getThemeValue = (
   key: keyof ThemeProps,
   context?: any,
   compName?: string,
+  ignoreParent?: boolean,
 ): any => {
-  const result = vm?.props[key],
+  if (!vm) return;
+  const result = vm.props[key],
     parent = vmParentMap.get(vm!);
   const theme = context?.theme?.[key];
   return (
     result ||
-    (parent && getThemeValue(parent, key)) ||
-    (theme && ((compName && theme[compName]) || theme.common || theme))
+    (parent && !ignoreParent && getThemeValue(parent, key)) ||
+    (theme &&
+      ((compName && theme[compName]) ||
+        // if it ignores parent and is not root element, do not use common theme
+        ((!ignoreParent || rootElements.has(vm.ce!)) && (theme.common || theme))))
   );
 };
 
@@ -205,7 +211,7 @@ export const useNamespace = (
       return themeClass.value;
     },
     themes() {
-      return fromObject(themeProps, (k) => [k, getActualThemeValue(k)] as const) as Record<keyof ThemeProps, any>
+      return fromObject(themeProps, (k) => [k, getActualThemeValue(k)] as const) as Record<keyof ThemeProps, any>;
     },
     /** get size class */
     s: getSizeClass,

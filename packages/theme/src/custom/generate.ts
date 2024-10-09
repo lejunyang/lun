@@ -10,7 +10,7 @@ import { generateRadixColors } from './custom';
 import { getVarName } from '../scss/utils';
 
 export const importCustomDynamicColors = createImportDynamicStyle('common', (vm, name, context) => {
-  const getTheme = (prop: keyof ThemeProps) => getThemeValue(vm, prop, context, name);
+  const getTheme = (prop: keyof ThemeProps) => getThemeValue(vm, prop, context, name, true);
   const color = getTheme('color'),
     grayColor = getTheme('grayColor'),
     appearance = getTheme('appearance'),

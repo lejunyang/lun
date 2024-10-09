@@ -175,6 +175,9 @@ const warnHandler = (msg: string, _: any, trace: string) => {
   console.warn(msg, msg.includes('Extraneous non-props') || msg.includes('hydrate') ? '\n' + trace : undefined, _);
 };
 
+/** elements that are not under any other lun's custom elements */
+export const rootElements = new WeakSet();
+
 export function preprocessComponentOptions(options: ComponentOptions) {
   const compKey = options.name as ComponentKey;
   if (compKey && compKey in GlobalStaticConfig.defaultProps) {
@@ -206,6 +209,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     });
     options.inheritAttrs ||= false;
     options.onConnected = (CE: HTMLElement, parent: HTMLElement) => {
+      rootElements[parent ? 'add' : 'delete'](CE);
       CE.toggleAttribute('data-root', !parent); // set root attr for root element
     };
     options.configureApp = (app: App) => {
