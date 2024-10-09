@@ -100,7 +100,7 @@ export const TreeItem = defineSSRCustomElement({
               class={ns.e('indent')}
               part={compParts[2]}
               // TODO level - 1 if all this level tree-items have no children
-              style={{ width: toPxIfNum(+(parent!.props.indentSize || 0) * (level + 1)) }}
+              style={{ width: toPxIfNum(+(parent!.props.indentSize ?? 20) * (level + 1)) }}
             >
               {!isLeaf &&
                 renderElement('icon', { name: 'down', class: [ns.e('toggle'), ns.is('expanded', expanded.value)] })}

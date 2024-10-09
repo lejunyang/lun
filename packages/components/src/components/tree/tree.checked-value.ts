@@ -31,9 +31,8 @@ export function useTreeCheckedValue(context: () => TreeParentContext, checkedVal
       const checkedCount = checkedChildrenCountMap.get(topVm),
         children = getVmTreeChildren(topVm),
         parent = getVmTreeParent(topVm);
-      // disabled children are not counted
       if (checkedCount === children.length - (disabledChildrenCountMap.get(topVm) || 0)) {
-        // all children are checked
+        // all children(except disabled) are checked
         correctedCheckedSet.add(getValue(topVm));
         parent && countUp(parent);
         traverse(stopLevel);
@@ -50,13 +49,13 @@ export function useTreeCheckedValue(context: () => TreeParentContext, checkedVal
 
       if (parent && isDisabled) disableCountUp(parent);
 
-      if (isChecked || parentCheckedLevel! < level) correctedCheckedSet.add(childValue);
+      if (isChecked || (parentCheckedLevel! < level && !isDisabled)) correctedCheckedSet.add(childValue);
       if (isChecked && !isLeaf && parentCheckedLevel === undefined) parentCheckedLevel = level;
 
       if (level === lastNoneLeafLevel) traverse(level);
       if (level >= lastNoneLeafLevel! || !level) {
         if (!isLeaf) toBeCheckedVmStack.push(child);
-        else if (isChecked) countUp(at(toBeCheckedVmStack, -1));
+        else if (isChecked) countUp(parent);
       } else parentCheckedLevel = undefined;
 
       if (!isLeaf) lastNoneLeafLevel = level;

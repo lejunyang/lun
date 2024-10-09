@@ -1,9 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { treeEmits, treeProps } from './type';
-import { useNamespace, useValueModel } from 'hooks';
+import { useCEExpose, useNamespace, useValueModel } from 'hooks';
 import { getCompParts } from 'common';
-import { TreeCollector } from './collector';
+import { TreeCollector, TreeExtraProvide } from './collector';
 import { useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
 import { computed } from 'vue';
@@ -37,6 +37,7 @@ export const Tree = defineSSRCustomElement({
     const [correctedCheckedSet, vmCheckedChildrenCountMap] = useTreeCheckedValue(() => context, checkedValueSet);
     const checkMethods = useTreeCheckMethods({
       valueSet: correctedCheckedSet,
+      childrenInfo,
       childrenCheckedMap: vmCheckedChildrenCountMap,
       getContext: () => context,
       valueToChild,
@@ -70,13 +71,16 @@ export const Tree = defineSSRCustomElement({
       expand: _expandMethods.check,
       collapse: _expandMethods.uncheck,
     };
+    const methods = {
+      select: selectMethods,
+      check: checkMethods,
+      expand: expandMethods,
+    };
     const context = TreeCollector.parent({
-      extraProvide: {
-        select: selectMethods,
-        check: checkMethods,
-        expand: expandMethods,
-      },
+      extraProvide: methods,
     });
+
+    useCEExpose({ methods });
 
     return () => {
       return (
@@ -89,14 +93,7 @@ export const Tree = defineSSRCustomElement({
 });
 
 export type tTree = typeof Tree;
-export type iTree = InstanceType<tTree>;
+export type TreeExpose = TreeExtraProvide;
+export type iTree = InstanceType<tTree> & TreeExpose;
 
-export const defineTree = createDefineElement(
-  name,
-  Tree,
-  {
-    indentSize: 20,
-  },
-  parts,
-  {},
-);
+export const defineTree = createDefineElement(name, Tree, {}, parts, {});

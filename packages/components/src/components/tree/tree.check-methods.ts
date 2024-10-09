@@ -2,7 +2,8 @@ import { ToAllMaybeRefLike, unrefOrGet, useCheckboxMethods } from '@lun/core';
 import { ComponentInternalInstance } from 'vue';
 import { TreeParentContext } from './collector';
 import { createCount, getValue, isLeafChild } from './tree.common';
-import { arrayFrom } from '@lun/utils';
+import { arrayFrom, differenceOfSets } from '@lun/utils';
+import { useCollectorValue } from 'hooks';
 
 export function useTreeCheckMethods(
   options: ToAllMaybeRefLike<
@@ -13,12 +14,13 @@ export function useTreeCheckMethods(
     },
     true
   > & {
+    childrenInfo: ReturnType<typeof useCollectorValue>[0];
     onChange: (value: any | any[]) => void;
     valueToChild: (value: any) => ComponentInternalInstance | undefined;
     getContext: () => TreeParentContext;
   },
 ) {
-  const { valueSet, onChange, valueToChild, getContext, childrenCheckedMap } = options;
+  const { valueSet, onChange, valueToChild, getContext, childrenCheckedMap, childrenInfo } = options;
   const countUp = createCount(childrenCheckedMap, 1),
     countDown = createCount(childrenCheckedMap, -1);
   const methods = useCheckboxMethods(options);
@@ -77,6 +79,10 @@ export function useTreeCheckMethods(
     toggle(value: any) {
       if (methods.isChecked(value)) uncheck(value);
       else check(value);
+    },
+    reverse() {
+      const leafSet = differenceOfSets(childrenInfo.childrenValuesSet, childrenInfo.noneLeafValuesSet);
+      onChange(arrayFrom(differenceOfSets(leafSet, unrefOrGet(valueSet))));
     },
   });
   return {
