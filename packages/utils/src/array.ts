@@ -61,4 +61,3 @@ export function arrayFrom(lengthOrArrayLike: number | ArrayLike<any> | Iterable<
   return Array.from(isNumber(lengthOrArrayLike) ? { length: lengthOrArrayLike } : lengthOrArrayLike, mapVal);
 }
 
-arrayFrom(new Set());
