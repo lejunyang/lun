@@ -10,12 +10,15 @@ import {
   PropBoolean,
   createTransitionProps,
   PropString,
+  PropObject,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const treeProps = freeze({
   ...themeProps,
   ...editStateProps,
+  items: PropArray<(TreeItemSetupProps & { children?: TreeItemSetupProps[]; loadable?: boolean })[]>(),
+  itemPropsMap: PropObject<Record<keyof TreeItemSetupProps | 'children' | 'key', string> & Record<string, string>>(),
   checked: PropArray(),
   selected: PropArray(),
   expanded: PropArray(),
@@ -23,6 +26,7 @@ export const treeProps = freeze({
   selectable: PropString<'line' | 'label'>(),
   selectMode: PropString<'single' | 'multiple' | 'ctrl-multiple'>(),
   checkable: PropBoolean(),
+  // TODO
   checkStrategy: PropString<'tree' | 'separate'>(),
   indentSize: PropNumber(),
 });

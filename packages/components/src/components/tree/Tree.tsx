@@ -10,6 +10,7 @@ import { computed } from 'vue';
 import { toArrayIfNotNil } from '@lun/utils';
 import { useTreeCheckedValue } from './tree.checked-value';
 import { useTreeCheckMethods } from './tree.check-methods';
+import { useTreeItems } from './tree.items';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -20,8 +21,8 @@ export const Tree = defineSSRCustomElement({
   emits: treeEmits,
   setup(props) {
     const ns = useNamespace(name);
-    useSetupEdit();
-    const selectedModel = useValueModel(props, { key: 'selected', eventName: 'select' }),
+    const [editComputed] = useSetupEdit();
+    const selectedModel = useValueModel(props, { key: 'selected', eventName: 'select' }), // TODO add hasRaw
       checkedModel = useValueModel(props, { key: 'checked', eventName: 'check' }),
       expandedModel = useValueModel(props, { key: 'expanded', eventName: 'expand' });
     const selectedValueSet = computed(() => new Set(toArrayIfNotNil(selectedModel.value))),
@@ -33,6 +34,7 @@ export const Tree = defineSSRCustomElement({
           : new Set(toArrayIfNotNil(value));
       });
 
+    const [propItemsInfo, renderItems] = useTreeItems(props, editComputed);
     const [childrenInfo, valueToChild] = useCollectorValue(() => context, true);
     const [correctedCheckedSet, vmCheckedChildrenCountMap] = useTreeCheckedValue(() => context, checkedValueSet);
     const checkMethods = useTreeCheckMethods({
@@ -85,6 +87,7 @@ export const Tree = defineSSRCustomElement({
     return () => {
       return (
         <ul class={ns.t} part={compParts[0]}>
+          {renderItems()}
           <slot></slot>
         </ul>
       );
