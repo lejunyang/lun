@@ -16,6 +16,7 @@ import {
   onUnmounted,
   shallowReactive,
   reactive,
+  readonly,
 } from 'vue';
 import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun/utils';
 import { toUnrefGetterDescriptors } from '../utils';
@@ -71,8 +72,10 @@ export function createCollector<
   getParentEl?: (vm: InstanceWithProps<NoInfer<ParentProps>>) => Element;
   getChildEl?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => Element;
   collectOnSetup?: boolean;
-  skipChild?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => boolean;
+  skipChild?: (vm: InstanceWithProps<NoInfer<ChildProps>>, parentEl: Element) => boolean;
   tree?: Tree;
+  /** it's for vue custom elements to delay getting items.value, as all children's setups are after parent's mount  */
+  needWait?: boolean;
 }) {
   const {
     sort,
@@ -83,6 +86,7 @@ export function createCollector<
     collectOnSetup,
     skipChild,
     tree,
+    needWait,
   } = options || {};
   const finalOnlyFor = onlyForProp && !isString(onlyForProp) ? 'onlyFor' : onlyForProp;
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name ? '-' + name : ''}` : '');
@@ -95,30 +99,41 @@ export function createCollector<
   const parent = (params?: {
     extraProvide?: PE;
     lazyChildren?: boolean;
-    onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number) => void;
+    onChildAdded?: (child: InstanceWithProps<ChildProps>, index: number, isAddToTopParent?: boolean) => void;
+    onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number, isRemoveFromTopParent?: boolean) => void;
   }) => {
+    const { extraProvide, lazyChildren = true, onChildAdded, onChildRemoved } = params || {};
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
     const state = shallowReactive({
       parentMounted: false,
       parentEl: null as Element | null,
+      waitDone: !needWait,
     });
-    const { extraProvide, lazyChildren = true, onChildRemoved } = params || {};
+    let waitTimer: any;
+    const updateWait = () => {
+      if (!needWait || state.waitDone) return;
+      clearTimeout(waitTimer);
+      waitTimer = setTimeout(() => {
+        state.waitDone = true;
+      });
+    };
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) {
       onMounted(() => {
         state.parentMounted = true;
         state.parentEl = getParentEl(instance);
+        updateWait();
       });
       onUnmounted(() => {
         items.value = [];
       });
     }
 
-    const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>) => {
+    const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>, isTopParent?: boolean) => {
       const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
       return {
         addItem(child: any) {
-          if (!child || runIfFn(skipChild, child) === true) return;
+          if (!child || runIfFn(skipChild, child, state.parentEl!) === true) return;
           const el = getChildEl(child)!,
             {
               value,
@@ -146,15 +161,18 @@ export function createCollector<
               if (pos & 4) prevIndex -= 1;
             }
             value.splice(prevIndex + 1, 0, child);
+            if (onChildAdded) onChildAdded(child, prevIndex + 1, isTopParent);
           } else {
             value.push(child);
+            if (onChildAdded) onChildAdded(child, value.length - 1, isTopParent);
           }
+          isTopParent && updateWait();
         },
         removeItem(child: any) {
           const index = getChildVmIndex(child);
           if (index > -1) {
             itemsArr.value.splice(index, 1);
-            if (onChildRemoved) onChildRemoved(child as any, index);
+            if (onChildRemoved) onChildRemoved(child as any, index, isTopParent);
           }
         },
         getChildVmIndex,
@@ -166,14 +184,25 @@ export function createCollector<
       parent: instance,
       items,
       getChildrenCollect,
-      ...getChildrenCollect(items),
+      ...getChildrenCollect(items, true),
     } as CollectorContext<ParentProps, ChildProps>) as CollectorContext<ParentProps, ChildProps, PE>;
     provide(COLLECTOR_KEY, provideContext);
+    const empty: InstanceWithProps<ChildProps>[] = [],
+      getChildren = () => {
+        if ((!lazyChildren || state.parentMounted) && state.waitDone)
+          return items.value as InstanceWithProps<ChildProps>[];
+        else return empty;
+      };
     return {
       get value() {
-        if (!lazyChildren || state.parentMounted) return items.value as InstanceWithProps<ChildProps>[];
-        else return [];
+        return getChildren();
       },
+      state: readonly(state) as Readonly<{
+        parentMounted: boolean;
+        parentEl: Element | null;
+        waitDone: boolean;
+      }>,
+      getChildren,
       vm: instance,
       getChildVmIndex: provideContext.getChildVmIndex,
       provided: provideContext,

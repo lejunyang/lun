@@ -59,11 +59,20 @@ const collectorOptions = {
   getParentEl: vmToCE,
   getChildEl: vmToCE,
   collectOnSetup: true,
+  needWait: true,
 };
 
-export const getCollectorOptions = (name?: string, sort?: boolean, onlyForProp?: boolean) => ({
+export const getCollectorOptions = (
+  name?: string,
+  sort?: boolean,
+  onlyForProp?: boolean,
+  skipInternalChildren?: boolean,
+) => ({
   ...collectorOptions,
   name,
   sort,
   onlyForProp,
+  skipChild(vm: ComponentInternalInstance, parentEl: Element) {
+    return skipInternalChildren ? vm.ce?.getRootNode() === parentEl.shadowRoot : false;
+  },
 });
