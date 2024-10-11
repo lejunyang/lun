@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
-import { scrollViewEmits, scrollViewProps } from './type';
+import { scrollViewEmits, scrollViewProps, ScrollViewState } from './type';
 import { useCE } from 'hooks';
 import { getCompParts } from 'common';
-import { getRect, hyphenate, listenScroll, supportCSSRegisterProperty } from '@lun/utils';
-import { computed, onMounted, reactive, watchEffect } from 'vue';
+import { getRect, listenScroll, runIfFn, supportCSSRegisterProperty, toArrayIfNotNil } from '@lun/utils';
+import { computed, onMounted, reactive, readonly, Transition, TransitionProps, watchEffect } from 'vue';
 import { useResizeObserver } from '@lun/core';
 
 const name = 'scroll-view';
@@ -18,26 +18,24 @@ export const ScrollView = defineSSRCustomElement({
   setup(props) {
     const CE = useCE();
     const state = reactive({
-      width: 0,
-      height: 0,
-      scrollXOffset: 0,
-      scrollYOffset: 0,
-      scrolling: false,
-    });
-    const slotState = reactive({
-      xOverflow: false,
-      yOverflow: false,
-      scrolling: false,
-      xForward: false,
-      xBackward: false,
-      yForward: false,
-      yBackward: false,
-    });
+        width: 0,
+        height: 0,
+        scrollX: 0,
+        scrollY: 0,
+        scrolling: false,
+        xOverflow: false,
+        yOverflow: false,
+        xForward: false,
+        xBackward: false,
+        yForward: false,
+        yBackward: false,
+      }) as ScrollViewState,
+      readonlyState = readonly(state);
     const scrollProgress = computed(
       () =>
         [
-          state.scrollXOffset / (CE.scrollWidth - state.width),
-          state.scrollYOffset / (CE.scrollHeight - state.height),
+          state.scrollX / (CE.scrollWidth - state.width || 1),
+          state.scrollY / (CE.scrollHeight - state.height || 1),
         ] as const,
     );
     if (supportCSSRegisterProperty) {
@@ -61,9 +59,9 @@ export const ScrollView = defineSSRCustomElement({
 
     const setSize = (rect: DOMRect | ResizeObserverSize) => {
       state.width = Math.round((rect as DOMRect).width ?? (rect as ResizeObserverSize).inlineSize);
-      slotState.xOverflow = state.width < CE.scrollWidth;
+      state.xOverflow = state.width < CE.scrollWidth;
       state.height = Math.round((rect as DOMRect).height ?? (rect as ResizeObserverSize).blockSize);
-      slotState.yOverflow = state.height < CE.scrollHeight;
+      state.yOverflow = state.height < CE.scrollHeight;
     };
     onMounted(() => {
       setSize(getRect(CE));
@@ -79,22 +77,58 @@ export const ScrollView = defineSSRCustomElement({
 
     listenScroll(CE, ({ xForward, yForward, offsetX, offsetY, scrolling }) => {
       Object.assign(state, {
-        scrollXOffset: offsetX,
-        scrollYOffset: offsetY,
+        scrollX: offsetX,
+        scrollY: offsetY,
         scrolling,
       });
       if (scrolling) {
         xForward !== null &&
-          Object.assign(slotState, {
+          Object.assign(state, {
             xForward,
             xBackward: !xForward,
           });
         yForward !== null &&
-          Object.assign(slotState, {
+          Object.assign(state, {
             yForward,
             yBackward: !yForward,
           });
       }
+    });
+
+    const getTransitionHandlers = (enterAnimation?: any[], leaveAnimation?: any[]) => {
+      return {
+        onEnter(el, done) {
+          const slot = el as HTMLSlotElement,
+            elements = slot.assignedElements();
+          enterAnimation &&
+            elements.forEach((e, i) => {
+              const ani = e.animate(enterAnimation[0], enterAnimation[1]);
+              if (!i) ani.onfinish = done;
+            });
+        },
+        onLeave(el, done) {
+          const slot = el as HTMLSlotElement,
+            elements = slot.assignedElements();
+          leaveAnimation &&
+            elements.forEach((e, i) => {
+              const ani = e.animate(leaveAnimation[0], leaveAnimation[1]);
+              if (!i) ani.onfinish = done;
+            });
+        },
+      } as TransitionProps;
+    };
+    const slots = computed(() => {
+      const { getSlots } = props;
+      return toArrayIfNotNil(runIfFn(getSlots, readonlyState)).map((slot) => {
+        if (!slot) return;
+        const { name, enterAnimation, leaveAnimation, show } = slot,
+          node = <slot name={name} v-content={show}></slot>;
+        return enterAnimation || leaveAnimation ? (
+          <Transition {...getTransitionHandlers(enterAnimation, leaveAnimation)}>{node}</Transition>
+        ) : (
+          node
+        );
+      });
     });
 
     return () => {
@@ -103,12 +137,8 @@ export const ScrollView = defineSSRCustomElement({
 
       return (
         <span part={compParts[0]} style={{ [scrollXPercentVarName!]: value[0], [scrollYPercentVarName!]: value[1] }}>
-          <>
-            {Object.entries(slotState).map(([key, value]) => (
-              <slot name={hyphenate(key)} v-content={value}></slot>
-            ))}
-            <slot></slot>
-          </>
+          {slots.value}
+          <slot></slot>
         </span>
       );
     };
