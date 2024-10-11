@@ -40,6 +40,15 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
 
+const vmChildrenMap = reactive(new WeakMap<any, Ref<InstanceWithProps<any>[]>>()),
+  vmTreeLevelMap = reactive(new WeakMap<any, Ref<number>>()),
+  vmTreeParentMap = reactive(new WeakMap<any, any>());
+
+export const getVmTreeDirectChildren = (vm?: ComponentInternalInstance) => vmChildrenMap.get(vm)?.value || [];
+export const getVmTreeLevel = (child?: ComponentInternalInstance) => vmTreeLevelMap.get(child)?.value;
+export const getVmTreeParent = (child?: ComponentInternalInstance): ComponentInternalInstance | undefined =>
+  vmTreeParentMap.get(child);
+
 /**
  * create a collector used for collecting component instances between Parent Component and Children Components.\
  * First two typescript generics `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
@@ -91,10 +100,6 @@ export function createCollector<
   const finalOnlyFor = onlyForProp && !isString(onlyForProp) ? 'onlyFor' : onlyForProp;
   const COLLECTOR_KEY = Symbol(__DEV__ ? `l-collector-${name ? '-' + name : ''}` : '');
   const CHILD_KEY = Symbol(__DEV__ ? `l-collector-child-${name ? '-' + name : ''}` : '');
-
-  const childrenMap = reactive(new WeakMap<any, Ref<InstanceWithProps<ChildProps>[]>>()),
-    childrenVmLevelMap = tree ? reactive(new WeakMap<any, Ref<number>>()) : null,
-    treeVmParentMap = tree ? reactive(new WeakMap<any, any>()) : null;
 
   const parent = (params?: {
     extraProvide?: PE;
@@ -206,13 +211,6 @@ export function createCollector<
       vm: instance,
       getChildVmIndex: provideContext.getChildVmIndex,
       provided: provideContext,
-      getVmTreeChildren: (vm: any) => childrenMap.get(vm)?.value || [],
-      getVmTreeLevel: (tree ? (child: any) => childrenVmLevelMap!.get(child)?.value : null) as Tree extends true
-        ? (child: any) => number | undefined
-        : null,
-      getVmTreeParent: (tree ? (child: any) => treeVmParentMap!.get(child) : null) as Tree extends true
-        ? (child: any) => InstanceWithProps<ChildProps> | undefined
-        : null,
     };
   };
   const child = <T = undefined>(collect = true, defaultContext?: T) => {
@@ -237,7 +235,7 @@ export function createCollector<
           const isLeaf = ref(null as null | boolean),
             level = ref(0),
             nestedItems = ref([]);
-          childrenMap.set(instance, nestedItems);
+          vmChildrenMap.set(instance, nestedItems);
           const provideMethods = {
             getLevel: () => ((isLeaf.value = false), level.value),
             ...context.getChildrenCollect(nestedItems),
@@ -247,18 +245,18 @@ export function createCollector<
           const parentProvide = inject<typeof provideMethods>(CHILD_KEY);
           if (parentProvide) {
             level.value = parentProvide.getLevel() + 1;
-            treeVmParentMap!.set(instance, parentProvide.instance);
+            vmTreeParentMap.set(instance, parentProvide.instance);
           }
-          childrenVmLevelMap!.set(instance!, level);
+          vmTreeLevelMap.set(instance!, level);
           const performCollect = () => parentProvide?.addItem(instance!);
           collectOnSetup ? performCollect() : onMounted(performCollect);
           onMounted(() => {
             if (isLeaf.value == null) isLeaf.value = true;
           });
           onBeforeUnmount(() => {
-            childrenMap.delete(instance);
-            treeVmParentMap?.delete(instance);
-            childrenVmLevelMap!.delete(instance!);
+            vmChildrenMap.delete(instance);
+            vmTreeParentMap.delete(instance);
+            vmTreeLevelMap.delete(instance!);
             parentProvide?.removeItem(instance!);
           });
           return toUnrefGetterDescriptors({ isLeaf, level, nestedItems });
