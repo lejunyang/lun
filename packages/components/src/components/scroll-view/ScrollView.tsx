@@ -83,12 +83,18 @@ export const ScrollView = defineSSRCustomElement({
         scrollYOffset: offsetY,
         scrolling,
       });
-      Object.assign(slotState, {
-        xForward,
-        xBackward: !xForward,
-        yForward,
-        yBackward: !yForward,
-      });
+      if (scrolling) {
+        xForward !== null &&
+          Object.assign(slotState, {
+            xForward,
+            xBackward: !xForward,
+          });
+        yForward !== null &&
+          Object.assign(slotState, {
+            yForward,
+            yBackward: !yForward,
+          });
+      }
     });
 
     return () => {

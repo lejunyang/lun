@@ -25,8 +25,8 @@ export function listenScroll(
     scrolling: boolean;
     offsetX: number;
     offsetY: number;
-    xForward: boolean;
-    yForward: boolean;
+    xForward: boolean | null;
+    yForward: boolean | null;
   }) => void,
   {
     scrollEndDelay,
@@ -38,13 +38,19 @@ export function listenScroll(
 ) {
   const cleanFns: AnyFn[] = [],
     listenOption = { passive: true };
-  let scrollEndDebounce: AnyFn, lastOffsetX: number, lastOffsetY: number;
+  let scrollEndDebounce: AnyFn, lastOffsetX = 0, lastOffsetY = 0;
   const updateOffset = (scrolling = false) => {
     const offsetX = el.scrollLeft * (isRTL(el) ? -1 : 1),
       offsetY = el.scrollTop;
     onUpdate(
       // when it's RTL, scrollLeft is negative
-      { scrolling, offsetX, offsetY, xForward: offsetX > lastOffsetX, yForward: offsetY > lastOffsetY },
+      {
+        scrolling,
+        offsetX,
+        offsetY,
+        xForward: offsetX === lastOffsetX ? null : offsetX > lastOffsetX,
+        yForward: offsetY === lastOffsetY ? null : offsetY > lastOffsetY,
+      },
     );
     lastOffsetX = offsetX;
     lastOffsetY = offsetY;
