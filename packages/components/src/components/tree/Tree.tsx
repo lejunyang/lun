@@ -4,13 +4,13 @@ import { treeEmits, treeProps } from './type';
 import { useCEExpose, useNamespace, useValueModel } from 'hooks';
 import { getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
-import { useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun/core';
+import { objectComputed, useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
-import { computed } from 'vue';
-import { toArrayIfNotNil } from '@lun/utils';
+import { ComponentInternalInstance, computed } from 'vue';
+import { toArrayIfNotNil, unionOfSets } from '@lun/utils';
 import { useTreeCheckedValue } from './tree.checked-value';
 import { useTreeCheckMethods } from './tree.check-methods';
-import { useTreeItems } from './tree.items';
+import { InternalTreeItem, useTreeItems } from './tree.items';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -30,23 +30,31 @@ export const Tree = defineSSRCustomElement({
       expandedValueSet = computed(() => {
         const { value } = expandedModel;
         return props.defaultExpandAll && value == null
-          ? childrenInfo.noneLeafValuesSet
+          ? combinedChildren.noneLeafValuesSet
           : new Set(toArrayIfNotNil(value));
       });
 
-    const [propItemsInfo, renderItems] = useTreeItems(props, editComputed);
-    const [childrenInfo, valueToChild] = useCollectorValue(() => context, true);
-    const [correctedCheckedSet, vmCheckedChildrenCountMap] = useTreeCheckedValue(() => context, checkedValueSet);
+    const [propItemsInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);
+    const [vmChildrenInfo, valueToVm] = useCollectorValue(() => context, true);
+    const valueToChild = (value: any) => valueToItem(value) ?? valueToVm(value);
+    const combinedChildren = objectComputed(() => {
+      return {
+        items: ([] as (InternalTreeItem | ComponentInternalInstance)[]).concat(propItemsInfo.items, context.value),
+        noneLeafValuesSet: unionOfSets(propItemsInfo.noneLeafValuesSet, vmChildrenInfo.noneLeafValuesSet),
+        childrenValuesSet: unionOfSets(propItemsInfo.childrenValuesSet, vmChildrenInfo.childrenValuesSet),
+      };
+    });
+
+    const [correctedCheckedSet, checkedChildrenCountMap] = useTreeCheckedValue(combinedChildren, checkedValueSet);
     const checkMethods = useTreeCheckMethods({
       valueSet: correctedCheckedSet,
-      childrenInfo,
-      childrenCheckedMap: vmCheckedChildrenCountMap,
-      getContext: () => context,
+      childrenInfo: combinedChildren,
+      childrenCheckedMap: checkedChildrenCountMap,
       valueToChild,
       onChange(value) {
         checkedModel.value = value;
       },
-      allValues: () => childrenInfo.childrenValuesSet,
+      allValues: () => combinedChildren.childrenValuesSet,
     });
 
     const selectMethods = useSelectMethods({
@@ -55,14 +63,14 @@ export const Tree = defineSSRCustomElement({
       onChange(value) {
         selectedModel.value = value;
       },
-      allValues: () => childrenInfo.childrenValuesSet,
+      allValues: () => combinedChildren.childrenValuesSet,
     });
     const _expandMethods = useCheckboxMethods({
       valueSet: expandedValueSet,
       onChange(value) {
         expandedModel.value = value;
       },
-      allValues: () => childrenInfo.noneLeafValuesSet,
+      allValues: () => combinedChildren.noneLeafValuesSet,
     });
     const expandMethods = {
       isExpanded: _expandMethods.isChecked,

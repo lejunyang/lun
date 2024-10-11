@@ -19,6 +19,7 @@ export const treeProps = freeze({
   ...editStateProps,
   items: PropArray<(TreeItemSetupProps & { children?: TreeItemSetupProps[]; loadable?: boolean })[]>(),
   itemPropsMap: PropObject<Record<keyof TreeItemSetupProps | 'children' | 'key', string> & Record<string, string>>(),
+  watchItemProps: PropBoolean(), // TODO value/disabled
   checked: PropArray(),
   selected: PropArray(),
   expanded: PropArray(),

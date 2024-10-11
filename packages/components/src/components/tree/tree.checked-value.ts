@@ -1,71 +1,79 @@
-import { watchEffectOnMounted } from '@lun/core';
-import { ComponentInternalInstance, reactive, Ref, ref } from 'vue';
-import { TreeParentContext } from './collector';
+import { watchOnMounted } from '@lun/core';
+import { reactive, Ref, ref } from 'vue';
 import { at } from '@lun/utils';
-import { createCount, getLevel, getValue, isLeafChild, isVmDisabled } from './tree.common';
+import { createCount, getLevel, getValue, isLeafChild, isDisabled, Item, getChildren, getParent } from './tree.common';
 
-export function useTreeCheckedValue(context: () => TreeParentContext, checkedValueSet: Ref<Set<any>>) {
+export function useTreeCheckedValue(
+  childrenInfo: {
+    items: Item[];
+  },
+  checkedValueSet: Ref<Set<any>>,
+) {
   const correctedCheckedSet = reactive(new Set<any>()),
-    vmDirectCheckedChildrenCountMap = ref(new WeakMap<ComponentInternalInstance, number>()),
-    // TODO add vmNestedCheckedChildrenCountMap for intermediate
-    vmDisabledChildrenCountMap = ref(new WeakMap<ComponentInternalInstance, number>());
+    itemDirectCheckedChildrenCountMap = ref(new WeakMap<Item, number>()),
+    // TODO add itemNestedCheckedChildrenCountMap for intermediate
+    itemDisabledChildrenCountMap = ref(new WeakMap<Item, number>());
 
-  watchEffectOnMounted(() => {
-    correctedCheckedSet.clear();
-    const checkedChildrenCountMap = new WeakMap<ComponentInternalInstance, number>(),
-      disabledChildrenCountMap = new WeakMap<ComponentInternalInstance, number>();
+  // TODO check uncheck update; what about disabled update if not using watchEffect?  add checkedValueSet as a watch source
+  watchOnMounted(
+    () => childrenInfo.items,
+    (items) => {
+      correctedCheckedSet.clear();
+      const checkedChildrenCountMap = new WeakMap<Item, number>(),
+        disabledChildrenCountMap = new WeakMap<Item, number>();
 
-    const countUp = createCount(checkedChildrenCountMap, 1),
-      disableCountUp = createCount(disabledChildrenCountMap, 1);
-    const { value, getVmTreeChildren, getVmTreeParent } = context(),
-      checked = checkedValueSet.value;
-    let lastNoneLeafLevel: number | undefined,
-      parentCheckedLevel: number | undefined,
-      toBeCheckedVmStack: ComponentInternalInstance[] = [];
+      const countUp = createCount(checkedChildrenCountMap, 1),
+        disableCountUp = createCount(disabledChildrenCountMap, 1);
 
-    const traverse = (stopLevel: number) => {
-      if (!toBeCheckedVmStack.length) return;
-      const topVm = at(toBeCheckedVmStack, -1)!;
-      if (getLevel(topVm) < stopLevel) return;
-      toBeCheckedVmStack.pop();
-      const checkedCount = checkedChildrenCountMap.get(topVm),
-        children = getVmTreeChildren(topVm),
-        parent = getVmTreeParent(topVm);
-      if (checkedCount === children.length - (disabledChildrenCountMap.get(topVm) || 0)) {
-        // all children(except disabled) are checked
-        correctedCheckedSet.add(getValue(topVm));
-        parent && countUp(parent);
-        traverse(stopLevel);
-      }
-    };
+      const checked = checkedValueSet.value;
+      let lastNoneLeafLevel: number | undefined,
+        parentCheckedLevel: number | undefined,
+        toBeCheckedVmStack: Item[] = [];
 
-    value.forEach((child) => {
-      const level = getLevel(child),
-        isLeaf = isLeafChild(child),
-        parent = getVmTreeParent(child),
-        isDisabled = isVmDisabled(child),
-        childValue = getValue(child),
-        isChecked = checked.has(childValue);
+      const traverse = (stopLevel: number) => {
+        if (!toBeCheckedVmStack.length) return;
+        const topVm = at(toBeCheckedVmStack, -1)!;
+        if (getLevel(topVm) < stopLevel) return;
+        toBeCheckedVmStack.pop();
+        const checkedCount = checkedChildrenCountMap.get(topVm),
+          children = getChildren(topVm),
+          parent = getParent(topVm);
+        if (checkedCount === children.length - (disabledChildrenCountMap.get(topVm) || 0)) {
+          // all children(except disabled) are checked
+          correctedCheckedSet.add(getValue(topVm));
+          parent && countUp(parent);
+          traverse(stopLevel);
+        }
+      };
 
-      if (parent && isDisabled) disableCountUp(parent);
+      items.forEach((child) => {
+        const level = getLevel(child),
+          isLeaf = isLeafChild(child),
+          parent = getParent(child),
+          disabled = isDisabled(child),
+          childValue = getValue(child),
+          isChecked = checked.has(childValue);
 
-      if (isChecked || (parentCheckedLevel! < level && !isDisabled)) correctedCheckedSet.add(childValue);
-      if (isChecked && !isLeaf && parentCheckedLevel === undefined) parentCheckedLevel = level;
+        if (parent && disabled) disableCountUp(parent);
 
-      if (level === lastNoneLeafLevel) traverse(level);
-      if (level >= lastNoneLeafLevel! || !level) {
-        if (!isLeaf) toBeCheckedVmStack.push(child);
-        else if (isChecked) countUp(parent);
-      } else parentCheckedLevel = undefined;
+        if (isChecked || (parentCheckedLevel! < level && !disabled)) correctedCheckedSet.add(childValue);
+        if (isChecked && !isLeaf && parentCheckedLevel === undefined) parentCheckedLevel = level;
 
-      if (!isLeaf) lastNoneLeafLevel = level;
-    });
+        if (level === lastNoneLeafLevel) traverse(level);
+        if (level >= lastNoneLeafLevel! || !level) {
+          if (!isLeaf) toBeCheckedVmStack.push(child);
+          else if (isChecked) countUp(parent);
+        } else parentCheckedLevel = undefined;
 
-    traverse(0);
+        if (!isLeaf) lastNoneLeafLevel = level;
+      });
 
-    vmDirectCheckedChildrenCountMap.value = checkedChildrenCountMap;
-    vmDisabledChildrenCountMap.value = disabledChildrenCountMap;
-  });
+      traverse(0);
 
-  return [correctedCheckedSet, vmDirectCheckedChildrenCountMap, vmDisabledChildrenCountMap] as const;
+      itemDirectCheckedChildrenCountMap.value = checkedChildrenCountMap;
+      itemDisabledChildrenCountMap.value = disabledChildrenCountMap;
+    },
+  );
+
+  return [correctedCheckedSet, itemDirectCheckedChildrenCountMap, itemDisabledChildrenCountMap] as const;
 }

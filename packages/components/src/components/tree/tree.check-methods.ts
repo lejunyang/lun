@@ -1,26 +1,25 @@
 import { ToAllMaybeRefLike, unrefOrGet, useCheckboxMethods } from '@lun/core';
-import { ComponentInternalInstance } from 'vue';
-import { TreeParentContext } from './collector';
-import { createCount, getValue, isLeafChild } from './tree.common';
+import { createCount, getChildren, getParent, getValue, isLeafChild, Item } from './tree.common';
 import { arrayFrom, differenceOfSets } from '@lun/utils';
-import { useCollectorValue } from 'hooks';
 
 export function useTreeCheckMethods(
   options: ToAllMaybeRefLike<
     {
       valueSet: Set<any>;
       allValues: any[] | Set<any>;
-      childrenCheckedMap: WeakMap<ComponentInternalInstance, number>;
+      childrenCheckedMap: WeakMap<Item, number>;
     },
     true
   > & {
-    childrenInfo: ReturnType<typeof useCollectorValue>[0];
+    childrenInfo: {
+      childrenValuesSet: Set<any>;
+      noneLeafValuesSet: Set<any>;
+    };
     onChange: (value: any | any[]) => void;
-    valueToChild: (value: any) => ComponentInternalInstance | undefined;
-    getContext: () => TreeParentContext;
+    valueToChild: (value: any) => Item | undefined;
   },
 ) {
-  const { valueSet, onChange, valueToChild, getContext, childrenCheckedMap, childrenInfo } = options;
+  const { valueSet, onChange, valueToChild, childrenCheckedMap, childrenInfo } = options;
   const countUp = createCount(childrenCheckedMap, 1),
     countDown = createCount(childrenCheckedMap, -1);
   const methods = useCheckboxMethods(options);
@@ -36,24 +35,23 @@ export function useTreeCheckMethods(
     updateParent = 1,
     isUnCheck?: number,
   ) => {
-    const { getVmTreeChildren, getVmTreeParent } = getContext();
     const currentVm = valueToChild(value),
       checked = methods.isChecked(value);
     if (!currentVm || (isUnCheck ? !checked : checked)) return;
     const isLeaf = isLeafChild(currentVm),
-      parent = getVmTreeParent(currentVm);
+      parent = getParent(currentVm);
     // check/uncheck self
     if (isUnCheck) currentChecked.delete(value);
     else {
       // it's from children's update, only check parent if all children are checked
       if (updateParent === -1) {
         const checkedChildren = unrefOrGet(childrenCheckedMap).get(currentVm);
-        if (checkedChildren! !== getVmTreeChildren(currentVm).length) return;
+        if (checkedChildren! !== getChildren(currentVm).length) return;
       }
       currentChecked.add(value);
     }
     if (!isLeaf && updateParent !== -1) {
-      getVmTreeChildren(currentVm).forEach((c) => internalUpdate(getValue(c), currentChecked, 0, isUnCheck));
+      getChildren(currentVm).forEach((c) => internalUpdate(getValue(c), currentChecked, 0, isUnCheck));
     }
     if (updateParent && parent) {
       isUnCheck ? countDown(parent) : countUp(parent);
@@ -88,10 +86,9 @@ export function useTreeCheckMethods(
   return {
     ...methods,
     isIntermediate(value: any) {
-      const { getVmTreeChildren } = getContext();
       const currentVm = valueToChild(value);
       if (!currentVm) return false;
-      const children = getVmTreeChildren(currentVm),
+      const children = getChildren(currentVm),
         checkedChildren = unrefOrGet(childrenCheckedMap).get(currentVm)!;
       return 0 < checkedChildren && checkedChildren < children.length;
     },
