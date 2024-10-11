@@ -542,12 +542,12 @@ const gen = (colors: any[], index = 0) => {
         .join(';'),
     )
     .join(';');
-  // FIXME safari doesn't support :where(:host)????
+  // safari(18) doesn't support :where(:host)????
   return (
-    `:where(:host(${forAll ? '[data-root]' : `[appearance=${appearance}]`})){${vars}}` +
+    `:host(:where(${forAll ? '[data-root]' : `[appearance=${appearance}]`})){${vars}}` +
     (forAll
       ? ''
-      : `@media (prefers-color-scheme: ${appearance}){:where(:host([data-root]:not([appearance=${revert}]))){${vars}}}`)
+      : `@media (prefers-color-scheme: ${appearance}){:host(:where([data-root]:not([appearance=${revert}]))){${vars}}}`)
   );
 };
 
