@@ -7,15 +7,15 @@ import {
   PropFunction,
   PropNumber,
   PropNumOrFunc,
+  PropObject,
   PropStrOrFunc,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { UseVirtualMeasurement } from '@lun/core';
 
-export const virtualRendererProps = freeze({
+const mainAxisProps = {
   items: PropArray(),
   itemKey: PropStrOrFunc<(item: any, index: number) => string | number>(),
-  renderer: PropFunction<(i: UseVirtualMeasurement) => any>(),
   estimatedSize: PropNumOrFunc<((item: any, index: number) => number) | number | string>(),
   fixedSize: PropNumOrFunc<((item: any, index: number) => number) | number | string>(),
   overscan: Prop<
@@ -25,6 +25,15 @@ export const virtualRendererProps = freeze({
   observeContainerSize: PropBoolean(),
   gap: PropNumber(),
   lanes: PropNumber(),
+};
+
+type MainAxisProps = ExtractPropTypes<typeof mainAxisProps>;
+
+export const virtualRendererProps = freeze({
+  horizontal: PropBoolean(),
+  renderer: PropFunction<(i: UseVirtualMeasurement, crossAxisItems: UseVirtualMeasurement[]) => any>(),
+  ...mainAxisProps,
+  crossAxis: PropObject<MainAxisProps>(),
 });
 
 export const virtualRendererEmits = freeze({});

@@ -41,7 +41,7 @@ export type UseVirtualMeasurement = {
 export type UseVirtualState = {
   scrollOffset: number;
   scrollAdjustments: number;
-  forward: boolean;
+  forward: boolean | null;
   scrolling: boolean;
   containerSize: number;
 };

@@ -1,6 +1,6 @@
 import { defineCustomElement } from 'custom';
 import { defineComponent, ref } from 'vue';
-import { createDefineElement } from 'utils';
+import { createDefineElement, virtualUnrefGetMerge } from 'utils';
 import { virtualRendererProps, VirtualRendererSetupProps } from './type';
 import { useVirtualList } from '@lun/core';
 import { isFunction, virtualGetMerge } from '@lun/utils';
@@ -14,21 +14,31 @@ const options = {
   props: virtualRendererProps,
   setup(props: VirtualRendererSetupProps, { attrs }: any) {
     const container = ref<HTMLElement>(),
-      CE = useCE();
+      CE = useCE(),
+      getContainer = () => CE || container.value;
 
     const { wrapperStyle, virtualItems } = useVirtualList(
       virtualGetMerge(
         {
-          container: () => CE || container.value,
+          container: getContainer,
         },
         props,
+      ),
+    );
+    const crossAxis = useVirtualList(
+      virtualUnrefGetMerge(
+        {
+          disabled: () => !props.crossAxis,
+          container: getContainer,
+        },
+        () => props.crossAxis,
       ),
     );
     const getInnerNode = () => {
       const { renderer } = props;
       return (
         <div style={wrapperStyle.value}>
-          {isFunction(renderer) ? virtualItems.value.map((i) => renderCustom(renderer(i))) : null}
+          {isFunction(renderer) ? virtualItems.value.map((i) => renderCustom(renderer(i, crossAxis.virtualItems.value))) : null}
         </div>
       );
     };

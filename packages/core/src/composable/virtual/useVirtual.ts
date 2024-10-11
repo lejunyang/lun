@@ -51,7 +51,7 @@ export function useVirtualList(options: UseVirtualOptions) {
     scrollOffset: ensureNumber(runIfFn(options.initialScrollOffset), 0),
     scrollAdjustments: 0,
     scrollDirection: null as 'forward' | 'backward' | null,
-    forward: false,
+    forward: false as boolean | null,
     scrolling: false,
     containerSize: +unrefOrGet(options.initialContainerSize)! || 0,
   });
