@@ -542,6 +542,7 @@ const gen = (colors: any[], index = 0) => {
         .join(';'),
     )
     .join(';');
+  // FIXME safari doesn't support :where(:host)????
   return (
     `:where(:host(${forAll ? '[data-root]' : `[appearance=${appearance}]`})){${vars}}` +
     (forAll

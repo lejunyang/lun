@@ -39,7 +39,6 @@ export function useContextStyles(name: OpenShadowComponentKey) {
   });
   watchEffect(() => {
     sheets.forEach(([s, css]) => {
-      // FIXME 有时候中切换page非常卡，会卡几秒，尤其是英文文档，在性能分析中看到基本是下面替换样式或样式表清理引起了大量的GC，占用了很长的时间。难道是我这台老mac太拉了？
       const text = css();
       s.replaceSync(text);
     });

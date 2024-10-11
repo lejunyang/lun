@@ -27,6 +27,18 @@ lang: zh-CN
 
 <!-- @Code:pointerTarget -->
 
+## 单例监听多个目标
+
+组件支持为其不同的子元素单独触发并显示不同的内容，从而避免包裹多个`l-popover`元素。
+
+使用该功能需要为目标子元素设置一个你指定的属性名（例如以下示例的`data-target`），将该属性名设到`l-popover`的`autoAttachAttr`属性上。
+
+对于子元素，该属性的值为插槽名，其对应的弹出内容添加对应的`slot`即可
+
+该功能也支持命令式调用，而且还能添加`l-popover`以外的元素，详见[命令式监听多个目标](#命令式监听多个目标)
+
+<!-- @Code:autoAttach -->
+
 ## 嵌套
 
 <l-popover triggers="hover">
@@ -76,7 +88,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 本组件支持该特性，只需设置`anchorName`属性给定任意CSS合法名称（不需要以`--`开头），即可在浏览器支持的情况下开启 CSS Anchor Positioning，此时`strategy=absolute`和`strategy=fixed`将不会有明显区别，均有较佳的体验
 
 :::warning 注
-由于该特性对 Shadow DOM 有限制，声明 anchor 定位与 anchor-name 的 CSS 必须在同一个 Shadow Tree 下，否则不会生效，详细请参考[标准](https://drafts.csswg.org/css-anchor-position-1/#target)。因此，该特性在以下情况不会开启：
+由于该特性对 Shadow DOM 有限制，声明 anchor 定位与 anchor-name 的 CSS 必须在同一个 Shadow Tree 下，否则不会生效，详细请参考[标准](https://drafts.csswg.org/css-anchor-position-1/#target)。因此，该特性在以下情况**不会开启**：
 
 - **type=teleport**：此时悬浮元素在 teleport-holder 下，如果此时想要使用该特性必须由用户在 document 下利用`::part()`选择器自行声明 Anchor positioning 相关样式
 - **target 为虚拟元素或外部元素**：如 triggers="select"时选中的文本，通过属性手动指定的 target， attachTarget 添加的目标
@@ -91,7 +103,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 通过`flip`属性可开启自动翻转，`shift`可开启自动偏移，用于在悬浮层超出容器时自动调整位置。它们都是`floating-ui`插件，支持它们各自的参数，不传则为默认参数，具体请参考[文档](https://floating-ui.com/docs/flip)
 
 :::warning 注
-由于这是`floating-ui`插件，使用 CSS Anchor positioning 时是不生效的。这种情况下可通过`popStyle`等方式自行设置`position-try-fallbacks`（Chromium128 之前为`position-try-options`）来让浏览器自行调整，但这种方式会使得箭头定位异常，需要取舍，或许可以等一手[issue1](https://github.com/w3c/csswg-drafts/issues/9271)、[issue2](https://github.com/w3c/csswg-drafts/issues/8171)
+由于这是`floating-ui`插件，使用 CSS Anchor positioning 时是不生效的。这种情况下可通过`popStyle`等方式自行设置[`position-try-fallbacks`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks)（Chromium128 之前为`position-try-options`）来让浏览器自行调整，但这种方式会使得箭头定位异常，需要取舍，或许可以等一手[issue1](https://github.com/w3c/csswg-drafts/issues/9271)、[issue2](https://github.com/w3c/csswg-drafts/issues/8171)
 :::
 
 <!-- @Code:plugins -->
@@ -102,7 +114,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 
 <!-- @Code:virtualElement -->
 
-## 单例监听多个目标
+## 命令式监听多个目标
 
 `l-popover`支持通过元素上的`attachTarget`方法添加额外的目标，使之可以在多个目标上监听并展示，避免了要为每一个元素包裹一个 popover
 

@@ -1,5 +1,5 @@
 <template>
-  <l-icon v-if="support != null" :name="name" :[attr]="true"></l-icon>
+  <l-icon v-if="support != null" :name="name" :[attr]="'true'"></l-icon>
 </template>
 
 <script setup lang="ts">
