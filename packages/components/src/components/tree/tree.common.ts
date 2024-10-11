@@ -1,12 +1,17 @@
-import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
+import { getVmTreeDirectChildren, getVmTreeParent, MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
 import { ComponentInternalInstance } from 'vue';
-const createExpose = (expose: string) => (vm: ComponentInternalInstance) => vm.exposed?.[expose];
-export const getLevel = createExpose('level');
-export const isLeafChild = createExpose('isLeaf');
-export const isVmDisabled = createExpose('disabled');
-export const getValue = (vm: ComponentInternalInstance) => vm.props.value;
+import { InternalTreeItem } from './tree.items';
+import { getVmLevel, getVmValue, isVm, isVmDisabled, isVmLeafChild } from 'utils';
 
-export const createCount =
-  (map: MaybeRefLikeOrGetter<WeakMap<ComponentInternalInstance, number>, true>, diff: number) =>
-  (vm?: ComponentInternalInstance) =>
-    vm && unrefOrGet(map).set(vm, (unrefOrGet(map).get(vm) || 0) + diff);
+export const createCount = (map: MaybeRefLikeOrGetter<WeakMap<any, number>, true>, diff: number) => (item?: any) =>
+  item && unrefOrGet(map).set(item, (unrefOrGet(map).get(item) || 0) + diff);
+
+export type Item = InternalTreeItem | ComponentInternalInstance;
+
+export const getLevel = (item: Item) => (isVm(item) ? getVmLevel(item) : item._.level);
+export const isLeafChild = (item: Item) => (isVm(item) ? isVmLeafChild(item) : item._.isLeaf);
+export const isDisabled = (item: Item) => (isVm(item) ? isVmDisabled(item) : item.disabled);
+export const getValue = (item: Item) => (isVm(item) ? getVmValue(item) : item.value);
+
+export const getParent = (item: Item) => (isVm(item) ? getVmTreeParent(item) : item._.parent);
+export const getChildren = (item: Item) => (isVm(item) ? getVmTreeDirectChildren(item) : item._.children);

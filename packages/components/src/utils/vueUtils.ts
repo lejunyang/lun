@@ -1,5 +1,5 @@
 import { isFunction, isObject } from '@lun/utils';
-import { ComponentObjectPropsOptions, ExtractPropTypes } from 'vue';
+import { ComponentInternalInstance, ComponentObjectPropsOptions, ExtractPropTypes, isVNode } from 'vue';
 
 type NativeType = null | number | string | boolean | symbol | Function;
 type InferDefault<P, T> = ((props: P) => T & {}) | (T extends NativeType ? T : never);
@@ -35,3 +35,11 @@ export function setDefaultsForPropOptions<
   });
   return result;
 }
+
+const createExpose = (expose: string) => (vm: ComponentInternalInstance) => vm.exposed?.[expose];
+export const getVmLevel = createExpose('level');
+export const isVmLeafChild = createExpose('isLeaf');
+export const isVmDisabled = createExpose('disabled');
+export const getVmValue = (vm: ComponentInternalInstance) => vm.props.value;
+
+export const isVm = (i: any): i is ComponentInternalInstance => i && isVNode(i.vnode);
