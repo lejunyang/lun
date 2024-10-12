@@ -26,6 +26,9 @@ export type ScrollViewState = {
   xBackward: boolean;
   yForward: boolean;
   yBackward: boolean;
+  /** x轴滚动百分比, 0-1 */
+  scrollXPercent: number;
+  scrollYPercent: number;
 };
 
 export const scrollViewProps = freeze({

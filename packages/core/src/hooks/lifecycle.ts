@@ -32,3 +32,16 @@ const createWatchOnMounted =
 export const watchEffectOnMounted = createWatchOnMounted(watchEffect) as typeof watchEffect;
 
 export const watchOnMounted = createWatchOnMounted(watch) as typeof watch;
+
+export const useCleanUp = () => {
+  let cleanups: (() => void)[] = [];
+  const addCleanup = (...fns: (() => void)[]) => {
+    cleanups.push(...fns);
+  };
+  const cleanUp = () => {
+    cleanups.forEach((fn) => fn());
+    cleanups = [];
+  };
+  tryOnScopeDispose(cleanUp);
+  return [addCleanup, cleanUp] as const;
+};
