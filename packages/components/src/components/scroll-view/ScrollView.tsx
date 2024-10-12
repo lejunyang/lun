@@ -1,11 +1,29 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement } from 'utils';
+import { createDefineElement, toElement } from 'utils';
 import { scrollViewEmits, scrollViewProps, ScrollViewState } from './type';
 import { useCE } from 'hooks';
 import { getCompParts } from 'common';
-import { getRect, listenScroll, runIfFn, supportCSSRegisterProperty, toArrayIfNotNil } from '@lun/utils';
-import { computed, onMounted, reactive, readonly, Transition, TransitionProps, watchEffect } from 'vue';
-import { useResizeObserver } from '@lun/core';
+import {
+  getRect,
+  listenScroll,
+  noop,
+  runIfFn,
+  supportCSSRegisterProperty,
+  toArrayIfNotNil,
+  isWindow,
+  getWindow,
+} from '@lun/utils';
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  readonly,
+  Transition,
+  TransitionProps,
+  watchEffect,
+} from 'vue';
+import { unrefOrGet, useResizeObserver } from '@lun/core';
 
 const name = 'scroll-view';
 const parts = ['root'] as const;
@@ -75,25 +93,33 @@ export const ScrollView = defineSSRCustomElement({
       },
     });
 
-    listenScroll(CE, ({ xForward, yForward, offsetX, offsetY, scrolling }) => {
-      Object.assign(state, {
-        scrollX: offsetX,
-        scrollY: offsetY,
-        scrolling,
+    let clean = noop;
+    watchEffect(() => {
+      let target = unrefOrGet(props.target),
+        targetEl = isWindow(target) ? target : target === 'window' ? getWindow(CE) : toElement(target);
+      if (!targetEl) targetEl = CE;
+      clean();
+      clean = listenScroll(targetEl, ({ xForward, yForward, offsetX, offsetY, scrolling }) => {
+        Object.assign(state, {
+          scrollX: offsetX,
+          scrollY: offsetY,
+          scrolling,
+        });
+        if (scrolling) {
+          xForward !== null &&
+            Object.assign(state, {
+              xForward,
+              xBackward: !xForward,
+            });
+          yForward !== null &&
+            Object.assign(state, {
+              yForward,
+              yBackward: !yForward,
+            });
+        }
       });
-      if (scrolling) {
-        xForward !== null &&
-          Object.assign(state, {
-            xForward,
-            xBackward: !xForward,
-          });
-        yForward !== null &&
-          Object.assign(state, {
-            yForward,
-            yBackward: !yForward,
-          });
-      }
     });
+    onBeforeUnmount(() => clean());
 
     const getTransitionHandlers = (enterAnimation?: any[], leaveAnimation?: any[]) => {
       return {

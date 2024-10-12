@@ -1,5 +1,6 @@
+import { MaybeRefLikeOrGetter } from '@lun/core';
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropNumOrArr, PropFunction } from 'common';
+import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropNumOrArr, PropFunction, Prop } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type ScrollViewSlot = {
@@ -28,6 +29,8 @@ export type ScrollViewState = {
 };
 
 export const scrollViewProps = freeze({
+  /** keyword(window), selector or element to watch for scroll events */
+  target: Prop<MaybeRefLikeOrGetter<string | HTMLElement>>(),
   observeResize: PropBoolean(),
   scrollXPercentVarName: PropString(),
   scrollYPercentVarName: PropString(),
