@@ -1,3 +1,5 @@
+import { getTypeTag } from '../is';
+
 function is(
   node: unknown,
   type:
@@ -67,4 +69,8 @@ export function isRootOrBody(node: unknown): node is HTMLBodyElement | HTMLHtmlE
 
 export function isText(node: unknown): node is Text {
   return is(node, 'Text');
+}
+
+export function isWindow(node: unknown): node is Window {
+  return getTypeTag(node) === 'Window';
 }

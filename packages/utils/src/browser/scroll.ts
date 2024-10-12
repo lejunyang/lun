@@ -1,7 +1,8 @@
 import { debounce, rafThrottle } from '../time';
 import { AnyFn } from '../type';
+import { getDocumentElement } from './dom';
 import { on } from './event';
-import { isRootOrBody } from './is';
+import { isRootOrBody, isWindow } from './is';
 import { isRTL } from './style';
 import { isSupportScrollEnd } from './support';
 
@@ -20,7 +21,7 @@ export function getScrollbarWidth(el: HTMLElement) {
 }
 
 export function listenScroll(
-  el: Element,
+  el: Element | Window,
   onUpdate: (state: {
     scrolling: boolean;
     offsetX: number;
@@ -37,11 +38,14 @@ export function listenScroll(
   } = {},
 ) {
   const cleanFns: AnyFn[] = [],
-    listenOption = { passive: true };
-  let scrollEndDebounce: AnyFn, lastOffsetX = 0, lastOffsetY = 0;
+    listenOption = { passive: true },
+    elIsWin = isWindow(el);
+  let scrollEndDebounce: AnyFn,
+    lastOffsetX = 0,
+    lastOffsetY = 0;
   const updateOffset = (scrolling = false) => {
-    const offsetX = el.scrollLeft * (isRTL(el) ? -1 : 1),
-      offsetY = el.scrollTop;
+    const offsetX = elIsWin ? el.scrollX : el.scrollLeft * (isRTL(elIsWin ? getDocumentElement(el) : el) ? -1 : 1),
+      offsetY = elIsWin ? el.scrollY : el.scrollTop;
     onUpdate(
       // when it's RTL, scrollLeft is negative
       {
