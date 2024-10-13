@@ -19,7 +19,7 @@ import {
   limitShift,
 } from '@floating-ui/vue';
 import { getCachedComputedStyle, getDPR, isFunction, roundByDPR, toPxIfNum } from '@lun/utils';
-import { MaybeRefLikeOrGetter, tryOnScopeDispose, unrefOrGet, VirtualElement, watchEffectOnMounted } from '@lun/core';
+import { MaybeRefLikeOrGetter, unrefOrGet, useCleanUp, VirtualElement, watchEffectOnMounted } from '@lun/core';
 import { referenceRect } from './floating.store-rects';
 import { insetReverseMap } from './popover.anchor-position';
 
@@ -165,8 +165,6 @@ export function useFloating(
     };
   });
 
-  let autoUpdateClean: (() => void) | undefined;
-
   function update() {
     const floatEl = unrefOrGet(floating),
       refEl = unrefOrGet(reference);
@@ -187,15 +185,10 @@ export function useFloating(
     });
   }
 
-  function cleanup() {
-    if (autoUpdateClean) {
-      autoUpdateClean();
-      autoUpdateClean = undefined;
-    }
-  }
+  const [addClean, cleanUp] = useCleanUp();
 
   function attach() {
-    cleanup();
+    cleanUp();
     if (unrefOrGet(off)) return;
 
     if (options.noAutoUpdate) {
@@ -206,7 +199,7 @@ export function useFloating(
       refEl = unrefOrGet(reference);
 
     if (refEl && floatEl) {
-      autoUpdateClean = autoUpdate(refEl, floatEl, update, options.autoUpdateOptions);
+      addClean(autoUpdate(refEl, floatEl, update, options.autoUpdateOptions));
     }
   }
 
@@ -222,8 +215,6 @@ export function useFloating(
   watch([middleware, placementOption, strategyOption], update, watchOption);
   watchEffectOnMounted(attach, watchOption);
   watch(openOption, reset, watchOption);
-
-  tryOnScopeDispose(cleanup);
 
   return {
     x: shallowReadonly(x),

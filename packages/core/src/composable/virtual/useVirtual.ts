@@ -1,7 +1,6 @@
 import { computed, reactive, watchEffect } from 'vue';
 import { objectComputed, unrefOrGet } from '../../utils';
 import {
-  AnyFn,
   at,
   ensureNumber,
   getRect,
@@ -15,7 +14,7 @@ import {
 } from '@lun/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
-import { tryOnScopeDispose } from '../../hooks';
+import { useCleanUp } from '../../hooks';
 
 // inspired by tanstack/virtual
 
@@ -77,15 +76,10 @@ export function useVirtualList(options: UseVirtualOptions) {
     return +val!;
   };
 
-  let cleanFns: AnyFn[] = [];
-  const clean = () => {
-    cleanFns.forEach((f) => f());
-    cleanFns = [];
-  };
-  tryOnScopeDispose(clean);
+  const [addClean, cleanUp] = useCleanUp();
 
   watchEffect(() => {
-    clean();
+    cleanUp();
     const { container, observeContainerSize } = options;
     containerEl = unrefOrGet(container)!;
     if (!isHTMLElement(containerEl)) return;
@@ -117,7 +111,7 @@ export function useVirtualList(options: UseVirtualOptions) {
       setContainerSize(getEntryBorderSize(entries[0]) || getRect(containerEl));
     });
     observer.observe(containerEl, observeOption);
-    cleanFns.push(() => observer.disconnect());
+    addClean(() => observer.disconnect());
   });
 
   const measurements = computed<UseVirtualMeasurement[]>((old) => {

@@ -34,12 +34,12 @@ export const watchEffectOnMounted = createWatchOnMounted(watchEffect) as typeof 
 export const watchOnMounted = createWatchOnMounted(watch) as typeof watch;
 
 export const useCleanUp = () => {
-  let cleanups: (() => void)[] = [];
-  const addCleanup = (...fns: (() => void)[]) => {
+  let cleanups: ((() => void) | false | null | undefined)[] = [];
+  const addCleanup = (...fns: ((() => void) | false | null | undefined)[]) => {
     cleanups.push(...fns);
   };
   const cleanUp = () => {
-    cleanups.forEach((fn) => fn());
+    cleanups.forEach((fn) => fn && fn());
     cleanups = [];
   };
   tryOnScopeDispose(cleanUp);

@@ -5,6 +5,7 @@ import {
   isDatePanelType,
   isNumberInputType,
   objectComputed,
+  useCleanUp,
   UseFormReturn,
   useSetupEdit,
   useSetupEvent,
@@ -22,7 +23,6 @@ import {
   isFunction,
   isObject,
   isPlainString,
-  noop,
   objectGet,
   promiseTry,
   runIfFn,
@@ -422,19 +422,18 @@ export const FormItem = defineSSRCustomElement({
       const [, errorCount] = await validate();
       if (errorCount && formContext.parent?.props.stopValidate === 'first-item') stopExec();
     };
-    let cleanFn: AnyFn = noop;
+    const [addClean, cleanUp] = useCleanUp();
     watch(
       () => formContext.form,
-      (newForm, oldForm) => {
-        if (oldForm) oldForm.hooks.onValidate.eject(onValidate);
+      (newForm) => {
+        cleanUp();
         if (newForm) {
           newForm.hooks.onFormItemConnected.exec(param);
-          cleanFn = newForm.hooks.onValidate.use(onValidate);
-        } else cleanFn = noop;
+          addClean(newForm.hooks.onValidate.use(onValidate));
+        }
       },
       { immediate: true },
     );
-    onBeforeUnmount(() => cleanFn());
 
     onBeforeUnmount(() => {
       const { deletePath, setValue, hooks } = formContext.form;

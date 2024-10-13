@@ -1,7 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { AnyFn, clamp, on, prevent, rafThrottle, runIfFn, numbersEqual, getRect, roundByDPR } from '@lun/utils';
-import { tryOnScopeDispose } from '../../hooks';
+import { clamp, on, prevent, rafThrottle, runIfFn, numbersEqual, getRect, roundByDPR } from '@lun/utils';
+import { useCleanUp } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
 // https://www.redblobgames.com/making-of/draggable/
@@ -241,21 +241,13 @@ export function useDraggableArea({
     );
   };
 
-  let lastEl: Element | null,
-    cleanFns: AnyFn[] = [];
-  const clean = () => {
-    if (lastEl) {
-      cleanFns.forEach((f) => f());
-      lastEl = null;
-      cleanFns = [];
-      runIfFn(onClean);
-    }
-  };
+  let lastEl: Element | null;
+  const [addClean, cleanUp] = useCleanUp();
   watchEffect(() => {
-    clean();
+    cleanUp();
     const element = unrefOrGet(el);
     if (element && !unrefOrGet(disabled)) {
-      cleanFns = [
+      addClean(
         on(element, 'pointerdown', handleStart),
         on(element, 'pointerup', handleEnd),
         on(element, 'pointercancel', handleEnd),
@@ -263,11 +255,16 @@ export function useDraggableArea({
         on(element, 'touchstart', prevent),
         on(element, 'dragstart', prevent),
         on(element, 'lostpointercapture', handleEnd),
-      ];
+        () => {
+          if (lastEl) {
+            lastEl = null;
+            runIfFn(onClean);
+          }
+        },
+      );
       lastEl = element;
     }
   });
-  tryOnScopeDispose(clean);
 
   return targetStates;
 }

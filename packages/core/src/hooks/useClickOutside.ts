@@ -1,5 +1,5 @@
-import { inBrowser, toArrayIfNotNil, on, getRect } from '@lun/utils';
-import { tryOnScopeDispose } from './lifecycle';
+import { inBrowser, toArrayIfNotNil, on, getRect, noop } from '@lun/utils';
+import { useCleanUp } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
 export type VirtualElement = {
@@ -17,8 +17,8 @@ export function useClickOutside(
   callback: (e: Event) => void,
   isOn?: MaybeRefLikeOrGetter<boolean>,
 ) {
-  if (!inBrowser) return [];
-  const cleanup: (() => void)[] = [];
+  if (!inBrowser) return noop;
+  const [addClean] = useCleanUp();
   const handler = {
     documentClick(e: MouseEvent) {
       if (isOn !== undefined && !unrefOrGet(isOn)) return; // avoid trigger clickOutSide callback when not show
@@ -34,10 +34,7 @@ export function useClickOutside(
     },
   };
 
-  cleanup.push(on(document, 'click', handler.documentClick));
+  addClean(on(document, 'click', handler.documentClick));
 
-  tryOnScopeDispose(() => {
-    cleanup.forEach((i) => i());
-  });
-  return cleanup;
+  return addClean;
 }

@@ -320,7 +320,7 @@ export function usePopover(_options: UsePopoverOptions) {
     onPointercancel: pointerdownClose,
   };
 
-  const cleanup = useClickOutside(
+  const addClean = useClickOutside(
     computed(() =>
       // Array.from(extraTargetsMap.value.keys()).concat(options.target as any, options.pop as any),
       [activeExtraTarget.value, _options.target, _options.pop],
@@ -357,7 +357,7 @@ export function usePopover(_options: UsePopoverOptions) {
   const stop = watchEffect(
     () => {
       if (inBrowser && options.triggers.has('select')) {
-        cleanup.push(on(document, 'selectionchange', handleSelect));
+        addClean(on(document, 'selectionchange', handleSelect));
         nextTick(() => stop()); // must in nextTick, as we can't call stop before initialization
       }
     },
@@ -371,7 +371,6 @@ export function usePopover(_options: UsePopoverOptions) {
     }),
     popContentHandlers,
     options,
-    cleanup,
     methods,
     activeExtraTarget,
     activeExtraTargetOptions,

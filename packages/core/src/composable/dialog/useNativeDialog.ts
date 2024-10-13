@@ -1,4 +1,4 @@
-import { AnyFn, inBrowser, on, prevent } from '@lun/utils';
+import { inBrowser, on, prevent } from '@lun/utils';
 import { tryOnScopeDispose } from '../../hooks/lifecycle';
 import { unrefOrGet } from '../../utils';
 import { UseDialogOptions, useDialog } from './useDialog';
@@ -25,14 +25,9 @@ export function useNativeDialog(options: UseDialogOptions & { native: boolean; e
     },
   };
 
-  const cleanup: AnyFn[] = [];
   if (inBrowser) {
-    cleanup.push(on(document, 'keydown', documentHandlers.keydown, { capture: true }));
+    tryOnScopeDispose(on(document, 'keydown', documentHandlers.keydown, { capture: true }));
   }
-
-  tryOnScopeDispose(() => {
-    cleanup.forEach((f) => f());
-  });
 
   return {
     methods,

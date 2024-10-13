@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from '../../custom/apiCustomElement';
-import { UseFormReturn, unrefOrGet, useForm, useSetupEdit } from '@lun/core';
+import { UseFormReturn, unrefOrGet, useCleanUp, useForm, useSetupEdit } from '@lun/core';
 import { createDefineElement } from 'utils';
 import { formEmits, formProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace, useShadowDom } from 'hooks';
 import { FormItemCollector } from '.';
 import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, shallowReactive, watch } from 'vue';
-import { ensureNumber, getCachedComputedStyle, noop, pick, supportCSSSubgrid, toPxIfNum } from '@lun/utils';
+import { ensureNumber, getCachedComputedStyle, pick, supportCSSSubgrid, toPxIfNum } from '@lun/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
 import { getCompParts } from 'common';
@@ -142,15 +142,12 @@ export const Form = defineSSRCustomElement({
     const onUpdate = (param: any) => {
       emit('update', param);
     };
-    let cleanOnUpdate = noop;
-    onBeforeUnmount(() => cleanOnUpdate()); // no onBeforeUnmount(cleanOnUpdate); it'll updated
+    const [addClean, cleanUp] = useCleanUp();
     watch(
       () => unrefOrGet(props.instance),
       (newForm, oldForm) => {
-        if (oldForm) {
-          oldForm.hooks.onUpdateValue.eject(onUpdate);
-          oldForm.hooks.onFormDisconnected.exec(vm);
-        }
+        cleanUp();
+        if (oldForm) oldForm.hooks.onFormDisconnected.exec(vm);
         if (__DEV__) {
           if (newForm && !(newForm as any)[Symbol.for('use-form')]) {
             throw new Error(`Prop 'instance' should be a useForm instance`);
@@ -160,7 +157,7 @@ export const Form = defineSSRCustomElement({
           newForm = useForm(pick(props, ['defaultData', 'defaultFormState']));
         }
         newForm.hooks.onFormConnected.exec(vm);
-        cleanOnUpdate = newForm.hooks.onUpdateValue.use(onUpdate);
+        addClean(newForm.hooks.onUpdateValue.use(onUpdate));
         currentForm = newForm;
         provide.form = newForm;
         if (shadow.CE) {
