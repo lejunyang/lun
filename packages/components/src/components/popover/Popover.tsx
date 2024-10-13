@@ -43,6 +43,9 @@ import { useFloating } from './useFloating';
 import { hasRect } from './utils';
 import { useAutoAttach } from './popover.auto-attach';
 
+// WARNING: DO NOT use v-content in this component, use v-show. I found v-content will cause massive performance issue(style repaint 800+ per sec), no idea why.
+// also, pop-content has its own padding, it will show when type=teleport. content-visibility: hidden can not hide it
+
 const name = 'popover';
 const parts = ['content', 'native', 'arrow'] as const;
 const compParts = getCompParts(name, parts);
@@ -291,7 +294,7 @@ export const Popover = defineSSRCustomElement({
           {...popContentHandlers}
           part={isTeleport() ? '' : compParts[0]}
           style={finalFloatingStyles.value}
-          v-content={isOpen.value}
+          v-show={isOpen.value}
           ref={positionedRef}
           class={getRootClass(unrefOrGet(strategy))}
           {...vnodeHandlers}
@@ -338,7 +341,7 @@ export const Popover = defineSSRCustomElement({
             ? wrapTransition(
                 <div
                   {...popContentHandlers}
-                  v-content={isOpen.value}
+                  v-show={isOpen.value}
                   style={finalFloatingStyles.value}
                   part={compParts[0] + ' ' + compParts[1]}
                   popover="manual"

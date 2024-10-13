@@ -33,6 +33,7 @@ import {
 } from '@lun/utils';
 import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
+import { vContentTargetProp, vContentTargetValue } from '@lun/plugins/vue';
 
 const name = 'dialog';
 const parts = ['root', 'mask', 'panel', 'header', 'close', 'content', 'footer'] as const;
@@ -255,7 +256,8 @@ export const Dialog = Object.assign(
           >
             <Transition {...getTransitionProps(props, 'mask', 'bgFade')}>
               <div
-                v-content={maskShow.value}
+                // do not use v-content, mask element has its own size; also in watchEffect it's using display now
+                v-show={maskShow.value}
                 class={ns.e('mask')}
                 part={compParts[1]}
                 ref={maskRef}
@@ -266,7 +268,8 @@ export const Dialog = Object.assign(
             </Transition>
             <Transition {...getTransitionProps(props, 'panel', 'scale')} {...panelTransitionHandlers}>
               <div
-                v-content={isOpen.value}
+                // if use v-content, transition is not working... no idea, use v-show for now
+                v-show={isOpen.value}
                 class={ns.e('panel')}
                 ref={panelRef}
                 part={compParts[2]}

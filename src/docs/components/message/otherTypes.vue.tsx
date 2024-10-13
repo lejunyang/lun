@@ -1,4 +1,4 @@
-const id1 = 'fixed-message',
+const id1 = 'normal-message',
   id2 = 'teleport-message';
 export default () => (
   <>

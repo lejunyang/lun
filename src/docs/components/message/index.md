@@ -50,7 +50,11 @@ type MessageOpenConfig = {
 
 需要注意的是，若浏览器不支持 Popover，手动指定的 `type` 会被无视，将采用备选方案实现
 
-检测到当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
+<Support is="popover" /> 检测到当前浏览器{{ supportPopover ? '' : '不' }}支持 Popover API
+
+:::warning 注
+下面type="normal"的示例无法工作，这是因为其fixed containing block不是视口，而是文档内容下的一个div（content-visibility: auto），因此无法正常定位和展示内容
+:::
 
 <!-- @Code:otherTypes -->
 
