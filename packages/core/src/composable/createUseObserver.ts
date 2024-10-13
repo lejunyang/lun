@@ -12,7 +12,7 @@ type CallbackMap = {
 };
 type OptionsMap = {
   IntersectionObserver: {
-    observerInit?: IntersectionObserverInit;
+    observerInit?: IntersectionObserverInit | (() => IntersectionObserverInit);
   };
   MutationObserver: {
     observeOptions?: MutationObserverInit | ((el: Element) => MutationObserverInit);
@@ -38,7 +38,7 @@ export function createUseObserver<
     disabled,
     window = globalThis,
   }: {
-    targets: MaybeRefLikeOrGetter<Element | Element[]>;
+    targets: MaybeRefLikeOrGetter<Element | null | undefined | (Element | null | undefined)[]>;
     disabled?: MaybeRefLikeOrGetter<boolean>;
     callback: CallbackMap[N];
     window?: typeof globalThis;
@@ -54,9 +54,10 @@ export function createUseObserver<
       if (stopWatch) stopWatch();
     };
     if (supported) {
-      observer = new window[name](callback as any, observerInit) as O;
+      if (!observerInit) observer = new window[name](callback as any, runIfFn(observerInit)) as O;
       stopWatch = watchPostEffect(() => {
         clean();
+        if (observerInit) observer = new window[name](callback as any, runIfFn(observerInit)) as O;
         if (unrefOrGet(disabled)) return;
         toArrayIfNotNil(unrefOrGet(targets)).forEach((e) => {
           // @ts-expect-error

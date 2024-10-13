@@ -1,6 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, toElement } from 'utils';
-import { scrollViewEmits, scrollViewProps, ScrollViewState } from './type';
+import {
+  scrollViewEmits,
+  ScrollViewObserveViewOption,
+  ScrollViewObserveViewRangeValue,
+  scrollViewProps,
+  ScrollViewState,
+} from './type';
 import { useCE } from 'hooks';
 import { getCompParts } from 'common';
 import {
@@ -14,9 +20,11 @@ import {
   getDocumentElement,
   on,
   rafThrottle,
+  pick,
 } from '@lun/utils';
 import { computed, onMounted, reactive, readonly, Transition, TransitionProps, watchEffect } from 'vue';
-import { unrefOrGet, useCleanUp, useResizeObserver } from '@lun/core';
+import { unrefOrGet, useCleanUp, useIntersectionObserver, useResizeObserver } from '@lun/core';
+import { calcProgress } from './utils';
 
 const name = 'scroll-view';
 const parts = ['root'] as const;
@@ -43,6 +51,8 @@ export const ScrollView = defineSSRCustomElement({
     const state = reactive({
         width: 0,
         height: 0,
+        x: 0,
+        y: 0,
         scrollX: 0,
         scrollY: 0,
         scrolling: false,
@@ -79,11 +89,13 @@ export const ScrollView = defineSSRCustomElement({
       });
     }
 
-    const setSize = (rect: DOMRect | ResizeObserverSize) => {
+    const setSize = (rect: DOMRect | (ResizeObserverSize & { x: number; y: number })) => {
       state.width = Math.round((rect as DOMRect).width ?? (rect as ResizeObserverSize).inlineSize);
       state.xOverflow = state.width < target.value[1].scrollWidth;
       state.height = Math.round((rect as DOMRect).height ?? (rect as ResizeObserverSize).blockSize);
       state.yOverflow = state.height < target.value[1].scrollHeight;
+      state.x = rect.x;
+      state.y = rect.y;
     };
     onMounted(() => {
       setSize(getRect(target.value[1]));
@@ -94,7 +106,53 @@ export const ScrollView = defineSSRCustomElement({
       disabled: () => !props.observeResize,
       observeOptions: { box: 'border-box' },
       callback(entries) {
-        setSize(entries[0]?.borderBoxSize?.[0] || getRect(target.value[1]));
+        let entryBoxSize = entries[0]?.borderBoxSize?.[0];
+        setSize(
+          entryBoxSize ? { ...entryBoxSize, ...pick(entries[0].contentRect, ['x', 'y']) } : getRect(target.value[1]),
+        );
+      },
+    });
+    type ProcessedOption = Omit<ScrollViewObserveViewOption, 'range'> & {
+      range: [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue];
+    };
+    const intersectionTargetMap = new WeakMap<Element, Record<'x' | 'y', ProcessedOption>>();
+    const intersectionTargets = computed(() => {
+      const { observeView } = props;
+      return toArrayIfNotNil(observeView).map((v) => {
+        const { target, attribute, axis } = v,
+          targetEl = toElement(target),
+          option = intersectionTargetMap.get(targetEl!) || ({} as Record<'x' | 'y', ProcessedOption>);
+        if (!targetEl) return;
+        const ranges = toArrayIfNotNil(v.range) as [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue];
+        ranges[0] ||= 'cover';
+        ranges[1] ||= ranges[0];
+        option[axis || 'y'] = {
+          ...v,
+          range: ranges,
+        };
+        intersectionTargetMap.set(targetEl, option);
+        return targetEl;
+      });
+    });
+
+    useIntersectionObserver({
+      targets: intersectionTargets,
+      observerInit: () => {
+        const { value } = target;
+        return {
+          root: value[2] ? undefined : value[1],
+        };
+      },
+      disabled: () => !intersectionTargets.value.length,
+      callback(entries) {
+        entries.forEach(({ target, intersectionRect }) => {
+          const options = intersectionTargetMap.get(target);
+          if (!options) return;
+          const { x, y } = options;
+          const yProgress = y ? calcProgress(state, intersectionRect, 'y', y.range) : 0,
+            xProgress = x ? calcProgress(state, intersectionRect, 'x', x.range) : 0;
+          console.log('yProgress', yProgress, xProgress);
+        });
       },
     });
 
@@ -158,6 +216,8 @@ export const ScrollView = defineSSRCustomElement({
         },
       } as TransitionProps;
     };
+
+    // TODO cache prevArr, don't return vnode in computed
     const slots = computed(() => {
       const { getSlots } = props;
       return toArrayIfNotNil(runIfFn(getSlots, readonlyState)).map((slot) => {

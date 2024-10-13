@@ -1,6 +1,6 @@
 import { MaybeRefLikeOrGetter } from '@lun/core';
 import { freeze } from '@lun/utils';
-import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropNumOrArr, PropFunction, Prop } from 'common';
+import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropFunction, Prop } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type ScrollViewSlot = {
@@ -10,9 +10,25 @@ export type ScrollViewSlot = {
   leaveAnimation?: Parameters<typeof HTMLElement.prototype.animate>;
 };
 
+export type ScrollViewObserveViewRangeValue = number | 'cover' | 'contain' | 'entry' | 'exit' | `${number}%`;
+export type ScrollViewObserveViewRangeOption =
+  | [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue]
+  | ScrollViewObserveViewRangeValue
+  | [ScrollViewObserveViewRangeValue];
+export type ScrollViewObserveViewOption = {
+  attribute: string;
+  target?: string | Element;
+  range?: ScrollViewObserveViewRangeOption;
+  axis?: 'x' | 'y';
+  progressVarName?: string;
+  intersectionCallback?: (entry: IntersectionObserverEntry) => void;
+};
+
 export type ScrollViewState = {
   width: number;
   height: number;
+  x: number;
+  y: number;
   /** x轴滚动距离 */
   scrollX: number;
   scrollY: number;
@@ -32,14 +48,13 @@ export type ScrollViewState = {
 };
 
 export const scrollViewProps = freeze({
+  // maybe rename to scroller
   /** keyword(window), selector or element to watch for scroll events */
   target: Prop<MaybeRefLikeOrGetter<string | HTMLElement>>(),
   observeResize: PropBoolean(),
   scrollXPercentVarName: PropString(),
   scrollYPercentVarName: PropString(),
-  intersectionAttr: PropString(),
-  xThresholds: PropNumOrArr(),
-  yThresholds: PropNumOrArr(),
+  observeView: Prop<ScrollViewObserveViewOption | ScrollViewObserveViewOption[]>(),
   hideScrollBar: PropBoolean(),
   getSlots: PropFunction<(state: any) => ScrollViewSlot[] | ScrollViewSlot>(),
 });
