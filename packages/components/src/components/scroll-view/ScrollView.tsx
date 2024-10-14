@@ -26,7 +26,7 @@ import {
 } from '@lun/utils';
 import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watchEffect } from 'vue';
 import { unrefOrGet, useCleanUp, useIntersectionObserver, useResizeObserver } from '@lun/core';
-import { calcProgress } from './utils';
+import { calcProgress, measureSubject } from './utils';
 
 const name = 'scroll-view';
 const parts = ['root'] as const;
@@ -50,7 +50,7 @@ export const ScrollView = defineSSRCustomElement({
   setup(props) {
     const CE = useCE(),
       root = ref<HTMLElement>();
-    const target = computed(() => {
+    const scroller = computed(() => {
       let target = unrefOrGet(props.target),
         targetEl: Element | null | undefined,
         isWin: boolean,
@@ -60,7 +60,7 @@ export const ScrollView = defineSSRCustomElement({
           ? getWindow(CE)
           : (targetEl = toElement(target));
       if (!targetWinOrEl) targetWinOrEl = targetEl = CE;
-      return [targetWinOrEl, targetEl || getDocumentElement(targetWinOrEl), isWin] as const;
+      return [targetWinOrEl, (targetEl as HTMLElement) || getDocumentElement(targetWinOrEl), isWin] as const;
     });
     const state = reactive({
         width: 0,
@@ -77,10 +77,10 @@ export const ScrollView = defineSSRCustomElement({
         yForward: false,
         yBackward: false,
         get scrollXProgress() {
-          return state.scrollX / (target.value[1].scrollWidth - state.width || 1);
+          return state.scrollX / (scroller.value[1].scrollWidth - state.width || 1);
         },
         get scrollYProgress() {
-          return state.scrollY / (target.value[1].scrollHeight - state.height || 1);
+          return state.scrollY / (scroller.value[1].scrollHeight - state.height || 1);
         },
       }) as ScrollViewState,
       readonlyState = readonly(state),
@@ -101,36 +101,37 @@ export const ScrollView = defineSSRCustomElement({
 
     const setSize = (rect: DOMRect | (ResizeObserverSize & { x: number; y: number })) => {
       state.width = Math.round((rect as DOMRect).width ?? (rect as ResizeObserverSize).inlineSize);
-      state.xOverflow = state.width < target.value[1].scrollWidth;
+      state.xOverflow = state.width < scroller.value[1].scrollWidth;
       state.height = Math.round((rect as DOMRect).height ?? (rect as ResizeObserverSize).blockSize);
-      state.yOverflow = state.height < target.value[1].scrollHeight;
+      state.yOverflow = state.height < scroller.value[1].scrollHeight;
       state.x = rect.x;
       state.y = rect.y;
     };
     onMounted(() => {
-      setSize(getRect(target.value[1]));
+      setSize(getRect(scroller.value[1]));
     });
     // window resize
     useResizeObserver({
-      targets: () => target.value[1],
+      targets: () => scroller.value[1],
       disabled: () => !props.observeResize,
       observeOptions: { box: 'border-box' },
       callback(entries) {
         let entryBoxSize = entries[0]?.borderBoxSize?.[0];
         setSize(
-          entryBoxSize ? { ...entryBoxSize, ...pick(entries[0].contentRect, ['x', 'y']) } : getRect(target.value[1]),
+          entryBoxSize ? { ...entryBoxSize, ...pick(entries[0].contentRect, ['x', 'y']) } : getRect(scroller.value[1]),
         );
       },
     });
     type ProcessedOption = Omit<ScrollViewObserveViewOption, 'range'> & {
       range: [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue];
+      measurement: ReturnType<typeof measureSubject>;
     };
     const intersectionTargetMap = new WeakMap<Element, Record<'x' | 'y', ProcessedOption>>();
     const intersectionTargets = computed(() => {
       const { observeView } = props;
       return toArrayIfNotNil(observeView).map((v) => {
         const { target, attribute, axis, progressVarName } = v,
-          targetEl = toElement(unrefOrGet(target)),
+          targetEl = toElement(unrefOrGet(target)) as HTMLElement,
           option = intersectionTargetMap.get(targetEl!) || ({} as Record<'x' | 'y', ProcessedOption>);
         if (!targetEl) return;
         register(progressVarName);
@@ -141,41 +142,18 @@ export const ScrollView = defineSSRCustomElement({
         option[axis || 'y'] = {
           ...v,
           range: ranges,
+          measurement: measureSubject(scroller.value[1], targetEl), // TODO observe resize
         };
         intersectionTargetMap.set(targetEl, option);
         return targetEl;
       });
     });
 
-    // TODO remove this, it's not working
-    useIntersectionObserver({
-      targets: intersectionTargets,
-      observerInit: () => {
-        const { value } = target;
-        return {
-          root: value[2] ? undefined : value[1],
-        };
-      },
-      disabled: () => !intersectionTargets.value.length,
-      callback(entries) {
-        entries.forEach(({ target, intersectionRect, intersectionRatio }) => {
-          const options = intersectionTargetMap.get(target);
-          if (!options) return;
-          const { x, y } = options;
-          const yProgress = y
-              ? (viewProgress[y.progressVarName] = calcProgress(state, intersectionRect, 'y', y.range))
-              : 0,
-            xProgress = x ? (viewProgress[x.progressVarName] = calcProgress(state, intersectionRect, 'x', x.range)) : 0;
-          console.log('yProgress', yProgress, xProgress, intersectionRatio);
-        });
-      },
-    });
-
     const [addClean, cleanUp] = useCleanUp();
     watchEffect(() => {
       cleanUp();
       addClean(
-        listenScroll(target.value[0], ({ xForward, yForward, offsetX, offsetY, scrolling }) => {
+        listenScroll(scroller.value[0], ({ xForward, yForward, offsetX, offsetY, scrolling }) => {
           Object.assign(state, {
             scrollX: offsetX,
             scrollY: offsetY,
@@ -192,17 +170,26 @@ export const ScrollView = defineSSRCustomElement({
                 yForward,
                 yBackward: !yForward,
               });
+            intersectionTargets.value.forEach((el) => {
+              if (el) {
+                const options = intersectionTargetMap.get(el);
+                if (!options) return;
+                const { x, y } = options;
+                viewProgress[y.progressVarName] = y ? calcProgress(state, y.measurement, 'y', y.range) : 0;
+                viewProgress[x.progressVarName] = x ? calcProgress(state, x.measurement, 'x', x.range) : 0;
+              }
+            });
           }
         }),
       );
-      if (target.value[2] && props.observeResize) {
+      if (scroller.value[2] && props.observeResize) {
         // listen window resize
         addClean(
           on(
-            target.value[0],
+            scroller.value[0],
             'resize',
             rafThrottle(() => {
-              setSize(getRect(target.value[1]));
+              setSize(getRect(scroller.value[1]));
             }),
           ),
         );

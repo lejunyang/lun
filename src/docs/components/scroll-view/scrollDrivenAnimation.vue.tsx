@@ -1,6 +1,6 @@
 const common = 'display:flex;justify-content:center;position:sticky;top:0;left:0;';
 export default () => (
-  <l-scroll-view style="height: 300px; position: relative; width: 100%; overflow: auto;">
+  <l-scroll-view style="height: 300px; position: relative; width: 100%;">
     <div
       style={
         common +

@@ -42,3 +42,7 @@ export type ScrollViewState = {
 当浏览器支持[registerProperty](https://developer.mozilla.org/en-US/docs/Web/API/CSS/registerProperty_static)时会自动将它们注册为数值自定义变量，以便使用
 
 <!-- @Code:scrollDrivenAnimation -->
+
+## 模拟滚动视图驱动动画
+
+<!-- @Code:viewScrollDriven -->
