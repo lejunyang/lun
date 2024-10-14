@@ -246,11 +246,11 @@ export function preprocessComponentOptions(options: ComponentOptions) {
   }
 }
 
-export function toElement(queryOrElement?: string | Element | null) {
+export function toElement(queryOrElement?: string | Element | null, queryParent: Element | Document = document) {
   return isElement(queryOrElement)
     ? queryOrElement
     : isString(queryOrElement)
-    ? document.querySelector(queryOrElement)
+    ? queryParent.querySelector(queryOrElement)
     : null;
 }
 

@@ -25,7 +25,7 @@ import {
   setStyle,
 } from '@lun/utils';
 import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watchEffect } from 'vue';
-import { unrefOrGet, useCleanUp, useIntersectionObserver, useResizeObserver } from '@lun/core';
+import { unrefOrGet, useCleanUp, useResizeObserver } from '@lun/core';
 import { calcProgress, measureSubject } from './utils';
 
 const name = 'scroll-view';
@@ -62,7 +62,7 @@ export const ScrollView = defineSSRCustomElement({
       if (!targetWinOrEl) targetWinOrEl = targetEl = CE;
       return [targetWinOrEl, (targetEl as HTMLElement) || getDocumentElement(targetWinOrEl), isWin] as const;
     });
-    const state = reactive({
+    const state: ScrollViewState = reactive({
         width: 0,
         height: 0,
         x: 0,
@@ -82,7 +82,7 @@ export const ScrollView = defineSSRCustomElement({
         get scrollYProgress() {
           return state.scrollY / (scroller.value[1].scrollHeight - state.height || 1);
         },
-      }) as ScrollViewState,
+      }),
       readonlyState = readonly(state),
       viewProgress = reactive({}) as Record<string, number>;
 
@@ -109,6 +109,7 @@ export const ScrollView = defineSSRCustomElement({
     };
     onMounted(() => {
       setSize(getRect(scroller.value[1]));
+      intersectionTargets.value; // access it to trigger initial update
     });
     // window resize
     useResizeObserver({
@@ -130,8 +131,8 @@ export const ScrollView = defineSSRCustomElement({
     const intersectionTargets = computed(() => {
       const { observeView } = props;
       return toArrayIfNotNil(observeView).map((v) => {
-        const { target, attribute, axis, progressVarName } = v,
-          targetEl = toElement(unrefOrGet(target)) as HTMLElement,
+        const { target, axis, progressVarName } = v,
+          targetEl = toElement(unrefOrGet(target), CE) as HTMLElement,
           option = intersectionTargetMap.get(targetEl!) || ({} as Record<'x' | 'y', ProcessedOption>);
         if (!targetEl) return;
         register(progressVarName);
@@ -175,8 +176,16 @@ export const ScrollView = defineSSRCustomElement({
                 const options = intersectionTargetMap.get(el);
                 if (!options) return;
                 const { x, y } = options;
-                viewProgress[y.progressVarName] = y ? calcProgress(state, y.measurement, 'y', y.range) : 0;
-                viewProgress[x.progressVarName] = x ? calcProgress(state, x.measurement, 'x', x.range) : 0;
+                if (y) {
+                  const newProgress = calcProgress(state, y.measurement, 'y', y.range);
+                  if (newProgress !== viewProgress[y.progressVarName])
+                    runIfFn(y.onUpdate, (viewProgress[y.progressVarName] = newProgress));
+                }
+                if (x) {
+                  const newProgress = calcProgress(state, x.measurement, 'x', x.range);
+                  if (newProgress !== viewProgress[x.progressVarName])
+                    runIfFn(x.onUpdate, (viewProgress[x.progressVarName] = newProgress));
+                }
               }
             });
           }
@@ -221,7 +230,7 @@ export const ScrollView = defineSSRCustomElement({
 
     const slots = computed<ScrollViewSlot[]>((old) => {
       const { getSlots } = props;
-      return toArrayIfNotNil(runIfFn(getSlots, readonlyState, old)).filter(Boolean);
+      return toArrayIfNotNil(runIfFn(getSlots, readonlyState, viewProgress, old)).filter(Boolean);
     });
 
     return () => {

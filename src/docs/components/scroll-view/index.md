@@ -35,7 +35,7 @@ export type ScrollViewState = {
 
 ## 模拟滚动进度驱动动画
 
-通过CSS变量`--scroll-x-percent`和`--scroll-y-percent`即可获取当前滚动进度（小数），以此设置样式便可模拟滚动驱动动画。
+通过CSS变量`--scroll-x-percent`和`--scroll-y-percent`即可获取当前滚动进度（小数0~1），以此设置样式便可模拟滚动驱动动画。
 
 通过`scrollXPercentVarName`和`scrollYPercentVarName`可以自定义这两个CSS变量名
 
@@ -44,5 +44,7 @@ export type ScrollViewState = {
 <!-- @Code:scrollDrivenAnimation -->
 
 ## 模拟滚动视图驱动动画
+
+通过`observeView`属性可以开启滚动视图监听，其可以指定一个或多个子元素为监听目标，当目标视图在`l-scroll-view`滚动进度发生变化时会更新对应CSS变量或触发回调，以此便可实现对应动画效果
 
 <!-- @Code:viewScrollDriven -->

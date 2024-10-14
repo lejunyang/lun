@@ -40,7 +40,7 @@ export function calcProgress(
   else if (options[1] === 'contain') end = containEnd;
   else if (options[1] === 'entry') end = containStart;
 
-  return Math.max(0, (scrollerRect[scrollProp] - start) / (end - start));
+  return Math.max(0, (Math.min(scrollerRect[scrollProp], end) - start) / (end - start));
 }
 
 // getBoundingClientRect gets the rect after transform, we need to get original position
