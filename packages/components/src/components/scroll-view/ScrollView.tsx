@@ -5,6 +5,7 @@ import {
   ScrollViewObserveViewOption,
   ScrollViewObserveViewRangeValue,
   scrollViewProps,
+  ScrollViewSlot,
   ScrollViewState,
 } from './type';
 import { useCE } from 'hooks';
@@ -21,8 +22,9 @@ import {
   on,
   rafThrottle,
   pick,
+  setStyle,
 } from '@lun/utils';
-import { computed, onMounted, reactive, readonly, Transition, TransitionProps, watchEffect } from 'vue';
+import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watchEffect } from 'vue';
 import { unrefOrGet, useCleanUp, useIntersectionObserver, useResizeObserver } from '@lun/core';
 import { calcProgress } from './utils';
 
@@ -30,12 +32,24 @@ const name = 'scroll-view';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
 const registered = new Set<string>();
+const register = (name?: string) => {
+  if (supportCSSRegisterProperty && name && !registered.has(name)) {
+    registered.add(name);
+    supportCSSRegisterProperty({
+      name: name,
+      syntax: '<number>',
+      initialValue: '0',
+      inherits: true,
+    });
+  }
+};
 export const ScrollView = defineSSRCustomElement({
   name,
   props: scrollViewProps,
   emits: scrollViewEmits,
   setup(props) {
-    const CE = useCE();
+    const CE = useCE(),
+      root = ref<HTMLElement>();
     const target = computed(() => {
       let target = unrefOrGet(props.target),
         targetEl: Element | null | undefined,
@@ -62,32 +76,28 @@ export const ScrollView = defineSSRCustomElement({
         xBackward: false,
         yForward: false,
         yBackward: false,
-        get scrollXPercent() {
+        get scrollXProgress() {
           return state.scrollX / (target.value[1].scrollWidth - state.width || 1);
         },
-        get scrollYPercent() {
+        get scrollYProgress() {
           return state.scrollY / (target.value[1].scrollHeight - state.height || 1);
         },
       }) as ScrollViewState,
-      readonlyState = readonly(state);
-    if (supportCSSRegisterProperty) {
-      const register = (name: string) => {
-        if (!registered.has(name) && name) {
-          registered.add(name);
-          (supportCSSRegisterProperty as Exclude<typeof supportCSSRegisterProperty, false>)({
-            name: name,
-            syntax: '<number>',
-            initialValue: '0',
-            inherits: true,
-          });
-        }
-      };
-      watchEffect(() => {
-        const { scrollXPercentVarName = '--scroll-x-percent', scrollYPercentVarName = '--scroll-y-percent' } = props;
-        register(scrollXPercentVarName);
-        register(scrollYPercentVarName);
-      });
-    }
+      readonlyState = readonly(state),
+      viewProgress = reactive({}) as Record<string, number>;
+
+    watchEffect(() => {
+      if (root.value) {
+        const { scrollXProgressVarName, scrollYProgressVarName } = props;
+        register(scrollXProgressVarName);
+        register(scrollYProgressVarName);
+        setStyle(root.value, {
+          ...viewProgress,
+          [scrollXProgressVarName!]: state.scrollXProgress,
+          [scrollYProgressVarName!]: state.scrollYProgress,
+        });
+      }
+    });
 
     const setSize = (rect: DOMRect | (ResizeObserverSize & { x: number; y: number })) => {
       state.width = Math.round((rect as DOMRect).width ?? (rect as ResizeObserverSize).inlineSize);
@@ -119,10 +129,12 @@ export const ScrollView = defineSSRCustomElement({
     const intersectionTargets = computed(() => {
       const { observeView } = props;
       return toArrayIfNotNil(observeView).map((v) => {
-        const { target, attribute, axis } = v,
-          targetEl = toElement(target),
+        const { target, attribute, axis, progressVarName } = v,
+          targetEl = toElement(unrefOrGet(target)),
           option = intersectionTargetMap.get(targetEl!) || ({} as Record<'x' | 'y', ProcessedOption>);
         if (!targetEl) return;
+        register(progressVarName);
+        if (viewProgress[progressVarName] == null) viewProgress[progressVarName] = 0;
         const ranges = toArrayIfNotNil(v.range) as [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue];
         ranges[0] ||= 'cover';
         ranges[1] ||= ranges[0];
@@ -135,6 +147,7 @@ export const ScrollView = defineSSRCustomElement({
       });
     });
 
+    // TODO remove this, it's not working
     useIntersectionObserver({
       targets: intersectionTargets,
       observerInit: () => {
@@ -145,13 +158,15 @@ export const ScrollView = defineSSRCustomElement({
       },
       disabled: () => !intersectionTargets.value.length,
       callback(entries) {
-        entries.forEach(({ target, intersectionRect }) => {
+        entries.forEach(({ target, intersectionRect, intersectionRatio }) => {
           const options = intersectionTargetMap.get(target);
           if (!options) return;
           const { x, y } = options;
-          const yProgress = y ? calcProgress(state, intersectionRect, 'y', y.range) : 0,
-            xProgress = x ? calcProgress(state, intersectionRect, 'x', x.range) : 0;
-          console.log('yProgress', yProgress, xProgress);
+          const yProgress = y
+              ? (viewProgress[y.progressVarName] = calcProgress(state, intersectionRect, 'y', y.range))
+              : 0,
+            xProgress = x ? (viewProgress[x.progressVarName] = calcProgress(state, intersectionRect, 'x', x.range)) : 0;
+          console.log('yProgress', yProgress, xProgress, intersectionRatio);
         });
       },
     });
@@ -217,30 +232,23 @@ export const ScrollView = defineSSRCustomElement({
       } as TransitionProps;
     };
 
-    // TODO cache prevArr, don't return vnode in computed
-    const slots = computed(() => {
+    const slots = computed<ScrollViewSlot[]>((old) => {
       const { getSlots } = props;
-      return toArrayIfNotNil(runIfFn(getSlots, readonlyState)).map((slot) => {
-        if (!slot) return;
-        const { name, enterAnimation, leaveAnimation, show } = slot,
-          node = <slot name={name} v-content={show}></slot>;
-        return enterAnimation || leaveAnimation ? (
-          <Transition {...getTransitionHandlers(enterAnimation, leaveAnimation)}>{node}</Transition>
-        ) : (
-          node
-        );
-      });
+      return toArrayIfNotNil(runIfFn(getSlots, readonlyState, old)).filter(Boolean);
     });
 
     return () => {
-      const { scrollXPercentVarName = '--scroll-x-percent', scrollYPercentVarName = '--scroll-y-percent' } = props;
-
       return (
-        <span
-          part={compParts[0]}
-          style={{ [scrollXPercentVarName!]: state.scrollXPercent, [scrollYPercentVarName!]: state.scrollYPercent }}
-        >
-          {slots.value}
+        <span part={compParts[0]} ref={root}>
+          {slots.value.map((slot) => {
+            const { name, enterAnimation, leaveAnimation, show } = slot,
+              node = <slot name={name} v-content={show}></slot>;
+            return enterAnimation || leaveAnimation ? (
+              <Transition {...getTransitionHandlers(enterAnimation, leaveAnimation)}>{node}</Transition>
+            ) : (
+              node
+            );
+          })}
           <slot></slot>
         </span>
       );
@@ -251,4 +259,13 @@ export const ScrollView = defineSSRCustomElement({
 export type tScrollView = typeof ScrollView;
 export type iScrollView = InstanceType<tScrollView>;
 
-export const defineScrollView = createDefineElement(name, ScrollView, {}, parts, {});
+export const defineScrollView = createDefineElement(
+  name,
+  ScrollView,
+  {
+    scrollXProgressVarName: '--scroll-x-percent',
+    scrollYProgressVarName: '--scroll-y-percent',
+  },
+  parts,
+  {},
+);

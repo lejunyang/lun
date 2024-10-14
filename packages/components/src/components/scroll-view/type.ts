@@ -17,17 +17,19 @@ export type ScrollViewObserveViewRangeOption =
   | [ScrollViewObserveViewRangeValue];
 export type ScrollViewObserveViewOption = {
   attribute: string;
-  target?: string | Element;
+  target?: MaybeRefLikeOrGetter<string | Element>;
   range?: ScrollViewObserveViewRangeOption;
   axis?: 'x' | 'y';
-  progressVarName?: string;
+  progressVarName: string;
   intersectionCallback?: (entry: IntersectionObserverEntry) => void;
 };
 
 export type ScrollViewState = {
   width: number;
   height: number;
+  /** left corner's x of scroll container */
   x: number;
+  /** left corner'y x of scroll container */
   y: number;
   /** x轴滚动距离 */
   scrollX: number;
@@ -43,8 +45,8 @@ export type ScrollViewState = {
   yForward: boolean;
   yBackward: boolean;
   /** x轴滚动百分比, 0-1 */
-  scrollXPercent: number;
-  scrollYPercent: number;
+  scrollXProgress: number;
+  scrollYProgress: number;
 };
 
 export const scrollViewProps = freeze({
@@ -52,11 +54,11 @@ export const scrollViewProps = freeze({
   /** keyword(window), selector or element to watch for scroll events */
   target: Prop<MaybeRefLikeOrGetter<string | HTMLElement>>(),
   observeResize: PropBoolean(),
-  scrollXPercentVarName: PropString(),
-  scrollYPercentVarName: PropString(),
+  scrollXProgressVarName: PropString(),
+  scrollYProgressVarName: PropString(),
   observeView: Prop<ScrollViewObserveViewOption | ScrollViewObserveViewOption[]>(),
   hideScrollBar: PropBoolean(),
-  getSlots: PropFunction<(state: any) => ScrollViewSlot[] | ScrollViewSlot>(),
+  getSlots: PropFunction<(state: any, oldResult: ScrollViewSlot[] | undefined) => ScrollViewSlot[] | ScrollViewSlot>(),
 });
 
 export const scrollViewEmits = freeze({});
