@@ -30,6 +30,7 @@ import {
   toPxIfNum,
   virtualGetMerge,
   getRect,
+  getCSSVarName,
 } from '@lun/utils';
 import { useCE, useCEExpose, useNamespace } from 'hooks';
 import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
@@ -158,7 +159,7 @@ export const Popover = defineSSRCustomElement({
             const { value } = actualTarget;
             if (value === CE) {
               const { anchorName } = props;
-              return anchorName && '--' + anchorName;
+              return anchorName && getCSSVarName(anchorName);
             } else if (isElement(value)) {
               // @ts-ignore
               const { anchorName } = getCachedComputedStyle(value);
