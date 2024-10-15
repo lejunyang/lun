@@ -3,7 +3,7 @@ import { createDefineElement, toElement } from 'utils';
 import {
   scrollViewEmits,
   ScrollViewObserveViewOption,
-  ScrollViewObserveViewRangeValue,
+  ScrollViewRangeValue,
   scrollViewProps,
   ScrollViewSlot,
   ScrollViewState,
@@ -23,8 +23,9 @@ import {
   rafThrottle,
   pick,
   setStyle,
+  getCSSVarName,
 } from '@lun/utils';
-import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watchEffect } from 'vue';
+import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watch, watchEffect } from 'vue';
 import { unrefOrGet, useCleanUp, useResizeObserver } from '@lun/core';
 import { calcProgress, measureSubject } from './utils';
 
@@ -33,7 +34,9 @@ const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
 const registered = new Set<string>();
 const register = (name?: string) => {
-  if (supportCSSRegisterProperty && name && !registered.has(name)) {
+  if (!name) return '';
+  name = getCSSVarName(name);
+  if (supportCSSRegisterProperty && !registered.has(name)) {
     registered.add(name);
     supportCSSRegisterProperty({
       name: name,
@@ -42,6 +45,7 @@ const register = (name?: string) => {
       inherits: true,
     });
   }
+  return name;
 };
 export const ScrollView = defineSSRCustomElement({
   name,
@@ -84,17 +88,16 @@ export const ScrollView = defineSSRCustomElement({
         },
       }),
       readonlyState = readonly(state),
-      viewProgress = reactive({}) as Record<string, number>;
+      viewProgress = reactive({}) as Record<string, number>,
+      readonlyProgress = readonly(viewProgress);
 
     watchEffect(() => {
       if (root.value) {
         const { scrollXProgressVarName, scrollYProgressVarName } = props;
-        register(scrollXProgressVarName);
-        register(scrollYProgressVarName);
         setStyle(root.value, {
           ...viewProgress,
-          [scrollXProgressVarName!]: state.scrollXProgress,
-          [scrollYProgressVarName!]: state.scrollYProgress,
+          [register(scrollXProgressVarName)]: state.scrollXProgress,
+          [register(scrollYProgressVarName)]: state.scrollYProgress,
         });
       }
     });
@@ -124,20 +127,35 @@ export const ScrollView = defineSSRCustomElement({
       },
     });
     type ProcessedOption = Omit<ScrollViewObserveViewOption, 'range'> & {
-      range: [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue];
+      range: [ScrollViewRangeValue, ScrollViewRangeValue];
       measurement: ReturnType<typeof measureSubject>;
     };
     const intersectionTargetMap = new WeakMap<Element, Record<'x' | 'y', ProcessedOption>>();
+    const updateViewProgress = (el?: Element) => {
+      const options = intersectionTargetMap.get(el!);
+      if (!options) return;
+      const { x, y } = options;
+      if (y) {
+        const newProgress = calcProgress(state, y.measurement, 'y', y.range);
+        if (newProgress !== viewProgress[y.progressVarName])
+          runIfFn(y.onUpdate, (viewProgress[y.progressVarName] = newProgress));
+      }
+      if (x) {
+        const newProgress = calcProgress(state, x.measurement, 'x', x.range);
+        if (newProgress !== viewProgress[x.progressVarName])
+          runIfFn(x.onUpdate, (viewProgress[x.progressVarName] = newProgress));
+      }
+    };
     const intersectionTargets = computed(() => {
       const { observeView } = props;
       return toArrayIfNotNil(observeView).map((v) => {
-        const { target, axis, progressVarName } = v,
+        let { target, axis, progressVarName } = v,
           targetEl = toElement(unrefOrGet(target), CE) as HTMLElement,
           option = intersectionTargetMap.get(targetEl!) || ({} as Record<'x' | 'y', ProcessedOption>);
         if (!targetEl) return;
-        register(progressVarName);
+        progressVarName = register(progressVarName);
         if (viewProgress[progressVarName] == null) viewProgress[progressVarName] = 0;
-        const ranges = toArrayIfNotNil(v.range) as [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue];
+        const ranges = toArrayIfNotNil(v.range) as [ScrollViewRangeValue, ScrollViewRangeValue];
         ranges[0] ||= 'cover';
         ranges[1] ||= ranges[0];
         option[axis || 'y'] = {
@@ -148,6 +166,9 @@ export const ScrollView = defineSSRCustomElement({
         intersectionTargetMap.set(targetEl, option);
         return targetEl;
       });
+    });
+    watch(intersectionTargets, (els) => {
+      els.forEach((el) => updateViewProgress(el));
     });
 
     const [addClean, cleanUp] = useCleanUp();
@@ -172,21 +193,7 @@ export const ScrollView = defineSSRCustomElement({
                 yBackward: !yForward,
               });
             intersectionTargets.value.forEach((el) => {
-              if (el) {
-                const options = intersectionTargetMap.get(el);
-                if (!options) return;
-                const { x, y } = options;
-                if (y) {
-                  const newProgress = calcProgress(state, y.measurement, 'y', y.range);
-                  if (newProgress !== viewProgress[y.progressVarName])
-                    runIfFn(y.onUpdate, (viewProgress[y.progressVarName] = newProgress));
-                }
-                if (x) {
-                  const newProgress = calcProgress(state, x.measurement, 'x', x.range);
-                  if (newProgress !== viewProgress[x.progressVarName])
-                    runIfFn(x.onUpdate, (viewProgress[x.progressVarName] = newProgress));
-                }
-              }
+              updateViewProgress(el);
             });
           }
         }),
@@ -230,7 +237,7 @@ export const ScrollView = defineSSRCustomElement({
 
     const slots = computed<ScrollViewSlot[]>((old) => {
       const { getSlots } = props;
-      return toArrayIfNotNil(runIfFn(getSlots, readonlyState, viewProgress, old)).filter(Boolean);
+      return toArrayIfNotNil(runIfFn(getSlots, readonlyState, readonlyProgress, old)).filter(Boolean);
     });
 
     return () => {
@@ -259,8 +266,8 @@ export const defineScrollView = createDefineElement(
   name,
   ScrollView,
   {
-    scrollXProgressVarName: '--scroll-x-percent',
-    scrollYProgressVarName: '--scroll-y-percent',
+    scrollXProgressVarName: 'scroll-x-percent',
+    scrollYProgressVarName: 'scroll-y-percent',
   },
   parts,
   {},

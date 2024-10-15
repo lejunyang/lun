@@ -1,5 +1,5 @@
 import { isNumber } from '@lun/utils';
-import { ScrollViewObserveViewRangeValue } from './type';
+import { ScrollViewRangeValue } from './type';
 
 const axisMap = {
   x: 'width',
@@ -18,7 +18,7 @@ export function calcProgress(
   scrollerRect: { width: number; height: number; scrollX: number; scrollY: number },
   subjectMeasurement: { width: number; height: number; top: number; left: number },
   axis: 'x' | 'y',
-  options: [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue],
+  options: [ScrollViewRangeValue, ScrollViewRangeValue],
 ) {
   const size = axisMap[axis],
     scrollProp = scrollMap[axis],

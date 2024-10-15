@@ -10,14 +10,16 @@ export type ScrollViewSlot = {
   leaveAnimation?: Parameters<typeof HTMLElement.prototype.animate>;
 };
 
-export type ScrollViewObserveViewRangeValue = number | 'cover' | 'contain' | 'entry' | 'exit' | `${number}%`;
+export type ScrollViewInsetValue = number | `${number}%` | 'auto'; // needs to consider scroll-padding for auto;
+export type ScrollViewRangeValue = number | 'cover' | 'contain' | 'entry' | 'exit' | `${number}%`;
 export type ScrollViewObserveViewRangeOption =
-  | [ScrollViewObserveViewRangeValue, ScrollViewObserveViewRangeValue]
-  | ScrollViewObserveViewRangeValue
-  | [ScrollViewObserveViewRangeValue];
+  | [ScrollViewRangeValue, ScrollViewRangeValue]
+  | ScrollViewRangeValue
+  | [ScrollViewRangeValue];
 export type ScrollViewObserveViewOption = {
   target?: MaybeRefLikeOrGetter<string | Element>;
   range?: ScrollViewObserveViewRangeOption;
+  inset?: ScrollViewInsetValue | [ScrollViewInsetValue] | [ScrollViewInsetValue, ScrollViewInsetValue];
   axis?: 'x' | 'y';
   progressVarName: string;
   onUpdate?: (progress: number) => void;

@@ -48,3 +48,8 @@ export type ScrollViewState = {
 通过`observeView`属性可以开启滚动视图监听，其可以指定一个或多个子元素为监听目标，当目标视图在`l-scroll-view`滚动进度发生变化时会更新对应CSS变量或触发回调，以此便可实现对应动画效果
 
 <!-- @Code:viewScrollDriven -->
+<Test />
+
+<script setup>
+  import Test from './_devViewScroll.vue';
+</script>
