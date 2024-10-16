@@ -3,8 +3,6 @@ import { createDefineElement } from 'utils';
 import { spinProps } from './type';
 import { useNamespace } from 'hooks';
 import { ref, watchEffect } from 'vue';
-import { useInstanceStyle } from '@lun/core';
-import { getValuesFromStyle } from '@lun/utils';
 import { getCompParts } from 'common';
 
 const name = 'spin';
@@ -30,17 +28,15 @@ export const Spin = defineSSRCustomElement({
       }
     });
 
-    const ceStyle = useInstanceStyle((style) => getValuesFromStyle(style, 'font-size', 'color'));
-
     const getSVG = () => {
-      const { type } = props;
+      const { type, svgStyle } = props;
       if (!showing.value) return null;
       switch (type) {
         case 'circle':
           return (
             <svg
               class={[ns.t, ns.m(type)]}
-              style={ceStyle.value}
+              style={svgStyle}
               viewBox="0 0 50 50"
               width="1em"
               height="1em"
@@ -91,6 +87,7 @@ export const defineSpin = createDefineElement(
   {
     type: 'circle',
     strokeWidth: 4,
+    // FIXME can not set false because of default value??? check if it's a bug of vue
     spinning: true,
   },
   parts,

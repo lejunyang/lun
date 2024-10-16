@@ -8,7 +8,7 @@ lang: zh-CN
 <!-- @Code:basicUsage -->
 
 :::info 注
-Spin 会继承主题中的 size 和 color，同时也可以通过设置 font-size 和 color 内联 style 来设置 Spin 的大小和颜色，其优先级更高
+Spin 会继承主题中的 size 和 color，同时也可以通过`svgStyle`属性设置 font-size 和 color 来设置 Spin 的大小和颜色，其优先级更高
 :::
 
 ## 延迟展示

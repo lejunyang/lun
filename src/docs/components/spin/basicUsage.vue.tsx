@@ -2,8 +2,8 @@ export default function () {
   return (
     <>
       <l-spin />
-      <l-spin style="color: red;" />
-      <l-spin style="color: green; font-size: 18px" />
+      <l-spin svgStyle="color: red;" />
+      <l-spin svgStyle="color: green; font-size: 18px" />
     </>
   );
 }

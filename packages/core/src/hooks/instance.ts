@@ -1,5 +1,6 @@
 import { getCurrentInstance, onMounted, onUpdated, ref } from 'vue';
 
+// this is useless as we set inheritAttrs: false default for every component
 export function useInstanceStyle<T = string>(transformFn?: (style: string) => T) {
   const vm = getCurrentInstance();
   let style = ref<T>(),
