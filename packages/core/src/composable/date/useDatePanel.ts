@@ -75,36 +75,42 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
     quarterFormat: string;
     weekFormat: string;
   },
-  'lang' | 'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat'
-> & {
-  viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
-  format?: string;
-  showTime?: boolean;
-  use12Hours?: boolean;
-  range?: boolean;
-  multiple?: boolean;
-  type: DatePanelType;
-  shortMonths?: string[];
-  shortWeekDays?: string[];
-  min?: DateValueType;
-  max?: DateValueType;
-  lessThan?: DateValueType;
-  moreThan?: DateValueType;
-  disableDate?:
-    | ((
-        date: DateValueType,
-        info: { type: DatePanelType; selecting?: DateValueType; pickingType: DatePanelType },
-      ) => boolean)
-    | boolean;
-  hidePreviewDates?: boolean;
-  getCell: (target: HTMLElement) => [number, number] | undefined;
-  onSelect?: (
-    value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][],
-    valStr: string | [string, string] | [string, string][],
-  ) => void;
-  beforeViewChange?: (offset: number) => Promise<void> | void;
-  // titleFormat?:
-};
+  true
+> &
+  ToAllMaybeRefLike<{
+    getFocusing: HTMLElement;
+    enablePrevCells?: boolean;
+    enableNextCells?: boolean;
+    value: DateValueType | DateValueType[] | [DateValueType, DateValueType][];
+  }> & {
+    viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
+    format?: string;
+    showTime?: boolean;
+    use12Hours?: boolean;
+    range?: boolean;
+    multiple?: boolean;
+    type: DatePanelType;
+    shortMonths?: string[];
+    shortWeekDays?: string[];
+    min?: DateValueType;
+    max?: DateValueType;
+    lessThan?: DateValueType;
+    moreThan?: DateValueType;
+    disableDate?:
+      | ((
+          date: DateValueType,
+          info: { type: DatePanelType; selecting?: DateValueType; pickingType: DatePanelType },
+        ) => boolean)
+      | boolean;
+    hidePreviewDates?: boolean;
+    getCell: (target: HTMLElement) => [number, number] | undefined;
+    onSelect?: (
+      value: DateValueType | [DateValueType, DateValueType] | [DateValueType, DateValueType][],
+      valStr: string | [string, string] | [string, string][],
+    ) => void;
+    beforeViewChange?: (offset: number) => Promise<void> | void;
+    // titleFormat?:
+  };
 
 /** [rows, cols] */
 const gridMap = {

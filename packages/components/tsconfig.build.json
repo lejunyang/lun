@@ -23,8 +23,9 @@
       // [vite:dts] Internal Error: Unable to determine semantic information for declaration
       // related issue https://github.com/qmhc/vite-plugin-dts/issues/281, but relative path is not working
       // replace it with LUNCOER and then perform string replace manually, see generateModuleTypes.js
-      "@lun/core": ["LUNCOER"],
-      "@lun/utils": ["LUNUTILS"]
+      // "@lun/core": ["LUNCOER"],
+      // "@lun/utils": ["LUNUTILS"]
+      // REMOVED as it's working now(ts5.6+ dts4.2+)
     }
   }
 }

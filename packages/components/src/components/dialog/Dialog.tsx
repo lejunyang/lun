@@ -33,7 +33,6 @@ import {
 } from '@lun/utils';
 import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
-import { vContentTargetProp, vContentTargetValue } from '@lun/plugins/vue';
 
 const name = 'dialog';
 const parts = ['root', 'mask', 'panel', 'header', 'close', 'content', 'footer'] as const;

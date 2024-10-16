@@ -1,8 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "include": ["./index.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "../../global.d.ts"],
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@lun/utils": ["LUNUTILS"]
-    },
+      // "@lun/utils": ["LUNUTILS"]
+    }
   }
 }

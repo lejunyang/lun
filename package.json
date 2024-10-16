@@ -73,7 +73,8 @@
     "typescript": "catalog:",
     "vue": "catalog:",
     "@floating-ui/utils": "catalog:",
-    "@floating-ui/dom": "catalog:"
+    "@floating-ui/dom": "catalog:",
+    "@microsoft/api-extractor": "7.47.10"
   },
   "pnpm": {
     "patchedDependencies": {

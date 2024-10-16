@@ -18,20 +18,23 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
         },
       }),
       !dev &&
-      !noType &&
-      dts({
-        rollupTypes: true,
-        tsconfigPath: './tsconfig.build.json',
-        bundledPackages: ['@lun/*'],
-        rollupOptions: {
-          // showVerboseMessages: true,
-          // showDiagnostics: true,
-        },
-        // beforeWriteFile(filePath, content) {
-        //   if (filePath.includes('define')) return false; // don't emit type file for component define files
-        //   else return { filePath, content };
-        // },
-      }),
+        !noType &&
+        dts({
+          rollupTypes: true,
+          tsconfigPath: './tsconfig.build.json',
+          staticImport: true,
+          // bundledPackages: ['@lun/*'],
+          rollupConfig: {
+          },
+          rollupOptions: {
+            // showVerboseMessages: true,
+            // showDiagnostics: true,
+          },
+          // beforeWriteFile(filePath, content) {
+          //   if (filePath.includes('define')) return false; // don't emit type file for component define files
+          //   else return { filePath, content };
+          // },
+        }),
       ...(viteConfig?.plugins ?? []),
       !name.includes('plugin') && addIndexEntry({ fileName }),
     ],

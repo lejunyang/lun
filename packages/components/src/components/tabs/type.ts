@@ -11,6 +11,7 @@ import {
 import { ExtractPropTypes } from 'vue';
 
 export type TabItemObject = {
+  // TODO add icon
   slot?: string;
   label: string;
   closable?: boolean;
@@ -20,6 +21,7 @@ export type TabItemObject = {
   disabled?: boolean;
 };
 
+// TODO auto Hide label. vertical: hover to expand, or collapse and only show icon; horizontal: only show label for active tab, others show icon only
 export const tabsProps = freeze({
   ...themeProps,
   ...createTransitionProps('panel'),

@@ -50,7 +50,7 @@ export const openShadowComponents = freeze([
   'tooltip',
   'tour',
   'tree',
-  'tree-item'
+  'tree-item',
 ] as const);
 export const components = freeze([...openShadowComponents, ...noShadowComponents, ...closedShadowComponents] as const);
 export type ComponentKey = (typeof components)[number];
@@ -161,7 +161,11 @@ export const GlobalStaticConfig = new Proxy(
       true,
       true,
     ),
-    ...(presets as Omit<import('@lun/core').Presets, 'date'> & {
+    ...(presets as {
+      math: import('@lun/core').MathMethods<
+        import('@lun/utils').BigIntDecimal,
+        number | import('@lun/utils').BigIntDecimal
+      >;
       /**
        * @example
        * use below way to customize the date type

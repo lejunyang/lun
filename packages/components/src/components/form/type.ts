@@ -13,7 +13,7 @@ import {
   CommonProps,
   undefBoolProp,
 } from 'common';
-import { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun/core';
+import type { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
 import { FormProvideExtra } from '.';
 import { freeze } from '@lun/utils';

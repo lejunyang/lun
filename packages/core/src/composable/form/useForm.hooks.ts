@@ -1,6 +1,6 @@
 import { ComponentInternalInstance } from 'vue';
 import { createSyncHook, createAsyncHook } from '../createHooks';
-import { ProcessedFormParams, UseFormOptions } from './useForm';
+import { ProcessedFormParams, UseFormOptions } from './type';
 import { FormMethods } from './useForm.methods';
 
 type UpdateValueParam = {

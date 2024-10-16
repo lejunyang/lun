@@ -15,7 +15,7 @@ export const textProps = freeze({
   ...themeProps,
   size: PropResponsive<'1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'>(),
   text: PropString(),
-  as: PropString<'code' | 'link' | 'blockquote'>(),
+  as: PropString<'code' | 'link' | 'blockquote' | 'kbd'>(),
   truncate: PropString(),
   ellipsisOffset: PropNumber(),
   ellipsis: PropBoolOrStr<'start' | 'end' | 'center' | boolean>(),

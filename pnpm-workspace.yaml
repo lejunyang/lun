@@ -4,19 +4,19 @@ packages:
 catalog:
   vite: ^5.4.8
   # vite-plugin-dts: ^3.9.1
-  vite-plugin-dts: ^4.2.1
+  vite-plugin-dts: ^4.2.4
   '@vitejs/plugin-vue': ^5.1.4
   '@vitejs/plugin-vue-jsx': ^4.0.1
   vitest: latest
-  vue: ^3.5.11
-  '@vue/runtime-dom': ^3.5.11
-  '@vue/runtime-core': ^3.5.11
-  '@vue/compiler-core': ^3.5.11
+  vue: ^3.5.12
+  '@vue/runtime-dom': ^3.5.12
+  '@vue/runtime-core': ^3.5.12
+  '@vue/compiler-core': ^3.5.12
   vue-tsc: ^2.1.6
   react: rc
   react-dom: rc
-  typescript: 5.5.4
-  # typescript: ^5.6.2 # having issue https://github.com/microsoft/rushstack/issues/4919
+  # typescript: 5.5.4
+  typescript: ^5.6.3 # having issue https://github.com/microsoft/rushstack/issues/4919
   rimraf: ^5.0.7
   cross-env: ^7.0.3
   '@rollup/plugin-replace': ^5.0.7

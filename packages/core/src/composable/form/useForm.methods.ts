@@ -9,7 +9,7 @@ import {
   isString,
   pick,
 } from '@lun/utils';
-import { MaybeFormItemStatusMessages, MaybeFormItemPath, ProcessedFormParams, UseFormOptions } from './useForm';
+import { MaybeFormItemStatusMessages, MaybeFormItemPath, ProcessedFormParams, UseFormOptions } from './type';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {
   const { data, rawData, formState, hooks, getDefaultFormState, nameToItemMap, itemToFormMap } = params;
