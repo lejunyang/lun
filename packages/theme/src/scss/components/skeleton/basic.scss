@@ -20,4 +20,9 @@
   z-index: 1;
   position: absolute;
   inset: 0;
+
+  @include is(hidden) {
+    // we're using content-visibility: hidden to hide it, must clear its size value when hidden
+    inset: unset;
+  }
 }
