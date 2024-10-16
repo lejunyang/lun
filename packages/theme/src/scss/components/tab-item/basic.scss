@@ -7,4 +7,11 @@
 @include b(tab-item) {
   overflow: auto;
   grid-area: 1/1;
+  @include is(hidden) {
+    // as they all are place on 1/1 grid area and we are using content-visibility: hidden(it only hides the content, not the element itself)
+    // we need to explicitly hide the element itself
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden; // if the hidden panel is longer then current active tab-item panel, in chrome it will show scrollbar(maybe bug, as it's normal in firefox)
+  }
 }

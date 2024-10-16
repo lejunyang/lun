@@ -25,7 +25,7 @@ export const TabItem = defineSSRCustomElement({
           {...getTransitionProps(props, 'panel', context?.getTransitionName?.())}
           onAfterEnter={context?.transitionEnd}
         >
-          <div class={ns.t} v-content={show} part={compParts[0]}>
+          <div class={[ns.t, ns.is('hidden', !show)]} v-content={show} part={compParts[0]}>
             <slot></slot>
           </div>
         </Transition>
