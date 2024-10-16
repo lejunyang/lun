@@ -4,7 +4,7 @@ export default () => (
     <div
       style={
         common +
-        'height: 20px;width:calc(100% * var(--scroll-x-percent));background:linear-gradient(to right,var(--l-indigo-a5) calc(100% * var(--scroll-x-percent)),var(--l-plum-a5));font-size:calc(var(--scroll-x-percent) * 24px);'
+        'height: 20px;width:calc(100% * var(--scroll-x-progress));background:linear-gradient(to right,var(--l-indigo-a5) calc(100% * var(--scroll-x-progress)),var(--l-plum-a5));font-size:calc(var(--scroll-x-progress) * 24px);'
       }
     >
       horizontal
@@ -12,7 +12,7 @@ export default () => (
     <div
       style={
         common +
-        'width: 20px;height:calc(100% * var(--scroll-y-percent));writing-mode:tb;background:linear-gradient(to bottom,var(--l-indigo-a5) calc(100% * var(--scroll-y-percent)),var(--l-plum-a5));font-size:calc(var(--scroll-y-percent) * 24px);'
+        'width: 20px;height:calc(100% * var(--scroll-y-progress));writing-mode:tb;background:linear-gradient(to bottom,var(--l-indigo-a5) calc(100% * var(--scroll-y-progress)),var(--l-plum-a5));font-size:calc(var(--scroll-y-progress) * 24px);'
       }
     >
       vertical

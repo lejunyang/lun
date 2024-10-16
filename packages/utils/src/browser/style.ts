@@ -5,7 +5,7 @@ import { isElement } from './is';
 import { isSupportCSSStyleSheet } from './support';
 import { toNumberIfValid } from '../number';
 import { arrayFrom } from '../array';
-import { cacheFunctionResult } from '../function';
+import { cacheStringFunction } from '../function';
 
 const styleCommentRE = /\/\*[^]*?\*\//g;
 
@@ -115,4 +115,6 @@ export function isRTL(el: Element) {
 }
 
 /** escape invalid chars of that name and add '--' prefix if not exists */
-export const getCSSVarName = cacheFunctionResult((name: string) => (name.startsWith('--') ? CSS.escape(name) : `--${CSS.escape(name)}`));
+export const getCSSVarName = cacheStringFunction((name: string) =>
+  name.startsWith('--') ? CSS.escape(name) : `--${CSS.escape(name)}`,
+);

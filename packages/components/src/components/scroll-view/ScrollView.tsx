@@ -266,8 +266,8 @@ export const defineScrollView = createDefineElement(
   name,
   ScrollView,
   {
-    scrollXProgressVarName: 'scroll-x-percent',
-    scrollYProgressVarName: 'scroll-y-percent',
+    scrollXProgressVarName: 'scroll-x-progress',
+    scrollYProgressVarName: 'scroll-y-progress',
   },
   parts,
   {},

@@ -35,7 +35,7 @@ export type ScrollViewState = {
 
 ## 模拟滚动进度驱动动画
 
-通过CSS变量`--scroll-x-percent`和`--scroll-y-percent`即可获取当前滚动进度（小数0~1），以此设置样式便可模拟滚动驱动动画。
+通过CSS变量`--scroll-x-progress`和`--scroll-y-progress`即可获取当前滚动进度（小数0~1），以此设置样式便可模拟滚动驱动动画。
 
 通过`scrollXPercentVarName`和`scrollYPercentVarName`可以自定义这两个CSS变量名
 
