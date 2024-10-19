@@ -89,6 +89,9 @@ export function refLikeToDescriptors<M extends Record<string | number | symbol, 
       get() {
         return unrefOrGet(obj[key]);
       },
+      // add these two, so that descriptors can be used in defineProperties multiple times(remove and append dom in package/components, useExpose can call this multiple times)
+      configurable: true,
+      enumerable: true,
     };
   }
   return descriptors as Record<keyof M, PropertyDescriptor>;
