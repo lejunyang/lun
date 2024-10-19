@@ -21,7 +21,7 @@ import './commands';
 
 import { mount } from 'cypress/vue';
 
-import { ComponentKey, GlobalStaticConfig, defineAllComponents } from '@lun/components';
+import { ComponentKey, GlobalStaticConfig, VueElement, defineAllComponents } from '@lun/components';
 import {
   importAllColors,
   importBasicTheme,
@@ -62,7 +62,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       mount: typeof mount;
-      l: <T extends HTMLElement = HTMLElement>(
+      l: <T extends VueElement = VueElement>(
         componentName: ComponentKey,
         props?: Record<string, any>,
       ) => Bluebird.Promise<
