@@ -277,6 +277,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   private _ob?: MutationObserver | null = null;
   private _pendingResolve: Promise<void> | undefined;
   private _parent: VueElement | undefined;
+  private _skipRemoveSet = new Set<string>();
   // below three are vue' official support for non-shadowRoot custom element, we don't use that
   /**
    * dev only
@@ -501,8 +502,12 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     if (toArrayIfNotNil(ignoreAttrs).some((pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key))))
       return;
     const has = this.hasAttribute(key);
-    let value: any = has ? this.getAttribute(key) : REMOVAL;
     const camelKey = camelize(key);
+    let value: any = has ? this.getAttribute(key) : REMOVAL;
+    if (this._skipRemoveSet.has(camelKey)) {
+      if (value === REMOVAL) return;
+      else this._skipRemoveSet.delete(camelKey);
+    }
     if (has) {
       if (attrTransform) value = attrTransform(key, value, this);
       else if (this._numberProps?.[camelKey]) value = toNumberIfValid(value);
@@ -544,6 +549,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
         } else if (typeof val === 'string' || typeof val === 'number') {
           this.setAttribute(hyphenate(key), val + '');
         } else if (!val) {
+          this._skipRemoveSet.add(key);
           this.removeAttribute(hyphenate(key));
         }
       }
