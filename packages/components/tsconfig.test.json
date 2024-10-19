@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ESNext",
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "types": ["cypress", "@lun/components"],
+    "baseUrl": ".",
+    "paths": {
+      "@": ["./index.ts"]
+    }
+  },
+  "include": [
+    "./__test__/**/*.ts",
+    "./__test__/**/*.tsx",
+    "../../cypress/support/component.ts",
+    "../../cypress/support/commands.ts"
+  ]
+}

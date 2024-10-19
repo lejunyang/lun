@@ -21,7 +21,18 @@ import './commands';
 
 import { mount } from 'cypress/vue';
 
-import { ComponentKey, GlobalStaticConfig, autoDefine } from '@lun/components';
+import { ComponentKey, GlobalStaticConfig, defineAllComponents } from '@lun/components';
+import {
+  importAllColors,
+  importBasicTheme,
+  importCommonTheme,
+  importGhostTheme,
+  importOutlineTheme,
+  importSoftTheme,
+  importSolidTheme,
+  importSurfaceTheme,
+} from '@lun/theme';
+import { createElement } from '@lun/utils';
 import { ComponentInternalInstance } from 'vue';
 
 // import { getContainerEl } from 'cypress/mount-utils';
@@ -51,13 +62,16 @@ declare global {
   namespace Cypress {
     interface Chainable {
       mount: typeof mount;
-      l: (componentName: ComponentKey) =>
-        | undefined
-        | Bluebird.Promise<{
-            ce: HTMLElement;
-            shadowRoot: ShadowRoot;
-            vm: ComponentInternalInstance;
-          }>;
+      l: <T extends HTMLElement = HTMLElement>(
+        componentName: ComponentKey,
+        props?: Record<string, any>,
+      ) => Bluebird.Promise<
+        {
+          ce: T;
+          shadow: ShadowRoot;
+          vm: ComponentInternalInstance;
+        } & [T, ShadowRoot, ComponentInternalInstance]
+      >;
     }
   }
 }
@@ -68,27 +82,40 @@ const lunId = '__lun__element__';
 const cleanup = () => {
   Cypress.$(`#${lunId}`).remove();
 };
-Cypress.Commands.add('l', (componentName) => {
-  if (!(componentName in GlobalStaticConfig.defaultProps)) return;
+Cypress.Commands.add('l', (componentName, props) => {
+  if (!(componentName in GlobalStaticConfig.defaultProps)) {
+    console.warn(`Component ${componentName} is not defined.`);
+    return;
+  }
   const wholeTagName = GlobalStaticConfig.namespace + '-' + componentName;
   cleanup();
-  autoDefine();
+  importAllColors();
+  importCommonTheme();
+  importBasicTheme();
+  importSurfaceTheme();
+  importOutlineTheme();
+  importSolidTheme();
+  importSoftTheme();
+  importGhostTheme();
+  defineAllComponents();
   return Cypress.Promise.resolve(customElements.whenDefined(wholeTagName)).then(() => {
-    // @ts-ignore
-    const document: Document = cy.state('document');
     const container = getContainerEl();
-    const ce = document.createElement(wholeTagName);
-    ce.id = lunId;
+    const ce = createElement(wholeTagName as any, {
+      ...props,
+      id: lunId,
+    });
     container.append(ce);
     return {
       ce,
-      shadowRoot: ce.shadowRoot!,
+      shadow: ce.shadowRoot!,
       get vm() {
         return (ce as any)._instance as ComponentInternalInstance;
       },
-    };
+      [Symbol.iterator]: function* () {
+        yield this.ce;
+        yield this.shadowRoot;
+        yield this.vm;
+      },
+    } as any;
   });
 });
-
-// Example use:
-// cy.mount(MyComponent)
