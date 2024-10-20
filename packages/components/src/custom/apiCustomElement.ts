@@ -347,8 +347,8 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
 
     if (!this._instance) {
       if (this._resolved) {
-        this._setParent();
-        this._update();
+        this._observe();
+        this._mount(this._def);
       } else {
         if (parent?._pendingResolve) {
           this._pendingResolve = parent._pendingResolve.then(() => {
@@ -379,6 +379,17 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     });
   }
 
+  private _observe() {
+    if (this._ob) return;
+    this._ob = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        this._setAttr(m.attributeName!);
+      }
+    });
+
+    this._ob.observe(this, { attributes: true });
+  }
+
   /**
    * resolve inner component definition (handle possible async component)
    */
@@ -392,14 +403,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
       this._setAttr(this.attributes[i].name);
     }
 
-    // watch future attr changes
-    this._ob = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        this._setAttr(m.attributeName!);
-      }
-    });
-
-    this._ob.observe(this, { attributes: true });
+    this._observe();
 
     const resolve = (def: InnerComponentDef, isAsync = false) => {
       this._resolved = true;
