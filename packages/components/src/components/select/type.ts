@@ -5,12 +5,12 @@ import {
   valueProp,
   PropBoolean,
   PropObjOrBool,
-  PropStrOrArr,
   PropString,
   editStateProps,
   themeProps,
   PropObject,
   CommonProps,
+  Prop,
 } from 'common';
 import { popoverProps } from '../popover/type';
 import { freeze, objectKeys, omit } from '@lun/utils';
@@ -36,7 +36,7 @@ export const selectPropsOfPopover = {
 export const selectProps = freeze({
   ...themeProps,
   ...createOptionProps(true),
-  value: PropStrOrArr(),
+  value: Prop(),
   multiple: PropBoolean(),
   filter: PropBoolOrFunc<boolean | ((inputValue: string | null, option: CommonOption) => boolean)>(),
   /** used to freely input and create new select options */

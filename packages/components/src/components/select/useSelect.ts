@@ -1,13 +1,12 @@
 import { useSelectMethods } from '@lun/core';
-import { Ref, WritableComputedRef, computed, toRef } from 'vue';
-import { CommonProcessedOption, useCollectorValue } from 'hooks';
+import { Ref } from 'vue';
+import { CommonProcessedOption, useValueSet, useCollectorValue } from 'hooks';
 import { SelectCollector } from './collector';
 import { useActivateOption } from './useActivateOption';
-import { toArrayIfNotNil } from '@lun/utils';
 
 export function useSelect(
   props: { upDownToggle?: boolean; autoActivateFirst?: boolean; multiple?: boolean },
-  valueModel: WritableComputedRef<string | string[] | null | undefined> | Ref<string | string[] | null | undefined>,
+  valueModel: Ref<{ value: any; raw?: any }>,
   {
     isHidden,
     onSingleSelect,
@@ -16,15 +15,16 @@ export function useSelect(
     onSingleSelect?: (value: string) => void;
   } = {},
 ) {
-  const selectedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
+  const isMultiple = () => props.multiple,
+    selectedValueSet = useValueSet(valueModel, isMultiple);
   const [childrenInfo, valueToChild, valueToLabel] = useCollectorValue(() => context);
 
   const methods = useSelectMethods({
-    multiple: toRef(props, 'multiple'),
-    valueSet: selectedValueSet,
+    multiple: isMultiple,
+    value: selectedValueSet,
     onChange(value) {
       valueModel.value = value;
-      if (onSingleSelect && !props.multiple) onSingleSelect(value);
+      if (onSingleSelect && !isMultiple()) onSingleSelect(value.raw);
     },
     allValues: () => childrenInfo.childrenValuesSet,
   });

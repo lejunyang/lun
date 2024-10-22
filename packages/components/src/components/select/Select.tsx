@@ -34,6 +34,7 @@ export const Select = defineSSRCustomElement({
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
     const valueModel = useValueModel(props, {
+      hasRaw: true,
       emit: (name, value) => {
         emit(name as any, value);
         // if it's multiple, keep focus after input change
@@ -139,7 +140,7 @@ export const Select = defineSSRCustomElement({
       );
     });
 
-    const inputValue = useTempState(() => (!props.multiple && customTagProps(valueModel.value).label) || ''); // all falsy value to empty string, to prevent inputValue reset
+    const inputValue = useTempState(() => (!props.multiple && customTagProps(valueModel.value.raw).label) || ''); // all falsy value to empty string, to prevent inputValue reset
     const createdOptions = ref([] as CommonOption[]);
     const extra = computed(() => {
       // any more efficient way to do this?
@@ -209,7 +210,11 @@ export const Select = defineSSRCustomElement({
                   activateMethods.activateNext();
                 }); // make the current creating option active
               emit('inputUpdate', value);
-            } else valueModel.value = value;
+            } else
+              valueModel.value = {
+                value,
+                raw: new Set(value),
+              };
           },
           onTagsComposing(e: CustomEvent) {
             inputValue.value = e.detail;
