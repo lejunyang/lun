@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { treeEmits, treeProps } from './type';
-import { useCEExpose, useNamespace, useValueModel } from 'hooks';
+import { useValueSet, useCEExpose, useNamespace, useValueModel } from 'hooks';
 import { getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun/core';
@@ -21,17 +21,18 @@ export const Tree = defineSSRCustomElement({
   emits: treeEmits,
   setup(props) {
     const ns = useNamespace(name);
+    const isSelectMultiple = () => ['multiple', 'ctrl-multiple'].includes(props.selectMode!);
     const [editComputed] = useSetupEdit();
-    const selectedModel = useValueModel(props, { key: 'selected', eventName: 'select' }), // TODO add hasRaw
-      checkedModel = useValueModel(props, { key: 'checked', eventName: 'check' }),
-      expandedModel = useValueModel(props, { key: 'expanded', eventName: 'expand' });
-    const selectedValueSet = computed(() => new Set(toArrayIfNotNil(selectedModel.value))),
-      checkedValueSet = computed(() => new Set(toArrayIfNotNil(checkedModel.value))),
+    const selectedModel = useValueModel(props, { key: 'selected', eventName: 'select', hasRaw: true }),
+      checkedModel = useValueModel(props, { key: 'checked', eventName: 'check', hasRaw: true }),
+      expandedModel = useValueModel(props, { key: 'expanded', eventName: 'expand', hasRaw: true });
+    const selectedValueSet = useValueSet(selectedModel, isSelectMultiple),
+      checkedValueSet = useValueSet(checkedModel, true),
       expandedValueSet = computed(() => {
         const { value } = expandedModel;
-        return props.defaultExpandAll && value == null
+        return props.defaultExpandAll && value.value == null
           ? combinedChildren.noneLeafValuesSet
-          : new Set(toArrayIfNotNil(value));
+          : value.raw || new Set(toArrayIfNotNil(value.value));
       });
 
     const [propItemsInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);
@@ -47,7 +48,7 @@ export const Tree = defineSSRCustomElement({
 
     const [correctedCheckedSet, checkedChildrenCountMap] = useTreeCheckedValue(combinedChildren, checkedValueSet);
     const checkMethods = useTreeCheckMethods({
-      valueSet: correctedCheckedSet,
+      value: correctedCheckedSet,
       childrenInfo: combinedChildren,
       childrenCheckedMap: checkedChildrenCountMap,
       valueToChild,
@@ -58,15 +59,15 @@ export const Tree = defineSSRCustomElement({
     });
 
     const selectMethods = useSelectMethods({
-      multiple: () => ['multiple', 'ctrl-multiple'].includes(props.selectMode!),
-      valueSet: selectedValueSet,
+      multiple: isSelectMultiple,
+      value: selectedValueSet,
       onChange(value) {
         selectedModel.value = value;
       },
       allValues: () => combinedChildren.childrenValuesSet,
     });
     const _expandMethods = useCheckboxMethods({
-      valueSet: expandedValueSet,
+      value: expandedValueSet,
       onChange(value) {
         expandedModel.value = value;
       },

@@ -5,8 +5,8 @@ import { arrayFrom, differenceOfSets } from '@lun/utils';
 export function useTreeCheckMethods(
   options: ToAllMaybeRefLike<
     {
-      valueSet: Set<any>;
-      allValues: any[] | Set<any>;
+      value: Set<any>;
+      allValues: Set<any>;
       childrenCheckedMap: WeakMap<Item, number>;
     },
     true
@@ -19,7 +19,7 @@ export function useTreeCheckMethods(
     valueToChild: (value: any) => Item | undefined;
   },
 ) {
-  const { valueSet, onChange, valueToChild, childrenCheckedMap, childrenInfo } = options;
+  const { value, onChange, valueToChild, childrenCheckedMap, childrenInfo } = options;
   const countUp = createCount(childrenCheckedMap, 1),
     countDown = createCount(childrenCheckedMap, -1);
   const methods = useCheckboxMethods(options);
@@ -59,7 +59,7 @@ export function useTreeCheckMethods(
     }
   };
   const internalBatchUpdate = (values: any[], isUnCheck?: number) => {
-    const old = unrefOrGet(valueSet),
+    const old = unrefOrGet(value),
       newSet = new Set(old);
     values.forEach((value) => internalUpdate(value, newSet, 1, isUnCheck));
     if (old.size !== newSet.size) onChange(arrayFrom(newSet));
@@ -80,7 +80,7 @@ export function useTreeCheckMethods(
     },
     reverse() {
       const leafSet = differenceOfSets(childrenInfo.childrenValuesSet, childrenInfo.noneLeafValuesSet);
-      onChange(arrayFrom(differenceOfSets(leafSet, unrefOrGet(valueSet))));
+      onChange(arrayFrom(differenceOfSets(leafSet, unrefOrGet(value))));
     },
   });
   return {

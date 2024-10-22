@@ -23,6 +23,7 @@ export const PropBoolOrStr = cacheFunctionResult(createPropFactory(Boolean, Stri
 export const PropBoolOrFunc = cacheFunctionResult(createPropFactory(Boolean, Function));
 export const PropObject = cacheFunctionResult(createPropFactory(objConstructor));
 export const PropArray = cacheFunctionResult(createPropFactory(Array));
+export const PropSet = cacheFunctionResult(createPropFactory(Set, Array));
 export const PropFunction = cacheFunctionResult(createPropFactory(Function));
 export const PropObjOrFunc = cacheFunctionResult(createPropFactory(objConstructor, Function));
 export const PropObjOrStr = cacheFunctionResult(createPropFactory(objConstructor, String));

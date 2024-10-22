@@ -1,4 +1,4 @@
-import { freeze } from '@lun/utils';
+import { freeze, MaybeArray, MaybeSet } from '@lun/utils';
 import {
   GetEventPropsFromEmits,
   themeProps,
@@ -11,6 +11,7 @@ import {
   createTransitionProps,
   PropString,
   PropObject,
+  PropSet,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -20,9 +21,9 @@ export const treeProps = freeze({
   items: PropArray<(TreeItemSetupProps & { children?: TreeItemSetupProps[]; loadable?: boolean })[]>(),
   itemPropsMap: PropObject<Record<keyof TreeItemSetupProps | 'children' | 'key', string> & Record<string, string>>(),
   watchItemProps: PropBoolean(), // TODO value/disabled
-  checked: PropArray(),
-  selected: PropArray(),
-  expanded: PropArray(),
+  checked: PropSet(),
+  selected: Prop<MaybeArray<any> | MaybeSet<any>>(),
+  expanded: PropSet(),
   defaultExpandAll: PropBoolean(),
   selectable: PropString<'line' | 'label'>(),
   selectMode: PropString<'single' | 'multiple' | 'ctrl-multiple'>(),
