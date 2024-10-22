@@ -39,12 +39,12 @@ export const Checkbox = defineSSRCustomElement({
 
     const intermediate = computed(() => {
       if (!checkboxContext || props.excludeFromGroup) return props.intermediate && !props.checked;
-      return props.checkForAll && checkboxContext.radioState.value.intermediate;
+      return props.checkForAll && checkboxContext.radioState.intermediate;
     });
     const checked = computed(() => {
       if (!checkboxContext || props.excludeFromGroup) return checkedModel?.value ?? props.checked;
       const { radioState } = checkboxContext;
-      const { allChecked, isChecked } = radioState.value;
+      const { allChecked, isChecked } = radioState;
       return (allChecked && !editComputed.disabled) || (!props.checkForAll && isChecked(props.value));
     });
 

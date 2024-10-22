@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
-import { useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun/core';
+import { objectComputed, useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun/core';
 import { createDefineElement } from 'utils';
-import { useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
+import { useValueSet, useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { computed } from 'vue';
-import { toArrayIfNotNil } from '@lun/utils';
+import { pick } from '@lun/utils';
 import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
 import { getCompParts } from 'common';
 
@@ -32,15 +32,13 @@ export const CheckboxGroup = defineSSRCustomElement({
       },
     });
     const valueModel = useValueModel(props, {
+      hasRaw: true,
       emit: (name, value) => {
-        emit(name as any, {
-          value,
-          allChecked: radioState.value.allChecked,
-          intermediate: radioState.value.intermediate,
-        });
+        Object.assign(value, pick(radioState, ['allChecked', 'intermediate']));
+        emit(name as any, value);
       },
     });
-    const checkedValueSet = computed(() => new Set(toArrayIfNotNil(valueModel.value)));
+    const checkedValueSet = useValueSet(valueModel, true);
 
     const childValueSet = computed(
       () =>
@@ -54,7 +52,7 @@ export const CheckboxGroup = defineSSRCustomElement({
         ),
     );
     const methods = useCheckboxMethods({
-      valueSet: checkedValueSet,
+      value: checkedValueSet,
       allValues: childValueSet,
       onChange(value) {
         valueModel.value = value;
@@ -64,7 +62,7 @@ export const CheckboxGroup = defineSSRCustomElement({
     useCEExpose(methods);
 
     useSetupEdit();
-    const radioState = computed(() => {
+    const radioState = objectComputed(() => {
       let allChecked: boolean | null = null,
         intermediate = false;
       childValueSet.value.forEach((v) => {

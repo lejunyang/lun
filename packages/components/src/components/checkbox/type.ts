@@ -5,9 +5,9 @@ import {
   GetEventPropsFromEmits,
   PropBoolean,
   PropString,
-  PropArray,
   valueProp,
   CommonProps,
+  PropSet,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -48,7 +48,7 @@ export const checkboxEmits = freeze({
 export const checkboxGroupProps = freeze({
   ...createOptionProps(false),
   ...themeProps,
-  value: PropArray(),
+  value: PropSet(),
   /** used to define an id for current checkbox group, with that, only checkbox with same onlyFor prop will be managed by this group */
   onlyFor: PropString(),
   vertical: PropBoolean(),
@@ -57,6 +57,7 @@ export const checkboxGroupProps = freeze({
 
 export type CheckboxGroupUpdateDetail = {
   value: any[];
+  raw: Set<any>;
   allChecked: boolean;
   intermediate: boolean;
 };

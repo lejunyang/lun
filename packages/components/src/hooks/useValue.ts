@@ -1,9 +1,9 @@
-import type { UseModel } from '@lun/core';
-import { createUseModel } from '@lun/core';
+import type { MaybeRefLikeOrGetter, UseModel } from '@lun/core';
+import { createUseModel, unrefOrGet } from '@lun/core';
 import { FormInputCollector } from '../components/form-item/collector';
 import { computed, getCurrentInstance, Ref } from 'vue';
 import { Status } from 'common';
-import { pickNonNil } from '@lun/utils';
+import { isSet, pickNonNil, toArrayIfNotNil } from '@lun/utils';
 import { formItemRuleProps } from '../components/form-item/type';
 
 const extra = () => {
@@ -102,3 +102,9 @@ export const useViewDate = createUseModel({
 
 export const createGetterForHasRawModel = (model: Ref<{ value: any; raw?: any }>) => () =>
   model.value.raw || model.value.value;
+
+export const useValueSet = (hasRawModel: Ref<{ value: any; raw?: any }>, multiple?: MaybeRefLikeOrGetter<boolean>) =>
+  computed(() => {
+    const { value, raw } = hasRawModel.value;
+    return unrefOrGet(multiple) ? (raw || isSet(value) ? value : new Set(toArrayIfNotNil(value))) : value;
+  });
