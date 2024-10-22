@@ -65,7 +65,6 @@ export type UseDatePanelCells = (UseDatePanelCell[] & { key: string; allPreviewD
 export type UseDatePanelOptions = ToAllMaybeRefLike<
   {
     lang: string;
-    getFocusing: HTMLElement;
     enablePrevCells?: boolean;
     enableNextCells?: boolean;
     value: DateValueType | DateValueType[] | [DateValueType, DateValueType][];

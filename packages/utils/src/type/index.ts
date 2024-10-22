@@ -56,3 +56,6 @@ export type GetRequiredKeys<T extends object> = {
 export type GetOptionalKeys<T extends object> = {
   [K in keyof T]-?: undefined extends T[K] ? K : never;
 }[keyof T];
+
+export type MaybeArray<T> = T | T[];
+export type MaybeSet<T> = T | Set<T>;

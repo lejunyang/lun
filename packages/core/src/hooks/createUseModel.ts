@@ -19,9 +19,9 @@ interface UseModelOptions<
   shouldEmit?: false | ((v: T) => boolean);
   emit?: (name: string, ...args: any[]) => void;
   key?: K;
-  /** if hasRaw is true, the value will be wrapped in an object with `value` and `raw` properties.
-   * `raw` will be used to store complex object so that we can avoid unnecessary parse and stringify every time the value changes
-   * e.g. Calendar component. value will be { value: string, raw?: Dayjs }
+  /** if `hasRaw` is true, the value will be wrapped in an object with `value` and `raw` properties, and `passive` will be set to true.
+   * `raw` will be used to store complex object so that we can avoid unnecessary parse back and from every time the value changes
+   * e.g. Calendar component, value will be { value: string, raw?: Dayjs }; Select component, value will be { value: string[], raw?: Set<string> }
    */
   hasRaw?: HasRaw;
 }
