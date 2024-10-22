@@ -1,57 +1,65 @@
 import { arrayFrom, getFirstOfIterable, toNoneNilSet } from '@lun/utils';
-import { ToMaybeRefLike, unrefOrGet } from '../../utils';
+import { ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 
-export type UseSelectOptions<T = any> = ToMaybeRefLike<
+export type UseSelectOptions<T = any> = ToAllMaybeRefLike<
   {
     multiple?: boolean;
-    valueSet?: Set<T>;
-    onChange: (value: T | T[]) => void;
-    allValues?: T[] | Set<T>;
+    // when multiple is true, it needs to be Set<T>, otherwise it needs to be T
+    value: Set<T> | T;
+    allValues: Set<T>;
   },
-  'onChange'
->;
+  true
+> & { onChange: (param: { value: T | T[]; raw: Set<T> | T }) => void };
 
 export function useSelectMethods(options: UseSelectOptions) {
-  const { multiple, valueSet, onChange, allValues } = options;
+  const { multiple, value, onChange, allValues } = options;
   const isMultiple = () => !!unrefOrGet(multiple);
+  const getParam = (raw: any) => ({
+    raw,
+    get value() {
+      return isMultiple() ? arrayFrom(raw) : raw;
+    },
+  });
   const methods = {
-    isSelected: (value: any) => !!unrefOrGet(valueSet)?.has(value),
+    isSelected: (value: any) =>
+      isMultiple() ? !!unrefOrGet(value)?.has(value) : unrefOrGet(value) === value && value != null,
     selectAll() {
-      if (isMultiple()) onChange(arrayFrom(unrefOrGet(allValues) || []));
+      if (isMultiple()) onChange(getParam(unrefOrGet(allValues)));
     },
     unselectAll() {
-      onChange(isMultiple() ? [] : null);
+      onChange(getParam(isMultiple() ? new Set() : null));
     },
     select(...values: any[]) {
       if (isMultiple()) {
-        const v = toNoneNilSet(unrefOrGet(valueSet), values);
-        onChange(arrayFrom(v));
-      } else if (values[0] != null) onChange(values[0]);
+        const v = toNoneNilSet(unrefOrGet(value), values);
+        onChange(getParam(v));
+      } else if (values[0] != null) onChange(getParam(values[0]));
     },
     clearAndSelect(...values: any[]) {
-      if (isMultiple()) onChange(values);
-      else onChange(values[0]);
+      if (isMultiple()) onChange(getParam(new Set(values)));
+      else onChange(getParam(values[0]));
     },
     unselect(...values: any[]) {
-      const v = unrefOrGet(valueSet);
+      const v = unrefOrGet(value);
       if (isMultiple()) {
         const result = new Set(v);
         values.forEach((i) => result.delete(i));
-        onChange(arrayFrom(result));
+        onChange(getParam(result));
       } else {
-        if (values[0] === undefined || getFirstOfIterable(unrefOrGet(valueSet)!) === values[0]) onChange(null);
+        if (values[0] === undefined || getFirstOfIterable(unrefOrGet(value)!) === values[0])
+          onChange(getParam(null));
       }
     },
     reverse() {
       const all = unrefOrGet(allValues) || [];
       if (isMultiple()) {
-        const result = new Set(unrefOrGet(valueSet));
+        const result = new Set(unrefOrGet(value));
         all.forEach((i) => {
           if (result.has(i)) result.delete(i);
           else result.add(i);
         });
-        onChange(arrayFrom(result));
-      } else onChange(!unrefOrGet(valueSet)?.size ? arrayFrom(all)[0] : null);
+        onChange(getParam(result));
+      } else onChange(getParam(!unrefOrGet(value)?.size ? getFirstOfIterable(all) : null));
     },
     toggle(value: any) {
       if (methods.isSelected(value)) methods.unselect(value);
