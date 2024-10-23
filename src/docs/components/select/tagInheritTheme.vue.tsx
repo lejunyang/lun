@@ -6,8 +6,8 @@ const select = ref(arrayFrom(5, (_, i) => `value${i + 1}`));
 export default () => {
   return (
     <>
-      <l-select options={optionsWithColors} multiple v-update={select.value} />
-      <l-select options={groupOptionsWithColors} multiple v-update={select.value} />
+      <l-select options={optionsWithColors} multiple v-update:value={select.value} />
+      <l-select options={groupOptionsWithColors} multiple v-update:value={select.value} />
     </>
   );
 };

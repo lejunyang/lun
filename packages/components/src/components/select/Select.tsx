@@ -140,7 +140,7 @@ export const Select = defineSSRCustomElement({
       );
     });
 
-    const inputValue = useTempState(() => (!props.multiple && customTagProps(valueModel.value.raw).label) || ''); // all falsy value to empty string, to prevent inputValue reset
+    const inputValue = useTempState(() => (!props.multiple && customTagProps(valueModel.value.value).label) || ''); // all falsy value to empty string, to prevent inputValue reset
     const createdOptions = ref([] as CommonOption[]);
     const extra = computed(() => {
       // any more efficient way to do this?
@@ -192,7 +192,7 @@ export const Select = defineSSRCustomElement({
           ref: inputRef,
           multiple,
           readonly: !editable,
-          value: multiple ? valueModel.value : inputValue.value,
+          value: multiple ? valueModel.value.value : inputValue.value,
           unique: true,
           onInput() {
             const pop = popoverRef.value;

@@ -13,7 +13,7 @@ import {
   Prop,
 } from 'common';
 import { popoverProps } from '../popover/type';
-import { freeze, objectKeys, omit } from '@lun/utils';
+import { freeze, MaybeArray, MaybeSet, objectKeys, omit } from '@lun/utils';
 import { CommonOption, createOptionProps } from 'hooks';
 import { ButtonProps } from '../button/type';
 
@@ -57,7 +57,7 @@ export const selectProps = freeze({
 });
 
 export const selectEmits = freeze({
-  update: null,
+  update: (_: { value: MaybeArray<unknown> | null; raw: MaybeSet<unknown> | null }) => null,
   inputUpdate: null,
 });
 

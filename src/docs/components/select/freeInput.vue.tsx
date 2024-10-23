@@ -6,8 +6,8 @@ const multi = ref(['value1']);
 export default () => {
   return (
     <>
-      <l-select options={options} v-update={select.value} freeInput />
-      <l-select multiple options={options} freeInput v-update={multi.value} />
+      <l-select options={options} v-update:value={select.value} freeInput />
+      <l-select multiple options={options} freeInput v-update:value={multi.value} />
     </>
   );
 };

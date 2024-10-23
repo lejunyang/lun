@@ -10,7 +10,7 @@
       </div>
       <div class="code-block-footer">
         <l-select
-          v-update="lang"
+          v-update:value="lang"
           variant="ghost"
           :options="selectOptions"
           size="1"

@@ -5,11 +5,11 @@ const select = ref(['value1']);
 export default () => {
   return (
     <>
-      <l-select multiple options={options} v-update={select.value} commonButtons />
+      <l-select multiple options={options} v-update:value={select.value} commonButtons />
       <l-select
         multiple
         options={options}
-        v-update={select.value}
+        v-update:value={select.value}
         color="red"
         commonButtons={{
           selectAll: false,

@@ -15,8 +15,8 @@ const target = ref(),
   selectOptions = ['cover', 'contain', 'entry', 'exit'];
 export default () => (
   <>
-    <l-select v-update={rangeStart.value} options={selectOptions} />
-    <l-select v-update={rangeEnd.value} options={selectOptions} />
+    <l-select v-update:value={rangeStart.value} options={selectOptions} />
+    <l-select v-update:value={rangeEnd.value} options={selectOptions} />
     <l-scroll-view style="height: 300px; position: relative; width: 100%; " observeView={option.value}>
       <div
         style={

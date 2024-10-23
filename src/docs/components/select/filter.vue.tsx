@@ -7,7 +7,7 @@ const input = ref(null);
 export default () => {
   return (
     <>
-      <l-select options={optionsForSearch} v-update={select.value} filter />
+      <l-select options={optionsForSearch} v-update:value={select.value} filter />
       <l-select
         options={optionsForSearch.map((i) => {
           if (!input.value) return i;
@@ -18,7 +18,7 @@ export default () => {
           };
         })}
         multiple
-        v-update={multi.value}
+        v-update:value={multi.value}
         filter
         onInputUpdate={(e) => {
           input.value = e.detail;

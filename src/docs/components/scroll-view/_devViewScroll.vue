@@ -1,7 +1,7 @@
 <template>
   <div>
-    <l-select v-update="rangeStart" :options="selectOptions" />
-    <l-select v-update="rangeEnd" :options="selectOptions" />
+    <l-select v-update:value="rangeStart" :options="selectOptions" />
+    <l-select v-update:value="rangeEnd" :options="selectOptions" />
     <div style="position: relative">
       <div class="container" @scroll.passive="scroll">
         <div class="w-full" style="height: 1000px"></div>

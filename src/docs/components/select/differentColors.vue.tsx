@@ -8,10 +8,10 @@ export default () => {
   return (
     <>
       {themeColors.slice(0, 3).map((color) => (
-        <l-select color={color} options={options} placeholder={color} v-update={select.value} />
+        <l-select color={color} options={options} placeholder={color} v-update:value={select.value} />
       ))}
       {themeColors.slice(-3).map((color) => (
-        <l-select color={color} options={options} multiple placeholder={color} v-update={mulSelect.value} />
+        <l-select color={color} options={options} multiple placeholder={color} v-update:value={mulSelect.value} />
       ))}
     </>
   );
