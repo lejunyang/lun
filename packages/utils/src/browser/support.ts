@@ -90,7 +90,7 @@ export const supportCSSSubgrid = supportCSSSupports && supports!(gridRows, 'subg
 export const supportCSSAnchor =
   supportCSSSupports && (supports!('position-area', 'top span-all') || supports!('inset-area', 'top span-all'));
 
-export const supportCSSAutoHeightTransition = supportCSSSupports && supports!('height', 'calc-size(auto)');
+export const supportCSSAutoHeightTransition = supportCSSSupports && supports!('height', 'calc-size(auto,size)');
 
 let gridAnimationResult: boolean | Promise<boolean>, gridChecked: boolean | undefined;
 export const isSupportCSSGridTrackAnimation = () => {

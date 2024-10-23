@@ -9,7 +9,7 @@ const getHeightHandler = ({ duration }: TransitionProps, isEnter = true) =>
       // add overflow:hidden because of scrollbar, see https://css-tricks.com/hide-scrollbars-during-an-animation/
       { height: '0px', opacity: 0, overflow: 'hidden' },
       {
-        height: supportCSSAutoHeightTransition ? 'calc-size(auto)' : `${el.offsetHeight}px`,
+        height: supportCSSAutoHeightTransition ? 'calc-size(auto,size)' : `${el.offsetHeight}px`,
         opacity: 1,
         overflow: 'hidden',
       },
