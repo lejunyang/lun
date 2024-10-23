@@ -10,7 +10,7 @@ import { definePopover } from '../popover';
 import { defineSelectOption } from '../select';
 import { useSelect } from '../select/useSelect';
 import { VueCustomRenderer } from '../custom-renderer';
-import { getCompParts } from 'common';
+import { getCompParts, intl } from 'common';
 
 const name = 'mentions';
 const parts = ['root', 'float-label', 'wrapper', 'textarea', 'length-info', 'content'] as const;
@@ -29,7 +29,7 @@ export const Mentions = defineSSRCustomElement({
     const target = ref<VirtualElement>();
     const lastTriggerInput = ref<string>();
 
-    const selected = ref<string>();
+    const selected = ref<{ value: string | undefined }>({ value: undefined });
     const { context, activateHandlers, activateMethods, valueToLabel } = useSelect(
       {
         get upDownToggle() {
@@ -99,8 +99,8 @@ export const Mentions = defineSSRCustomElement({
     watchEffect(() => {
       if (!state.activeMentionValue && !state.lastTrigger) {
         // delay cleaning selected until popover is closed, to avoid visual jitter during closing animation. freezeWhenClosing is not working, as selected changing and closing happen at the same time
-        afterCloseClean = () => (afterCloseClean = selected.value = undefined);
-      } else selected.value = state.activeMentionValue;
+        afterCloseClean = () => (afterCloseClean = selected.value.value = undefined);
+      } else selected.value.value = state.activeMentionValue;
       activateMethods.activateCurrentSelected();
     });
 
@@ -202,7 +202,12 @@ export const Mentions = defineSSRCustomElement({
               },
               <div class={ns.e('content')} part={compParts[5]} slot="pop-content" onPointerdown={popOnPointerDown}>
                 {!context.value.length && !hasOption() ? (
-                  <slot name="no-content">No content</slot> // TODO emptyText prop
+                  <slot name="no-content">
+                    <div class={ns.e('empty')}>
+                      {renderElement('icon', { name: 'warning', class: ns.em('empty', 'icon') })}
+                      <span class={ns.em('empty', 'text')}>{intl('select.noContent').d('No content')}</span>
+                    </div>
+                  </slot>
                 ) : (
                   [optionsRender.value, <slot></slot>]
                 )}

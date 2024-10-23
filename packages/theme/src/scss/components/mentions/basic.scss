@@ -46,10 +46,16 @@
 
   [data-is-mention] {
     color: getAccentColor(9);
-    @include declareVarValues((
-      margin-inline: (mention-margin-inline, 0.5ch),
-    ));
-    & + &, &:first-child {
+    @include declareVarValues(
+      (
+        margin-inline: (
+          mention-margin-inline,
+          0.5ch,
+        ),
+      )
+    );
+    & + &,
+    &:first-child {
       margin-inline-start: 0;
     }
   }
@@ -152,6 +158,23 @@
     }
   }
 
+  @include e(empty) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: getGrayColor(9);
+    padding-block: getDeclaredVar(padding-block);
+    gap: getSpaceValue(2);
+  }
+
+  @include em(empty, text, true) {
+    @include declareVars((font-size));
+  }
+  @include em(empty, icon, true) {
+    font-size: calc(#{getDeclaredVar(font-size)} * 2);
+  }
+
   @include size(1) {
     @include setVars(
       (
@@ -174,7 +197,7 @@
         font-size: getFontSizeValue(2),
         border-radius: getRadiusValue(2),
         // min-block-size: 150px,
-        // min-inline-size: 200px,,,
+        // min-inline-size: 200px,
       )
     );
   }

@@ -12,7 +12,7 @@ export type UseSelectOptions<T = any> = ToAllMaybeRefLike<
 > & { onChange: (param: { value: T | T[]; raw: Set<T> | T }) => void };
 
 export function useSelectMethods(options: UseSelectOptions) {
-  const { multiple, value, onChange, allValues } = options;
+  const { multiple, value: selectVal, onChange, allValues } = options;
   const isMultiple = () => !!unrefOrGet(multiple);
   const getParam = (raw: any) => ({
     raw,
@@ -22,7 +22,7 @@ export function useSelectMethods(options: UseSelectOptions) {
   });
   const methods = {
     isSelected: (value: any) =>
-      isMultiple() ? !!unrefOrGet(value)?.has(value) : unrefOrGet(value) === value && value != null,
+      isMultiple() ? !!unrefOrGet(selectVal)?.has(value) : unrefOrGet(selectVal) === value && value != null,
     selectAll() {
       if (isMultiple()) onChange(getParam(unrefOrGet(allValues)));
     },
@@ -31,7 +31,7 @@ export function useSelectMethods(options: UseSelectOptions) {
     },
     select(...values: any[]) {
       if (isMultiple()) {
-        const v = toNoneNilSet(unrefOrGet(value), values);
+        const v = toNoneNilSet(unrefOrGet(selectVal), values);
         onChange(getParam(v));
       } else if (values[0] != null) onChange(getParam(values[0]));
     },
@@ -40,26 +40,26 @@ export function useSelectMethods(options: UseSelectOptions) {
       else onChange(getParam(values[0]));
     },
     unselect(...values: any[]) {
-      const v = unrefOrGet(value);
+      const v = unrefOrGet(selectVal);
       if (isMultiple()) {
         const result = new Set(v);
         values.forEach((i) => result.delete(i));
         onChange(getParam(result));
       } else {
-        if (values[0] === undefined || getFirstOfIterable(unrefOrGet(value)!) === values[0])
+        if (values[0] === undefined || getFirstOfIterable(unrefOrGet(selectVal)!) === values[0])
           onChange(getParam(null));
       }
     },
     reverse() {
       const all = unrefOrGet(allValues) || [];
       if (isMultiple()) {
-        const result = new Set(unrefOrGet(value));
+        const result = new Set(unrefOrGet(selectVal));
         all.forEach((i) => {
           if (result.has(i)) result.delete(i);
           else result.add(i);
         });
         onChange(getParam(result));
-      } else onChange(getParam(!unrefOrGet(value)?.size ? getFirstOfIterable(all) : null));
+      } else onChange(getParam(!unrefOrGet(selectVal)?.size ? getFirstOfIterable(all) : null));
     },
     toggle(value: any) {
       if (methods.isSelected(value)) methods.unselect(value);

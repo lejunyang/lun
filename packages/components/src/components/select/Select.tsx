@@ -260,7 +260,7 @@ export const Select = defineSSRCustomElement({
             <slot name="no-content">
               <div class={ns.e('empty')}>
                 {renderElement('icon', { name: 'warning', class: ns.em('empty', 'icon') })}
-                <span class={ns.em('empty', 'text')}>{intl('select.emptyText').d('No content')}</span>
+                <span class={ns.em('empty', 'text')}>{intl('select.noContent').d('No content')}</span>
               </div>
             </slot>
           ) : (
