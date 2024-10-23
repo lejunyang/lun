@@ -6,12 +6,12 @@ import {
   undefBoolProp,
   createTransitionProps,
   PropBoolean,
-  PropNumOrArr,
   PropString,
   editStateProps,
   PropObjOrStr,
+  Prop,
 } from 'common';
-import { freeze } from '@lun/utils';
+import { freeze, MaybeArray, MaybeSet } from '@lun/utils';
 
 export const accordionProps = freeze({
   ...themeProps,
@@ -39,16 +39,18 @@ export type AccordionSetupProps = ExtractPropTypes<typeof accordionProps> & Comm
 export type AccordionEvents = GetEventPropsFromEmits<typeof accordionEmits>;
 export type AccordionProps = Partial<AccordionSetupProps> & AccordionEvents;
 
+type OpenType = string | number;
+
 export const accordionGroupProps = freeze({
   ...themeProps,
   ...editStateProps,
-  open: PropNumOrArr(),
-  defaultOpen: PropNumOrArr(),
+  open: Prop<MaybeArray<OpenType> | MaybeSet<OpenType>>(),
+  defaultOpen: Prop(),
   allowMultiple: PropBoolean(),
 });
 
 export const accordionGroupEmits = freeze({
-  update: (_: string | number | (string | number)[]) => null,
+  update: (_: { value: MaybeArray<OpenType> | null; raw: MaybeSet<OpenType> | null }) => null,
 });
 
 export type AccordionGroupSetupProps = ExtractPropTypes<typeof accordionGroupProps> & CommonProps;

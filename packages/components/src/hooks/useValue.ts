@@ -108,3 +108,16 @@ export const useValueSet = (hasRawModel: Ref<{ value: any; raw?: any }>, multipl
     const { value, raw } = hasRawModel.value;
     return unrefOrGet(multiple) ? (raw || isSet(value) ? value : new Set(toArrayIfNotNil(value))) : value;
   });
+
+export const updateRawSetModel = (
+  hasRawModel: Ref<{ value: any; raw?: any }>,
+  value: any,
+  multiple?: MaybeRefLikeOrGetter<boolean>,
+) => {
+  // pauseTracking(); // in case hasRawModel.value is tracked // pauseTracking is exported by @vue/reactivity, but not exported by Vue...
+  if (unrefOrGet(multiple)) {
+    const set = isSet(value);
+    hasRawModel.value[set ? 'raw' : 'value'] = set ? value : toArrayIfNotNil(value);
+  } else hasRawModel.value.value = value;
+  // enableTracking();
+};

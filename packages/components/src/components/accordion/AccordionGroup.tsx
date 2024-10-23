@@ -1,13 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { accordionGroupEmits, accordionGroupProps } from './type';
-import { useCEExpose, useCEStates, useNamespace } from 'hooks';
+import { useValueSet, useCEExpose, useCEStates, useNamespace, updateRawSetModel } from 'hooks';
 import { getCompParts } from 'common';
 import { defineIcon } from '../icon';
 import { useGroupOpenMethods, useSetupEdit } from '@lun/core';
 import { AccordionCollector } from './collector';
 import { computed, ref, watchEffect } from 'vue';
-import { toArrayIfNotNil } from '@lun/utils';
 
 const name = 'accordion-group';
 const parts = ['root'] as const;
@@ -19,17 +18,18 @@ export const AccordionGroup = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     useSetupEdit();
-    const openModel = ref();
+    const openModel = ref<{ value: any; raw?: any }>({ value: undefined, raw: undefined });
+        const multiple = () => props.allowMultiple;
     watchEffect(() => {
-      const { open, defaultOpen, allowMultiple } = props;
-      if (open) openModel.value = allowMultiple ? toArrayIfNotNil(open) : open;
-      else if (defaultOpen) openModel.value = allowMultiple ? toArrayIfNotNil(defaultOpen) : defaultOpen;
+      const { open, defaultOpen } = props;
+      if (open) updateRawSetModel(openModel, open, multiple)
+      else if (defaultOpen) updateRawSetModel(openModel, defaultOpen, multiple);
     });
-    const openSet = computed(() => new Set<any>(toArrayIfNotNil(openModel.value)));
+    const openSet = useValueSet(openModel, multiple);
     const childrenNames = computed(() => new Set(context.value.map((c, i) => c.props.name || i)));
     const methods = useGroupOpenMethods({
-      valueSet: openSet,
-      multiple: () => props.allowMultiple,
+      value: openSet,
+      multiple,
       allValues: childrenNames,
       onChange(value) {
         openModel.value = value;
