@@ -31,6 +31,7 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'select.button.selectAll': '全选',
     'select.button.reverse': '反选',
     'select.button.clear': '清空',
+    'select.emptyText': '暂无数据',
 
     'tour.prev': '上一步',
     'tour.next': '下一步',

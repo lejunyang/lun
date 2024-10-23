@@ -257,7 +257,12 @@ export const Select = defineSSRCustomElement({
       const popContent = (
         <div class={ns.e('content')} part={compParts[0]} slot="pop-content" onPointerdown={contentOnPointerDown}>
           {!context.value.length && !options.value?.length ? (
-            <slot name="no-content">No content</slot> // TODO emptyText prop
+            <slot name="no-content">
+              <div class={ns.e('empty')}>
+                {renderElement('icon', { name: 'warning', class: ns.em('empty', 'icon') })}
+                <span class={ns.em('empty', 'text')}>{intl('select.emptyText').d('No content')}</span>
+              </div>
+            </slot>
           ) : (
             <>
               {buttons.value}
