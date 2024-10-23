@@ -3,30 +3,26 @@ title: 如何使用
 lang: zh-CN
 ---
 
-目前提供以下的库：
-
-- `@lun/utils`：js 工具函数库
-- `@lun/core`：提供组件功能的钩子函数库
-- `@lun/components`：组件库
-- `@lun/theme`：主题库
-- `@lun/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
-- `@lun/plugins`: 为 JSX 或 Vue template 提供自定义指令
-
-:::tip 注
-在使用本组件库之前，你需要了解[自定义元素](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)的相关知识，只需知道如何使用即可，无需了解如何创建
-:::
+在使用本组件库之前，你需要了解自定义元素的相关知识，可参考[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)或[Vue](https://vuejs.org/guide/extras/web-components.html)，只需知道如何使用即可，无需了解如何创建
 
 ## 安装
 
 暂未发布到 npm
 
-::: tip 注
+目前提供以下的库：
+
+- `@lun/utils`：js 工具函数库
+- `@lun/core`：提供组件功能的钩子函数库
+- `@lun/components`：组件库，其依赖于上面两个
+- `@lun/theme`：主题库，其依赖于上面三个
+- `@lun/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+- `@lun/plugins`: 为 JSX 或 Vue template 提供自定义指令
+
+根据需要并安装对应的库
 
 - 如果只需要组件，样式完全自定义的话，直接安装`@lun/components`即可
-- 如果需要主题，只需安装`@lun/theme`（其依赖于`@lun/components`）
-- React 中需额外安装`@lun/react`，使用其导出的组件
-
-:::
+- 如果需要主题，只需安装`@lun/theme`
+- 在 React 中使用需额外安装`@lun/react`，使用其导出的组件
 
 ## React 中使用
 
@@ -49,7 +45,7 @@ export default function () {
 ```js
 import { GlobalStaticConfig, defineAllComponents } from '@lun/components';
 import {
-  importCommonTheme,
+  importCommonTheme
   importAllColors,
   importAllP3Colors,
   importBasicTheme,
@@ -58,13 +54,16 @@ import {
   importSoftTheme,
   importSolidTheme,
 } from '@lun/theme';
+// 如果使用了日期组件，则必须引入日期处理预设。内部提供了dayjs实现，但需要用户手动引入
+import '@lun/core/date-dayjs';
+// 如果你想要使用其他的日期处理库，可参考左侧“数字和日期处理预设”一栏
 
 // 定义组件前设置想要更改的全局静态配置
 GlobalStaticConfig.xx = xx;
 
 // 引入所有的预设主题色
-importAllColors(); // 如果需要自定义请参考导航栏中的“调色”一栏
-// 如果需要P3广色域支持
+importAllColors(); // 如果需要自定义主题色请参考顶部导航栏中的“调色”一栏
+// 如果需要P3广色域支持则调用如下函数，当支持的时候会使用display-p3
 // importAllP3Colors();
 
 // 引入组件内部公共样式
@@ -76,13 +75,14 @@ importSurfaceTheme();
 importOutlineTheme();
 importSoftTheme();
 importSolidTheme();
+
 // 定义全部组件
 defineAllComponents();
 ```
 
-- 全局静态配置需要在组件被使用前修改，但最好在定义前就统一修改，因为`namespace`在定义时就会使用
-- 全量引入的组件会使用`GlobalStaticConfig.namespace`加上组件本身的名字作为命名，例如`namespace`默认为`l`，那么`button`组件的默认名字便是`l-button`。引入组件后你便可以在任何地方使用它们
-- 为保证视觉效果，你需要自行向页面添加类似于下面的样式，在组件未定义时隐藏它们，以避免它们的 children 被渲染出来而造成闪烁
+- 全局静态配置需要在组件被使用前修改，但最好在定义组件前就统一修改，因为`namespace`在定义时就会使用
+- 全量引入的组件会使用全局静态配置中的`namespace`加上组件本身的名字作为命名，例如`namespace`默认为`l`，那么`button`组件的默认名字便是`l-button`。定义组件后你便可以在任何地方使用它们
+- 在SSR的情况下，为保证视觉效果，你需要自行向页面添加类似于下面的样式，在组件未定义时隐藏它们，以避免它们的子元素被渲染出来而造成闪烁
 
 ```css
 :not(:defined) {
@@ -213,13 +213,21 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 {{ browserInfo }}
 :::
 
-某些特性需要的版本较高, 但它们在内部有做兼容处理或替代方案, 如下
+某些特性需要的版本较高, 但它们在内部有做兼容处理或替代方案, 渐进式增强能给用户带来更好的体验，详细信息如下
 
 :::info 注
 <Support :is="true" /> 当前浏览器支持该特性
 <Support :is="false" style="margin-left: 10px;" /> 当前浏览器不支持该特性
 <l-icon name="help" style="margin-left: 10px;" /> 无法检测
 :::
+
+**Javascript**
+
+- <Support is="promiseTry" /> [Promise.try](https://caniuse.com/?search=Promise.try) <SupportInfo chrome="128" edge="128" firefox="134" safari="no" />
+- <Support is="withResolvers" /> [Promise.withResolvers](https://caniuse.com/?search=withResolvers) <SupportInfo chrome="119" edge="119" firefox="121" safari="17.4" />
+- <Support is="setIntersection" /> [Set.intersection](https://caniuse.com/?search=Set%20intersection) <SupportInfo chrome="122" edge="122" firefox="127" safari="17" />
+
+**Web API**
 
 - <Support is="adoptedStyleSheets" /> [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets) <SupportInfo chrome="73" edge="79" firefox="101" safari="16.4" />
 - <Support is="customState" /> [CustomStateSet](https://caniuse.com/?search=CustomStateSet) <SupportInfo chrome="90" edge="90" firefox="126" safari="17.4" />
@@ -228,7 +236,10 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 - <Support is="inputCancel" /> [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel) <SupportInfo chrome="113" edge="113" firefox="91" safari="16.4" />
 - <Support is="popover" /> [popover](https://caniuse.com/?search=popover) <SupportInfo chrome="114" edge="114" firefox="125" safari="17" />
 - <Support is="showOpenFilePicker" /> [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker) <SupportInfo chrome="86" edge="86" firefox="no" safari="no" />
-- <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges) <SupportInfo chrome="no" edge="no" firefox="130" safari="17" />
+- <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges) <SupportInfo chrome="no" edge="no" firefox="134" safari="17" />
+
+**CSS**
+
 - <Support is="anchorPosition" /> [CSS Anchor Positioning](https://caniuse.com/?search=anchor%20position) <SupportInfo chrome="125" edge="125" firefox="no" safari="no" />
 - <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer) <SupportInfo chrome="99" edge="99" firefox="97" safari="15.4" />
 - <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid) <SupportInfo chrome="117" edge="117" firefox="71" safari="16" />

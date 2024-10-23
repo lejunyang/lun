@@ -37,6 +37,9 @@ const features = {
   highlight: supportCSSHighLight,
   overflowClipMargin: supportCSSSupports && CSS.supports('overflow-clip-margin', '1px'),
   height: supportCSSAutoHeightTransition,
+  promiseTry: !!(Promise as any).try,
+  withResolvers: !!(Promise as any).withResolvers,
+  setIntersection: !!(Set.prototype as any).intersection
 };
 
 const props = defineProps<{
