@@ -45,10 +45,7 @@ export function useSelectMethods(options: UseSelectOptions) {
         const result = new Set(v);
         values.forEach((i) => result.delete(i));
         onChange(getParam(result));
-      } else {
-        if (values[0] === undefined || getFirstOfIterable(unrefOrGet(selectVal)!) === values[0])
-          onChange(getParam(null));
-      }
+      } else if (values[0] === undefined || unrefOrGet(selectVal) === values[0]) onChange(getParam(null));
     },
     reverse() {
       const all = unrefOrGet(allValues) || [];

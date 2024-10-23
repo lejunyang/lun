@@ -4,9 +4,10 @@ import { accordionEmits, accordionProps } from './type';
 import { useCEStates, useNamespace, useOpenModel, useSlot } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { defineIcon } from '../icon';
-import { Transition } from 'vue';
+import { computed, Transition } from 'vue';
 import { useSetupEdit } from '@lun/core';
 import { isString } from '@lun/utils';
+import { AccordionCollector } from './collector';
 
 const name = 'accordion';
 const parts = ['root', 'header', 'content', 'indicator'] as const;
@@ -17,21 +18,26 @@ export const Accordion = defineSSRCustomElement({
   emits: accordionEmits,
   setup(props) {
     const ns = useNamespace(name);
+    const context = AccordionCollector.child();
     const openModel = useOpenModel(props);
-    useSetupEdit();
+    const [editComputed] = useSetupEdit();
+    const id = () => props.name ?? context?.index;
+    const isOpen = computed(() => (context ? context.isOpen(id()) : openModel.value));
 
     const [renderHeader] = useSlot('header', () => props.header);
     const [renderContent] = useSlot('', () => props.content);
 
     const handleToggle = () => {
-      openModel.value = !openModel.value;
+      if (editComputed.disabled) return;
+      if (context) context.toggleChild(id());
+      else openModel.value = !openModel.value;
     };
     const resolveIcon = (val?: string | { open?: string; close?: string }, defaultV?: string) => {
       if (isString(val)) return val;
-      else return openModel.value ? val?.open ?? defaultV : val?.close ?? defaultV;
+      else return isOpen.value ? val?.open ?? defaultV : val?.close ?? defaultV;
     };
 
-    const [stateClass] = useCEStates(() => ({ open: openModel }), ns);
+    const [stateClass] = useCEStates(() => ({ open: isOpen }), ns);
     return () => {
       const { iconPosition = 'end', iconName, iconLibrary } = props;
       const icon = renderElement('icon', {
@@ -48,7 +54,7 @@ export const Accordion = defineSSRCustomElement({
             {iconPosition === 'end' && icon}
           </div>
           <Transition {...getTransitionProps(props, 'content', 'height')}>
-            <div class={ns.e('content')} part={compParts[2]} v-content={openModel.value}>
+            <div class={ns.e('content')} part={compParts[2]} v-content={isOpen.value}>
               {renderContent()}
             </div>
           </Transition>

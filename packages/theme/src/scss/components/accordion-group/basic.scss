@@ -1,5 +1,10 @@
 @use '../../mixins' as *;
 
+:host {
+  display: block;
+  width: 100%;
+}
+
 @include b(accordion-group) {
   
 }
