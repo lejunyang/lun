@@ -6,13 +6,19 @@
         <ThemeConfigPanel :theme="theme" :lang="lang as any" :animate="randomAnimate" />
       </template>
       <template #home-hero-image>
-        <div class="theme-home-panel" v-content="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'">
-          <l-radio-group class="color-group" size="3" v-update="theme.color">
+        <l-popover
+          auto-attach-attr="data-popover"
+          class="theme-home-panel"
+          v-content="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'"
+        >
+          <l-radio-group class="color-group" size="3" v-update="theme.color" data-popover="color">
             <l-radio v-for="color in themeColors" :value="color" :color="color" no-indicator :title="color">
               <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
             </l-radio>
           </l-radio-group>
+          <div slot="color">选择预设全局主题色</div>
           <l-tabs
+            data-popover="radius"
             v-update-activeSlot="theme.radius"
             class="radius-tabs"
             no-panel
@@ -20,9 +26,11 @@
             :items="radiusTabs"
             variant="solid"
           ></l-tabs>
+          <div slot="radius">选择全局的圆角</div>
           <div class="start">
             <l-input variant="soft" value="input" style="transform: translateX(-30px)"></l-input>
-            <l-radio-group v-update="theme.size" style="transform: translateX(-20px)">
+            <!-- TODO 自动监听还不支持深层的节点 -->
+            <l-radio-group v-update="theme.size" style="transform: translateX(-20px)" data-popover="size">
               <l-radio value="1">1</l-radio>
               <l-radio value="2" variant="surface">2</l-radio>
               <l-radio value="3" high-contrast>3</l-radio>
@@ -30,9 +38,19 @@
             <l-button class="start-button" variant="solid" style="transform: translateX(-10px)">Get Started</l-button>
             <l-button class="start-button" variant="soft">View</l-button>
           </div>
-          <VPSwitchAppearance class="appearance-switch" />
-          <l-color-picker class="color-picker" panel-only no-alpha @update="pickColorUpdate"></l-color-picker>
+          <div slot="size">选择全局组件大小</div>
+          <VPSwitchAppearance class="appearance-switch" data-popover="appearance" />
+          <div slot="appearance">是否开启暗黑模式</div>
+          <l-color-picker
+            data-popover="custom-color"
+            class="color-picker"
+            panel-only
+            no-alpha
+            @update="pickColorUpdate"
+          ></l-color-picker>
+          <div slot="custom-color">自定义全局主题色</div>
           <l-callout
+          data-popover="callout"
             class="callout"
             variant="soft"
             icon-name="info"
@@ -41,7 +59,8 @@
           >
             <l-popover triggers="select" content="This is help text" slot="description">{{ text }}</l-popover>
           </l-callout>
-        </div>
+          <div slot="callout">试试在这里选中一些文本</div>
+        </l-popover>
       </template>
       <template #doc-after>
         <ClientOnly>
@@ -350,7 +369,7 @@ giscus-widget::part(iframe) {
   justify-items: center;
   align-items: center;
   grid-template-columns: repeat(3, auto);
-  & > * {
+  & > :not([slot]) {
     animation: floatY 10s ease infinite;
   }
   & :hover {

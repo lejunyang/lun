@@ -3,7 +3,7 @@ title: Tooltip 提示
 lang: zh-CN
 ---
 
-Tooltip 基于 Popover，但是比其多了一个功能，即检测 overflow 并决定是否展示
+Tooltip 基于 Popover，但是比其多了一个功能，即检测 overflow 并决定是否展示。目前不确定是否值得为了这一个功能单开一个组件，毕竟其完全依赖于Popover，或许可以直接将这个功能放入Popover中？（添加两个trigger：overflow-open和overflow-enable）
 
 ## 溢出行为
 

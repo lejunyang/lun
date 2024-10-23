@@ -11,6 +11,8 @@ lang: zh-CN
 
 查看下面的示例代码并打开控制台查看输出，可以看到在`onMounted`我们可以获取到`l-popover`的方法，但是无法获取`l-button`的方法，而下个微任务后就都可以访问到了
 
-这是因为`onMounted`在`l-popover`和`l-button`均加载到页面上后就会执行，而自定义元素加载到页面后还需要一个微任务才能完成组件的setup，`l-popover`由于在外层优先完成了setup，便可以在`onMounted`中访问到它的方法。
+这是因为`onMounted`在`l-popover`和`l-button`均加载到页面上后就会执行，而自定义元素添加到页面后还需要一个微任务才能完成组件的setup，`l-popover`由于在外层优先完成了setup，便可以在`onMounted`中访问到它的方法。
+
+TODO 考虑添加setup事件
 
 <!-- @Code:instance -->

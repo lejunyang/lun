@@ -33,7 +33,7 @@ lang: zh-CN
 
 ## 倒计时
 
-`l-button`DOM 上有`setTimeout`方法，可用于快速设置一个倒计时。单位为毫秒，默认间隔 1s
+`l-button`DOM 上有`setTimeout`方法，可用于快速设置一个倒计时，倒计时期间按钮进入loading状态，这通常用于点击冷却的场景（如验证码）。单位为毫秒，默认文本刷新间隔为 1s
 
 ```ts
 setTimeout(timeout: number, getCountdownTxt?: (remain: number) => string, interval?: number): void;

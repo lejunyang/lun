@@ -3,6 +3,8 @@ title: ScrollView 滚动视图
 lang: zh-CN
 ---
 
+该组件用于充当滚动容器，通过对滚动状态的监听来动态渲染某些元素并添加动画，也支持模拟滚动驱动动画
+
 :::warning 注
 Highly experimental
 :::

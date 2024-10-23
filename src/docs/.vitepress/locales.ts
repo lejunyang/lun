@@ -73,6 +73,7 @@ export default {
         styles: '自定义样式',
         states: 'CSS如何选中特定状态的组件',
         caveat: '注意事项',
+        faq: 'FAQ & Roadmap',
       },
       other: {
         menu: '功能组件',
@@ -102,7 +103,7 @@ export default {
       hideCode: '隐藏代码',
       editInGithub: '前往Github编辑',
       codeSelect: '点击切换示例代码所用语言',
-      noUseCase: '暂未编写用例，你可以点击右下角编辑自行尝试',
+      noUseCase: '暂未编写用例，你可以点击右下角编辑自行尝试，也欢迎前往Github参与贡献',
       themeVariants: '变体与主题色',
       colorsVariants: '变体与所有颜色',
     },
@@ -181,6 +182,7 @@ export default {
         styles: 'Custom styles',
         states: 'Select element with specific state in CSS',
         caveat: 'Caveat',
+        faq: 'FAQ & Roadmap',
       },
       other: {
         menu: 'Function',
@@ -210,7 +212,8 @@ export default {
       hideCode: 'Hide code',
       editInGithub: 'Edit in Github',
       codeSelect: 'Click to change the code of this use case',
-      noUseCase: 'No use case founded, you can click the bottom right icon to edit and try it yourself',
+      noUseCase:
+        'No use case founded, you can click the bottom right icon to edit and try it yourself. Also feel free to contribute in Github',
       themeVariants: 'Variants & Theme color',
       colorsVariants: 'Variants & All colors',
     },
