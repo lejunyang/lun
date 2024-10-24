@@ -13,8 +13,10 @@ export type UsePopoverOptions = {
   open?: boolean;
   disabled?: MaybeRefLikeOrGetter<boolean>;
   onOpen: () => void | boolean;
-  beforeOpen?: () => void | boolean;
+  beforeOpen?: (currentTarget: Element | VirtualElement) => void | boolean;
   target: MaybeRefLikeOrGetter<Element | VirtualElement>;
+  /** return false to close the popover immediately */
+  afterTargetUpdate?: (current: Element | VirtualElement | undefined, old: Element | VirtualElement | undefined) => void | boolean;
   pop: MaybeRefLikeOrGetter<Element>;
   triggers?: PopoverTrigger | PopoverTrigger[];
   openDelay?: number | string;

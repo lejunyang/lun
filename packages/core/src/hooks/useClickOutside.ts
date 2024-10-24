@@ -13,7 +13,7 @@ function isMouseEventInRect(e: MouseEvent, rect: Omit<DOMRectReadOnly, 'toJSON'>
 }
 
 export function useClickOutside(
-  targetsGetter: MaybeRefLikeOrGetter<MaybeRefLikeOrGetter<Element | VirtualElement>[]>,
+  targetsGetter: MaybeRefLikeOrGetter<MaybeRefLikeOrGetter<Element | VirtualElement | undefined>[]>,
   callback: (e: Event) => void,
   isOn?: MaybeRefLikeOrGetter<boolean>,
 ) {

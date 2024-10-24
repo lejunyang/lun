@@ -16,9 +16,9 @@ import {
   setIntersectOrHas,
   getRect,
 } from '@lun/utils';
-import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
+import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted } from '../../hooks';
-import { objectComputed, unrefOrGet } from '../../utils';
+import { objectComputed, unrefOrGet, unrefOrGetMulti } from '../../utils';
 import { useListen } from './useListen';
 import { createPopoverRectTarget } from './utils';
 import { PopoverAttachTargetOptions, PopoverTrigger, UsePopoverOptions } from './type';
@@ -44,7 +44,8 @@ export function usePopover(_options: UsePopoverOptions) {
   const options = objectComputed(() => {
     let { openDelay = 0, closeDelay = 120, onOpen, triggers, disabled, beforeOpen } = _options;
     const performOpen = () => {
-      if (unrefOrGet(disabled) || unrefOrGet(isOpen) || runIfFn(beforeOpen) === false) return;
+      if (unrefOrGet(disabled) || unrefOrGet(isOpen) || runIfFn(beforeOpen, actualTarget.value as any) === false)
+        return;
       const result = onOpen();
       if (result !== undefined) isShow.value = isOpen.value = result;
     };
@@ -123,7 +124,10 @@ export function usePopover(_options: UsePopoverOptions) {
     (e: Event) => {
       const { triggers, manual } = options;
       // 'edit' same as 'focus'
-      if ((!trigger || setIntersectOrHas(triggers, trigger) || (trigger === 'focus' && triggers.has('edit'))) && !manual) {
+      if (
+        (!trigger || setIntersectOrHas(triggers, trigger) || (trigger === 'focus' && triggers.has('edit'))) &&
+        !manual
+      ) {
         let actualMethod =
           method === 'toggle' ? (_options.toggleMode && unrefOrGet(isShow) ? 'close' : 'open') : method;
         let temp: any = '';
@@ -158,8 +162,8 @@ export function usePopover(_options: UsePopoverOptions) {
   // it's to support attaching events of triggering popover on other elements in an imperative manner
   const extraTargetsMap = reactive(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
     extraTargetsOptionMap = reactive(new WeakMap<Element, PopoverAttachTargetOptions>());
-  const activeExtraTarget = ref(),
-    activeExtraTargetOptions = computed(() => extraTargetsOptionMap.get(activeExtraTarget.value));
+  const activeExtraTarget = ref<Element>(),
+    activeExtraTargetOptions = computed(() => extraTargetsOptionMap.get(activeExtraTarget.value!));
   const methods = {
     attachTarget(target?: Element, options: PopoverAttachTargetOptions = {}) {
       let originalOptions = extraTargetsOptionMap.get(target!);
@@ -196,7 +200,7 @@ export function usePopover(_options: UsePopoverOptions) {
       extraTargetsOptionMap.delete(target);
       if (target === activeExtraTarget.value) {
         options.closeNow();
-        activeExtraTarget.value = null;
+        activeExtraTarget.value = undefined;
       }
     },
     detachAll() {
@@ -365,9 +369,20 @@ export function usePopover(_options: UsePopoverOptions) {
   );
   // ------------------ selection ------------------
 
+  const actualTarget = computed(
+    () => unrefOrGetMulti(virtualTarget, activeExtraTarget, _options.target) as Element | VirtualElement | undefined,
+  );
+  watch(
+    actualTarget,
+    (val, old) => {
+      if (runIfFn(_options.afterTargetUpdate, val, old) === false) options.closeNow();
+    },
+    { flush: 'sync' },
+  );
+
   return {
     targetHandlers: createTargetHandlers((_, method) => {
-      if (method === 'open') activeExtraTarget.value = null;
+      if (method === 'open') activeExtraTarget.value = undefined;
     }),
     popContentHandlers,
     options,
@@ -379,5 +394,6 @@ export function usePopover(_options: UsePopoverOptions) {
     isOpen,
     isShow,
     isClosing,
+    actualTarget,
   };
 }
