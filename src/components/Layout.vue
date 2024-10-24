@@ -7,6 +7,9 @@
       </template>
       <template #home-hero-image>
         <l-popover
+          ref="popover"
+          ignore-self
+          freeze-when-closing
           auto-attach-attr="data-popover"
           class="theme-home-panel"
           v-content="activeBreakpoint === 'lg' || activeBreakpoint === 'xl'"
@@ -29,8 +32,7 @@
           <div slot="radius">选择全局的圆角</div>
           <div class="start">
             <l-input variant="soft" value="input" style="transform: translateX(-30px)"></l-input>
-            <!-- TODO 自动监听还不支持深层的节点 -->
-            <l-radio-group v-update="theme.size" style="transform: translateX(-20px)" data-popover="size">
+            <l-radio-group v-update="theme.size" style="transform: translateX(-20px)" ref="sizeGroup">
               <l-radio value="1">1</l-radio>
               <l-radio value="2" variant="surface">2</l-radio>
               <l-radio value="3" high-contrast>3</l-radio>
@@ -50,7 +52,7 @@
           ></l-color-picker>
           <div slot="custom-color">自定义全局主题色</div>
           <l-callout
-          data-popover="callout"
+            data-popover="callout"
             class="callout"
             variant="soft"
             icon-name="info"
@@ -89,9 +91,9 @@
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
 import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
-import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount } from 'vue';
+import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef } from 'vue';
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
-import { GlobalContextConfig, Progress, themeColors, activeBreakpoint } from '@lun/components';
+import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun/components';
 import Giscus from '@giscus/vue';
 import { on, AnyFn, withResolvers } from '@lun/utils';
 import { text } from '../utils/data';
@@ -99,12 +101,20 @@ import { text } from '../utils/data';
 const Layout = Theme.Layout;
 
 const theme = reactive({
-  color: 'indigo',
+  color: 'indigo' as any,
   // grayColor: 'slate', // need to use kecab-case for SSR
-  'gray-color': 'slate',
-  size: '2',
-  radius: 'medium',
+  'gray-color': 'slate' as any,
+  size: '2' as any,
+  radius: 'medium' as any,
   scale: '1',
+});
+
+const sizeGroup = useTemplateRef('sizeGroup'),
+  popover = useTemplateRef<iPopover>('popover');
+
+onMounted(() => {
+  // sizeGroup is not direct child of popover, so we have to manually attach it
+  popover.value?.attachTarget(sizeGroup.value, { slotName: 'size' }); // if in other page, popover is undefined...
 });
 
 provide('lun-theme', theme);

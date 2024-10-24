@@ -5,6 +5,7 @@ export default {
       guide: '指南',
       components: '组件',
       palette: '调色',
+      utils: 'Utils',
     },
     sidebar: {
       basic: {
@@ -70,10 +71,17 @@ export default {
         events: '绑定事件',
         breakpoints: '响应式断点',
         presets: '数字&日期处理预设',
+        localization: '本地化',
         styles: '自定义样式',
         states: 'CSS如何选中特定状态的组件',
         caveat: '注意事项',
         faq: 'FAQ & Roadmap',
+      },
+      utils: {
+        browser: {
+          menu: '浏览器',
+          event: '事件',
+        },
       },
       other: {
         menu: '功能组件',
@@ -114,6 +122,7 @@ export default {
       guide: 'Guide',
       components: 'Components',
       palette: 'Palette',
+      utils: 'Utils',
     },
     sidebar: {
       basic: {
@@ -179,10 +188,17 @@ export default {
         events: 'Binding Events',
         breakpoints: 'Responsive breakpoints',
         presets: 'Math & Date Presets',
+        localization: 'Localization',
         styles: 'Custom styles',
         states: 'Select element with specific state in CSS',
         caveat: 'Caveat',
         faq: 'FAQ & Roadmap',
+      },
+      utils: {
+        browser: {
+          menu: 'Browser',
+          event: 'Event',
+        },
       },
       other: {
         menu: 'Function',

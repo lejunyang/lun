@@ -5,7 +5,7 @@ const selectable = ref('line'),
 export default () => {
   return (
     <>
-      selectable: <l-radio-group options={['line', 'label']} v-update:value={selectable.value}></l-radio-group>
+      selectable: <l-radio-group options={['line', 'label']} v-update={selectable.value}></l-radio-group>
       selectMode:
       <l-select options={['single', 'multiple', 'ctrl-multiple']} v-update:value={selectMode.value}></l-select>
       <l-tree selectMode={selectMode.value} selectable={selectable.value} defaultExpandAll>

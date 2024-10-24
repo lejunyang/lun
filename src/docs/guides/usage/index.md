@@ -3,7 +3,7 @@ title: 如何使用
 lang: zh-CN
 ---
 
-在使用本组件库之前，你需要了解自定义元素的相关知识，可参考[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)或[Vue](https://vuejs.org/guide/extras/web-components.html)，只需知道如何使用即可，无需了解如何创建
+在使用本组件库之前，你需要了解自定义元素的相关知识，可参考[教程](https://zh.javascript.info/web-components)、[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)或[Vue](https://vuejs.org/guide/extras/web-components.html)，只需知道如何使用即可，无需了解如何创建
 
 ## 安装
 

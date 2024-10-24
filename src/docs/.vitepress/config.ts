@@ -18,6 +18,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
       { text: locales[lang].nav.guide, link: wrapLink('/guides/usage/', lang) },
       { text: locales[lang].nav.components, link: wrapLink('/components/button/', lang) },
       { text: locales[lang].nav.palette, link: wrapLink('/palette/', lang) },
+      { text: locales[lang].nav.utils, link: wrapLink('/utils/', lang) },
     ],
     sidebar: {
       [wrapLink('/guides/', lang)]: [
@@ -48,6 +49,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
         {
           text: locales[lang].sidebar.guides.presets,
           link: wrapLink('/guides/presets/', lang),
+        },
+        {
+          text: locales[lang].sidebar.guides.localization,
+          link: wrapLink('/guides/localization/', lang),
         },
         {
           text: locales[lang].sidebar.guides.styles,
@@ -163,6 +168,13 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           text: locales[lang].sidebar.typography.menu,
           collapsed: false,
           items: [{ text: locales[lang].sidebar.typography.text, link: wrapLink('/components/text/', lang) }],
+        },
+      ],
+      [wrapLink('/utils/', lang)]: [
+        {
+          text: locales[lang].sidebar.utils.browser.menu,
+          collapsed: false,
+          items: [{ text: locales[lang].sidebar.utils.browser.event, link: wrapLink('/utils/event/', lang) }],
         },
       ],
     },
