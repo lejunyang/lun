@@ -11,7 +11,7 @@ import {
   watchPostEffect,
 } from 'vue';
 import {
-  MaybeRefLikeOrGetter,
+  PopoverAttachTargetOptions,
   refLikeToDescriptors,
   unrefOrGet,
   unrefOrGetMulti,
@@ -32,8 +32,7 @@ import {
   getRect,
   getCSSVarName,
 } from '@lun/utils';
-import { useCE, useCEExpose, useNamespace } from 'hooks';
-import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { useCE, useCEExpose, useNamespace, useSlot } from 'hooks';
 import { ElementRects } from '@floating-ui/vue';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
@@ -78,25 +77,24 @@ export const Popover = defineSSRCustomElement({
       return hasRect(target) ? target : null;
     });
     const innerTarget = computed(() => {
-      return propVirtualTarget.value || CE; // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
+      return propVirtualTarget.value || (props.ignoreSelf ? null : CE); // originally use slotRef.value, but found that when pointerTarget is coord, pop shows on pointer coordinates(maybe this covers something and causes difference, adding offset will work), click event will bubble from CE, not from slot
     });
 
     const {
       targetHandlers,
       popContentHandlers,
       options,
-      activeExtraTarget,
       activeExtraTargetOptions,
       methods,
-      virtualTarget,
       isOpen,
       isShow,
       isClosing,
+      actualTarget,
     } = usePopover(
       virtualGetMerge(
         {
-          beforeOpen() {
-            return runIfFn(props.beforeOpen, actualTarget.value);
+          disabled() {
+            return popContentEmpty.value || unrefOrGet(props.disabled);
           },
           onOpen() {
             const popover = popRef.value,
@@ -119,7 +117,6 @@ export const Popover = defineSSRCustomElement({
 
     const slotRef = useAutoAttach(props, methods);
 
-    const actualTarget = computed(() => unrefOrGetMulti(virtualTarget, activeExtraTarget, innerTarget));
     /** current popover target */
     const currentTarget = computed(() =>
       // avoid update float position when not show
@@ -181,7 +178,7 @@ export const Popover = defineSSRCustomElement({
       if (isShow.value && isOn.value) {
         // need nextTick, or floating rect size could be 0
         nextTick(() => {
-          const reference = actualTarget.value,
+          const reference = actualTarget.value as Element,
             floating = actualPop.value;
           if (reference && floating) {
             rectsInfo.reference = getRect(reference);
@@ -252,17 +249,17 @@ export const Popover = defineSSRCustomElement({
       ns.is(`side-${placement.value?.split('-')[0]}`),
     ];
 
-    let cacheContent: any;
+    let cacheContent: any,
+      prevName: string,
+      needCache = () => props.freezeWhenClosing && isClosing.value;
+    const [renderPopContent, popContentEmpty] = useSlot(
+      () => (needCache() ? prevName : (prevName = activeExtraTargetOptions.value?.slotName || 'pop-content')),
+      () => {
+        const contentNode = needCache() ? cacheContent : (cacheContent = runIfFn(props.content, currentTarget.value));
+        return contentNode || isTeleport() ? contentNode : null;
+      },
+    );
     const getContent = () => {
-      const { content, contentType, preferHtml, freezeWhenClosing } = props;
-      let finalContent: any;
-      const contentNode =
-        freezeWhenClosing && isClosing.value
-          ? cacheContent
-          : (cacheContent = (finalContent = runIfFn(content, currentTarget.value)) && (
-              <VueCustomRenderer content={finalContent} preferHtml={preferHtml} type={contentType} />
-            ));
-
       return (
         <>
           {/* 
@@ -280,11 +277,7 @@ export const Popover = defineSSRCustomElement({
               class={ns.e('arrow')}
             ></div>
           )}
-          {!contentNode && !isTeleport() ? (
-            <slot name={activeExtraTargetOptions.value?.slotName || 'pop-content'} />
-          ) : (
-            contentNode
-          )}
+          {renderPopContent()}
         </>
       );
     };
@@ -353,7 +346,7 @@ export const Popover = defineSSRCustomElement({
                 </div>,
               )
             : getPositionContent()}
-          <slot {...targetHandlers} ref={slotRef}>
+          <slot {...(props.ignoreSelf ? null : targetHandlers)} ref={slotRef}>
             {runIfFn(props.defaultChildren, { isOpen: isOpen.value, isShow: isShow.value })}
           </slot>
         </>
@@ -373,7 +366,7 @@ export type PopoverExpose = {
    */
   delayClosePopover: (ensure?: boolean) => void;
   updatePosition: () => void;
-  attachTarget(target?: Element | undefined, options?: { isDisabled?: MaybeRefLikeOrGetter<boolean> }): void;
+  attachTarget(target?: Element | undefined, options?: PopoverAttachTargetOptions): void;
   detachTarget(target?: Element | undefined): void;
   detachAll(): void;
   readonly currentTarget: any;

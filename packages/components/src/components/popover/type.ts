@@ -51,6 +51,8 @@ export const popoverProps = freeze({
   target: PropObject<MaybeRefLikeOrGetter<Element | VirtualElement>>(),
   /** specify the attribute name of slotted children to automatically attach them as popover's targets */
   autoAttachAttr: PropString(),
+  /** if it's true, popover itself will not be popover's target. This is useful when using autoAttachAttr but having no default pop content */
+  ignoreSelf: PropBoolean(),
   /** determine the implementation type of popover */
   type: PropString<'popover' | 'normal' | 'teleport'>(),
   /** used to turn on CSS anchor positioning and specify the anchor-name for custom element itself */
@@ -90,6 +92,11 @@ export const popoverProps = freeze({
   preventSwitchWhen: PropString<'focus' | 'edit'>(),
   /** function that will be called before open the popover, return false to prevent open the popover */
   beforeOpen: PropFunction<(target: Element | VirtualElement) => boolean | void>(),
+  /** return false to close the popover immediately */
+  afterTargetUpdate:
+    PropFunction<
+      (current: Element | VirtualElement | undefined, old: Element | VirtualElement | undefined) => void | boolean
+    >(),
 
   ...themeProps,
   variant: PropString<'styleless' | string>(),

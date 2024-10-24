@@ -8,7 +8,7 @@ import { renderCustom } from '../components/custom-renderer/CustomRenderer';
  * @param name
  * @returns [getSlotNode, empty, slotted, slotRef]
  */
-export function useSlot(name?: string, getCustomContent?: MaybeRefLikeOrGetter<any>) {
+export function useSlot(name?: MaybeRefLikeOrGetter<string>, getCustomContent?: MaybeRefLikeOrGetter<any>) {
   const slotRef = ref<HTMLSlotElement>(),
     slotted = ref(false),
     empty = ref(true),
@@ -41,7 +41,7 @@ export function useSlot(name?: string, getCustomContent?: MaybeRefLikeOrGetter<a
       return h(
         'slot',
         {
-          name,
+          name: unrefOrGet(name),
           ref: slotRef,
           onSlotchange,
         },
