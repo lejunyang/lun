@@ -64,7 +64,13 @@ declare global {
       mount: typeof mount;
       l: <T extends VueElement = VueElement>(
         componentName: ComponentKey,
-        props?: Record<string, any> & { children?: (ComponentKey | [ComponentKey, Record<string, any>])[] },
+        props?: Record<string, any> & {
+          children?: (
+            | `l-${ComponentKey}`
+            | keyof HTMLElementTagNameMap
+            | [`l-${ComponentKey}` | keyof HTMLElementTagNameMap, Record<string, any>]
+          )[];
+        },
       ) => Bluebird.Promise<
         {
           ce: T;
