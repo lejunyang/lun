@@ -381,8 +381,9 @@ export function usePopover(_options: UsePopoverOptions) {
   );
 
   return {
-    targetHandlers: createTargetHandlers((_, method) => {
-      if (method === 'open') activeExtraTarget.value = undefined;
+    targetHandlers: createTargetHandlers((e, method) => {
+      // when extra target is under popover and event bubbles, both extra and popover itself will be triggered to open, we shouldn't clearing activeExtraTarget at that time
+      if (method === 'open' && e.target !== activeExtraTarget.value) activeExtraTarget.value = undefined;
     }),
     popContentHandlers,
     options,
