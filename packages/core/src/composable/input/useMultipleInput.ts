@@ -1,11 +1,8 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import {
   arrayFrom,
-  clamp,
   getDeepestActiveElement,
   getFirstOfIterable,
-  getNextMatchElInTree,
-  getPreviousMatchElInTree,
   isArrowLeftEvent,
   isArrowRightEvent,
   isEnterDown,
@@ -18,8 +15,6 @@ import {
 import { UseInputOptions, useInput } from './useInput';
 import { nextTick } from 'vue';
 import { presets } from '../../presets/index';
-
-type IterateOptions = Parameters<typeof getNextMatchElInTree>[1] & {};
 
 export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'> & {
   value?: MaybeRefLikeOrGetter<string | number | string[] | number[]>;
@@ -36,71 +31,58 @@ export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'
   onInputUpdate?: (value: string | number) => void;
   onTagsAdd?: (values: string[] | number[]) => void;
   onTagsRemove?: (values: string[] | number[]) => void;
-  iterateOptions?: IterateOptions;
-  getCurrentIndex?: (el: HTMLElement) => number;
+  getTagIndex?: (el: HTMLElement) => number;
   getTagFromIndex?: (index: number) => HTMLElement | undefined;
 };
 
-const defaultTagIndexAttr = 'tagIndex';
-const getDefaultIterateOptions = (options?: IterateOptions, attr: string = defaultTagIndexAttr) => ({
-  isMatch: (el: Element) => !!(el as HTMLElement).dataset?.[attr] || isHTMLInputElement(el),
-  ...options,
-});
-
 export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputOptions, true>) {
-  const handleDeleteTag = (target?: HTMLElement | null) => {
-    if (!target) return;
-    const { tagIndexAttr = defaultTagIndexAttr, value, onChange, iterateOptions, onTagsRemove } = unrefOrGet(options)!;
-    const index = +target.dataset[tagIndexAttr]!;
-    const values = toArrayIfNotNil(unrefOrGet(value));
-    if (Number.isInteger(index) && index >= 0 && index < values.length) {
-      const newValues = values.slice();
-      const removed = newValues.splice(index, 1);
-      if (removed.length) {
-        onChange && onChange(newValues);
-        onTagsRemove && onTagsRemove(removed);
-        // after delete, focus on next tag or input
-        const nextTarget = getNextMatchElInTree(
-          target,
-          getDefaultIterateOptions(iterateOptions, tagIndexAttr),
-        ) as HTMLElement;
+  const handleDeleteTag = (index?: number | null) => {
+    if (index == null || isNaN(index)) return;
+    const { value, onChange, onTagsRemove, getTagFromIndex, input } = unrefOrGet(options)!;
+    const values = toArrayIfNotNil(unrefOrGet(value)),
+      newValues = values.slice(),
+      removed = newValues.splice(index, 1);
+    if (removed.length) {
+      onChange && onChange(newValues);
+      onTagsRemove && onTagsRemove(removed);
+      // after delete, focus on new tag or input
+      getTagFromIndex &&
         nextTick(() => {
-          if (nextTarget?.isConnected) nextTarget.focus();
-          else {
-            // rely on dom, if use value+index as tag key, following tags will update after every change, nextTarget is tangling
-            // TODO
-          }
+          if (index >= newValues.length) unrefOrGet(input)?.focus();
+          const tag = getTagFromIndex(index);
+          tag && tag.focus();
         });
-      }
     }
   };
   const wrapperHandlers = {
     onKeydown(e: KeyboardEvent) {
-      let { iterateOptions, tagIndexAttr, getTagFromIndex, getCurrentIndex, value } = unrefOrGet(options)!;
-      iterateOptions = getDefaultIterateOptions(iterateOptions, tagIndexAttr);
-      let target = e.target as HTMLElement;
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        if (isHTMLInputElement(target) && e.key === 'Backspace') {
-          // handle input only when no value
-          if (target.value) return;
-          else target = getPreviousMatchElInTree(target, iterateOptions) as HTMLElement;
-        }
-        // different from Backspace/Delete behavior in text, delete current focused tag whatever
-        handleDeleteTag(target);
-      }
-      if (!getCurrentIndex || !getTagFromIndex) return;
-      // arrow left/right to focus on previous/next tag
-      if (isArrowLeftEvent(e) || isArrowRightEvent(e)) {
+      const { getTagFromIndex, getTagIndex, value, input } = unrefOrGet(options)!;
+      if (!getTagIndex || !getTagFromIndex) return;
+      let target = e.target as HTMLElement,
+        isArrow: boolean,
+        isInput: boolean;
+      if (e.key === 'Backspace' || e.key === 'Delete' || (isArrow = isArrowLeftEvent(e) || isArrowRightEvent(e))) {
+        // ignore these event if it's from input and selection is not at the start position
+        if ((isInput = isHTMLInputElement(target)) && (target.selectionStart !== 0 || target.selectionEnd !== 0))
+          return;
+
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
         if (!active || (active !== target && !shadowContains(target, active))) return;
-        // only focus on previous tag when selection is collapsed and at the beginning of input
-        if (isHTMLInputElement(active) && (active.selectionStart !== 0 || active.selectionEnd !== 0)) return;
-        let currentIndex = getCurrentIndex(active),
+
+        let currentIndex = getTagIndex(active),
           currentLength = toArrayIfNotNil(unrefOrGet(value)).length;
-        if (currentIndex === -1 || isNaN(currentIndex)) currentIndex = isArrowLeftEvent(e) ? currentLength - 1 : 0;
-        else currentIndex = clamp(currentIndex + (isArrowLeftEvent(e) ? -1 : 1), 0, currentLength - 1);
-        const tag = getTagFromIndex(currentIndex);
-        tag && tag.focus();
+
+        // arrow left/right to focus on previous/next tag
+        if (isArrow!) {
+          if (currentIndex === -1 || isNaN(currentIndex)) currentIndex = isArrowLeftEvent(e) ? currentLength - 1 : 0;
+          else if (currentIndex) currentIndex += isArrowLeftEvent(e) ? -1 : 1;
+          if (currentIndex >= currentLength) return unrefOrGet(input)?.focus();
+          const tag = getTagFromIndex(currentIndex);
+          tag && tag.focus();
+        } else {
+          // is delete
+          handleDeleteTag(isInput ? currentLength - 1 : currentIndex);
+        }
       }
     },
   };

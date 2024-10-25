@@ -24,6 +24,7 @@ export type InputType = 'string' | 'text' | 'number' | 'number-text' | 'password
 
 export type UseInputOptions = {
   value?: MaybeRefLikeOrGetter<string | number>;
+  input: MaybeRefLikeOrGetter<HTMLInputElement>
   type?: any;
   multiple?: boolean;
   disabled?: boolean;

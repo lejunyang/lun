@@ -67,6 +67,7 @@ export const Input = defineSSRCustomElement({
       virtualUnrefGetMerge(
         {
           value: valueModel,
+          input: inputRef,
           get disabled() {
             return !editComputed.editable;
           },
@@ -90,7 +91,7 @@ export const Input = defineSSRCustomElement({
           onTagsRemove(removedTags: string[]) {
             emit('tagsRemove', removedTags);
           },
-          getCurrentIndex(el: HTMLElement) {
+          getTagIndex(el: HTMLElement) {
             return arrayFrom(multiWrapper.value!.children).findIndex((child) => shadowContains(child, el));
           },
           getTagFromIndex(index: number) {
