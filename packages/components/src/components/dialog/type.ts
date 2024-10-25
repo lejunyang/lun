@@ -3,6 +3,7 @@ import { CSSProperties, ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  Prop,
   PropBoolOrStr,
   PropBoolean,
   PropFunction,
@@ -16,6 +17,7 @@ import {
   undefBoolProp,
 } from 'common';
 import { freeze } from '@lun/utils';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export const dialogProps = freeze({
   ...editStateProps,
@@ -38,9 +40,7 @@ export const dialogProps = freeze({
   noHeader: PropBoolean(),
   noCloseBtn: PropBoolean(),
   closeBtnProps: PropObject(),
-  content: {},
-  contentType: PropString(),
-  contentPreferHtml: PropBoolean(),
+  content: Prop<GetCustomRendererSource>(),
   noFooter: PropBoolean(),
   noOkBtn: PropBoolean(),
   noCancelBtn: PropBoolean(),

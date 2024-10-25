@@ -2,6 +2,7 @@ import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  Prop,
   PropBoolean,
   PropFunction,
   PropNumber,
@@ -12,6 +13,7 @@ import {
   editStateProps,
 } from 'common';
 import { freeze } from '@lun/utils';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export type WellKnownDirectory = 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos';
 
@@ -40,8 +42,7 @@ export const filePickerProps = freeze({
   startIn: PropObjOrStr<WellKnownDirectory | FileSystemHandle>(),
   /** for showOpenFilePicker. By specifying an ID, the user agent can remember different directories for different IDs. */
   rememberId: PropString(),
-  filesRenderer: PropFunction<(files: File | File[] | null | undefined) => any>(),
-  filesRendererType: PropString(),
+  filesRenderer: Prop<GetCustomRendererSource<[files: File | File[] | null | undefined]>>(),
   loadingWhenPick: PropBoolean(),
 });
 

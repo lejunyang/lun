@@ -1,6 +1,7 @@
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  Prop,
   PropBoolean,
   PropFunction,
   PropNumber,
@@ -19,6 +20,7 @@ import type { Derivable, InlineOptions } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
 import { Constructor, freeze } from '@lun/utils';
+import { CustomRendererSource, GetCustomRendererSource } from '../custom-renderer';
 
 export const popoverFloatingUIProps = freeze({
   strategy: PropString<'fixed' | 'absolute'>(),
@@ -60,10 +62,8 @@ export const popoverProps = freeze({
   /** determine the teleport target when 'type' is 'teleport', if it's falsy, it will be the first theme-provider */
   to: PropObjOrStr<MaybeRefLikeOrGetter<string | HTMLElement>>(),
 
-  /** pop content, will use CustomRenderer to render it. can be a function, current popover target will be the first parameter  */
-  content: {},
-  contentType: PropString(),
-  preferHtml: PropBoolean(),
+  /** custom pop content, return string or custom-renderer props. It also can be a function with current popover target as its first parameter  */
+  content: Prop<GetCustomRendererSource<[Element | VirtualElement]>>(),
   defaultChildren: PropObjOrFunc<VNode | ((param: { isShow: boolean; isOpen: boolean }) => VNode)>(), // it was named as 'children', but 'children' is a reserved prop in react
 
   ...popoverFloatingUIProps,

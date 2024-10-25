@@ -5,7 +5,7 @@ import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
 import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystemAccess, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
-import { VueCustomRenderer } from '../custom-renderer';
+import { renderCustom } from '../custom-renderer';
 import { isAbort } from './utils';
 
 // TODO drop support
@@ -264,7 +264,7 @@ export const FilePicker = defineSSRCustomElement({
 
     return () => {
       const { disabled } = editComputed;
-      const { directory, multiple, filesRenderer, filesRendererType } = props;
+      const { directory, multiple, filesRenderer } = props;
       const content = runIfFn(filesRenderer, valueModel.value);
       return (
         <>
@@ -280,7 +280,7 @@ export const FilePicker = defineSSRCustomElement({
             {...inputHandlers}
           />
           <slot {...slotHandlers}></slot>
-          {content && <VueCustomRenderer content={content} type={filesRendererType} />}
+          {content && renderCustom(content)}
         </>
       );
     };

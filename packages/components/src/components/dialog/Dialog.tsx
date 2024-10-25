@@ -1,10 +1,9 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, toElement } from 'utils';
 import { dialogEmits, dialogProps } from './type';
-import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
+import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel, useSlot } from 'hooks';
 import { defineButton } from '../button';
 import { defineSpin } from '../spin/Spin';
-import { VueCustomRenderer } from '../custom-renderer';
 import { defineIcon } from '../icon/Icon';
 import {
   refLikeToDescriptors,
@@ -222,6 +221,8 @@ export const Dialog = Object.assign(
         ns,
       );
 
+      const [renderContent] = useSlot(undefined, () => props.content)
+
       const Tag = supportDialog ? 'dialog' : 'div';
       return () => {
         const {
@@ -229,9 +230,6 @@ export const Dialog = Object.assign(
           closeBtnProps,
           noHeader,
           title,
-          content,
-          contentType,
-          contentPreferHtml,
           noFooter,
           noCancelBtn,
           cancelBtnProps,
@@ -300,11 +298,7 @@ export const Dialog = Object.assign(
                       </header>
                     )}
                     <div class={[ns.e('content')]} part={compParts[5]}>
-                      <slot>
-                        {content && (
-                          <VueCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />
-                        )}
-                      </slot>
+                      {renderContent()}
                     </div>
                     {!noFooter && (
                       <footer class={[ns.e('footer')]} part={compParts[6]}>

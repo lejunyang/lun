@@ -2,6 +2,7 @@ import { freeze } from '@lun/utils';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  Prop,
   PropFunction,
   PropObjOrBool,
   PropObject,
@@ -11,12 +12,13 @@ import {
   themeProps,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export const calloutProps = freeze({
   ...themeProps,
   ...createTransitionProps('close'),
-  message: {},
-  description: {},
+  message: Prop<GetCustomRendererSource>(),
+  description: Prop<GetCustomRendererSource>(),
   iconName: PropString(),
   iconLibrary: PropString(),
   iconProps: PropObject(),
