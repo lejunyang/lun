@@ -11,8 +11,8 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
-import { isEmpty, isArray, runIfFn, raf } from '@lun/utils';
-import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { isEmpty, isArray, runIfFn, raf, arrayFrom, shadowContains } from '@lun/utils';
+import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
 import { getCompParts, getTransitionProps, InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
@@ -60,6 +60,7 @@ export const Input = defineSSRCustomElement({
     const [editComputed] = useSetupEdit();
     const [inputRef, methods] = useInputElement<HTMLInputElement>();
     const valueForMultiple = ref(''); // used to store the value when it's multiple input
+    const multiWrapper = ref<HTMLElement>();
 
     const { inputHandlers, wrapperHandlers, numberMethods, stepUpHandlers, stepDownHandlers, state } = useMultipleInput(
       // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
@@ -88,6 +89,12 @@ export const Input = defineSSRCustomElement({
           },
           onTagsRemove(removedTags: string[]) {
             emit('tagsRemove', removedTags);
+          },
+          getCurrentIndex(el: HTMLElement) {
+            return arrayFrom(multiWrapper.value!.children).findIndex((child) => shadowContains(child, el));
+          },
+          getTagFromIndex(index: number) {
+            return multiWrapper.value?.children[index] as HTMLElement;
           },
         },
         validateProps,
@@ -206,7 +213,17 @@ export const Input = defineSSRCustomElement({
 
     return () => {
       const { disabled, readonly, editable } = editComputed;
-      const { multiple, placeholder, labelType, wrapTags, spellcheck, autofocus, tagRemoveIcon } = props;
+      const {
+        multiple,
+        placeholder,
+        labelType,
+        wrapTags,
+        spellcheck,
+        autofocus,
+        tagRemoveIcon,
+        tagProps,
+        tagRenderer,
+      } = props;
       const type = localType.value,
         inputType = type === 'number' || type === 'password' ? type : 'text';
       const finalLabel = label.value || placeholder,
@@ -283,6 +300,7 @@ export const Input = defineSSRCustomElement({
               {multiple ? (
                 <span
                   {...wrapperHandlers}
+                  ref={multiWrapper}
                   class={[
                     ns.e('tag-container'),
                     ns.isOr(`wrap`, wrapTags),
@@ -292,28 +310,22 @@ export const Input = defineSSRCustomElement({
                 >
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
-                      const tagProps = mergeProps(runIfFn(props.tagProps, v, index), {
+                      const finalTagProps = mergeProps(runIfFn(tagProps, v, index), {
                         tabindex: editable ? 0 : undefined,
-                        'data-tag-index': index,
-                        'data-tag-value': v,
+                        'data-tag-index': String(index), // bug starting from vue3.5, must use string for vue custom element
+                        'data-tag-value': String(v),
                         key: String(v),
                         class: [ns.e('tag')],
                         onAfterRemove: () => (valueModel.value as string[]).splice(index, 1),
                       });
-                      if (props.tagRenderer)
-                        return (
-                          <VueCustomRenderer
-                            {...tagProps}
-                            type={props.tagRendererType}
-                            content={props.tagRenderer(v, index)}
-                          />
-                        );
-                      return renderElement('tag', {
-                        label: v,
-                        ...pickThemeProps(props),
-                        ...tagProps,
-                        removable: editable && tagRemoveIcon,
-                      });
+                      return tagRenderer
+                        ? renderCustom(runIfFn(tagRenderer, v, index, finalTagProps))
+                        : renderElement('tag', {
+                            label: v,
+                            ...pickThemeProps(props),
+                            ...finalTagProps,
+                            removable: editable && tagRemoveIcon,
+                          });
                     })}
                   {editable && (
                     // use grid and pseudo to make the input auto grow, see in https://css-tricks.com/auto-growing-inputs-textareas/

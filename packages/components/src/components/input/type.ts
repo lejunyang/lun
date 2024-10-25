@@ -3,6 +3,7 @@ import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  Prop,
   PropBoolean,
   PropFunction,
   PropNumber,
@@ -18,6 +19,7 @@ import {
 import { TagProps } from '../tag/type';
 import { Constructor, freeze } from '@lun/utils';
 import { AutoUpdateLabel } from './hooks';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export const baseInputProps = {
   ...editStateProps,
@@ -55,8 +57,7 @@ export const inputProps = freeze({
   unique: PropBoolean(),
   wrapTags: PropBoolean(),
   tagProps: PropObjOrFunc<((value: any, index: number) => Omit<TagProps, 'removable'>) | Omit<TagProps, 'removable'>>(),
-  tagRenderer: PropFunction<(value: string | number, index: number) => any>(),
-  tagRendererType: PropString(),
+  tagRenderer: Prop<GetCustomRendererSource<[value: string | number, index: number, props: Record<string, unknown>], true>>(),
   tagRemoveIcon: PropBoolean(),
   /** separator used to split current input string when it's multiple input */
   separator: PropString(RegExp),

@@ -14,6 +14,7 @@ export const tagProps = freeze({
   ...createTransitionProps('remove'),
   label: PropString(),
   removable: PropObjOrBool(),
+  tabindex: PropString(), // temp fix because of vue bug
 });
 
 export const tagEmits = freeze({

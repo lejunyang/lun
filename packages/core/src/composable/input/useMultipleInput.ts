@@ -1,6 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import {
   arrayFrom,
+  clamp,
   getDeepestActiveElement,
   getFirstOfIterable,
   getNextMatchElInTree,
@@ -36,6 +37,8 @@ export type UseMultipleInputOptions = Omit<UseInputOptions, 'onChange' | 'value'
   onTagsAdd?: (values: string[] | number[]) => void;
   onTagsRemove?: (values: string[] | number[]) => void;
   iterateOptions?: IterateOptions;
+  getCurrentIndex?: (el: HTMLElement) => number;
+  getTagFromIndex?: (index: number) => HTMLElement | undefined;
 };
 
 const defaultTagIndexAttr = 'tagIndex';
@@ -73,7 +76,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
   };
   const wrapperHandlers = {
     onKeydown(e: KeyboardEvent) {
-      let { iterateOptions, tagIndexAttr } = unrefOrGet(options)!;
+      let { iterateOptions, tagIndexAttr, getTagFromIndex, getCurrentIndex, value } = unrefOrGet(options)!;
       iterateOptions = getDefaultIterateOptions(iterateOptions, tagIndexAttr);
       let target = e.target as HTMLElement;
       if (e.key === 'Backspace' || e.key === 'Delete') {
@@ -85,16 +88,19 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
         // different from Backspace/Delete behavior in text, delete current focused tag whatever
         handleDeleteTag(target);
       }
+      if (!getCurrentIndex || !getTagFromIndex) return;
       // arrow left/right to focus on previous/next tag
       if (isArrowLeftEvent(e) || isArrowRightEvent(e)) {
         const active = getDeepestActiveElement(); // need to find deepest active element because of shadow dom
         if (!active || (active !== target && !shadowContains(target, active))) return;
+        // only focus on previous tag when selection is collapsed and at the beginning of input
         if (isHTMLInputElement(active) && (active.selectionStart !== 0 || active.selectionEnd !== 0)) return;
-        // only focus on previous tag when at the beginning of input
-        let targetEl = null as Element | null;
-        if (isArrowLeftEvent(e)) targetEl = getPreviousMatchElInTree(target, iterateOptions);
-        else if (isArrowRightEvent(e)) targetEl = getNextMatchElInTree(target, iterateOptions);
-        (targetEl as HTMLElement)?.focus();
+        let currentIndex = getCurrentIndex(active),
+          currentLength = toArrayIfNotNil(unrefOrGet(value)).length;
+        if (currentIndex === -1 || isNaN(currentIndex)) currentIndex = isArrowLeftEvent(e) ? currentLength - 1 : 0;
+        else currentIndex = clamp(currentIndex + (isArrowLeftEvent(e) ? -1 : 1), 0, currentLength - 1);
+        const tag = getTagFromIndex(currentIndex);
+        tag && tag.focus();
       }
     },
   };
