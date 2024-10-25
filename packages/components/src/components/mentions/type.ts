@@ -2,8 +2,8 @@ import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  Prop,
   PropBoolean,
-  PropFunction,
   PropNumber,
   PropStrOrArr,
   PropString,
@@ -14,6 +14,7 @@ import { baseInputProps } from '../input/type';
 import { MentionSpan, MentionsTriggerParam } from '@lun/core';
 import { createOptionProps } from 'hooks';
 import { freeze } from '@lun/utils';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export const mentionsProps = freeze({
   ...baseInputProps,
@@ -33,7 +34,7 @@ export const mentionsProps = freeze({
   rows: PropNumber(),
   cols: PropNumber(),
   resize: PropString<'none' | 'both' | 'horizontal' | 'vertical'>(),
-  mentionRenderer: PropFunction<(item: MentionSpan, necessaryProps: Record<string, any>) => any>(),
+  mentionRenderer: Prop<GetCustomRendererSource<[item: MentionSpan, necessaryProps: Record<string, any>], true>>(),
 });
 
 export const mentionsEmits = freeze({

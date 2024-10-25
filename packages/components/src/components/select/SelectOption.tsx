@@ -6,7 +6,7 @@ import { useCEStates, useExpose, useNamespace } from 'hooks';
 import { selectOptionProps } from './type';
 import { SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
-import { VueCustomRenderer } from '../custom-renderer/CustomRenderer';
+import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { SelectCollector } from './collector';
 import { getCompParts } from 'common';
 
@@ -56,16 +56,12 @@ export const SelectOption = defineSSRCustomElement({
       },
     };
     return () => {
-      const { content, contentType: type, contentPreferHtml: preferHtml } = props;
+      const { content, label } = props;
       return (
         <label part={compParts[0]} class={stateClass.value} hidden={hidden.value} {...handlers}>
           <slot name="start"></slot>
           <span class={ns.e('label')} part={compParts[1]}>
-            {content ? (
-              <VueCustomRenderer content={content} type={type} preferHtml={preferHtml} />
-            ) : (
-              <slot>{props.label}</slot>
-            )}
+            {content ? renderCustom(content) : <slot>{label}</slot>}
           </span>
           {selected.value && <slot name="end">{renderElement('icon', { name: 'check' })}</slot>}
         </label>

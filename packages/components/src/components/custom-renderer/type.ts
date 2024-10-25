@@ -17,10 +17,9 @@ export type CustomRendererSource = {
   preferHtml?: boolean;
 } & Record<string, unknown>;
 
-export type GetCustomRendererSource<T extends any[] = never> =
-  | Raw
-  | CustomRendererSource
-  | (T extends any[] ? (...params: T) => CustomRendererSource : never);
+export type GetCustomRendererSource<T extends any[] = never, FuncOnly extends boolean = false> = FuncOnly extends true
+  ? (...params: T) => CustomRendererSource
+  : Raw | CustomRendererSource | (T extends any[] ? (...params: T) => CustomRendererSource : never);
 
 export type CustomRendererSetupProps = ExtractPropTypes<typeof customRendererProps> & Record<string, any>;
 export type CustomRendererEvents = GetEventPropsFromEmits<typeof customRendererEmits>;

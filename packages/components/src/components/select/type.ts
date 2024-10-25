@@ -16,12 +16,12 @@ import { popoverProps } from '../popover/type';
 import { freeze, MaybeArray, MaybeSet, objectKeys, omit } from '@lun/utils';
 import { CommonOption, createOptionProps } from 'hooks';
 import { ButtonProps } from '../button/type';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export const selectPropsOfPopover = {
   ...omit(popoverProps, [
     'open',
     'content',
-    'contentType',
     'popWidth',
     'triggers',
     'showArrow',
@@ -68,9 +68,7 @@ export const selectOptionProps = freeze({
   label: PropString(),
   excludeFromSelect: PropBoolean(),
   /** used to custom render content, if it's truthy, will use CustomRenderer to render content, 'label' will not be rendered, but 'label' will still be used in filter */
-  content: {},
-  contentType: PropString(),
-  contentPreferHtml: PropBoolean(),
+  content: Prop<GetCustomRendererSource>(),
   hidden: PropBoolean(),
   /** internal usage, used when type=teleport */
   selectContext: PropObject(),

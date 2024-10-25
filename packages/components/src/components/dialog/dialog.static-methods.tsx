@@ -4,7 +4,7 @@ import { HTMLAttributes, nextTick } from 'vue';
 import { objectKeys } from '@lun/utils';
 import { iDialog } from './Dialog';
 import { Status, renderStatusIcon } from 'common';
-import { VueCustomRenderer } from '../custom-renderer';
+import { renderCustom } from '../custom-renderer';
 
 const initialDialogProps = objectKeys(dialogProps).reduce((acc, key) => {
   acc[key] = undefined;
@@ -17,7 +17,7 @@ export type DialogStaticMethodParams = Omit<DialogProps, 'open'> & {
 } & { style?: string | Partial<CSSStyleDeclaration> } & Omit<HTMLAttributes, 'style' | 'title'>;
 
 const createStatusMethod = (status: Status) => {
-  return ({ title, content, contentType, contentPreferHtml, ...others }: DialogStaticMethodParams = {}) =>
+  return ({ title, content, ...others }: DialogStaticMethodParams = {}) =>
     methods.open({
       ...others,
       isConfirm: true,
@@ -27,13 +27,10 @@ const createStatusMethod = (status: Status) => {
           {title}
         </>
       ),
-      contentType: 'vnode',
       content: (
         <>
           {renderStatusIcon(status, { style: { visibility: title ? 'hidden' : 'visible' } })}
-          <div part="confirm-content">
-            {content && <VueCustomRenderer content={content} type={contentType} preferHtml={contentPreferHtml} />}
-          </div>
+          <div part="confirm-content">{renderCustom(content)}</div>
         </>
       ),
       noHeader: !title,

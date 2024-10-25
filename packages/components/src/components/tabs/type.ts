@@ -9,13 +9,14 @@ import {
   PropString,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export type TabItemObject = {
   // TODO add icon
   slot?: string;
   label: string;
   closable?: boolean;
-  panel?: any;
+  panel?: GetCustomRendererSource;
   forceRender?: boolean;
   destroyInactive?: boolean;
   disabled?: boolean;

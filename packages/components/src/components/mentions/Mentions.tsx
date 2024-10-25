@@ -3,13 +3,13 @@ import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTrigger
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
-import { AnyFn, isEmpty, isSupportPlaintextEditable, raf, virtualGetMerge } from '@lun/utils';
+import { AnyFn, isEmpty, isSupportPlaintextEditable, raf, runIfFn, virtualGetMerge } from '@lun/utils';
 import { defineIcon } from '../icon/Icon';
 import { mentionsEmits, mentionsProps } from './type';
 import { definePopover } from '../popover';
 import { defineSelectOption } from '../select';
 import { useSelect } from '../select/useSelect';
-import { VueCustomRenderer } from '../custom-renderer';
+import { renderCustom } from '../custom-renderer';
 import { getCompParts, intl } from 'common';
 
 const name = 'mentions';
@@ -84,11 +84,11 @@ export const Mentions = defineSSRCustomElement({
           },
           get mentionRenderer() {
             const { mentionRenderer } = props;
-            if (!mentionRenderer) return;
-            else
-              return (item: MentionSpan, necessaryProps: Record<string, any>) => (
-                <VueCustomRenderer content={mentionRenderer(item, necessaryProps)} />
-              );
+            return (
+              mentionRenderer &&
+              ((item: MentionSpan, necessaryProps: Record<string, any>) =>
+                renderCustom(runIfFn(mentionRenderer, item, necessaryProps)))
+            );
           },
         },
         props,
