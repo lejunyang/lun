@@ -2,7 +2,7 @@ import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { OpenShadowComponentKey } from './config.static';
 import { ThemeConfig } from 'common';
-import { inherit, isObject } from '@lun/utils';
+import { inBrowser, inherit, isObject } from '@lun/utils';
 import { reduceFromComps } from './utils';
 
 const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
@@ -12,7 +12,7 @@ export type DynamicStyleValue =
   | string;
 
 export const GlobalContextConfig = reactive({
-  lang: 'zh-CN',
+  lang: inBrowser && navigator.language.startsWith('zh') ? 'zh-CN' : 'en',
   iconRegistryMap,
   dynamicStyles: reduceFromComps(() => [] as DynamicStyleValue[], false),
   theme: {

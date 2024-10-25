@@ -166,6 +166,14 @@
     color: getGrayColor(9);
     padding-block: getDeclaredVar(padding-block);
     gap: getSpaceValue(2);
+    @include declareVarValues(
+      (
+        min-width: (
+          empty-min-width,
+          100px,
+        ),
+      )
+    );
   }
 
   @include em(empty, text, true) {
