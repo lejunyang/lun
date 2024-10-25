@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+#test
+coverage
+.nyc_output
+
 #vitepress
 .vitepress/dist
 .vitepress/cache

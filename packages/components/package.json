@@ -20,7 +20,15 @@
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "browser": {
+        "development": "./dist/lun-components.development.js",
+        "default": "./dist/lun-components.production.js"
+      },
+      "default": {
+        "development": "./dist/lun-components.development.js",
+        "default": "./dist/lun-components.production.js"
+      }
     },
     "./package.json": "./package.json",
     "./elements-types-vue": {
