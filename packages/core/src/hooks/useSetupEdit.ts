@@ -26,6 +26,9 @@ export function useSetupEdit(options?: {
   if (!ctx) {
     if (__DEV__) throw new Error('Do not use `useSetupEdit` outside the setup function scope');
   }
+  // @ts-ignore
+  if (ctx[EDIT_PROVIDER_KEY]) return ctx[EDIT_PROVIDER_KEY];
+
   const parentEditComputed = noInherit ? undefined : inject<EditState | undefined>(EDIT_PROVIDER_KEY);
   const localState = reactive({ disabled: false, readonly: false, loading: false, ...initialLocalState });
   const currentEditComputed = objectComputed(() => {
@@ -55,6 +58,7 @@ export function useSetupEdit(options?: {
   });
 
   provide(EDIT_PROVIDER_KEY, currentEditComputed);
+  (ctx as any)[EDIT_PROVIDER_KEY] = currentEditComputed;
 
   return [currentEditComputed, localState] as const;
 }

@@ -1,10 +1,9 @@
-import { AnyObject, isArray, isFunction, isObjectByTag } from '@lun/utils';
+import { AnyObject, isArray, isFunction } from '@lun/utils';
 import { computed, isRef } from 'vue';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =
   | T
   | { value: Ensure extends true ? T : T | null | undefined }
-  | { current: Ensure extends true ? T : T | null | undefined }
   | (() => Ensure extends true ? T : T | undefined | null);
 
 export function unrefOrGet<T>(target: MaybeRefLikeOrGetter<T, true>): T;
@@ -20,13 +19,8 @@ export function unrefOrGet<
   Target extends MaybeRefLikeOrGetter<any>,
   T = Target extends MaybeRefLikeOrGetter<infer A, infer E> ? (E extends false ? A | undefined | null : A) : never,
 >(target: Target, defaultValue?: T): T {
-  const getP = Object.getOwnPropertyDescriptor;
   if (isRef(target)) return target.value as T;
-  // use tag to check if it's an object, in case that target is something like HTMLInputElement
-  if (isObjectByTag(target)) {
-    if (getP(target, 'value')?.get || getP(Object.getPrototypeOf(target), 'value')) return (target as any).value as T;
-    else if ('current' in target && Reflect.ownKeys(target).length === 1) return target.current as T;
-  } else if (isFunction(target)) return target();
+  if (isFunction(target)) return target();
   if (defaultValue !== undefined) return defaultValue;
   return target as any;
 }
@@ -59,10 +53,7 @@ export function unrefOrGetState<T extends MaybeRefLikeOrGetter<any>[] | MaybeRef
 }
 
 export type ToAllMaybeRefLike<T extends {}, EnsuredKeys extends keyof T | boolean = false> = {
-  [k in keyof T]: MaybeRefLikeOrGetter<
-    T[k],
-    EnsuredKeys extends true ? true : k extends EnsuredKeys ? true : false
-  >;
+  [k in keyof T]: MaybeRefLikeOrGetter<T[k], EnsuredKeys extends true ? true : k extends EnsuredKeys ? true : false>;
 };
 export type ToMaybeRefLike<
   T extends {},
