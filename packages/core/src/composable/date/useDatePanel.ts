@@ -20,7 +20,7 @@ import {
   iterateEventPath,
   prevent,
   runIfFn,
-  toArrayIfNotNil,
+  ensureArray,
 } from '@lun/utils';
 import { useDateParseFormat } from './utils';
 import { processType } from '../../presets/date.utils';
@@ -264,7 +264,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       values = unrefOrGet(value);
     return !multiple && range ? formatRangeValue(values) : null;
   });
-  const values = computed(() => toArrayIfNotNil(unrefOrGet(value)).map((v) => parse(v)));
+  const values = computed(() => ensureArray(unrefOrGet(value)).map((v) => parse(v)));
   // --- values ---
 
   const isInRange = (target: DateValueType, range: DateValueType[]) =>

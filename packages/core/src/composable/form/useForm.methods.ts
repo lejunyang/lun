@@ -3,7 +3,7 @@ import {
   objectGet,
   deepCopy,
   isArray,
-  toArrayIfTruthy,
+  ensureTruthyArray,
   stringToPath,
   isObject,
   isString,
@@ -85,7 +85,7 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
     setStatusMessages(path: MaybeFormItemPath, statusMsg: MaybeFormItemStatusMessages) {
       if (!path || !statusMsg) return;
       const finalStatusMsgs = {} as Record<string, string[]>;
-      toArrayIfTruthy(statusMsg).forEach((m) => {
+      ensureTruthyArray(statusMsg).forEach((m) => {
         if (!m) return;
         let msg: string;
         const status = isString(m) ? ((msg = m), 'error') : ((msg = m.message), m.status || 'error');

@@ -9,7 +9,7 @@ import {
   isFunction,
   isHTMLElement,
   runIfFn,
-  toArrayIfNotNil,
+  ensureArray,
   listenScroll,
 } from '@lun/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
@@ -25,8 +25,8 @@ export function useVirtualList(options: UseVirtualOptions) {
     const { lanes, gap, paddingEnd, paddingStart, scrollMargin, items, overscan, disabled, estimatedSize, fixedSize } =
       options;
     const lanesNum = ensureNumber(lanes, 1),
-      itemsArr = toArrayIfNotNil(unrefOrGet(items)),
-      overscanArr = toArrayIfNotNil(runIfFn(overscan, itemsArr, state));
+      itemsArr = ensureArray(unrefOrGet(items)),
+      overscanArr = ensureArray(runIfFn(overscan, itemsArr, state));
     let temp: number, disable: boolean;
     if ((disable = (!estimatedSize && !fixedSize) || !itemsArr.length || runIfFn(disabled, itemsArr)))
       keySizeMap.clear();

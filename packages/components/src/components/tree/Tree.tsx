@@ -7,7 +7,7 @@ import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
 import { ComponentInternalInstance, computed } from 'vue';
-import { toArrayIfNotNil, unionOfSets } from '@lun/utils';
+import { ensureArray, unionOfSets } from '@lun/utils';
 import { useTreeCheckedValue } from './tree.checked-value';
 import { useTreeCheckMethods } from './tree.check-methods';
 import { InternalTreeItem, useTreeItems } from './tree.items';
@@ -32,7 +32,7 @@ export const Tree = defineSSRCustomElement({
         const { value } = expandedModel;
         return props.defaultExpandAll && value.value == null
           ? combinedChildren.noneLeafValuesSet
-          : value.raw || new Set(toArrayIfNotNil(value.value));
+          : value.raw || new Set(ensureArray(value.value));
       });
 
     const [propItemsInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);

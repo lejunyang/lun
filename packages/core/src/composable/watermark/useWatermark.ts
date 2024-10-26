@@ -2,7 +2,7 @@
 
 import { ComputedRef, computed, ref, watchEffect } from 'vue';
 import { unrefOrGet, MaybeRefLikeOrGetter } from '../../utils/ref';
-import { createElement, isHTMLImageElement, isPreferDark, toArrayIfNotNil } from '@lun/utils';
+import { createElement, isHTMLImageElement, isPreferDark, ensureArray } from '@lun/utils';
 
 export const FontGap = 3;
 
@@ -93,7 +93,7 @@ export function useWatermark(
       }
       if (textCtx.measureText) {
         textCtx.font = `${Number(fontSize)}px ${fontFamily}`;
-        const contents = toArrayIfNotNil(content);
+        const contents = ensureArray(content);
         const sizes = contents.map((item) => {
           const metrics = textCtx.measureText(item!);
           return [metrics.width, metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent];
@@ -144,7 +144,7 @@ export function useWatermark(
       ctx.fillStyle = color!;
       ctx.textAlign = textAlign!;
       ctx.textBaseline = 'top';
-      const contents = toArrayIfNotNil(content);
+      const contents = ensureArray(content);
       contents.forEach((item, index) => {
         ctx.fillText(item ?? '', contentWidth / 2, index * (mergedFontSize + FontGap * ratio));
       });

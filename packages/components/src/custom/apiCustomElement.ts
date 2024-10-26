@@ -43,7 +43,7 @@ import {
   freeze,
   isArray,
   objectKeys,
-  toArrayIfNotNil,
+  ensureArray,
   isRegExp,
   createElement,
 } from '@lun/utils';
@@ -503,7 +503,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
 
   protected _setAttr(key: string) {
     const { ignoreAttrs, attrTransform } = this._def;
-    if (toArrayIfNotNil(ignoreAttrs).some((pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key))))
+    if (ensureArray(ignoreAttrs).some((pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key))))
       return;
     const has = this.hasAttribute(key);
     const camelKey = camelize(key);

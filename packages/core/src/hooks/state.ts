@@ -1,4 +1,4 @@
-import { isFunction, runIfFn, toArrayIfNotNil } from '@lun/utils';
+import { isFunction, runIfFn, ensureArray } from '@lun/utils';
 import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 
@@ -92,7 +92,7 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
         onCancel();
       }
     });
-    handlePromise(runIfFn<any>(unrefOrGet(maybeGetter), ...toArrayIfNotNil(unrefOrGet(fnArgs))));
+    handlePromise(runIfFn<any>(unrefOrGet(maybeGetter), ...ensureArray(unrefOrGet(fnArgs))));
   });
   return [result, pending] as const;
 }

@@ -1,6 +1,8 @@
-import { toArrayIfNotNil } from '../array';
+import { ensureArray } from '../array';
 import { isArray, isObject } from '../is';
+import { on } from './event';
 import { setStyle } from './style';
+import { uncapitalize } from '../string';
 
 // freeze but don't add readonly type, it's for component's instance element. if's readonly, ts will report error if we modify the props
 export const freeze = <T>(o: T) => Object.freeze(o) as T;
@@ -13,12 +15,17 @@ export const getRect = (elOrRange: Element | Range | { getBoundingClientRect(): 
 /** create an element like document.createElement, assign props(or add attributes) to it if provided */
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
-  props?: Record<string, any> & {
-    children?: (
-      | [tagName: keyof HTMLElementTagNameMap, props?: Record<string, any>, options?: { skipFalsyValue?: boolean }]
-      | keyof HTMLElementTagNameMap
-    )[];
-  },
+  props?: Record<string, any> &
+    Record<`on${string}`, (e: Event) => void> & {
+      children?: (
+        | [
+            tagName: keyof HTMLElementTagNameMap,
+            props?: Record<string, any> & Record<`on${string}`, (e: Event) => void>,
+            options?: { skipFalsyValue?: boolean },
+          ]
+        | keyof HTMLElementTagNameMap
+      )[];
+    },
   options?: { skipFalsyValue?: boolean },
 ): HTMLElementTagNameMap[K] {
   const dom = document.createElement(tagName);
@@ -30,10 +37,12 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
       else if (key === 'children') {
         dom.append(
           // @ts-ignore
-          ...toArrayIfNotNil(value).map((i) => (isArray(i) ? createElement(i[0], i[1], i[2]) : createElement(i))),
+          ...ensureArray(value).map((i) => (isArray(i) ? createElement(i[0], i[1], i[2]) : createElement(i))),
         );
       } else if (key in dom) (dom as any)[key] = value;
-      else dom.setAttribute(key, value as string);
+      else if (key.startsWith('on')) {
+        on(dom, uncapitalize(key.slice(2)), value);
+      } else dom.setAttribute(key, value as string);
     }
   return dom;
 }

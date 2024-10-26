@@ -11,7 +11,7 @@ import {
   isArrowLeftEvent,
   isArrowRightEvent,
   isArrowUpEvent,
-  toArrayIfNotNil,
+  ensureArray,
   setStyle,
   toPxIfNum,
   runIfFn,
@@ -90,7 +90,7 @@ export const Range = defineSSRCustomElement({
 
     const processedValues = computed(() => {
       const { value } = valueModel;
-      return toArrayIfNotNil(value ?? 0)
+      return ensureArray(value ?? 0)
         .map((v) => {
           const clamped = clamp(v),
             p = getPercent(clamped);

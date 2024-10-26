@@ -1,4 +1,4 @@
-import { inBrowser, toArrayIfNotNil, on, getRect, noop } from '@lun/utils';
+import { inBrowser, ensureArray, on, getRect, noop } from '@lun/utils';
 import { useCleanUp } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 
@@ -24,7 +24,7 @@ export function useClickOutside(
       if (isOn !== undefined && !unrefOrGet(isOn)) return; // avoid trigger clickOutSide callback when not show
       let target: Element | VirtualElement;
       const els = e.composedPath();
-      const getters = toArrayIfNotNil(unrefOrGet(targetsGetter));
+      const getters = ensureArray(unrefOrGet(targetsGetter));
       for (let getter of getters) {
         if (!getter || !(target = unrefOrGet(getter)!)) continue;
         if (e.target === target || els.includes(target as any)) return;

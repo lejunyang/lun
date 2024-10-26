@@ -1,15 +1,13 @@
 import { isArray, isFunction, isNumber, isString } from './is';
 
-export function toArrayIfNotNil<T>(
-  target: T,
-): T extends Array<infer E> ? E[] : T extends null | undefined ? never : T[] {
+export function ensureArray<T>(target: T): T extends Array<infer E> ? E[] : T extends null | undefined ? never : T[] {
   return (isArray(target) ? target : target == null ? [] : [target]) as any;
 }
 
-export function toArrayIfTruthy<T>(
+export function ensureTruthyArray<T>(
   target: T,
 ): T extends Array<infer E> ? E[] : T extends null | undefined | false | '' ? never : T[] {
-  return (isArray(target) ? target : target ? [target] : []) as any;
+  return ensureArray(target).filter(Boolean) as any;
 }
 
 export function isIterable<T>(target: any): target is Iterable<T> {
@@ -60,4 +58,3 @@ export function arrayFrom<T, V>(arr: ArrayLike<T> | Iterable<T>, mapVal: (val: T
 export function arrayFrom(lengthOrArrayLike: number | ArrayLike<any> | Iterable<any>, mapVal?: any) {
   return Array.from(isNumber(lengthOrArrayLike) ? { length: lengthOrArrayLike } : lengthOrArrayLike, mapVal);
 }
-

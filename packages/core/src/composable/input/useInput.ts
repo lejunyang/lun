@@ -3,7 +3,7 @@ import {
   isFunction,
   debounce as toDebounce,
   throttle as toThrottle,
-  toArrayIfNotNil,
+  ensureArray,
   getFirstOfIterable,
   toRegExp,
   isArray,
@@ -130,12 +130,12 @@ export function useInput(
       transformWhen: originalTransform,
       restrictWhen: originalRestrict,
     } = result;
-    const updateWhen = new Set(toArrayIfNotNil(originalUpdate!));
+    const updateWhen = new Set(ensureArray(originalUpdate!));
     if (updateWhen.has('auto') || !updateWhen.size) updateWhen.add(multiple ? 'change' : 'notComposing');
     updateWhen.delete('auto');
-    const transformWhen = new Set(toArrayIfNotNil(originalTransform!));
+    const transformWhen = new Set(ensureArray(originalTransform!));
     if (!transformWhen.size) transformWhen.add('notComposing');
-    const restrictWhen = new Set(toArrayIfNotNil(originalRestrict!));
+    const restrictWhen = new Set(ensureArray(originalRestrict!));
     if (!restrictWhen.size) restrictWhen.add('notComposing');
     return {
       ...processNumOptions(result),

@@ -1,11 +1,11 @@
-import { isString, toArrayIfNotNil, toArrayIfTruthy } from '@lun/utils';
+import { isString, ensureArray, ensureTruthyArray } from '@lun/utils';
 import { Condition, ValidatorStatusResult } from './type';
 
 export function getConditionValue(
   { allFalsy, someFalsy, noneFalsy }: { allFalsy: boolean; someFalsy: boolean; noneFalsy: boolean; depValues: any[] },
   condition?: Condition | Condition[],
 ) {
-  const conditions = toArrayIfNotNil(condition);
+  const conditions = ensureArray(condition);
   let result = undefined;
   for (const c of conditions) {
     switch (c) {
@@ -29,7 +29,7 @@ export function getConditionValue(
 
 export function processStatusMsgs(msgs: any) {
   let errorCount = 0;
-  const res = toArrayIfTruthy(msgs)
+  const res = ensureTruthyArray(msgs)
     .map((m) => {
       if (isString(m)) return errorCount++, m;
       else if (m?.message) {

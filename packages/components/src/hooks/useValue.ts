@@ -3,7 +3,7 @@ import { createUseModel, unrefOrGet } from '@lun/core';
 import { FormInputCollector } from '../components/form-item/collector';
 import { computed, getCurrentInstance, Ref } from 'vue';
 import { Status } from 'common';
-import { isSet, pickNonNil, toArrayIfNotNil } from '@lun/utils';
+import { isSet, pickNonNil, ensureArray } from '@lun/utils';
 import { formItemRuleProps } from '../components/form-item/type';
 
 const extra = () => {
@@ -107,7 +107,7 @@ export const useValueSet = (hasRawModel: Ref<{ value: any; raw?: any }>, multipl
   computed(() => {
     const { value, raw } = hasRawModel.value;
     // raw also needs isSet, as it may be single before, and then turn on multiple, at that time raw is not null
-    return unrefOrGet(multiple) ? (isSet(raw) ? raw : isSet(value) ? value : new Set(toArrayIfNotNil(value))) : value;
+    return unrefOrGet(multiple) ? (isSet(raw) ? raw : isSet(value) ? value : new Set(ensureArray(value))) : value;
   });
 
 export const updateRawSetModel = (
@@ -119,7 +119,7 @@ export const updateRawSetModel = (
   if (unrefOrGet(multiple)) {
     const isNil = value == null,
       set = isNil || isSet(value);
-    hasRawModel.value[set ? 'raw' : 'value'] = set ? (isNil ? new Set() : value) : toArrayIfNotNil(value);
+    hasRawModel.value[set ? 'raw' : 'value'] = set ? (isNil ? new Set() : value) : ensureArray(value);
   } else hasRawModel.value.value = value;
   // enableTracking();
 };

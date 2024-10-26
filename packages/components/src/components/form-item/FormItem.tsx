@@ -28,8 +28,8 @@ import {
   runIfFn,
   simpleObjectEquals,
   stringToPath,
-  toArrayIfNotNil,
-  toArrayIfTruthy,
+  ensureArray,
+  ensureTruthyArray,
   toNoneNilSet,
   toPxIfNum,
   virtualGetMerge,
@@ -61,7 +61,7 @@ export const FormItem = defineSSRCustomElement({
     const itemStatuses = computed(() => formContext?.form.getStatusMessages(path.value) || {});
     const isStatusVisible = (status: string) =>
       !isEmpty(itemStatuses.value[status]) &&
-      (toArrayIfTruthy(props.value.visibleStatuses || 'error') as string[]).includes(status);
+      (ensureTruthyArray(props.value.visibleStatuses || 'error') as string[]).includes(status);
     const status = computed(() => props.value.status || (statuses.find(isStatusVisible) as Status));
 
     const validateWhenSet = computed(() => toNoneNilSet(props.value.validateWhen || 'blur'));
@@ -281,7 +281,7 @@ export const FormItem = defineSSRCustomElement({
       if (!array) return getOrSet(path.value, value);
       const index = inputContext.getChildVmIndex(vm);
       if (index === undefined) return;
-      return getOrSet(toArrayIfNotNil(path.value).concat(String(index)), value, raw);
+      return getOrSet(ensureArray(path.value).concat(String(index)), value, raw);
     };
 
     const inputContext = FormInputCollector.parent({
@@ -337,7 +337,7 @@ export const FormItem = defineSSRCustomElement({
       // Receive a new validation error, rerender and enter a dead loop
       // So ignore deps from the form, as it is commonly defined in formItem itself
       const { deps } = itemProps;
-      const temp = toArrayIfTruthy(deps);
+      const temp = ensureTruthyArray(deps);
       let allFalsy = !!temp.length,
         someFalsy = false;
       const depValues = temp.map((name) => {
@@ -383,7 +383,7 @@ export const FormItem = defineSSRCustomElement({
       const { stopValidate, validators: formValidators } = parent!.props;
       const stopEarly = stopValidate === 'first-error';
       const { validators } = props.value;
-      const result = toArrayIfNotNil(innerValidator(value, data, validateProps.value, validateMessages.value)) as (
+      const result = ensureArray(innerValidator(value, data, validateProps.value, validateMessages.value)) as (
         | string
         | ValidatorStatusResult
       )[];
@@ -392,8 +392,8 @@ export const FormItem = defineSSRCustomElement({
         setStatusMessages(path.value, result);
         return [result, result.length] as const;
       }
-      const finalValidators = toArrayIfNotNil(validators).concat(
-        ...toArrayIfNotNil(objectGet(formValidators, path.value)),
+      const finalValidators = ensureArray(validators).concat(
+        ...ensureArray(objectGet(formValidators, path.value)),
       );
       let stopped = false,
         aborted = false;

@@ -1,7 +1,7 @@
 import {
   debounce,
   isElement,
-  toArrayIfNotNil,
+  ensureArray,
   on,
   off,
   noop,
@@ -56,7 +56,7 @@ export function usePopover(_options: UsePopoverOptions) {
 
     const dOpen = debounce(performOpen, openDelay),
       dClose = debounce(performClose, closeDelay, { onSchedulingUpdate: (v) => (isCloseScheduling.value = v) });
-    triggers = toArrayIfNotNil(triggers!);
+    triggers = ensureArray(triggers!);
     if (!triggers.length) triggers = ['hover', 'click', 'edit'];
     const cancelOpenOrClose = () => {
       dOpen.cancel();

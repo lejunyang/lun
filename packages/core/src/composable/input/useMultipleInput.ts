@@ -10,7 +10,7 @@ import {
   isNilOrEmptyStr,
   prevent,
   shadowContains,
-  toArrayIfNotNil,
+  ensureArray,
 } from '@lun/utils';
 import { UseInputOptions, useInput } from './useInput';
 import { nextTick } from 'vue';
@@ -39,7 +39,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
   const handleDeleteTag = (index?: number | null) => {
     if (index == null || isNaN(index)) return;
     const { value, onChange, onTagsRemove, getTagFromIndex, input } = unrefOrGet(options)!;
-    const values = toArrayIfNotNil(unrefOrGet(value)),
+    const values = ensureArray(unrefOrGet(value)),
       newValues = values.slice(),
       removed = newValues.splice(index, 1);
     if (removed.length) {
@@ -70,7 +70,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
         if (!active || (active !== target && !shadowContains(target, active))) return;
 
         let currentIndex = getTagIndex(active),
-          currentLength = toArrayIfNotNil(unrefOrGet(value)).length;
+          currentLength = ensureArray(unrefOrGet(value)).length;
 
         // arrow left/right to focus on previous/next tag
         if (isArrow!) {
@@ -103,7 +103,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
     onInputUpdate && onInputUpdate(strVal);
     if (!multiple) return val;
     val = strVal;
-    const valuesBefore = toArrayIfNotNil(unrefOrGet(value));
+    const valuesBefore = ensureArray(unrefOrGet(value));
     if (isNilOrEmptyStr(val)) return value;
     const valuesNow = val.split(separator);
     if (!valuesNow.length) return val;
@@ -138,7 +138,7 @@ export function useMultipleInput(options: MaybeRefLikeOrGetter<UseMultipleInputO
     transform,
     onBeforeinput(e) {
       const { value, maxTags } = unrefOrGet(options)!;
-      const values = toArrayIfNotNil(value);
+      const values = ensureArray(value);
       if (maxTags && values.length >= +maxTags) prevent(e);
     },
     onInput(e) {

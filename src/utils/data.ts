@@ -1,5 +1,5 @@
 import { themeColors } from '@lun/components';
-import { delay, toArrayIfNotNil } from '@lun/utils';
+import { delay, ensureArray } from '@lun/utils';
 import { ref } from 'vue';
 
 // data for some code cases
@@ -76,6 +76,6 @@ setInterval(() => {
 }, 1500);
 
 export const filesRenderer = (files) =>
-  toArrayIfNotNil(files)
+  ensureArray(files)
     .map((file) => file.name)
     .join(', ');

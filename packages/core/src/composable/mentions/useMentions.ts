@@ -1,7 +1,7 @@
 import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { arrayFrom, isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, toArrayIfNotNil } from '@lun/utils';
+import { arrayFrom, isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, ensureArray } from '@lun/utils';
 import { VNode, computed, h, reactive, readonly } from 'vue';
 import { getText, rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';
@@ -80,7 +80,7 @@ export function useMentions(options: MaybeRefLikeOrGetter<UseMentionsOptions, tr
   let infoDirty = false;
   const info = objectComputed(() => {
     const { triggers, suffix } = unrefOrGet(options);
-    const t = toArrayIfNotNil(triggers).filter(Boolean);
+    const t = ensureArray(triggers).filter(Boolean);
     infoDirty = true;
     return { triggers: t, suffix: suffix!, on: suffix && t.length };
   });

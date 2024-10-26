@@ -1,5 +1,5 @@
 import { EditState, objectComputed } from '@lun/core';
-import { toArrayIfNotNil } from '@lun/utils';
+import { ensureArray } from '@lun/utils';
 import { renderElement } from 'utils';
 
 export type InternalTreeItem = {
@@ -41,7 +41,7 @@ export function useTreeItems(props: { items?: any[]; itemPropsMap?: object }, ed
       };
     };
     const processArray = (arr?: any[], parent?: any) => {
-      return toArrayIfNotNil(arr).flatMap((item) => {
+      return ensureArray(arr).flatMap((item) => {
         if (!item) return [];
         processItem(item, parent);
         if (!(item._.children = processArray(item.children, item)).length && !item.disabled)

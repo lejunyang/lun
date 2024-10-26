@@ -8,7 +8,7 @@ import {
   isCSSStyleSheet,
   isHTMLStyleElement,
   supportDocumentPictureInPicture,
-  toArrayIfNotNil,
+  ensureArray,
   toNumberOrUndefined,
 } from '@lun/utils';
 import { useBreakpoint, useCE, useCEExpose, useSlot } from 'hooks';
@@ -86,7 +86,7 @@ export const DocPip = defineSSRCustomElement({
           }
         }
 
-        const extraStyles = otherStyles.concat(toArrayIfNotNil(pipStyles));
+        const extraStyles = otherStyles.concat(ensureArray(pipStyles));
         if (extraStyles.length) {
           extraStyles.forEach((i) => {
             if (isHTMLStyleElement(i)) head.append(i.cloneNode(true));

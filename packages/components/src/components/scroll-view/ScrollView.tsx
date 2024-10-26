@@ -15,7 +15,7 @@ import {
   listenScroll,
   runIfFn,
   supportCSSRegisterProperty,
-  toArrayIfNotNil,
+  ensureArray,
   isWindow,
   getWindow,
   getDocumentElement,
@@ -148,14 +148,14 @@ export const ScrollView = defineSSRCustomElement({
     };
     const intersectionTargets = computed(() => {
       const { observeView } = props;
-      return toArrayIfNotNil(observeView).map((v) => {
+      return ensureArray(observeView).map((v) => {
         let { target, axis, progressVarName } = v,
           targetEl = toElement(unrefOrGet(target), CE) as HTMLElement,
           option = intersectionTargetMap.get(targetEl!) || ({} as Record<'x' | 'y', ProcessedOption>);
         if (!targetEl) return;
         progressVarName = register(progressVarName);
         if (viewProgress[progressVarName] == null) viewProgress[progressVarName] = 0;
-        const ranges = toArrayIfNotNil(v.range) as [ScrollViewRangeValue, ScrollViewRangeValue];
+        const ranges = ensureArray(v.range) as [ScrollViewRangeValue, ScrollViewRangeValue];
         ranges[0] ||= 'cover';
         ranges[1] ||= ranges[0];
         option[axis || 'y'] = {
@@ -237,7 +237,7 @@ export const ScrollView = defineSSRCustomElement({
 
     const slots = computed<ScrollViewSlot[]>((old) => {
       const { getSlots } = props;
-      return toArrayIfNotNil(runIfFn(getSlots, readonlyState, readonlyProgress, old)).filter(Boolean);
+      return ensureArray(runIfFn(getSlots, readonlyState, readonlyProgress, old)).filter(Boolean);
     });
 
     return () => {

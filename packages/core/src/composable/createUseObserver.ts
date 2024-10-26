@@ -1,6 +1,6 @@
 import { watchPostEffect } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
-import { isElement, isFunction, runIfFn, toArrayIfNotNil } from '@lun/utils';
+import { isElement, isFunction, runIfFn, ensureArray } from '@lun/utils';
 import { tryOnScopeDispose } from '../hooks';
 
 type NamePrefixes = 'Mutation' | 'Intersection' | 'Resize';
@@ -59,7 +59,7 @@ export function createUseObserver<
         clean();
         if (observerInit) observer = new window[name](callback as any, runIfFn(observerInit)) as O;
         if (unrefOrGet(disabled)) return;
-        toArrayIfNotNil(unrefOrGet(targets)).forEach((e) => {
+        ensureArray(unrefOrGet(targets)).forEach((e) => {
           // @ts-expect-error
           if (isElement(e)) observer.observe(e, runIfFn(observeOptions, e));
         });

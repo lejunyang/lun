@@ -1,4 +1,4 @@
-import { copyCSSStyleSheetsIfNeed, runIfFn, isSupportCSSStyleSheet, toArrayIfNotNil, getWindow } from '@lun/utils';
+import { copyCSSStyleSheetsIfNeed, runIfFn, isSupportCSSStyleSheet, ensureArray, getWindow } from '@lun/utils';
 import type { OpenShadowComponentKey } from 'config';
 import { GlobalStaticConfig, componentsWithTeleport, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
@@ -17,8 +17,8 @@ export function useContextStyles(name: OpenShadowComponentKey) {
     SheetConstructor = getWindow(CE).CSSStyleSheet;
   const context = useContextConfig(),
     { dynamicStyles } = context;
-  const styles = toArrayIfNotNil(dynamicStyles.common)
-    .concat(toArrayIfNotNil(dynamicStyles[name]))
+  const styles = ensureArray(dynamicStyles.common)
+    .concat(ensureArray(dynamicStyles[name]))
     .concat(() => (vm.props.innerStyle as string) || '');
 
   if (name === 'teleport-holder') {

@@ -9,7 +9,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import { BaseDateType, createDatePreset, DateMethods, ExtendBaseDateType } from './date';
 import { presets } from '.';
-import { isString, toArrayIfNotNil } from '@lun/utils';
+import { isString, ensureArray } from '@lun/utils';
 import { processType } from './date.utils';
 
 // derived from react-components/picker
@@ -67,7 +67,7 @@ const methods = {
     parse: (locale, text, formats) => {
       if (!text) return null;
       const localeStr = parseLocale(locale);
-      formats = toArrayIfNotNil(formats);
+      formats = ensureArray(formats);
       for (let i = 0; i < formats.length; i += 1) {
         const format = formats[i];
         const formatText = text;
