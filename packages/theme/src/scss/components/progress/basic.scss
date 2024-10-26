@@ -20,9 +20,8 @@
 }
 
 @include b(progress) {
-  @include declareVars((width, height));
   position: relative;
-
+  @include declareVars((width, height));
   @include e(text) {
     position: relative;
     z-index: 1;

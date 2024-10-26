@@ -60,7 +60,6 @@
   align-items: center;
   pointer-events: none;
   overflow: visible; // to make box-shadow of callout can be seen
-  @include declareVars((gap));
   @include setVars(
     (
       leave-animation: up 0.3s,
@@ -68,24 +67,25 @@
       enter-to-transform: translateY(0),
     )
   );
+  @include declareVars((gap));
 
   @at-root {
     .message-enter-from {
+      opacity: 0;
       @include declareVars(
         (
           transform: enter-from-transform,
         )
       );
-      opacity: 0;
     }
 
     .message-enter-to {
+      opacity: 1;
       @include declareVars(
         (
           transform: enter-to-transform,
         )
       );
-      opacity: 1;
     }
   }
 
@@ -132,7 +132,9 @@
     display: flex;
     justify-content: center;
     pointer-events: all;
-    box-shadow: getShadowSpread(3); // add box-shadow directly on callout, not on its root element, so that it won't affect box-shadow of surface variant
+    box-shadow: getShadowSpread(
+      3
+    ); // add box-shadow directly on callout, not on its root element, so that it won't affect box-shadow of surface variant
     @include declareVars((border-radius)); // border-radius should be same as callout's
     .message-leave-active ~ & {
       @include declareVars(

@@ -1,10 +1,11 @@
 @use '../mixins/config' as *;
 @use '../mixins/theme' as *;
+@use 'sass:list';
 
 :host {
   // font size
-  @for $i from 1 through length($font-size-list) {
-    $size: nth($font-size-list, $i);
+  @for $i from 1 through list.length($font-size-list) {
+    $size: list.nth($font-size-list, $i);
     #{getFontSizeVarName()}-#{$i}: calc(#{$size} * #{getScaleValue()});
   }
 
@@ -14,14 +15,14 @@
   }
 
   // letter spacing
-  @for $i from 1 through length($letter-spacing-list) {
-    $size: nth($letter-spacing-list, $i);
+  @for $i from 1 through list.length($letter-spacing-list) {
+    $size: list.nth($letter-spacing-list, $i);
     #{getLetterSpacingVarName()}-#{$i}: calc(#{$size} * #{getScaleValue()});
   }
 
   // line height
-  @for $i from 1 through length($line-height-list) {
-    $size: nth($line-height-list, $i);
+  @for $i from 1 through list.length($line-height-list) {
+    $size: list.nth($line-height-list, $i);
     #{getLineHeightVarName()}-#{$i}: calc(#{$size} * #{getScaleValue()});
   }
 }

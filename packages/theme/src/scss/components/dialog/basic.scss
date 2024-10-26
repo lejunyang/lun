@@ -19,12 +19,6 @@
   pointer-events: none;
 
   @include is(no-top-layer) {
-    @include declareVars(z-index);
-    @include setVars(
-      (
-        z-index: 1000,
-      )
-    );
     // copy from user agent dialog:-internal-dialog-in-top-layer and dialog
     position: fixed;
     // inset: 0px; // do not add inset: 0; add default 0 px in top and left, or bottom: 0px will make the position incorrect
@@ -33,6 +27,12 @@
     // do not use transform, transform will create a new stacking context and containing block, make nested dialog display unexpectedly
     left: var(--lock-scroll-left, 0);
     top: var(--lock-scroll-top, 0); // must add 0(or inset: 0) for top; it's for non top layer dialog
+    @include declareVars(z-index);
+    @include setVars(
+      (
+        z-index: 1000,
+      )
+    );
     @include e(mask) {
       left: var(--lock-scroll-left, 0);
       top: var(--lock-scroll-top, 0);

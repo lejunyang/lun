@@ -1,6 +1,7 @@
 @use '../mixins/theme' as *;
 @use '../mixins/config' as *;
 @use '../mixins/function' as *;
+@use 'sass:list';
 
 :host {
   $factor: getVarName(($radius-name, factor));
@@ -47,8 +48,8 @@
 
     // needs to be set on every element with a radius attribute, or it will just inherit the value from the theme-provider
     :host(:is([#{$radius-name}], [data-#{$radius-name}], [data-root])) {
-      @for $i from 1 through length($radius-list) {
-        $size: nth($radius-list, $i);
+      @for $i from 1 through list.length($radius-list) {
+        $size: list.nth($radius-list, $i);
         #{getVarName(($radius-name, $i))}: calc(#{$size} * #{getScaleValue()} * var(#{$factor}));
       }
     }

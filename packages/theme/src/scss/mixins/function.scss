@@ -1,4 +1,6 @@
 @use 'config';
+@use 'sass:string';
+@use 'sass:meta';
 
 @function join($list, $separator: config.$common-separator) {
   $result: '';
@@ -36,18 +38,18 @@
 }
 
 @function selectorToString($selector) {
-  $selector: inspect(
+  $selector: meta.inspect(
     $selector
   ); // inspect(...) 表达式中的内容如果是正常会返回对应的内容，如果发生错误则会弹出一个错误提示。
-  $selector: str-slice($selector, 2, -2); // str-slice
+  $selector: string.slice($selector, 2, -2);
   @return $selector;
 }
 // if contains '--'
 @function containsModifier($selector) {
   $selector: selectorToString($selector);
 
-  // str-index find the first index of the second argument in the first argument
-  @if str-index($selector, config.$modifier-separator) {
+  // string.index find the first index of the second argument in the first argument
+  @if string.index($selector, config.$modifier-separator) {
     @return true;
   } @else {
     @return false;
@@ -57,7 +59,7 @@
 @function containWhenFlag($selector) {
   $selector: selectorToString($selector);
 
-  @if str-index($selector, '.' + config.$state-prefix) {
+  @if string.index($selector, '.' + config.$state-prefix) {
     @return true;
   } @else {
     @return false;
@@ -67,7 +69,7 @@
 @function containPseudoClass($selector) {
   $selector: selectorToString($selector);
 
-  @if str-index($selector, ':') {
+  @if string.index($selector, ':') {
     @return true;
   } @else {
     @return false;
@@ -78,7 +80,7 @@
 @function containsVariant($selector) {
   $selector: selectorToString($selector);
 
-  @if str-index($selector, config.$modifier-separator + 'variant') {
+  @if string.index($selector, config.$modifier-separator + 'variant') {
     @return true;
   } @else {
     @return false;

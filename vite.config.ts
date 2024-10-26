@@ -23,7 +23,7 @@ export default defineConfig({
       cypress: true,
       checkProd: true,
       include: ['packages/**/*'],
-      exclude: ['__test__', 'packages/plugins'],
+      exclude: ['__test__/**/*', 'packages/plugins'],
       extension: ['.ts', '.tsx'],
     }),
   ],
@@ -71,6 +71,11 @@ export default defineConfig({
     postcss: {
       // plugins: [postcssLogical()],
     },
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+      },
+    },
   },
   test: {
     coverage: {
@@ -79,7 +84,7 @@ export default defineConfig({
       all: false,
       clean: false,
       include: ['packages/plugins/**/*', 'packages/utils/**/*'],
-      reporter: ['lcov', 'text', 'text-summary']
+      reporter: ['lcov', 'text', 'text-summary'],
     },
   },
 });

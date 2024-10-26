@@ -19,13 +19,13 @@
 @mixin popoverArrow() {
   @include declareReuseVars((arrow-size, arrow-hypot, arrow-clip-path));
   @include e(arrow) {
+    overflow: hidden;
     @include reuseVars(
       (
         width: arrow-hypot,
         height: arrow-hypot,
       )
     );
-    overflow: hidden;
     // use two pseudo elements to implement clip-path with shadows, ::before is the background, ::after is the shadow
     &::before {
       position: absolute;
@@ -126,6 +126,9 @@
 }
 
 @include b(popover) {
+  background-color: getSemanticColor('panel-solid');
+  box-shadow: getShadow(5);
+  box-sizing: border-box;
   @include declareReuseVars(
     (
       padding: content-padding,
@@ -133,10 +136,7 @@
     ),
     true
   );
-
-  background-color: getSemanticColor('panel-solid');
-  box-shadow: getShadow(5);
-  box-sizing: border-box;
+  @include popoverArrow;
 
   // @include declareVars((transition));
   @include is(entered) {
@@ -148,8 +148,6 @@
     //   )
     // );
   }
-
-  @include popoverArrow;
 
   @include size(1) {
     @include setVars(

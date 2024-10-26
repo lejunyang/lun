@@ -3,12 +3,12 @@
 @include b(mentions) {
   display: grid;
   position: relative;
-  @include declareVars((font-size));
   @include setVars(
     (
       icon-size: 0px,
     )
   );
+  @include declareVars((font-size));
   @include is(with-clear-icon) {
     @include setVars(
       (
@@ -115,13 +115,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    --base: 100%;
     @include declareVars(
       (
         // use textarea's padding-inline-start as label's inset-inline-start
         inset-inline-start: padding-inline-start
       )
     );
-    --base: 100%;
     @include declareVarValues(
       (
         // reduce two paddings, limit the width of label
@@ -205,7 +205,7 @@
         font-size: getFontSizeValue(2),
         border-radius: getRadiusValue(2),
         // min-block-size: 150px,
-        // min-inline-size: 200px,
+        // min-inline-size: 200px,,,
       )
     );
   }

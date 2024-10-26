@@ -2,6 +2,8 @@
 
 @include b(radio) {
   @include is(button) {
+    border: 1px solid getGrayColor(a6);
+    border-inline-end: none;
     @include declareVars(
       (
         padding-inline: button-padding-inline,
@@ -9,8 +11,6 @@
         height: button-height,
       )
     );
-    border: 1px solid getGrayColor(a6);
-    border-inline-end: none;
     @include e(indicator) {
       display: none;
     }

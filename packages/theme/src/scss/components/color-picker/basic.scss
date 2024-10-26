@@ -1,6 +1,9 @@
 @use '../../mixins' as *;
 
 @include b(color-picker) {
+  #{getVarName((range, thumb, factor))}: 0.25;
+  --mask: conic-gradient(#{getGrayColor(a2)} 0 25%, transparent 0 50%, #{getGrayColor(a2)} 0 75%, transparent 0);
+
   @include e(panel) {
     display: flex;
     flex-direction: column;
@@ -25,7 +28,6 @@
     height: 100%;
   }
 
-  #{getVarName((range, thumb, factor))}: 0.25;
   @include e(thumb) {
     cursor: move;
     border-radius: getRadiusValue(1, 'thumb');
@@ -53,7 +55,6 @@
     flex-direction: column;
   }
 
-  --mask: conic-gradient(#{getGrayColor(a2)} 0 25%, transparent 0 50%, #{getGrayColor(a2)} 0 75%, transparent 0);
   @include e(preview) {
     box-shadow: 0 0 0 1px getColor('black', a4);
     &::after {

@@ -24,8 +24,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
           tsconfigPath: './tsconfig.build.json',
           staticImport: true,
           // bundledPackages: ['@lun/*'],
-          rollupConfig: {
-          },
+          rollupConfig: {},
           rollupOptions: {
             // showVerboseMessages: true,
             // showDiagnostics: true,
@@ -40,6 +39,14 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
     ],
     define: {
       ...viteConfig?.define,
+    },
+    css: {
+      ...viteConfig?.css,
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
     },
     build: {
       lib: {
@@ -61,7 +68,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       rollupOptions: {
         external: ['vue', /@lun\/.+/, 'react', 'dayjs', /@vue\/.+/],
         output: {
-          chunkFileNames(info) {
+          chunkFileNames() {
             return `chunks/${dev ? 'dev' : 'prod'}-[format]/[name].[hash].js`;
           },
           ...viteConfig?.build?.rollupOptions?.output,

@@ -3,6 +3,7 @@
 @use 'sass:map';
 @use 'sass:list';
 @use 'sass:selector';
+@use 'sass:meta';
 
 // block
 @mixin b($block: '') {
@@ -18,7 +19,7 @@
   // $E: $element !global;
   $selector: &;
   $currentSelector: '';
-  @if type-of($element) == 'list' {
+  @if meta.type-of($element) == 'list' {
     @each $e in $element {
       $comma: '';
       @if $currentSelector != '' {
@@ -102,7 +103,7 @@
 
 @mixin basicIs($state, $withParent: true, $atRoot: false, $isNot: false) {
   $selector: '';
-  @if type-of($state) == 'list' {
+  @if meta.type-of($state) == 'list' {
     @each $s in $state {
       $selector: $selector + '.' + config.$state-prefix + $s;
     }
@@ -163,7 +164,7 @@
 
 @function basicGetIsN($state, $pre: '', $noWhere: false, $isNot: false) {
   $selector: '';
-  @if type-of($state) == 'list' {
+  @if meta.type-of($state) == 'list' {
     @each $s in $state {
       $selector: $selector + '.' + config.$state-prefix + $s;
     }
@@ -308,11 +309,13 @@
 /// declareVars((padding, margin)) => padding: var(--l-padding, var(--padding)); margin: var(--l-margin, var(--margin));
 /// declareVars((padding: icon-padding, margin: icon-margin)) => padding: var(--l-icon-padding, var(--icon-padding)); margin: var(--l-icon-margin, var(--icon-margin));
 @mixin declareVars($varListOrMap) {
-  @each $name, $alias in $varListOrMap {
-    @if $alias {
-      #{$name}: getDeclaredVar($alias);
-    } @else {
-      #{$name}: getDeclaredVar($name);
+  & {
+    @each $name, $alias in $varListOrMap {
+      @if $alias {
+        #{$name}: getDeclaredVar($alias);
+      } @else {
+        #{$name}: getDeclaredVar($name);
+      }
     }
   }
 }
@@ -321,16 +324,18 @@
 /// inside @include b(button) { ... }
 /// declareReuseVars((padding, margin), true) => --_padding: var(--l-padding, var(--padding)); padding: var(--_padding); --_margin: var(--l-margin, var(--margin)); margin: var(--_margin);
 @mixin declareReuseVars($varListOrMap, $withVarValue: false) {
-  @each $name, $alias in $varListOrMap {
-    @if $alias {
-      --_#{$alias}: #{getDeclaredVar($alias)};
-      @if $withVarValue {
-        #{$name}: var(--_#{$alias});
-      }
-    } @else {
-      --_#{$name}: #{getDeclaredVar($name)};
-      @if $withVarValue {
-        #{$name}: var(--_#{$name});
+  & {
+    @each $name, $alias in $varListOrMap {
+      @if $alias {
+        --_#{$alias}: #{getDeclaredVar($alias)};
+        @if $withVarValue {
+          #{$name}: var(--_#{$alias});
+        }
+      } @else {
+        --_#{$name}: #{getDeclaredVar($name)};
+        @if $withVarValue {
+          #{$name}: var(--_#{$name});
+        }
       }
     }
   }
@@ -338,15 +343,17 @@
 
 /// use it when parent has used declareReuseVars
 @mixin reuseVars($varListOrMap) {
-  @each $name, $alias in $varListOrMap {
-    @if $alias {
-      @if type-of($alias) == 'list' {
-        #{$name}: var(--_#{list.nth($alias, 1)}, var(--_#{list.nth($alias, 2)}));
+  & {
+    @each $name, $alias in $varListOrMap {
+      @if $alias {
+        @if meta.type-of($alias) == 'list' {
+          #{$name}: var(--_#{list.nth($alias, 1)}, var(--_#{list.nth($alias, 2)}));
+        } @else {
+          #{$name}: var(--_#{$alias});
+        }
       } @else {
-        #{$name}: var(--_#{$alias});
+        #{$name}: var(--_#{$name});
       }
-    } @else {
-      #{$name}: var(--_#{$name});
     }
   }
 }
@@ -360,24 +367,28 @@
 /// declareVarValues((padding: (label-padding, 5px))) => padding: var(--l-button-label-padding, 5px);
 /// remind that declareVarValues((transition: all 0.3s)) will be compiled to transition: var(--l-button-transition-all, 0.3s) !!! need to wrap the value with quotes
 @mixin declareVarValues($varValMap) {
-  @each $prop, $nameVal in $varValMap {
-    $name: '';
-    $val: '';
-    @if list.length($nameVal) == 1 {
-      $name: $prop;
-      $val: list.nth($nameVal, 1);
-    } @else {
-      $name: list.nth($nameVal, 1);
-      $val: list.nth($nameVal, 2);
+  & {
+    @each $prop, $nameVal in $varValMap {
+      $name: '';
+      $val: '';
+      @if list.length($nameVal) == 1 {
+        $name: $prop;
+        $val: list.nth($nameVal, 1);
+      } @else {
+        $name: list.nth($nameVal, 1);
+        $val: list.nth($nameVal, 2);
+      }
+      #{$prop}: #{getRVarValue($name, $val)};
     }
-    #{$prop}: #{getRVarValue($name, $val)};
   }
 }
 
 /// setVars((padding: 10px, margin: 20px)) => --padding: 10px; --margin: 20px;
 @mixin setVars($varMap) {
-  @each $name, $value in $varMap {
-    // #{'--' + $name}: #{getRVarValue($name, $value)};
-    #{'--' + $name}: $value;
+  & {
+    @each $name, $value in $varMap {
+      // #{'--' + $name}: #{getRVarValue($name, $value)};
+      #{'--' + $name}: $value;
+    }
   }
 }

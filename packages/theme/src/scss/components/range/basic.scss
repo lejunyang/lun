@@ -3,6 +3,11 @@
 @include b(range) {
   display: flex;
   flex-wrap: wrap;
+  @include setVars(
+    (
+      thumb-factor: 0.5,
+    )
+  );
   @include declareReuseVars(
     (
       size: size,
@@ -10,7 +15,7 @@
     )
   );
   @include m(horizontal) {
-    margin-inline: calc((getReuseVar(thumb-factor) + 0.5) * getReuseVar(size));
+    margin-inline: calc((getReuseVar(thumb-factor) + 0.5) * getReusseVar(size));
     @include e(rail) {
       flex: 1 1 100%;
       @include declareVars(
@@ -185,11 +190,6 @@
     }
   }
 
-  @include setVars(
-    (
-      thumb-factor: 0.5,
-    )
-  );
   @include size(1) {
     @include setVars(
       (

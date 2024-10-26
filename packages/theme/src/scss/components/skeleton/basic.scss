@@ -4,16 +4,16 @@
   display: inline-block;
   position: relative;
 }
+@keyframes pulse {
+  from {
+    background: getGrayColor(3);
+  }
+  to {
+    background: getGrayColor(4);
+  }
+}
 
 @include b(skeleton) {
-  @keyframes pulse {
-    from {
-      background: getGrayColor(3);
-    }
-    to {
-      background: getGrayColor(4);
-    }
-  }
   animation: pulse 1s infinite alternate-reverse;
   border-radius: getRadiusValue(1, 'full');
   pointer-events: none;
