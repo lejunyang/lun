@@ -6,7 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "types": ["cypress", "@lun/components"],
+    "types": ["cypress", "@lun/components", "@lun/components/elements-types-html", "cypress-real-events"],
     "baseUrl": ".",
     "paths": {
       "@": ["./index.ts"]
