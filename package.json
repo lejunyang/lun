@@ -57,11 +57,12 @@
     "@vue/runtime-dom": "catalog:",
     "cross-env": "catalog:",
     "cypress": "^13.15.0",
+    "cypress-real-events": "^1.13.0",
     "happy-dom": "latest",
     "new-javascript": "^0.4.7",
     "postcss-logical": "catalog:",
     "rimraf": "catalog:",
-    "sass": "^1.77.6",
+    "sass-embedded": "catalog:",
     "typescript": "catalog:",
     "v-lazy-show": "^0.2.4",
     "vite": "catalog:",
@@ -78,8 +79,7 @@
     "typescript": "catalog:",
     "vue": "catalog:",
     "@floating-ui/utils": "catalog:",
-    "@floating-ui/dom": "catalog:",
-    "@microsoft/api-extractor": "7.47.10"
+    "@floating-ui/dom": "catalog:"
   },
   "nyc": {
     "reporter": [

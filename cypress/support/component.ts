@@ -14,6 +14,7 @@
 // ***********************************************************
 
 import '@cypress/code-coverage/support'
+import 'cypress-real-events';
 import './commands';
 
 import { mount } from 'cypress/vue';
@@ -29,7 +30,7 @@ import {
   importSolidTheme,
   importSurfaceTheme,
 } from '@lun/theme';
-import { createElement } from '@lun/utils';
+import { createElement, getDeepestActiveElement } from '@lun/utils';
 import { ComponentInternalInstance } from 'vue';
 
 // import { getContainerEl } from 'cypress/mount-utils';
@@ -74,7 +75,9 @@ declare global {
           shadow: ShadowRoot;
           vm: ComponentInternalInstance;
         } & [T, ShadowRoot, ComponentInternalInstance]
-      >;
+        >;
+      /** get deepest active element */
+      deepActive: (focusCurrentMounted?: boolean) => Chainable<JQuery<HTMLElement>>;
     }
   }
 }
@@ -122,3 +125,11 @@ Cypress.Commands.add('l', (componentName, props) => {
     } as any;
   });
 });
+
+
+Cypress.Commands.add('deepActive', (focusCurrentMounted: boolean) => {
+  const current = document.getElementById(lunId);
+  if (!current) throw new Error('Mount through cy.l() first');
+  if (focusCurrentMounted) current.focus();
+  return cy.wrap(getDeepestActiveElement());
+})

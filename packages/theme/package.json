@@ -54,7 +54,7 @@
     "cross-env": "catalog:",
     "postcss-logical": "catalog:",
     "rimraf": "catalog:",
-    "sass": "catalog:",
+    "sass-embedded": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
