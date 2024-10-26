@@ -141,7 +141,3 @@
   position: relative;
   z-index: 12; /** in case the title and description cover the image */
 }
-
-.vp-doc > div {
-  content-visibility: auto;
-}
