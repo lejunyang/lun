@@ -1,6 +1,7 @@
 <template>
   <ClientOnly>
-    <div class="code-wrapper" v-content="!devHide" ref="wrapperRef">
+    <div v-if="skipRender" class="code-wrapper" style="height: 200px" ref="empty"></div>
+    <div v-else class="code-wrapper" v-if="!devHide" ref="wrapperRef">
       <div :class="`code-container`" v-if="!showGenerated || !initialized">
         <!-- this is to preventing long time white screen before initialized -->
         <slot></slot>
@@ -74,8 +75,8 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, reactive, watchEffect, defineAsyncComponent, computed, h } from 'vue';
-import { debounce, objectKeys, runIfFn, isFunction } from '@lun/utils';
+import { ref, reactive, watchEffect, defineAsyncComponent, computed, h, useTemplateRef, onMounted } from 'vue';
+import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun/utils';
 import { VueCustomRenderer } from '@lun/components';
 import { runVueTSXCode, runReactTSXCode } from '../utils';
 import { inBrowser, useData } from 'vitepress';
@@ -83,6 +84,7 @@ import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
 import { Ref } from 'vue';
 import { createElement } from 'react';
+import { useIntersectionObserver } from '@lun/core';
 
 const data = useData();
 
@@ -100,6 +102,7 @@ const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : 
 
 const props = defineProps({
   dev: { type: Boolean },
+  index: Number,
   vueTSX: {
     type: String,
     default: '',
@@ -124,6 +127,25 @@ const props = defineProps({
     type: String,
     default: '',
   },
+});
+
+// skip render those index > 5 to decrease initial render time
+const skipRender = ref(props.index > 5),
+  placeholderEl = useTemplateRef('empty');
+useIntersectionObserver({
+  targets: placeholderEl,
+  disabled: () => !skipRender.value,
+  callback(entries, ob) {
+    if (entries[0]?.isIntersecting) {
+      skipRender.value = false;
+      ob.disconnect();
+    }
+  },
+});
+onMounted(() => {
+  if (skipRender.value) {
+    raf(() => (skipRender.value = false), (props.index - 5) * 10);
+  }
 });
 
 const devHide = computed(() => props.dev && inBrowser && location.hostname !== 'localhost');

@@ -28,10 +28,12 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
   });
   const codeTagRegex = /<!--\s*@Code:(\w+)\s*-->/g;
   const imports: string[] = [];
+  let codeIndex = 0;
   let newContent = fileContent.replace(codeTagRegex, (match, name: string) => {
     const codeType = fileCodeTypeMap[name];
     if (!codeType) return match;
     const isDev = name.startsWith('_dev');
+    if(!isDev) codeIndex++;
     const componentName = capitalize(isDev ? name.slice(1) : name);
     let propResult = '';
     Object.entries(codeType).forEach(([type, source]) => {
@@ -39,7 +41,7 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
       propResult += ` ${type}Path="${name + suffixReverseMap[type]}"`;
       imports.push(source);
     });
-    return `<Code${name.startsWith('_dev') ? ' dev' : ''}${propResult}><${componentName}ForSSR /></Code>`;
+    return `<Code${isDev ? ' dev' : ''} :index="${codeIndex}" ${propResult}><${componentName}ForSSR /></Code>`;
   });
   if (!imports.length) return newContent;
   imports.unshift("import { inBrowser } from '@lun/utils';");
