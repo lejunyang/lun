@@ -7,6 +7,7 @@ import {
   CommonProps,
   PropArray,
   PropString,
+  Prop,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { GetCustomRendererSource } from '../custom-renderer';
@@ -14,7 +15,7 @@ import { GetCustomRendererSource } from '../custom-renderer';
 export type TabItemObject = {
   // TODO add icon
   slot?: string;
-  label: string;
+  label: GetCustomRendererSource;
   closable?: boolean;
   panel?: GetCustomRendererSource;
   forceRender?: boolean;
@@ -50,7 +51,7 @@ export type TabsProps = Partial<TabsSetupProps> & TabsEvents;
 
 export const tabItemProps = freeze({
   slot: PropString(),
-  label: PropString(),
+  label: Prop<GetCustomRendererSource>(),
   disabled: PropBoolean(),
   ...createTransitionProps('panel'),
 });

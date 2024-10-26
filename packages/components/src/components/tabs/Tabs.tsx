@@ -18,9 +18,9 @@ export const Tabs = defineSSRCustomElement({
   name,
   props: tabsProps,
   emits: tabsEmits,
-  setup(props, { emit: e }) {
+  setup(props, { emit }) {
     const ns = useNamespace(name);
-    const emit = useSetupEvent<typeof e>();
+    useSetupEvent();
     const localActive = ref();
     const showedKeys = new Set();
     let controlled = false,
@@ -151,7 +151,7 @@ export const Tabs = defineSSRCustomElement({
                     onClick={t.onClick}
                   >
                     <span class={ns.e('label')} part={compParts[6]}>
-                      {t.label}
+                      {renderCustom(t.label)}
                     </span>
                   </div>
                 );

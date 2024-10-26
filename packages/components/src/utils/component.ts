@@ -227,13 +227,10 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     const originalSetup = setup;
     options.setup = (props: any, ctx: any) => {
       const vm = getCurrentInstance()!;
-      const newCtx = {
-        ...ctx,
-        // attrs: new Proxy(ctx.attrs, {
-        //   ownKeys(target) {
-        //     return objectKeys(ctx.attrs).filter((k) => k !== 'class' && k !== 'style');
-        //   },
-        // }),
+      const newCtx: any = {
+        get attrs() {
+          return ctx.attrs;
+        },
         emit: (event: string, ...args: any[]) => vm.emit(event, ...args),
       };
       const setupResult = originalSetup?.(props, newCtx);
