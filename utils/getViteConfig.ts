@@ -3,9 +3,13 @@ import { fileURLToPath, URL } from 'node:url';
 import dts from 'vite-plugin-dts';
 import { addIndexEntry } from './vitePlugin';
 import replace from '@rollup/plugin-replace';
+import path from 'node:path';
+
+const dir = path.resolve(__dirname);
+export const processPath = (p: string) => path.resolve(dir, p);
 
 export function getViteConfig(name: string, viteConfig?: UserConfig) {
-  const dev = process.env.NODE_ENV === 'development';
+  const dev = process.env.NODE_ENV === 'development' || !!process.env.VITEST;
   const noType = process.env.NO_TYPE_EMIT === 'true';
   const fileName = name.replace('@', '').replace('/', '-');
   return defineConfig({
@@ -88,6 +92,15 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
     resolve: {
       ...viteConfig?.resolve,
       alias: {
+        ...(dev
+          ? {
+              '@lun/utils': processPath('../packages/utils/index.ts'),
+              '@lun/core/date-dayjs': processPath('../packages/core/src/presets/date.dayjs.ts'),
+              '@lun/theme/custom': processPath('../packages/theme/src/custom/custom.ts'),
+              '@lun/core': processPath('../packages/core/index'),
+              '@lun/theme': processPath('../packages/theme/src'),
+            }
+          : {}),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         ...viteConfig?.resolve?.alias,
       },

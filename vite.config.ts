@@ -11,7 +11,7 @@ const commonAlias = {
   data: processPath('./src/utils/data.ts'),
 };
 
-const dev = process.env.NODE_ENV !== 'production';
+const dev = process.env.NODE_ENV !== 'production' || process.env.VITEST;
 
 export default defineConfig({
   plugins: [
@@ -82,9 +82,9 @@ export default defineConfig({
       provider: 'istanbul',
       enabled: true,
       all: false,
-      clean: false,
-      include: ['packages/plugins/**/*', 'packages/utils/**/*'],
-      reporter: ['lcov', 'text', 'text-summary'],
+      include: ['packages/**/*'],
+      exclude: ['**/dist/**/*', '**/__test__/**/*'],
+      reporter: ['lcov', 'text', 'text-summary', 'html'],
     },
   },
 });

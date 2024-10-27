@@ -4,9 +4,6 @@
     {
       "path": "./tsconfig.node.json"
     },
-    {
-      "path": "./tsconfig.test.json"
-    }
   ],
   "include": [
     "./index.ts",

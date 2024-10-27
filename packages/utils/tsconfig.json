@@ -4,20 +4,10 @@
     {
       "path": "./tsconfig.node.json"
     },
-    {
-      "path": "./tsconfig.test.json"
-    }
   ],
-  "include": [
-    "./index.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "../../global.d.ts",
-  ],
+  "include": ["./index.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "../../global.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
-    "declarationDir": "./dist",
-  },
+    "declarationDir": "./dist"
+  }
 }

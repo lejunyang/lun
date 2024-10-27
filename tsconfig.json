@@ -5,13 +5,13 @@
       "path": "./tsconfig.docs.json"
     },
     {
-      "path": "./tsconfig.node.json",
+      "path": "./tsconfig.node.json"
     }
   ],
   "files": [],
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["@types/dom-view-transitions"]
   },
-  "include": ["./packages/components/dist/elements-types-vue.d.ts"]
+  "include": ["./packages/**/*.ts", "./packages/**/*.tsx"],
+  "exclude": ["*.config.ts"]
 }

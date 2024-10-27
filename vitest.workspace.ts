@@ -7,7 +7,13 @@ export default defineWorkspace([
       name: '@lun/components',
       globals: true,
       root: './packages/components',
-      environment: 'happy-dom',
+      browser: {
+        enabled: true,
+        name: 'chromium',
+        provider: 'playwright',
+        // https://playwright.dev
+        providerOptions: {},
+      },
     },
   },
   {
