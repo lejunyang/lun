@@ -64,8 +64,6 @@ Technically yes, because web components is not framework-specific, but you need 
 
 ### Roadmap
 
-## Roadmap
-
 - fix bugs, remove experimental flags
 - finish test cases
 - add docs about Props, Events, Slots, Methods for components

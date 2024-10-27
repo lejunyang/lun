@@ -1,5 +1,11 @@
 name: Component tests
-on: push
+
+on: 
+  push:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
   test-run:
     runs-on: ubuntu-22.04
@@ -34,7 +40,7 @@ jobs:
           # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
           # cache-dependency-path: # optional
       - name: Install and Build
-        run: pnpm install && pnpm build
+        run: pnpm install && pnpm exec playwright install && pnpm build
       - name: Run Tests
         run: pnpm test run
       - name: Run codacy-coverage-reporter
