@@ -4,7 +4,6 @@ import {
   GetEventPropsFromEmits,
   Prop,
   PropBoolean,
-  PropFunction,
   PropNumber,
   PropObjOrStr,
   PropObject,

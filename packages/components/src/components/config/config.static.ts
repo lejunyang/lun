@@ -162,9 +162,8 @@ export const GlobalStaticConfig = new Proxy(
       true,
     ),
     ...(presets as {
-      math: import('@lun/core').MathMethods<
-        import('@lun/utils').BigIntDecimal,
-        number | import('@lun/utils').BigIntDecimal
+      math: Required<
+        import('@lun/core').MathMethods<import('@lun/utils').BigIntDecimal, number | import('@lun/utils').BigIntDecimal>
       >;
       /**
        * @example

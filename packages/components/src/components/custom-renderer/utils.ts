@@ -16,7 +16,7 @@ export function generateWithTemplate(template: HTMLTemplateElement, props: Recor
   if (elementName && isString(elementName)) {
     return createElement(
       elementName as any,
-      fromObject(others, (k, v) => [k, getValue(v)] as const),
+      fromObject(others, (k, v) => [k, getValue(v)] as const) as any,
       { skipFalsyValue: true },
     );
   }

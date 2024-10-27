@@ -60,6 +60,7 @@ export const Textarea = defineSSRCustomElement({
           ...props,
           ...validateProps.value,
           disabled: !editComputed.editable,
+          input: textareaRef,
           value: valueModel,
           onChange(val) {
             valueModel.value = val as string;

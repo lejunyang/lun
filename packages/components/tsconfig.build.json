@@ -13,6 +13,8 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    // must specify types, tsconfig.json has too much types(test types), which will cause out of memory error when building types
+    "types": ["new-javascript/wicg/document-picture-in-picture", "new-javascript/wicg/file-system-access"],
     "paths": {
       "@/*": ["src/*"],
       "common": ["src/common"],

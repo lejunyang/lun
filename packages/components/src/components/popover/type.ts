@@ -20,7 +20,7 @@ import type { Derivable, InlineOptions } from '@floating-ui/core';
 import type { MaybeRefLikeOrGetter, PopoverTrigger, VirtualElement } from '@lun/core';
 import type { CSSProperties, ExtractPropTypes, VNode } from 'vue';
 import { Constructor, freeze } from '@lun/utils';
-import { CustomRendererSource, GetCustomRendererSource } from '../custom-renderer';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export const popoverFloatingUIProps = freeze({
   strategy: PropString<'fixed' | 'absolute'>(),

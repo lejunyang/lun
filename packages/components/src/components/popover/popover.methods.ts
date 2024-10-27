@@ -15,7 +15,7 @@ export function createPopoverInstance({
     ...initialProps,
     open: false,
   };
-  const popover = createElement(popoverName as any, props) as iPopover;
+  const popover = createElement(popoverName as any, props as any) as iPopover;
   (target || document.body).appendChild(popover);
 
   const methods = {

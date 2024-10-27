@@ -16,7 +16,7 @@ export const getRect = (elOrRange: Element | Range | { getBoundingClientRect(): 
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   props?: Record<string, any> &
-    Record<`on${string}`, (e: Event) => void> & {
+    Record<`on${string}`, <T extends Event>(e: T) => void> & {
       children?: (
         | [
             tagName: keyof HTMLElementTagNameMap,
