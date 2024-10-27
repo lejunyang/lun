@@ -1,5 +1,5 @@
-import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
-import { supportCSSAnchor, toPxIfNum } from '@lun/utils';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
+import { supportCSSAnchor, toPxIfNum } from '@lun-web/utils';
 import { popSupport } from 'common';
 import { computed, ComputedRef, CSSProperties } from 'vue';
 

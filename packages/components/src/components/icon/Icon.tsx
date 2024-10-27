@@ -3,7 +3,7 @@ import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
-import { isFunction, isString } from '@lun/utils';
+import { isFunction, isString } from '@lun-web/utils';
 import { getCompParts } from 'common';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();

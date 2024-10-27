@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
-import { unrefOrGet, useSetupEdit } from '@lun/core';
+import { unrefOrGet, useSetupEdit } from '@lun-web/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
-import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy } from '@lun/utils';
+import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy } from '@lun-web/utils';
 import { getCompParts } from 'common';
 
 const name = 'button';

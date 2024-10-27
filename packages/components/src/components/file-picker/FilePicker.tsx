@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
-import { refLikeToDescriptors, useSetupEdit, useSetupEvent } from '@lun/core';
+import { refLikeToDescriptors, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, error } from 'utils';
 import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
-import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystemAccess, on, onOnce, runIfFn, supportTouch } from '@lun/utils';
+import { AnyFn, arrayFrom, isArray, isString, isSupportFileSystemAccess, on, onOnce, runIfFn, supportTouch } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { isAbort } from './utils';
 

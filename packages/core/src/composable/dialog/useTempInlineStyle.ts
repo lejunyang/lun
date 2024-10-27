@@ -1,4 +1,4 @@
-import { setStyle } from '@lun/utils';
+import { setStyle } from '@lun-web/utils';
 
 export function useTempInlineStyle(defaultImportant?: boolean) {
   const elStyleMap = new WeakMap<

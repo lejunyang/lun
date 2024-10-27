@@ -18,10 +18,10 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "paths": {
-      "@lun/components": ["../components/index.ts"],
-      "@lun/core": ["../core/index.ts"],
-      "@lun/theme": ["../theme/index.ts"],
-      "@lun/utils": ["../utils/index.ts"]
+      "@lun-web/components": ["../components/index.ts"],
+      "@lun-web/core": ["../core/index.ts"],
+      "@lun-web/theme": ["../theme/index.ts"],
+      "@lun-web/utils": ["../utils/index.ts"]
     }
   }
 }

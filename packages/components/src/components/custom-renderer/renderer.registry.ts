@@ -1,6 +1,6 @@
 import { error, warn } from 'utils';
 import { GlobalStaticConfig } from 'config';
-import { isFunction } from '@lun/utils';
+import { isFunction } from '@lun-web/utils';
 
 export type CustomRendererRegistry = {
   isValidContent: (content: any) => boolean;

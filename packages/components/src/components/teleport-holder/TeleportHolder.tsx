@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { TeleportHolderProps, teleportHolderProps } from './type';
 import { useContextConfig } from 'config';
-import { createElement } from '@lun/utils';
+import { createElement } from '@lun-web/utils';
 
 const name = 'teleport-holder';
 export const TeleportHolder = defineSSRCustomElement({

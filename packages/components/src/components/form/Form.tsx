@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from '../../custom/apiCustomElement';
-import { UseFormReturn, unrefOrGet, useCleanUp, useForm, useSetupEdit } from '@lun/core';
+import { UseFormReturn, unrefOrGet, useCleanUp, useForm, useSetupEdit } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { formEmits, formProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace, useShadowDom } from 'hooks';
 import { FormItemCollector } from '.';
 import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, shallowReactive, watch } from 'vue';
-import { ensureNumber, getCachedComputedStyle, pick, supportCSSSubgrid, toPxIfNum } from '@lun/utils';
+import { ensureNumber, getCachedComputedStyle, pick, supportCSSSubgrid, toPxIfNum } from '@lun-web/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
 import { getCompParts } from 'common';

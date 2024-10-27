@@ -9,7 +9,7 @@ import {
   PropString,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export const watermarkProps = freeze({
   content: PropStrOrArr(),

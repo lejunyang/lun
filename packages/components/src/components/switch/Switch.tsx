@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit, useSetupEvent } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useCheckedModel, useNamespace } from 'hooks';
 import { switchEmits, switchProps } from './type';

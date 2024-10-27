@@ -1,4 +1,4 @@
-import { createCollector, useCheckboxMethods, useSelectMethods } from '@lun/core';
+import { createCollector, useCheckboxMethods, useSelectMethods } from '@lun-web/core';
 import { TreeSetupProps, TreeItemSetupProps } from './type';
 import { getCollectorOptions } from 'common';
 

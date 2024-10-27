@@ -4,8 +4,8 @@ import { treeItemEmits, treeItemProps } from './type';
 import { useExpose, useNamespace, useSlot, useCEStates, useCEExpose } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { TreeCollector } from './collector';
-import { toGetterDescriptors, toPxIfNum } from '@lun/utils';
-import { useSetupEdit } from '@lun/core';
+import { toGetterDescriptors, toPxIfNum } from '@lun-web/utils';
+import { useSetupEdit } from '@lun-web/core';
 import { computed, Transition } from 'vue';
 import { defineCheckbox } from '../checkbox';
 

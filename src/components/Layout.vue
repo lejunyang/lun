@@ -100,9 +100,9 @@ import { useData, inBrowser, useRouter } from 'vitepress';
 import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
 import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef } from 'vue';
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
-import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun/components';
+import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun-web/components';
 import Giscus from '@giscus/vue';
-import { on, AnyFn, withResolvers } from '@lun/utils';
+import { on, AnyFn, withResolvers } from '@lun-web/utils';
 import { text } from '../utils/data';
 
 const Layout = Theme.Layout;

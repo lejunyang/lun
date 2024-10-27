@@ -14,8 +14,8 @@ import {
   ref,
   watchEffect,
 } from 'vue';
-import { useWatermark } from '@lun/core';
-import { arrayFrom, createElement, isTruthyOrZero, objectKeys, raf, setStyle } from '@lun/utils';
+import { useWatermark } from '@lun-web/core';
+import { arrayFrom, createElement, isTruthyOrZero, objectKeys, raf, setStyle } from '@lun-web/utils';
 
 const name = 'watermark';
 const none = 'none',

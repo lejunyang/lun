@@ -18,7 +18,7 @@ import {
   reactive,
   readonly,
 } from 'vue';
-import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun/utils';
+import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { toUnrefGetterDescriptors } from '../utils';
 
 type Data = Record<string, unknown>;

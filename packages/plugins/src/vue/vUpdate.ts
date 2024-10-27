@@ -14,7 +14,8 @@ import {
  *
  * Both TARGET and FROM are optional, Target defaults to 'value', FROM defaults to none(EXPR = e.detail)
  */
-export const vUpdate = createStructuralDirectiveTransform(
+
+export const vUpdate = /*@__PURE__*/createStructuralDirectiveTransform(
   /update(-\w+)?/,
   (node, vUpdateDirective, _context) => {
     if (node.type !== NodeTypes.ELEMENT) {

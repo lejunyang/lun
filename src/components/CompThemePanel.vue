@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="tsx">
-import { OpenShadowComponentKey, GlobalStaticConfig, themeColors, TabItemObject, renderElement } from '@lun/components';
+import { OpenShadowComponentKey, GlobalStaticConfig, themeColors, TabItemObject, renderElement } from '@lun-web/components';
 import { computed } from 'vue';
 import { useData } from 'vitepress';
 import locales from '../docs/.vitepress/locales';

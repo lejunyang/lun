@@ -1,6 +1,6 @@
 import { JSX } from 'vue/jsx-runtime';
 import { IconLibrary } from './icon.registry';
-import { TryGet } from '@lun/utils';
+import { TryGet } from '@lun-web/utils';
 
 const commonProps = {
   xmlns: 'http://www.w3.org/2000/svg',

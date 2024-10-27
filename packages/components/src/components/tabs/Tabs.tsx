@@ -5,9 +5,9 @@ import { defineIcon } from '../icon/Icon';
 import { TransitionGroup, computed, nextTick, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { capitalize, isArray, isSupportResizeObserver, setStyle, toPxIfNum } from '@lun/utils';
+import { capitalize, isArray, isSupportResizeObserver, setStyle, toPxIfNum } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
-import { useSetupEvent } from '@lun/core';
+import { useSetupEvent } from '@lun-web/core';
 import { TabsCollector } from './collector';
 
 // TODO panel scrollable; can we have height transition when switching?

@@ -1,4 +1,4 @@
-import { useReactForm, LForm, LFormItem, LInput } from '@lun/react';
+import { useReactForm, LForm, LFormItem, LInput } from '@lun-web/react';
 
 const C = () => {
   const form = useReactForm(

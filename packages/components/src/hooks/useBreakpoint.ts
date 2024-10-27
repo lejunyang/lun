@@ -1,5 +1,5 @@
 import { GlobalStaticConfig } from 'config';
-import { inBrowser, isObject, objectKeys } from '@lun/utils';
+import { inBrowser, isObject, objectKeys } from '@lun-web/utils';
 import { ComputedRef, computed, reactive } from 'vue';
 
 export type Breakpoints = 'initial' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';

@@ -46,7 +46,7 @@ import {
   ensureArray,
   isRegExp,
   createElement,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { virtualParentMap } from './virtualParent';
 
 // marker for attr removal

@@ -13,10 +13,10 @@ import {
   CommonProps,
   undefBoolProp,
 } from 'common';
-import type { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun/core';
+import type { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun-web/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
 import { FormProvideExtra } from '.';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export interface FormValidators {
   [key: string]: Validator[] | Validator | FormValidators;

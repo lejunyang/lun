@@ -1,2 +1,2 @@
 import { getViteConfig } from '../../utils/getViteConfig';
-export default getViteConfig('@lun/utils');
+export default getViteConfig('@lun-web/utils');

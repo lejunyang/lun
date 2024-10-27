@@ -11,7 +11,7 @@ import {
   prevent,
   shadowContains,
   ensureArray,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { UseInputOptions, useInput } from './useInput';
 import { nextTick } from 'vue';
 import { presets } from '../../presets/index';

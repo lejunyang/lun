@@ -1,4 +1,4 @@
-import { Progress } from '@lun/components';
+import { Progress } from '@lun-web/components';
 
 let stop;
 export default () => (

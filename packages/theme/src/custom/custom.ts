@@ -1,6 +1,6 @@
 import * as RadixColors from '@radix-ui/colors';
 import BezierEasing from 'bezier-easing';
-import { AllColors, allColorSet, GrayColors, grayColors } from '@lun/components';
+import { AllColors, allColorSet, GrayColors, grayColors } from '@lun-web/components';
 import {
   parse,
   to,
@@ -17,7 +17,7 @@ import {
   clone,
   contrastAPCA,
 } from 'colorjs.io/fn';
-import { arrayFrom } from '@lun/utils';
+import { arrayFrom } from '@lun-web/utils';
 
 // derived from radix custom colors
 

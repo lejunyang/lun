@@ -1,7 +1,7 @@
 import { getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { iPopover } from './Popover';
 import { PopoverProps } from './type';
-import { createElement } from '@lun/utils';
+import { createElement } from '@lun-web/utils';
 
 export function createPopoverInstance({
   to,

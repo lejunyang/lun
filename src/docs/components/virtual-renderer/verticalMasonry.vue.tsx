@@ -1,4 +1,4 @@
-import { arrayFrom } from '@lun/utils';
+import { arrayFrom } from '@lun-web/utils';
 
 export default () => {
   const items = arrayFrom(1000, () => 50 + Math.round(Math.random() * 200));

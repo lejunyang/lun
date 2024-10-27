@@ -10,11 +10,11 @@ import {
   supportDocumentPictureInPicture,
   ensureArray,
   toNumberOrUndefined,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { useBreakpoint, useCE, useCEExpose, useSlot } from 'hooks';
 import { onBeforeUnmount, ref, watchEffect } from 'vue';
-import { useAdoptedSheetsSnapshot, useSetupEdit } from '@lun/core';
-import { on } from '@lun/utils';
+import { useAdoptedSheetsSnapshot, useSetupEdit } from '@lun-web/core';
+import { on } from '@lun-web/utils';
 import { useContextConfig } from '../config/config.context';
 
 const name = 'doc-pip';

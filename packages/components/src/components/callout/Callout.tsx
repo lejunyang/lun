@@ -5,7 +5,7 @@ import { defineIcon } from '../icon/Icon';
 import { Transition, ref, shallowRef, watchEffect } from 'vue';
 import { useNamespace, useSlot } from 'hooks';
 import { getTransitionProps, renderStatusIcon, getCompParts } from 'common';
-import { runIfFn } from '@lun/utils';
+import { runIfFn } from '@lun-web/utils';
 
 const name = 'callout';
 const parts = ['root', 'icon', 'close-icon', 'message', 'description'] as const;

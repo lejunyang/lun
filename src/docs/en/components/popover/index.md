@@ -134,7 +134,7 @@ CSS Anchor positioning 是一个非常强大的新特性，利用它我们可以
 <!-- @Code:differentSizes -->
 
 <script setup>
-  import { supportPopover, supportCSSAnchor } from '@lun/utils';
+  import { supportPopover, supportCSSAnchor } from '@lun-web/utils';
 </script>
 
 <style>

@@ -3,7 +3,7 @@ import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
 import { replaceCodeTags } from './replaceCodeTags';
 import viteConfig from '../../../vite.config';
-import { vUpdate } from '@lun/plugins/vue';
+import { vUpdate } from '@lun-web/plugins/vue';
 
 const wrapLink = (link: string, lang: string) => {
   if (lang === 'zh-CN') return link;

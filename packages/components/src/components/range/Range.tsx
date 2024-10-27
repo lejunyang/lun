@@ -3,7 +3,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
 import { computed, nextTick, onMounted, onUpdated, reactive, ref } from 'vue';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
-import { useDraggableArea, useSetupEdit, useSetupEvent } from '@lun/core';
+import { useDraggableArea, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import {
   at,
   isArray,
@@ -17,7 +17,7 @@ import {
   runIfFn,
   getRect,
   arrayFrom,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 import { getCompParts } from 'common';
 import { defineTooltip, iTooltip } from '../tooltip';

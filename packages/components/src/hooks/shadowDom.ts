@@ -1,5 +1,5 @@
-import { objectComputed, unrefOrGetState, useEdit } from '@lun/core';
-import { fromObject, hyphenate, isFunction, isHTMLElement, pick } from '@lun/utils';
+import { objectComputed, unrefOrGetState, useEdit } from '@lun-web/core';
+import { fromObject, hyphenate, isFunction, isHTMLElement, pick } from '@lun-web/utils';
 import { warn } from 'utils';
 import {
   MaybeRef,

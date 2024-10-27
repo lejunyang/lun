@@ -1,13 +1,13 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
-import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents, registerCustomRenderer } from '@lun/components';
-import { importAllThemes, importAllColors, importAllP3Colors } from '@lun/theme';
+import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents, registerCustomRenderer } from '@lun-web/components';
+import { importAllThemes, importAllColors, importAllP3Colors } from '@lun-web/theme';
 import { inBrowser } from 'vitepress';
-import '@lun/core/date-dayjs';
-import { importCustomDynamicColors } from '@lun/theme/custom';
-import { Dayjs } from '@lun/core/date-dayjs';
-import { vContent } from '@lun/plugins/vue';
+import '@lun-web/core/date-dayjs';
+import { importCustomDynamicColors } from '@lun-web/theme/custom';
+import { Dayjs } from '@lun-web/core/date-dayjs';
+import { vContent } from '@lun-web/plugins/vue';
 import Layout from '../../../components/Layout.vue';
 import Palette from '../../../components/Palette.vue';
 import Code from '../../../components/Code.vue';
@@ -15,11 +15,11 @@ import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
 import CompThemePanel from '../../../components/CompThemePanel.vue';
 import './style.css';
-// import { on } from '@lun/utils';
+// import { on } from '@lun-web/utils';
 
 let once = false;
 
-declare module '@lun/core' {
+declare module '@lun-web/core' {
   export interface DateInterface {
     date: Dayjs;
   }

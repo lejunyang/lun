@@ -1,12 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
-import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun/core';
+import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement, warn } from 'utils';
 import { useCEStates, useCheckedModel, useExpose, useNamespace } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { isEnterDown } from '@lun/utils';
+import { isEnterDown } from '@lun-web/utils';
 import { getCompParts } from 'common';
 
 const name = 'checkbox';

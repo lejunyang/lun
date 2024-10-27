@@ -1,7 +1,7 @@
 import { assignProps, createLunElement, getFirstThemeProvider, toElement } from 'utils';
 import { DialogProps, dialogProps } from './type';
 import { HTMLAttributes, nextTick } from 'vue';
-import { objectKeys } from '@lun/utils';
+import { objectKeys } from '@lun-web/utils';
 import { iDialog } from './Dialog';
 import { Status, renderStatusIcon } from 'common';
 import { renderCustom } from '../custom-renderer';

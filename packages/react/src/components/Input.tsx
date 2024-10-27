@@ -1,5 +1,5 @@
 
-import { inputEmits, InputProps, inputProps, defineInput, iInput } from '@lun/components';
+import { inputEmits, InputProps, inputProps, defineInput, iInput } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LInput = createComponent<InputProps, iInput>('input', defineInput, inputProps, inputEmits);

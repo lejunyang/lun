@@ -7,7 +7,7 @@ import {
   raf,
   supportCSSScrollbarGutter,
   toPxIfNum,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { tryOnScopeDispose } from '../../hooks';
 import { useTempInlineStyle } from './useTempInlineStyle';
 

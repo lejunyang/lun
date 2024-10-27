@@ -1,8 +1,8 @@
-import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
 import { Teleport, VNode, computed, getCurrentInstance, h } from 'vue';
 import { getTeleportHolderInstance } from './TeleportHolder';
 import { virtualParentMap } from '../../custom/virtualParent';
-import { isElement } from '@lun/utils';
+import { isElement } from '@lun-web/utils';
 
 export function useTeleport<
   K extends string = 'to',

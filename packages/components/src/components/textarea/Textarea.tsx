@@ -1,10 +1,10 @@
 import { computed, nextTick, watchEffect } from 'vue';
-import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement, useSetupEvent } from '@lun/core';
+import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement, useSetupEvent } from '@lun-web/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useValueModel } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
-import { getHeight, isEmpty, raf } from '@lun/utils';
+import { getHeight, isEmpty, raf } from '@lun-web/utils';
 import { defineIcon } from '../icon/Icon';
 import { getCompParts, InputFocusOption } from 'common';
 

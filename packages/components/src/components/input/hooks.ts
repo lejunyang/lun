@@ -1,4 +1,4 @@
-import { isArray, isObject } from '@lun/utils';
+import { isArray, isObject } from '@lun-web/utils';
 import { onBeforeUnmount, ref, watchEffect } from 'vue';
 
 export type AutoUpdateLabel = { interval: number; values?: string[] };

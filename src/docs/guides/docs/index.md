@@ -14,7 +14,7 @@ lang: zh-CN
   - Vue: 需要 export default 一个 Vnode 或 Vue组件
   - React: 需要 export default 一个 ReactElement 或 React函数组件
   - HTML：纯 HTML 字符串，注意 custom element 必须有闭合标签，不允许自闭合
-- 编写的代码中仅允许特定的import，分别为`vue`, `react`, `react-dom`, `react-dom/client`, `@lun/components`, `@lun/core`, `@lun/utils`, `@lun/react`, `data`, import其他内容会直接报错
+- 编写的代码中仅允许特定的import，分别为`vue`, `react`, `react-dom`, `react-dom/client`, `@lun-web/components`, `@lun-web/core`, `@lun-web/utils`, `@lun-web/react`, `data`, import其他内容会直接报错
 
 绝大部分示例都只编写了 vue 的版本，没时间.jpg
 

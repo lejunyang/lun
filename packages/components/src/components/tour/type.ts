@@ -1,7 +1,7 @@
-import { freeze, omit } from '@lun/utils';
+import { freeze, omit } from '@lun-web/utils';
 import { GetEventPropsFromEmits, CommonProps, PropNumber, PropObject, PropArray } from 'common';
 import { ExtractPropTypes } from 'vue';
-import { MaybePromise, MaybeRefLikeOrGetter, VirtualElement } from '@lun/core';
+import { MaybePromise, MaybeRefLikeOrGetter, VirtualElement } from '@lun-web/core';
 import { dialogEmits, dialogProps } from '../dialog';
 import { popoverFloatingUIProps } from '../popover/type';
 

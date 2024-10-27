@@ -1,7 +1,7 @@
 import { Ref, reactive, ref, ComponentInternalInstance } from 'vue';
 import { useFormMethods } from './useForm.methods';
 import { createFormHooks } from './useForm.hooks';
-import { CommonObject, deepCopy, isObject } from '@lun/utils';
+import { CommonObject, deepCopy, isObject } from '@lun-web/utils';
 import { UseFormOptions } from './type';
 
 export function useForm<

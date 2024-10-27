@@ -1,4 +1,4 @@
-import { GlobalStaticConfig } from '@lun/components';
+import { GlobalStaticConfig } from '@lun-web/components';
 
 export function getVarName(...list: (string | number)[]) {
   const { commonSeparator, namespace } = GlobalStaticConfig;

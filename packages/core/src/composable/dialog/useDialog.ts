@@ -1,7 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { MaybePromise } from '../../hooks';
 import { useLockScroll } from './useLockScroll';
-import { getDocumentElement, isFunction, noop, runIfFn } from '@lun/utils';
+import { getDocumentElement, isFunction, noop, runIfFn } from '@lun-web/utils';
 
 export type UseDialogOptions = {
   isOpen: MaybeRefLikeOrGetter<boolean>;

@@ -1,4 +1,4 @@
-import { arrayFrom, getFirstOfIterable, toNoneNilSet } from '@lun/utils';
+import { arrayFrom, getFirstOfIterable, toNoneNilSet } from '@lun-web/utils';
 import { ToAllMaybeRefLike, unrefOrGet } from '../../utils';
 
 export type UseSelectOptions<T = any> = ToAllMaybeRefLike<

@@ -1,6 +1,6 @@
 import type { ComponentInternalInstance } from 'vue';
 import { inject, getCurrentInstance, provide, reactive } from 'vue';
-import { runIfFn } from '@lun/utils';
+import { runIfFn } from '@lun-web/utils';
 import { objectComputed } from '../utils';
 
 export type EditState = {

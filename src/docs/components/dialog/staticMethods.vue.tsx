@@ -1,4 +1,4 @@
-import { Dialog } from '@lun/components';
+import { Dialog } from '@lun-web/components';
 import { text } from 'data';
 
 const statuses = ['success', 'error', 'warning', 'info'];

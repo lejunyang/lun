@@ -1,5 +1,5 @@
-import { createImportDynamicStyle, createImportStyle, getThemeValue, getHostStyle, ThemeProps } from '@lun/components';
-import { toPxIfNum } from '@lun/utils';
+import { createImportDynamicStyle, createImportStyle, getThemeValue, getHostStyle, ThemeProps } from '@lun-web/components';
+import { toPxIfNum } from '@lun-web/utils';
 import commonStyles from './index.scss?inline';
 import { getVarName, getVarValue } from '../utils';
 

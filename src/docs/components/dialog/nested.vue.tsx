@@ -1,4 +1,4 @@
-import { Dialog } from '@lun/components';
+import { Dialog } from '@lun-web/components';
 
 const getBtn = () => (
   <>

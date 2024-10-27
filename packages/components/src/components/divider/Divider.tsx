@@ -4,7 +4,7 @@ import { createDefineElement } from 'utils';
 import { useNamespace, useSlot } from 'hooks';
 import { getCompParts } from 'common';
 import { normalizeStyle } from 'vue';
-import { toPxIfNum } from '@lun/utils';
+import { toPxIfNum } from '@lun-web/utils';
 
 const name = 'divider';
 const parts = ['root', 'text'] as const;

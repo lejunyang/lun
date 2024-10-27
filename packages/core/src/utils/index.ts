@@ -1,4 +1,4 @@
-import { toGetterDescriptors } from '@lun/utils';
+import { toGetterDescriptors } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter, unrefOrGet } from './ref';
 
 export * from './ref';

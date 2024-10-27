@@ -1,4 +1,4 @@
-import { inBrowser, on, prevent } from '@lun/utils';
+import { inBrowser, on, prevent } from '@lun-web/utils';
 import { tryOnScopeDispose } from '../../hooks/lifecycle';
 import { unrefOrGet } from '../../utils';
 import { UseDialogOptions, useDialog } from './useDialog';

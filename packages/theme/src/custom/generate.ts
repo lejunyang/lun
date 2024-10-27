@@ -4,7 +4,7 @@ import {
   allColorSet,
   getHostStyle,
   ThemeProps,
-} from '@lun/components';
+} from '@lun-web/components';
 import * as RadixColors from '@radix-ui/colors';
 import { generateRadixColors } from './custom';
 import { getVarName } from '../scss/utils';

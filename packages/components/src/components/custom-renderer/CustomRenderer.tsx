@@ -4,7 +4,7 @@ import { onMounted, shallowRef, onBeforeUnmount, watchEffect, isVNode, nextTick,
 import { CustomRendererRegistry } from './renderer.registry';
 import { createDefineElement } from 'utils';
 import { customRendererProps } from './type';
-import { isArray, isHTMLTemplateElement, isNode, isObject, runIfFn } from '@lun/utils';
+import { isArray, isHTMLTemplateElement, isNode, isObject, runIfFn } from '@lun-web/utils';
 import { generateWithTemplate } from './utils';
 import { useCE } from 'hooks';
 

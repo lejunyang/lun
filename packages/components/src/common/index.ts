@@ -1,6 +1,6 @@
 import { renderElement } from 'utils';
 import { Status } from './type';
-import { supportPopover } from '@lun/utils';
+import { supportPopover } from '@lun-web/utils';
 import { ComponentKey } from 'config';
 import { ComponentInternalInstance } from 'vue';
 

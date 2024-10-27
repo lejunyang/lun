@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector } from '@lun-web/core';
 import { getCollectorOptions } from 'common';
 import { TabItemProps, TabsProps } from './type';
 

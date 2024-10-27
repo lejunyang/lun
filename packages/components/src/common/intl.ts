@@ -1,4 +1,4 @@
-import { isFunction, isObject } from '@lun/utils';
+import { isFunction, isObject } from '@lun-web/utils';
 import { GlobalContextConfig } from '../components/config';
 import { reactive } from 'vue';
 import { warn } from 'utils';

@@ -1,4 +1,4 @@
-import { themeColors } from '@lun/components';
+import { themeColors } from '@lun-web/components';
 import { options } from 'data';
 import { ref } from 'vue';
 

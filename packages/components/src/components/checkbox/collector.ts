@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector } from '@lun-web/core';
 import { CheckboxGroupProps, CheckboxProps } from './type';
 import { getCollectorOptions } from 'common';
 

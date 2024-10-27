@@ -1,4 +1,4 @@
-import { freeze, MaybeArray, MaybeSet } from '@lun/utils';
+import { freeze, MaybeArray, MaybeSet } from '@lun-web/utils';
 import {
   GetEventPropsFromEmits,
   themeProps,

@@ -10,7 +10,7 @@ import type * as BabelTypes from '@babel/types';
  */
 export const vUpdate = ({ types: t }: typeof BabelCore): BabelCore.PluginObj => {
   return {
-    name: '@lun/babel-plugin-jsx-vUpdate',
+    name: '@lun-web/babel-plugin-jsx-vUpdate',
     visitor: {
       JSXAttribute(path: BabelCore.NodePath<BabelTypes.JSXAttribute>) {
         const name = path.node.name;

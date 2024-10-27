@@ -1,7 +1,7 @@
 import { ExtractPropTypes } from 'vue';
 import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropString, Status, themeProps } from 'common';
 import { baseInputProps } from '../input/type';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export const textareaProps = freeze({
   ...baseInputProps,

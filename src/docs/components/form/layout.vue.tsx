@@ -1,5 +1,5 @@
-import { useForm } from '@lun/core';
-import { pick } from '@lun/utils';
+import { useForm } from '@lun-web/core';
+import { pick } from '@lun-web/utils';
 
 const instance = useForm({
   defaultData: {

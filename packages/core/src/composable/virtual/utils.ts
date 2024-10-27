@@ -1,4 +1,4 @@
-import { nearestBinarySearch, objectKeys } from '@lun/utils';
+import { nearestBinarySearch, objectKeys } from '@lun-web/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 
 export const getFurthestMeasurement = (

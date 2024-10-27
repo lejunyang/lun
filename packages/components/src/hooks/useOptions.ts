@@ -1,6 +1,6 @@
-import { MaybePromiseOrGetter, usePromiseRef } from '@lun/core';
+import { MaybePromiseOrGetter, usePromiseRef } from '@lun-web/core';
 import { PropType, Ref, StyleValue, WritableComputedRef, computed, toRef } from 'vue';
-import { isArray, isString } from '@lun/utils';
+import { isArray, isString } from '@lun-web/utils';
 import { error, renderElement } from '../utils';
 import { ComponentKey } from '../components';
 import { PropObject, EditStateProps, editStateProps } from 'common';

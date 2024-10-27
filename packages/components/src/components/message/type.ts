@@ -11,8 +11,8 @@ import {
 } from 'common';
 import { ExtractPropTypes, HTMLAttributes } from 'vue';
 import { CalloutProps, calloutProps } from '../callout/type';
-import { MaybeRefLikeOrGetter } from '@lun/core';
-import { freeze } from '@lun/utils';
+import { MaybeRefLikeOrGetter } from '@lun-web/core';
+import { freeze } from '@lun-web/utils';
 
 export const messageProps = freeze({
   ...calloutProps,

@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { themeProviderProps } from './type';
 import { provideContextConfig } from '../config';
 import { provide, reactive, watchEffect } from 'vue';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit } from '@lun-web/core';
 
 export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
 

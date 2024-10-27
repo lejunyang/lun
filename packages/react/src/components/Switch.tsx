@@ -1,5 +1,5 @@
 
-import { switchEmits, SwitchProps, switchProps, defineSwitch, iSwitch } from '@lun/components';
+import { switchEmits, SwitchProps, switchProps, defineSwitch, iSwitch } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LSwitch = createComponent<SwitchProps, iSwitch>('switch', defineSwitch, switchProps, switchEmits);

@@ -1,5 +1,5 @@
 import { VNode, reactive } from 'vue';
-import { isFunction, pick } from '@lun/utils';
+import { isFunction, pick } from '@lun-web/utils';
 import { defaultIconLibrary } from './icon.default';
 import { warn } from 'utils';
 

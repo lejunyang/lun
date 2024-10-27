@@ -1,4 +1,4 @@
-import { inBrowser, raf } from '@lun/utils';
+import { inBrowser, raf } from '@lun-web/utils';
 import { Ref, ref, watchEffect } from 'vue';
 
 export function useShadowEditable() {

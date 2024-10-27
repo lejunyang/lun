@@ -11,7 +11,7 @@ import {
   runIfFn,
   ensureArray,
   listenScroll,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
 import { useCleanUp } from '../../hooks';

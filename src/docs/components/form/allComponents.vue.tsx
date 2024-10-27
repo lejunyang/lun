@@ -1,5 +1,5 @@
-import { useForm } from '@lun/core';
-import { arrayFrom } from '@lun/utils';
+import { useForm } from '@lun-web/core';
+import { arrayFrom } from '@lun-web/utils';
 
 const form = useForm({
   defaultData: {

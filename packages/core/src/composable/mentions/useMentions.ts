@@ -1,7 +1,7 @@
 import { UseInputOptions } from '../input';
 import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils/ref';
 import { useTempState } from '../../hooks/state';
-import { arrayFrom, isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, ensureArray } from '@lun/utils';
+import { arrayFrom, isEnterDown, isHTMLElement, isObject, isString, prevent, runIfFn, ensureArray } from '@lun-web/utils';
 import { VNode, computed, h, reactive, readonly } from 'vue';
 import { getText, rangeToString } from './utils';
 import { useShadowEditable } from './useShadowEditable';

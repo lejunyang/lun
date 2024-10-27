@@ -1,5 +1,5 @@
 
-import { selectEmits, SelectProps, selectProps, defineSelect, iSelect } from '@lun/components';
+import { selectEmits, SelectProps, selectProps, defineSelect, iSelect } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LSelect = createComponent<SelectProps, iSelect>('select', defineSelect, selectProps, selectEmits);

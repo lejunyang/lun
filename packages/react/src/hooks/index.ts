@@ -1,4 +1,4 @@
-import { useForm, UseFormReturn } from '@lun/core';
+import { useForm, UseFormReturn } from '@lun-web/core';
 import { useEffect, useRef, useState } from 'react';
 import { EffectScope, effectScope } from 'vue';
 

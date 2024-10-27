@@ -1,6 +1,6 @@
-import { ComponentKey, getElementFirstName } from '@lun/components';
+import { ComponentKey, getElementFirstName } from '@lun-web/components';
 import { forwardRef, createElement, useRef, useImperativeHandle, useLayoutEffect, ReactNode } from 'react';
-import { on, off, inBrowser, capitalize, objectKeys } from '@lun/utils';
+import { on, off, inBrowser, capitalize, objectKeys } from '@lun-web/utils';
 
 /** element => (eventName, objectEventHandler) */
 const listenedEvents = new WeakMap<Element, Map<string, EventListenerObject>>();

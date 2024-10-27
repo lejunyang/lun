@@ -7,7 +7,7 @@ import { getViteConfig } from '../../utils/getViteConfig';
 
 const defines = globSync('./src/components/**/*.define.ts');
 
-export default getViteConfig('@lun/components', {
+export default getViteConfig('@lun-web/components', {
   plugins: [
     // @ts-ignore
     vue({

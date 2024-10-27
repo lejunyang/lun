@@ -15,7 +15,7 @@ import {
   prevent,
   setIntersectOrHas,
   getRect,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
 import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted } from '../../hooks';
 import { objectComputed, unrefOrGet, unrefOrGetMulti } from '../../utils';

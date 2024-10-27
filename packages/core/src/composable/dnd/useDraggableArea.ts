@@ -1,6 +1,6 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { reactive, watchEffect } from 'vue';
-import { clamp, on, prevent, rafThrottle, runIfFn, numbersEqual, getRect, roundByDPR } from '@lun/utils';
+import { clamp, on, prevent, rafThrottle, runIfFn, numbersEqual, getRect, roundByDPR } from '@lun-web/utils';
 import { useCleanUp } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 

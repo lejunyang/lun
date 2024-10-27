@@ -1,7 +1,7 @@
-import { freeze, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
+import { freeze, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
 import { error } from '../../utils';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
-import { presets } from '@lun/core';
+import { presets } from '@lun-web/core';
 import { reduceFromComps } from './utils';
 
 const holderName = 'teleport-holder';
@@ -163,18 +163,18 @@ export const GlobalStaticConfig = new Proxy(
     ),
     ...(presets as {
       math: Required<
-        import('@lun/core').MathMethods<import('@lun/utils').BigIntDecimal, number | import('@lun/utils').BigIntDecimal>
+        import('@lun-web/core').MathMethods<import('@lun-web/utils').BigIntDecimal, number | import('@lun-web/utils').BigIntDecimal>
       >;
       /**
        * @example
        * use below way to customize the date type
-       * declare module '@lun/core' {
+       * declare module '@lun-web/core' {
        *   export interface DateInterface {
        *     date: Dayjs;
        *   }
        * }
        */
-      date: import('@lun/core').DateMethods<import('@lun/core').DateValueType>;
+      date: import('@lun-web/core').DateMethods<import('@lun-web/core').DateValueType>;
     }),
   },
   {

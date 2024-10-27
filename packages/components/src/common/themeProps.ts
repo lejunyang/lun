@@ -1,6 +1,6 @@
 import { ExtractPropTypes } from 'vue';
 import { OpenShadowComponentKey } from '../components';
-import { freeze, objectKeys, pick } from '@lun/utils';
+import { freeze, objectKeys, pick } from '@lun-web/utils';
 import { PropNumber, PropResponsive, PropString, undefBoolProp } from './propConstructor';
 import { Status } from './type';
 

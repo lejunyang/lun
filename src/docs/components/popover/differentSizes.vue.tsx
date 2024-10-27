@@ -1,4 +1,4 @@
-import { arrayFrom } from '@lun/utils';
+import { arrayFrom } from '@lun-web/utils';
 
 export default function () {
   return arrayFrom(4, (_, i) => (

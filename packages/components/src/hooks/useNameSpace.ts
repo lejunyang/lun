@@ -1,11 +1,11 @@
 // derived from element-plus
 import { ComponentInternalInstance, computed, getCurrentInstance } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
-import { fromObject, isArray, isPreferDark, isString, objectKeys } from '@lun/utils';
+import { fromObject, isArray, isPreferDark, isString, objectKeys } from '@lun-web/utils';
 import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
-import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun/core';
+import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun-web/core';
 import { useExpose } from 'hooks';
 import { rootSet } from 'utils';
 

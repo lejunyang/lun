@@ -11,7 +11,7 @@ import {
   PropObjOrStr,
   Prop,
 } from 'common';
-import { freeze, MaybeArray, MaybeSet } from '@lun/utils';
+import { freeze, MaybeArray, MaybeSet } from '@lun-web/utils';
 
 export const accordionProps = freeze({
   ...themeProps,

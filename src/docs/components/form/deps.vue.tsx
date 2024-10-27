@@ -1,4 +1,4 @@
-import { pick } from '@lun/utils';
+import { pick } from '@lun-web/utils';
 
 const props = ['disableWhenDep', 'clearWhenDepChange', 'requireWhenDep'];
 const options = ['all-truthy', 'some-truthy', 'all-falsy', 'some-falsy'];

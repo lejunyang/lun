@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
-import { objectComputed, useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun/core';
+import { objectComputed, useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { computed } from 'vue';
-import { pick } from '@lun/utils';
+import { pick } from '@lun-web/utils';
 import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
 import { getCompParts } from 'common';
 

@@ -50,5 +50,5 @@ lang: zh-CN
 <!-- @Code:highlight -->
 
 <script setup>
-import { supportCSSHighLight } from '@lun/utils';
+import { supportCSSHighLight } from '@lun-web/utils';
 </script>

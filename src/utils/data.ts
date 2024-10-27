@@ -1,5 +1,5 @@
-import { themeColors } from '@lun/components';
-import { delay, ensureArray } from '@lun/utils';
+import { themeColors } from '@lun-web/components';
+import { delay, ensureArray } from '@lun-web/utils';
 import { ref } from 'vue';
 
 // data for some code cases

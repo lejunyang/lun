@@ -1,4 +1,4 @@
-import { isFunction, objectKeys } from '@lun/utils';
+import { isFunction, objectKeys } from '@lun-web/utils';
 import { inject, provide } from 'vue';
 
 const key = Symbol(__DEV__ ? 'useListen' : '');

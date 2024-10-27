@@ -27,7 +27,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
           rollupTypes: true,
           tsconfigPath: './tsconfig.build.json',
           staticImport: true,
-          // bundledPackages: ['@lun/*'],
+          // bundledPackages: ['@lun-web/*'],
           rollupConfig: {},
           rollupOptions: {
             // showVerboseMessages: true,
@@ -70,7 +70,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       minify: dev ? false : 'esbuild',
       emptyOutDir: dev,
       rollupOptions: {
-        external: ['vue', /@lun\/.+/, 'react', 'dayjs', /@vue\/.+/],
+        external: ['vue', /@lun-web\/.+/, 'react', 'dayjs', /@vue\/.+/],
         output: {
           chunkFileNames() {
             return `chunks/${dev ? 'dev' : 'prod'}-[format]/[name].[hash].js`;
@@ -78,12 +78,14 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
           ...viteConfig?.build?.rollupOptions?.output,
           globals: {
             vue: 'Vue',
-            '@lun/components': 'LunComponents',
-            '@lun/core': 'LunCore',
-            '@lun/theme': 'LunTheme',
-            '@lun/utils': 'LunUtils',
-            '@lun/plugins': 'LunPlugins',
-            '@lun/react': 'LunReact',
+            '@lun-web/components': 'LunComponents',
+            '@lun-web/core': 'LunCore',
+            '@lun-web/theme': 'LunTheme',
+            '@lun-web/utils': 'LunUtils',
+            '@lun-web/plugins': 'LunPlugins',
+            '@lun-web/plugins/vue': 'LunVuePlugins',
+            '@lun-web/plugins/babel': 'LunBabelPlugins',
+            '@lun-web/react': 'LunReact',
             react: 'React',
           },
         },
@@ -94,12 +96,12 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       alias: {
         ...(dev
           ? {
-              '@lun/components': processPath('../packages/components/index'),
-              '@lun/utils': processPath('../packages/utils/index.ts'),
-              '@lun/core/date-dayjs': processPath('../packages/core/src/presets/date.dayjs.ts'),
-              '@lun/theme/custom': processPath('../packages/theme/src/custom/custom.ts'),
-              '@lun/core': processPath('../packages/core/index'),
-              '@lun/theme': processPath('../packages/theme/src'),
+              '@lun-web/components': processPath('../packages/components/index'),
+              '@lun-web/utils': processPath('../packages/utils/index.ts'),
+              '@lun-web/core/date-dayjs': processPath('../packages/core/src/presets/date.dayjs.ts'),
+              '@lun-web/theme/custom': processPath('../packages/theme/src/custom/custom.ts'),
+              '@lun-web/core': processPath('../packages/core/index'),
+              '@lun-web/theme': processPath('../packages/theme/src'),
             }
           : {}),
         '@': fileURLToPath(new URL('./src', import.meta.url)),

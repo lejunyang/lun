@@ -1,8 +1,8 @@
-import { isString, toRegExp } from '@lun/utils';
+import { isString, toRegExp } from '@lun-web/utils';
 import { GlobalStaticConfig } from '../config';
 import { Rule, ValidateMessages } from './type';
 import { intl, processStringWithParams } from 'common';
-import { isNumberInputType } from '@lun/core';
+import { isNumberInputType } from '@lun-web/core';
 
 export const innerValidator = (value: any, _data: any, rule: Rule, msgs: ValidateMessages) => {
   const { type, min, max, greaterThan, lessThan, required, pattern, len } = rule;

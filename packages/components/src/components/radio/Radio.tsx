@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed } from 'vue';
-import { useSetupEdit, useSetupEvent } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioProps } from './type';
-import { virtualGetMerge } from '@lun/utils';
+import { virtualGetMerge } from '@lun-web/utils';
 import { getCompParts } from 'common';
 
 const name = 'radio';

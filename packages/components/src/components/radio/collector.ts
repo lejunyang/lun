@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector } from '@lun-web/core';
 import { RadioGroupProps, RadioProps } from './type';
 import { getCollectorOptions } from 'common';
 

@@ -1,4 +1,4 @@
-import { components } from '@lun/components';
+import { components } from '@lun-web/components';
 import fs from 'fs';
 import path from 'path';
 
@@ -23,7 +23,7 @@ function generateCode(component) {
   const camelCase = toCamelCase(component);
   const pascalCase = toPascalCase(component);
   return `
-import { ${camelCase}Emits, ${pascalCase}Props, ${camelCase}Props, define${pascalCase}, i${pascalCase} } from '@lun/components';
+import { ${camelCase}Emits, ${pascalCase}Props, ${camelCase}Props, define${pascalCase}, i${pascalCase} } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const L${pascalCase} = createComponent<${pascalCase}Props, i${pascalCase}>('${component}', define${pascalCase}, ${camelCase}Props, ${camelCase}Emits);

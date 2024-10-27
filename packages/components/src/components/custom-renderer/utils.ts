@@ -1,4 +1,4 @@
-import { createElement, fromObject, isString } from '@lun/utils';
+import { createElement, fromObject, isString } from '@lun-web/utils';
 
 export function generateWithTemplate(template: HTMLTemplateElement, props: Record<string, string>) {
   const {

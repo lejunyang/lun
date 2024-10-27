@@ -1,5 +1,5 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
-import { inBrowser, isFunction, onOnce } from '@lun/utils';
+import { inBrowser, isFunction, onOnce } from '@lun-web/utils';
 import * as data from './data';
 
 const allowedImport = new Set([
@@ -7,11 +7,11 @@ const allowedImport = new Set([
   'react',
   'react-dom',
   'react-dom/client',
-  '@lun/components',
-  '@lun/core',
-  '@lun/theme',
-  '@lun/utils',
-  '@lun/react',
+  '@lun-web/components',
+  '@lun-web/core',
+  '@lun-web/theme',
+  '@lun-web/utils',
+  '@lun-web/react',
   'data',
 ]);
 
@@ -20,22 +20,22 @@ const dependencies = {
   react: () => import('react'),
   'react-dom': () => import('react-dom'),
   'react-dom/client': () => import('react-dom/client'),
-  '@lun/components': () => import('@lun/components'),
-  '@lun/core': () => import('@lun/core'),
-  '@lun/theme': () => import('@lun/theme'),
-  '@lun/utils': () => import('@lun/utils'),
-  '@lun/react': () => import('@lun/react'),
+  '@lun-web/components': () => import('@lun-web/components'),
+  '@lun-web/core': () => import('@lun-web/core'),
+  '@lun-web/theme': () => import('@lun-web/theme'),
+  '@lun-web/utils': () => import('@lun-web/utils'),
+  '@lun-web/react': () => import('@lun-web/react'),
   data,
 } as any as {
   vue: typeof import('vue');
   react: typeof import('react');
   'react-dom': typeof import('react-dom');
   'react-dom/client': typeof import('react-dom/client');
-  '@lun/components': typeof import('@lun/components');
-  '@lun/core': typeof import('@lun/core');
-  '@lun/theme': typeof import('@lun/theme');
-  '@lun/utils': typeof import('@lun/utils');
-  '@lun/react': typeof import('@lun/react');
+  '@lun-web/components': typeof import('@lun-web/components');
+  '@lun-web/core': typeof import('@lun-web/core');
+  '@lun-web/theme': typeof import('@lun-web/theme');
+  '@lun-web/utils': typeof import('@lun-web/utils');
+  '@lun-web/react': typeof import('@lun-web/react');
   data: typeof data;
 };
 

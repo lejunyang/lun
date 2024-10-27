@@ -5,7 +5,7 @@ import { useNamespace } from 'hooks';
 import { computed } from 'vue';
 import { getCompParts, renderStatusIcon } from 'common';
 import { defineIcon } from '../icon/Icon';
-import { toPxIfNum } from '@lun/utils';
+import { toPxIfNum } from '@lun-web/utils';
 import { methods } from './progress.static-methods';
 
 const name = 'progress';

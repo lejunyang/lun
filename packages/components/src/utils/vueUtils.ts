@@ -1,4 +1,4 @@
-import { isFunction, isObject } from '@lun/utils';
+import { isFunction, isObject } from '@lun-web/utils';
 import { ComponentInternalInstance, ComponentObjectPropsOptions, ExtractPropTypes, isVNode } from 'vue';
 
 type NativeType = null | number | string | boolean | symbol | Function;

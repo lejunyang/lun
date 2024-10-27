@@ -1,4 +1,4 @@
-import { freeze } from "@lun/utils";
+import { freeze } from "@lun-web/utils";
 import { ExtractPropTypes } from "vue";
 import { undefBoolProp } from "./propConstructor";
 

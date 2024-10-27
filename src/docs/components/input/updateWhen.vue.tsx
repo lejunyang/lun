@@ -1,4 +1,4 @@
-import { useForm } from '@lun/core';
+import { useForm } from '@lun-web/core';
 import { ref } from 'vue';
 
 const input = ref('111');

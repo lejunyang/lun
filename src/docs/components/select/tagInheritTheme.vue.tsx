@@ -1,4 +1,4 @@
-import { arrayFrom } from '@lun/utils';
+import { arrayFrom } from '@lun-web/utils';
 import { optionsWithColors, groupOptionsWithColors } from 'data';
 import { ref } from 'vue';
 

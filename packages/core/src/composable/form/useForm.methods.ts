@@ -8,7 +8,7 @@ import {
   isObject,
   isString,
   pick,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { MaybeFormItemStatusMessages, MaybeFormItemPath, ProcessedFormParams, UseFormOptions } from './type';
 
 export function useFormMethods(params: ProcessedFormParams, options: UseFormOptions) {

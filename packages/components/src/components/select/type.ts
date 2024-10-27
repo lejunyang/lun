@@ -13,7 +13,7 @@ import {
   Prop,
 } from 'common';
 import { popoverProps } from '../popover/type';
-import { freeze, MaybeArray, MaybeSet, objectKeys, omit } from '@lun/utils';
+import { freeze, MaybeArray, MaybeSet, objectKeys, omit } from '@lun-web/utils';
 import { CommonOption, createOptionProps } from 'hooks';
 import { ButtonProps } from '../button/type';
 import { GetCustomRendererSource } from '../custom-renderer';

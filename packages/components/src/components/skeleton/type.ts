@@ -1,4 +1,4 @@
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 import { GetEventPropsFromEmits, themeProps, createTransitionProps, CommonProps, editStateProps } from 'common';
 import { ExtractPropTypes } from 'vue';
 

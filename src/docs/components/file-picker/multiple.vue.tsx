@@ -1,4 +1,4 @@
-import { Message } from '@lun/components';
+import { Message } from '@lun-web/components';
 import { ref } from 'vue';
 
 const files1 = ref([]);

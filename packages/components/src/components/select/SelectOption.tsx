@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
-import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun/core';
+import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useExpose, useNamespace } from 'hooks';
 import { selectOptionProps } from './type';

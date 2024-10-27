@@ -1,5 +1,5 @@
-import { EditState, objectComputed } from '@lun/core';
-import { ensureArray } from '@lun/utils';
+import { EditState, objectComputed } from '@lun-web/core';
+import { ensureArray } from '@lun-web/utils';
 import { renderElement } from 'utils';
 
 export type InternalTreeItem = {

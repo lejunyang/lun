@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { selectOptgroupProps } from './type';
 import { useCEStates, useNamespace } from 'hooks';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit } from '@lun-web/core';
 import { SelectOptgroupContext } from '.';
 import { SelectCollector } from './collector';
 import { getCompParts } from 'common';

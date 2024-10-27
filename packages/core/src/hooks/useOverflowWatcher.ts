@@ -1,5 +1,5 @@
 import { reactive, watchEffect } from 'vue';
-import { isElement, isSupportResizeObserver, isTextOverflow } from '@lun/utils';
+import { isElement, isSupportResizeObserver, isTextOverflow } from '@lun-web/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 import { PopoverAttachTargetOptions } from '../composable';

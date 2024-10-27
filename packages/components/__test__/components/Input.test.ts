@@ -1,6 +1,6 @@
-import { getDeepestActiveElement } from '@lun/utils';
+import { getDeepestActiveElement } from '@lun-web/utils';
 import { userEvent } from '@vitest/browser/context';
-import { iTag } from '@lun/components';
+import { iTag } from '@lun-web/components';
 
 describe('Input', () => {
   it('type in input', async () => {

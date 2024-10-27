@@ -1,16 +1,12 @@
 {
-  "name": "@lun/theme",
+  "name": "@lun-web/theme",
   "version": "0.0.1-alpha.0",
   "type": "module",
   "files": [
     "dist",
     "./src/scss"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lejunyang/lun.git",
-    "directory": "packages/theme"
-  },
+  "repository": "https://github.com/lejunyang/lun",
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
@@ -44,7 +40,7 @@
     "version": "npm version"
   },
   "dependencies": {
-    "@lun/components": "workspace:^"
+    "@lun-web/components": "workspace:^"
   },
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",

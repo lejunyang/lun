@@ -1,4 +1,4 @@
-import { statuses } from '@lun/components';
+import { statuses } from '@lun-web/components';
 import { ref } from 'vue';
 
 const msg = ref();

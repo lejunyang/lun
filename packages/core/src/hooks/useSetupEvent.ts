@@ -1,4 +1,4 @@
-import { AnyFn, createEventManager, mergeHandlers, objectKeys, runIfFn } from '@lun/utils';
+import { AnyFn, createEventManager, mergeHandlers, objectKeys, runIfFn } from '@lun-web/utils';
 import { inject, getCurrentInstance, provide, onBeforeUnmount, ComponentInternalInstance } from 'vue';
 
 export const EVENT_PROVIDER_KEY = Symbol(__DEV__ ? 'l-event-provider-key' : '');

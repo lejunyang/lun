@@ -6,12 +6,12 @@ import {
   useInputElement,
   isNumberInputType,
   useSetupEvent,
-} from '@lun/core';
+} from '@lun-web/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
-import { isEmpty, isArray, runIfFn, raf, arrayFrom, shadowContains } from '@lun/utils';
+import { isEmpty, isArray, runIfFn, raf, arrayFrom, shadowContains } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';

@@ -47,7 +47,7 @@ export type CustomRendererProps = {
 通过如下代码注册 React 自定义渲染器，使得组件库支持渲染 ReactElement
 
 ```ts
-import { registerCustomRenderer } from '@lun/components';
+import { registerCustomRenderer } from '@lun-web/components';
 import { isValidElement, cloneElement } from 'react';
 import { createRoot } from 'react-dom/client';
 

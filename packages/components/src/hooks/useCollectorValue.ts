@@ -1,4 +1,4 @@
-import { CollectorParentReturn, objectComputed } from '@lun/core';
+import { CollectorParentReturn, objectComputed } from '@lun-web/core';
 import { isVmLeafChild, isVmDisabled } from 'utils';
 import { ComponentInternalInstance } from 'vue';
 

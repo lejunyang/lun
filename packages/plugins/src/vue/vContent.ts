@@ -1,5 +1,5 @@
 import type { ObjectDirective } from '@vue/runtime-core';
-import { supportCSSContentVisibility, isHTMLSlotElement } from '@lun/utils';
+import { supportCSSContentVisibility, isHTMLSlotElement } from '@lun-web/utils';
 
 export const vContentVisibilityOriginal = Symbol(__DEV__ ? '_vcvo' : '');
 export const vContentSlotDisplayOriginal = Symbol(__DEV__ ? '_vcvdo' : '');

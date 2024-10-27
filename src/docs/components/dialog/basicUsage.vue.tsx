@@ -1,6 +1,6 @@
 import { ref } from 'vue';
-import { delay } from '@lun/utils';
-import { useForm } from '@lun/core';
+import { delay } from '@lun-web/utils';
+import { useForm } from '@lun-web/core';
 import { sentence, text } from 'data';
 
 const open = ref(false);

@@ -4,7 +4,7 @@ lang: zh-CN
 ---
 
 <script setup>
-  import { themeColors } from '@lun/components';
+  import { themeColors } from '@lun-web/components';
 </script>
 
 <CompThemePanel comp="tag" includeContrast includeDisabled :other="{ label: 'tag' }" />

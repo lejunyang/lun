@@ -14,11 +14,11 @@ lang: zh-CN
 `date`提供了一些用于日期处理的函数，涉及日期的组件如`l-calendar`、`l-date-picker`使用了它。不同于`math`，内部没有设置默认实现，但提供了`dayjs`的实现，需要由用户自行引入或设置其他实现
 
 ```js
-import '@lun/core/date-dayjs'; // 引入dayjs实现
+import '@lun-web/core/date-dayjs'; // 引入dayjs实现
 
 // 或自行实现
-import { GlobalStaticConfig } from '@lun/components';
-import { createDatePreset } from '@lun/core';
+import { GlobalStaticConfig } from '@lun-web/components';
+import { createDatePreset } from '@lun-web/core';
 GlobalStaticConfig.date = createDatePreset({
   // ...
 });
@@ -26,7 +26,7 @@ GlobalStaticConfig.date = createDatePreset({
 
 若需要类型支持，则需要自行通过以下方式：
 ```ts
-declare module '@lun/core' {
+declare module '@lun-web/core' {
   export interface DateInterface {
     date: Dayjs;
   }

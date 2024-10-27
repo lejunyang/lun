@@ -27,7 +27,7 @@ export const locales = {
 你可以随时修改此对象，文本会响应式更新，如要更改当前语言则可通过`GlobalContextConfig`动态更改
 
 ```ts
-import { locales, GlobalContextConfig } from '@lun/components'
+import { locales, GlobalContextConfig } from '@lun-web/components'
 
 GlobalContextConfig.lang = 'en-US'
 locales['en-US'] = {

@@ -1,4 +1,4 @@
-import { inBrowser, createElement } from '@lun/utils';
+import { inBrowser, createElement } from '@lun-web/utils';
 
 const template =
   inBrowser &&

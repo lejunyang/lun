@@ -63,7 +63,7 @@ type MessageOpenConfig = {
 <!-- @Code:duration -->
 
 <script setup>
-  import { supportPopover } from '@lun/utils';
+  import { supportPopover } from '@lun-web/utils';
 </script>
 
 <!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->

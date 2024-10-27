@@ -11,7 +11,7 @@ import {
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export const radioProps = freeze({
   ...editStateProps,

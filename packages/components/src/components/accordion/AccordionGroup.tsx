@@ -4,7 +4,7 @@ import { accordionGroupEmits, accordionGroupProps } from './type';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, updateRawSetModel } from 'hooks';
 import { getCompParts } from 'common';
 import { defineIcon } from '../icon';
-import { useGroupOpenMethods, useSetupEdit } from '@lun/core';
+import { useGroupOpenMethods, useSetupEdit } from '@lun-web/core';
 import { AccordionCollector } from './collector';
 import { computed, ref, watchEffect } from 'vue';
 

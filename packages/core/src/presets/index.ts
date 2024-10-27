@@ -1,4 +1,4 @@
-import { fromObject, RemoveFirstParam, TryGet } from '@lun/utils';
+import { fromObject, RemoveFirstParam, TryGet } from '@lun-web/utils';
 import { FinalDateMethods, DateType } from './date';
 import { createBigIntDecimalMathPreset } from './math';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';

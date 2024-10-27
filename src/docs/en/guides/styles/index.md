@@ -25,7 +25,7 @@ GlobalStaticConfig.styles.common.push(`:host { display: inline-flex }`); // 所�
 也可以通过工具函数设置，这种方式设置样式会经过处理，会受 GlobalStaticConfig 中的`wrapCSSLayer`, `preferCSSStyleSheet`, `stylePreprocessor`的影响
 
 ```js
-import { createImportStyle } from '@lun/components';
+import { createImportStyle } from '@lun-web/components';
 
 const importButtonStyle = createImportStyle('button', 'button { color: red }');
 importButtonStyle();

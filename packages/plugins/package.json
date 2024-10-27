@@ -1,16 +1,12 @@
 {
-  "name": "@lun/plugins",
+  "name": "@lun-web/plugins",
   "version": "0.0.1-alpha.0",
   "description": "",
   "type": "module",
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lejunyang/lun.git",
-    "directory": "packages/plugins"
-  },
+  "repository": "https://github.com/lejunyang/lun",
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
@@ -40,7 +36,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@lun/utils": "workspace:^"
+    "@lun-web/utils": "workspace:^"
   },
   "peerDependencies": {
     "@vue/compiler-core": "catalog:"

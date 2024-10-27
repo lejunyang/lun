@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { useSetupEdit, useSetupEvent } from '@lun/core';
+import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { RadioCollector } from './collector';

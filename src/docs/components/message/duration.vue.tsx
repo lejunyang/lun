@@ -1,4 +1,4 @@
-import { Message } from '@lun/components';
+import { Message } from '@lun-web/components';
 
 export default () => {
   return (

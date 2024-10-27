@@ -1,4 +1,4 @@
-import { isNumber } from '@lun/utils';
+import { isNumber } from '@lun-web/utils';
 import { ScrollViewRangeValue } from './type';
 
 const axisMap = {

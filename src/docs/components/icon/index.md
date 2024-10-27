@@ -4,7 +4,7 @@ lang: zh-CN
 ---
 
 <script setup>
-import { registerIconLibrary, svgFillAndSizeDefaultMutator } from '@lun/components';
+import { registerIconLibrary, svgFillAndSizeDefaultMutator } from '@lun-web/components';
 
 registerIconLibrary({
   library: 'font-awesome',
@@ -55,7 +55,7 @@ registerIconLibrary({
 </div>
 
 ```js
-import { registerIconLibrary, svgFillAndSizeDefaultMutator } from '@lun/components';
+import { registerIconLibrary, svgFillAndSizeDefaultMutator } from '@lun-web/components';
 
 registerIconLibrary({
   library: 'font-awesome',

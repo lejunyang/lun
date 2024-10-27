@@ -64,5 +64,5 @@ Custom Element在不同 document 之间移动时，其`adoptedStyleSheets`会被
 <!-- @Code:differentSize -->
 
 <script setup>
-import { supportDocumentPictureInPicture } from '@lun/utils';
+import { supportDocumentPictureInPicture } from '@lun-web/utils';
 </script>

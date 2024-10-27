@@ -1,4 +1,4 @@
-import { components } from '@lun/components';
+import { components } from '@lun-web/components';
 import { camelize, capitalize } from 'vue';
 import fs from 'fs';
 import path from 'path';
@@ -71,11 +71,11 @@ ${reactTypes.join('\n')}
   { encoding: 'utf8' },
 );
 
-// replace the import path of LUNCOER with @lun/core, the reason refers to tsconfig.build.json
+// replace the import path of LUNCOER with @lun-web/core, the reason refers to tsconfig.build.json
 const indexContent = fs.readFileSync('./dist/index.d.ts', { encoding: 'utf8' });
 fs.writeFileSync(
   './dist/index.d.ts',
-  indexContent.replace(/'.+LUNCOER'/g, `'@lun/core'`).replace(/'.+LUNUTILS'/g, `'@lun/utils'`),
+  indexContent.replace(/'.+LUNCOER'/g, `'@lun-web/core'`).replace(/'.+LUNUTILS'/g, `'@lun-web/utils'`),
   { encoding: 'utf8' },
 );
 

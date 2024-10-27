@@ -2,9 +2,9 @@ import { defineSSRCustomElement } from 'custom';
 import { tooltipEmits, tooltipProps } from './type';
 import { createDefineElement, renderElement } from 'utils';
 import { definePopover, iPopover } from '../popover/Popover';
-import { refLikeToDescriptors, useOverflowWatcher, unrefOrGet } from '@lun/core';
+import { refLikeToDescriptors, useOverflowWatcher, unrefOrGet } from '@lun-web/core';
 import { useCE, useCEExpose } from 'hooks';
-import { getFirstOfIterable, getInnerTextOfSlot, runIfFn, supportCSSAnchor } from '@lun/utils';
+import { getFirstOfIterable, getInnerTextOfSlot, runIfFn, supportCSSAnchor } from '@lun-web/utils';
 import { onMounted, ref } from 'vue';
 import { useContextConfig } from 'config';
 

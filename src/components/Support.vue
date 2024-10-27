@@ -18,7 +18,7 @@ import {
   supportCSSAnchor,
   isSupportCustomStateSet,
   supportCSSAutoHeightTransition,
-} from '@lun/utils';
+} from '@lun-web/utils';
 
 const features = {
   adoptedStyleSheets: isSupportCSSStyleSheet(),

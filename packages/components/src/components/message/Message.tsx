@@ -13,12 +13,12 @@ import {
 } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps, popSupport } from 'common';
-import { capitalize, objectKeys, omit, runIfFn } from '@lun/utils';
+import { capitalize, objectKeys, omit, runIfFn } from '@lun-web/utils';
 import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
-import { refLikeToDescriptors } from '@lun/core';
+import { refLikeToDescriptors } from '@lun-web/core';
 
 const name = 'message';
 const parts = ['root'] as const;

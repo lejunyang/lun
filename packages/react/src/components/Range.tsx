@@ -1,5 +1,5 @@
 
-import { rangeEmits, RangeProps, rangeProps, defineRange, iRange } from '@lun/components';
+import { rangeEmits, RangeProps, rangeProps, defineRange, iRange } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LRange = createComponent<RangeProps, iRange>('range', defineRange, rangeProps, rangeEmits);

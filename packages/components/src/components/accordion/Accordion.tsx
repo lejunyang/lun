@@ -5,8 +5,8 @@ import { useCEStates, useNamespace, useOpenModel, useSlot } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { defineIcon } from '../icon';
 import { computed, Transition } from 'vue';
-import { useSetupEdit } from '@lun/core';
-import { isString } from '@lun/utils';
+import { useSetupEdit } from '@lun-web/core';
+import { isString } from '@lun-web/utils';
 import { AccordionCollector } from './collector';
 
 const name = 'accordion';

@@ -1,6 +1,6 @@
 import { watchPostEffect } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
-import { isElement, isFunction, runIfFn, ensureArray } from '@lun/utils';
+import { isElement, isFunction, runIfFn, ensureArray } from '@lun-web/utils';
 import { tryOnScopeDispose } from '../hooks';
 
 type NamePrefixes = 'Mutation' | 'Intersection' | 'Resize';

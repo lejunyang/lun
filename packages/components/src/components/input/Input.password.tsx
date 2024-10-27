@@ -1,5 +1,5 @@
 import { useNamespace } from 'hooks';
-import { useEdit } from '@lun/core';
+import { useEdit } from '@lun-web/core';
 import { renderElement } from 'utils';
 import { computed, ref, watch } from 'vue';
 

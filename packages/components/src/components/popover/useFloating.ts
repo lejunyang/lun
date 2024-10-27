@@ -18,8 +18,8 @@ import {
   flip as pluginFlip,
   limitShift,
 } from '@floating-ui/vue';
-import { getCachedComputedStyle, getDPR, isFunction, roundByDPR, toPxIfNum } from '@lun/utils';
-import { MaybeRefLikeOrGetter, unrefOrGet, useCleanUp, VirtualElement, watchEffectOnMounted } from '@lun/core';
+import { getCachedComputedStyle, getDPR, isFunction, roundByDPR, toPxIfNum } from '@lun-web/utils';
+import { MaybeRefLikeOrGetter, unrefOrGet, useCleanUp, VirtualElement, watchEffectOnMounted } from '@lun-web/core';
 import { referenceRect } from './floating.store-rects';
 import { insetReverseMap } from './popover.anchor-position';
 

@@ -1,4 +1,4 @@
-import { copyCSSStyleSheetsIfNeed, runIfFn, isSupportCSSStyleSheet, ensureArray, getWindow } from '@lun/utils';
+import { copyCSSStyleSheetsIfNeed, runIfFn, isSupportCSSStyleSheet, ensureArray, getWindow } from '@lun-web/utils';
 import type { OpenShadowComponentKey } from 'config';
 import { GlobalStaticConfig, componentsWithTeleport, useContextConfig } from 'config';
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';

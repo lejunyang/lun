@@ -17,7 +17,7 @@
     "baseUrl": ".",
     "declarationDir": "./dist",
     "paths": {
-      "@lun/utils": ["../utils/index.ts"]
+      "@lun-web/utils": ["../utils/index.ts"]
     }
   }
 }

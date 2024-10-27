@@ -1,4 +1,4 @@
-import { AnyFn, Fn, noop } from '@lun/utils';
+import { AnyFn, Fn, noop } from '@lun-web/utils';
 import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallowRef, watch, watchEffect } from 'vue';
 
 // from vue/use

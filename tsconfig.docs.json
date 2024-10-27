@@ -18,8 +18,8 @@
     "strict": false,
     "paths": {
       "data": ["./src/utils/data.ts"],
-      "@lun/components": ["./packages/components/index.ts"],
-      "@lun/core": ["./packages/core/index.ts"]
+      "@lun-web/components": ["./packages/components/index.ts"],
+      "@lun-web/core": ["./packages/core/index.ts"]
     },
     "types": ["./packages/components/dist/elements-types-vue.d.ts"]
   },

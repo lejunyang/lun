@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  publish:
+    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[publish skip]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -55,4 +56,4 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to GitHub Packages
-        run: rm -rf ./.npmrc && echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ./.npmrc && pnpm publish
+        run: rm -rf ./.npmrc && echo "//npm.pkg.github.com/:_authToken=${{ secrets.TOKEN_GITHUB_PUBLISH }}" > ./.npmrc && pnpm publish

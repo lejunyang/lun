@@ -1,7 +1,7 @@
 import { TransformedUseInputOption, UseInputOptions } from '.';
 import { presets } from '../../presets';
 import { unrefOrGet } from '../../utils/ref';
-import { BigIntDecimal, isArrowDownEvent, isArrowUpEvent, isTruthyOrZero, prevent } from '@lun/utils';
+import { BigIntDecimal, isArrowDownEvent, isArrowUpEvent, isTruthyOrZero, prevent } from '@lun-web/utils';
 
 export function processNumOptions(options: UseInputOptions) {
   const {

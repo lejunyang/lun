@@ -1,4 +1,4 @@
-import { isHTMLElement, isObject, isString, supportCSSAutoHeightTransition } from '@lun/utils';
+import { isHTMLElement, isObject, isString, supportCSSAutoHeightTransition } from '@lun-web/utils';
 import { transitionProp } from './propConstructor';
 import { TransitionProps } from 'vue';
 

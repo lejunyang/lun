@@ -1,4 +1,4 @@
-import { inBrowser, ensureArray, on, getRect, noop } from '@lun/utils';
+import { inBrowser, ensureArray, on, getRect, noop } from '@lun-web/utils';
 import { useCleanUp } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 

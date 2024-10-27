@@ -9,7 +9,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import { BaseDateType, createDatePreset, DateMethods, ExtendBaseDateType } from './date';
 import { presets } from '.';
-import { isString, ensureArray } from '@lun/utils';
+import { isString, ensureArray } from '@lun-web/utils';
 import { processType } from './date.utils';
 
 // derived from react-components/picker

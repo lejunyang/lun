@@ -1,4 +1,4 @@
-import { AnyFn, isFunction } from '@lun/utils';
+import { AnyFn, isFunction } from '@lun-web/utils';
 import type { WritableComputedRef, UnwrapRef, Ref, ComponentInternalInstance } from 'vue';
 import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 

@@ -1,4 +1,4 @@
-import { createImportDynamicStyle, createImportStyle, isLunComponent } from '@lun/components';
+import { createImportDynamicStyle, createImportStyle, isLunComponent } from '@lun-web/components';
 import basic from './basic.scss?inline';
 import tooltip from './basic-tooltip.scss?inline';
 

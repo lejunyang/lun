@@ -1,9 +1,9 @@
 import { computed, ref, watchEffect } from 'vue';
-import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam, useSetupEvent } from '@lun/core';
+import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam, useSetupEvent } from '@lun-web/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
-import { AnyFn, isEmpty, isSupportPlaintextEditable, raf, runIfFn, virtualGetMerge } from '@lun/utils';
+import { AnyFn, isEmpty, isSupportPlaintextEditable, raf, runIfFn, virtualGetMerge } from '@lun-web/utils';
 import { defineIcon } from '../icon/Icon';
 import { mentionsEmits, mentionsProps } from './type';
 import { definePopover } from '../popover';

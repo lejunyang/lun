@@ -1,5 +1,5 @@
 
-import { dialogEmits, DialogProps, dialogProps, defineDialog, iDialog } from '@lun/components';
+import { dialogEmits, DialogProps, dialogProps, defineDialog, iDialog } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LDialog = createComponent<DialogProps, iDialog>('dialog', defineDialog, dialogProps, dialogEmits);

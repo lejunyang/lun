@@ -1,5 +1,5 @@
-import { useForm } from '@lun/core';
-import { isPreferDark } from '@lun/utils';
+import { useForm } from '@lun-web/core';
+import { isPreferDark } from '@lun-web/utils';
 import { text } from 'data';
 
 const form = useForm({

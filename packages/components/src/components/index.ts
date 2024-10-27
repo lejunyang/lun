@@ -26,7 +26,7 @@ import { defineWatermark } from './watermark/Watermark';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
-import { capitalize, once, supportCustomElement } from '@lun/utils';
+import { capitalize, once, supportCustomElement } from '@lun-web/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';

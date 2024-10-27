@@ -1,5 +1,5 @@
 
-import { calendarEmits, CalendarProps, calendarProps, defineCalendar, iCalendar } from '@lun/components';
+import { calendarEmits, CalendarProps, calendarProps, defineCalendar, iCalendar } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LCalendar = createComponent<CalendarProps, iCalendar>('calendar', defineCalendar, calendarProps, calendarEmits);

@@ -11,9 +11,9 @@ import {
   themeProps,
 } from 'common';
 import { baseInputProps } from '../input/type';
-import { MentionSpan, MentionsTriggerParam } from '@lun/core';
+import { MentionSpan, MentionsTriggerParam } from '@lun-web/core';
 import { createOptionProps } from 'hooks';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 import { GetCustomRendererSource } from '../custom-renderer';
 
 export const mentionsProps = freeze({

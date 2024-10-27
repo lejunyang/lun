@@ -1,5 +1,5 @@
-import { MaybeRefLikeOrGetter } from '@lun/core';
-import { freeze } from '@lun/utils';
+import { MaybeRefLikeOrGetter } from '@lun-web/core';
+import { freeze } from '@lun-web/utils';
 import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropFunction, Prop } from 'common';
 import { ExtractPropTypes } from 'vue';
 

@@ -1,4 +1,4 @@
-import { createCollector } from '@lun/core';
+import { createCollector } from '@lun-web/core';
 import { ComponentInternalInstance, ComputedRef } from 'vue';
 import { getCollectorOptions, Status } from 'common';
 import { FormItemProps, Rule } from './type';

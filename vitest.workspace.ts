@@ -4,7 +4,7 @@ export default defineWorkspace([
   {
     extends: './packages/components/vite.config.ts',
     test: {
-      name: '@lun/components',
+      name: '@lun-web/components',
       globals: true,
       root: './packages/components',
       setupFiles: ['../../utils/testSetup.ts'], // it's relative to root, must be set here, not in vite.config.ts
@@ -20,7 +20,7 @@ export default defineWorkspace([
   {
     extends: './packages/core/vite.config.ts',
     test: {
-      name: '@lun/core',
+      name: '@lun-web/core',
       globals: true,
       root: './packages/core',
       environment: 'happy-dom',
@@ -29,7 +29,7 @@ export default defineWorkspace([
   {
     extends: './packages/theme/vite.config.ts',
     test: {
-      name: '@lun/theme',
+      name: '@lun-web/theme',
       globals: true,
       root: './packages/theme',
       environment: 'happy-dom',
@@ -38,7 +38,7 @@ export default defineWorkspace([
   {
     extends: './packages/utils/vite.config.ts',
     test: {
-      name: '@lun/utils',
+      name: '@lun-web/utils',
       globals: true,
       root: './packages/utils',
       environment: 'node',
@@ -47,7 +47,7 @@ export default defineWorkspace([
   {
     extends: './packages/plugins/vite.config.ts',
     test: {
-      name: '@lun/plugins',
+      name: '@lun-web/plugins',
       globals: true,
       root: './packages/plugins',
       environment: 'happy-dom',

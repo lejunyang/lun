@@ -1,4 +1,4 @@
-import { numberRegex, prevent } from '@lun/utils';
+import { numberRegex, prevent } from '@lun-web/utils';
 import { UseInputOptions, UseInputState } from './useInput';
 
 export const isNumberInputType = (type: any) => type === 'number' || type === 'number-text';

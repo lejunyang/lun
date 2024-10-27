@@ -1,4 +1,4 @@
-import { isFunction, runIfFn, ensureArray } from '@lun/utils';
+import { isFunction, runIfFn, ensureArray } from '@lun-web/utils';
 import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 

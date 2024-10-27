@@ -2,13 +2,13 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { colorPickerEmits, colorPickerProps } from './type';
 import { iPopover } from '../popover';
-import { useDraggableArea, useSetupEdit, useSetupEvent } from '@lun/core';
+import { useDraggableArea, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { useCEStates, useNamespace, useValueModel } from 'hooks';
 import { computed, nextTick, reactive, ref, watchEffect } from 'vue';
 import { defineSelect } from '../select';
 import { getCompParts } from 'common';
 import { defineRange } from '../range';
-import { hsbToHsl, hslToHsb, isArray, pick } from '@lun/utils';
+import { hsbToHsl, hslToHsb, isArray, pick } from '@lun-web/utils';
 
 const name = 'color-picker';
 const parts = ['panel', 'palette', 'wrapper', 'hue', 'alpha', 'preview', 'saturation', 'thumb', 'ranges'] as const;

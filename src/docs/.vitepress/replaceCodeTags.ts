@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { capitalize } from '@lun/utils';
+import { capitalize } from '@lun-web/utils';
 
 const suffixMap: Record<string, string> = {
   '.vue.tsx': 'vueTSX',
@@ -44,7 +44,7 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
     return `<Code${isDev ? ' dev' : ''} :index="${codeIndex}" ${propResult}><${componentName}ForSSR /></Code>`;
   });
   if (!imports.length) return newContent;
-  imports.unshift("import { inBrowser } from '@lun/utils';");
+  imports.unshift("import { inBrowser } from '@lun-web/utils';");
   let hasScriptSetup = false;
   const scriptSetupRegex = /<script\s+setup>([\s\S]*?)<\/script>/;
   newContent = newContent.replace(scriptSetupRegex, (_, scriptContent) => {

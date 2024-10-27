@@ -1,4 +1,4 @@
-import { isFunction } from '@lun/utils';
+import { isFunction } from '@lun-web/utils';
 
 export function createPopoverRectTarget(getter: () => [x?: number, y?: number, width?: number, height?: number]): {
   getBoundingClientRect: () => DOMRect;

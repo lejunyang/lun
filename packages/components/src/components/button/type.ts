@@ -13,8 +13,8 @@ import {
   CommonProps,
   Prop,
 } from 'common';
-import { freeze } from '@lun/utils';
-import { MaybeRefLikeOrGetter } from '@lun/core';
+import { freeze } from '@lun-web/utils';
+import { MaybeRefLikeOrGetter } from '@lun-web/core';
 
 export const buttonProps = freeze({
   ...editStateProps,

@@ -1,5 +1,5 @@
-import { createImportStyle, GlobalStaticConfig } from '@lun/components';
-import { supportCSSDisplayP3 } from '@lun/utils';
+import { createImportStyle, GlobalStaticConfig } from '@lun-web/components';
+import { supportCSSDisplayP3 } from '@lun-web/utils';
 // light
 import {
   amber,

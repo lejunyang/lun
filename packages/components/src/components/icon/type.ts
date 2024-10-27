@@ -1,7 +1,7 @@
 import { ExtractPropTypes } from 'vue';
 import { IconLibraryValue, IconNameValue } from './icon.default';
 import { CommonProps, GetEventPropsFromEmits, PropString, themeProps } from 'common';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export const iconProps = freeze({
   library: PropString<IconLibraryValue>(),

@@ -21,12 +21,12 @@
       "./global.d.ts"
     ],
     "paths": {
-      "@lun/components": ["./packages/components/index.ts"],
-      "@lun/theme/custom": ["./packages/theme/src/custom/custom.ts"],
-      "@lun/theme": ["./packages/theme/src/index.ts"],
-      "@lun/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
-      "@lun/core": ["./packages/core/index.ts"],
-      "@lun/utils": ["./packages/utils/index.ts"]
+      "@lun-web/components": ["./packages/components/index.ts"],
+      "@lun-web/theme/custom": ["./packages/theme/src/custom/custom.ts"],
+      "@lun-web/theme": ["./packages/theme/src/index.ts"],
+      "@lun-web/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
+      "@lun-web/core": ["./packages/core/index.ts"],
+      "@lun-web/utils": ["./packages/utils/index.ts"]
     }
   },
   "include": ["./packages/**/*.ts", "./packages/**/*.tsx", "./utils/testSetup.ts"],

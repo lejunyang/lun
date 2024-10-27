@@ -1,4 +1,4 @@
-import { createCollector, useSelectMethods } from '@lun/core';
+import { createCollector, useSelectMethods } from '@lun-web/core';
 import { ComponentInternalInstance } from 'vue';
 import { CommonProcessedOption } from 'hooks';
 import { SelectOptionProps, SelectProps } from './type';

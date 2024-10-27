@@ -18,11 +18,11 @@ import {
   themeProps,
   undefBoolProp,
 } from 'common';
-import { MaybePromise, CollectorContext, InputType, DatePanelType } from '@lun/core';
+import { MaybePromise, CollectorContext, InputType, DatePanelType } from '@lun-web/core';
 import { ComponentKey } from 'config';
 import { FormProps } from '../form/type';
 import { FormProvideExtra } from '../form';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export type ValidatorStatusResult = { status?: Status; message: string };
 export type ValidatorResult = string | string[] | ValidatorStatusResult | ValidatorStatusResult[] | undefined | null;

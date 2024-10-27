@@ -63,9 +63,9 @@
 </template>
 
 <script setup lang="tsx">
-import { themeColors, grayColors } from '@lun/components';
+import { themeColors, grayColors } from '@lun-web/components';
 import locales from '../docs/.vitepress/locales';
-import { AnyFn } from '@lun/utils';
+import { AnyFn } from '@lun-web/utils';
 import { inject } from 'vue';
 import { useData } from 'vitepress';
 

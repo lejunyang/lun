@@ -1,5 +1,5 @@
 
-import { treeEmits, TreeProps, treeProps, defineTree, iTree } from '@lun/components';
+import { treeEmits, TreeProps, treeProps, defineTree, iTree } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LTree = createComponent<TreeProps, iTree>('tree', defineTree, treeProps, treeEmits);

@@ -1,4 +1,4 @@
-import { createCollector, useGroupOpenMethods } from '@lun/core';
+import { createCollector, useGroupOpenMethods } from '@lun-web/core';
 import { AccordionGroupProps, AccordionProps } from './type';
 import { getCollectorOptions } from 'common';
 

@@ -2,7 +2,7 @@ import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
 import { iconRegistryMap } from '../icon/icon.registry';
 import { OpenShadowComponentKey } from './config.static';
 import { ThemeConfig } from 'common';
-import { inBrowser, inherit, isObject } from '@lun/utils';
+import { inBrowser, inherit, isObject } from '@lun-web/utils';
 import { reduceFromComps } from './utils';
 
 const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');

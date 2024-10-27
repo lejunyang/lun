@@ -1,5 +1,5 @@
-import type { iInput } from '@lun/components';
-import { delay } from '@lun/utils';
+import type { iInput } from '@lun-web/components';
+import { delay } from '@lun-web/utils';
 
 describe('defineCustomElement', () => {
   it('test boolean prop with default true', () => {

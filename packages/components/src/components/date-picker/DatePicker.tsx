@@ -4,10 +4,10 @@ import { datePickerEmits, datePickerProps } from './type';
 import { defineCalendar, iCalendar } from '../calendar';
 import { defineInput, iInput } from '../input';
 import { definePopover, iPopover } from '../popover';
-import { useDateParseFormat, useSetupEdit, useSetupEvent } from '@lun/core';
+import { useDateParseFormat, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createGetterForHasRawModel, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { ref } from 'vue';
-import { isObject, virtualGetMerge } from '@lun/utils';
+import { isObject, virtualGetMerge } from '@lun-web/utils';
 import { useContextConfig } from 'config';
 
 const name = 'date-picker';

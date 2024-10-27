@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
-import { vUpdate } from '@lun/plugins/babel';
+import { vUpdate } from '@lun-web/plugins/babel';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 const processPath = (path: string) => fileURLToPath(new URL(path, import.meta.url));
@@ -32,7 +32,7 @@ export default defineConfig({
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true',
   },
   optimizeDeps: {
-    exclude: ['@lun/components', '@lun/core', '@lun/theme', '@lun/utils', 'monaco-editor'],
+    exclude: ['@lun-web/components', '@lun-web/core', '@lun-web/theme', '@lun-web/utils', 'monaco-editor'],
   },
   ssr: {
     // fix monaco-editor bundle error, see in https://github.com/vuejs/vitepress/issues/2832
@@ -46,15 +46,15 @@ export default defineConfig({
           config: processPath('./packages/components/src/components/config/index'),
           utils: processPath('./packages/components/src/utils/index'),
           hooks: processPath('./packages/components/src/hooks/index'),
-          '@lun/plugins/babel': processPath('./packages/plugins/src/babel/babel.index.ts'),
-          '@lun/plugins/vue': processPath('./packages/plugins/src/vue/vue.index.ts'),
-          '@lun/components': processPath('./packages/components/index'),
-          '@lun/core/date-dayjs': processPath('./packages/core/src/presets/date.dayjs.ts'),
-          '@lun/theme/custom': processPath('./packages/theme/src/custom/custom.ts'),
-          '@lun/core': processPath('./packages/core/index'),
-          '@lun/utils': processPath('./packages/utils/index'),
-          '@lun/theme': processPath('./packages/theme/src'),
-          '@lun/react': processPath('./packages/react/index'),
+          '@lun-web/plugins/babel': processPath('./packages/plugins/src/babel/babel.index.ts'),
+          '@lun-web/plugins/vue': processPath('./packages/plugins/src/vue/vue.index.ts'),
+          '@lun-web/components': processPath('./packages/components/index'),
+          '@lun-web/core/date-dayjs': processPath('./packages/core/src/presets/date.dayjs.ts'),
+          '@lun-web/theme/custom': processPath('./packages/theme/src/custom/custom.ts'),
+          '@lun-web/core': processPath('./packages/core/index'),
+          '@lun-web/utils': processPath('./packages/utils/index'),
+          '@lun-web/theme': processPath('./packages/theme/src'),
+          '@lun-web/react': processPath('./packages/react/index'),
           ...commonAlias,
         }
       : { ...commonAlias },

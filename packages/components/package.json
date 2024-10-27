@@ -1,5 +1,5 @@
 {
-  "name": "@lun/components",
+  "name": "@lun-web/components",
   "version": "0.0.1-alpha.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -7,11 +7,7 @@
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lejunyang/lun.git",
-    "directory": "packages/components"
-  },
+  "repository": "https://github.com/lejunyang/lun",
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
@@ -57,9 +53,9 @@
     "@floating-ui/dom": "catalog:",
     "@floating-ui/utils": "catalog:",
     "@floating-ui/vue": "catalog:",
-    "@lun/core": "workspace:^",
-    "@lun/utils": "workspace:^",
-    "@lun/plugins": "workspace:^"
+    "@lun-web/core": "workspace:^",
+    "@lun-web/utils": "workspace:^",
+    "@lun-web/plugins": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.4.0"

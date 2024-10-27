@@ -1,4 +1,4 @@
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 import {
   GetEventPropsFromEmits,
   Prop,
@@ -11,7 +11,7 @@ import {
   PropStrOrFunc,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
-import { UseVirtualMeasurement } from '@lun/core';
+import { UseVirtualMeasurement } from '@lun-web/core';
 
 const mainAxisProps = {
   items: PropArray(),

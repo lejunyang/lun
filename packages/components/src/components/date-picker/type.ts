@@ -1,5 +1,5 @@
-import { DateValueType } from '@lun/core';
-import { freeze } from '@lun/utils';
+import { DateValueType } from '@lun-web/core';
+import { freeze } from '@lun-web/utils';
 import { GetEventPropsFromEmits, CommonProps, PropObject } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { calendarProps, CalendarUpdateDetail } from '../calendar';

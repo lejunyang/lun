@@ -31,7 +31,7 @@
       <ul>
         <li>若应用只需某个固定的颜色，那么我们预先挑选并引入生成的样式，从而避免引入所有的颜色，大幅度减少样式体积</li>
         <li>
-          若需要用户动态自定义颜色，则需引入<code>import { importCustomDynamicColors } from '@lun/theme/custom'</code
+          若需要用户动态自定义颜色，则需引入<code>import { importCustomDynamicColors } from '@lun-web/theme/custom'</code
           >，这会引入全部颜色(约29kB
           gzip)，也会带来<code>colorjs</code>和<code>bezier-easing</code>运行时，这大约需额外引入23kB(gzip)。引入后主题属性中的<code>color</code>和<code>grayColor</code>将可以直接设置为用户选择的颜色，而不仅限于原先的关键字
         </li>
@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
 import { text } from '../utils/data';
-import { arrayFrom } from '@lun/utils';
+import { arrayFrom } from '@lun-web/utils';
 
 const scales = arrayFrom(12, (_, i) => i + 1);
 

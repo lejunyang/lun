@@ -1,16 +1,12 @@
 {
-  "name": "@lun/react",
+  "name": "@lun-web/react",
   "version": "0.0.1-alpha.0",
   "description": "",
   "type": "module",
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lejunyang/lun.git",
-    "directory": "packages/react"
-  },
+  "repository": "https://github.com/lejunyang/lun",
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
@@ -34,7 +30,7 @@
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build"
   },
   "dependencies": {
-    "@lun/components": "workspace:^"
+    "@lun-web/components": "workspace:^"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "catalog:",

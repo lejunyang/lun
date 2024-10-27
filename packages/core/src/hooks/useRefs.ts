@@ -1,4 +1,4 @@
-import { runIfFn } from '@lun/utils';
+import { runIfFn } from '@lun-web/utils';
 import { shallowReactive, ShallowReactive } from 'vue';
 
 type RefValueType<V> = V extends new (...args: any[]) => infer Refer ? Refer : V;

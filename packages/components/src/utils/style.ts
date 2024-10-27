@@ -1,4 +1,4 @@
-import { isArray, isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun/utils';
+import { isArray, isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
 import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 

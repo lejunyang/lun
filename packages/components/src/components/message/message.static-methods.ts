@@ -1,7 +1,7 @@
 import { getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { MessageOpenConfig, MessageProps } from './type';
 import { iMessage } from './Message';
-import { createElement, isString } from '@lun/utils';
+import { createElement, isString } from '@lun-web/utils';
 import { Status } from 'common';
 
 let message: iMessage;

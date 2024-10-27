@@ -1,4 +1,4 @@
-import { delay } from '@lun/utils';
+import { delay } from '@lun-web/utils';
 
 describe('Button', () => {
   it('asyncHandler', async () => {

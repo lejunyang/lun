@@ -1,4 +1,4 @@
-import { supportCSSHighLight } from '@lun/utils';
+import { supportCSSHighLight } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
 export function useCSSHighlight(highlightName: MaybeRefLikeOrGetter<string>) {

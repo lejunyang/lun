@@ -1,5 +1,5 @@
-import { unrefOrGet } from '@lun/core';
-import { createVirtualMerge } from '@lun/utils';
+import { unrefOrGet } from '@lun-web/core';
+import { createVirtualMerge } from '@lun-web/utils';
 
 export * from './alias';
 export * from './component';

@@ -1,5 +1,5 @@
-import { DatePanelType, DateValueType } from '@lun/core';
-import { freeze } from '@lun/utils';
+import { DatePanelType, DateValueType } from '@lun-web/core';
+import { freeze } from '@lun-web/utils';
 import {
   GetEventPropsFromEmits,
   PropBoolean,

@@ -77,15 +77,15 @@
 
 <script setup lang="tsx">
 import { ref, reactive, watchEffect, defineAsyncComponent, computed, h, useTemplateRef, onMounted } from 'vue';
-import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun/utils';
-import { VueCustomRenderer } from '@lun/components';
+import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun-web/utils';
+import { VueCustomRenderer } from '@lun-web/components';
 import { runVueTSXCode, runReactTSXCode } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
 import { Ref } from 'vue';
 import { createElement } from 'react';
-import { useIntersectionObserver } from '@lun/core';
+import { useIntersectionObserver } from '@lun-web/core';
 
 const data = useData();
 

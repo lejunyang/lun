@@ -1,9 +1,9 @@
-import type { MaybeRefLikeOrGetter, UseModel } from '@lun/core';
-import { createUseModel, unrefOrGet } from '@lun/core';
+import type { MaybeRefLikeOrGetter, UseModel } from '@lun-web/core';
+import { createUseModel, unrefOrGet } from '@lun-web/core';
 import { FormInputCollector } from '../components/form-item/collector';
 import { computed, getCurrentInstance, Ref } from 'vue';
 import { Status } from 'common';
-import { isSet, pickNonNil, ensureArray } from '@lun/utils';
+import { isSet, pickNonNil, ensureArray } from '@lun-web/utils';
 import { formItemRuleProps } from '../components/form-item/type';
 
 const extra = () => {

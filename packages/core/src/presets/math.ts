@@ -7,7 +7,7 @@ import {
   BigIntDecimal,
   toBigIntDecimal,
   assignIfNil,
-} from '@lun/utils';
+} from '@lun-web/utils';
 
 export type MathMethods<W = number, T = W | number> = {
   // ----------------- do not correct param type -----------------

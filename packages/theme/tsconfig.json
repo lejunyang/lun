@@ -17,13 +17,13 @@
     "baseUrl": ".",
     "declarationDir": "./dist",
     "paths": {
-      "@lun/components": [
+      "@lun-web/components": [
         "../components/index.ts"
       ],
-      "@lun/theme": [
+      "@lun-web/theme": [
         "../theme/index.ts"
       ],
-      "@lun/utils": [
+      "@lun-web/utils": [
         "../utils/index.ts"
       ]
     }

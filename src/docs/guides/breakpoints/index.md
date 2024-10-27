@@ -41,10 +41,10 @@ type Size =
 ## 当前屏幕断点
 
 ```ts
-import { activeBreakpoint } from '@lun/components';
+import { activeBreakpoint } from '@lun-web/components';
 ```
 通过上面的代码可以获取当前屏幕断点，当前为 **{{ activeBreakpoint }}**
 
 <script setup>
-import { activeBreakpoint } from '@lun/components';
+import { activeBreakpoint } from '@lun-web/components';
 </script>

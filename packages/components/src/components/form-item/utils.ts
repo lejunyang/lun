@@ -1,4 +1,4 @@
-import { isString, ensureArray, ensureTruthyArray } from '@lun/utils';
+import { isString, ensureArray, ensureTruthyArray } from '@lun-web/utils';
 import { Condition, ValidatorStatusResult } from './type';
 
 export function getConditionValue(

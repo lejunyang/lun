@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, error, getHostStyle } from 'utils';
 import { textEmits, textProps } from './type';
-import { getCachedComputedStyle } from '@lun/utils';
+import { getCachedComputedStyle } from '@lun-web/utils';
 import { getCompParts } from 'common';
 import { useAria, useCE, useNamespace, useSlot } from 'hooks';
 

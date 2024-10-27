@@ -1,4 +1,4 @@
-import { copyCSSStyleSheetsIfNeed, isShadowRoot } from '@lun/utils';
+import { copyCSSStyleSheetsIfNeed, isShadowRoot } from '@lun-web/utils';
 
 /**
  * This hook provides two functions to store and restore the adoptedStyleSheets of an element and its descendants.\

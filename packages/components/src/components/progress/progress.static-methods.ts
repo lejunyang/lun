@@ -1,4 +1,4 @@
-import { on, raf, runIfFn, withResolvers } from '@lun/utils';
+import { on, raf, runIfFn, withResolvers } from '@lun-web/utils';
 import { createLunElement, getFirstThemeProvider, toElement } from 'utils';
 import { iProgress } from './Progress';
 

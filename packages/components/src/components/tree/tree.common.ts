@@ -1,4 +1,4 @@
-import { getVmTreeDirectChildren, getVmTreeParent, MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
+import { getVmTreeDirectChildren, getVmTreeParent, MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
 import { ComponentInternalInstance } from 'vue';
 import { InternalTreeItem } from './tree.items';
 import { getVmLevel, getVmValue, isVm, isVmDisabled, isVmLeafChild } from 'utils';

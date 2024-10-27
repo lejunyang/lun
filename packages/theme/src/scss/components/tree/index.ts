@@ -1,4 +1,4 @@
-import { createImportStyle } from '@lun/components';
+import { createImportStyle } from '@lun-web/components';
 import basic from './basic.scss?inline';
 import common from './tree-common';
 

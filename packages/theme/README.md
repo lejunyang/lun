@@ -1,1 +1,1 @@
-# Default Theme for `@lun/components`
+# Default Theme for `@lun-web/components`

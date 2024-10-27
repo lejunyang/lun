@@ -1,4 +1,4 @@
-import { InputPeriod, InputPeriodWithAuto, InputType } from '@lun/core';
+import { InputPeriod, InputPeriodWithAuto, InputType } from '@lun-web/core';
 import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
@@ -17,7 +17,7 @@ import {
   themeProps,
 } from 'common';
 import { TagProps } from '../tag/type';
-import { Constructor, freeze } from '@lun/utils';
+import { Constructor, freeze } from '@lun-web/utils';
 import { AutoUpdateLabel } from './hooks';
 import { GetCustomRendererSource } from '../custom-renderer';
 

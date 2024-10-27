@@ -1,7 +1,7 @@
 import { h, onBeforeUnmount, ref, shallowRef, watch, watchEffect } from 'vue';
 import { useShadowDom } from './shadowDom';
-import { arrayFrom, isElement, isSupportSlotAssign, isText, isTruthyOrZero } from '@lun/utils';
-import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
+import { arrayFrom, isElement, isSupportSlotAssign, isText, isTruthyOrZero } from '@lun-web/utils';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
 import { renderCustom } from '../components/custom-renderer/CustomRenderer';
 
 /**

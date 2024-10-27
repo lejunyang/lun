@@ -1,4 +1,4 @@
-import { themeColors } from '@lun/components';
+import { themeColors } from '@lun-web/components';
 
 export default () =>
   themeColors.map((color) => (

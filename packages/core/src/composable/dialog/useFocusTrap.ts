@@ -1,4 +1,4 @@
-import { getDeepestActiveElement, getTabbableElements, on, off, at, prevent } from '@lun/utils';
+import { getDeepestActiveElement, getTabbableElements, on, off, at, prevent } from '@lun-web/utils';
 import { tryOnScopeDispose } from '../../hooks';
 
 const activeFocusTrapEls: HTMLElement[] = [];

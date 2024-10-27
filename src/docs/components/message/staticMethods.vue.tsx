@@ -1,4 +1,4 @@
-import { Message } from '@lun/components';
+import { Message } from '@lun-web/components';
 
 const statuses = ['success', 'error', 'warning', 'info'] as const;
 export default () => {

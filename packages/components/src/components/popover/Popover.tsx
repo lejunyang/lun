@@ -17,7 +17,7 @@ import {
   unrefOrGetMulti,
   usePopover,
   useSetupEvent,
-} from '@lun/core';
+} from '@lun-web/core';
 import { closePopover, createDefineElement, openPopover } from 'utils';
 import { popoverEmits, popoverProps } from './type';
 import {
@@ -31,7 +31,7 @@ import {
   virtualGetMerge,
   getRect,
   getCSSVarName,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { useCE, useCEExpose, useNamespace, useSlot } from 'hooks';
 import { ElementRects } from '@floating-ui/vue';
 import { getCompParts, getTransitionProps, popSupport } from 'common';

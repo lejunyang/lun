@@ -2,8 +2,8 @@ import { defineCustomElement } from 'custom';
 import { defineComponent, ref } from 'vue';
 import { createDefineElement, virtualUnrefGetMerge } from 'utils';
 import { virtualRendererProps, VirtualRendererSetupProps } from './type';
-import { useVirtualList } from '@lun/core';
-import { isFunction, virtualGetMerge } from '@lun/utils';
+import { useVirtualList } from '@lun-web/core';
+import { isFunction, virtualGetMerge } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { useCE } from 'hooks';
 

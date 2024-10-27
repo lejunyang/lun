@@ -11,7 +11,7 @@ import {
   UseDatePanelCells,
   useSetupEdit,
   useSetupEvent,
-} from '@lun/core';
+} from '@lun-web/core';
 import {
   AnyAsyncFn,
   capitalize,
@@ -22,7 +22,7 @@ import {
   toGetterDescriptors,
   virtualGetMerge,
   withResolvers,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { useContextConfig } from '../config/config.context';
 import { ComputedRef, onMounted, ref, Transition, nextTick, onBeforeUnmount } from 'vue';
 

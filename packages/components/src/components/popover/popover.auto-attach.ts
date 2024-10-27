@@ -1,5 +1,5 @@
-import { PopoverAttachTargetOptions } from '@lun/core';
-import { on } from '@lun/utils';
+import { PopoverAttachTargetOptions } from '@lun-web/core';
+import { on } from '@lun-web/utils';
 import { ref, watch } from 'vue';
 
 export function useAutoAttach(

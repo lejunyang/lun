@@ -13,7 +13,7 @@ import {
   useNativeDialog,
   useSetupEdit,
   useSetupEvent,
-} from '@lun/core';
+} from '@lun-web/core';
 import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
 import { getCompParts, getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
@@ -29,7 +29,7 @@ import {
   getDocumentElement,
   withResolvers,
   getRect,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
 

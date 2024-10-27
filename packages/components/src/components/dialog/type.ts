@@ -1,4 +1,4 @@
-import { DraggableFn, MaybePromise } from '@lun/core';
+import { DraggableFn, MaybePromise } from '@lun-web/core';
 import { CSSProperties, ExtractPropTypes } from 'vue';
 import {
   CommonProps,
@@ -16,7 +16,7 @@ import {
   themeProps,
   undefBoolProp,
 } from 'common';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 import { GetCustomRendererSource } from '../custom-renderer';
 
 export const dialogProps = freeze({

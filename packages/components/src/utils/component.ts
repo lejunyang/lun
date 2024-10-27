@@ -21,9 +21,9 @@ import {
   once,
   runIfFn,
   supportCustomElement,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { PropString } from 'common';
-import { vContent } from '@lun/plugins/vue';
+import { vContent } from '@lun-web/plugins/vue';
 import { useContextStyles } from '../hooks/useStyles';
 
 export function getElementFirstName(comp: ComponentKey) {

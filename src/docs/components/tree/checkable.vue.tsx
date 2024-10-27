@@ -1,4 +1,4 @@
-import { iTree } from '@lun/components';
+import { iTree } from '@lun-web/components';
 import { ref } from 'vue';
 
 const tree = ref<iTree>();

@@ -1,4 +1,4 @@
-import { throttle, on, off } from '@lun/utils';
+import { throttle, on, off } from '@lun-web/utils';
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 
 export default defineComponent({

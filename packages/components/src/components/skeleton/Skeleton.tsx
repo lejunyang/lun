@@ -4,7 +4,7 @@ import { skeletonEmits, skeletonProps } from './type';
 import { Transition } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { useSetupEdit } from '@lun/core';
+import { useSetupEdit } from '@lun-web/core';
 
 const name = 'skeleton';
 const parts = [name] as const;

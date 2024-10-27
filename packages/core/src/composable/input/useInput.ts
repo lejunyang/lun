@@ -11,7 +11,7 @@ import {
   BigIntDecimal,
   objectKeys,
   prevent,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { reactive } from 'vue';
 import { MaybeRefLikeOrGetter, objectComputed, unrefOrGet } from '../../utils';
 import { processNumOptions, useNumberStep } from './useNumberStep';

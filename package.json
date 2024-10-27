@@ -15,7 +15,7 @@
     "docs:preview": "vitepress preview src/docs",
     "test": "vitest",
     "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha",
-    "release": "pnpm publish -r --access public --no-git-checks"
+    "release": "cross-env HTTP_PROXY=http://localhost:10809 pnpm publish -r --access public --no-git-checks"
   },
   "engines": {
     "node": ">=18",
@@ -23,11 +23,11 @@
   },
   "dependencies": {
     "@giscus/vue": "^3.0.0",
-    "@lun/components": "workspace:^",
-    "@lun/core": "workspace:^",
-    "@lun/react": "workspace:^",
-    "@lun/theme": "workspace:^",
-    "@lun/utils": "workspace:^",
+    "@lun-web/components": "workspace:^",
+    "@lun-web/core": "workspace:^",
+    "@lun-web/react": "workspace:^",
+    "@lun-web/theme": "workspace:^",
+    "@lun-web/utils": "workspace:^",
     "@vueuse/core": "^11.1",
     "esbuild-wasm": "^0.21.5",
     "monaco-editor": "^0.50.0",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
-    "@lun/plugins": "workspace:^",
+    "@lun-web/plugins": "workspace:^",
     "@rollup/plugin-replace": "^5.0.7",
     "@types/dom-view-transitions": "^1.0.4",
     "@types/node": "^22.2.0",

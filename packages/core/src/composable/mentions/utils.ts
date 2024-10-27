@@ -1,4 +1,4 @@
-import { getTypeTag, isText } from '@lun/utils';
+import { getTypeTag, isText } from '@lun-web/utils';
 
 export function rangeToString(range: Range | StaticRange) {
   if (getTypeTag(range) === 'StaticRange') {

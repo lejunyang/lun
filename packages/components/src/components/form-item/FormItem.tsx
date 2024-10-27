@@ -9,7 +9,7 @@ import {
   UseFormReturn,
   useSetupEdit,
   useSetupEvent,
-} from '@lun/core';
+} from '@lun-web/core';
 import { createDefineElement, renderElement } from 'utils';
 import { ValidateTrigger, ValidatorStatusResult, formItemEmits, formItemProps } from './type';
 import { useBreakpoint, useCEStates, useNamespace } from 'hooks';
@@ -33,7 +33,7 @@ import {
   toNoneNilSet,
   toPxIfNum,
   virtualGetMerge,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { defineIcon } from '../icon/Icon';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { innerValidator } from './formItem.validate';

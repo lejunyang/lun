@@ -11,7 +11,7 @@ import {
   PropString,
   editStateProps,
 } from 'common';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 import { GetCustomRendererSource } from '../custom-renderer';
 
 export type WellKnownDirectory = 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos';

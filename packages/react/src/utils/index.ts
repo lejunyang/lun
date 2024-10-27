@@ -1,4 +1,4 @@
-import { isFunction } from '@lun/utils';
+import { isFunction } from '@lun-web/utils';
 
 export function mergeRefs<T>(...refs: Array<React.RefCallback<T> | React.MutableRefObject<T> | undefined>) {
   return (value: T) => {

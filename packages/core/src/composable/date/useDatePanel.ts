@@ -21,7 +21,7 @@ import {
   prevent,
   runIfFn,
   ensureArray,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { useDateParseFormat } from './utils';
 import { processType } from '../../presets/date.utils';
 

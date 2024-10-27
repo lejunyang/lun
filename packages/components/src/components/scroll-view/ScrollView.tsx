@@ -24,9 +24,9 @@ import {
   pick,
   setStyle,
   getCSSVarName,
-} from '@lun/utils';
+} from '@lun-web/utils';
 import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watch, watchEffect } from 'vue';
-import { unrefOrGet, useCleanUp, useResizeObserver } from '@lun/core';
+import { unrefOrGet, useCleanUp, useResizeObserver } from '@lun-web/core';
 import { calcProgress, measureSubject } from './utils';
 
 const name = 'scroll-view';

@@ -11,18 +11,18 @@ lang: zh-CN
 
 目前提供以下的库：
 
-- `@lun/utils`：js 工具函数库
-- `@lun/core`：提供组件功能的钩子函数库
-- `@lun/components`：组件库，其依赖于上面两个
-- `@lun/theme`：主题库，其依赖于上面三个
-- `@lun/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
-- `@lun/plugins`: 为 JSX 或 Vue template 提供自定义指令
+- `@lun-web/utils`：js 工具函数库
+- `@lun-web/core`：提供组件功能的钩子函数库
+- `@lun-web/components`：组件库，其依赖于上面两个
+- `@lun-web/theme`：主题库，其依赖于上面三个
+- `@lun-web/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+- `@lun-web/plugins`: 为 JSX 或 Vue template 提供自定义指令
 
 根据需要并安装对应的库
 
-- 如果只需要组件，样式完全自定义的话，直接安装`@lun/components`即可
-- 如果需要主题，只需安装`@lun/theme`
-- 在 React 中使用需额外安装`@lun/react`，使用其导出的组件
+- 如果只需要组件，样式完全自定义的话，直接安装`@lun-web/components`即可
+- 如果需要主题，只需安装`@lun-web/theme`
+- 在 React 中使用需额外安装`@lun-web/react`，使用其导出的组件
 
 ## React 中使用
 
@@ -30,10 +30,10 @@ React 是目前流行 web 框架中唯一不支持`customElement`的，详情见
 
 React 19 即将支持`customElement`，但目前还处于实验阶段。本文档使用的是 React 19 RC，在文档的 React 代码中可正常使用自定义元素。
 
-对于 React 19 之前的版本，我们需要手动封装一层。`@lun/react`将`@lun/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
+对于 React 19 之前的版本，我们需要手动封装一层。`@lun-web/react`将`@lun-web/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
 
 ```tsx
-import { LInput } from '@lun/react';
+import { LInput } from '@lun-web/react';
 
 export default function () {
   return <LInput onUpdate={() => {}} />;
@@ -43,7 +43,7 @@ export default function () {
 ## 全量引入
 
 ```js
-import { GlobalStaticConfig, defineAllComponents } from '@lun/components';
+import { GlobalStaticConfig, defineAllComponents } from '@lun-web/components';
 import {
   importCommonTheme
   importAllColors,
@@ -53,9 +53,9 @@ import {
   importOutlineTheme,
   importSoftTheme,
   importSolidTheme,
-} from '@lun/theme';
+} from '@lun-web/theme';
 // 如果使用了日期组件，则必须引入日期处理预设。内部提供了dayjs实现，但需要用户手动引入
-import '@lun/core/date-dayjs';
+import '@lun-web/core/date-dayjs';
 // 如果你想要使用其他的日期处理库，可参考左侧“数字和日期处理预设”一栏
 
 // 定义组件前设置想要更改的全局静态配置
@@ -97,8 +97,8 @@ defineAllComponents();
 ## 动态引入
 
 ```js
-import { autoDefine } from '@lun/components';
-import { autoImportTheme } from '@lun/theme';
+import { autoDefine } from '@lun-web/components';
+import { autoImportTheme } from '@lun-web/theme';
 
 autoImportTheme();
 autoDefine();
@@ -109,8 +109,8 @@ autoDefine();
 ## 自定义引入
 
 ```js
-import { defineButton } from '@lun/components';
-import { importButtonBasicTheme, importButtonSurfaceTheme } from '@lun/theme';
+import { defineButton } from '@lun-web/components';
+import { importButtonBasicTheme, importButtonSurfaceTheme } from '@lun-web/theme';
 ```
 
 每个组件都导出了单独的 define 函数，用于单独引入该组件，没有使用的组件最终不会被打包，每个组件的主题也单独提供了 import 函数。
@@ -135,9 +135,9 @@ defineButton('my-button', {
 ## TS 支持
 
 组件库的组件本身具有完整的类型支持，针对不同的框架，目前提供了以下类型定义：
-- `@lun/components/elements-types-vue`: Vue template 以及 JSX 的组件类型
-- `@lun/components/elements-types-react`: React JSX 组件类型
-- `@lun/components/elements-types-html`: document.createElement 组件类型支持
+- `@lun-web/components/elements-types-vue`: Vue template 以及 JSX 的组件类型
+- `@lun-web/components/elements-types-react`: React JSX 组件类型
+- `@lun-web/components/elements-types-html`: document.createElement 组件类型支持
 
 你需要在 TS 配置文件中对应引入它们
 
@@ -149,14 +149,14 @@ import * as Vue from 'vue';
 // Vue template
 declare module 'vue' {
   interface GlobalComponents {
-    LButton: Vue.DefineComponent<import('@lun/components').ButtonProps>;
+    LButton: Vue.DefineComponent<import('@lun-web/components').ButtonProps>;
   }
 }
 // Vue JSX
 declare module 'vue/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
-      'l-button': Vue.HTMLAttributes & Vue.ReservedProps & import('@lun/components').ButtonProps;
+      'l-button': Vue.HTMLAttributes & Vue.ReservedProps & import('@lun-web/components').ButtonProps;
     }
   }
 }
@@ -168,7 +168,7 @@ declare module 'react/jsx-runtime' {
     interface IntrinsicElements {
       'l-button': React.HTMLAttributes<HTMLElement> &
         React.RefAttributes<import('./index').iButton> &
-        import('@lun/components').ButtonProps;
+        import('@lun-web/components').ButtonProps;
     }
   }
 }
@@ -177,7 +177,7 @@ declare module 'react/jsx-runtime' {
 每个组件都有一个 class 和两个类型，注意区分
 
 ```ts
-import { Button, tButton, iButton } from '@lun/components';
+import { Button, tButton, iButton } from '@lun-web/components';
 Button; // 组件的class，这是值，不是类型，一般用不到
 tButton; // 组件class的类型，相当于typeof Button
 iButton; // 组件实例的类型，相当于InstanceType<tButton>，这是实际DOM元素的类型
@@ -186,7 +186,7 @@ iButton; // 组件实例的类型，相当于InstanceType<tButton>，这是实�
 当需要组件实例类型时，你可以像下面这样使用：
 
 ```ts
-import { iButton } from '@lun/components';
+import { iButton } from '@lun-web/components';
 const button = document.querySelector('l-button') as iButton;
 button.asyncHandler = () => console.log('');
 
@@ -253,6 +253,6 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 - <Support is="overflowClipMargin" /> [`input`](/components/input/#轮播标签): [CSS overflow-clip-margin](https://caniuse.com/?search=overflow-clip-margin) <SupportInfo chrome="90" edge="90" firefox="102" safari="no" />
 
 <script setup>
-  import { inBrowser } from '@lun/utils';
+  import { inBrowser } from '@lun-web/utils';
   const browserInfo = inBrowser ? navigator.userAgent : '';
 </script>

@@ -1,7 +1,7 @@
 import { ExtractPropTypes, PropType } from 'vue';
 import { popoverEmits, popoverProps } from '../popover/type';
 import { CommonProps, GetEventPropsFromEmits } from 'common';
-import { freeze } from '@lun/utils';
+import { freeze } from '@lun-web/utils';
 
 export const tooltipProps = freeze({
   ...popoverProps,

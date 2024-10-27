@@ -1,5 +1,5 @@
 import { PropType, TransitionProps } from 'vue';
-import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun/utils';
+import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun-web/utils';
 import { Responsive } from '../hooks/useBreakpoint';
 
 const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => {

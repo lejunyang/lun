@@ -1,6 +1,6 @@
 import { Ref, ComponentInternalInstance } from 'vue';
 import { FormHooks, FormHooksOptions } from './useForm.hooks';
-import { CommonObject } from '@lun/utils';
+import { CommonObject } from '@lun-web/utils';
 import { LocalEditState } from '../../hooks/useSetupEdit';
 
 export type FormItemStatusMessage = { status?: string; message: string };

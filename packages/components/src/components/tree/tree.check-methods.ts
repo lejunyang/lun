@@ -1,6 +1,6 @@
-import { ToAllMaybeRefLike, unrefOrGet, useCheckboxMethods } from '@lun/core';
+import { ToAllMaybeRefLike, unrefOrGet, useCheckboxMethods } from '@lun-web/core';
 import { createCount, getChildren, getParent, getValue, isLeafChild, Item } from './tree.common';
-import { arrayFrom, differenceOfSets } from '@lun/utils';
+import { arrayFrom, differenceOfSets } from '@lun-web/utils';
 
 export function useTreeCheckMethods(
   options: ToAllMaybeRefLike<

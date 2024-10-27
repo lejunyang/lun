@@ -1,5 +1,5 @@
-import { CollectorParentReturn, MaybeRefLikeOrGetter, unrefOrGet } from '@lun/core';
-import { isArrowDownEvent, isArrowUpEvent, prevent } from '@lun/utils';
+import { CollectorParentReturn, MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
+import { isArrowDownEvent, isArrowUpEvent, prevent } from '@lun-web/utils';
 import { ref, ComponentInternalInstance, watchEffect, computed } from 'vue';
 
 export function useActivateOption(

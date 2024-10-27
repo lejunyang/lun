@@ -7,8 +7,8 @@
     "types": ["./packages/components/dist/elements-types-react"],
     "paths": {
       "data": ["./src/utils/data.ts"],
-      "@lun/components": ["./packages/components/index.ts"],
-      "@lun/core": ["./packages/core/index.ts"]
+      "@lun-web/components": ["./packages/components/index.ts"],
+      "@lun-web/core": ["./packages/core/index.ts"]
     }
   },
   "include": ["src/docs/**/*.react.tsx"]

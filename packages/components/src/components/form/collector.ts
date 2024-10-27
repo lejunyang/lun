@@ -1,4 +1,4 @@
-import { UseFormReturn, createCollector } from '@lun/core';
+import { UseFormReturn, createCollector } from '@lun-web/core';
 import { FormProps, FormSetupProps } from './type';
 import { FormItemProps } from '../form-item/type';
 import { useTooltipManage } from 'hooks';

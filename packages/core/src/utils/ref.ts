@@ -1,4 +1,4 @@
-import { AnyObject, isArray, isFunction } from '@lun/utils';
+import { AnyObject, isArray, isFunction } from '@lun-web/utils';
 import { computed, isRef } from 'vue';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =

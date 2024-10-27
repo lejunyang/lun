@@ -63,5 +63,5 @@ type MessageOpenConfig = {
 <!-- @Code:duration -->
 
 <script setup>
-  import { supportPopover } from '@lun/utils';
+  import { supportPopover } from '@lun-web/utils';
 </script>

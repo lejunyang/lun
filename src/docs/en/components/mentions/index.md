@@ -50,7 +50,7 @@ lang: zh-CN
 <!-- @Code:highlight -->
 
 <script setup>
-import { supportCSSHighLight } from '@lun/utils';
+import { supportCSSHighLight } from '@lun-web/utils';
 </script>
 
 <!--this file is copied from Chinese md, remove this comment to update it, or it will be overwritten on next build-->
