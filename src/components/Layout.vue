@@ -41,7 +41,14 @@
             <l-button class="start-button" variant="soft">View</l-button>
           </div>
           <div slot="size">选择全局组件大小</div>
-          <VPSwitchAppearance class="appearance-switch" data-popover="appearance" />
+          <l-switch
+            :checked="isDark"
+            @update="toggleAppearanceWithTransition"
+            class="appearance-switch"
+            data-popover="appearance"
+          >
+            <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9)" />
+          </l-switch>
           <div slot="appearance">是否开启暗黑模式</div>
           <l-color-picker
             data-popover="custom-color"

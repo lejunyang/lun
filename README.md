@@ -1,22 +1,56 @@
-# Lun
+# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
-A web components library based on Vue3
+**English** | [中文](./README.zh-CN.md)
 
-- Based on custom elements and shadow DOM, works with all frameworks
+A full-featured web components library based on Vue3
+
+- Based on custom elements and shadow DOM, **works with all frameworks**
 - Well-encapsulated features and few required dependencies(vue and floating-ui), provides a set of high-quality components, relatively lightweight
 - Provides abundant global static and dynamic configurations, easy to customize not only CSS but also many internal behaviors
 - Styleless or with a beautiful preset theme based on @radix/theme, out-of-box dark mode and responsive ui support
-- Ready to use new Web APIs (Popover API, CSS Anchor Positioning, File System Access API...), provide reasonable fallbacks
+- Ready to use new Web APIs (Popover API, CSS Anchor Positioning CustomStateSet...), provide reasonable fallbacks
+- Full typescript support, provide type definitions for all components
 
 ## Warning
 
-Not production ready, still in development.
+Not production ready, still in development, you can keep an eye on it. Feel feel to give me any kind of feedback, also contribution is welcome.
 
 ## How to use
 
 Please refer to [docs](https://lejunyang.github.io/lun/guides/usage/)
 
-## Why
+## Development
+
+### Structure
+
+```
+packages
+  ├── components // components library
+  ├── core // hooks for components
+  ├── utils // common utils for javascript
+  ├── theme // theme package
+  ├── plugins // babel and vue plugins for custom vue directives
+  ├── react // components library specially for react before react19
+src // docs
+utils // utils for this workspace
+```
+
+Requires node>=20 and pnpm>=9.5.0 to run locally. If there is no local build, run build first.
+
+```
+pnpm install
+pnpm build
+pnpm dev
+```
+
+## FAQ & Roadmap
+
+### Why Vue3
+
+I'm convinced by [Vue3 defineCustomElement](https://vuejs.org/guide/extras/web-components.html), a proper runtime is necessary for better DX.
+Also, most cross framework libraries use class oriented way to build themselves, I prefer hook and composition way so I chose Vue3's defineCustomElement. It's good trade-off if you use amounts of components
+
+### Why another library?
 
 There are plenty of powerful web libraries, why creating new one?
 
@@ -24,17 +58,27 @@ Well, mainly for personal learning and summary. I'm interested in cross-framewor
 
 I don't found any library based on shadow DOM that has both useful and out-of-box features and easy customization, maybe it's because of the limitation of shadow DOM. So I decided to think up some ways to make it work.
 
-### Why Vue3
+### Could it be used in Vue2?
 
-I'm convinced by [Vue3 defineCustomElement](https://vuejs.org/guide/extras/web-components.html)
-Also, most cross framework libraries use class oriented way to build themselves, I prefer hook and composition way so I chose Vue3's defineCustomElement. Though we have to have a vue runtime to use it, it's good trade-off if we use amounts of components
+Technically yes, because web components is not framework-specific, but you need to handle the import from vue2 and vue3 properly. Definitely needs some configurations in different CLI, haven't tested yet.
 
-## Development
+### Roadmap
 
-Requires pnpm>=9.5.0 to run locally. If there is no local build, run build first.
+## Roadmap
 
-```
-pnpm install
-pnpm build
-pnpm dev
-```
+- fix bugs, remove experimental flags
+- finish test cases
+- add docs about Props, Events, Slots, Methods for components
+- features I want to add but haven't got time yet:
+  - Stabilize Form implementation: form validation, value transformation...
+  - integrate internal virtual rendering for Select、Tree, support external virtual rendering
+  - provide better scroll-driven animation usage in ScrollView
+  - implement Table
+  - input mask feature, simplify Input rendering
+  - add color process preset, finish ColorPicker
+  - finish Calendar
+  - finalize component Transition
+  - add Menu component
+- accessibility support
+- gather feedback, finalize name and functions of components
+- Docs translation

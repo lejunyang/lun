@@ -2,17 +2,7 @@
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
 import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents, registerCustomRenderer } from '@lun/components';
-import {
-  importCommonTheme,
-  importBasicTheme,
-  importSurfaceTheme,
-  importOutlineTheme,
-  importSoftTheme,
-  importSolidTheme,
-  importGhostTheme,
-  importAllColors,
-  importAllP3Colors,
-} from '@lun/theme';
+import { importAllThemes, importAllColors, importAllP3Colors } from '@lun/theme';
 import { inBrowser } from 'vitepress';
 import '@lun/core/date-dayjs';
 import { importCustomDynamicColors } from '@lun/theme/custom';
@@ -59,13 +49,7 @@ export default {
 
     importAllColors();
     importAllP3Colors();
-    importCommonTheme();
-    importBasicTheme();
-    importSurfaceTheme();
-    importOutlineTheme();
-    importSolidTheme();
-    importSoftTheme();
-    importGhostTheme();
+    importAllThemes();
     importCustomDynamicColors();
 
     GlobalStaticConfig.reflectStateToAttr = 'always';

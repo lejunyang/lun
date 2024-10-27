@@ -25,12 +25,14 @@
       </l-radio-group>
       <strong>{{ locales[lang]?.components.grayColor }}</strong>
       <l-radio-group size="3" v-update="theme['gray-color']">
-        <l-radio v-for="color in grayColors" :value="color" :color="color" no-indicator :title="color">
+        <l-radio v-for="color in grayColors" :value="color" :gray-color="color" no-indicator :title="color">
           <div class="circle" :style="{ background: `var(--l-${color}-9)` }"></div>
         </l-radio>
       </l-radio-group>
       <strong>{{ locales[lang]?.components.appearance }}</strong>
-      <VPSwitchAppearance id="switch-appearance" />
+      <l-switch :checked="isDark" @update="toggleAppearanceWithTransition" id="switch-appearance">
+        <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9)" />
+      </l-switch>
       <strong>{{ locales[lang]?.components.size }}</strong>
       <l-radio-group v-update="theme.size">
         <l-radio value="1" size="1"
@@ -62,9 +64,10 @@
 
 <script setup lang="tsx">
 import { themeColors, grayColors } from '@lun/components';
-import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
 import locales from '../docs/.vitepress/locales';
 import { AnyFn } from '@lun/utils';
+import { inject } from 'vue';
+import { useData } from 'vitepress';
 
 const props = defineProps<{
   theme: {
@@ -78,8 +81,11 @@ const props = defineProps<{
   animate: (update: AnyFn) => void;
 }>();
 
-const radiuses = ['none', 'small', 'medium', 'large', 'full'];
+const radiuses = ['none', 'small', 'medium', 'large', 'full'] as const;
 const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
+
+const { isDark } = useData();
+const toggleAppearanceWithTransition = inject('toggle-appearance', () => {});
 </script>
 
 <style lang="scss">
@@ -145,7 +151,8 @@ const scales = ['0.9', '0.95', '1', '1.05', '1.1'];
     border-start-start-radius: 80%;
   }
 }
-.theme-panel, .theme-home-panel {
+.theme-panel,
+.theme-home-panel {
   l-radio-group {
     display: flex;
     gap: 10px;

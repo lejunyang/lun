@@ -196,3 +196,13 @@ export const autoImportTheme = once(() => {
       });
   });
 });
+
+export const importAllThemes = () => {
+  importCommonTheme();
+  importBasicTheme();
+  importSurfaceTheme();
+  importOutlineTheme();
+  importSolidTheme();
+  importSoftTheme();
+  importGhostTheme();
+};

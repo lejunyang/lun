@@ -20,16 +20,18 @@ lang: zh-CN
 ## Roadmap
 
 - 稳定当前已有的组件，还有不少组件标了高度实验中，有待修复问题
-- 完善文档，提供组件的Props、Events、Slots、Methods等详细说明
-- 规范`@lun/utils`库，使得外部也能单独使用
 - 添加测试用例
+- 完善文档，提供组件的Props、Events、Slots、Methods等详细说明
 - 添加其他想实现但没时间做的组件或功能
   - 稳定Form的实现，稳定表单校验、值转换等功能
   - 为组件库的Select、Tree集成内部的虚拟渲染，同时支持外部虚拟渲染
+  - 让ScrollView提供更完善的滚动驱动动画
   - 实现Table
   - Input掩码，简化Input渲染
   - 添加颜色处理预设，完善ColorPicker
-  - 大单元格Calendar渲染，完善模式切换，添加事件支持，农历支持
+  - 大单元格Calendar渲染，完善模式切换，添加日历事件支持，农历支持
+  - 完善组件Transition
+  - 添加菜单组件
 - Accessibility 支持
 - 收集社区意见，确定组件的功能，属性方法命名是否需要修改
 - 英文翻译

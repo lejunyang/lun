@@ -1,7 +1,8 @@
 <template>
   <ClientOnly>
+    <!-- empty placeholder div -->
     <div v-if="skipRender" class="code-wrapper" style="height: 200px" ref="empty"></div>
-    <div v-else class="code-wrapper" v-if="!devHide" ref="wrapperRef">
+    <div v-else-if="!devHide" class="code-wrapper" ref="wrapperRef">
       <div :class="`code-container`" v-if="!showGenerated || !initialized">
         <!-- this is to preventing long time white screen before initialized -->
         <slot></slot>
