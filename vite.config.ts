@@ -3,7 +3,6 @@ import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import { vUpdate } from '@lun/plugins/babel';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import istanbulPlugin from 'vite-plugin-istanbul';
 
 const processPath = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
@@ -18,13 +17,6 @@ export default defineConfig({
     vueJsx({
       isCustomElement: (tag) => tag.startsWith('l-'),
       babelPlugins: [vUpdate].filter(Boolean),
-    }),
-    istanbulPlugin({
-      cypress: true,
-      checkProd: true,
-      include: ['packages/**/*'],
-      exclude: ['__test__/**/*', 'packages/plugins'],
-      extension: ['.ts', '.tsx'],
     }),
   ],
   server: {

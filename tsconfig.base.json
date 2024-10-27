@@ -28,7 +28,7 @@
       "@types/dom-view-transitions",
       "vitest/globals",
       "@vitest/browser/providers/playwright",
-      "vite/client"
+      "vite/client",
     ]
   }
 }

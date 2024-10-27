@@ -1,7 +1,7 @@
 name: Component tests
 on: push
 jobs:
-  cypress-run:
+  test-run:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -35,12 +35,8 @@ jobs:
           # cache-dependency-path: # optional
       - name: Install and Build
         run: pnpm install && pnpm build
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          command: pnpm cy-test
-          component: true
+      - name: Run Tests
+        run: pnpm test run
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
