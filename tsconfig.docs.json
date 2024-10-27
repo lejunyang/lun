@@ -23,7 +23,12 @@
     },
     "types": ["./packages/components/dist/elements-types-vue.d.ts"]
   },
-  "exclude": ["src/docs/.vitepress/cache", "src/docs/.vitepress/dist", "src/docs/.vitepress/temp"],
+  "exclude": [
+    "src/docs/.vitepress/cache",
+    "src/docs/.vitepress/dist",
+    "src/docs/.vitepress/temp",
+    "./utils/testSetup.ts"
+  ],
   "include": [
     "./src/utils/*.ts",
     "./utils/**/*.ts",

@@ -7,6 +7,7 @@ export default defineWorkspace([
       name: '@lun/components',
       globals: true,
       root: './packages/components',
+      setupFiles: ['../../utils/testSetup.ts'], // it's relative to root, must be set here, not in vite.config.ts
       browser: {
         enabled: true,
         name: 'chromium',

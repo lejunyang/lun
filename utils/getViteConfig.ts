@@ -94,6 +94,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       alias: {
         ...(dev
           ? {
+              '@lun/components': processPath('../packages/components/index'),
               '@lun/utils': processPath('../packages/utils/index.ts'),
               '@lun/core/date-dayjs': processPath('../packages/core/src/presets/date.dayjs.ts'),
               '@lun/theme/custom': processPath('../packages/theme/src/custom/custom.ts'),
