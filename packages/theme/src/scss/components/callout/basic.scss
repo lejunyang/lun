@@ -46,7 +46,7 @@ pre {
   @include size(1) {
     @include setVars(
       (
-        padding: getSpaceValue(3),
+        padding: getSpaceValue(2),
         gap: 0 getSpaceValue(1),
         border-radius: getRadiusValue(3),
         message-font-size: getFontSizeValue(2),
@@ -59,7 +59,7 @@ pre {
   @include size(2) {
     @include setVars(
       (
-        padding: getSpaceValue(4),
+        padding: getSpaceValue(3),
         gap: getSpaceValue(1) getSpaceValue(2),
         border-radius: getRadiusValue(4),
         message-font-size: getFontSizeValue(3),
@@ -72,7 +72,7 @@ pre {
   @include size(3) {
     @include setVars(
       (
-        padding: getSpaceValue(5),
+        padding: getSpaceValue(4),
         gap: getSpaceValue(2) getSpaceValue(3),
         border-radius: getRadiusValue(5),
         message-font-size: getFontSizeValue(4),
