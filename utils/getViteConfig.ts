@@ -70,7 +70,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       minify: dev ? false : 'esbuild',
       emptyOutDir: dev,
       rollupOptions: {
-        external: ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /dayjs.*/, /react-dom.*/, /@floating-ui.*/],
+        external: ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /^dayjs.*/, /react-dom.*/, /@floating-ui.*/],
         output: {
           chunkFileNames() {
             return `chunks/${dev ? 'dev' : 'prod'}-[format]/[name].[hash].js`;

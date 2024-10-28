@@ -7,7 +7,7 @@ export default getViteConfig('@lun-web/plugins', {
       entry: ['./src/vue/vue.index.ts', './src/babel/babel.index.ts'],
       fileName: (format, entryName) => {
         const ext = format === 'es' ? '.js' : '.cjs';
-        return `lun-plugins-${entryName.replace('.index', '')}.${dev ? 'development' : 'production'}${ext}`;
+        return `lun-web-plugins-${entryName.replace('.index', '')}.${dev ? 'development' : 'production'}${ext}`;
       },
     },
   },
