@@ -1,6 +1,7 @@
 import { defineAllComponents } from '../packages/components/index';
 import { createElement } from '../packages/utils/index';
 import { importAllThemes } from '../packages/theme/index';
+import '../packages/core/src/presets/date.dayjs';
 import { afterEach } from 'vitest';
 
 const testAttr = 'data-test';
