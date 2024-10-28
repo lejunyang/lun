@@ -63,6 +63,10 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           link: wrapLink('/guides/states/', lang),
         },
         {
+          text: locales[lang].sidebar.guides.plugins,
+          link: wrapLink('/guides/plugins/', lang),
+        },
+        {
           text: locales[lang].sidebar.guides.caveat,
           link: wrapLink('/guides/caveat/', lang),
         },
