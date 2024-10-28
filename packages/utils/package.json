@@ -1,22 +1,43 @@
 {
   "name": "@lun-web/utils",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
+  "description": "A set of javascript utils",
+  "keywords": [
+    "javascript-utils"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/lejunyang/lun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/utils"
+  },
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
   "homepage": "https://lejunyang.github.io/lun/",
+  "author": {
+    "name": "lejunyang",
+    "email": "lejunyang@foxmail.com"
+  },
   "exports": {
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "browser": {
+        "development": "./dist/lun-web-utils.development.js",
+        "default": "./dist/lun-web-utils.production.js"
+      },
+      "default": {
+        "development": "./dist/lun-web-utils.development.js",
+        "default": "./dist/lun-web-utils.production.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -28,7 +49,7 @@
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview",
-    "version": "npm version"
+    "v": "npm version"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "catalog:",

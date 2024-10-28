@@ -70,7 +70,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       minify: dev ? false : 'esbuild',
       emptyOutDir: dev,
       rollupOptions: {
-        external: ['vue', /@lun-web\/.+/, 'react', 'dayjs', /@vue\/.+/],
+        external: ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /dayjs.*/, /react-dom.*/, /@floating-ui.*/],
         output: {
           chunkFileNames() {
             return `chunks/${dev ? 'dev' : 'prod'}-[format]/[name].[hash].js`;
@@ -78,14 +78,18 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
           ...viteConfig?.build?.rollupOptions?.output,
           globals: {
             vue: 'Vue',
-            '@lun-web/components': 'LunComponents',
-            '@lun-web/core': 'LunCore',
-            '@lun-web/theme': 'LunTheme',
-            '@lun-web/utils': 'LunUtils',
-            '@lun-web/plugins': 'LunPlugins',
-            '@lun-web/plugins/vue': 'LunVuePlugins',
-            '@lun-web/plugins/babel': 'LunBabelPlugins',
-            '@lun-web/react': 'LunReact',
+            '@lun-web/components': 'LunWebComponents',
+            '@lun-web/core': 'LunWebCore',
+            '@lun-web/theme': 'LunWebTheme',
+            '@lun-web/utils': 'LunWebUtils',
+            '@lun-web/plugins': 'LunWebPlugins',
+            '@lun-web/plugins/vue': 'LunWebVuePlugins',
+            '@lun-web/plugins/babel': 'LunWebBabelPlugins',
+            '@lun-web/react': 'LunWebReact',
+            '@floating-ui/core': 'FloatingUICore',
+            '@floating-ui/dom': 'FloatingUIDOM',
+            '@floating-ui/utils': 'FloatingUIUtils',
+            '@floating-ui/vue': 'FloatingUIVue',
             react: 'React',
           },
         },

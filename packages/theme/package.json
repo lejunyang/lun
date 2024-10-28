@@ -1,23 +1,45 @@
 {
   "name": "@lun-web/theme",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
+  "description": "Beautiful preset theme for @lun-web/components",
+  "keywords": [
+    "ui",
+    "theme"
+  ],
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "files": [
     "dist",
     "./src/scss"
   ],
-  "repository": "https://github.com/lejunyang/lun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/theme"
+  },
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
   "homepage": "https://lejunyang.github.io/lun/",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "author": {
+    "name": "lejunyang",
+    "email": "lejunyang@foxmail.com"
+  },
   "exports": {
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "browser": {
+        "development": "./dist/lun-web-theme.development.js",
+        "default": "./dist/lun-web-theme.production.js"
+      },
+      "default": {
+        "development": "./dist/lun-web-theme.development.js",
+        "default": "./dist/lun-web-theme.production.js"
+      }
     },
     "./custom": {
       "require": "./dist/custom.development.cjs",
@@ -25,6 +47,7 @@
       "types": "./dist/custom.d.ts"
     },
     "./scss/common/*.scss": "./src/scss/common/*.scss",
+    "./scss/components/*": "./src/scss/components/*",
     "./scss/mixins/*.scss": "./src/scss/mixins/*.scss",
     "./package.json": "./package.json"
   },
@@ -37,7 +60,7 @@
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview",
-    "version": "npm version"
+    "v": "npm version"
   },
   "dependencies": {
     "@lun-web/components": "workspace:^"

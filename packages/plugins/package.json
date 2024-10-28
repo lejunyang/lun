@@ -1,25 +1,35 @@
 {
   "name": "@lun-web/plugins",
-  "version": "0.0.1-alpha.0",
-  "description": "",
+  "version": "0.0.1-alpha.1",
+  "description": "Directive plugins for Vue template or Vue JSX",
+  "keywords": [],
   "type": "module",
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/lejunyang/lun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/plugins"
+  },
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
   "homepage": "https://lejunyang.github.io/lun/",
+  "author": {
+    "name": "lejunyang",
+    "email": "lejunyang@foxmail.com"
+  },
   "exports": {
     "./vue": {
-      "require": "./dist/lun-plugins-vue.production.cjs",
-      "import": "./dist/lun-plugins-vue.production.js",
+      "require": "./dist/lun-web-plugins-vue.production.cjs",
+      "import": "./dist/lun-web-plugins-vue.production.js",
       "types": "./dist/vue.index.d.ts"
     },
     "./babel": {
-      "require": "./dist/lun-plugins-babel.production.cjs",
-      "import": "./dist/lun-plugins-babel.production.js",
+      "require": "./dist/lun-web-plugins-babel.production.cjs",
+      "import": "./dist/lun-web-plugins-babel.production.js",
       "types": "./dist/babel.index.d.ts"
     },
     "./package.json": "./package.json"
@@ -30,11 +40,8 @@
     "build:prod": "cross-env NODE_ENV=production vite build",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
-    "version": "npm version"
+    "v": "npm version"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@lun-web/utils": "workspace:^"
   },

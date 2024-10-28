@@ -1,19 +1,19 @@
-# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![NPM Version](https://img.shields.io/npm/v/%40lun-web%2Fcomponents) [![Components min size](https://badgen.net/bundlephobia/minzip/@lun-web/components)](https://bundlephobia.com/package/@lun-web/components@latest) ![tree-shaking](https://badgen.net/bundlephobia/tree-shaking/@lun-web/components)
 
 **中文** | [English](./README.md)
 
 基于Vue3的跨框架Web组件库
 
 - 基于自定义元素和Shadow DOM，**兼容现代web环境和所有框架**
-- 封装良好，功能丰富，，提供了一套高质量的组件，仅Vue3和floating-ui为必须依赖，体积相对较小
-- 提供了丰富的全局静态和动态配置，可完全自定义内部各种行为和组件样式
-- 支持无头模式，也可以直接使用基于@radix/theme定制的主题，开箱即用的暗黑模式，丰富的色彩，支持响应式
+- 封装良好，功能丰富，提供了一套高质量的组件，仅Vue3和floating-ui为必须依赖，体积相对较小
+- 提供了丰富的全局静态和动态配置，可灵活自定义内部各种行为和组件样式
+- 支持无头模式，也提供一套基于@radix/colors定制的主题，开箱即用的暗黑模式，丰富的色彩与变体，支持响应式
 - 致力于使用各种全新Web API（如Popover API，CSS Anchor Positioning CustomStateSet...），提供优雅的回退
-- 提供完整的typescript支持，提供Vue和React组件类型定义
+- 提供完整的Typescript支持，提供Vue和React组件类型定义
 
 ## 警告
 
-还在开发中，还没有发布正式版本，请谨慎使用。欢迎提供任何反馈，也欢迎贡献代码。
+还在开发中，还没有发布正式版本，请谨慎使用。欢迎提供任何反馈，也欢迎贡献代码(如有兴趣，欢迎联系我提供指南与讲解)
 
 ## 如何使用
 
@@ -41,6 +41,9 @@ utils // 构建utils
 pnpm install
 pnpm build
 pnpm dev
+
+pnpm exec playwright install # if you want to run e2e tests
+pnpm test
 ```
 
 ## FAQ & Roadmap

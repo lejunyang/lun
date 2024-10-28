@@ -1,23 +1,46 @@
 {
   "name": "@lun-web/react",
-  "version": "0.0.1-alpha.0",
-  "description": "",
+  "version": "0.0.1-alpha.1",
+  "description": "Compatible @lun-web/components layer for versions before React19",
+  "keywords": [
+    "web-components",
+    "react-components",
+    "custom-elements",
+    "components-library"
+  ],
   "type": "module",
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/lejunyang/lun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/react"
+  },
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
   "homepage": "https://lejunyang.github.io/lun/",
+  "author": {
+    "name": "lejunyang",
+    "email": "lejunyang@foxmail.com"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "browser": {
+        "development": "./dist/lun-web-react.development.js",
+        "default": "./dist/lun-web-react.production.js"
+      },
+      "default": {
+        "development": "./dist/lun-web-react.development.js",
+        "default": "./dist/lun-web-react.production.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -27,7 +50,8 @@
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && node ./afterBuild.js",
-    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build"
+    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
+    "v": "npm version"
   },
   "dependencies": {
     "@lun-web/components": "workspace:^"
@@ -50,8 +74,5 @@
     "react": ">=16.8",
     "react-dom": ">=16.8",
     "vue": "^3.2.0"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

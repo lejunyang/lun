@@ -1,4 +1,8 @@
-# Web Components based on Vue3
+# @lun-web/components
 
-This is styleless component library. Add `@lun-web/theme` to apply default theme, it's ongoing
-Some components may look very weird because they have default slot or something relying on styles to display normal
+A full-featured web components library based on Vue3.
+This is styleless library, you can customize your own theme or use `@lun-web/theme` to apply preset themes
+
+Usage guide: [English](https://lejunyang.github.io/lun/en/guides/usage/) | [中文](https://lejunyang.github.io/lun/guides/usage/)
+
+English doc is not translated yet

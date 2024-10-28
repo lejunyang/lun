@@ -213,7 +213,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       CE.toggleAttribute('data-root', !parent); // set root attr for root element
     };
     options.configureApp = (app: App) => {
-      app.config.warnHandler = warnHandler;
+      if(__DEV__) app.config.warnHandler = warnHandler;
       app.directive('content', vContent);
     };
     options.attrTransform = (key: string, value: string | null) => {

@@ -1,17 +1,17 @@
-name: Release packages
+name: Packages build
 
 on:
   push:
-    tags:
-      - v*
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  publish:
-    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[publish skip]') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  build_packages:
+    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[build skip]') }}
+    runs-on: ubuntu-22.04
+    outputs:
+      artifact-id: ${{ steps.artifacts-upload-step.outputs.artifact-id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,7 +19,6 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9.9.0
-          run_install: false
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -34,7 +33,7 @@ jobs:
           # Set this option if you want the action to check for the latest available version that satisfies the version spec.
           # check-latest: # optional
           # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file, and set up auth to read in from env.NODE_AUTH_TOKEN.
-          registry-url: https://registry.npmjs.org
+          # registry-url: # optional
           # Optional scope for authenticating against scoped registries. Will fall back to the repository owner when using the GitHub Packages registry (https://npm.pkg.github.com/).
           # scope: # optional
           # Used to pull node distributions from node-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
@@ -43,15 +42,22 @@ jobs:
           cache: 'pnpm' # optional
           # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
           # cache-dependency-path: # optional
-
       - name: Install and Build
-        run: pnpm install --frozen-lockfile && pnpm build
-
-      - name: Create Release Pull Request and Publish to npm
-        uses: changesets/action@v1
+        run: |
+          pnpm install
+          pnpm build
+      - name: Archive production artifacts
+        id: artifacts-upload-step
+        uses: actions/upload-artifact@v4
         with:
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          name: package-builds
+          overwrite: true
+          path: |
+            packages/*/dist/**/*
+
+  call_others:
+    needs: build_packages
+    uses: ./.github/workflows/test-after-build.yml
+    with:
+      artifact-id: ${{ needs.build_packages.outputs.artifact-id }}
+

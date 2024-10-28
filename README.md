@@ -1,4 +1,5 @@
-# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![NPM Version](https://img.shields.io/npm/v/%40lun-web%2Fcomponents)
+ [![Components min size](https://badgen.net/bundlephobia/minzip/@lun-web/components)](https://bundlephobia.com/package/@lun-web/components@latest) ![tree-shaking](https://badgen.net/bundlephobia/tree-shaking/@lun-web/components)
 
 **English** | [中文](./README.zh-CN.md)
 
@@ -7,7 +8,7 @@ A full-featured web components library based on Vue3
 - Based on custom elements and shadow DOM, **works with all frameworks**
 - Well-encapsulated features and few required dependencies(vue and floating-ui), provides a set of high-quality components, relatively lightweight
 - Provides abundant global static and dynamic configurations, easy to customize not only CSS but also many internal behaviors
-- Styleless or with a beautiful preset theme based on @radix/theme, out-of-box dark mode and responsive ui support
+- Styleless or with a beautiful preset theme based on @radix/colors, out-of-box dark mode and responsive ui support
 - Ready to use new Web APIs (Popover API, CSS Anchor Positioning CustomStateSet...), provide reasonable fallbacks
 - Full typescript support, provide type definitions for all components
 
@@ -18,6 +19,8 @@ Not production ready, still in development, you can keep an eye on it. Feel feel
 ## How to use
 
 Please refer to [docs](https://lejunyang.github.io/lun/guides/usage/)
+
+English document is not translated yet
 
 ## Development
 
@@ -41,6 +44,9 @@ Requires node>=20 and pnpm>=9.5.0 to run locally. If there is no local build, ru
 pnpm install
 pnpm build
 pnpm dev
+
+pnpm exec playwright install # if you want to run e2e tests
+pnpm test
 ```
 
 ## FAQ & Roadmap

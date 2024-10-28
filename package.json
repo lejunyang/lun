@@ -14,8 +14,8 @@
     "docs:build": "node ./utils/generateAndLinkDocs.js && node ./buildDoc.js",
     "docs:preview": "vitepress preview src/docs",
     "test": "vitest",
-    "pre-version": "pnpm --filter \"./packages/**\" version prerelease --preid alpha",
-    "release": "cross-env HTTP_PROXY=http://localhost:10809 pnpm publish -r --access public --no-git-checks"
+    "pre-version": "pnpm --filter \"./packages/**\" v prerelease --preid alpha",
+    "release": "pnpm publish -r --access public --no-git-checks"
   },
   "engines": {
     "node": ">=18",

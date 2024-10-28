@@ -1,27 +1,54 @@
 {
   "name": "@lun-web/core",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
+  "description": "Hooks and utils for developing components for Vue3",
+  "keywords": [],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/lejunyang/lun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/core"
+  },
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
   "homepage": "https://lejunyang.github.io/lun/",
+  "author": {
+    "name": "lejunyang",
+    "email": "lejunyang@foxmail.com"
+  },
   "exports": {
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "browser": {
+        "development": "./dist/lun-web-core.development.js",
+        "default": "./dist/lun-web-core.production.js"
+      },
+      "default": {
+        "development": "./dist/lun-web-core.development.js",
+        "default": "./dist/lun-web-core.production.js"
+      }
     },
     "./date-dayjs": {
       "require": "./dist/date.dayjs.development.cjs",
       "import": "./dist/date.dayjs.development.js",
-      "types": "./dist/date.dayjs.d.ts"
+      "types": "./dist/date.dayjs.d.ts",
+      "browser": {
+        "development": "./dist/date.dayjs.development.js",
+        "default": "./dist/date.dayjs.production.js"
+      },
+      "default": {
+        "development": "./dist/date.dayjs.development.js",
+        "default": "./dist/date.dayjs.production.js"
+      }
     },
     "./package.json": "./package.json"
   },

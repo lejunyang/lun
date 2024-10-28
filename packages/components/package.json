@@ -1,29 +1,46 @@
 {
   "name": "@lun-web/components",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
+  "description": "A full-featured web components library based on Vue3",
+  "keywords": [
+    "web-components",
+    "shadow-dom",
+    "custom-elements",
+    "components-library",
+    "vue3"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/lejunyang/lun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lejunyang/lun.git",
+    "directory": "packages/components"
+  },
   "bugs": {
     "url": "https://github.com/lejunyang/lun/issues"
   },
   "homepage": "https://lejunyang.github.io/lun/",
+  "author": {
+    "name": "lejunyang",
+    "email": "lejunyang@foxmail.com"
+  },
   "exports": {
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts",
       "browser": {
-        "development": "./dist/lun-components.development.js",
-        "default": "./dist/lun-components.production.js"
+        "development": "./dist/lun-web-components.development.js",
+        "default": "./dist/lun-web-components.production.js"
       },
       "default": {
-        "development": "./dist/lun-components.development.js",
-        "default": "./dist/lun-components.production.js"
+        "development": "./dist/lun-web-components.development.js",
+        "default": "./dist/lun-web-components.production.js"
       }
     },
     "./package.json": "./package.json",
@@ -47,7 +64,7 @@
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && node ./processTypeFiles.js",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview",
-    "version": "npm version"
+    "v": "npm version"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",
