@@ -30,5 +30,5 @@ features:
     details: Provide abundant global configurations, easy to customize most internal behaviors
   - icon: 🎨
     title: Easy to prettify
-    details: Able to fully customize the styles, also provide a beautiful preset theme based on @radix/theme
+    details: Able to fully customize the styles, also provide a beautiful preset theme based on @radix/colors
 ---

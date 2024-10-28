@@ -7,16 +7,14 @@ lang: zh-CN
 
 ## 安装
 
-暂未发布到 npm
-
-目前提供以下的库：
+目前只发布了 alpha 版本，提供以下库：
 
 - `@lun-web/utils`：js 工具函数库
 - `@lun-web/core`：提供组件功能的钩子函数库
-- `@lun-web/components`：组件库，其依赖于上面两个
-- `@lun-web/theme`：主题库，其依赖于上面三个
-- `@lun-web/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
 - `@lun-web/plugins`: 为 JSX 或 Vue template 提供自定义指令
+- `@lun-web/components`：组件库，其依赖于上面三个
+- `@lun-web/theme`：主题库，其依赖于组件库
+- `@lun-web/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
 
 根据需要并安装对应的库
 
@@ -48,11 +46,7 @@ import {
   importCommonTheme
   importAllColors,
   importAllP3Colors,
-  importBasicTheme,
-  importSurfaceTheme,
-  importOutlineTheme,
-  importSoftTheme,
-  importSolidTheme,
+  importAllThemes
 } from '@lun-web/theme';
 // 如果使用了日期组件，则必须引入日期处理预设。内部提供了dayjs实现，但需要用户手动引入
 import '@lun-web/core/date-dayjs';
@@ -66,15 +60,8 @@ importAllColors(); // 如果需要自定义主题色请参考顶部导航栏中�
 // 如果需要P3广色域支持则调用如下函数，当支持的时候会使用display-p3
 // importAllP3Colors();
 
-// 引入组件内部公共样式
-importCommonTheme();
-// 引入所有组件的基础主题
-importBasicTheme();
-// 引入所有其他主题
-importSurfaceTheme();
-importOutlineTheme();
-importSoftTheme();
-importSolidTheme();
+// 引入所有预设主题
+importAllThemes();
 
 // 定义全部组件
 defineAllComponents();
@@ -82,7 +69,7 @@ defineAllComponents();
 
 - 全局静态配置需要在组件被使用前修改，但最好在定义组件前就统一修改，因为`namespace`在定义时就会使用
 - 全量引入的组件会使用全局静态配置中的`namespace`加上组件本身的名字作为命名，例如`namespace`默认为`l`，那么`button`组件的默认名字便是`l-button`。定义组件后你便可以在任何地方使用它们
-- 在SSR的情况下，为保证视觉效果，你需要自行向页面添加类似于下面的样式，在组件未定义时隐藏它们，以避免它们的子元素被渲染出来而造成闪烁
+- 在 SSR 的情况下，为保证视觉效果，你需要自行向页面添加类似于下面的样式，在组件未定义时隐藏它们，以避免它们的子元素被渲染出来而造成闪烁
 
 ```css
 :not(:defined) {
@@ -110,7 +97,10 @@ autoDefine();
 
 ```js
 import { defineButton } from '@lun-web/components';
-import { importButtonBasicTheme, importButtonSurfaceTheme } from '@lun-web/theme';
+import {
+  importButtonBasicTheme,
+  importButtonSurfaceTheme,
+} from '@lun-web/theme';
 ```
 
 每个组件都导出了单独的 define 函数，用于单独引入该组件，没有使用的组件最终不会被打包，每个组件的主题也单独提供了 import 函数。
@@ -119,11 +109,25 @@ import { importButtonBasicTheme, importButtonSurfaceTheme } from '@lun-web/theme
 ```js
 importButtonBasicTheme();
 importButtonSurfaceTheme();
+// 第二个参数用于给该组件依赖的组件自定义命名
 defineButton('my-button', {
   spin: 'my-spin',
 });
 
 // 此后你便可以直接使用<my-button></my-button>和<my-spin></my-spin>了
+```
+
+主题的引入除了组件维度的单独引入，还可以根据类型直接全部引入
+
+```js
+import {
+  importCommonTheme, // 所有组件的公共样式
+  importBasicTheme, // 所有组件的基础主题
+  importSurfaceTheme,
+  importOutlineTheme,
+  importSoftTheme,
+  importSolidTheme,
+} from '@lun-web/theme';
 ```
 
 :::warning 注
@@ -135,6 +139,7 @@ defineButton('my-button', {
 ## TS 支持
 
 组件库的组件本身具有完整的类型支持，针对不同的框架，目前提供了以下类型定义：
+
 - `@lun-web/components/elements-types-vue`: Vue template 以及 JSX 的组件类型
 - `@lun-web/components/elements-types-react`: React JSX 组件类型
 - `@lun-web/components/elements-types-html`: document.createElement 组件类型支持
@@ -231,20 +236,21 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 
 - <Support is="adoptedStyleSheets" /> [adoptedStyleSheets](https://caniuse.com/?search=adoptedStyleSheets) <SupportInfo chrome="73" edge="79" firefox="101" safari="16.4" />
 - <Support is="customState" /> [CustomStateSet](https://caniuse.com/?search=CustomStateSet) <SupportInfo chrome="90" edge="90" firefox="126" safari="17.4" />
-- <Support is="Dialog" /> [Dialog](https://caniuse.com/?search=Dialog) <SupportInfo chrome="37" edge="79" firefox="98" safari="15.4" />
+- <Support is="Dialog" /> [`dialog`](/components/dialog/): [Dialog](https://caniuse.com/?search=Dialog) <SupportInfo chrome="37" edge="79" firefox="98" safari="15.4" />
 - <Support is="slotAssign" /> [HTMLSlotElement.assign](https://caniuse.com/?search=HTMLSlotElement.assign) <SupportInfo chrome="86" edge="86" firefox="92" safari="16.4" />
 - <Support is="inputCancel" /> [Input cancel Event](https://caniuse.com/?search=HTMLInputElement%20cancel) <SupportInfo chrome="113" edge="113" firefox="91" safari="16.4" />
-- <Support is="popover" /> [popover](https://caniuse.com/?search=popover) <SupportInfo chrome="114" edge="114" firefox="125" safari="17" />
+- <Support is="popover" /> [`popover`](/components/popover/#实现方式): [Popover API](https://caniuse.com/?search=popover) <SupportInfo chrome="114" edge="114" firefox="125" safari="17" />
 - <Support is="showOpenFilePicker" /> [showOpenFilePicker](https://caniuse.com/?search=showOpenFilePicker) <SupportInfo chrome="86" edge="86" firefox="no" safari="no" />
-- <Support is="getComposedRanges" /> [Selection.getComposedRanges](https://caniuse.com/?search=getComposedRanges) <SupportInfo chrome="no" edge="no" firefox="134" safari="17" />
+- <Support is="getComposedRanges" /> [`mentions`](/components/mentions/): [getComposedRanges](https://caniuse.com/?search=getComposedRanges) <SupportInfo chrome="no" edge="no" firefox="134" safari="17" />
 
 **CSS**
 
-- <Support is="anchorPosition" /> [CSS Anchor Positioning](https://caniuse.com/?search=anchor%20position) <SupportInfo chrome="125" edge="125" firefox="no" safari="no" />
-- <Support is="layer" /> [CSS Layer](https://caniuse.com/?search=layer) <SupportInfo chrome="99" edge="99" firefox="97" safari="15.4" />
-- <Support is="subgrid" /> [CSS Subgrid](https://caniuse.com/?search=Subgrid) <SupportInfo chrome="117" edge="117" firefox="71" safari="16" />
+- <Support is="anchorPosition" /> [CSS anchor positioning](https://caniuse.com/?search=anchor%20position) <SupportInfo chrome="125" edge="125" firefox="no" safari="no" />
+- <Support is="height" /> [CSS auto height transition](https://caniuse.com/?search=calc-size) <SupportInfo chrome="129" edge="129" firefox="no" safari="no" />
 - <Support is="color" /> [CSS color()](<https://caniuse.com/?search=color()>) <SupportInfo chrome="111" edge="111" firefox="113" safari="15" />
-- <Support is="height" /> [CSS auto height transition](<https://caniuse.com/?search=calc-size>) <SupportInfo chrome="129" edge="129" firefox="no" safari="no" />
+- <Support is="content" /> [CSS content-visibility](https://caniuse.com/?search=content-visibility) <SupportInfo chrome="85" edge="85" firefox="125" safari="18" />
+- <Support is="layer" /> [CSS layer](https://caniuse.com/?search=layer) <SupportInfo chrome="99" edge="99" firefox="97" safari="15.4" />
+- <Support is="subgrid" /> [CSS subgrid](https://caniuse.com/?search=Subgrid) <SupportInfo chrome="117" edge="117" firefox="71" safari="16" />
 
 某些特性无法或不好做兼容，但它们影响不大，不使用那些功能即可
 

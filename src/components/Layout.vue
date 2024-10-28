@@ -31,7 +31,17 @@
           ></l-tabs>
           <div slot="radius">选择全局的圆角</div>
           <div class="start">
-            <l-input variant="soft" value="input" style="transform: translateX(-30px)"></l-input>
+            <l-input
+              variant="soft"
+              type="number"
+              min="0.5"
+              max="1.5"
+              step="0.05"
+              step-control="plus-minus"
+              v-update="theme.scale"
+              ref="scaleInput"
+              style="transform: translateX(-30px)"
+            ></l-input>
             <l-radio-group v-update="theme.size" style="transform: translateX(-20px)" ref="sizeGroup">
               <l-radio value="1">1</l-radio>
               <l-radio value="2" variant="surface">2</l-radio>
@@ -40,6 +50,7 @@
             <l-button class="start-button" variant="solid" style="transform: translateX(-10px)">Get Started</l-button>
             <l-button class="start-button" variant="soft">View</l-button>
           </div>
+          <div slot="scale">设置全局组件缩放系数</div>
           <div slot="size">选择全局组件大小</div>
           <l-switch
             :checked="isDark"
@@ -113,15 +124,17 @@ const theme = reactive({
   'gray-color': 'slate' as any,
   size: '2' as any,
   radius: 'medium' as any,
-  scale: '1',
+  scale: 1,
 });
 
 const sizeGroup = useTemplateRef('sizeGroup'),
-  popover = useTemplateRef<iPopover>('popover');
+  popover = useTemplateRef<iPopover>('popover'),
+  scaleInput = useTemplateRef('scaleInput');
 
 onMounted(() => {
   // sizeGroup is not direct child of popover, so we have to manually attach it
   popover.value?.attachTarget(sizeGroup.value, { slotName: 'size' }); // if in other page, popover is undefined...
+  popover.value?.attachTarget(scaleInput.value, { slotName: 'scale' });
 });
 
 provide('lun-theme', theme);

@@ -1,12 +1,21 @@
 <template>
-  <l-tabs default-active-slot="ThemeColors" :items="items"> </l-tabs>
+  <Comp />
 </template>
 
 <script setup lang="tsx">
-import { OpenShadowComponentKey, GlobalStaticConfig, themeColors, TabItemObject, renderElement } from '@lun-web/components';
+import {
+  OpenShadowComponentKey,
+  GlobalStaticConfig,
+  themeColors,
+  TabItemObject,
+  renderElement,
+} from '@lun-web/components';
 import { computed } from 'vue';
 import { useData } from 'vitepress';
 import locales from '../docs/.vitepress/locales';
+
+// no idea why using tsx it keeps reporting error if it's in template, so put it in script setup
+const Comp = () => <l-tabs default-active-slot="ThemeColors" items={items} />;
 
 const props = defineProps<{
   comp: OpenShadowComponentKey;

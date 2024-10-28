@@ -4,6 +4,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { supportCSSContentVisibility } from '../../packages/utils/src/browser/support';
 import {
   isSupportCSSStyleSheet,
   isSupportFileSystemAccess,
@@ -39,7 +40,8 @@ const features = {
   height: supportCSSAutoHeightTransition,
   promiseTry: !!(Promise as any).try,
   withResolvers: !!(Promise as any).withResolvers,
-  setIntersection: !!(Set.prototype as any).intersection
+  setIntersection: !!(Set.prototype as any).intersection,
+  content: supportCSSContentVisibility,
 };
 
 const props = defineProps<{
