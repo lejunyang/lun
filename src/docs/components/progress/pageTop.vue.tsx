@@ -1,17 +1,16 @@
 import { Progress } from '@lun-web/components';
 
-let stop;
+let progress;
 export default () => (
   <>
     <l-button
       onClick={() => {
-        const methods = Progress.createPageTopProgress();
-        methods.start();
-        stop = methods.stop;
+        if (!progress) progress = Progress.createPageTopProgress();
+        progress.start();
       }}
     >
       start
     </l-button>
-    <l-button onClick={() => (stop && stop(), (stop = null))}>stop</l-button>
+    <l-button onClick={() => progress && progress.stop()}>stop</l-button>
   </>
 );

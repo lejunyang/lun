@@ -73,7 +73,7 @@ pnpm test
   - Input掩码，简化Input渲染
   - 添加颜色处理预设，完善ColorPicker
   - 大单元格Calendar渲染，完善模式切换，添加日历事件支持，农历支持
-  - 完善组件Transition
+  - 组件Transition方案确定，目前全在common css里，可能考虑迁移到全局配置，放js中
   - 添加菜单组件
 - Accessibility 支持
 - 收集社区意见，确定组件的功能，属性方法命名是否需要修改

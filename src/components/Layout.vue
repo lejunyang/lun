@@ -109,7 +109,7 @@
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
 import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
-import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef } from 'vue';
+import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef, watch } from 'vue';
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
 import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun-web/components';
 import Giscus from '@giscus/vue';
@@ -131,11 +131,12 @@ const sizeGroup = useTemplateRef('sizeGroup'),
   popover = useTemplateRef<iPopover>('popover'),
   scaleInput = useTemplateRef('scaleInput');
 
-onMounted(() => {
-  // sizeGroup is not direct child of popover, so we have to manually attach it
-  popover.value?.attachTarget(sizeGroup.value, { slotName: 'size' }); // if in other page, popover is undefined...
-  popover.value?.attachTarget(scaleInput.value, { slotName: 'scale' });
-});
+// if not in home page, popover is undefined
+watch(popover, (p) => {
+  if (!p) return;
+  p.attachTarget(sizeGroup.value, { slotName: 'size' }); // if in other page, popover is undefined...
+  p.attachTarget(scaleInput.value, { slotName: 'scale' });
+})
 
 provide('lun-theme', theme);
 

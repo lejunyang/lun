@@ -3,6 +3,10 @@ title: Mentions 提及
 lang: zh-CN
 ---
 
+:::warning 注
+experimental
+:::
+
 该组件用于文本域中需要动态显示高亮块的场景，比如@提及某人、#提及话题等。
 
 该组件基于`contenteditable`以及`Selection`实现，但是目前`Selection in Shadow DOM`有问题，各浏览器实现各不相同，参考[这个](https://stackoverflow.com/questions/62054839/shadowroot-getselection)

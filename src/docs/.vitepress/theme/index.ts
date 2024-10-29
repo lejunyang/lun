@@ -1,7 +1,12 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
-import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents, registerCustomRenderer } from '@lun-web/components';
+import {
+  GlobalStaticConfig,
+  GlobalContextConfig,
+  defineAllComponents,
+  registerCustomRenderer,
+} from '@lun-web/components';
 import { importAllThemes, importAllColors, importAllP3Colors } from '@lun-web/theme';
 import { inBrowser } from 'vitepress';
 import '@lun-web/core/date-dayjs';
@@ -17,8 +22,6 @@ import CompThemePanel from '../../../components/CompThemePanel.vue';
 import './style.css';
 // import { on } from '@lun-web/utils';
 
-let once = false;
-
 declare module '@lun-web/core' {
   export interface DateInterface {
     date: Dayjs;
@@ -29,9 +32,6 @@ export default {
   extends: Theme,
   Layout: () => h(Layout),
   enhanceApp: (({ app }) => {
-    if (once) return false;
-    once = true;
-
     app.directive('content', vContent);
     app.component('Code', Code);
     app.component('Palette', Palette);
@@ -42,8 +42,7 @@ export default {
       // ignore injection not found warning
       if (msg.includes('injection') && msg.includes('not found')) return;
       // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
-      if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead'))
-        return;
+      if (msg.includes('Performing full mount instead')) return;
       console.warn(msg, _vm, _trace);
     };
 

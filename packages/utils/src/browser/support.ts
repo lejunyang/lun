@@ -130,4 +130,4 @@ export const supportCSSContentVisibility = supportCSSSupports && supports!('cont
 
 export const supportTouch = inBrowser && 'ontouchstart' in document.body;
 
-export const isSupportSlotAssign = cacheFunctionResult(() => isFunction(HTMLSlotElement.prototype.assign));
+export const isSupportSlotAssign = cacheFunctionResult(() => inBrowser && isFunction(HTMLSlotElement.prototype.assign));

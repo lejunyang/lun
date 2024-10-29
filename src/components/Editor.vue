@@ -80,7 +80,7 @@ onMounted(() => {
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
   });
-  const contentHeight = editor.getContentHeight();
+  const contentHeight = Math.max(editor.getContentHeight(), 48);
   height.value = `${contentHeight}px`;
   editor.layout();
 });

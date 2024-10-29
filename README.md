@@ -80,7 +80,7 @@ Technically yes, because web components is not framework-specific, but you need 
   - input mask feature, simplify Input rendering
   - add color process preset, finish ColorPicker
   - finish Calendar
-  - finalize component Transition
+  - finalize component Transition(css or config?)
   - add Menu component
 - accessibility support
 - gather feedback, finalize name and functions of components

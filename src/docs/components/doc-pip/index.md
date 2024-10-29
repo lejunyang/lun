@@ -3,6 +3,10 @@ title: DocPip 画中画
 lang: zh-CN
 ---
 
+:::warning 注
+Highly experimental
+:::
+
 [Document Picture in Picture](https://developer.mozilla.org/en-US/docs/Web/API/Document_Picture-in-Picture_API)，即文档画中画，用于将某些内容用小窗的形式展现给用户，即使用户在不同的页面之间切换，小窗依然能置顶展示。以往画中画仅支持视频元素，而文档画中画允许任意元素
 
 - `l-doc-pip`作为容器默认会显示它的 children，当请求画中画成功后，会将其 children 全部移入画中画，关闭后又移动回原位置
