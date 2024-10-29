@@ -1,5 +1,5 @@
 <template>
-  <l-icon v-if="support != null" :name="name" :[attr]="'true'"></l-icon>
+  <l-icon v-if="support != null" :name="name" :data-status-color="name"></l-icon>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +56,4 @@ const support = computed(() => {
 const name = computed(() => {
   return support.value === 'unknown' ? 'help' : support.value ? 'success' : 'error';
 });
-
-const attr = computed(() => `data-${name.value}-color`);
 </script>

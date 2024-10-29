@@ -256,8 +256,8 @@
     .#{getBEM('color', '', $name)} {
       @include generateColorProperties($value);
     }
-    [data-#{$name}-color='true'],
-    :host([data-#{$name}-color='true']) {
+    [data-#{$status-attr-name}-color='#{$name}'],
+    :host([data-#{$status-attr-name}-color='#{$name}']) {
       color: getSemanticColor($name);
     }
   }

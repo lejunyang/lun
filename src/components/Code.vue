@@ -199,7 +199,7 @@ const handleCodeChange = debounce(async () => {
       rendererProps.type = 'vnode';
       rendererProps.content = (
         <div style="width: 100%; text-align: center">
-          <l-icon name="warning" data-warning-color="true" style="font-size: 36px;" />
+          <l-icon name="warning" data-status-color="warning" style="font-size: 36px;" />
           <pre>{locales[userLang.value]?.components.noUseCase}</pre>
         </div>
       );
@@ -228,7 +228,7 @@ const handleCodeChange = debounce(async () => {
     rendererProps.type = 'vnode';
     rendererProps.content = (
       <div style="width: 100%; text-align: center">
-        <l-icon name="error" data-error-color="true" style="font-size: 36px;" />
+        <l-icon name="error" data-status-color="error" style="font-size: 36px;" />
         <pre>{e.message}</pre>
       </div>
     );
