@@ -3,6 +3,7 @@ import { error } from '../../utils';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun-web/core';
 import { reduceFromComps } from './utils';
+import { VueElement } from 'custom';
 
 const holderName = 'teleport-holder';
 export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
@@ -61,7 +62,9 @@ export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string 
 export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 
 const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], false) as ComponentStyles;
-const commonIgnored = ['class', 'part', 'exportparts', /^data-/, /^aria-/];
+
+const ignoreAttrSet = new Set(['class', 'part', 'exportparts', 'style']),
+  needStyleComps = new Set(['form', 'form-item', 'tag', 'tooltip', 'divider']);
 
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
@@ -83,19 +86,14 @@ export const GlobalStaticConfig = new Proxy(
     reflectStateToAttr: 'always' as 'always' | 'never' | 'auto',
     /** determine whether to use dataset or class to reflect component's state to attribute */
     stateAttrType: 'dataset' as 'dataset' | 'class',
-    /** determine what attributes to ignore, so that they won't trigger component's update. different from other configurations, 'common' options will not be merged with other components' options. */
-    ignoreAttrsUpdate: Object.assign(
-      reduceFromComps(() => null as (string | RegExp)[] | null, true, true),
-      {
-        common: ['style', ...commonIgnored],
-        // below components use style attr, so need to override the common
-        divider: commonIgnored,
-        form: commonIgnored,
-        'form-item': commonIgnored,
-        tag: commonIgnored,
-        tooltip: commonIgnored,
-      },
-    ),
+    /**
+     * determine whether to ignore attributes of components, so that they won't trigger component's update, return `true` to ignore that attribute.
+     * By default, it ignores class, part, exportparts, all data- and aria- attributes, style attribute of many components are also ignored
+     */
+    ignoreAttrsUpdate: ((comp, attr) => {
+      if (needStyleComps.has(comp) && attr === 'style') return false;
+      if (ignoreAttrSet.has(attr) || attr.startsWith('data-') || attr.startsWith('aria-')) return true;
+    }) as (comp: ComponentKey, attribute: string, ce: VueElement) => boolean | void,
     /** define transformers to transform element's attributes to props */
     attrTransform: reduceFromComps(() => ({} as Record<string, (val: string | null) => any>), true, true),
     nameMap: (() => {
@@ -163,7 +161,10 @@ export const GlobalStaticConfig = new Proxy(
     ),
     ...(presets as {
       math: Required<
-        import('@lun-web/core').MathMethods<import('@lun-web/utils').BigIntDecimal, number | import('@lun-web/utils').BigIntDecimal>
+        import('@lun-web/core').MathMethods<
+          import('@lun-web/utils').BigIntDecimal,
+          number | import('@lun-web/utils').BigIntDecimal
+        >
       >;
       /**
        * @example

@@ -70,7 +70,7 @@ export interface CustomElementOptions {
   onPropUpdate?: PropUpdateCallback;
   onCE?: CECallback;
   onConnected?: (CE: VueElement, parent?: VueElement) => void;
-  ignoreAttrs?: (string | RegExp)[];
+  ignoreAttrs?: (key: string, CE: VueElement) => boolean | void;
   attrTransform?: (key: string, val: string | null, CE: VueElement) => any;
 }
 
@@ -503,8 +503,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
 
   protected _setAttr(key: string) {
     const { ignoreAttrs, attrTransform } = this._def;
-    if (ensureArray(ignoreAttrs).some((pattern) => pattern === key || (isRegExp(pattern) && pattern.test(key))))
-      return;
+    if (ignoreAttrs && ignoreAttrs(key, this)) return;
     const has = this.hasAttribute(key);
     const camelKey = camelize(key);
     let value: any = has ? this.getAttribute(key) : REMOVAL;

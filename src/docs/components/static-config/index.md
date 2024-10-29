@@ -23,8 +23,11 @@ export declare const GlobalStaticConfig: {
   reflectStateToAttr: 'auto' | 'always' | 'never';
   /** determine whether to use dataset or class to reflect component's state to attribute */
   stateAttrType: 'dataset' | 'class';
-  /** determine what attributes to ignore, so that they won't trigger component's update. different from other configurations, 'common' options will not be merged with other components' options. */
-  ignoreAttrsUpdate: Record<ComponentKey | 'common', (string | RegExp)[] | null>;
+  /** 
+   * determine whether to ignore attributes of components, so that they won't trigger component's update, return `true` to ignore that attribute.
+   * By default, it ignores class, part, exportparts, all data- and aria- attributes, style attribute of many components are also ignored
+   */
+  ignoreAttrsUpdate: (comp: ComponentKey, attribute: string, ce: VueElement) => boolean | void;
   /** define transformers to transform element's attributes to props */
   attrTransform: Record<ComponentKey | 'common', Record<string, (value: string | null) => any>>;
   nameMap: {

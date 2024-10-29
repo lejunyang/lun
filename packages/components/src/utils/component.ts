@@ -36,7 +36,7 @@ export function createLunElement(comp: ComponentKey) {
   return createElement(name as any);
 }
 
-export function isLunComponent(el: any, comp: ComponentKey) {
+export function isLunElement(el: any, comp: ComponentKey) {
   return isElement(el) && GlobalStaticConfig.actualNameMap[comp]?.has(el.tagName.toLowerCase());
 }
 
@@ -170,8 +170,7 @@ const warnHandler = (msg: string, _: any, trace: string) => {
   // vue app validates component name... but we use 'input', 'button' as component name, ignore that
   if (msg.includes('Do not use built-in or reserved')) return;
   // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
-  if (msg.includes('Performing full mount instead'))
-    return;
+  if (msg.includes('Performing full mount instead')) return;
   console.warn(msg, msg.includes('Extraneous non-props') || msg.includes('hydrate') ? '\n' + trace : undefined, _);
 };
 
@@ -190,6 +189,9 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       const result = isArray(common) ? { ...common[0], ...common[1]?.[e] } : common;
       return isArray(eventInit) ? { ...result, ...eventInit[0], ...eventInit[1]?.[e] } : { ...result, ...eventInit };
     };
+    const ignoreAttrs = (key: string, ce: any) => {
+      return GlobalStaticConfig.ignoreAttrsUpdate(compKey, key, ce);
+    };
     Object.defineProperties(options, {
       styles: {
         get: () => getComputedStyles()[compKey],
@@ -201,10 +203,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
         get: once(() => fromObject(emits || {}, (k) => [k, getEventInit(k)] as const)),
       },
       ignoreAttrs: {
-        get: () => {
-          const { ignoreAttrsUpdate } = GlobalStaticConfig;
-          return ignoreAttrsUpdate[compKey] || ignoreAttrsUpdate.common;
-        },
+        get: () => ignoreAttrs,
       },
     });
     options.inheritAttrs ||= false;
@@ -213,7 +212,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       CE.toggleAttribute('data-root', !parent); // set root attr for root element
     };
     options.configureApp = (app: App) => {
-      if(__DEV__) app.config.warnHandler = warnHandler;
+      if (__DEV__) app.config.warnHandler = warnHandler;
       app.directive('content', vContent);
     };
     options.attrTransform = (key: string, value: string | null) => {
