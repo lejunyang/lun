@@ -116,7 +116,7 @@ export const FormItem = defineSSRCustomElement({
                 )
               : showTooltip && getMsgs()),
           props,
-          { class: ns.e('tips') },
+          { class: ns.e('tips'), disabled: disableTooltipTransition.value },
         ),
         newLine: wrapTransition(
           hasNewLine &&
@@ -140,14 +140,24 @@ export const FormItem = defineSSRCustomElement({
       ns,
     );
 
-    const elementRef = useErrorTooltip(() => tips.tooltip, {
+    const [elementRef, errorActiveTarget] = useErrorTooltip(() => tips.tooltip, {
       isDisabled: () => !tips.hasTooltip,
     });
+    const disableTooltipTransition = ref(true);
+    watch(
+      errorActiveTarget,
+      (target) => {
+        // FIXME temp solution; switching target will trigger tips transition, we need to disable that when switching
+        if (target === elementRef.value) setTimeout(() => (disableTooltipTransition.value = false), 300);
+        else disableTooltipTransition.value = true;
+      },
+      { flush: 'sync' },
+    );
     const helpIconDisabled = computed(() => {
       const { help, helpType } = props.value;
       return helpType !== 'icon' || !help;
     });
-    const helpIconRef = useHelpTooltip(() => props.value.help, {
+    const [helpIconRef] = useHelpTooltip(() => props.value.help, {
       isDisabled: helpIconDisabled,
     });
 
@@ -392,9 +402,7 @@ export const FormItem = defineSSRCustomElement({
         setStatusMessages(path.value, result);
         return [result, result.length] as const;
       }
-      const finalValidators = ensureArray(validators).concat(
-        ...ensureArray(objectGet(formValidators, path.value)),
-      );
+      const finalValidators = ensureArray(validators).concat(...ensureArray(objectGet(formValidators, path.value)));
       let stopped = false,
         aborted = false;
       onCleanUp && onCleanUp(() => ((stopped = true), (aborted = true)));

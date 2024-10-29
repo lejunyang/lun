@@ -5,6 +5,7 @@
   @include e(tips) {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     @include declareVars(
       (
         gap: tips-gap,
@@ -25,6 +26,14 @@
 }
 
 @include b(popover) {
+  @include isN(entered, true, true) {
+    // transition must be after popover has entered, same reason as popover. Or initial this transition will make pop content shift
+    .tips-move,
+    .tips-enter-active,
+    .tips-leave-active {
+      transition: none;
+    }
+  }
   @include size(1) {
     @include setVars(
       (
