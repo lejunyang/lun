@@ -292,7 +292,6 @@ export const Select = defineSSRCustomElement({
           useTransform: false,
           placement: 'bottom-start',
           defaultChildren: popoverChildren,
-          contentType: 'vnode',
           // if type is teleport, pop content node must be rendered inside popover, or it can not be teleported
           // if type is not teleport, pop content node must be rendered as popover children, so that select styles about select-content can work
           content: isTeleport && popContent,

@@ -1,5 +1,4 @@
-import { h, onBeforeUnmount, ref, shallowRef, watch, watchEffect } from 'vue';
-import { useShadowDom } from './shadowDom';
+import { getCurrentInstance, h, onBeforeUnmount, ref, shallowRef, watch, watchEffect, watchSyncEffect } from 'vue';
 import { arrayFrom, isElement, isSupportSlotAssign, isText, isTruthyOrZero } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
 import { renderCustom } from '../components/custom-renderer/CustomRenderer';
@@ -25,7 +24,7 @@ export function useSlot(name?: MaybeRefLikeOrGetter<string>, getCustomContent?: 
   };
 
   getCustomContent &&
-    watchEffect(() => {
+    watchSyncEffect(() => {
       const content = unrefOrGet(getCustomContent);
       if (isTruthyOrZero(content)) {
         contentRef.value = content;
@@ -60,8 +59,9 @@ export function useManualSlot(
   isOn?: MaybeRefLikeOrGetter<boolean>,
 ) {
   const slotRef = ref<HTMLSlotElement>();
-  const render = () => h('slot', { name, ref: slotRef });
-  if (!isSupportSlotAssign()) return render;
+  const render = () => h('slot', { name, ref: slotRef }),
+    { ce } = getCurrentInstance()!;
+  if (!isSupportSlotAssign() || !ce) return render;
   let last: Node[] = [];
 
   const clear = () => {
@@ -71,12 +71,11 @@ export function useManualSlot(
 
   const init = () => {
     const { value } = slotRef;
-    const { CE } = shadow;
-    if (!value || !CE) return;
+    if (!value) return;
     const toBeSlotted = (last = (
       name
-        ? arrayFrom(CE.children).filter((i) => i.slot === name)
-        : arrayFrom(CE.childNodes).filter((i) => isElement(i) || isText(i))
+        ? arrayFrom(ce.children).filter((i) => i.slot === name)
+        : arrayFrom(ce.childNodes).filter((i) => isElement(i) || isText(i))
     ).map((i) => i.cloneNode(true) as Element | Text));
     unrefOrGet(target)?.append(...toBeSlotted);
     value.assign(...toBeSlotted);
@@ -85,11 +84,10 @@ export function useManualSlot(
     clear();
     init();
   });
-  const shadow = useShadowDom();
+
   watchEffect(() => {
-    const { CE } = shadow;
-    if (unrefOrGet(isOn) && CE && slotRef.value) {
-      ob.observe(CE, { childList: true, subtree: true });
+    if (unrefOrGet(isOn) && slotRef.value) {
+      ob.observe(ce, { childList: true, subtree: true });
       init();
     } else {
       ob.disconnect();

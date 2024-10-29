@@ -74,7 +74,6 @@ lang: zh-CN
 ```text
 'open',
 'content',
-'contentType',
 'popWidth',
 'triggers',
 'showArrow',

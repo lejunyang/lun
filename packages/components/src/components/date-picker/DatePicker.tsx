@@ -82,7 +82,6 @@ export const DatePicker = defineSSRCustomElement({
           multiple,
           ref: inputRef,
         }),
-        contentType: 'vnode',
         content: renderElement('calendar', {
           ...rest,
           ref: calendarRef,

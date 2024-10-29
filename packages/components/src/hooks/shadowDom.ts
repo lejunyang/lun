@@ -1,60 +1,12 @@
 import { objectComputed, unrefOrGetState, useEdit } from '@lun-web/core';
-import { fromObject, hyphenate, isFunction, isHTMLElement, pick } from '@lun-web/utils';
-import { warn } from 'utils';
-import {
-  MaybeRef,
-  camelize,
-  computed,
-  getCurrentInstance,
-  onBeforeUnmount,
-  onMounted,
-  onUnmounted,
-  readonly,
-  shallowReactive,
-  watchEffect,
-} from 'vue';
+import { fromObject, hyphenate, pick } from '@lun-web/utils';
+import { MaybeRef, camelize, computed, getCurrentInstance, onBeforeUnmount, onMounted, watchEffect } from 'vue';
 import { useNamespace } from './useNameSpace';
 import { GlobalStaticConfig } from '../components/config/config.static';
 import { VueElement } from 'custom';
 
 /** get current host custom element */
 export const useCE = () => getCurrentInstance()!.ce! as VueElement;
-
-export function onCEMount(CB?: (state: { rootChildNode: Node; shadowRoot: ShadowRoot; CE: HTMLElement }) => void) {
-  const vm = getCurrentInstance();
-  if (!vm) return;
-  onMounted(() => {
-    const rootChildNode = vm?.proxy?.$el as Node;
-    const root = rootChildNode?.parentNode as ShadowRoot;
-    const CE = root?.host as HTMLElement;
-    if (__DEV__ && !CE) {
-      warn(`No custom element found in the current component instance`, vm);
-    }
-    if (isHTMLElement(CE) && isFunction(CB)) CB({ rootChildNode, shadowRoot: root, CE });
-  });
-}
-
-export function useShadowDom<CE extends HTMLElement = HTMLElement, RootNode extends Node = HTMLElement>(
-  onMountCB?: (state: { rootChildNode: RootNode; shadowRoot: ShadowRoot; CE: CE }) => void,
-) {
-  const state = shallowReactive({
-    /** child Node of shadow root */
-    rootChildNode: undefined as RootNode | undefined,
-    shadowRoot: undefined as ShadowRoot | undefined,
-    /** Custom Element itself */
-    CE: undefined as CE | undefined,
-  });
-  onCEMount((s) => {
-    Object.assign(state, s);
-    if (isFunction(onMountCB)) onMountCB(s as any);
-  });
-  onUnmounted(() => {
-    state.rootChildNode = undefined;
-    state.shadowRoot = undefined;
-    state.CE = undefined;
-  });
-  return readonly(state) as Readonly<typeof state>;
-}
 
 /**
  * expose something to Custom Element
@@ -91,8 +43,9 @@ export function useCEStates<
   })) as any as S;
   const hyphenatedStates = objectComputed(() => fromObject(states, (k, v) => [hyphenate(k), v]));
   let lastStatesKey = new Set<string>();
+  const CE = useCE();
   // must in mount, form-item need to be set on mount
-  onCEMount(({ CE }) => {
+  onMounted(() => {
     const stateSet = (CE as any)._internals?.states as Set<string>;
     const { reflectStateToAttr, stateAttrType, statePrefix } = GlobalStaticConfig;
     const setAttr = reflectStateToAttr === 'always' || (reflectStateToAttr === 'auto' && !stateSet);

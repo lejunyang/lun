@@ -170,7 +170,7 @@ const warnHandler = (msg: string, _: any, trace: string) => {
   // vue app validates component name... but we use 'input', 'button' as component name, ignore that
   if (msg.includes('Do not use built-in or reserved')) return;
   // not sure if it needs to be ignored, it occurred since upgraded to vue 3.5
-  if (msg.includes('Attempting to hydrate existing markup but container is empty. Performing full mount instead'))
+  if (msg.includes('Performing full mount instead'))
     return;
   console.warn(msg, msg.includes('Extraneous non-props') || msg.includes('hydrate') ? '\n' + trace : undefined, _);
 };

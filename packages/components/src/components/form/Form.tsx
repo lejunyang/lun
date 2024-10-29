@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from '../../custom/apiCustomElement';
 import { UseFormReturn, unrefOrGet, useCleanUp, useForm, useSetupEdit } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { formEmits, formProps } from './type';
-import { useBreakpoint, useCEStates, useNamespace, useShadowDom } from 'hooks';
+import { useBreakpoint, useCEStates, useNamespace } from 'hooks';
 import { FormItemCollector } from '.';
 import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, shallowReactive, watch } from 'vue';
 import { ensureNumber, getCachedComputedStyle, pick, supportCSSSubgrid, toPxIfNum } from '@lun-web/utils';
@@ -19,7 +19,7 @@ export const Form = defineSSRCustomElement({
   emits: formEmits,
   setup(props, { emit, attrs }) {
     const ns = useNamespace(name);
-    const vm = getCurrentInstance()!;
+    const vm = getCurrentInstance()!, { ce } = vm;
 
     const colsRef = useBreakpoint(props, 'cols', (v) => ensureNumber(v, 1));
     const layoutRef = useBreakpoint(props, 'layout');
@@ -135,10 +135,7 @@ export const Form = defineSSRCustomElement({
       formProps: props,
       layoutInfo,
     });
-    const expose = (CE: HTMLElement) => Object.defineProperties(CE, Object.getOwnPropertyDescriptors(currentForm));
-    const shadow = useShadowDom(({ CE }) => {
-      expose(CE);
-    });
+
     const onUpdate = (param: any) => {
       emit('update', param);
     };
@@ -160,9 +157,7 @@ export const Form = defineSSRCustomElement({
         addClean(newForm.hooks.onUpdateValue.use(onUpdate));
         currentForm = newForm;
         provide.form = newForm;
-        if (shadow.CE) {
-          expose(shadow.CE);
-        }
+        ce && Object.defineProperties(ce, Object.getOwnPropertyDescriptors(currentForm));
       },
       { immediate: true },
     );
