@@ -1,5 +1,5 @@
 import { renderElement } from 'utils';
-import { HTMLAttributes, inject, onBeforeUnmount, onMounted, provide, Ref, ref, VNodeChild, watch } from 'vue';
+import { HTMLAttributes, inject, onBeforeUnmount, provide, Ref, ref, VNodeChild, watch } from 'vue';
 import { iTooltip, TooltipProps } from '../components/tooltip';
 import { iPopover } from '../components/popover';
 
@@ -18,7 +18,6 @@ export function useTooltipManage() {
         renderElement('tooltip', {
           ...tooltipProps,
           ref: r,
-          contentType: 'vnode',
           content,
         });
     },
@@ -27,16 +26,14 @@ export function useTooltipManage() {
       const i = inject<TooltipProvide>(key);
       if (!i) return;
       const [tooltip, map] = i;
-      onMounted(() => {
-        tooltip.value?.popover.attachTarget(targetRef.value, options);
-      });
-      onBeforeUnmount(() => {
-        tooltip.value?.popover.detachTarget(targetRef.value);
-        map.delete(targetRef.value!);
-      });
+      const update = (el = targetRef.value, isSet?: number) => {
+        tooltip.value?.popover[isSet ? 'attachTarget' : 'detachTarget'](el, options);
+        map[isSet ? 'set' : 'delete'](el!, render);
+      };
+      onBeforeUnmount(() => update());
       watch(targetRef, (el, oldEl) => {
-        if (el) map.set(el, render);
-        if (oldEl) map.delete(oldEl);
+        if (el) update(el, 1);
+        if (oldEl) update(oldEl);
       });
       return targetRef;
     },

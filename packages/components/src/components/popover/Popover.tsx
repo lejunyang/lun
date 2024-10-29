@@ -93,9 +93,6 @@ export const Popover = defineSSRCustomElement({
     } = usePopover(
       virtualGetMerge(
         {
-          disabled() {
-            return popContentEmpty.value || unrefOrGet(props.disabled);
-          },
           onOpen() {
             const popover = popRef.value,
               p = positionedRef.value;
@@ -252,7 +249,7 @@ export const Popover = defineSSRCustomElement({
     let cacheContent: any,
       prevName: string,
       needCache = () => props.freezeWhenClosing && isClosing.value;
-    const [renderPopContent, popContentEmpty] = useSlot(
+    const [renderPopContent] = useSlot(
       () => (needCache() ? prevName : (prevName = activeExtraTargetOptions.value?.slotName || 'pop-content')),
       () => {
         const contentNode = needCache() ? cacheContent : (cacheContent = runIfFn(props.content, currentTarget.value));
