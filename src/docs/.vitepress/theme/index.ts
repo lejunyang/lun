@@ -18,7 +18,7 @@ import Palette from '../../../components/Palette.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
-import CompThemePanel from '../../../components/CompThemePanel.vue';
+import CompThemePanel from '../../../components/CompThemePanel';
 import './style.css';
 // import { on } from '@lun-web/utils';
 

@@ -3,6 +3,10 @@ title: Tabs 标签组
 lang: zh-CN
 ---
 
+:::warning FIXME
+切换时的过渡有问题
+:::
+
 <CompThemePanel comp="tabs" :other="{ noPanel: true, items: [{label: 'Tab 1'}, {label: 'Tab 2'}] }" />
 
 ## 基本使用

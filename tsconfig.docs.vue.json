@@ -23,7 +23,7 @@
   },
   "include": [
     "./src/docs/**/*.vue.tsx",
-    "./src/components/*.vue",
+    "./src/components/*",
     "./src/docs/**/*.vue",
     "./src/docs/.vitepress/theme/Layout.vue",
     "./src/utils/*.ts",

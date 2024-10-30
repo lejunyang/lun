@@ -1,4 +1,4 @@
-# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![NPM Version](https://img.shields.io/npm/v/%40lun-web%2Fcomponents) [![Components min size](https://badgen.net/bundlephobia/minzip/@lun-web/components)](https://bundlephobia.com/package/@lun-web/components@latest) ![tree-shaking](https://badgen.net/bundlephobia/tree-shaking/@lun-web/components)
+# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) [![NPM Version](https://img.shields.io/npm/v/%40lun-web%2Fcomponents)]((https://www.npmjs.com/package/@lun-web/components)) [![Components min size](https://badgen.net/bundlephobia/minzip/@lun-web/components)](https://bundlephobia.com/package/@lun-web/components@latest) ![tree-shaking](https://badgen.net/bundlephobia/tree-shaking/@lun-web/components)
 
 **中文** | [English](./README.md)
 
@@ -63,18 +63,27 @@ pnpm test
 ### Roadmap
 
 - 稳定当前已有的组件，还有不少组件标了高度实验中，有待修复问题
+  - Tree
+  - VirtualRenderer
+  - Calendar、DatePicker
+  - ScrollView
+  - Mentions
+  - Tabs
+  - Accordion
+  - DocPip
 - 添加测试用例
 - 完善文档，提供组件的Props、Events、Slots、Methods等详细说明
 - 添加其他想实现但没时间做的组件或功能
-  - 稳定Form的实现，稳定表单校验、值转换等功能
-  - 为组件库的Select、Tree集成内部的虚拟渲染，同时支持外部虚拟渲染
-  - 让ScrollView提供更完善的滚动驱动动画
+  - Form功能完善
+  - 为Select、Tree集成内部的虚拟渲染，同时支持外部虚拟渲染
   - 实现Table
-  - Input掩码，简化Input渲染
+  - Input掩码，分组Input输入，简化Input渲染
   - 添加颜色处理预设，完善ColorPicker
   - 大单元格Calendar渲染，完善模式切换，添加日历事件支持，农历支持
+  - slot与prop优先级统一，目前各个组件有些不同
+  - 确定输入组件的受控模式，目前不统一
   - 组件Transition方案确定，目前全在common css里，可能考虑迁移到全局配置，放js中
-  - 添加菜单组件
+  - 其他想实现的...
 - Accessibility 支持
 - 收集社区意见，确定组件的功能，属性方法命名是否需要修改
 - 英文翻译

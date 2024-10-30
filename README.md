@@ -1,4 +1,4 @@
-# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![NPM Version](https://img.shields.io/npm/v/%40lun-web%2Fcomponents) [![Components min size](https://badgen.net/bundlephobia/minzip/@lun-web/components)](https://bundlephobia.com/package/@lun-web/components@latest) ![tree-shaking](https://badgen.net/bundlephobia/tree-shaking/@lun-web/components)
+# Lun [![Component tests](https://github.com/lejunyang/lun/actions/workflows/test.yml/badge.svg)](https://github.com/lejunyang/lun/actions/workflows/test.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/751fd91b62944d92a6582bad731d20c8)](https://app.codacy.com/gh/lejunyang/lun/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) [![NPM Version](https://img.shields.io/npm/v/%40lun-web%2Fcomponents)](https://www.npmjs.com/package/@lun-web/components) [![Components min size](https://badgen.net/bundlephobia/minzip/@lun-web/components)](https://bundlephobia.com/package/@lun-web/components@latest) ![tree-shaking](https://badgen.net/bundlephobia/tree-shaking/@lun-web/components)
 
 **English** | [中文](./README.zh-CN.md)
 
@@ -17,9 +17,9 @@ Not production ready, still in development, you can keep an eye on it. Feel feel
 
 ## How to use
 
-Please refer to [docs](https://lejunyang.github.io/lun/guides/usage/)
+Please refer to [docs](https://lejunyang.github.io/lun/en/guides/usage/)
 
-English document is not translated yet
+English document is not translated yet, only the menus are translated for now
 
 ## Development
 
@@ -69,19 +69,29 @@ Technically yes, because web components is not framework-specific, but you need 
 
 ### Roadmap
 
-- fix bugs, remove experimental flags
-- finish test cases
+- fix bugs, remove experimental flags, complete their features
+  - Tree
+  - VirtualRenderer
+  - Calendar、DatePicker
+  - ScrollView
+  - Mentions
+  - Tabs
+  - Accordion
+  - DocPip
+- add test cases
 - add docs about Props, Events, Slots, Methods for components
 - features I want to add but haven't got time yet:
-  - Stabilize Form implementation: form validation, value transformation...
+  - some Form functions
   - integrate internal virtual rendering for Select、Tree, support external virtual rendering
   - provide better scroll-driven animation usage in ScrollView
   - implement Table
-  - input mask feature, simplify Input rendering
+  - input mask feature, simplify input rendering
   - add color process preset, finish ColorPicker
   - finish Calendar
+  - unify which one take precedence, prop or slot
+  - controlled mode or uncontrolled mode for some components
   - finalize component Transition(css or config?)
-  - add Menu component
+  - add some other components
 - accessibility support
 - gather feedback, finalize name and functions of components
 - Docs translation

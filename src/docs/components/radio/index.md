@@ -21,6 +21,10 @@ lang: zh-CN
 
 <!-- @Code:buttonGroup -->
 
+:::warning FIXME
+太丑了，有空改一下。另外考虑将card和button-group改为variant，而不是type
+:::
+
 ## 不同大小
 
 <!-- @Code:differentSizes -->
