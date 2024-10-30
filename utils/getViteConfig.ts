@@ -8,9 +8,14 @@ import path from 'node:path';
 const dir = path.resolve(__dirname);
 export const processPath = (p: string) => path.resolve(dir, p);
 
+export const isIIFE = () => process.env.BUILD_FORMAT === 'iife';
+
+export const isDev = () => process.env.NODE_ENV === 'development';
+
 export function getViteConfig(name: string, viteConfig?: UserConfig) {
-  const dev = process.env.NODE_ENV === 'development' || !!process.env.VITEST;
-  const noType = process.env.NO_TYPE_EMIT === 'true';
+  const iife = isIIFE();
+  const dev = iife || isDev() || !!process.env.VITEST;
+  const noType = iife || process.env.NO_TYPE_EMIT === 'true';
   const fileName = name.replace('@', '').replace('/', '-');
   return defineConfig({
     ...viteConfig,
@@ -39,7 +44,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
           // },
         }),
       ...(viteConfig?.plugins ?? []),
-      !name.includes('plugin') && addIndexEntry({ fileName }),
+      !name.includes('plugin') && !iife && addIndexEntry({ fileName }),
     ],
     define: {
       ...viteConfig?.define,
@@ -55,8 +60,9 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
     build: {
       lib: {
         entry: './index.ts',
-        name: name.replace(/[@/]\w/g, (s) => s.slice(1).toUpperCase()),
+        name: name.replace(/[@/-]\w/g, (s) => s.slice(1).toUpperCase()),
         fileName: (format, entryName) => {
+          if (iife) return `${fileName}.iife.js`;
           const ext = format === 'es' ? '.js' : '.cjs';
           if (entryName.includes('define')) {
             return `defines/${dev ? 'dev' : 'prod'}-${format}/${entryName}${ext}`;
@@ -65,12 +71,15 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
             ? `${fileName}.${dev ? 'development' : 'production'}${ext}`
             : `${entryName}.${dev ? 'development' : 'production'}${ext}`;
         },
+        formats: iife ? ['iife'] : undefined,
         ...viteConfig?.build?.lib,
       },
       minify: dev ? false : 'esbuild',
-      emptyOutDir: dev,
+      emptyOutDir: dev && !iife,
       rollupOptions: {
-        external: ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /^dayjs.*/, /react-dom.*/, /@floating-ui.*/],
+        external: iife
+          ? ['vue', /@lun-web\/\w+/]
+          : ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /^dayjs.*/, /react-dom.*/, /@floating-ui.*/],
         output: {
           chunkFileNames() {
             return `chunks/${dev ? 'dev' : 'prod'}-[format]/[name].[hash].js`;
@@ -83,8 +92,8 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
             '@lun-web/theme': 'LunWebTheme',
             '@lun-web/utils': 'LunWebUtils',
             '@lun-web/plugins': 'LunWebPlugins',
-            '@lun-web/plugins/vue': 'LunWebVuePlugins',
-            '@lun-web/plugins/babel': 'LunWebBabelPlugins',
+            '@lun-web/plugins/vue': 'LunWebPluginsVue',
+            '@lun-web/plugins/babel': 'LunWebPluginsBabel',
             '@lun-web/react': 'LunWebReact',
             '@floating-ui/core': 'FloatingUICore',
             '@floating-ui/dom': 'FloatingUIDOM',
@@ -98,7 +107,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
     resolve: {
       ...viteConfig?.resolve,
       alias: {
-        ...(dev
+        ...(dev && !iife
           ? {
               '@lun-web/components': processPath('../packages/components/index'),
               '@lun-web/utils': processPath('../packages/utils/index.ts'),

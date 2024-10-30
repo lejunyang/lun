@@ -57,7 +57,8 @@
     "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
-    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod",
+    "build:iife": "cross-env NODE_ENV=development BUILD_FORMAT=iife vite build",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && pnpm build:iife",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "preview": "vite preview",
     "v": "npm version"

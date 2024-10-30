@@ -2,8 +2,7 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { fileURLToPath, URL } from 'node:url';
 import { globSync } from 'glob';
-
-import { getViteConfig } from '../../utils/getViteConfig';
+import { getViteConfig, isIIFE } from '../../utils/getViteConfig';
 
 const defines = globSync('./src/components/**/*.define.ts');
 
@@ -32,7 +31,7 @@ export default getViteConfig('@lun-web/components', {
   },
   build: {
     lib: {
-      entry: ['./index.ts', ...defines],
+      entry: isIIFE() ? './index.ts' : ['./index.ts', ...defines],
     },
   },
 });

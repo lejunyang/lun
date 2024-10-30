@@ -9,6 +9,11 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  pull-requests: write
+  contents: write # allow to craete Github release
+  id-token: write # for npm publish --provenance, see https://docs.npmjs.com/generating-provenance-statements
+
 jobs:
   publish:
     if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[publish skip]') }}
@@ -49,19 +54,20 @@ jobs:
       - name: Install and Build
         run: pnpm install --frozen-lockfile && pnpm build
 
-      - name: Publish to npm
-        run: |
-          cat << EOF > "$HOME/.npmrc"
-            //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          EOF
-          pnpm release
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # - name: Create Release Pull Request and Publish to npm
-      #   uses: changesets/action@v1
-      #   with:
-      #     publish: pnpm release
+      # - name: Publish to npm
+      #   run: |
+      #     cat << EOF > "./.npmrc"
+      #       //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+      #     EOF
+      #     pnpm release
       #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Release Pull Request and Publish to npm
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

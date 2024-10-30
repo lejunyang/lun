@@ -1,14 +1,18 @@
-import { getViteConfig } from '../../utils/getViteConfig';
+import { getViteConfig, isIIFE, isDev } from '../../utils/getViteConfig';
 
-const dev = process.env.NODE_ENV === 'development';
-export default getViteConfig('@lun-web/plugins', {
+export default getViteConfig(isIIFE() ? '@lun-web/plugins/vue' : '@lun-web/plugins', {
   build: {
-    lib: {
-      entry: ['./src/vue/vue.index.ts', './src/babel/babel.index.ts'],
-      fileName: (format, entryName) => {
-        const ext = format === 'es' ? '.js' : '.cjs';
-        return `lun-web-plugins-${entryName.replace('.index', '')}.${dev ? 'development' : 'production'}${ext}`;
-      },
-    },
+    lib: isIIFE()
+      ? {
+          name: 'LunWebPluginsVue',
+          entry: './index-vue-iife.ts',
+        }
+      : {
+          entry: ['./src/vue/vue.index.ts', './src/babel/babel.index.ts'],
+          fileName: (format, entryName) => {
+            const ext = format === 'es' ? '.js' : '.cjs';
+            return `lun-web-plugins-${entryName.replace('.index', '')}.${isDev() ? 'development' : 'production'}${ext}`;
+          },
+        },
   },
 });

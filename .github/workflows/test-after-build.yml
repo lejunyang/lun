@@ -17,6 +17,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: package-builds
+          path: ./packages
           run-id: ${{ inputs.artifact-id }}
       - run: ls -R packages/components
       - run: echo "LIST ROOT"
