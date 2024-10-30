@@ -1,6 +1,7 @@
 import { inBrowser } from './browser';
 import { noop } from './function';
 import { ensureNumber } from './number';
+import { withResolvers } from './promise';
 
 // lodash
 
@@ -151,7 +152,14 @@ export function delay(ms: number) {
  * @returns A function to cancel the scheduled animation frame.
  */
 export function raf(callback: FrameRequestCallback, frames = 1, shouldCancel?: () => boolean) {
-  return internalRaf(callback, frames, inBrowser ? (document.timeline.currentTime as number) || 0 : 0, shouldCancel);
+  return internalRaf(callback, frames, inBrowser ? (document.timeline?.currentTime as number) || 0 : 0, shouldCancel);
+}
+
+/** wait specified animation frames */
+export function waitFrames(frames = 1) {
+  const [promise, resolve] = withResolvers<number>();
+  raf(resolve, frames);
+  return promise;
 }
 
 function internalRaf(

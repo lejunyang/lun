@@ -1,7 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 import { MaybePromise } from '../../hooks';
 import { useLockScroll } from './useLockScroll';
-import { getDocumentElement, isFunction, noop, runIfFn } from '@lun-web/utils';
+import { getDocumentElement, isFunction, noop, promiseTry, runIfFn } from '@lun-web/utils';
 
 export type UseDialogOptions = {
   isOpen: MaybeRefLikeOrGetter<boolean>;
@@ -45,7 +45,7 @@ export function useDialog(options: UseDialogOptions) {
         return;
       }
       if (onPending) onPending(true);
-      return Promise.resolve(beforeClose())
+      return promiseTry(beforeClose)
         .then(async (res) => {
           if (res !== false) {
             await close();
@@ -64,7 +64,7 @@ export function useDialog(options: UseDialogOptions) {
       if (unrefOrGet(isPending)) return;
       if (!beforeOk) return methods.close();
       if (onPending) onPending(true);
-      return Promise.resolve(beforeOk())
+      return promiseTry(beforeOk)
         .then((res) => {
           if (res !== false) methods.close();
         })

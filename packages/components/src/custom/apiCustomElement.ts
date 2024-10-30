@@ -43,8 +43,6 @@ import {
   freeze,
   isArray,
   objectKeys,
-  ensureArray,
-  isRegExp,
   createElement,
 } from '@lun-web/utils';
 import { virtualParentMap } from './virtualParent';

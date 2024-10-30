@@ -5,7 +5,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
 import { useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
-import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy } from '@lun-web/utils';
+import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy, promiseTry } from '@lun-web/utils';
 import { getCompParts } from 'common';
 
 const name = 'button';
@@ -29,12 +29,12 @@ export const Button = defineSSRCustomElement({
         emit('validClick');
         const text = unrefOrGet(copyText);
         if (text)
-          Promise.resolve(copy(text))
+          promiseTry(copy, text)
             .then((res) => (res ? emit('copySuccess') : emit('copyFail')))
             .catch((e) => emit('copyFail', e));
         if (isFunction(asyncHandler)) {
           editState.loading = true;
-          Promise.resolve(asyncHandler(e)).finally(() => (editState.loading = false));
+          promiseTry(asyncHandler, e).finally(() => (editState.loading = false));
         }
       };
       const { debounce, throttle } = props;
