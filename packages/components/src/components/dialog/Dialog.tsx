@@ -14,7 +14,7 @@ import {
   useSetupEdit,
   useSetupEvent,
 } from '@lun-web/core';
-import { Transition, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
+import { Transition, TransitionProps, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
 import { getCompParts, getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
@@ -148,10 +148,11 @@ export const Dialog = Object.assign(
         else mask.style.display = 'none';
       });
 
-      const panelTransitionHandlers = {
-        onAfterEnter() {
+      const panelTransitionHandlers: TransitionProps = {
+        onAfterEnter(el) {
           const { alwaysTrapFocus, noTopLayer } = props;
-          const focus = initFocus(panelRef.value!, !alwaysTrapFocus && !noTopLayer, lastActiveElement);
+          // why panel.value can be undefine here if no css transition, use el of param instead
+          const focus = initFocus(el as HTMLElement, !alwaysTrapFocus && !noTopLayer, lastActiveElement);
           focus();
           emit('afterOpen');
         },
