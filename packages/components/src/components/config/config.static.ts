@@ -72,10 +72,15 @@ const ignoreAttrSet = new Set(['class', 'part', 'exportparts', 'style']),
  */
 export const GlobalStaticConfig = new Proxy(
   {
+    /** determines the prefix of all component's tag name and class name */
     namespace: 'l',
+    /** determines the block separator of component's class in BEM naming method, e.g. `l-button` */
     commonSeparator: '-',
+    /** determines the element separator of component's class in BEM naming method, e.g. `l-input__suffix` */
     elementSeparator: '__',
+    /** determines the modifier separator of component's class in BEM naming method, e.g. `l-input--size-2` */
     modifierSeparator: '--',
+    /** determines the state prefix of component's class in BEM naming method, e.g. `is-checked` */
     statePrefix: 'is-',
     /**
      * custom element's state will be set on native CustomElementState of ElementInternals, but it's not widely supported.
@@ -96,27 +101,18 @@ export const GlobalStaticConfig = new Proxy(
     }) as (comp: ComponentKey, attribute: string, ce: VueElement) => boolean | void,
     /** define transformers to transform element's attributes to props */
     attrTransform: reduceFromComps(() => ({} as Record<string, (val: string | null) => any>), true, true),
-    nameMap: (() => {
-      const result = {} as { readonly [k in ComponentKey]: string };
-      components.forEach((name) => {
-        Object.defineProperty(result, name, {
-          get: () => {
-            return `${GlobalStaticConfig.namespace}-${name}`;
-          },
-          configurable: false,
-        });
-      });
-      return result;
-    })(),
+    /** a map of component's name to its all defined names set, e.g. `button` to `Set(['l-button', 'my-button'])` */
     actualNameMap: reduceFromComps(() => new Set<string>()),
     /** define default props of every component */
     defaultProps: reduceFromComps(() => ({} as Record<string, any>)),
+    /** whether to use constructed CSSStyleSheet when possible */
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** whether wrap &#64;layer for components' styles */
     wrapCSSLayer: supportCSSLayer as boolean | string,
+    /** define the preprocessor used to process component's styles, it should return processed css string */
     stylePreprocessor: (css: string) => css,
     /**
-     * 'status' and 'color', these two theme props can affect the actual color of components. 'colorPriority' determines which one will be used first.
+     * 'status' and 'color', these two theme props can affect the actual color of components. `colorPriority` determines which one will be used first.
      * - `highlight-first`: use 'status' first if it's highlight status(error and warning). this is the default behavior
      * - `status-first`: use 'status' first
      * - `color-first`: use 'color' first
@@ -144,7 +140,7 @@ export const GlobalStaticConfig = new Proxy(
     },
     /** function used to process html string before using it, you can use this to do XSS filter */
     htmlPreprocessor: (html: string) => html,
-    customRendererMap: getInitialCustomRendererMap(),
+    customRendererRegistry: getInitialCustomRendererMap(),
     /**
      * define every components' event init map, it's used to initialize the event object when dispatch event
      * every entry accepts object or array value:

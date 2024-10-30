@@ -25,7 +25,7 @@ export const Icon = defineSSRCustomElement({
     let prevName: string, prevLibrary: string;
     watchEffect(async () => {
       const { library, name } = props;
-      const libraryOption = config.iconRegistryMap[library!];
+      const libraryOption = config.iconRegistry[library!];
       if (!library || !name || !libraryOption) return;
       const key = `${library}.${name}`,
         cache = iconResolveCache.get(key);

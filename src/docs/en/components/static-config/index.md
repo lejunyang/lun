@@ -41,7 +41,7 @@ export declare const GlobalStaticConfig: {
   iconRequest: (url?: string | null) => Promise<string | undefined>;
   /** function used to process html string before using it, you can use this to do XSS filter */
   htmlPreprocessor: (html: string) => string;
-  customRendererMap: Record<string | symbol, CustomRendererRegistry>;
+  customRendererRegistry: Record<string | symbol, CustomRendererRegistry>;
   /**
    * define every components' event init map, it's used to initialize the event object when dispatch event
    * every entry accepts object or array value:

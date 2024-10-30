@@ -106,8 +106,8 @@ export function createDefineElement(
 ) {
   return (name?: string, dependencyNameMap?: Record<string, string>) => {
     if (!supportCustomElement) return;
-    const { nameMap, defaultProps, actualNameMap } = GlobalStaticConfig;
-    name ||= nameMap[compKey];
+    const { defaultProps, actualNameMap, namespace } = GlobalStaticConfig;
+    name ||= namespace + '-' + compKey;
     name = name.toLowerCase();
     if (!customElements.get(name)) {
       if (dependencies) {

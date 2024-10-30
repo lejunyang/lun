@@ -49,11 +49,11 @@ const options = {
         }
       } else {
         if (type) {
-          const temp = GlobalStaticConfig.customRendererMap[type];
+          const temp = GlobalStaticConfig.customRendererRegistry[type];
           if (temp?.isValidContent(content)) renderer = temp;
         }
         if (!renderer) {
-          for (const registry of Object.values(GlobalStaticConfig.customRendererMap)) {
+          for (const registry of Object.values(GlobalStaticConfig.customRendererRegistry)) {
             if (registry.isValidContent(content)) {
               renderer = registry;
               break;

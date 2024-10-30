@@ -8,7 +8,7 @@ lang: zh-CN
 ```ts
 declare const GlobalContextConfig: {
   lang: string;
-  iconRegistryMap: Record<string, IconLibrary>;
+  iconRegistry: Record<string, IconLibrary>;
   dynamicStyles: Record<OpenShadowComponentKey | 'common', ((vm: ComponentInternalInstance) => string)[]>
   theme: {
     [key in keyof ThemeProps]: ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>;

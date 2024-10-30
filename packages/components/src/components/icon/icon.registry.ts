@@ -15,7 +15,7 @@ export interface IconLibrary {
   mutator?: IconLibraryMutator;
 }
 
-export const iconRegistryMap: Record<string, IconLibrary> = reactive({
+export const iconRegistry: Record<string, IconLibrary> = reactive({
   default: defaultIconLibrary,
 });
 
@@ -25,8 +25,8 @@ export function registerIconLibrary(options: IconLibrary) {
       warn(`Register icon library failed, you may miss 'library', 'type' option, or 'resolver' is not a function`);
     return;
   }
-  if (__DEV__ && iconRegistryMap[options.library]) {
+  if (__DEV__ && iconRegistry[options.library]) {
     warn(`Icon library '${options.library}' already exists, it will be overwrite`);
   }
-  iconRegistryMap[options.library] = pick(options, ['library', 'type', 'resolver', 'mutator']);
+  iconRegistry[options.library] = pick(options, ['library', 'type', 'resolver', 'mutator']);
 }

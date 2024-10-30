@@ -30,6 +30,6 @@ export function getInitialCustomRendererMap() {
 
 export function registerCustomRenderer(type: string, registry: CustomRendererRegistry) {
   if (type) {
-    GlobalStaticConfig.customRendererMap[type] = registry;
+    GlobalStaticConfig.customRendererRegistry[type] = registry;
   }
 }
