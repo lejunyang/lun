@@ -1,5 +1,4 @@
-// derived from element-plus
-import { ComponentInternalInstance, computed, getCurrentInstance } from 'vue';
+import { ComponentInternalInstance, computed, getCurrentInstance, onBeforeUnmount, reactive } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { fromObject, isArray, isPreferDark, isString, objectKeys } from '@lun-web/utils';
 import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
@@ -9,6 +8,7 @@ import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun-web/core
 import { useExpose } from 'hooks';
 import { rootSet } from 'utils';
 
+// derived from element-plus
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   const { commonSeparator, elementSeparator, modifierSeparator } = GlobalStaticConfig;
   let cls = `${namespace}${commonSeparator}${block}`;
@@ -24,7 +24,7 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
   return cls;
 };
 
-const vmParentMap = new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>();
+const vmParentMap = reactive(new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>());
 /** @private */
 export const getThemeValue = (
   vm: ComponentInternalInstance | null | undefined,
@@ -50,7 +50,8 @@ export const getThemeValue = (
 /** @private */
 export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefined) => {
   return objectKeys(themeProps).reduce((result, k) => {
-    result[k] = getThemeValue(vm, k);
+    const val = getThemeValue(vm, k);
+    if (val != null) result[k] = val; // in case it overrides others when mergeProps
     return result;
   }, {} as Record<keyof ThemeProps, any>);
 };
@@ -65,6 +66,9 @@ export const useNamespace = (
   const context = FormInputCollector.child(false); // form-item will be theme parent for all its children
   if (!parent && context) parent = context.parent;
   parent && vmParentMap.set(vm, parent);
+  onBeforeUnmount(() => {
+    vmParentMap.delete(vm);
+  });
 
   const { namespace, statePrefix, colorPriority } = GlobalStaticConfig;
   const b = (blockSuffix = '') => _bem(namespace, block, blockSuffix, '', '');

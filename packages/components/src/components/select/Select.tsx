@@ -252,21 +252,24 @@ export const Select = defineSSRCustomElement({
       );
     };
 
+    const getNoContent = () => (
+      <slot name="no-content">
+        <div class={ns.e('empty')}>
+          {renderElement('icon', { name: 'warning', class: ns.em('empty', 'icon') })}
+          <span class={ns.em('empty', 'text')}>{intl('select.noContent').d('No content')}</span>
+        </div>
+      </slot>
+    );
     return () => {
       const isTeleport = props.type === 'teleport';
       const popContent = (
         <div class={ns.e('content')} part={compParts[0]} slot="pop-content" onPointerdown={contentOnPointerDown}>
           {!context.value.length && !options.value?.length ? (
-            <slot name="no-content">
-              <div class={ns.e('empty')}>
-                {renderElement('icon', { name: 'warning', class: ns.em('empty', 'icon') })}
-                <span class={ns.em('empty', 'text')}>{intl('select.noContent').d('No content')}</span>
-              </div>
-            </slot>
+            getNoContent()
           ) : (
             <>
               {buttons.value}
-              {extra.value.allHidden && <slot name="no-content">No content</slot>}
+              {extra.value.allHidden && getNoContent()}
               {extra.value.creatingOption}
               {createdOptionsRender.value}
               {render.value}

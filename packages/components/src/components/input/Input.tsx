@@ -311,7 +311,7 @@ export const Input = defineSSRCustomElement({
                 >
                   {isArray(valueModel.value) &&
                     valueModel.value.map((v, index) => {
-                      const finalTagProps = mergeProps(runIfFn(tagProps, v, index), {
+                      const finalTagProps = mergeProps(pickThemeProps(props), runIfFn(tagProps, v, index), {
                         tabindex: editable ? 0 : undefined,
                         'data-tag-index': String(index), // bug starting from vue3.5, must use string for vue custom element
                         'data-tag-value': String(v),
@@ -323,7 +323,6 @@ export const Input = defineSSRCustomElement({
                         ? renderCustom(runIfFn(tagRenderer, v, index, finalTagProps))
                         : renderElement('tag', {
                             label: v,
-                            ...pickThemeProps(props),
                             ...finalTagProps,
                             removable: editable && tagRemoveIcon,
                           });
