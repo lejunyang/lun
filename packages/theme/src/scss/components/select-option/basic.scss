@@ -9,6 +9,7 @@
   align-items: center;
   user-select: none;
   cursor: pointer;
+  flex-shrink: 0;
   @include declareVars(
     (height, line-height, font-size, letter-spacing, border-radius, padding-inline-start, padding-inline-end)
   );

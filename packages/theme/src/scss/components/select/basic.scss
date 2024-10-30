@@ -16,6 +16,9 @@
   @include e(content) {
     display: flex;
     flex-direction: column;
+    box-sizing: content-box;
+    max-height: calc(#{getDeclaredVar(content-gap)} * 7 + var(--height) * 8);
+    overflow-y: auto;
     @include declareVars(
       (
         padding: content-padding,
@@ -63,6 +66,8 @@
         content-gap: getSpaceValue(1),
         buttons-gap: getSpaceValue(1),
         empty-text-font-size: getFontSizeValue(1),
+        height: getSpaceValue(5),
+        // option-height, this is for calc only, select-option has its own
       )
     );
   }
@@ -74,6 +79,7 @@
         content-gap: getSpaceValue(2),
         buttons-gap: getSpaceValue(2),
         empty-text-font-size: getFontSizeValue(2),
+        height: getSpaceValue(6),
       )
     );
   }
@@ -85,6 +91,7 @@
         content-gap: getSpaceValue(3),
         buttons-gap: getSpaceValue(3),
         empty-text-font-size: getFontSizeValue(3),
+        height: getSpaceValue(7),
       )
     );
   }
