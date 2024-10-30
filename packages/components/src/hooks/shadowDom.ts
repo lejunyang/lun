@@ -1,6 +1,16 @@
-import { objectComputed, unrefOrGetState, useEdit } from '@lun-web/core';
-import { fromObject, hyphenate, pick } from '@lun-web/utils';
-import { MaybeRef, camelize, computed, getCurrentInstance, onBeforeUnmount, onMounted, watchEffect } from 'vue';
+import { objectComputed, unrefOrGet, unrefOrGetState, useEdit } from '@lun-web/core';
+import { fromObject, hyphenate, pick, runIfFn } from '@lun-web/utils';
+import {
+  MaybeRef,
+  Ref,
+  camelize,
+  computed,
+  getCurrentInstance,
+  isRef,
+  onBeforeUnmount,
+  onMounted,
+  watchEffect,
+} from 'vue';
 import { useNamespace } from './useNameSpace';
 import { GlobalStaticConfig } from '../components/config/config.static';
 import { VueElement } from 'custom';
@@ -111,4 +121,33 @@ export function useAria(
     const aria = ariaGetter();
     aria && Object.assign((CE as any as { _internals: ElementInternals })._internals, aria);
   });
+}
+
+type InterceptMethods = {
+  click?: () => void;
+  focus?: (options: FocusOptions) => void;
+  blur?: () => void;
+};
+/** intercept custom element's click, focus and blur methods */
+export function interceptCEMethods(
+  methodsOrEl:
+    | InterceptMethods
+    | ((originalMethods: Required<InterceptMethods>) => InterceptMethods)
+    | Ref<HTMLElement | undefined>,
+) {
+  const CE = useCE();
+  const { click, focus, blur } = CE,
+    originalMethods = { click: click.bind(CE), focus: focus.bind(CE), blur: blur.bind(CE) };
+  Object.assign(
+    CE,
+    isRef(methodsOrEl)
+      ? {
+          click: () => unrefOrGet(methodsOrEl)?.click(),
+          focus: () => unrefOrGet(methodsOrEl)?.focus(),
+          blur: () => unrefOrGet(methodsOrEl)?.blur(),
+        }
+      : runIfFn(methodsOrEl, originalMethods),
+  );
+  // recover intercepted methods before unmount to avoid duplicate change. because dom can disconnect and connect again, then it will setup again
+  onBeforeUnmount(() => Object.assign(CE, originalMethods));
 }

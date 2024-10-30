@@ -3,7 +3,7 @@ import { unrefOrGet, useSetupEdit } from '@lun-web/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
 import { buttonEmits, buttonProps } from './type';
-import { useCEExpose, useCEStates, useNamespace } from 'hooks';
+import { interceptCEMethods, useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy, promiseTry } from '@lun-web/utils';
 import { getCompParts } from 'common';
@@ -18,6 +18,7 @@ export const Button = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
+    const button = ref<HTMLButtonElement>()
 
     let holdAnimationDone = false;
     const handleClick = computed(() => {
@@ -98,6 +99,7 @@ export const Button = defineSSRCustomElement({
       clearTimeout: clear,
     };
     useCEExpose(timeoutMethods);
+    interceptCEMethods(button);
 
     return () => {
       const { iconName, iconLibrary, size, spinProps, showLoading, hold, label, iconPosition } = props;
@@ -113,6 +115,7 @@ export const Button = defineSSRCustomElement({
       return (
         <button
           {...buttonHandlers}
+          ref={button}
           class={stateClass.value}
           aria-disabled={finalDisabled}
           disabled={finalDisabled}
