@@ -17,6 +17,12 @@ lang: zh-CN
 <l-switch loading checked />
 <l-switch loading />
 
+## 异步阻止更新
+
+给`beforeUpdate`传递一个异步处理函数，便可等待其处理完成后再决定是否更新勾选值，若其返回`false`、reject或抛出异常，则阻止更新
+
+<!-- @Code:asyncPreventUpdate -->
+
 ## 自定义图标
 
 <l-switch>

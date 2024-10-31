@@ -6,6 +6,7 @@ import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { Transition } from 'vue';
 import { getCompParts } from 'common';
+import { isFunction, noop, promiseTry } from '@lun-web/utils';
 
 const name = 'switch';
 const parts = ['root', 'input', 'children', 'thumb', 'checked', 'unchecked'] as const;
@@ -19,11 +20,23 @@ export const Switch = defineSSRCustomElement({
     const ns = useNamespace(name);
     useSetupEvent();
     const checkedModel = useCheckedModel(props);
-    const [editComputed] = useSetupEdit();
+    const [editComputed, editState] = useSetupEdit();
 
     const inputHandlers = {
       onChange(e: Event) {
         const { checked } = e.target as HTMLInputElement;
+        const { beforeUpdate } = props;
+        if (isFunction(beforeUpdate)) {
+          const prev = !!checkedModel.value;
+          (e.target as HTMLInputElement).checked = prev;
+          editState.loading = true;
+          return promiseTry(beforeUpdate, prev)
+            .then((res) => {
+              if (res !== false) checkedModel.value = checked;
+            })
+            .catch(noop)
+            .finally(() => (editState.loading = false));
+        }
         checkedModel.value = checked;
       },
     };
@@ -33,7 +46,7 @@ export const Switch = defineSSRCustomElement({
     return () => {
       const checked = checkedModel.value;
       const { spinProps, trueText, falseText } = props;
-      const { readonly, disabled, loading } = editComputed;
+      const { readonly, editable, loading } = editComputed;
       return (
         <>
           <label part={compParts[0]} class={stateClass.value}>
@@ -44,7 +57,7 @@ export const Switch = defineSSRCustomElement({
               checked={checked}
               aria-checked={checked}
               readonly={readonly}
-              disabled={disabled}
+              disabled={!editable}
               hidden
               {...inputHandlers}
             />

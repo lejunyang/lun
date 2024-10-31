@@ -1,5 +1,16 @@
+import { MaybePromise } from '@lun-web/core';
 import { freeze } from '@lun-web/utils';
-import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropObject, PropString, editStateProps, themeProps, valueProp } from 'common';
+import {
+  CommonProps,
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropFunction,
+  PropObject,
+  PropString,
+  editStateProps,
+  themeProps,
+  valueProp,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export const switchProps = freeze({
@@ -11,6 +22,7 @@ export const switchProps = freeze({
   trueText: PropString(),
   falseText: PropString(),
   spinProps: PropObject(),
+  beforeUpdate: PropFunction<(prevChecked: boolean) => MaybePromise<boolean | void>>(),
 });
 
 export const switchEmits = freeze({

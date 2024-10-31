@@ -20,7 +20,14 @@ export function useSetupEdit(options?: {
   adjust?: (state: EditState) => EditState | null | void;
   initialLocalState?: LocalEditState;
   noInherit?: boolean;
-}) {
+}): [
+  Readonly<EditState>,
+  {
+    disabled: boolean;
+    readonly: boolean;
+    loading: boolean;
+  },
+] {
   const { adjust, initialLocalState, noInherit } = options || {};
   const ctx = getCurrentInstance()!;
   if (!ctx) {
