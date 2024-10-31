@@ -1,6 +1,7 @@
 import { getCurrentInstance } from 'vue';
 
 export * from './shadowDom';
+export * from './transition';
 export * from './useBreakpoint';
 export * from './useCollectorValue';
 export * from './useNameSpace';

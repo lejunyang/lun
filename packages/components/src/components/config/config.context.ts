@@ -1,4 +1,4 @@
-import { ComponentInternalInstance, inject, provide, reactive } from 'vue';
+import { ComponentInternalInstance, CSSProperties, inject, provide, reactive, TransitionProps } from 'vue';
 import { iconRegistry } from '../icon/icon.registry';
 import { OpenShadowComponentKey } from './config.static';
 import { ThemeConfig } from 'common';
@@ -10,6 +10,20 @@ const CONTEXT_CONFIG_KEY = Symbol(__DEV__ ? 'l-context-config-key' : '');
 export type DynamicStyleValue =
   | ((vm: ComponentInternalInstance, compName: OpenShadowComponentKey, context: any) => string | undefined)
   | string;
+
+export type ComponentTransition = TransitionProps & { moveClass?: string } & Record<
+    | 'enterFromStyle'
+    | 'enterActiveStyle'
+    | 'enterToStyle'
+    | 'appearFromStyle'
+    | 'appearActiveStyle'
+    | 'appearToStyle'
+    | 'leaveFromStyle'
+    | 'leaveActiveStyle'
+    | 'leaveToStyle'
+    | 'moveStyle',
+    CSSProperties
+  >;
 
 export const GlobalContextConfig = reactive({
   lang: inBrowser && navigator.language.startsWith('zh') ? 'zh-CN' : 'en',
@@ -27,6 +41,8 @@ export const GlobalContextConfig = reactive({
     },
     scale: 1,
   } as ThemeConfig,
+  transitionRegistry: {} as Record<string, ComponentTransition>,
+  componentTransitions: reduceFromComps(() => ({} as Record<string, string>), false, false),
   zIndex: {
     teleport: 1000,
     dialog: 1000,
