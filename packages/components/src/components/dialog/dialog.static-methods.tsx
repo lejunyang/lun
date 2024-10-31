@@ -17,23 +17,22 @@ export type DialogStaticMethodParams = Omit<DialogProps, 'open'> & {
 } & { style?: string | Partial<CSSStyleDeclaration> } & Omit<HTMLAttributes, 'style' | 'title'>;
 
 const createStatusMethod = (status: Status) => {
-  return ({ title, content, ...others }: DialogStaticMethodParams = {}) =>
+  return ({ header, content, ...others }: DialogStaticMethodParams = {}) =>
     methods.open({
       ...others,
       isConfirm: true,
-      title: (
+      header: (
         <>
-          {renderStatusIcon(status)}
-          {title}
+          {header && renderStatusIcon(status)}
+          {header}
         </>
       ),
       content: (
         <>
-          {renderStatusIcon(status, { style: { visibility: title ? 'hidden' : 'visible' } })}
+          {renderStatusIcon(status, { style: { visibility: header ? 'hidden' : 'visible' } })}
           <div part="confirm-content">{renderCustom(content)}</div>
         </>
       ),
-      noHeader: !title,
       noCancelBtn: true,
       noCloseBtn: true,
     });

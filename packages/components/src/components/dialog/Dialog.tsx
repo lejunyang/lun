@@ -222,7 +222,8 @@ export const Dialog = Object.assign(
         ns,
       );
 
-      const [renderContent] = useSlot(undefined, () => props.content)
+      const [renderHeader] = useSlot('header', () => props.header);
+      const [renderContent] = useSlot(undefined, () => props.content);
 
       const Tag = supportDialog ? 'dialog' : 'div';
       return () => {
@@ -230,7 +231,6 @@ export const Dialog = Object.assign(
           noCloseBtn,
           closeBtnProps,
           noHeader,
-          title,
           noFooter,
           noCancelBtn,
           cancelBtnProps,
@@ -248,8 +248,6 @@ export const Dialog = Object.assign(
             part={compParts[0]}
             ref={dialogRef}
             {...dialogHandlers}
-            // title is a global HTMLAttributes, but we use it as prop. it will make the dialog show tooltip even if inheritAttrs is false, we need to set an empty title to prevent it
-            title=""
             style={{ zIndex: zIndex.dialog }}
           >
             <Transition {...getTransitionProps(props, 'mask', 'bgFade')}>
@@ -293,9 +291,7 @@ export const Dialog = Object.assign(
                         part={compParts[3]}
                         ref={headerRef}
                       >
-                        <slot name="header-start"></slot>
-                        <slot name="header">{title}</slot>
-                        <slot name="header-end"></slot>
+                        {renderHeader()}
                       </header>
                     )}
                     <div class={[ns.e('content')]} part={compParts[5]}>

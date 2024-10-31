@@ -36,7 +36,7 @@ export const dialogProps = freeze({
   customDraggable: PropFunction<DraggableFn>(), // draggable is a html attribute, use customDraggable instead
   noTransform: PropBoolean(),
   width: sizeProp,
-  title: PropObjOrStr(),
+  header: Prop<GetCustomRendererSource>(),
   noHeader: PropBoolean(),
   noCloseBtn: PropBoolean(),
   closeBtnProps: PropObject(),

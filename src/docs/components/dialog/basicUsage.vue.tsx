@@ -46,7 +46,7 @@ export default function () {
       <l-dialog
         {...form.data}
         open={open.value}
-        title={sentence}
+        header={sentence}
         onUpdate={(e) => (open.value = e.detail)}
         onAfterOpen={() => console.log('afterOpen')}
         onAfterClose={() => console.log('afterClose')}

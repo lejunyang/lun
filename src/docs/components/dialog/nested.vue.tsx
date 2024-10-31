@@ -5,7 +5,7 @@ const getBtn = () => (
     <l-button
       onClick={() =>
         Dialog.open({
-          title: 'Title',
+          header: 'Title',
           content: getBtn(),
         })
       }

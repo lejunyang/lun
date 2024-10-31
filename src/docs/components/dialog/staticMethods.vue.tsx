@@ -8,7 +8,7 @@ export default () => {
       <l-button
         onClick={() =>
           Dialog.open({
-            title: 'Title',
+            header: 'Header',
             content: 'Content',
           })
         }
@@ -19,12 +19,12 @@ export default () => {
           status={s}
           onClick={() =>
             Dialog[s]({
-              title: i > 3 ? '' : s,
+              header: i > 3 ? '' : s,
               content: text,
             })
           }
         >
-          {i > 3 ? s + '-no-title' : s}
+          {i > 3 ? s + '-no-header' : s}
         </l-button>
       ))}
     </>
