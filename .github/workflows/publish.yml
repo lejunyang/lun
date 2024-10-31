@@ -1,13 +1,12 @@
 name: Release packages
 
 on:
-  push:
-    paths:
-      - '**/package.json'
-    tags:
-      - v*
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      artifact-id:
+        required: false
+        type: string
 
 permissions:
   pull-requests: write
@@ -16,52 +15,14 @@ permissions:
 
 jobs:
   publish:
-    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[publish skip]') }}
+    if: ${{ github.repository == 'lejunyang/lun' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup
+        uses: ./.github/actions/setup.yml
         with:
-          version: 9.9.0
-          run_install: false
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          # Set always-auth in npmrc.
-          # always-auth: # optional, default is false
-          # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
-          node-version: 20 # optional
-          # File containing the version Spec of the version to use.  Examples: .nvmrc, .node-version, .tool-versions.
-          # node-version-file: # optional
-          # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
-          # architecture: # optional
-          # Set this option if you want the action to check for the latest available version that satisfies the version spec.
-          # check-latest: # optional
-          # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file, and set up auth to read in from env.NODE_AUTH_TOKEN.
-          registry-url: https://registry.npmjs.org
-          # Optional scope for authenticating against scoped registries. Will fall back to the repository owner when using the GitHub Packages registry (https://npm.pkg.github.com/).
-          # scope: # optional
-          # Used to pull node distributions from node-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
-          # token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
-          # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.
-          cache: 'pnpm' # optional
-          # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
-          # cache-dependency-path: # optional
-
-      - name: Install and Build
-        run: pnpm install --frozen-lockfile && pnpm build
-
-      # - name: Publish to npm
-      #   run: |
-      #     cat << EOF > "./.npmrc"
-      #       //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-      #     EOF
-      #     pnpm release
-      #   env:
-      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          artifact-id: ${{ inputs.artifact-id }}
 
       - name: Create Release Pull Request and Publish to npm
         uses: changesets/action@v1

@@ -77,7 +77,7 @@ pnpm test
   - Form功能完善
   - 为Select、Tree集成内部的虚拟渲染，同时支持外部虚拟渲染
   - 实现Table
-  - Input掩码，分组Input输入，简化Input渲染
+  - Input掩码输入，Input hint及tab补全，分组Input输入，简化Input渲染
   - 添加颜色处理预设，完善ColorPicker
   - 大单元格Calendar渲染，完善模式切换，添加日历事件支持，农历支持
   - slot与prop优先级统一，目前各个组件有些不同

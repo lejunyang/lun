@@ -82,5 +82,8 @@
   "optionalDependencies": {
     "bezier-easing": "^2.1.0",
     "colorjs.io": "^0.5.2"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

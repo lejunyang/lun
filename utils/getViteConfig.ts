@@ -16,7 +16,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
   const iife = isIIFE();
   const dev = iife || isDev() || !!process.env.VITEST;
   const noType = iife || process.env.NO_TYPE_EMIT === 'true';
-  const fileName = name.replace('@', '').replace('/', '-');
+  const fileName = name.replace('@', '').replace(/\//g, '-');
   return defineConfig({
     ...viteConfig,
     plugins: [
@@ -78,7 +78,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       emptyOutDir: dev && !iife,
       rollupOptions: {
         external: iife
-          ? ['vue', /@lun-web\/\w+/]
+          ? ['vue', '@lun-web/components', '@lun-web/core', '@lun-web/utils']
           : ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /^dayjs.*/, /react-dom.*/, /@floating-ui.*/],
         output: {
           chunkFileNames() {

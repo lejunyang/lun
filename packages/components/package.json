@@ -95,5 +95,8 @@
     "@vue/runtime-dom": "catalog:",
     "@vue/runtime-core": "catalog:",
     "vue-tsc": "catalog:"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

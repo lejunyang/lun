@@ -81,5 +81,8 @@
   },
   "peerDependencies": {
     "vue": "^3.2.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

@@ -15,7 +15,7 @@
     "docs:preview": "vitepress preview src/docs",
     "test": "vitest",
     "pre-version": "pnpm --filter \"./packages/**\" v prerelease --preid alpha",
-    "release": "pnpm publish -r --access public --no-git-checks --provenance"
+    "release": "pnpm publish -r --access public --no-git-checks"
   },
   "engines": {
     "node": ">=18",

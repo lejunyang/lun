@@ -60,5 +60,8 @@
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

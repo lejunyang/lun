@@ -55,5 +55,8 @@
     "@babel/types": "^7.24.7",
     "@rollup/plugin-replace": "^5.0.7",
     "@types/babel__core": "^7.20.5"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

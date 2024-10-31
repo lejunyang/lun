@@ -85,7 +85,7 @@ Technically yes, because web components is not framework-specific, but you need 
   - integrate internal virtual rendering for Select、Tree, support external virtual rendering
   - provide better scroll-driven animation usage in ScrollView
   - implement Table
-  - input mask feature, simplify input rendering
+  - add mask input, add input hint and tab completion, simplify input rendering
   - add color process preset, finish ColorPicker
   - finish Calendar
   - unify which one take precedence, prop or slot
