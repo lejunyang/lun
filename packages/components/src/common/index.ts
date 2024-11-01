@@ -72,7 +72,7 @@ export const getCollectorOptions = (
   name,
   sort,
   onlyForProp,
-  skipChild(vm: ComponentInternalInstance, parentEl: Element) {
-    return skipInternalChildren ? vm.ce?.getRootNode() === parentEl.shadowRoot : false;
+  skipChild(vm: ComponentInternalInstance, parentEl?: Element | null) {
+    return skipInternalChildren ? vm.ce?.getRootNode() === parentEl?.shadowRoot : false;
   },
 });

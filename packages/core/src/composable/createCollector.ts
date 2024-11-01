@@ -81,7 +81,7 @@ export function createCollector<
   getParentEl?: (vm: InstanceWithProps<NoInfer<ParentProps>>) => Element;
   getChildEl?: (vm: InstanceWithProps<NoInfer<ChildProps>>) => Element;
   collectOnSetup?: boolean;
-  skipChild?: (vm: InstanceWithProps<NoInfer<ChildProps>>, parentEl: Element) => boolean;
+  skipChild?: (vm: InstanceWithProps<NoInfer<ChildProps>>, parentEl?: Element | null) => boolean;
   tree?: Tree;
   /** it's for vue custom elements to delay getting items.value, as all children's setups are after parent's mount  */
   needWait?: boolean;
@@ -124,6 +124,7 @@ export function createCollector<
     };
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) {
+      if (collectOnSetup) state.parentEl = getParentEl(instance);
       onMounted(() => {
         state.parentMounted = true;
         state.parentEl = getParentEl(instance);
@@ -138,7 +139,7 @@ export function createCollector<
       const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
       return {
         addItem(child: any) {
-          if (!child || runIfFn(skipChild, child, state.parentEl!) === true) return;
+          if (!child || runIfFn(skipChild, child, state.parentEl) === true) return;
           const el = getChildEl(child)!,
             {
               value,
