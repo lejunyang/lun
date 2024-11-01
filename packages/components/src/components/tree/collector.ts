@@ -4,8 +4,8 @@ import { getCollectorOptions } from 'common';
 
 type c = ReturnType<typeof useCheckboxMethods>;
 export type TreeExtraProvide = {
-  select: ReturnType<typeof useSelectMethods>;
-  check: c & {
+  select: Omit<ReturnType<typeof useSelectMethods>, '_'>;
+  check: Omit<c, '_'> & {
     isIntermediate: (value: any) => boolean;
   };
   expand: {

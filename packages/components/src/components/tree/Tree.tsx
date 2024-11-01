@@ -102,7 +102,9 @@ export const Tree = defineSSRCustomElement({
 });
 
 export type tTree = typeof Tree;
-export type TreeExpose = TreeExtraProvide;
+export type TreeExpose = {
+  methods: TreeExtraProvide;
+};
 export type iTree = InstanceType<tTree> & TreeExpose;
 
 export const defineTree = createDefineElement(name, Tree, {}, parts, {});
