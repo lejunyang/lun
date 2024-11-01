@@ -19,6 +19,9 @@ jobs:
     outputs:
       artifact-id: ${{ steps.artifacts-upload-step.outputs.artifact-id }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      # need to checkout before using it...
       - name: Setup
         uses: ./.github/actions/setup # must use directory, and action.yml must be there
       - name: Build
