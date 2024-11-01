@@ -47,8 +47,10 @@
               <l-radio value="2" variant="surface">2</l-radio>
               <l-radio value="3" high-contrast>3</l-radio>
             </l-radio-group>
-            <l-button class="start-button" variant="solid" style="transform: translateX(-10px)">Get Started</l-button>
-            <l-button class="start-button" variant="soft">View</l-button>
+            <l-button class="start-button" variant="solid" style="transform: translateX(-10px)">
+              <a href="/lun/components/button/">Get Started</a>
+            </l-button>
+            <l-button class="start-button" variant="soft"><a href="https://github.com/lejunyang/lun">View</a></l-button>
           </div>
           <div slot="scale">设置全局组件缩放系数</div>
           <div slot="size">选择全局组件大小</div>

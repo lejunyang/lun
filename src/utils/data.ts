@@ -79,3 +79,31 @@ export const filesRenderer = (files) =>
   ensureArray(files)
     .map((file) => file.name)
     .join(', ');
+
+export const treeItems = [
+  {
+    label: 'Item 1',
+    value: '1',
+    children: [
+      {
+        label: 'Item 1.1',
+        value: '1.1',
+        children: [
+          { label: 'Item 1.1.1', value: '1.1.1' },
+          { label: 'Item 1.1.2', value: '1.1.2' },
+          { label: 'Item 1.1.3', value: '1.1.3', disabled: true },
+        ],
+      },
+      { label: 'Item 1.2', value: '1.2' },
+      {
+        label: 'Item 1.3',
+        value: '1.3',
+        children: [{ label: 'Item 1.3.1', value: '1.3.1' }],
+      },
+    ],
+  },
+  {
+    label: 'Item 2',
+    value: '2',
+  },
+];

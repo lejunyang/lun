@@ -64,7 +64,7 @@
     "v-lazy-show": "^0.2.4",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitepress": "1.4.1",
+    "vitepress": "1.4.3",
     "vitest": "catalog:",
     "vitest-browser-vue": "^0.0.1",
     "vue-tsc": "catalog:"

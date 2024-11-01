@@ -129,6 +129,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
               link: wrapLink('/components/form/', lang),
               collapsed: true,
               items: [
+                { text: locales[lang].sidebar.dataDisplay.useForm, link: wrapLink('/components/use-form/', lang) },
                 { text: locales[lang].sidebar.dataDisplay.formItem, link: wrapLink('/components/form-item/', lang) },
               ],
             },
@@ -214,6 +215,7 @@ export default defineConfig({
       };
     },
   },
+  appearance: 'dark',
   vite: viteConfig,
   head: [],
   lastUpdated: true,
