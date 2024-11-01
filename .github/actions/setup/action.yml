@@ -8,25 +8,32 @@ inputs:
     required: false
     type: string
 runs:
-  using: composite
+  using: 'composite'
   steps:
     - name: Setup pnpm
+      shell: bash # Must set shell for every step in composite action...
       uses: pnpm/action-setup@v4
       with:
         version: 9.9.0
+
     - name: Setup node
+      shell: bash
       uses: actions/setup-node@v4
       with:
         node-version: 20
         cache: 'pnpm'
+
     - name: Install
+      shell: bash
       run: pnpm install --frozen-lockfile
 
     - name: Check if needs to init test
+      shell: bash
       if: ${{ github.event.inputs.init-test == true || github.event.inputs.init-test == 'true' }}
       run: pnpm exec playwright install
 
     - name: Check if needs to download build
+      shell: bash
       uses: actions/download-artifact@v4
       if: ${{ github.event.inputs.artifact-id }}
       with:
