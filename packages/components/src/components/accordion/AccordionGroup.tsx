@@ -28,7 +28,7 @@ export const AccordionGroup = defineSSRCustomElement({
     const openSet = useValueSet(openModel, multiple);
     const childrenNames = computed(() => new Set(context.value.map((c, i) => c.props.name || i)));
     const methods = useGroupOpenMethods({
-      value: openSet,
+      current: openSet,
       multiple,
       allValues: childrenNames,
       onChange(value) {

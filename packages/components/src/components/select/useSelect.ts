@@ -21,7 +21,7 @@ export function useSelect(
 
   const methods = useSelectMethods({
     multiple: isMultiple,
-    value: selectedValueSet,
+    current: selectedValueSet,
     onChange(value) {
       valueModel.value = value;
       if (onSingleSelect && !isMultiple()) onSingleSelect(value.raw);

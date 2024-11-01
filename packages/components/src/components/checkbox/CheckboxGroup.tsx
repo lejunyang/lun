@@ -52,7 +52,7 @@ export const CheckboxGroup = defineSSRCustomElement({
         ),
     );
     const methods = useCheckboxMethods({
-      value: checkedValueSet,
+      current: checkedValueSet,
       allValues: childValueSet,
       onChange(value) {
         valueModel.value = value;

@@ -5,14 +5,14 @@ export type UseSelectOptions<T = any> = ToAllMaybeRefLike<
   {
     multiple?: boolean;
     // when multiple is true, it needs to be Set<T>, otherwise it needs to be T
-    value: Set<T> | T;
+    current: Set<T> | T;
     allValues: Set<T>;
   },
   true
 > & { onChange: (param: { value: T | T[]; raw: Set<T> | T }) => void };
 
 export function useSelectMethods(options: UseSelectOptions) {
-  const { multiple, value: selectVal, onChange, allValues } = options;
+  const { multiple, current, onChange, allValues } = options;
   const isMultiple = () => !!unrefOrGet(multiple);
   const getParam = (raw: any) => ({
     raw,
@@ -21,8 +21,10 @@ export function useSelectMethods(options: UseSelectOptions) {
     },
   });
   const methods = {
+    /** @private used to get raw format model */
+    _: getParam,
     isSelected: (value: any) =>
-      isMultiple() ? !!unrefOrGet(selectVal)?.has(value) : unrefOrGet(selectVal) === value && value != null,
+      isMultiple() ? !!unrefOrGet(current)?.has(value) : unrefOrGet(current) === value && value != null,
     selectAll() {
       if (isMultiple()) onChange(getParam(unrefOrGet(allValues)));
     },
@@ -31,7 +33,7 @@ export function useSelectMethods(options: UseSelectOptions) {
     },
     select(...values: any[]) {
       if (isMultiple()) {
-        const v = toNoneNilSet(unrefOrGet(selectVal), values);
+        const v = toNoneNilSet(unrefOrGet(current), values);
         onChange(getParam(v));
       } else if (values[0] != null) onChange(getParam(values[0]));
     },
@@ -40,23 +42,23 @@ export function useSelectMethods(options: UseSelectOptions) {
       else onChange(getParam(values[0]));
     },
     unselect(...values: any[]) {
-      const v = unrefOrGet(selectVal);
+      const v = unrefOrGet(current);
       if (isMultiple()) {
         const result = new Set(v);
         values.forEach((i) => result.delete(i));
         onChange(getParam(result));
-      } else if (values[0] === undefined || unrefOrGet(selectVal) === values[0]) onChange(getParam(null));
+      } else if (values[0] === undefined || unrefOrGet(current) === values[0]) onChange(getParam(null));
     },
     reverse() {
       const all = unrefOrGet(allValues) || [];
       if (isMultiple()) {
-        const result = new Set(unrefOrGet(selectVal));
+        const result = new Set(unrefOrGet(current));
         all.forEach((i) => {
           if (result.has(i)) result.delete(i);
           else result.add(i);
         });
         onChange(getParam(result));
-      } else onChange(getParam(!unrefOrGet(selectVal)?.size ? getFirstOfIterable(all) : null));
+      } else onChange(getParam(!unrefOrGet(current)?.size ? getFirstOfIterable(all) : null));
     },
     toggle(value: any) {
       if (methods.isSelected(value)) methods.unselect(value);
@@ -69,6 +71,8 @@ export function useSelectMethods(options: UseSelectOptions) {
 export const useCheckboxMethods = (options: UseSelectOptions) => {
   const result = useSelectMethods({ ...options, multiple: true });
   return {
+    /** @private used to get raw format model */
+    _: result._,
     isChecked: result.isSelected,
     checkAll: result.selectAll,
     uncheckAll: result.unselectAll,
@@ -83,6 +87,8 @@ export const useCheckboxMethods = (options: UseSelectOptions) => {
 export const useGroupOpenMethods = (options: UseSelectOptions) => {
   const result = useSelectMethods(options);
   return {
+    /** @private used to get raw format model */
+    _: result._,
     isOpen: result.isSelected,
     openAll: result.selectAll,
     closeAll: result.unselectAll,

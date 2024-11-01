@@ -8,8 +8,7 @@ import { objectComputed, useCheckboxMethods, useSelectMethods, useSetupEdit } fr
 import { useCollectorValue } from '../../hooks/useCollectorValue';
 import { ComponentInternalInstance, computed } from 'vue';
 import { ensureArray, unionOfSets } from '@lun-web/utils';
-import { useTreeCheckedValue } from './tree.checked-value';
-import { useTreeCheckMethods } from './tree.check-methods';
+import { useTreeCheckMethods } from './tree.check';
 import { InternalTreeItem, useTreeItems } from './tree.items';
 
 const name = 'tree';
@@ -46,11 +45,9 @@ export const Tree = defineSSRCustomElement({
       };
     });
 
-    const [correctedCheckedSet, checkedChildrenCountMap] = useTreeCheckedValue(combinedChildren, checkedValueSet);
     const checkMethods = useTreeCheckMethods({
-      value: correctedCheckedSet,
+      current: checkedValueSet,
       childrenInfo: combinedChildren,
-      childrenCheckedMap: checkedChildrenCountMap,
       valueToChild,
       onChange(value) {
         checkedModel.value = value;
@@ -60,14 +57,14 @@ export const Tree = defineSSRCustomElement({
 
     const selectMethods = useSelectMethods({
       multiple: isSelectMultiple,
-      value: selectedValueSet,
+      current: selectedValueSet,
       onChange(value) {
         selectedModel.value = value;
       },
       allValues: () => combinedChildren.childrenValuesSet,
     });
     const _expandMethods = useCheckboxMethods({
-      value: expandedValueSet,
+      current: expandedValueSet,
       onChange(value) {
         expandedModel.value = value;
       },
