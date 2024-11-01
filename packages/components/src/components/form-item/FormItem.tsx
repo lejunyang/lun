@@ -236,7 +236,7 @@ export const FormItem = defineSSRCustomElement({
               )
             ) : (
               // can not set elementRef on slot, popover requires an element with bounding rect to attach to, so wrap slot with a span
-              <span ref={elementRef} part={compParts[5]}>
+              <span ref={elementRef} part={compParts[5]} class={ns.e('wrapper')}>
                 <slot />
               </span>
             )}

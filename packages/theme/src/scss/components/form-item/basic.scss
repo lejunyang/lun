@@ -27,7 +27,8 @@
 
   @include e(content) {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: start;
     @include declareVars(
       (
         line-height: content-line-height,
@@ -35,9 +36,14 @@
     );
   }
 
+  // input wrapper
+  @include e(wrapper) {
+    display: flex;
+    flex: 1 0 100%;
+  }
+
   @include declareReuseVars((tips-margin-block-start));
   @include e(tips) {
-    flex: 1 0 100%;
     &:not(:empty) {
       @include reuseVars(
         (
@@ -55,7 +61,6 @@
   }
 
   @include e(line-tip) {
-    flex: 1 0 100%;
     color: getGrayColor(11);
     @include declareVars(
       (
