@@ -1,5 +1,5 @@
 import { hideDomAndAppend } from './_internal';
-import { createElement } from './alias';
+import { createElement, isConnected } from './alias';
 import { getCachedComputedStyle } from './style';
 import { inBrowser, supportClipboard } from './support';
 
@@ -15,7 +15,7 @@ export const copyText = (() => {
           throw e;
         });
     if (!document.execCommand) return;
-    if (!textarea?.isConnected) {
+    if (!isConnected(textarea)) {
       textarea = createElement('textarea');
       hideDomAndAppend(textarea);
     }

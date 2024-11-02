@@ -1,5 +1,6 @@
 import { Ref } from 'vue';
 import { iPopover } from '../components/popover/Popover';
+import { isConnected } from '@lun-web/utils';
 
 /** default scrollIntoViewIfNeed */
 export function scrollIntoView(el: Element, options?: ScrollIntoViewOptions) {
@@ -9,11 +10,12 @@ export function scrollIntoView(el: Element, options?: ScrollIntoViewOptions) {
 export function openPopover(elRef: Ref<iPopover | HTMLElement | undefined>) {
   const { value } = elRef,
     k = 'openPopover';
-  if (value) k in value ? (value as iPopover)[k]() : value.showPopover();
+  // check isConnected because of message component, this might be called on disconnected element
+  if (isConnected(value)) k in value ? (value as iPopover)[k]() : value.showPopover();
 }
 
 export function closePopover(elRef: Ref<iPopover | HTMLElement | undefined>, delay?: boolean, ensure?: boolean) {
   const { value } = elRef;
   const key = delay ? 'delayClosePopover' : `closePopover`;
-  if (value) key in value ? (value as iPopover)[key](ensure) : value.hidePopover();
+  if (isConnected(value)) key in value ? (value as iPopover)[key](ensure) : value.hidePopover();
 }

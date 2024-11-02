@@ -11,6 +11,7 @@
 
 - `components/config`: add `transitionRegistry` and `componentTransitions` global context config; add `useTransition` hook and `registerTransition` util
 - `components/dialog`: add custom renderer for header, remove `title` prop
+- `components/message`: support string param for `Message.open`
 - `components/switch`: add `beforeUpdate` to asynchronously determine whether to update checked status
 
 ## Changes

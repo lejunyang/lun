@@ -12,6 +12,8 @@ export const identity = <T>(x: T) => x;
 export const getRect = (elOrRange: Element | Range | { getBoundingClientRect(): DOMRect }) =>
   elOrRange.getBoundingClientRect();
 
+export const isConnected = (el?: Element | null): el is Element => el?.isConnected as boolean;
+
 /** create an element like document.createElement, assign props(or add attributes) to it if provided */
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,

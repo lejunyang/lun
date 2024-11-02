@@ -1,4 +1,4 @@
-import { on, raf, runIfFn, withResolvers } from '@lun-web/utils';
+import { isConnected, on, raf, runIfFn, withResolvers } from '@lun-web/utils';
 import { createLunElement, getFirstThemeProvider, toElement } from 'utils';
 import { iProgress } from './Progress';
 
@@ -55,7 +55,7 @@ export const methods = {
     container.append(progress);
     /** returns a promise that resolves when the progress is done */
     const stop = () => {
-      if (!started || !progress.isConnected) return;
+      if (!started || !isConnected(progress)) return;
       clearInterval(id);
       progress.strokeStyle = { transition: '0.2s' }; // change to ease and then stop
       progress.value = 100;
@@ -65,7 +65,7 @@ export const methods = {
     };
     return {
       start(instant = true) {
-        if (!progress.isConnected) return;
+        if (!isConnected(progress)) return;
         started = true;
         clearInterval(id);
         init();

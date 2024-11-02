@@ -2,7 +2,7 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getElementFirstName, getFirstThemeProvider, toElement } from 'utils';
 import { TeleportHolderProps, teleportHolderProps } from './type';
 import { useContextConfig } from 'config';
-import { createElement } from '@lun-web/utils';
+import { createElement, isConnected } from '@lun-web/utils';
 
 const name = 'teleport-holder';
 export const TeleportHolder = defineSSRCustomElement({
@@ -43,7 +43,7 @@ export function createTeleportHolderInstance({
 let el: iTeleportHolder;
 export function getTeleportHolderInstance(to?: string | HTMLElement | null) {
   if (!to) {
-    return el?.isConnected ? el : (el = createTeleportHolderInstance());
+    return isConnected(el) ? el : (el = createTeleportHolderInstance());
   }
   return createTeleportHolderInstance({ to });
 }

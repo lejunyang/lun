@@ -1,3 +1,4 @@
+import { isConnected } from './alias';
 import { isRootOrBody } from './is';
 import { getCachedComputedStyle } from './style';
 import { measureTextWidth } from './text';
@@ -43,7 +44,7 @@ export function isTextOverflow(
 }
 
 export function isOverflow(el: HTMLElement): boolean {
-  if (!el.isConnected) return false;
+  if (!isConnected(el)) return false;
   const computedStyle = getCachedComputedStyle(el);
   const { overflowY, overflowX } = computedStyle,
     yScroll = overflowY === 'scroll',

@@ -11,6 +11,7 @@ import {
   runIfFn,
   ensureArray,
   listenScroll,
+  isConnected,
 } from '@lun-web/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
@@ -176,7 +177,7 @@ export function useVirtualList(options: UseVirtualOptions) {
       itemsObserver?.observe(el, observeOption);
       keyElementMap.set(key, el);
     }
-    if (el.isConnected) updateItemSize(index, Math.round(getSize(getEntryBorderSize(entry) || getRect(el))));
+    if (isConnected(el)) updateItemSize(index, Math.round(getSize(getEntryBorderSize(entry) || getRect(el))));
   };
   const itemsObserver = options.estimatedSize
     ? new ResizeObserver((entries) => {
@@ -186,7 +187,7 @@ export function useVirtualList(options: UseVirtualOptions) {
   const measureElement = (el?: Element | null) => {
     if (!el) {
       keyElementMap.forEach((el, key) => {
-        if (!el.isConnected) {
+        if (!isConnected(el)) {
           itemsObserver?.unobserve(el);
           keyElementMap.delete(key);
         }
