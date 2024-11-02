@@ -29,12 +29,11 @@ defineAllComponents();
 const persistCount = new WeakMap<Element, number>();
 
 afterEach(() => {
+  const specialToRemove = ['l-message', 'l-dialog', 'l-theme-provider', 'l-teleport-holder'];
   const testEls = document.querySelectorAll(`[${testAttr}]`),
-    themeProviders = document.querySelectorAll('l-theme-provider'),
-    teleportHolders = document.querySelectorAll('l-teleport-holder');
+    specials = specialToRemove.map((name) => Array.from(document.querySelectorAll(name))).flat();
   Array.from(testEls)
-    .concat(Array.from(themeProviders))
-    .concat(Array.from(teleportHolders))
+    .concat(specials)
     .forEach((el) => {
       if (el.getAttribute(persistAttr) != null) {
         const count = persistCount.get(el) || 0;

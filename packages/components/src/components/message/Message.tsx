@@ -95,7 +95,7 @@ export const Message = Object.assign(
             class: ns.e('callout'),
           };
           const key = (config.key ||= Date.now());
-          (config as any)['data-key'] = key;
+          (config as any)['data-key'] = '' + key;
           Object.assign(config, getCalloutHandlers(config));
           if (config.duration === undefined) config.duration = 3000;
           const { duration } = config;
@@ -104,6 +104,7 @@ export const Message = Object.assign(
             calloutMap[key] = { ...calloutMap[key], ...config };
           } else calloutMap[key] = config;
           startTimer(key, duration);
+          return key;
         },
         close(key) {
           if ((tempCalloutMap[key] = calloutMap[key])) {

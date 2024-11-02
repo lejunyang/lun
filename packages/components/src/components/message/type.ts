@@ -51,7 +51,7 @@ export type MessageEvents = GetEventPropsFromEmits<typeof messageEmits>;
 export type MessageProps = Partial<MessageSetupProps> & MessageEvents;
 
 export type MessageMethods = {
-  open(config?: MessageOpenConfig): void;
+  open(config?: MessageOpenConfig): string;
   close(key: string | number): void;
   closeAll(): void;
 };
