@@ -1,6 +1,6 @@
 import { ComponentInternalInstance, computed, getCurrentInstance, onBeforeUnmount, reactive } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
-import { fromObject, isArray, isPreferDark, isString, objectKeys } from '@lun-web/utils';
+import { fromObject, identity, isArray, isPreferDark, isString, objectKeys } from '@lun-web/utils';
 import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
@@ -25,27 +25,34 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
 };
 
 const vmParentMap = reactive(new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>());
-/** @private */
-export const getThemeValue = (
+
+/**
+ * @returns [selfResult, parentResult, themeContextResult]
+ */
+const getThemeValueOfAllSources = (
   vm: ComponentInternalInstance | null | undefined,
   key: keyof ThemeProps,
   context?: any,
   compName?: string,
   ignoreParent?: boolean,
-): any => {
-  if (!vm) return;
-  const result = vm.props[key],
+): [any, any, any] | [] => {
+  if (!vm) return [];
+  const selfResult = vm.props[key],
     parent = vmParentMap.get(vm!),
     theme = context?.theme?.[key];
-  return (
-    result ||
-    (parent && !ignoreParent && getThemeValue(parent, key)) ||
-    (theme &&
+  return [
+    selfResult,
+    parent && !ignoreParent && getThemeValue(parent, key),
+    theme &&
       ((compName && theme[compName]) ||
         // if it ignores parent and is not root element, do not use common theme
-        ((!ignoreParent || rootSet.has(vm.ce!)) && (theme.common || theme))))
-  );
+        ((!ignoreParent || rootSet.has(vm.ce!)) && (theme.common || theme))),
+  ] as const;
 };
+
+/** @private */
+export const getThemeValue: typeof getThemeValueOfAllSources = (...args: Parameters<typeof getThemeValueOfAllSources>): any =>
+  getThemeValueOfAllSources(...args).find(identity);
 
 /** @private */
 export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefined) => {
@@ -59,7 +66,11 @@ export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefin
 // TODO split useNameSpace
 export const useNamespace = (
   block: string,
-  other?: { parent?: ComponentInternalInstance | null; status?: MaybeRefLikeOrGetter<Status> },
+  other?: {
+    parent?: ComponentInternalInstance | null;
+    /** external status, now it's only used by input */
+    status?: MaybeRefLikeOrGetter<Status>;
+  },
 ) => {
   let { parent, status } = other || {};
   const vm = getCurrentInstance()!;
@@ -117,6 +128,8 @@ export const useNamespace = (
   const getActualThemeValue = <T = string | undefined>(key: keyof (typeof contextConfig)['theme'] | 'status') => {
     return getThemeValue(vm, key, contextConfig, block) as T;
   };
+  const getActualThemeArray = <T = string | undefined>(key: keyof (typeof contextConfig)['theme'] | 'status') =>
+    getThemeValueOfAllSources(vm, key, contextConfig, block) as [T, T, T];
 
   const isDark = () => {
     const appearance = getActualThemeValue('appearance');
@@ -143,24 +156,26 @@ export const useNamespace = (
 
   const getSizeClass = () => m('size') + '-' + (size.value || 2);
 
+  const resolveColor = (statusColor: string | undefined | null, color: string | undefined | null) => {
+    if (statusColor && color) {
+      switch (colorPriority) {
+        case 'color-first':
+          return color || (isStatus(statusColor) && statusColor);
+        case 'status-first':
+          return isStatus(statusColor) ? statusColor : color;
+        default:
+          return isHighlightStatus(statusColor) ? statusColor : color;
+      }
+    } else if (statusColor) return statusColor;
+    return color;
+  };
   const themeClass = computed(() => {
     const variant = getActualThemeValue('variant'),
-      highContrast = getActualThemeValue<boolean>('highContrast'),
-      color = getActualThemeValue('color'),
+      highContrast = getActualThemeValue<boolean>('highContrast');
+    const colorArray = getActualThemeArray('color'),
+      statusArray = status ? [unrefOrGet(status)] : getActualThemeArray('status'),
       statusVal = unrefOrGet(status) || getActualThemeValue('status');
-    let finalColor: any;
-    switch (colorPriority) {
-      case 'color-first':
-        finalColor = color || (isStatus(statusVal) && statusVal);
-        break;
-      case 'status-first':
-        finalColor = isStatus(statusVal) ? statusVal : color;
-        break;
-      default:
-        finalColor = isHighlightStatus(statusVal) ? statusVal : color;
-        break;
-    }
-
+    const finalColor = colorArray.find((c, i) => resolveColor(statusArray[i], c));
     return [
       b(),
       variant && m(`variant-${variant}`),

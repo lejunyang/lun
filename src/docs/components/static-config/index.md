@@ -49,7 +49,9 @@ export declare const GlobalStaticConfig: {
   /** define every components' static styles, also can set global common style with `common` key */
   styles: ComponentStyles;
   /**
-   * 'status' and 'color', these two theme props can affect the actual color of components. `colorPriority` determines which one will be used first.
+   * 'status' and 'color', these two theme props can affect the actual color of components.
+   * They can be from there levels: component's self props, parent's props or theme context config.
+   * If both of them are provided in same level, `colorPriority` will determine which one will be used first.
    * - `highlight-first`: use 'status' first if it's highlight status(error and warning). this is the default behavior
    * - `status-first`: use 'status' first
    * - `color-first`: use 'color' first
