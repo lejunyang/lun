@@ -41,7 +41,7 @@ export const Switch = defineSSRCustomElement({
       },
     };
 
-    const [stateClass] = useCEStates(() => ({ checked: checkedModel.value }), ns);
+    const [stateClass] = useCEStates(() => ({ checked: checkedModel.value }));
 
     return () => {
       const checked = checkedModel.value;

@@ -5,8 +5,8 @@ import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'com
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
 import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun-web/core';
-import { useExpose } from 'hooks';
-import { rootSet } from 'utils';
+import { useExpose } from './vue';
+import { rootSet } from '../utils/component';
 
 // derived from element-plus
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
@@ -51,8 +51,9 @@ const getThemeValueOfAllSources = (
 };
 
 /** @private */
-export const getThemeValue: typeof getThemeValueOfAllSources = (...args: Parameters<typeof getThemeValueOfAllSources>): any =>
-  getThemeValueOfAllSources(...args).find(identity);
+export const getThemeValue: typeof getThemeValueOfAllSources = (
+  ...args: Parameters<typeof getThemeValueOfAllSources>
+): any => getThemeValueOfAllSources(...args).find(identity);
 
 /** @private */
 export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefined) => {
@@ -62,6 +63,8 @@ export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefin
     return result;
   }, {} as Record<keyof ThemeProps, any>);
 };
+
+const namespaceKey = Symbol(__DEV__ ? 'namespace' : '');
 
 // TODO split useNameSpace
 export const useNamespace = (
@@ -197,7 +200,7 @@ export const useNamespace = (
     return isString(value) ? value : (appearance && (value as any)?.[appearance]) || (value as any)?.initial;
   };
 
-  return {
+  const result = {
     /** block */
     b,
     /** element */
@@ -241,6 +244,8 @@ export const useNamespace = (
     getT: getActualThemeValue,
     getColor,
   };
+  (vm as any)[namespaceKey] = result;
+  return result;
 };
 
 export type UseNamespaceReturn = ReturnType<typeof useNamespace>;
@@ -252,3 +257,8 @@ export type AppearanceColor<T = string> =
       light: T;
       dark: T;
     };
+
+export const useDefinedNameSpace = () => {
+  const vm = getCurrentInstance() as any;
+  return vm?.[namespaceKey] as UseNamespaceReturn;
+};

@@ -1,5 +1,12 @@
 import { computed, ref, watchEffect } from 'vue';
-import { useSetupEdit, useMentions, VirtualElement, MentionSpan, MentionsTriggerParam, useSetupEvent } from '@lun-web/core';
+import {
+  useSetupEdit,
+  useMentions,
+  VirtualElement,
+  MentionSpan,
+  MentionsTriggerParam,
+  useSetupEvent,
+} from '@lun-web/core';
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
@@ -108,14 +115,11 @@ export const Mentions = defineSSRCustomElement({
       valueModel.value = null as any;
     };
 
-    const [stateClass, states] = useCEStates(
-      () => ({
-        empty: isEmpty(valueModel.value),
-        required: validateProps.value.required,
-        withClearIcon: props.showClearIcon && editComputed.editable,
-      }),
-      ns,
-    );
+    const [stateClass, states] = useCEStates(() => ({
+      empty: isEmpty(valueModel.value),
+      required: validateProps.value.required,
+      withClearIcon: props.showClearIcon && editComputed.editable,
+    }));
 
     const lengthInfo = computed(() => {
       const { maxLength, showLengthInfo } = props;

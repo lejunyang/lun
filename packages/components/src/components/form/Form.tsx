@@ -178,7 +178,7 @@ export const Form = defineSSRCustomElement({
       extraProvide: provide,
     });
 
-    const [stateClass] = useCEStates(() => ({}), ns);
+    const [stateClass] = useCEStates(() => ({}));
 
     const renderErrorTooltip = provideErrorTooltip({
       class: [ns.e('tooltip'), ns.m('error')],

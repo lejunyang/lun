@@ -85,13 +85,10 @@ export const Tour = defineSSRCustomElement({
       }
     });
 
-    const [stateClass] = useCEStates(
-      () => ({
-        [`placement-${placement.value}`]: 1,
-        [`side-${placementInfo.value[0]}`]: 1,
-      }),
-      ns,
-    );
+    const [stateClass] = useCEStates(() => ({
+      [`placement-${placement.value}`]: 1,
+      [`side-${placementInfo.value[0]}`]: 1,
+    }));
     const nextStep = () => updateStep(1),
       prevStep = () => updateStep(-1);
 

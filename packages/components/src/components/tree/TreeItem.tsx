@@ -80,8 +80,7 @@ export const TreeItem = defineSSRCustomElement({
         checked,
         lineSelectable,
         labelSelectable,
-      }),
-      ns,
+      })
     );
 
     const [renderLabel] = useSlot('label', () => props.label);

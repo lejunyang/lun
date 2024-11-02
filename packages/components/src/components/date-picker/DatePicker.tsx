@@ -65,7 +65,7 @@ export const DatePicker = defineSSRCustomElement({
 
     const getValue = createGetterForHasRawModel(valueModel);
 
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(() => null);
     // TODO expose
     return () => {
       const { popoverProps, inputProps, multiple, ...rest } = props;

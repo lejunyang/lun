@@ -218,8 +218,7 @@ export const Dialog = Object.assign(
           noTopLayer: props.noTopLayer || !supportDialog,
           confirm: props.isConfirm,
           noMask: props.noMask,
-        }),
-        ns,
+        })
       );
 
       const [renderHeader] = useSlot('header', () => props.header);

@@ -248,7 +248,7 @@ export const Range = defineSSRCustomElement({
     });
     onUpdated(updateLabelSize);
 
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(() => null);
 
     return () => {
       const { value } = processedValues,

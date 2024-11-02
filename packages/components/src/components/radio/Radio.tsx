@@ -45,7 +45,7 @@ export const Radio = defineSSRCustomElement({
         start: button && (props.start || radioContext?.isStart),
         end: button && (props.end || radioContext?.isEnd),
       };
-    }, ns);
+    });
 
     return () => {
       const { labelPosition, noIndicator } = mergedProps;

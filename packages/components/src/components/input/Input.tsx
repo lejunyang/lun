@@ -124,17 +124,14 @@ export const Input = defineSSRCustomElement({
       } else valueModel.value = null;
     };
 
-    const [stateClass, states] = useCEStates(
-      () => ({
-        empty: isEmpty(valueModel.value) && !valueForMultiple.value,
-        multiple: props.multiple,
-        required: validateProps.value.required,
-        withPrepend: !prependEmpty.value,
-        withAppend: !appendEmpty.value,
-        withRenderer: !rendererEmpty.value,
-      }),
-      ns,
-    );
+    const [stateClass, states] = useCEStates(() => ({
+      empty: isEmpty(valueModel.value) && !valueForMultiple.value,
+      multiple: props.multiple,
+      required: validateProps.value.required,
+      withPrepend: !prependEmpty.value,
+      withAppend: !appendEmpty.value,
+      withRenderer: !rendererEmpty.value,
+    }));
 
     const lengthInfo = computed(() => {
       const valueLength = props.multiple ? valueForMultiple.value.length : String(valueModel.value ?? '').length;

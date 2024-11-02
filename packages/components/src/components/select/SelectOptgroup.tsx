@@ -18,7 +18,7 @@ export const SelectOptgroup = defineSSRCustomElement({
     const ns = useNamespace(name, { parent: selectContext?.parent });
     SelectOptgroupContext.provide();
     const [_editComputed] = useSetupEdit();
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(() => null);
 
     return () => (
       <div part={compParts[0]} class={stateClass.value}>

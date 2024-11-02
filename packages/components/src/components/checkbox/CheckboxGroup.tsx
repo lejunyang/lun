@@ -81,12 +81,9 @@ export const CheckboxGroup = defineSSRCustomElement({
     });
     const children = CheckboxCollector.parent({ extraProvide: { radioState } });
 
-    const [stateClass] = useCEStates(
-      () => ({
-        vertical: props.vertical,
-      }),
-      ns,
-    );
+    const [stateClass] = useCEStates(() => ({
+      vertical: props.vertical,
+    }));
 
     const { render } = useOptions(props, 'checkbox');
     return () => (

@@ -146,7 +146,7 @@ export const ColorPicker = defineSSRCustomElement({
       },
     };
 
-    const [stateClass] = useCEStates(() => pick(props, ['panelOnly']), ns);
+    const [stateClass] = useCEStates(() => pick(props, ['panelOnly']));
 
     const triggers = ['click', 'focus'];
     return () => {

@@ -11,9 +11,9 @@ import {
   onMounted,
   watchEffect,
 } from 'vue';
-import { useNamespace } from './useNameSpace';
+import { useDefinedNameSpace } from './useNameSpace';
 import { GlobalStaticConfig } from '../components/config/config.static';
-import { VueElement } from 'custom';
+import type { VueElement } from 'custom';
 
 /** get current host custom element */
 export const useCE = () => getCurrentInstance()!.ce! as VueElement;
@@ -44,9 +44,10 @@ export function useCEStates<
     editable?: boolean | undefined;
     interactive?: boolean | undefined;
   },
->(statesGetter?: () => T, ns?: ReturnType<typeof useNamespace>) {
+>(statesGetter?: () => T) {
   let stop: ReturnType<typeof watchEffect>;
-  const editComputed = useEdit();
+  const editComputed = useEdit()!;
+  const ns = useDefinedNameSpace();
   const states = objectComputed(() => ({
     ...statesGetter?.(),
     ...pick(editComputed, ['disabled', 'editable', 'interactive', 'loading', 'readonly']),

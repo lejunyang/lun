@@ -4,7 +4,7 @@ import { GlobalStaticConfig, componentsWithTeleport, useContextConfig } from 'co
 import { computed, getCurrentInstance, h, watchEffect } from 'vue';
 import { useCE } from './shadowDom';
 import { error } from '../utils/console';
-import { processStringStyle } from 'utils';
+import { processStringStyle } from '../utils/style';
 
 export function useContextStyles(name: OpenShadowComponentKey) {
   const vm = getCurrentInstance()!;

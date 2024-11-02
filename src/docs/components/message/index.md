@@ -5,7 +5,7 @@ lang: zh-CN
 
 ## 基本使用
 
-- `l-message`元素是一个消息容器，你需要自行将其渲染到某个地方，并通过该元素的方法来创建或关闭消息。每一条消息为一个`Callout`，其支持`Callout`的所有属性，因此`message`和`description`均支持[自定义渲染](/components/custom-renderer/)
+- `l-message`元素是一个消息容器，你需要自行将其渲染到某个地方，并通过该元素的方法来创建或关闭消息。每一条消息为一个`Callout`，其支持`Callout`的所有属性，因此`message`和`description`均支持[自定义渲染](/components/custom-renderer/)，通过`variant`也可以设置消息的主题变体
 
 ```ts
 type MessageExpose = {
@@ -34,7 +34,7 @@ type MessageOpenConfig = {
 
 ## 静态方法
 
-`Message`有静态方法`open`，方便在 js 中直接创建并展示消息，其相当于创建一个`l-message`元素并添加到页面中，创建后会保持复用
+`Message`有静态方法`open`，方便在 js 中直接创建并展示消息，其相当于创建一个`l-message`元素并添加到页面中，创建后会保持复用，你可以通过`getContainer`指定创建位置（默认为第一个`theme-provider`或 body 下）
 
 另有四个静态方法`success`, `error`, `warning`, `info`，它们用于创建指定类型的消息（相当于 open 方法 指定 type），同时它们可以直接传递字符串，更方便调用
 

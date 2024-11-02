@@ -41,7 +41,7 @@ export const AccordionGroup = defineSSRCustomElement({
     });
 
     useCEExpose(methods);
-    const [stateClass] = useCEStates(() => null, ns);
+    const [stateClass] = useCEStates(() => null);
 
     return () => {
       return (

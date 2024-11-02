@@ -37,7 +37,7 @@ export const Accordion = defineSSRCustomElement({
       else return isOpen.value ? val?.open ?? defaultV : val?.close ?? defaultV;
     };
 
-    const [stateClass] = useCEStates(() => ({ open: isOpen }), ns);
+    const [stateClass] = useCEStates(() => ({ open: isOpen }));
     return () => {
       const { iconPosition = 'end', iconName, iconLibrary } = props;
       const icon = renderElement('icon', {

@@ -38,7 +38,7 @@ export const SelectOption = defineSSRCustomElement({
 
     const disabled = () => editComputed.disabled;
     useExpose(refLikesToGetters({ hidden, selected, disabled })); // expose it to Select
-    const [stateClass] = useCEStates(() => ({ selected, active, underGroup: optgroup }), ns);
+    const [stateClass] = useCEStates(() => ({ selected, active, underGroup: optgroup }));
 
     const handlers = {
       onClick() {

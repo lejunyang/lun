@@ -132,13 +132,10 @@ export const FormItem = defineSSRCustomElement({
         ),
       };
     });
-    const [stateClass, states] = useCEStates(
-      () => ({
-        required: formContext ? validateProps.value.required : props.value.required,
-        ...layoutInfo?.value.itemState,
-      }),
-      ns,
-    );
+    const [stateClass, states] = useCEStates(() => ({
+      required: formContext ? validateProps.value.required : props.value.required,
+      ...layoutInfo?.value.itemState,
+    }));
 
     const [elementRef, errorActiveTarget] = useErrorTooltip(() => tips.tooltip, {
       isDisabled: () => !tips.hasTooltip,

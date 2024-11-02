@@ -84,14 +84,11 @@ export const Textarea = defineSSRCustomElement({
 
     useCEExpose(methods, refLikeToDescriptors({ textarea: textareaRef }));
 
-    const [stateClass, states] = useCEStates(
-      () => ({
-        empty: isEmpty(valueModel.value),
-        required: validateProps.value.required,
-        withClearIcon: props.showClearIcon && editComputed.editable,
-      }),
-      ns,
-    );
+    const [stateClass, states] = useCEStates(() => ({
+      empty: isEmpty(valueModel.value),
+      required: validateProps.value.required,
+      withClearIcon: props.showClearIcon && editComputed.editable,
+    }));
 
     const lengthInfo = computed(() => {
       const { maxLength, showLengthInfo } = props;

@@ -72,7 +72,7 @@ export function useSetupEdit(options?: {
 
 export function useEdit() {
   const vm = getCurrentInstance() as
-    | (ComponentInternalInstance & { provides: Record<string | symbol, any> })
+    | (ComponentInternalInstance & { [EDIT_PROVIDER_KEY]?: Readonly<EditState> })
     | undefined;
-  return vm?.provides[EDIT_PROVIDER_KEY] as Readonly<EditState>;
+  return vm?.[EDIT_PROVIDER_KEY];
 }

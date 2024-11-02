@@ -27,7 +27,7 @@ export const RadioGroup = defineSSRCustomElement({
 
     const { render } = useOptions(props, 'radio');
 
-    const [stateClass] = useCEStates(() => ({}), ns);
+    const [stateClass] = useCEStates(() => ({}));
 
     // TODO arrow move to check prev/next active radio
     return () => (

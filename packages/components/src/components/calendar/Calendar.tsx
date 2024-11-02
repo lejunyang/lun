@@ -163,7 +163,7 @@ export const Calendar = defineSSRCustomElement({
 
     const { getShortWeekDays, getWeekFirstDay } = createDateLocaleMethods(lang);
 
-    const [stateClass] = useCEStates(() => ({ [pickingType.value]: 1 }), ns);
+    const [stateClass] = useCEStates(() => ({ [pickingType.value]: 1 }));
     useCEExpose({ ...methods, ...expose }, toGetterDescriptors(state));
 
     const getCellNodes = ({ value }: ComputedRef<UseDatePanelCells>, bodyClass?: string) => {

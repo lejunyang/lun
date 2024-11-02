@@ -6,7 +6,7 @@ import { createDefineElement } from 'utils';
 import { customRendererProps } from './type';
 import { isArray, isHTMLTemplateElement, isNode, isObject, runIfFn } from '@lun-web/utils';
 import { generateWithTemplate } from './utils';
-import { useCE } from 'hooks';
+import { useCE } from '../../hooks/shadowDom';
 
 const name = 'custom-renderer';
 
