@@ -29,12 +29,17 @@ defineAllComponents();
 const persistCount = new WeakMap<Element, number>();
 
 afterEach(() => {
-  const testEls = document.querySelectorAll(`[${testAttr}]`);
-  testEls.forEach((el) => {
-    if (el.getAttribute(persistAttr) != null) {
-      const count = persistCount.get(el) || 0;
-      if (!count) return persistCount.set(el, count + 1);
-    }
-    el.remove();
-  });
+  const testEls = document.querySelectorAll(`[${testAttr}]`),
+    themeProviders = document.querySelectorAll('l-theme-provider'),
+    teleportHolders = document.querySelectorAll('l-teleport-holder');
+  Array.from(testEls)
+    .concat(Array.from(themeProviders))
+    .concat(Array.from(teleportHolders))
+    .forEach((el) => {
+      if (el.getAttribute(persistAttr) != null) {
+        const count = persistCount.get(el) || 0;
+        if (!count) return persistCount.set(el, count + 1);
+      }
+      el.remove();
+    });
 });

@@ -41,6 +41,7 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       artifact-id: ${{ needs.build_packages.outputs.artifact-id }}
+    secrets: inherit # must explicitly inherit secrets
 
   call_docs:
     needs: build_packages
@@ -48,3 +49,4 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       artifact-id: ${{ needs.build_packages.outputs.artifact-id }}
+    secrets: inherit
