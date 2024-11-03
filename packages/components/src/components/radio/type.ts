@@ -8,6 +8,7 @@ import {
   PropBoolean,
   CommonProps,
   undefBoolProp,
+  createEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -26,9 +27,9 @@ export const radioProps = freeze({
   end: PropBoolean(),
 });
 
-export const radioEmits = freeze({
-  update: (_detail: any) => null,
-});
+export const radioEmits = createEmits<{
+  update: unknown;
+}>(['update']);
 
 export type RadioSetupProps = ExtractPropTypes<typeof radioProps>;
 export type RadioEvents = GetEventPropsFromEmits<typeof radioEmits>;
@@ -44,9 +45,9 @@ export const radioGroupProps = freeze({
   labelPosition: PropString<LogicalPosition>(),
 });
 
-export const radioGroupEmits = freeze({
-  update: (_detail: any) => null,
-});
+export const radioGroupEmits = createEmits<{
+  update: unknown;
+}>(['update']);
 
 export type RadioGroupSetupProps = ExtractPropTypes<typeof radioGroupProps> & CommonProps;
 export type RadioGroupEvents = GetEventPropsFromEmits<typeof radioGroupEmits>;

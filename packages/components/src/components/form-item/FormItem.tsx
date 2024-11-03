@@ -459,7 +459,8 @@ export const FormItem = defineSSRCustomElement({
 });
 
 export type tFormItem = typeof FormItem;
-export type iFormItem = InstanceType<tFormItem>;
+export type FormItemExpose = {}
+export type iFormItem = InstanceType<tFormItem> & FormItemExpose;
 
 export const defineFormItem = createDefineElement(
   name,

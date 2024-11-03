@@ -20,7 +20,8 @@ export const TeleportHolder = defineSSRCustomElement({
 });
 
 export type tTeleportHolder = typeof TeleportHolder;
-export type iTeleportHolder = InstanceType<tTeleportHolder>;
+export type TeleportHolderExpose = {};
+export type iTeleportHolder = InstanceType<tTeleportHolder> & TeleportHolderExpose;
 
 export const defineTeleportHolder = createDefineElement(name, TeleportHolder);
 

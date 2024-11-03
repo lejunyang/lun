@@ -56,7 +56,8 @@ export const Tag = defineSSRCustomElement({
 });
 
 export type tTag = typeof Tag;
-export type iTag = InstanceType<tTag>;
+export type TagExpose = {};
+export type iTag = InstanceType<tTag> & TagExpose;
 
 export const defineTag = createDefineElement(name, Tag, {}, parts, {
   icon: defineIcon,

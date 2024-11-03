@@ -10,22 +10,16 @@ import {
   themeProps,
 } from 'common';
 import { OpenShadowComponentKey } from '../config/config.static';
-import { freeze } from '@lun-web/utils';
+import { freeze, fromObject } from '@lun-web/utils';
 
 export const themeProviderProps = freeze({
   ...editStateProps,
-  ...Object.keys(themeProps).reduce(
-    (acc, key) => {
-      acc[key as keyof ThemeProps] = {} as any;
-      return acc;
-    },
-    {} as {
-      // -? means remove optional
-      [key in keyof ThemeProps]-?: {
-        type: PropType<ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>>;
-      };
-    },
-  ),
+  ...(fromObject(themeProps, (key) => [key, {}]) as {
+    // -? means remove optional
+    [key in keyof ThemeProps]-?: {
+      type: PropType<ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>>;
+    };
+  }),
   grayColor: PropString<GrayColors>(),
   scale: PropNumber(),
 });

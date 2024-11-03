@@ -8,6 +8,7 @@ import {
   PropStrOrArr,
   PropString,
   Status,
+  createEmits,
   themeProps,
 } from 'common';
 import { baseInputProps } from '../input/type';
@@ -37,12 +38,12 @@ export const mentionsProps = freeze({
   mentionRenderer: Prop<GetCustomRendererSource<[item: MentionSpan, necessaryProps: Record<string, any>], true>>(),
 });
 
-export const mentionsEmits = freeze({
-  update: (_val: string | null) => null,
-  updateRaw: (_raw: readonly (string | MentionSpan)[]) => null,
-  trigger: (_param: MentionsTriggerParam) => null,
-  enterDown: null,
-});
+export const mentionsEmits = createEmits<{
+  update: string | null;
+  updateRaw: readonly (string | MentionSpan)[];
+  trigger: MentionsTriggerParam;
+  enterDown: undefined;
+}>(['update', 'updateRaw', 'trigger', 'enterDown']);
 
 export type MentionsSetupProps = ExtractPropTypes<typeof mentionsProps> & CommonProps;
 export type MentionsEvents = GetEventPropsFromEmits<typeof mentionsEmits>;

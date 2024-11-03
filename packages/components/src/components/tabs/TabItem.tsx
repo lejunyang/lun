@@ -35,6 +35,7 @@ export const TabItem = defineSSRCustomElement({
 });
 
 export type tTabItem = typeof TabItem;
-export type iTabItem = InstanceType<tTabItem>;
+export type TabItemExpose = {};
+export type iTabItem = InstanceType<tTabItem> & TabItemExpose;
 
 export const defineTabItem = createDefineElement(name, TabItem, {}, parts);

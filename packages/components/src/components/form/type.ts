@@ -3,7 +3,6 @@ import {
   GetEventPropsFromEmits,
   editStateProps,
   themeProps,
-  emitConstructor,
   PropObjOrFunc,
   PropObject,
   PropBoolean,
@@ -12,6 +11,7 @@ import {
   PropResponsive,
   CommonProps,
   undefBoolProp,
+  createEmits,
 } from 'common';
 import type { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun-web/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
@@ -64,9 +64,9 @@ export const formProps = freeze({
   >(),
 });
 
-export const formEmits = freeze({
-  update: emitConstructor<{ data: Record<string, any>; path: string[] | string; value: any; isDelete?: boolean }>(),
-});
+export const formEmits = createEmits<{
+  update: { data: Record<string, any>; path: string[] | string; value: any; isDelete?: boolean };
+}>(['update']);
 
 export type FormSetupProps = ExtractPropTypes<typeof formProps> & CommonProps;
 export type FormEvents = GetEventPropsFromEmits<typeof formEmits>;

@@ -21,11 +21,6 @@ export type GetEventPropsFromEmits<T extends Emits> = T extends StringArrayEmits
     { [K in keyof T as `on${Capitalize<K>}`]?: GetCustomEvent<T[K]> }
   : {};
 
-export const emitConstructor =
-  <T extends any = undefined>() =>
-  (_: T) =>
-    true;
-
 export type Status = 'success' | 'warning' | 'error' | 'info';
 
 export type InputFocusOption = { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' };

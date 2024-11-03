@@ -1,5 +1,13 @@
 import { freeze, omit } from '@lun-web/utils';
-import { GetEventPropsFromEmits, CommonProps, PropNumber, PropObject, PropArray } from 'common';
+import {
+  GetEventPropsFromEmits,
+  CommonProps,
+  PropNumber,
+  PropObject,
+  PropArray,
+  createEmits,
+  OpenCloseEmits,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 import { MaybePromise, MaybeRefLikeOrGetter, VirtualElement } from '@lun-web/core';
 import { dialogEmits, dialogProps } from '../dialog';
@@ -22,7 +30,13 @@ export const tourProps = freeze({
   scrollOptions: PropObject<ScrollIntoViewOptions>(),
 });
 
-export const tourEmits = freeze({
+export const tourEmits = createEmits<
+  {
+    update: boolean;
+    updateStep: TourStep;
+  } & OpenCloseEmits
+>([...(dialogEmits as unknown as string[]), 'updateStep']);
+freeze({
   ...dialogEmits,
   updateStep: (_: TourStep) => true,
 });

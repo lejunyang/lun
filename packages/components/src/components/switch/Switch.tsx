@@ -84,7 +84,8 @@ export const Switch = defineSSRCustomElement({
 });
 
 export type tSwitch = typeof Switch;
-export type iSwitch = InstanceType<tSwitch>;
+export type SwitchExpose = {};
+export type iSwitch = InstanceType<tSwitch> & SwitchExpose;
 
 export const defineSwitch = createDefineElement(
   name,

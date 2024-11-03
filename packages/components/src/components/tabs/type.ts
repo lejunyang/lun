@@ -8,6 +8,7 @@ import {
   PropArray,
   PropString,
   Prop,
+  createEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { GetCustomRendererSource } from '../custom-renderer';
@@ -39,11 +40,11 @@ export const tabsProps = freeze({
   noPanel: PropBoolean(),
 });
 
-export const tabsEmits = freeze({
-  update: (_: string | number) => null,
-  remove: null,
-  afterRemove: null,
-});
+export const tabsEmits = createEmits<{
+  update: string | number;
+  remove: undefined;
+  afterRemove: undefined;
+}>(['update', 'remove', 'afterRemove']);
 
 export type TabsSetupProps = ExtractPropTypes<typeof tabsProps> & CommonProps;
 export type TabsEvents = GetEventPropsFromEmits<typeof tabsEmits>;

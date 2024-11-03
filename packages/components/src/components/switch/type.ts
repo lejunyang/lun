@@ -7,6 +7,7 @@ import {
   PropFunction,
   PropObject,
   PropString,
+  createEmits,
   editStateProps,
   themeProps,
   valueProp,
@@ -25,9 +26,9 @@ export const switchProps = freeze({
   beforeUpdate: PropFunction<(prevChecked: boolean) => MaybePromise<boolean | void>>(),
 });
 
-export const switchEmits = freeze({
-  update: (_detail: { value: any; checked: boolean }) => null,
-});
+export const switchEmits = createEmits<{
+  update: { value: unknown; checked: boolean };
+}>(['update']);
 
 export type SwitchSetupProps = ExtractPropTypes<typeof switchProps> & CommonProps;
 export type SwitchEvents = GetEventPropsFromEmits<typeof switchEmits>;

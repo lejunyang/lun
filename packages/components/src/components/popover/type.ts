@@ -1,6 +1,7 @@
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  OpenCloseEmits,
   Prop,
   PropBoolean,
   PropFunction,
@@ -11,7 +12,9 @@ import {
   PropObject,
   PropStrOrArr,
   PropString,
+  createEmits,
   createTransitionProps,
+  openCloseEmits,
   themeProps,
   undefBoolProp,
 } from 'common';
@@ -105,12 +108,7 @@ export const popoverProps = freeze({
   rootClass: PropStrOrArr(),
 });
 
-export const popoverEmits = freeze({
-  open: null,
-  afterOpen: null,
-  close: null,
-  afterClose: null,
-});
+export const popoverEmits = createEmits<OpenCloseEmits>(openCloseEmits);
 
 export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps> & CommonProps;
 export type PopoverEvents = GetEventPropsFromEmits<typeof popoverEmits>;

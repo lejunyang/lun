@@ -62,6 +62,7 @@ export const VirtualRenderer = defineCustomElement({
 });
 
 export type tVirtualRenderer = typeof VirtualRenderer;
-export type iVirtualRenderer = InstanceType<tVirtualRenderer>;
+export type VirtualRendererExpose = {};
+export type iVirtualRenderer = InstanceType<tVirtualRenderer> & VirtualRendererExpose;
 
 export const defineVirtualRenderer = createDefineElement(name, VirtualRenderer);

@@ -35,6 +35,7 @@ export const Skeleton = defineSSRCustomElement({
 });
 
 export type tSkeleton = typeof Skeleton;
-export type iSkeleton = InstanceType<tSkeleton>;
+export type SkeletonExpose = {};
+export type iSkeleton = InstanceType<tSkeleton> & SkeletonExpose;
 
 export const defineSkeleton = createDefineElement(name, Skeleton, {}, parts);

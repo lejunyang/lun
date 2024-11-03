@@ -1,6 +1,7 @@
 import { freeze } from '@lun-web/utils';
 import {
   CommonProps,
+  createEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropNumber,
@@ -26,9 +27,9 @@ export const progressProps = freeze({
   strokeStyle: PropObject<CSSProperties>(),
 });
 
-export const progressEmits = freeze({
-  done: null,
-});
+export const progressEmits = createEmits<{
+  done: undefined;
+}>(['done']);
 
 export type ProgressSetupProps = ExtractPropTypes<typeof progressProps> & CommonProps;
 export type ProgressEvents = GetEventPropsFromEmits<typeof progressEmits>;

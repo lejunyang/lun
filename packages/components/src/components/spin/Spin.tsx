@@ -79,7 +79,8 @@ export const Spin = defineSSRCustomElement({
 });
 
 export type tSpin = typeof Spin;
-export type iSpin = InstanceType<tSpin>;
+export type SpinExpose = {};
+export type iSpin = InstanceType<tSpin> & SpinExpose;
 
 export const defineSpin = createDefineElement(
   name,

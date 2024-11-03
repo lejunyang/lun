@@ -253,6 +253,7 @@ export const WatermarkContext = (() => {
 })();
 
 export type tWatermark = typeof Watermark;
-export type iWatermark = InstanceType<tWatermark>;
+export type WatermarkExpose = {};
+export type iWatermark = InstanceType<tWatermark> & WatermarkExpose;
 
 export const defineWatermark = createDefineElement(name, Watermark);

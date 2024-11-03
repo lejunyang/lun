@@ -2,12 +2,15 @@ import { Side } from '@floating-ui/vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  OpenCloseEmits,
   PropBoolean,
   PropNumber,
   PropObjOrStr,
   PropString,
   Status,
+  createEmits,
   createTransitionProps,
+  openCloseEmits,
 } from 'common';
 import { ExtractPropTypes, HTMLAttributes } from 'vue';
 import { CalloutProps, calloutProps } from '../callout/type';
@@ -29,13 +32,11 @@ export const messageProps = freeze({
   resetDurationOnHover: PropBoolean(),
 });
 
-export const messageEmits = freeze({
-  open: null,
-  afterOpen: null,
-  close: null,
-  afterClose: null,
-  allClosed: null,
-});
+export const messageEmits = createEmits<
+  OpenCloseEmits & {
+    allClosed: undefined;
+  }
+>([...openCloseEmits, 'allClosed']);
 
 export type MessageOpenConfig = {
   key?: string | number;

@@ -260,7 +260,8 @@ export const ScrollView = defineSSRCustomElement({
 });
 
 export type tScrollView = typeof ScrollView;
-export type iScrollView = InstanceType<tScrollView>;
+export type ScrollViewExpose = {};
+export type iScrollView = InstanceType<tScrollView> & ScrollViewExpose;
 
 export const defineScrollView = createDefineElement(
   name,

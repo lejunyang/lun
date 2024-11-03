@@ -12,12 +12,13 @@ import {
   PropStrOrArr,
   PropString,
   Status,
+  createEmits,
   createTransitionProps,
   editStateProps,
   themeProps,
 } from 'common';
 import { TagProps } from '../tag/type';
-import { Constructor, freeze } from '@lun-web/utils';
+import { Constructor, freeze, MaybeArray } from '@lun-web/utils';
 import { AutoUpdateLabel } from './hooks';
 import { GetCustomRendererSource } from '../custom-renderer';
 
@@ -57,7 +58,8 @@ export const inputProps = freeze({
   unique: PropBoolean(),
   wrapTags: PropBoolean(),
   tagProps: PropObjOrFunc<((value: any, index: number) => Omit<TagProps, 'removable'>) | Omit<TagProps, 'removable'>>(),
-  tagRenderer: Prop<GetCustomRendererSource<[value: string | number, index: number, props: Record<string, unknown>], true>>(),
+  tagRenderer:
+    Prop<GetCustomRendererSource<[value: string | number, index: number, props: Record<string, unknown>], true>>(),
   tagRemoveIcon: PropBoolean(),
   /** separator used to split current input string when it's multiple input */
   separator: PropString(RegExp),
@@ -84,16 +86,14 @@ export const inputProps = freeze({
   // ------------------ input number ------------------
 });
 
-export const inputEmits = freeze({
-  update: null,
+export const inputEmits = createEmits<{
+  update: MaybeArray<string | number> | null;
   /** only for multiple input, emit when value of inner input updates */
-  tagsComposing: null,
-  tagsAdd: (_addedTags: string[] | number[]) => null,
-  tagsRemove: (_removedTags: string[] | number[]) => null,
-  enterDown: null,
-});
-
-export type { AutoUpdateLabel };
+  tagsComposing: string;
+  tagsAdd: string[] | number[];
+  tagsRemove: string[] | number[];
+  enterDown: undefined;
+}>(['update', 'tagsComposing', 'tagsAdd', 'tagsRemove', 'enterDown']);
 
 export type InputSetupProps = ExtractPropTypes<typeof inputProps> & CommonProps;
 export type InputEvents = GetEventPropsFromEmits<typeof inputEmits>;

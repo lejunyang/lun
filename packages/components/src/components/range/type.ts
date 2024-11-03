@@ -1,6 +1,7 @@
 import { freeze } from '@lun-web/utils';
 import {
   CommonProps,
+  createEmits,
   editStateProps,
   GetEventPropsFromEmits,
   PropBoolean,
@@ -31,9 +32,9 @@ export const rangeProps = freeze({
   trackStyle: PropObject<CSSProperties>(),
 });
 
-export const rangeEmits = freeze({
-  update: (_: number | number[]) => true,
-});
+export const rangeEmits = createEmits<{
+  update: number | number[];
+}>(['update']);
 
 export type RangeSetupProps = ExtractPropTypes<typeof rangeProps> & CommonProps;
 export type RangeEvents = GetEventPropsFromEmits<typeof rangeEmits>;

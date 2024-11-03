@@ -9,6 +9,7 @@ import {
   PropObject,
   PropStrOrArr,
   PropString,
+  createEmits,
   editStateProps,
 } from 'common';
 import { freeze } from '@lun-web/utils';
@@ -45,14 +46,14 @@ export const filePickerProps = freeze({
   loadingWhenPick: PropBoolean(),
 });
 
-export const filePickerEmits = freeze({
-  update: (_value: File | File[]) => true,
-  exceedMaxCount: (_value: File[]) => true,
-  exceedMaxSize: (_value: File[]) => true,
-  exceedMaxTotalSize: (_value: File[]) => true,
-  cancel: null,
-  // TODO typeMismatch
-});
+// TODO typeMismatch
+export const filePickerEmits = createEmits<{
+  update: File | File[];
+  exceedMaxCount: File[];
+  exceedMaxSize: File[];
+  exceedMaxTotalSize: File[];
+  cancel: undefined;
+}>(['update', 'exceedMaxCount', 'exceedMaxSize', 'exceedMaxTotalSize', 'cancel']);
 
 export type FilePickerSetupProps = ExtractPropTypes<typeof filePickerProps> & CommonProps;
 export type FilePickerEvents = GetEventPropsFromEmits<typeof filePickerEmits>;

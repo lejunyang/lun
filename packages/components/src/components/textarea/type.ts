@@ -1,5 +1,14 @@
 import { ExtractPropTypes } from 'vue';
-import { CommonProps, GetEventPropsFromEmits, PropBoolean, PropNumber, PropString, Status, themeProps } from 'common';
+import {
+  CommonProps,
+  createEmits,
+  GetEventPropsFromEmits,
+  PropBoolean,
+  PropNumber,
+  PropString,
+  Status,
+  themeProps,
+} from 'common';
 import { baseInputProps } from '../input/type';
 import { freeze } from '@lun-web/utils';
 
@@ -21,10 +30,10 @@ export const textareaProps = freeze({
   maxRows: PropNumber(),
 });
 
-export const textareaEmits = freeze({
-  update: null,
-  enterDown: null,
-});
+export const textareaEmits = createEmits<{
+  update: string | null;
+  enterDown: undefined;
+}>(['update', 'enterDown']);
 
 export type TextareaSetupProps = ExtractPropTypes<typeof textareaProps> & CommonProps;
 export type TextareaEvents = GetEventPropsFromEmits<typeof textareaEmits>;

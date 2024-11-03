@@ -123,7 +123,8 @@ export const Icon = defineSSRCustomElement({
 });
 
 export type tIcon = typeof Icon;
-export type iIcon = InstanceType<tIcon>;
+export type IconExpose = {};
+export type iIcon = InstanceType<tIcon> & IconExpose;
 
 export const defineIcon = createDefineElement(
   name,

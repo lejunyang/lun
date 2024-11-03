@@ -12,6 +12,7 @@ import {
   PropStrOrArr,
   PropString,
   Status,
+  createEmits,
   createTransitionProps,
   editStateProps,
   sizeProp,
@@ -125,9 +126,9 @@ export const formItemProps = freeze({
   validateMessages: PropObject<ValidateMessages>(),
 });
 
-export const formItemEmits = freeze({
-  update: (_val: any) => null,
-});
+export const formItemEmits = createEmits<{
+  update: unknown;
+}>(['update']);
 
 export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps> & CommonProps;
 export type FormItemEvents = GetEventPropsFromEmits<typeof formItemEmits>;

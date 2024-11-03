@@ -90,7 +90,8 @@ export const Text = defineSSRCustomElement({
 });
 
 export type tText = typeof Text;
-export type iText = InstanceType<tText>;
+export type TextExpose = {};
+export type iText = InstanceType<tText> & TextExpose;
 
 export const defineText = createDefineElement(name, Text, {}, parts, {
   // as this is mandatory style for ellipsis, put it in component, not in theme
