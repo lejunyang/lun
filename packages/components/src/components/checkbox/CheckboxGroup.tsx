@@ -17,7 +17,7 @@ export const CheckboxGroup = defineSSRCustomElement({
   emits: checkboxGroupEmits,
   formAssociated: true,
   setup(props, { emit: e }) {
-    const ns = useNamespace(name);
+    useNamespace(name);
     const emit = useSetupEvent<typeof e>({
       update({ isCheckForAll, checked, value, onlyFor, excludeFromGroup }: CheckboxUpdateDetail) {
         if (excludeFromGroup || (props.onlyFor && props.onlyFor !== onlyFor)) return; // if 'onlyFor' is defined, accepts update event only with same value
@@ -96,7 +96,7 @@ export const CheckboxGroup = defineSSRCustomElement({
 });
 
 export type tCheckboxGroup = typeof CheckboxGroup;
-export type CheckboxExpose = ReturnType<typeof useCheckboxMethods>;
-export type iCheckboxGroup = InstanceType<tCheckboxGroup> & CheckboxExpose;
+export type CheckboxGroupExpose = ReturnType<typeof useCheckboxMethods>;
+export type iCheckboxGroup = InstanceType<tCheckboxGroup> & CheckboxGroupExpose;
 
 export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup, {}, parts);

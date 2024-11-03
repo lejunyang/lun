@@ -89,10 +89,10 @@ export const inputProps = freeze({
 export const inputEmits = createEmits<{
   update: MaybeArray<string | number> | null;
   /** only for multiple input, emit when value of inner input updates */
-  tagsComposing: string;
+  tagsComposing: string | number;
   tagsAdd: string[] | number[];
   tagsRemove: string[] | number[];
-  enterDown: undefined;
+  enterDown: KeyboardEvent;
 }>(['update', 'tagsComposing', 'tagsAdd', 'tagsRemove', 'enterDown']);
 
 export type InputSetupProps = ExtractPropTypes<typeof inputProps> & CommonProps;

@@ -18,7 +18,7 @@ export const DatePicker = defineSSRCustomElement({
   props: datePickerProps,
   emits: datePickerEmits,
   setup(props, { emit: e }) {
-    const ns = useNamespace(name);
+    useNamespace(name);
     const context = useContextConfig();
     const { parse, format } = useDateParseFormat(virtualGetMerge({ lang: () => context.lang }, props));
 

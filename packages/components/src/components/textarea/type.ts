@@ -32,7 +32,7 @@ export const textareaProps = freeze({
 
 export const textareaEmits = createEmits<{
   update: string | null;
-  enterDown: undefined;
+  enterDown: KeyboardEvent;
 }>(['update', 'enterDown']);
 
 export type TextareaSetupProps = ExtractPropTypes<typeof textareaProps> & CommonProps;

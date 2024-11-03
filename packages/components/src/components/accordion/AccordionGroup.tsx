@@ -16,7 +16,7 @@ export const AccordionGroup = defineSSRCustomElement({
   props: accordionGroupProps,
   emits: accordionGroupEmits,
   setup(props, { emit }) {
-    const ns = useNamespace(name);
+    useNamespace(name);
     useSetupEdit();
     const openModel = ref<{ value: any; raw?: any }>({ value: undefined, raw: undefined });
         const multiple = () => props.allowMultiple;

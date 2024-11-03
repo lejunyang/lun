@@ -42,7 +42,7 @@ export const mentionsEmits = createEmits<{
   update: string | null;
   updateRaw: readonly (string | MentionSpan)[];
   trigger: MentionsTriggerParam;
-  enterDown: undefined;
+  enterDown: KeyboardEvent;
 }>(['update', 'updateRaw', 'trigger', 'enterDown']);
 
 export type MentionsSetupProps = ExtractPropTypes<typeof mentionsProps> & CommonProps;

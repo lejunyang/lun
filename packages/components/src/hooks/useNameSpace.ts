@@ -51,7 +51,7 @@ const getThemeValueOfAllSources = (
 };
 
 /** @private */
-export const getThemeValue: typeof getThemeValueOfAllSources = (
+export const getThemeValue = (
   ...args: Parameters<typeof getThemeValueOfAllSources>
 ): any => getThemeValueOfAllSources(...args).find(identity);
 

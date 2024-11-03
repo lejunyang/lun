@@ -20,7 +20,7 @@ export default function (type: () => any, ns: ReturnType<typeof useNamespace>) {
           class: ns.e('pwd-icon'),
           name: show.value ? 'eye-slash' : 'eye',
           onClick() {
-            if (editComputed.interactive) {
+            if (editComputed!.interactive) {
               localType.value = (show.value = !show.value) ? 'text' : 'password';
             }
           },
