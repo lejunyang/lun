@@ -154,6 +154,7 @@ export const CustomRenderer = defineCustomElement({
 });
 
 export type tCustomRenderer = typeof CustomRenderer;
-export type iCustomRenderer = InstanceType<tCustomRenderer>;
+export type CustomRendererExpose = {}
+export type iCustomRenderer = InstanceType<tCustomRenderer> & CustomRendererExpose;
 
 export const defineCustomRenderer = createDefineElement(name, CustomRenderer);

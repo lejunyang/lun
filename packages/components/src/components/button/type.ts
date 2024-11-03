@@ -12,6 +12,7 @@ import {
   PropResponsive,
   CommonProps,
   Prop,
+  createEmits,
 } from 'common';
 import { freeze } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter } from '@lun-web/core';
@@ -35,12 +36,12 @@ export const buttonProps = freeze({
   copyText: Prop<MaybeRefLikeOrGetter<string>>(),
 });
 
-export const buttonEmits = freeze({
-  validClick: null,
-  timeout: null,
-  copySuccess: null,
-  copyFail: (_: Error | void) => true,
-});
+export const buttonEmits = createEmits<{
+  validClick: undefined;
+  timeout: undefined;
+  copySuccess: undefined;
+  copyFail: Error | undefined;
+}>(['validClick', 'timeout', 'copySuccess', 'copyFail']);
 
 export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps> & CommonProps;
 export type ButtonEvents = GetEventPropsFromEmits<typeof buttonEmits>;

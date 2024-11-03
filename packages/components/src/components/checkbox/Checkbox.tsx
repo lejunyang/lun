@@ -129,7 +129,8 @@ export const Checkbox = defineSSRCustomElement({
 });
 
 export type tCheckbox = typeof Checkbox;
-export type iCheckbox = InstanceType<tCheckbox>;
+export type CheckboxExpose = {};
+export type iCheckbox = InstanceType<tCheckbox> & CheckboxExpose;
 
 export const defineCheckbox = createDefineElement(
   name,

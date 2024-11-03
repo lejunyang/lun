@@ -10,6 +10,7 @@ import {
   PropArray,
   PropObjOrStr,
   editStateProps,
+  createEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -45,10 +46,10 @@ export const calendarProps = freeze({
 
 export type CalendarUpdateDetail = { value: DateStr; raw: DateRaw };
 
-export const calendarEmits = freeze({
-  update: (_: CalendarUpdateDetail) => null,
-  updateViewDate: (_: DateValueType) => null,
-});
+export const calendarEmits = createEmits<{
+  update: CalendarUpdateDetail;
+  updateViewDate: DateValueType;
+}>(['update', 'updateViewDate']);
 
 export type CalendarSetupProps = ExtractPropTypes<typeof calendarProps> & CommonProps;
 export type CalendarEvents = GetEventPropsFromEmits<typeof calendarEmits>;

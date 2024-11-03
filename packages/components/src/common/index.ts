@@ -5,6 +5,7 @@ import { ComponentKey } from 'config';
 import { ComponentInternalInstance } from 'vue';
 
 export * from './editStateProps';
+export * from './emit';
 export * from './intl';
 export * from './propConstructor';
 export * from './themeProps';
@@ -76,3 +77,5 @@ export const getCollectorOptions = (
     return skipInternalChildren ? vm.ce?.getRootNode() === parentEl?.shadowRoot : false;
   },
 });
+
+

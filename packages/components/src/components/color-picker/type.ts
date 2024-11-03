@@ -7,6 +7,7 @@ import {
   editStateProps,
   themeProps,
   PropBoolean,
+  createEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -20,9 +21,9 @@ export const colorPickerProps = freeze({
   noAlpha: PropBoolean(),
 });
 
-export const colorPickerEmits = freeze({
-  update: (_: string) => null,
-});
+export const colorPickerEmits = createEmits<{
+  update: string;
+}>(['update']);
 
 export type ColorPickerSetupProps = ExtractPropTypes<typeof colorPickerProps> & CommonProps;
 export type ColorPickerEvents = GetEventPropsFromEmits<typeof colorPickerEmits>;

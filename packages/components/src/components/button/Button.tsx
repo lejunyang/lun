@@ -18,7 +18,7 @@ export const Button = defineSSRCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
-    const button = ref<HTMLButtonElement>()
+    const button = ref<HTMLButtonElement>();
 
     let holdAnimationDone = false;
     const handleClick = computed(() => {
@@ -31,6 +31,7 @@ export const Button = defineSSRCustomElement({
         const text = unrefOrGet(copyText);
         if (text)
           promiseTry(copy, text)
+            /** @ts-expect-error */
             .then((res) => (res ? emit('copySuccess') : emit('copyFail')))
             .catch((e) => emit('copyFail', e));
         if (isFunction(asyncHandler)) {

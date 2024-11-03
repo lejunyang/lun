@@ -8,6 +8,7 @@ import {
   valueProp,
   CommonProps,
   PropSet,
+  createEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -41,9 +42,9 @@ export type CheckboxUpdateDetail = {
   excludeFromGroup?: boolean;
 };
 
-export const checkboxEmits = freeze({
-  update: (_detail: CheckboxUpdateDetail) => null,
-});
+export const checkboxEmits = createEmits<{
+  update: CheckboxUpdateDetail;
+}>(['update']);
 
 export const checkboxGroupProps = freeze({
   ...createOptionProps(false),
@@ -62,9 +63,9 @@ export type CheckboxGroupUpdateDetail = {
   intermediate: boolean;
 };
 
-export const checkboxGroupEmits = freeze({
-  update: (_detail: CheckboxGroupUpdateDetail) => null,
-});
+export const checkboxGroupEmits = createEmits<{
+  update: CheckboxGroupUpdateDetail;
+}>(['update']);
 
 export type CheckboxSetupProps = ExtractPropTypes<typeof checkboxProps> & CommonProps;
 export type CheckboxEvents = GetEventPropsFromEmits<typeof checkboxEmits>;

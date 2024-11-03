@@ -94,7 +94,8 @@ export const DatePicker = defineSSRCustomElement({
 });
 
 export type tDatePicker = typeof DatePicker;
-export type iDatePicker = InstanceType<tDatePicker>;
+export type DatePickerExpose = {};
+export type iDatePicker = InstanceType<tDatePicker> & DatePickerExpose;
 
 export const defineDatePicker = createDefineElement(name, DatePicker, {}, parts, {
   input: defineInput,

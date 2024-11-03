@@ -10,6 +10,9 @@ import {
   editStateProps,
   PropObjOrStr,
   Prop,
+  createEmits,
+  OpenCloseEmits,
+  openCloseEmits,
 } from 'common';
 import { freeze, MaybeArray, MaybeSet } from '@lun-web/utils';
 
@@ -27,13 +30,11 @@ export const accordionProps = freeze({
   iconLibrary: PropObjOrStr<string | { open?: string; close?: string }>(),
 });
 
-export const accordionEmits = freeze({
-  update: (_: boolean) => null,
-  open: null,
-  afterOpen: null,
-  close: null,
-  afterClose: null,
-});
+export const accordionEmits = createEmits<
+  {
+    update: boolean;
+  } & OpenCloseEmits
+>(['update', ...openCloseEmits]);
 
 export type AccordionSetupProps = ExtractPropTypes<typeof accordionProps> & CommonProps;
 export type AccordionEvents = GetEventPropsFromEmits<typeof accordionEmits>;
@@ -49,9 +50,9 @@ export const accordionGroupProps = freeze({
   allowMultiple: PropBoolean(),
 });
 
-export const accordionGroupEmits = freeze({
-  update: (_: { value: MaybeArray<OpenType> | null; raw: MaybeSet<OpenType> | null }) => null,
-});
+export const accordionGroupEmits = createEmits<{
+  update: { value: MaybeArray<OpenType> | null; raw: MaybeSet<OpenType> | null };
+}>(['update']);
 
 export type AccordionGroupSetupProps = ExtractPropTypes<typeof accordionGroupProps> & CommonProps;
 export type AccordionGroupEvents = GetEventPropsFromEmits<typeof accordionGroupEmits>;

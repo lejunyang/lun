@@ -3,6 +3,7 @@ import { CSSProperties, ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   GetEventPropsFromEmits,
+  OpenCloseEmits,
   Prop,
   PropBoolOrStr,
   PropBoolean,
@@ -10,8 +11,10 @@ import {
   PropObjOrStr,
   PropObject,
   PropString,
+  createEmits,
   createTransitionProps,
   editStateProps,
+  openCloseEmits,
   sizeProp,
   themeProps,
   undefBoolProp,
@@ -64,13 +67,11 @@ export const dialogProps = freeze({
   isConfirm: PropBoolean(),
 });
 
-export const dialogEmits = freeze({
-  update: (_detail: boolean) => null,
-  open: null,
-  afterOpen: null,
-  close: null,
-  afterClose: null,
-});
+export const dialogEmits = createEmits<
+  {
+    update: boolean;
+  } & OpenCloseEmits
+>(['update', ...openCloseEmits]);
 
 export type DialogSetupProps = ExtractPropTypes<typeof dialogProps> & CommonProps;
 export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>;

@@ -1,5 +1,6 @@
 import { freeze } from '@lun-web/utils';
 import {
+  CloseEmits,
   CommonProps,
   GetEventPropsFromEmits,
   Prop,
@@ -8,6 +9,8 @@ import {
   PropObject,
   PropString,
   Status,
+  closeEmits,
+  createEmits,
   createTransitionProps,
   themeProps,
 } from 'common';
@@ -29,10 +32,7 @@ export const calloutProps = freeze({
   // TODO add messageStyle descriptionStyle
 });
 
-export const calloutEmits = freeze({
-  close: null,
-  afterClose: null,
-});
+export const calloutEmits = createEmits<CloseEmits>(closeEmits);
 
 export type CalloutSetupProps = ExtractPropTypes<typeof calloutProps> & CommonProps;
 export type CalloutEvents = GetEventPropsFromEmits<typeof calloutEmits>;

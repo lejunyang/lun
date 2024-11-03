@@ -115,7 +115,8 @@ export const Callout = defineSSRCustomElement({
 });
 
 export type tCallout = typeof Callout;
-export type iCallout = InstanceType<tCallout>;
+export type CalloutExpose = {};
+export type iCallout = InstanceType<tCallout> & CalloutExpose;
 
 export const defineCallout = createDefineElement(name, Callout, {}, parts, {
   icon: defineIcon,
