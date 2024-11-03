@@ -3,8 +3,8 @@ inputs:
   init-test:
     description: 'Whether to init test'
     required: false
-  artifact-id:
-    description: 'id of builded artifact'
+  run-id:
+    description: 'id of the workflow run'
     required: false
     type: string
 runs:
@@ -39,8 +39,8 @@ runs:
 
     - name: Check if needs to download build
       uses: actions/download-artifact@v4
-      if: ${{ inputs.artifact-id }}
+      if: ${{ inputs.run-id }}
       with:
         name: package-builds
         path: ./packages
-        run-id: ${{ inputs.artifact-id }}
+        run-id: ${{ inputs.run-id }}

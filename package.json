@@ -21,6 +21,7 @@
     "node": ">=18",
     "pnpm": ">=9.9.0"
   },
+  "packageManager": "pnpm@9.9.0",
   "dependencies": {
     "@giscus/vue": "^3.0.0",
     "@lun-web/components": "workspace:^",

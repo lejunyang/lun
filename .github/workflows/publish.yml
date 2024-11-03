@@ -1,10 +1,10 @@
-name: Release packages
+name: Publish packages
 
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      artifact-id:
+      run-id:
         required: false
         type: string
 
@@ -24,7 +24,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          artifact-id: ${{ inputs.artifact-id }}
+          run-id: ${{ inputs.run-id }}
 
       - name: Create Release Pull Request and Publish to npm
         uses: changesets/action@v1

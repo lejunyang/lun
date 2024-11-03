@@ -3,12 +3,12 @@ name: Component tests
 on:
   workflow_dispatch:
     inputs:
-      artifact-id:
+      run-id:
         required: true
         type: string
   workflow_call:
     inputs:
-      artifact-id:
+      run-id:
         required: true
         type: string
 
@@ -23,7 +23,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          artifact-id: ${{ inputs.artifact-id }}
+          run-id: ${{ inputs.run-id }}
           init-test: true
 
       - name: Run Tests

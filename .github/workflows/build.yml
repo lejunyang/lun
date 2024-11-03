@@ -17,7 +17,7 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[build skip]') }}
     runs-on: ubuntu-22.04
     outputs:
-      artifact-id: ${{ steps.artifacts-upload-step.outputs.artifact-id }}
+      run-id: ${{ github.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[all skip]') && !contains(github.event.head_commit.message, '[test skip]')}}
     uses: ./.github/workflows/test.yml
     with:
-      artifact-id: ${{ needs.build_packages.outputs.artifact-id }}
+      run-id: ${{ github.run_id }}
     secrets: inherit # must explicitly inherit secrets
 
   call_docs:
@@ -48,5 +48,13 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[all skip]') && contains(github.event.head_commit.message, '[deploy docs]') && github.repository == 'lejunyang/lun' }}
     uses: ./.github/workflows/docs.yml
     with:
-      artifact-id: ${{ needs.build_packages.outputs.artifact-id }}
+      run-id: ${{ github.run_id }}
+    secrets: inherit
+
+  call_publish:
+    needs: build_packages
+    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && contains(github.event.head_commit.message, '[publish]') && github.repository == 'lejunyang/lun' && github.actor == 'lejunyang' }}
+    uses: ./.github/workflows/publish.yml
+    with:
+      run-id: ${{ github.run_id }}
     secrets: inherit
