@@ -48,7 +48,7 @@
               <l-radio value="3" high-contrast>3</l-radio>
             </l-radio-group>
             <l-button class="start-button" variant="solid" style="transform: translateX(-10px)">
-              <a href="/lun/components/button/">Get Started</a>
+              <a :href="site.base + 'components/button/'">Get Started</a>
             </l-button>
             <l-button class="start-button" variant="soft"><a href="https://github.com/lejunyang/lun">View</a></l-button>
           </div>
@@ -149,7 +149,7 @@ const pickColorUpdate = (e: CustomEvent) => {
   theme.color = e.detail;
 };
 
-const { isDark, lang, page } = useData();
+const { isDark, lang, page, site } = useData();
 let lastClickX = 0,
   lastClickY = 0;
 

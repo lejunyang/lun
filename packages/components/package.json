@@ -63,7 +63,7 @@
     "build:prod": "cross-env NODE_ENV=production vite build",
     "build:iife": "cross-env NODE_ENV=development BUILD_FORMAT=iife vite build",
     "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && pnpm build:iife && node ./processTypeFiles.js",
-    "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
+    "build:noType": "cross-env NO_TYPE_EMIT=true rimraf ./dist && pnpm build:dev && pnpm build:prod && pnpm build:iife",
     "preview": "vite preview",
     "v": "npm version"
   },
