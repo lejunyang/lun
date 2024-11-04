@@ -2,12 +2,12 @@ import { defineSSRCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
-import { TransitionGroup, computed, nextTick, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
+import { TransitionGroup, computed, nextTick, ref, watchEffect } from 'vue';
 import { useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
-import { capitalize, isArray, isSupportResizeObserver, setStyle, toPxIfNum } from '@lun-web/utils';
+import { capitalize, isArray, setStyle, toPxIfNum } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
-import { useSetupEvent } from '@lun-web/core';
+import { useResizeObserver, useSetupEvent } from '@lun-web/core';
 import { TabsCollector } from './collector';
 
 // TODO panel scrollable; can we have height transition when switching?
@@ -22,7 +22,8 @@ export const Tabs = defineSSRCustomElement({
     const ns = useNamespace(name);
     useSetupEvent();
     const localActive = ref();
-    const showedKeys = new Set();
+    const showedKeys = new Set(),
+      slotIndexMap = new Map<string | number, number>();
     let controlled = false,
       usingItems = false,
       activeIndex: number,
@@ -59,6 +60,7 @@ export const Tabs = defineSSRCustomElement({
       if ((controlled = activeSlot != null)) active = localActive.value = activeSlot;
       else if (defaultActiveSlot != null) active = localActive.value = defaultActiveSlot;
       // if (localActive.value != null) showedKeys.add(localActive.value); // read localActive will collect it as a dependency
+      activeIndex = slotIndexMap.get(active) || 0;
       if (active != null) showedKeys.add(active);
     });
 
@@ -68,6 +70,7 @@ export const Tabs = defineSSRCustomElement({
         emit('update', final);
         if (!controlled) {
           localActive.value = final;
+          activeIndex = i;
           showedKeys.add(final);
         }
       }
@@ -75,7 +78,9 @@ export const Tabs = defineSSRCustomElement({
     const tabs = computed(() =>
       (usingItems = isArray(props.items))
         ? props.items.filter(Boolean).map((t, i) => {
+            if (!i) slotIndexMap.clear();
             const slot = String(t.slot || ''); // ignore falsy slot, will use index number as key, do not convert index number to string(as there may be some items having number string as its slot)
+            slotIndexMap.set(slot, i);
             return {
               ...t,
               slot,
@@ -86,7 +91,9 @@ export const Tabs = defineSSRCustomElement({
     );
     const childrenTabs = computed(() =>
       context.value.flatMap(({ props: { label, slot, disabled } }, i) => {
+        if (!i) slotIndexMap.clear();
         if (!slot) return [];
+        slotIndexMap.set(slot, i);
         return [
           {
             slot: slot as string,
@@ -117,13 +124,11 @@ export const Tabs = defineSSRCustomElement({
       );
     };
 
-    let observer: ResizeObserver;
-    if (isSupportResizeObserver()) {
-      // must use ResizeObserver to update CSS vars, as tab's label may get updated, or tabs may not be renderer(display: none) on mounted, at that time offsetWidth is 0
-      observer = new ResizeObserver(updateVar);
-      onMounted(() => observer.observe(wrapperRef.value!));
-      onBeforeUnmount(() => observer.disconnect());
-    }
+    // must use ResizeObserver to update CSS vars, as tab's label may get updated, or tabs may not be renderer(display: none) on mounted, at that time offsetWidth is 0
+    useResizeObserver({
+      targets: wrapperRef,
+      callback: updateVar,
+    });
 
     return () => {
       const { destroyInactive, forceRender, type, noPanel } = props;
