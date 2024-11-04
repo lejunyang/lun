@@ -3,8 +3,8 @@ import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { TransitionGroup, computed, nextTick, ref, watchEffect } from 'vue';
-import { useNamespace } from 'hooks';
-import { getCompParts, getTransitionProps } from 'common';
+import { registerSwipeTransition, useNamespace, useTransition } from 'hooks';
+import { getCompParts } from 'common';
 import { capitalize, isArray, setStyle, toPxIfNum } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useResizeObserver, useSetupEvent } from '@lun-web/core';
@@ -38,11 +38,11 @@ export const Tabs = defineSSRCustomElement({
       const res =
         type === 'vertical'
           ? activeIndex > lastActiveIndex
-            ? 'slideDown'
-            : 'slideUp'
+            ? 'swipeUp'
+            : 'swipeDown'
           : activeIndex > lastActiveIndex
-          ? 'slideRight'
-          : 'slideLeft';
+          ? 'swipeLeft'
+          : 'swipeRight';
       return res;
     };
     const transitionEnd = () => (lastActiveIndex = activeIndex);
@@ -130,6 +130,8 @@ export const Tabs = defineSSRCustomElement({
       callback: updateVar,
     });
 
+    const transition = useTransition(props, name, 'panel', getTransitionName);
+
     return () => {
       const { destroyInactive, forceRender, type, noPanel } = props;
       const transitionAttrs = {
@@ -165,7 +167,7 @@ export const Tabs = defineSSRCustomElement({
           </div>
           {!noPanel && (
             <TransitionGroup
-              {...getTransitionProps(props, 'panel', getTransitionName())}
+              {...transition()}
               {...transitionAttrs}
               onAfterEnter={transitionEnd}
             >
@@ -212,6 +214,7 @@ export const defineTabs = createDefineElement(
   },
   parts,
   {
+    common: registerSwipeTransition,
     icon: defineIcon,
   },
 );

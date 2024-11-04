@@ -15,3 +15,8 @@
     overflow: hidden; // if the hidden panel is longer then current active tab-item panel, in chrome it will show scrollbar(maybe bug, as it's normal in firefox)
   }
 }
+
+// for animation, need to show the hidden element while animating
+.v-leave-active {
+  z-index: 1;
+}
