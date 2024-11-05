@@ -132,6 +132,7 @@ export function createDefineElement(
   };
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 export function createImportStyle(
   compKey: OpenShadowComponentKey | 'common',
   style: string | (() => string) | CSSStyleSheet | (() => CSSStyleSheet),
@@ -144,6 +145,7 @@ export function createImportStyle(
   });
 }
 
+/*@__NO_SIDE_EFFECTS__*/
 export function createImportDynamicStyle(
   compKey: OpenShadowComponentKey | 'common',
   style:

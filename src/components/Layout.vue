@@ -60,7 +60,7 @@
             class="appearance-switch"
             data-popover="appearance"
           >
-            <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9)" />
+            <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9); transform: scale(0.9)" />
           </l-switch>
           <div slot="appearance">是否开启暗黑模式</div>
           <l-color-picker
@@ -336,9 +336,6 @@ watchEffect(() => {
 </script>
 
 <style lang="scss">
-.VPDoc > .container {
-  // view-transition-name: content; // this has some issues if new page has stored scroll position
-}
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;

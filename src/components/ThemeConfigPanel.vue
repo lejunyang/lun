@@ -31,7 +31,7 @@
       </l-radio-group>
       <strong>{{ locales[lang]?.components.appearance }}</strong>
       <l-switch :checked="isDark" @update="toggleAppearanceWithTransition" id="switch-appearance">
-        <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9)" />
+        <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9); transform: scale(0.9)" />
       </l-switch>
       <strong>{{ locales[lang]?.components.size }}</strong>
       <l-radio-group v-update="theme.size">
@@ -75,7 +75,7 @@ const props = defineProps<{
     'gray-color': string;
     size: string;
     radius: string;
-    scale: string;
+    scale: string | number;
   };
   lang: keyof typeof locales;
   animate: (update: AnyFn) => void;

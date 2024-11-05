@@ -1,0 +1,3 @@
+---
+'@lun-web/plugins': patch
+---

@@ -12,10 +12,12 @@ export const isIIFE = () => process.env.BUILD_FORMAT === 'iife';
 
 export const isDev = () => process.env.NODE_ENV === 'development';
 
+const isNetlify = process.env.NETLIFY === 'true';
+
 export function getViteConfig(name: string, viteConfig?: UserConfig) {
   const iife = isIIFE();
   const dev = iife || isDev() || !!process.env.VITEST;
-  const noType = iife || process.env.NO_TYPE_EMIT === 'true';
+  const noType = isNetlify || iife || process.env.NO_TYPE_EMIT === 'true';
   const fileName = name.replace('@', '').replace(/\//g, '-');
   return defineConfig({
     ...viteConfig,
