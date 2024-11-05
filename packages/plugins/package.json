@@ -1,6 +1,6 @@
 {
   "name": "@lun-web/plugins",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "Directive plugins for Vue template or Vue JSX",
   "keywords": [],
   "type": "module",
