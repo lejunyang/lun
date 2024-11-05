@@ -116,6 +116,13 @@
   }
   @include e(panel) {
     grid-area: 1/1;
+    @include isN(active) {
+      // as they all are place on 1/1 grid area and we are using content-visibility: hidden(it only hides the content, not the element itself)
+      // we need to explicitly hide the element itself
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
   }
 
   @include size(1) {
