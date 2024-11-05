@@ -9,5 +9,12 @@
     "@lun-web/theme": "0.0.1-alpha.2",
     "@lun-web/utils": "0.0.1-alpha.2"
   },
-  "changesets": []
+  "changesets": [
+    "components",
+    "core",
+    "plugins",
+    "react",
+    "theme",
+    "utils"
+  ]
 }
