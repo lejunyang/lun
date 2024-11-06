@@ -20,7 +20,7 @@
       <l-divider style="grid-column: span 12"></l-divider>
       <span v-for="scale in scales" class="gray">{{ scale }}</span>
       <div v-for="scale in scales" class="color-block" :style="`background-color: var(--l-accent-${scale});`"></div>
-      <div v-for="scale in scales" class="color-block" :style="`background-color: var(--l-gray-${scale});`"></div>
+      <div v-for="scale in scales" class="color-block" :style="`background-color: var(--l-accent-gray-${scale});`"></div>
     </div>
     <details class="details custom-block" style="text-align: start">
       <summary>使用说明</summary>
@@ -149,11 +149,11 @@ h1 {
   background: var(--l-color-picker-picked-color, var(--l-accent-a4));
   cursor: pointer;
   border-radius: var(--l-radius-4);
-  outline: 1px solid var(--l-gray-a8);
+  outline: 1px solid var(--l-accent-gray-a8);
   outline-offset: 1px;
 }
 .gray {
-  color: var(--l-gray-9);
+  color: var(--l-accent-gray-9);
   font-size: 12px;
 }
 h6 {

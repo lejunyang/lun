@@ -9,12 +9,12 @@ lang: zh-CN
 
 目前只发布了 alpha 版本，提供以下库：
 
-- `@lun-web/utils`：js 工具函数库
-- `@lun-web/core`：提供组件功能的钩子函数库
-- `@lun-web/plugins`: 为 JSX 或 Vue template 提供自定义指令
-- `@lun-web/components`：组件库，其依赖于上面三个
-- `@lun-web/theme`：主题库，其依赖于组件库
-- `@lun-web/react`：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+- [`@lun-web/utils`](https://www.npmjs.com/package/@lun-web/utils)：js 工具函数库
+- [`@lun-web/core`](https://www.npmjs.com/package/@lun-web/core)：提供组件功能的钩子函数库
+- [`@lun-web/plugins`](https://www.npmjs.com/package/@lun-web/plugins): 为 JSX 或 Vue template 提供自定义指令
+- [`@lun-web/components`](https://www.npmjs.com/package/@lun-web/components)：组件库，其依赖于上面三个
+- [`@lun-web/theme`](https://www.npmjs.com/package/@lun-web/theme)：主题库，其依赖于组件库
+- [`@lun-web/react`](https://www.npmjs.com/package/@lun-web/react)：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
 
 根据需要并安装对应的库
 

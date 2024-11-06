@@ -115,7 +115,7 @@ const toggleAppearanceWithTransition = inject('toggle-appearance', () => {});
   flex-direction: column;
   gap: 10px;
   .size-radio-label {
-    color: var(--l-gray-12);
+    color: var(--l-accent-gray-12);
   }
   .radius-radio {
     &[data-checked] .wrapper {
@@ -130,7 +130,7 @@ const toggleAppearanceWithTransition = inject('toggle-appearance', () => {});
       outline: 2px solid var(--l-accent-9);
     }
     .wrapper {
-      outline: 1px solid var(---l-gray-7);
+      outline: 1px solid var(---l-accent-gray-7);
       padding: 12px;
     }
   }
@@ -145,7 +145,7 @@ const toggleAppearanceWithTransition = inject('toggle-appearance', () => {});
   .radius-text {
     text-align: center;
     font-size: 14px;
-    color: var(--l-gray-9);
+    color: var(--l-accent-gray-9);
   }
   .radius-full {
     border-start-start-radius: 80%;

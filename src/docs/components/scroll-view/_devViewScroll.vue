@@ -50,7 +50,7 @@ const scroll = () => {
   position: relative;
   width: 100%;
   overflow-y: auto;
-  border: 1px solid var(--l-gray-a8);
+  border: 1px solid var(--l-accent-gray-a8);
 }
 .block {
   width: 100px;
@@ -70,13 +70,13 @@ const scroll = () => {
   animation-range: v-bind(rangeStart) v-bind(rangeEnd);
 }
 .example {
-  outline: 1px dashed var(--l-gray-a8);
+  outline: 1px dashed var(--l-accent-gray-a8);
   transform: translateX(200px);
 }
 .vline {
   position: absolute;
   width: 1px;
-  background: var(--l-gray-a8);
+  background: var(--l-accent-gray-a8);
   top: 0;
   height: 300px;
 }

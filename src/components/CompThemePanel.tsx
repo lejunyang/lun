@@ -34,7 +34,7 @@ export default defineComponent({
       gridTemplateColumns: `auto repeat(${variants.length}, 1fr)`,
     } as const;
     const grayTipStyle = {
-      color: 'var(--l-gray-9)',
+      color: 'var(--l-accent-gray-9)',
       fontSize: '12px',
       whiteSpace: 'nowrap',
     } as const;

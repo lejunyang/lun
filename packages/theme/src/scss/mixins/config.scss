@@ -26,8 +26,8 @@ $contrast-color-map: (
 $color-name: 'color' !default;
 $accent-name: 'accent' !default;
 $default-accent-color: 'indigo' !default;
-$gray-name: 'gray' !default;
-$gray-color-name: #{$gray-name + '-color'} !default;
+$gray-name: 'accent-gray' !default;
+$gray-color-name: 'gray-color' !default;
 $gray-color-list: ('mauve' 'slate' 'sage' 'olive' 'sand') !default;
 $default-gray-color: 'slate' !default;
 $status-color-map: (

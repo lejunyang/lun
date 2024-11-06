@@ -177,3 +177,8 @@
     );
   }
 }
+
+// in case leaving element is hidden by isN(active)
+.v-leave-active {
+  z-index: 1;
+}
