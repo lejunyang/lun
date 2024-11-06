@@ -1,9 +1,7 @@
-import {
-  createSimpleExpression,
-  NodeTypes,
+import { createSimpleExpression, createStructuralDirectiveTransform, NodeTypes } from '@vue/compiler-core';
+import type {
   DirectiveNode,
   SimpleExpressionNode,
-  createStructuralDirectiveTransform,
   CompoundExpressionNode,
 } from '@vue/compiler-core';
 
@@ -15,7 +13,7 @@ import {
  * Both TARGET and FROM are optional, Target defaults to 'value', FROM defaults to none(EXPR = e.detail)
  */
 
-export const vUpdate = /*@__PURE__*/createStructuralDirectiveTransform(
+export const vUpdate = /*@__PURE__*/ createStructuralDirectiveTransform(
   /update(-\w+)?/,
   (node, vUpdateDirective, _context) => {
     if (node.type !== NodeTypes.ELEMENT) {

@@ -25,7 +25,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       replace({
         preventAssignment: true,
         values: {
-          __DEV__: dev ? 'true' : "process.env.NODE_ENV !== 'production'",
+          __DEV__: iife && name.includes('plugins') ? 'false' : dev ? 'true' : "process.env.NODE_ENV !== 'production'",
         },
       }),
       !dev &&
@@ -80,7 +80,7 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
       emptyOutDir: dev && !iife,
       rollupOptions: {
         external: iife
-          ? ['vue', '@lun-web/components', '@lun-web/core', '@lun-web/utils']
+          ? ['vue', '@lun-web/components', '@lun-web/core', '@lun-web/utils', '@lun-web/plugins/vue']
           : ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /^dayjs.*/, /react-dom.*/, /@floating-ui.*/],
         output: {
           chunkFileNames() {

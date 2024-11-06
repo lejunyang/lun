@@ -1,1 +1,1 @@
-export * from './src/vue/vue.index';
+export * from './src/vue/vContent';
