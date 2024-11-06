@@ -20,3 +20,4 @@
 - `components/tree`: fix check methods are not working
 - `components/tree`: fix wrong expose type; fix items processing issue
 - `components/tabs`: fix transition issue when switching tabs
+- `components/watermark`: fix wrong color when appearance is dark; fix that style observation is invalid

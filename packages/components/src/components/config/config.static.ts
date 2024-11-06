@@ -64,7 +64,7 @@ export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], false) as ComponentStyles;
 
 const ignoreAttrSet = new Set(['class', 'part', 'exportparts', 'style']),
-  needStyleComps = new Set(['form', 'form-item', 'tag', 'tooltip', 'divider']);
+  needStyleComps = new Set(['form', 'form-item', 'tag', 'tooltip', 'divider', 'watermark']);
 
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
