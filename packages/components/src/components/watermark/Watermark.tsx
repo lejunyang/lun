@@ -15,7 +15,17 @@ import {
   watchEffect,
 } from 'vue';
 import { useWatermark } from '@lun-web/core';
-import { arrayFrom, createElement, isConnected, isTruthyOrZero, objectKeys, raf, setStyle } from '@lun-web/utils';
+import {
+  createElement,
+  deepCopy,
+  isArray,
+  isConnected,
+  isObject,
+  isTruthyOrZero,
+  objectKeys,
+  raf,
+  setStyle,
+} from '@lun-web/utils';
 
 const name = 'watermark';
 const none = 'none',
@@ -60,7 +70,7 @@ export const Watermark = defineSSRCustomElement({
   setup(props) {
     const { getColor } = useNamespace(name);
     const { mutable } = props;
-    const freezedProps = mutable ? props : reactive({ ...props });
+    const freezedProps = mutable ? props : reactive(deepCopy(props));
     const CE = useCE();
     const markDiv = ref<HTMLDivElement>(),
       slotWrapper = ref<HTMLDivElement>(),
@@ -70,16 +80,19 @@ export const Watermark = defineSSRCustomElement({
 
     if (!mutable) {
       const mayNeedUpdateKeys = new Set(objectKeys(props).filter((k) => !isTruthyOrZeroOrFalse(props[k])));
-      const stop = watchEffect(() => {
-        for (const key of arrayFrom(mayNeedUpdateKeys)) {
-          if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(props[key])) {
-            // @ts-ignore
-            freezedProps[key] = props[key];
-            mayNeedUpdateKeys.delete(key);
+      if (mayNeedUpdateKeys.size) {
+        const stop = watchEffect(() => {
+          for (const key of mayNeedUpdateKeys) {
+            const val: any = props[key];
+            if (!isTruthyOrZeroOrFalse(freezedProps[key]) && isTruthyOrZeroOrFalse(val)) {
+              // array: content; object: color; need to shallow copy them in case of mutation
+              freezedProps[key] = isArray(val) ? [...val] : isObject(val) ? { ...val } : val;
+              mayNeedUpdateKeys.delete(key);
+            }
           }
-        }
-        if (!mayNeedUpdateKeys.size) stop();
-      });
+          if (!mayNeedUpdateKeys.size) stop();
+        });
+      }
     }
 
     const ceObserver = new MutationObserver((mutations) => {
@@ -156,12 +169,20 @@ export const Watermark = defineSSRCustomElement({
     });
 
     const parent = WatermarkContext.inject();
+    const initial = 'rgba(0,0,0,.15)';
     const watermark =
       freezedProps.reuse && parent.watermark
         ? parent.watermark
         : useWatermark(
             // @ts-ignore
-            computed(() => ({ ...freezedProps, color: getColor(freezedProps) })),
+            computed(() => ({
+              ...freezedProps,
+              color: getColor(freezedProps, 'color', {
+                initial,
+                light: initial,
+                dark: 'rgba(255,255,255,.18)',
+              }),
+            })),
           );
     const markStyle = computed(() => {
       const isImage = watermark.value[3];

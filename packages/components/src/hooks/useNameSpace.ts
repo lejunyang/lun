@@ -51,9 +51,8 @@ const getThemeValueOfAllSources = (
 };
 
 /** @private */
-export const getThemeValue = (
-  ...args: Parameters<typeof getThemeValueOfAllSources>
-): any => getThemeValueOfAllSources(...args).find(identity);
+export const getThemeValue = (...args: Parameters<typeof getThemeValueOfAllSources>): any =>
+  getThemeValueOfAllSources(...args).find(identity);
 
 /** @private */
 export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefined) => {
@@ -193,10 +192,14 @@ export const useNamespace = (
   const p = (part: string | string[]): string =>
     isArray(part) ? part.map(p).join(' ') : `${block ? block + '-' : ''}${part} ${part}`;
 
-  const getColor = <K extends string = 'color'>(props: Record<K, AppearanceColor<any> | undefined>, key?: K) => {
+  const getColor = <K extends string = 'color'>(
+    props: Record<K, AppearanceColor<any> | undefined>,
+    key?: K,
+    defaultVal?: AppearanceColor<string>,
+  ) => {
     key ||= 'color' as K;
     const appearance = getActualThemeValue('appearance');
-    const value = props[key];
+    const value = props[key] || defaultVal;
     return isString(value) ? value : (appearance && (value as any)?.[appearance]) || (value as any)?.initial;
   };
 

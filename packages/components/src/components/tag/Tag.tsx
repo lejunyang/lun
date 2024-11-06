@@ -3,7 +3,7 @@ import { createDefineElement, renderElement } from 'utils';
 import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
-import { useCEExpose, useNamespace } from 'hooks';
+import { interceptCEMethods, useNamespace } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 
 const name = 'tag';
@@ -28,8 +28,7 @@ export const Tag = defineSSRCustomElement({
     };
 
     // calling focus on tag doesn't work because of display: contents, so expose span's focus
-    const focus = () => rootRef.value?.focus();
-    useCEExpose({ focus });
+    interceptCEMethods(rootRef)
 
     return () => {
       const { label, removable, tabindex } = props;
