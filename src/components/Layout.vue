@@ -1,6 +1,7 @@
 <template>
   <!-- appearance needs to be undefined when SSR -->
   <l-theme-provider :appearance="!inBrowser ? undefined : isDark ? 'dark' : 'light'" root v-bind="theme">
+    <SpeedInsights />
     <Layout>
       <template #nav-bar-content-after>
         <ThemeConfigPanel :theme="theme" :lang="lang as any" :animate="randomAnimate" />
@@ -110,8 +111,8 @@
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
-import VPSwitchAppearance from 'vitepress/dist/client/theme-default/components/VPSwitchAppearance.vue';
 import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef, watch } from 'vue';
+import { SpeedInsights } from '@vercel/speed-insights/vue';
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
 import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun-web/components';
 import Giscus from '@giscus/vue';

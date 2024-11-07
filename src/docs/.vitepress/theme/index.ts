@@ -11,6 +11,7 @@ import { importAllThemes, importAllColors, importAllP3Colors } from '@lun-web/th
 import { inBrowser } from 'vitepress';
 import '@lun-web/core/date-dayjs';
 import { importCustomDynamicColors } from '@lun-web/theme/custom';
+import { inject } from '@vercel/analytics';
 import { Dayjs } from '@lun-web/core/date-dayjs';
 import { vContent } from '@lun-web/plugins/vue';
 import Layout from '../../../components/Layout.vue';
@@ -20,6 +21,7 @@ import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
 import CompThemePanel from '../../../components/CompThemePanel';
 import './style.css';
+import { once } from '@lun-web/utils';
 // import { on } from '@lun-web/utils';
 
 declare module '@lun-web/core' {
@@ -27,6 +29,8 @@ declare module '@lun-web/core' {
     date: Dayjs;
   }
 }
+
+const injectOnce = once(inject);
 
 export default {
   extends: Theme,
@@ -53,6 +57,7 @@ export default {
 
     GlobalStaticConfig.reflectStateToAttr = 'always';
     if (inBrowser) {
+      injectOnce();
       // lazy import react
       (async () => {
         const { isValidElement, cloneElement } = await import('react');

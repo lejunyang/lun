@@ -6,7 +6,7 @@ catalog:
   vite-plugin-dts: ^4.3.0
   '@vitejs/plugin-vue': ^5.1.4
   '@vitejs/plugin-vue-jsx': ^4.0.1
-  vitest: latest
+  vitest: 2.1.4
   vue: ^3.5.12
   '@vue/runtime-dom': ^3.5.12
   '@vue/runtime-core': ^3.5.12
