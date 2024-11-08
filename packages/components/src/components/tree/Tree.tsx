@@ -18,13 +18,25 @@ export const Tree = defineSSRCustomElement({
   name,
   props: treeProps,
   emits: treeEmits,
-  setup(props) {
+  setup(props, { emit }) {
     const ns = useNamespace(name);
     const isSelectMultiple = () => ['multiple', 'ctrl-multiple'].includes(props.selectMode!);
     const [editComputed] = useSetupEdit();
-    const selectedModel = useValueModel(props, { key: 'selected', eventName: 'select', hasRaw: true }),
-      checkedModel = useValueModel(props, { key: 'checked', eventName: 'check', hasRaw: true }),
-      expandedModel = useValueModel(props, { key: 'expanded', eventName: 'expand', hasRaw: true });
+    const getModelOptions = (event: 'select' | 'check' | 'expand') => ({
+      key: `${event}ed` as `${typeof event}ed`,
+      hasRaw: true as true,
+      emit: (value: any) => {
+        emit(event as any, value);
+        emit('update', {
+          selected: selectedModel.value as any,
+          checked: checkedModel.value as any,
+          expanded: expandedModel.value as any,
+        });
+      },
+    });
+    const selectedModel = useValueModel(props, getModelOptions('select')),
+      checkedModel = useValueModel(props, getModelOptions('check')),
+      expandedModel = useValueModel(props, getModelOptions('expand'));
     const selectedValueSet = useValueSet(selectedModel, isSelectMultiple),
       checkedValueSet = useValueSet(checkedModel, true),
       expandedValueSet = computed(() => {

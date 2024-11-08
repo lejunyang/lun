@@ -4,10 +4,11 @@
 
 ## Features
 
-- `components/config`: add `transitionRegistry` and `transitions` global context config; add `useTransition` hook and `registerTransition` util function
-- `components/dialog`: add custom renderer for header, remove `title` prop
-- `components/message`: support string param for `Message.open`
-- `components/switch`: add `beforeUpdate` to asynchronously determine whether to update checked status
+- `config`: add `transitionRegistry` and `transitions` global context config; add `useTransition` hook and `registerTransition` util function
+- `dialog`: add custom renderer for header, remove `title` prop
+- `message`: support string param for `Message.open`
+- `switch`: add `beforeUpdate` to asynchronously determine whether to update checked status
+- `tree`: trigger `update` event whenever check, select or expand are triggered
 
 ## Changes
 
@@ -17,7 +18,7 @@
 
 ## Bug Fixes
 
-- `components/tree`: fix check methods are not working
-- `components/tree`: fix wrong expose type; fix items processing issue
-- `components/tabs`: fix transition issue when switching tabs
-- `components/watermark`: fix wrong color when appearance is dark; fix that style observation is invalid
+- `tree`: fix check methods are not working
+- `tree`: fix wrong expose type; fix items processing issue
+- `tabs`: fix transition issue when switching tabs
+- `watermark`: fix wrong color when appearance is dark; fix that style observation is invalid

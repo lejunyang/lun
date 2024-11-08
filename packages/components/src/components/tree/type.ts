@@ -12,6 +12,7 @@ import {
   PropString,
   PropObject,
   PropSet,
+  createEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -33,12 +34,34 @@ export const treeProps = freeze({
   indentSize: PropNumber(),
 });
 
-export const treeEmits = freeze({
-  update: (_: { checked: any[]; selected: any[] | any; expanded: any[] }) => true,
-  check: (_: any[]) => true,
-  select: (_: any | any[]) => true,
-  expand: (_: any[]) => true,
-});
+export const treeEmits = createEmits<{
+  update: {
+    checked: {
+      value: unknown[];
+      raw: Set<unknown>;
+    };
+    selected: {
+      value: unknown;
+      raw: unknown;
+    };
+    expanded: {
+      value: unknown;
+      raw: unknown;
+    };
+  };
+  check: {
+    value: unknown[];
+    raw: Set<unknown>;
+  };
+  select: {
+    value: unknown;
+    raw: unknown;
+  };
+  expand: {
+    value: unknown;
+    raw: unknown;
+  };
+}>(['update', 'check', 'select', 'expand']);
 
 export type TreeSetupProps = ExtractPropTypes<typeof treeProps> & CommonProps;
 export type TreeEvents = GetEventPropsFromEmits<typeof treeEmits>;
