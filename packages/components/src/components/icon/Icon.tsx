@@ -4,14 +4,12 @@ import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
 import { isFunction, isString } from '@lun-web/utils';
-import { getCompParts } from 'common';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
 
 const name = 'icon';
-const parts = ['svg'] as const;
-const compParts = getCompParts(name, parts);
+const parts = [] as const;
 export const Icon = defineSSRCustomElement({
   name,
   props: iconProps,
@@ -54,10 +52,6 @@ export const Icon = defineSSRCustomElement({
         state.src = '';
         switch (type) {
           case 'html':
-            if (isString(result)) state.src = result;
-            state.type = type;
-            break;
-          case 'svg-sprite-href':
             if (isString(result)) state.src = result;
             state.type = type;
             break;
@@ -110,12 +104,6 @@ export const Icon = defineSSRCustomElement({
               style={{ display: 'contents' }}
               v-html={GlobalStaticConfig.htmlPreprocessor(state.src as string)}
             ></span>
-          );
-        case 'svg-sprite-href':
-          return (
-            <svg {...attrs} part={compParts[0]}>
-              <use part="use" href={state.src as string}></use>
-            </svg>
           );
       }
     };

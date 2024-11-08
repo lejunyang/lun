@@ -10,7 +10,7 @@ export type IconLibraryResolver = (
 export type IconLibraryMutator = <T extends string | VNode>(result: T) => T;
 export interface IconLibrary {
   library: string;
-  type: 'html' | 'html-url' | 'svg-sprite-href' | 'vnode';
+  type: 'html' | 'html-url' | 'vnode';
   resolver: IconLibraryResolver;
   mutator?: IconLibraryMutator;
 }
