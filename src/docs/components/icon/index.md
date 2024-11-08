@@ -35,7 +35,7 @@ registerIconLibrary({
 ```ts
 export interface IconLibrary {
   library: string; // library name
-  type: 'html' | 'html-url' | 'vnode' | 'svg-sprite-href';
+  type: 'html' | 'html-url' | 'vnode';
   resolver: IconLibraryResolver;
   mutator?: IconLibraryMutator;
 }

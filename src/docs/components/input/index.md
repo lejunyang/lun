@@ -136,5 +136,5 @@ const label = {
 <!-- @Code:carouselLabel -->
 
 :::warning 注
-轮播标签使用了`overflow: clip`和`overflow-clip-margin: 1px`来防止聚焦时的outline被截断，safari暂不兼容
+轮播标签使用了`overflow: clip`和`overflow-clip-margin: 1px`来防止聚焦时的outline被截断，safari暂不兼容。有待小重构一下样式
 :::

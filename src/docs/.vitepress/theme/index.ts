@@ -12,10 +12,10 @@ import { inBrowser } from 'vitepress';
 import '@lun-web/core/date-dayjs';
 import { importCustomDynamicColors } from '@lun-web/theme/custom';
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 import { Dayjs } from '@lun-web/core/date-dayjs';
 import { vContent } from '@lun-web/plugins/vue';
 import Layout from '../../../components/Layout.vue';
-import Palette from '../../../components/Palette.vue';
 import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
@@ -30,7 +30,10 @@ declare module '@lun-web/core' {
   }
 }
 
-const injectOnce = once(inject);
+const injectOnce = once(() => {
+  inject();
+  injectSpeedInsights();
+});
 
 export default {
   extends: Theme,
@@ -38,7 +41,6 @@ export default {
   enhanceApp: (({ app }) => {
     app.directive('content', vContent);
     app.component('Code', Code);
-    app.component('Palette', Palette);
     app.component('Support', Support);
     app.component('SupportInfo', SupportInfo);
     app.component('CompThemePanel', CompThemePanel);

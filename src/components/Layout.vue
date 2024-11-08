@@ -1,7 +1,6 @@
 <template>
   <!-- appearance needs to be undefined when SSR -->
   <l-theme-provider :appearance="!inBrowser ? undefined : isDark ? 'dark' : 'light'" root v-bind="theme">
-    <SpeedInsights />
     <Layout>
       <template #nav-bar-content-after>
         <ThemeConfigPanel :theme="theme" :lang="lang as any" :animate="randomAnimate" />
@@ -61,7 +60,11 @@
             class="appearance-switch"
             data-popover="appearance"
           >
-            <span :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'" slot="thumb" style="color: var(--l-accent-9); transform: scale(0.9)" />
+            <span
+              :class="isDark ? 'vpi-moon moon' : 'vpi-sun sun'"
+              slot="thumb"
+              style="color: var(--l-accent-9); transform: scale(0.9)"
+            />
           </l-switch>
           <div slot="appearance">是否开启暗黑模式</div>
           <l-color-picker
@@ -90,10 +93,11 @@
           <Giscus
             repo="lejunyang/lun"
             repo-id="R_kgDOKRu0ww"
-            mapping="pathname"
-            category="Announcements"
-            category-id="DIC_kwDOKRu0w84Cccsd"
-            strict="0"
+            mapping="specific"
+            :term="page.relativePath"
+            category="Comments"
+            category-id="DIC_kwDOKRu0w84CkFaB"
+            strict="1"
             reactions-enabled="1"
             emit-metadata="0"
             input-position="top"
@@ -112,7 +116,6 @@
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
 import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef, watch } from 'vue';
-import { SpeedInsights } from '@vercel/speed-insights/vue';
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
 import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun-web/components';
 import Giscus from '@giscus/vue';
@@ -139,7 +142,7 @@ watch(popover, (p) => {
   if (!p) return;
   p.attachTarget(sizeGroup.value, { slotName: 'size' }); // if in other page, popover is undefined...
   p.attachTarget(scaleInput.value, { slotName: 'scale' });
-})
+});
 
 provide('lun-theme', theme);
 
