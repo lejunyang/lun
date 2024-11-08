@@ -19,6 +19,7 @@
   flex-grow: 1;
   position: relative;
   vertical-align: bottom;
+  height: min-content; // prevent input's height being stretched when it's in grid form
 
   @include declareReuseVars((font-size, line-height), true);
   @include declareReuseVars((block-size, padding-inline-start, letter-spacing, border-radius));
