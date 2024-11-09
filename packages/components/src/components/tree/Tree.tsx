@@ -25,7 +25,7 @@ export const Tree = defineSSRCustomElement({
     const getModelOptions = (event: 'select' | 'check' | 'expand') => ({
       key: `${event}ed` as `${typeof event}ed`,
       hasRaw: true as true,
-      emit: (value: any) => {
+      emit: (_: string, value: any) => {
         emit(event as any, value);
         emit('update', {
           selected: selectedModel.value as any,
