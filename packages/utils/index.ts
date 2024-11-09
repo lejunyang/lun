@@ -5,6 +5,7 @@ export * from './src/array';
 export * from './src/color';
 export * from './src/event';
 export * from './src/function';
+export * from './src/get';
 export * from './src/is';
 export * from './src/number';
 export * from './src/promise';

@@ -1,3 +1,4 @@
+import { globalObject } from '../get';
 import { getTypeTag, isObject } from '../is';
 
 function baseDeepCopy(obj: any, map: Map<Object, any>) {
@@ -53,9 +54,9 @@ function baseDeepCopy(obj: any, map: Map<Object, any>) {
     case 'Array':
     default:
       // use structuredClone to copy other types, if no structuredClone, copy it as an Object; if failed on structuredClone, return it
-      if (type !== 'Object' && type !== 'Array' && globalThis.structuredClone) {
+      if (type !== 'Object' && type !== 'Array' && globalObject.structuredClone) {
         try {
-          return globalThis.structuredClone(obj);
+          return globalObject.structuredClone(obj);
         } catch {
           return obj;
         }

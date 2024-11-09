@@ -1,3 +1,4 @@
+import { globalObject } from '../get';
 import { getTypeTag } from '../is';
 
 function is(
@@ -16,9 +17,9 @@ function is(
     | 'Text',
 ) {
   return (
-    globalThis[type] &&
-    (node instanceof globalThis[type] ||
-      node instanceof ((node as Node)?.ownerDocument?.defaultView || globalThis)[type])
+    globalObject[type] &&
+    (node instanceof globalObject[type] ||
+      node instanceof ((node as Node)?.ownerDocument?.defaultView || globalObject)[type])
   );
 }
 

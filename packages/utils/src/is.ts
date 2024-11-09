@@ -1,3 +1,5 @@
+import { globalObject } from './get';
+
 export function getTypeTag(variable: unknown) {
   return Object.prototype.toString.call(variable).slice(8, -1);
 }
@@ -59,7 +61,7 @@ export function isNumber(target: unknown): target is number | Number {
 
 const createIs = <T>(type: keyof typeof globalThis) => {
   return (target: unknown): target is T => {
-    return target instanceof globalThis[type] || getTypeTag(target) === type;
+    return target instanceof globalObject[type] || getTypeTag(target) === type;
   };
 };
 
