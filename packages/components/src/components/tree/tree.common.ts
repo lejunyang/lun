@@ -9,7 +9,7 @@ export const createCount = (map: MaybeRefLikeOrGetter<WeakMap<any, number>, true
 export type Item = InternalTreeItem | ComponentInternalInstance;
 
 export const getLevel = (item: Item) => (isVm(item) ? getVmLevel(item) : item._.level);
-export const isLeafChild = (item: Item) => (isVm(item) ? isVmLeafChild(item) : item._.isLeaf);
+export const isLeafChild = (item?: Item) => item && (isVm(item) ? isVmLeafChild(item) : item._.isLeaf);
 export const isDisabled = (item: Item) => (isVm(item) ? isVmDisabled(item) : item.disabled);
 export const getValue = (item: Item) => (isVm(item) ? getVmValue(item) : item.value);
 

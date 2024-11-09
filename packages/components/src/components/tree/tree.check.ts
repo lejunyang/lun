@@ -1,5 +1,5 @@
 import { ToAllMaybeRefLike, unrefOrGet, useCheckboxMethods, watchOnMounted } from '@lun-web/core';
-import { at, differenceOfSets } from '@lun-web/utils';
+import { at } from '@lun-web/utils';
 import { ComputedRef, ref, watch } from 'vue';
 import { createCount, getLevel, getValue, isLeafChild, isDisabled, Item, getChildren, getParent } from './tree.common';
 
@@ -97,10 +97,10 @@ export function useTreeCheckMethods(
     itemDirectCheckedChildrenCountMap.value = checkedChildrenCountMap;
     itemDisabledChildrenCountMap.value = disabledChildrenCountMap;
   };
-  watchOnMounted(() => childrenInfo.items, correctChecked);
+  watchOnMounted(() => childrenInfo.items, correctChecked, { immediate: true });
   watch(current, (currentChecked) => {
     if (currentChecked !== correctedCheckedSet.value) {
-      correctChecked(childrenInfo.items);
+      correctChecked(childrenInfo.items); // TODO items props with initial checked, see if intermediate is correct
     }
   });
 
@@ -108,8 +108,16 @@ export function useTreeCheckMethods(
     const parent = getParent(item);
     if (!parent) return;
     const parentCheckedCount = unrefOrGet(itemDirectCheckedChildrenCountMap).get(parent),
+      childrenCount = getChildrenCount(parent),
       isIntermediate = intermediateSet.value.has(parent);
-    if (!isIntermediate && (isCheck || (parentCheckedCount && parentCheckedCount < getChildrenCount(parent)))) {
+    if (
+      !isIntermediate &&
+      (
+        // if isCheck is true, normally we should update all parents to intermediate, unless all of its children are checked
+        (isCheck && parentCheckedCount !== childrenCount) ||
+        // this is for isCheck=false
+        (parentCheckedCount && parentCheckedCount < childrenCount))
+    ) {
       // don't need to check `isCheck`, as both check and uncheck can lead to intermediate state
       intermediateSet.value.add(parent);
       return updateParentIntermediate(parent, 1);
@@ -139,7 +147,8 @@ export function useTreeCheckMethods(
     isUnCheck?: number,
   ) => {
     const currentVm = valueToChild(value),
-      checked = methods.isChecked(value);
+      // checked = methods.isChecked(value); // do not use isChecked method, use currentChecked directly (for reverse method)
+      checked = currentChecked.has(value);
     if (!currentVm || (isUnCheck ? !checked : checked)) return;
     const isLeaf = isLeafChild(currentVm),
       parent = getParent(currentVm);
@@ -160,6 +169,7 @@ export function useTreeCheckMethods(
     }
     intermediateSet.value.delete(currentVm);
     if (!isLeaf && updateParent !== -1) {
+      unrefOrGet(itemDirectCheckedChildrenCountMap).set(currentVm, isUnCheck ? 0 : getChildrenCount(currentVm));
       getChildren(currentVm).forEach((c) => internalUpdate(getValue(c), currentChecked, 0, isUnCheck));
     }
     if (updateParent && parent) {
@@ -185,7 +195,26 @@ export function useTreeCheckMethods(
       internalBatchUpdate(values, 1);
     };
 
+  const internalCheckAll = () => {
+    const checkedChildrenCount = new WeakMap();
+    childrenInfo.noneLeafValuesSet.forEach((value) => {
+      const item = valueToChild(value);
+      if (item) checkedChildrenCount.set(item, getChildrenCount(item));
+    });
+    itemDirectCheckedChildrenCountMap.value = checkedChildrenCount;
+  };
+
   Object.assign(methods, {
+    checkAll() {
+      intermediateSet.value = new WeakSet<Item>();
+      internalCheckAll();
+      onChange(methods._((correctedCheckedSet.value = childrenInfo.childrenValuesSet)));
+    },
+    uncheckAll() {
+      intermediateSet.value = new WeakSet<Item>();
+      itemDirectCheckedChildrenCountMap.value = new WeakMap();
+      onChange(methods._((correctedCheckedSet.value = new Set())));
+    },
     check,
     uncheck,
     toggle(value: any) {
@@ -193,8 +222,16 @@ export function useTreeCheckMethods(
       else check(value);
     },
     reverse() {
-      const leafSet = differenceOfSets(childrenInfo.childrenValuesSet, childrenInfo.noneLeafValuesSet);
-      onChange(methods._((correctedCheckedSet.value = differenceOfSets(leafSet, correctedCheckedSet.value))));
+      // const leafSet = differenceOfSets(childrenInfo.childrenValuesSet, childrenInfo.noneLeafValuesSet);
+      // onChange(methods._((correctedCheckedSet.value = differenceOfSets(leafSet, correctedCheckedSet.value))));
+      // previous was using differenceOfSets, but we can only get leaf values from that
+      const result = new Set(childrenInfo.childrenValuesSet);
+      internalCheckAll();
+      correctedCheckedSet.value.forEach((value) => {
+        if (isLeafChild(valueToChild(value))) internalUpdate(value, result, 1, 1);
+      });
+      correctedCheckedSet.value = result;
+      onChange(methods._(result));
     },
   });
   return {
