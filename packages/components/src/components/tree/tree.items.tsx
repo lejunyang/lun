@@ -42,19 +42,23 @@ export function useTreeItems(props: { items?: any[]; itemPropsMap?: object }, ed
       };
       return item;
     };
-    const processArray = (arr?: any[], parent?: any) => {
+    const processArray = (arr: any[] | undefined, flattenResult: InternalTreeItem[], parent?: any) => {
       return ensureArray(arr).flatMap((_item) => {
         if (!_item) return [];
         const item = processItem(_item, parent);
-        if ((item._.children = processArray(item.children, item)).length && !item.disabled)
+        flattenResult.push(item);
+        if ((item._.children = processArray(item.children, flattenResult, item)).length && !item.disabled)
           noneLeafValuesSet.add(item.value);
         delete item.children; // in case children is set as a prop on element
         return [item];
       });
     };
 
+    const flattenItems: InternalTreeItem[] = [],
+      treeItems = processArray(items, flattenItems) as InternalTreeItem[];
     return {
-      items: processArray(items) as InternalTreeItem[],
+      items: flattenItems,
+      treeItems,
       childrenValuesSet,
       valueToChildMap,
       noneLeafValuesSet,
@@ -64,5 +68,5 @@ export function useTreeItems(props: { items?: any[]; itemPropsMap?: object }, ed
   const renderItems = (arr: InternalTreeItem[]): any =>
     arr.map(({ _: { children }, ...rest }) => renderElement('tree-item', rest, renderItems(children)));
 
-  return [info, () => renderItems(info.items), (value: any) => info.valueToChildMap.get(value)] as const;
+  return [info, () => renderItems(info.treeItems), (value: any) => info.valueToChildMap.get(value)] as const;
 }
