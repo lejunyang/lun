@@ -80,7 +80,7 @@ pageClass: l-palette-page
 
 <script setup lang="ts">
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
-import { text } from '../../utils/data.ts';
+import { text } from 'data';
 import { arrayFrom } from '@lun-web/utils';
 
 const scales = arrayFrom(12, (_, i) => i + 1);
