@@ -119,3 +119,16 @@ export function proxyObjectRef<T extends { value: object } | undefined | null>(
 export function objectComputed<T extends AnyObject>(getter: () => T) {
   return proxyObjectRef(computed(getter));
 }
+
+export function createUnrefBinds<
+  T extends MaybeRefLikeOrGetter<Record<string | number | symbol, unknown>>,
+  A extends Record<string | number | symbol, unknown> = T extends MaybeRefLikeOrGetter<infer R> ? R : never,
+  K extends keyof A = {
+    [k in keyof A]: A[k] extends Function ? k : never;
+  }[keyof A],
+>(obj: T, ...keys: NoInfer<K>[]) {
+  return keys.reduce((acc, key) => {
+    acc[key] = ((...args: any[]) => (unrefOrGet(obj) as any)[key]?.(...args)) as any;
+    return acc;
+  }, {} as { [k in K]: A[k] });
+}

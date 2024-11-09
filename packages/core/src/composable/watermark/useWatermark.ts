@@ -2,7 +2,7 @@
 
 import { ComputedRef, computed, ref, watchEffect } from 'vue';
 import { unrefOrGet, MaybeRefLikeOrGetter } from '../../utils/ref';
-import { createElement, isHTMLImageElement, isPreferDark, ensureArray } from '@lun-web/utils';
+import { createElement, isHTMLImageElement, isPreferDark, ensureArray, globalObject } from '@lun-web/utils';
 
 export const FontGap = 3;
 
@@ -116,7 +116,7 @@ export function useWatermark(
       content,
       opacity,
       rotate = -22,
-      ratio = globalThis.devicePixelRatio || 1,
+      ratio = globalObject.devicePixelRatio || 1,
       color = isPreferDark() ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.15)',
       // color = 'rgba(0,0,0,.15)',
       fontSize = 16,

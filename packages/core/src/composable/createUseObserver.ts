@@ -1,6 +1,6 @@
 import { watchPostEffect } from 'vue';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
-import { isElement, isFunction, runIfFn, ensureArray } from '@lun-web/utils';
+import { isElement, isFunction, runIfFn, ensureArray, globalObject } from '@lun-web/utils';
 import { tryOnScopeDispose } from '../hooks';
 
 type NamePrefixes = 'Mutation' | 'Intersection' | 'Resize';
@@ -36,7 +36,7 @@ export function createUseObserver<
     // @ts-expect-error
     observeOptions,
     disabled,
-    window = globalThis,
+    window = globalObject,
   }: {
     targets: MaybeRefLikeOrGetter<Element | null | undefined | (Element | null | undefined)[]>;
     disabled?: MaybeRefLikeOrGetter<boolean>;
@@ -44,7 +44,7 @@ export function createUseObserver<
     window?: typeof globalThis;
   } & OptionsMap[N]) => {
     let observer: O | undefined,
-      supported = isFunction(globalThis[name]),
+      supported = isFunction(window[name]),
       stopWatch: ReturnType<typeof watchPostEffect>;
     const clean = () => {
       if (observer) observer.disconnect();
