@@ -12,12 +12,12 @@ export const isIIFE = () => process.env.BUILD_FORMAT === 'iife';
 
 export const isDev = () => process.env.NODE_ENV === 'development';
 
-const isNetlify = process.env.NETLIFY === 'true';
+const deployedOn = process.env.DEPLOYED_ON;
 
 export function getViteConfig(name: string, viteConfig?: UserConfig) {
   const iife = isIIFE();
   const dev = iife || isDev() || !!process.env.VITEST;
-  const noType = isNetlify || iife || process.env.NO_TYPE_EMIT === 'true';
+  const noType = deployedOn || iife || process.env.NO_TYPE_EMIT === 'true';
   const fileName = name.replace('@', '').replace(/\//g, '-');
   return defineConfig({
     ...viteConfig,
@@ -28,8 +28,8 @@ export function getViteConfig(name: string, viteConfig?: UserConfig) {
           __DEV__: iife && name.includes('plugins') ? 'false' : dev ? 'true' : "process.env.NODE_ENV !== 'production'",
         },
       }),
-      !dev &&
-        !noType &&
+      // for package components, bundle ts file only when iife(one entrypoint), because a lot of entry points can cause out of memory when bundling ts files.
+      (name.endsWith('components') ? iife : !dev && !noType) &&
         dts({
           rollupTypes: true,
           tsconfigPath: './tsconfig.build.json',

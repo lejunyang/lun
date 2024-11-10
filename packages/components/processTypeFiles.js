@@ -4,8 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 (() => {
-  const isNetlify = process.env.NETLIFY === 'true';
-  if (isNetlify) return;
+  if (process.env.DEPLOYED_ON) return;
 
   // declare module is not exported by api-extractor, so we have to generate the file manually
   // https://github.com/microsoft/rushstack/issues/2090

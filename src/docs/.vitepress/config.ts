@@ -187,15 +187,15 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
   } as DefaultTheme.Config;
 };
 
-const isNetlify = process.env.NETLIFY === 'true';
+const deployedOn = process.env.DEPLOYED_ON;
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: isNetlify ? undefined : '/lun/',
+  base: deployedOn ? undefined : '/lun/',
   title: 'Lun',
   description: 'Web components',
   sitemap: {
-    hostname: isNetlify ? 'https://lun-web.netlify.app' : 'https://github.com/lejunyang/lun/',
+    hostname: deployedOn ? `https://lun-web.${deployedOn}.app` : 'https://lejunyang.github.io/lun/',
   },
   vue: {
     template: {
