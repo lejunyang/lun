@@ -1,5 +1,5 @@
-import { objectComputed, unrefOrGet, unrefOrGetState, useEdit } from '@lun-web/core';
-import { fromObject, hyphenate, pick, runIfFn } from '@lun-web/utils';
+import { createUnrefCalls, objectComputed, unrefOrGetState, useEdit } from '@lun-web/core';
+import { createBinds, fromObject, hyphenate, pick, runIfFn } from '@lun-web/utils';
 import {
   MaybeRef,
   Ref,
@@ -136,18 +136,12 @@ export function interceptCEMethods(
     | ((originalMethods: Required<InterceptMethods>) => InterceptMethods)
     | Ref<HTMLElement | undefined>,
 ) {
-  const CE = useCE();
-  const { click, focus, blur } = CE,
-    originalMethods = { click: click.bind(CE), focus: focus.bind(CE), blur: blur.bind(CE) };
+  const CE = useCE(),
+    keys = ['focus', 'blur', 'click'] as ['focus', 'blur', 'click'],
+    originalMethods = createBinds(CE, keys);
   Object.assign(
     CE,
-    isRef(methodsOrEl)
-      ? {
-          click: () => unrefOrGet(methodsOrEl)?.click(),
-          focus: () => unrefOrGet(methodsOrEl)?.focus(),
-          blur: () => unrefOrGet(methodsOrEl)?.blur(),
-        }
-      : runIfFn(methodsOrEl, originalMethods),
+    isRef(methodsOrEl) ? createUnrefCalls(methodsOrEl, ...keys) : runIfFn(methodsOrEl, originalMethods),
   );
   // recover intercepted methods before unmount to avoid duplicate change. because dom can disconnect and connect again, then it will setup again
   onBeforeUnmount(() => Object.assign(CE, originalMethods));

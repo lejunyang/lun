@@ -1,6 +1,6 @@
 import { isFunction, runIfFn, ensureArray, globalObject } from '@lun-web/utils';
 import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions } from 'vue';
-import { createUnrefBinds, MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
+import { createUnrefCalls, MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 
 /**
  * create a temporary ref，which means ref value is initialized with getter and you can change it as you want, but it will reset the value when getter updates
@@ -116,7 +116,7 @@ const createUseSetOrMap =
       result = ref<T>(new constructor()),
       isSet = type === 'Set' || type === 'WeakSet';
     // @ts-expect-error
-    const binds = createUnrefBinds(result, 'add', 'has', 'set', 'get', 'delete', 'forEach') as any,
+    const binds = createUnrefCalls(result, 'add', 'has', 'set', 'get', 'delete', 'forEach') as any,
       replace = (newObj: T = new constructor()) => (result.value = newObj);
     return Object.assign(result, {
       replace,

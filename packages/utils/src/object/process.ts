@@ -1,5 +1,5 @@
-import { ExcludeNumberAndSymbol } from '../type';
-import { isObject } from '../is';
+import { ExcludeNumberAndSymbol, GetFunctionKeys } from '../type';
+import { isFunction, isObject } from '../is';
 
 function internalFlatten(currentObj: Record<string, unknown>, topObj: Record<string, unknown>, prefix = '') {
   return Object.entries(currentObj).forEach(([key, value]) => {
@@ -28,4 +28,12 @@ export function fromObject<
       return fn(k, v) || [k, v];
     }),
   );
+}
+
+export function createBinds<T extends object, K extends GetFunctionKeys<T> = GetFunctionKeys<T>>(obj: T, keys: K[]) {
+  return keys.reduce((acc, key) => {
+    const val = obj[key];
+    if (isFunction(val)) acc[key] = val.bind(obj);
+    return acc;
+  }, {} as { [P in K]: T[P] });
 }

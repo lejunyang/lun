@@ -59,3 +59,7 @@ export type GetOptionalKeys<T extends object> = {
 
 export type MaybeArray<T> = T | T[];
 export type MaybeSet<T> = T | Set<T>;
+
+export type GetFunctionKeys<T extends object> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];

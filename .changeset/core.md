@@ -4,7 +4,7 @@
 
 ### Features
 
-- add `createUnrefBinds`
+- add `createUnrefCalls`
 - add `useSet`, `useMap`, `useWeakSet`, `useWeakMap` hooks
 
 ### Bug Fixes

@@ -1,5 +1,5 @@
-import { AnyObject, isArray, isFunction } from '@lun-web/utils';
-import { computed, isRef } from 'vue';
+import { AnyObject, GetFunctionKeys, isArray, isFunction } from '@lun-web/utils';
+import { computed, isRef, Ref } from 'vue';
 
 export type MaybeRefLikeOrGetter<T, Ensure extends boolean = false> =
   | T
@@ -120,15 +120,13 @@ export function objectComputed<T extends AnyObject>(getter: () => T) {
   return proxyObjectRef(computed(getter));
 }
 
-export function createUnrefBinds<
-  T extends MaybeRefLikeOrGetter<Record<string | number | symbol, unknown>>,
-  A extends Record<string | number | symbol, unknown> = T extends MaybeRefLikeOrGetter<infer R> ? R : never,
-  K extends keyof A = {
-    [k in keyof A]: A[k] extends Function ? k : never;
-  }[keyof A],
->(obj: T, ...keys: NoInfer<K>[]) {
+export function createUnrefCalls<
+  T extends MaybeRefLikeOrGetter<object> | Ref<object | undefined>,
+  A extends object = T extends Ref<infer R> ? R & {} : T extends MaybeRefLikeOrGetter<infer R> ? R : never,
+  K extends GetFunctionKeys<A> = GetFunctionKeys<A>,
+>(obj: T, ...keys: K[]) {
   return keys.reduce((acc, key) => {
     acc[key] = ((...args: any[]) => (unrefOrGet(obj) as any)[key]?.(...args)) as any;
     return acc;
-  }, {} as { [k in K]: A[k] });
+  }, {} as { [k in K]-?: A[k] });
 }

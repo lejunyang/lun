@@ -5,3 +5,4 @@
 ### Features
 
 - add `globalObject`, replace globalThis internally
+- add `createBinds`
