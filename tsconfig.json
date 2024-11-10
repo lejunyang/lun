@@ -8,7 +8,6 @@
       "path": "./tsconfig.node.json"
     }
   ],
-  "files": [],
   "compilerOptions": {
     "baseUrl": ".",
     "types": [
@@ -18,14 +17,23 @@
       "vitest/globals",
       "@vitest/browser/providers/playwright",
       "vite/client",
-      "./global.d.ts"
+      "./global.d.ts",
     ],
     "paths": {
       "@lun-web/components": ["./packages/components/index.ts"],
-      "@lun-web/theme/custom": ["./packages/theme/src/custom/custom.ts"],
-      "@lun-web/theme": ["./packages/theme/src/index.ts"],
-      "@lun-web/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
+      // these are specially for components package, considering removing them
+      "common": ["./packages/components/src/common"],
+      "config": ["./packages/components/src/components/config"],
+      "custom": ["./packages/components/src/custom"],
+      "utils": ["./packages/components/src/utils"],
+      "hooks": ["./packages/components/src/hooks"],
       "@lun-web/core": ["./packages/core/index.ts"],
+      "@lun-web/core/date-dayjs": ["./packages/core/src/presets/date.dayjs.ts"],
+      "@lun-web/plugins/vue": ["./packages/plugins/src/vue/vue.index.ts"],
+      "@lun-web/plugins/babel": ["./packages/plugins/src/babel/babel.index.ts"],
+      "@lun-web/theme": ["./packages/theme/src/index.ts"],
+      "@lun-web/theme/custom": ["./packages/theme/src/custom/custom.ts"],
+      "@lun-web/react": ["./packages/react/index.ts"],
       "@lun-web/utils": ["./packages/utils/index.ts"]
     }
   },

@@ -1,16 +1,12 @@
 {
-  "extends": "./tsconfig.json",
-  "include": [
-    "./index.ts",
-    "./src/**/*.ts",
-    "./src/**/*.d.ts",
-    "./src/**/*.tsx",
-    "../../global.d.ts"
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    {
+      "path": "../../tsconfig.node.json"
+    }
   ],
-  "exclude": [
-    "src/__test__/**/*",
-    "src/main.ts"
-  ],
+  "include": ["./index.ts", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "../../global.d.ts"],
+  "exclude": ["src/__test__/**/*", "**/*.define.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     // must specify types, tsconfig.json has too much types(test types), which will cause out of memory error when building types
@@ -21,7 +17,7 @@
       "config": ["src/components/config"],
       "custom": ["src/custom"],
       "utils": ["src/utils"],
-      "hooks": ["src/hooks"],
+      "hooks": ["src/hooks"]
       // [vite:dts] Internal Error: Unable to determine semantic information for declaration
       // related issue https://github.com/qmhc/vite-plugin-dts/issues/281, but relative path is not working
       // replace it with LUNCOER and then perform string replace manually, see generateModuleTypes.js

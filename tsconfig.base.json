@@ -27,9 +27,7 @@
       "new-javascript/wicg/document-picture-in-picture",
       "new-javascript/wicg/file-system-access",
       "@types/dom-view-transitions",
-      "vitest/globals",
-      "@vitest/browser/providers/playwright",
-      "vite/client",
+      "./global.d.ts"
     ]
   }
 }

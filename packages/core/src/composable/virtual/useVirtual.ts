@@ -28,7 +28,7 @@ export function useVirtualList(options: UseVirtualOptions) {
     const lanesNum = ensureNumber(lanes, 1),
       itemsArr = ensureArray(unrefOrGet(items)),
       overscanArr = ensureArray(runIfFn(overscan, itemsArr, state));
-    let temp: number, disable: boolean;
+    let temp: number, disable: boolean | undefined;
     if ((disable = (!estimatedSize && !fixedSize) || !itemsArr.length || runIfFn(disabled, itemsArr)))
       keySizeMap.clear();
     return {
@@ -132,7 +132,7 @@ export function useVirtualList(options: UseVirtualOptions) {
       const offsetStart = furtherMeasurement
         ? furtherMeasurement.offsetEnd + ensureNumber(gap, 0)
         : ensureNumber(paddingStart, 0) + ensureNumber(scrollMargin, 0);
-      const size = keySizeMap.get(key) ?? +runIfFn(fixedSize || estimatedSize, item, minI);
+      const size = keySizeMap.get(key) ?? +runIfFn(fixedSize || estimatedSize, item, minI)!;
       if (__DEV__ && !(size > 0)) {
         console.error('[useVirtual] Invalid item size for item at index ' + minI + '.');
       }

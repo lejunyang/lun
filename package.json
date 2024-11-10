@@ -11,7 +11,7 @@
     "build:noType": "pnpm --filter \"./packages/**\" run build:noType",
     "build": "pnpm --filter \"./packages/**\" run build",
     "docs:gen": "node ./utils/generateAndLinkDocs.js no-symlink",
-    "docs:build": "node ./utils/generateAndLinkDocs.js && node ./buildDoc.js",
+    "docs:build": "node ./utils/generateAndLinkDocs.js && node ./utils/buildDoc.js",
     "docs:preview": "vitepress preview src/docs",
     "test": "vitest",
     "pre-version": "pnpm --filter \"./packages/**\" v prerelease --preid alpha",
@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
+    "@changesets/types": "^6.0.0",
     "@lun-web/plugins": "workspace:^",
     "@rollup/plugin-replace": "^5.0.7",
     "@types/dom-view-transitions": "^1.0.4",

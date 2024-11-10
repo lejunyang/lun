@@ -1,10 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
   "include": [
     "./index.ts",
     "./src/**/*.ts",
@@ -17,11 +12,11 @@
     "declarationDir": "dist",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "paths": {
-      "@lun-web/components": ["../components/index.ts"],
-      "@lun-web/core": ["../core/index.ts"],
-      "@lun-web/theme": ["../theme/index.ts"],
-      "@lun-web/utils": ["../utils/index.ts"]
-    }
+    // "paths": {
+    //   "@lun-web/components": ["../components/index.ts"],
+    //   "@lun-web/core": ["../core/index.ts"],
+    //   "@lun-web/theme": ["../theme/index.ts"],
+    //   "@lun-web/utils": ["../utils/index.ts"]
+    // }
   }
 }
