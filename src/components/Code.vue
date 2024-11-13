@@ -70,7 +70,12 @@
           </svg>
         </div>
       </div>
-      <Editor v-model="codesMap[lang]" v-lazy-show="showEditor" />
+      <Editor
+        v-model="codesMap[lang]"
+        v-lazy-show="showEditor"
+        :name="lang + name"
+        :lang="lang === 'html' ? lang : 'typescript'"
+      />
     </div>
   </ClientOnly>
 </template>
@@ -103,7 +108,11 @@ const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : 
 
 const props = defineProps({
   dev: { type: Boolean },
-  index: Number,
+  name: { type: String, default: '' },
+  index: {
+    type: Number,
+    default: 0,
+  },
   vueTSX: {
     type: String,
     default: '',

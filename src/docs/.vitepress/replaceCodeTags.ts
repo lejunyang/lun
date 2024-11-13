@@ -41,7 +41,9 @@ export function replaceCodeTags(filePath: string, fileContent: string) {
       propResult += ` ${type}Path="${name + suffixReverseMap[type]}"`;
       imports.push(source);
     });
-    return `<Code${isDev ? ' dev' : ''} :index="${codeIndex}" ${propResult}><${componentName}ForSSR /></Code>`;
+    return `<Code${
+      isDev ? ' dev' : ''
+    } name="${name}" :index="${codeIndex}" ${propResult}><${componentName}ForSSR /></Code>`;
   });
   if (!imports.length) return newContent;
   imports.unshift("import { inBrowser } from '@lun-web/utils';");

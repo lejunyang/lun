@@ -9,6 +9,7 @@
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
+import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution.js';
 import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useData } from 'vitepress';
@@ -20,6 +21,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     default: '',
+  },
+  name: {
+    type: String,
+    required: true,
   },
   lang: {
     type: String,
@@ -55,18 +60,19 @@ self.MonacoEnvironment = {
   },
 };
 
-let editor: monacoEditor.IStandaloneCodeEditor;
+let editor: monacoEditor.IStandaloneCodeEditor, model: monacoEditor.ITextModel | null;
 
 onMounted(() => {
+  const { name, lang, modelValue } = props;
+  const uri = Uri.file(`${name}.${lang === 'html' ? lang : 'tsx'}`);
+  model = monacoEditor.getModel(uri);
+  if (!model) {
+    model = monacoEditor.createModel(modelValue, lang, uri);
+  } else model.setValue(modelValue);
   editor = monacoEditor.create(editorRef.value!, {
-    model: monacoEditor.createModel(
-      props.modelValue,
-      props.lang,
-      // when it's typescript, we need to specify the uri so that editor can know it's tsx. Same uri can't be created twice.
-      props.lang === 'typescript' ? Uri.file(`${Date.now()}.tsx`) : undefined,
-    ),
+    model,
     automaticLayout: true,
-    language: props.lang,
+    language: lang,
     theme: isDark.value ? 'vs-dark' : 'vs',
     readOnly: false,
     fontSize: 16,
@@ -115,6 +121,7 @@ watch(
 );
 
 onBeforeUnmount(() => {
+  model?.dispose();
   editor.dispose();
 });
 </script>

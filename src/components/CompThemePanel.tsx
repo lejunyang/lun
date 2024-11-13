@@ -1,4 +1,4 @@
-import { defineComponent, PropType, computed } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import {
   OpenShadowComponentKey,
   GlobalStaticConfig,
@@ -47,7 +47,7 @@ export default defineComponent({
     const items: TabItemObject[] = [
       {
         slot: 'ThemeColors',
-        label: () => locales[lang.value]?.components.themeVariants,
+        label: () => locales[lang.value as keyof typeof locales]?.components.themeVariants,
         panel: () => (
           <div style={gridStyle}>
             <div></div>
@@ -58,8 +58,7 @@ export default defineComponent({
             {variants.map((v) => (
               <div style={cellStyle}>
                 {renderElement(compName, { variant: v, ...props.other })}
-                {props.includeContrast &&
-                  renderElement(compName, { variant: v, ...props.other, highContrast: true })}
+                {props.includeContrast && renderElement(compName, { variant: v, ...props.other, highContrast: true })}
               </div>
             ))}
             <div style={grayTipStyle}>gray color</div>
@@ -81,7 +80,7 @@ export default defineComponent({
       },
       {
         slot: 'AllColors',
-        label: () => locales[lang.value]?.components.colorsVariants,
+        label: () => locales[lang.value as keyof typeof locales]?.components.colorsVariants,
         panel: () => (
           <div style={gridStyle}>
             <div></div>
