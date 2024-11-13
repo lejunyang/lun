@@ -64,12 +64,13 @@ export async function buildDepRequire(code: string) {
     names.push(match[1]);
     match = regexp.exec(code);
   }
-  for (const name of names) {
+  for (const _name of names) {
+    const name = _name as keyof typeof dependencies;
     if (!allowedImport.has(name)) {
       throw new Error(`import "${name}" is not allowed, can be only one of ${Array.from(allowedImport).join(', ')}`);
     }
     if (isFunction(dependencies[name])) {
-      dependencies[name] = await dependencies[name]();
+      dependencies[name] = await (dependencies[name] as Function)();
     }
   }
   return (name: keyof typeof dependencies) => {

@@ -51,7 +51,7 @@ React 中推荐使用`useReactForm`，通过`renderOnUpdate`选项，使得在Re
 - `fullLine`: 字段换行并占据一整行，比 colSpan 优先级更高
 - `preferSubgrid`: 当浏览器支持时，优先使用[`CSS Subgrid`](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid)实现上面的特性，仅在`labelLayout`为`horizontal`的时候有区别
 
-**当为 flex 布局时，上面的属性仅`labelWidth`, `colSpan`和`fullLine`可以使用**
+**当为 flex 布局时，上面的属性仅`labelWidth`, `colSpan`和`fullLine`可以使用**，flex布局在标签为horizontal时表现有点糟糕，建议使用vertical标签，或使用grid布局
 
 :::warning 注
 若浏览器不支持 subgrid 或 `preferSubgrid`为 false 时，则会使用 display: contents，将 label 和 content 视为单独的两列来兼容实现上面的布局，但是有些特性我找不到合适的方法完美兼容。

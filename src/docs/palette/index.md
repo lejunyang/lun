@@ -31,16 +31,19 @@ pageClass: l-palette-page
 </div>
 
 ::: details 使用说明
-得益于[@radix-ui/colors](https://www.radix-ui.com/colors/custom)的优秀色彩设计，我们可以基于某个颜色去生成一系列的颜色：
+得益于[@radix-ui/colors](https://www.radix-ui.com/colors)的优秀色彩设计，我们可以基于某个颜色去生成一系列的颜色：
 
 - 若应用只需某个固定的颜色，那么我们预先挑选颜色并引入生成的样式，从而避免引入所有的颜色，大幅度减少样式体积
 - 若需要用户动态自定义颜色，则需引入`import { importCustomDynamicColors } from '@lun-web/theme/custom'`
-  这会引入全部颜色（约 29kB gzip）加上`colorjs`运行时（约 23kB gzip）。引入后主题属性中的`color`和`grayColor`将可以直接设置为用户选择的颜色，而不仅限于原先的关键字。该功能高度实验性，有待完善
+  这会引入全部颜色（约 29kB gzip）加上`colorjs`运行时（约 23kB gzip）。引入后主题属性中的`color`和`grayColor`将可以直接设置为用户选择的颜色，而不仅限于原先的关键字。该功能高度实验性，有待完善，背景色的自定义还未确定
   :::
 
 <div class="panel">
   <div class="panel-block">
-    <l-input></l-input>
+    <l-input :label="{
+  interval: 2000,
+  values: ['First label', 'very long label very long label very long', 'Third label'],
+}" labelType="carousel"></l-input>
     <l-button variant="solid">Submit</l-button>
   </div>
   <div class="panel-block">
@@ -59,8 +62,15 @@ pageClass: l-palette-page
     style="display: block; width: 100%"
   ></l-callout>
 
-  <l-form style="grid-column: 2" label-layout="vertical">
-    <l-form-item label="Select" element="select"></l-form-item>
+  <l-form style="grid-area: span 2 / 2; align-self: start;" label-layout="vertical" :instance="form">
+    <l-form-item label="Select" name="select" element="select" :elementProps="{ options: groupOptions }"></l-form-item>
+    <l-form-item v-bind="inputItemProps"></l-form-item>
+    <l-form-item no-label>
+      <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 20px;">
+        <l-button variant="ghost">Cancel</l-button>
+        <l-button variant="solid">Submit</l-button>
+      </div>
+    </l-form-item>
   </l-form>
 
   <div class="panel-block" style="grid-area: 2/3; flex-direction: column">
@@ -80,8 +90,9 @@ pageClass: l-palette-page
 
 <script setup lang="ts">
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
-import { text } from 'data';
+import { text, groupOptions } from 'data';
 import { arrayFrom } from '@lun-web/utils';
+import { useForm } from '@lun-web/components'
 
 const scales = arrayFrom(12, (_, i) => i + 1);
 
@@ -114,6 +125,47 @@ const theme = inject<{
   color: string;
   'gray-color': string;
 }>('lun-theme');
+
+const form = useForm({
+  defaultData: {
+    input: 21
+  },
+  defaultFormState: {
+    statusMessages: {
+      input: {
+        error: ['数字必须小于20', '数字必须为偶数'],
+        warning: ['最好在15～20之间'],
+        success: ['数字必须大于10']
+      }
+    }
+  }
+});
+
+const inputItemProps = {
+  type: 'number',
+  name: 'input',
+  element: 'input',
+  elementProps: {
+    stepControl: 'plus-minus',
+  },
+  step: 1,
+  label:"Input",
+  tipType: "newLine",
+  validateWhen: 'update',
+  visibleStatuses: ['error', 'warning', 'success'],
+  validators: (value) => {
+    const moreThan10 = value > 10,
+      lessThan20 = value < 20,
+      even = value % 2 === 0,
+      better = value > 15 && value < 20;
+    return [
+      { message: '数字必须大于10', status: moreThan10 ? 'success' : 'error' },
+      { message: '数字必须小于20', status: lessThan20 ? 'success' : 'error' },
+      better ? null : { message: '最好在15～20之间', status: 'warning' },
+      { message: '数字必须为偶数', status: even ? 'success' : 'error' },
+    ];
+  },
+}
 </script>
 
 <style lang="scss">
@@ -141,7 +193,7 @@ const theme = inject<{
   background: var(--l-color-picker-picked-color, var(--l-accent-a4));
   cursor: pointer;
   border-radius: var(--l-radius-4);
-  outline: 1.5px solid var(--l-accent-gray-a8);
+  outline: 1.5px solid var(--l-color-picker-picked-color, var(--l-accent-a4));
   outline-offset: 2px;
 }
 .gray {

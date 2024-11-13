@@ -82,7 +82,14 @@ export default {
       utils: {
         browser: {
           menu: '浏览器',
-          event: '事件',
+          alias: '别名',
+          support: '特性检测',
+          text: '文本相关',
+          set: 'Set',
+          promise: 'Promise',
+          string: 'String',
+          number: 'Number',
+          time: '时间函数',
         },
       },
       other: {
@@ -201,7 +208,14 @@ export default {
       utils: {
         browser: {
           menu: 'Browser',
-          event: 'Event',
+          alias: 'Alias',
+          support: 'Features detection',
+          text: 'Text',
+          set: 'Set',
+          promise: 'Promise',
+          string: 'String',
+          number: 'Number',
+          time: 'Time',
         },
       },
       other: {

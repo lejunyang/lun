@@ -43,16 +43,35 @@
  *   in custom container, badges, etc.
  * -------------------------------------------------------------------------- */
 
-:root {
+l-theme-provider {
+  --vp-c-brand-1: var(--l-accent-9);
+  --vp-c-brand-2: var(--l-accent-10);
+  --vp-c-brand-3: var(--l-accent-11);
+  --vp-c-brand-soft: var(--l-accent-a3);
+
+  --vp-code-color: var(--vp-c-brand-1);
+  --vp-code-link-color: var(--vp-c-brand-1);
+  --vp-code-link-hover-color: var(--vp-c-brand-2);
+
+  --vp-c-white: var(--l-accent-9-contrast);
+}
+
+l-theme-provider[appearance=dark] {
+  --vp-c-brand-1: var(--l-accent-11);
+  --vp-c-brand-2: var(--l-accent-10);
+  --vp-c-brand-3: var(--l-accent-9);
+}
+
+:root, l-theme-provider {
   --vp-c-default-1: var(--vp-c-gray-1);
   --vp-c-default-2: var(--vp-c-gray-2);
   --vp-c-default-3: var(--vp-c-gray-3);
   --vp-c-default-soft: var(--vp-c-gray-soft);
 
-  --vp-c-brand-1: var(--vp-c-indigo-1);
+  /*--vp-c-brand-1: var(--vp-c-indigo-1);
   --vp-c-brand-2: var(--vp-c-indigo-2);
   --vp-c-brand-3: var(--vp-c-indigo-3);
-  --vp-c-brand-soft: var(--vp-c-indigo-soft);
+  --vp-c-brand-soft: var(--vp-c-indigo-soft); */
 
   --vp-c-tip-1: var(--vp-c-brand-1);
   --vp-c-tip-2: var(--vp-c-brand-2);
@@ -74,7 +93,7 @@
  * Component: Button
  * -------------------------------------------------------------------------- */
 
-:root {
+:root, l-theme-provider {
   --vp-button-brand-border: transparent;
   --vp-button-brand-text: var(--vp-c-white);
   --vp-button-brand-bg: var(--vp-c-brand-3);
@@ -114,7 +133,7 @@
  * Component: Custom Block
  * -------------------------------------------------------------------------- */
 
-:root {
+:root, l-theme-provider {
   --vp-custom-block-tip-border: transparent;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
   --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
