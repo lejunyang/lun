@@ -1,4 +1,4 @@
-import { ExtractPropTypes } from 'vue';
+import { ExtractPropTypes, CSSProperties } from 'vue';
 import {
   GetEventPropsFromEmits,
   editStateProps,
@@ -12,6 +12,7 @@ import {
   CommonProps,
   undefBoolProp,
   createEmits,
+  PropObjOrStr,
 } from 'common';
 import type { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun-web/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
@@ -25,6 +26,7 @@ export interface FormValidators {
 export const formProps = freeze({
   ...editStateProps,
   ...themeProps,
+  rootStyle: PropObjOrStr<string | CSSProperties>(),
   // intent to use prop `form` originally, but found `form` will be considered as a string attribute. It's vue's behavior, see vuejs/core/packages/runtime-dom/src/patchProp.ts. use `instance` instead
   instance: PropObject<MaybeRefLikeOrGetter<UseFormReturn>>(),
   defaultData: PropObject(),

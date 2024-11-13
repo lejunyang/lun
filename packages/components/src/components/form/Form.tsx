@@ -17,7 +17,7 @@ export const Form = defineSSRCustomElement({
   name,
   props: formProps,
   emits: formEmits,
-  setup(props, { emit, attrs }) {
+  setup(props, { emit }) {
     const ns = useNamespace(name);
     const vm = getCurrentInstance()!, { ce } = vm;
 
@@ -194,7 +194,7 @@ export const Form = defineSSRCustomElement({
           ref={formRef}
           class={stateClass.value}
           part={compParts[0]}
-          style={normalizeStyle([layoutInfo.value.formStyle, attrs.style])}
+          style={normalizeStyle([layoutInfo.value.formStyle, props.rootStyle])}
         >
           <slot></slot>
           {renderErrorTooltip()}
