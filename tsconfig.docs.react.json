@@ -4,11 +4,14 @@
     "baseUrl": ".",
     "jsx": "preserve",
     "jsxImportSource": "react",
-    "types": ["./packages/components/dist/elements-types-react"],
+    "types": [
+      "./packages/components/dist/elements-types-react.d.ts",
+      "./packages/components/dist/elements-types-html.d.ts"
+    ],
     "paths": {
       "data": ["./src/utils/data.ts"],
       "@lun-web/components": ["./packages/components/index.ts"],
-      "@lun-web/core": ["./packages/core/index.ts"]
+      "@lun-web/core": ["./packages/core/index.ts"],
     }
   },
   "include": ["src/docs/**/*.react.tsx"]

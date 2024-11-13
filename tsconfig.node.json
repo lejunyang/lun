@@ -11,6 +11,9 @@
     "./vitest.workspace.ts",
     "./packages/*/vite.config.ts",
     "./utils/getViteConfig.ts",
-    "./utils/vitePlugin.ts"
+    "./utils/vitePlugin.ts",
+    "./src/docs/.vitepress/config.ts",
+    "./src/docs/.vitepress/locales.ts",
+    "./src/docs/.vitepress/replaceCodeTags.ts"
   ]
 }

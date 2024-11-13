@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "references": [
     {
-      "path": "./tsconfig.docs.json"
+      "path": "./tsconfig.docs.react.json"
     },
     {
       "path": "./tsconfig.node.json"
@@ -18,6 +18,8 @@
       "@vitest/browser/providers/playwright",
       "vite/client",
       "./global.d.ts",
+      "./packages/components/dist/elements-types-vue.d.ts",
+      "./packages/components/src/types/vue-type-fix.d.ts"
     ],
     "paths": {
       "@lun-web/components": ["./packages/components/index.ts"],
@@ -34,9 +36,20 @@
       "@lun-web/theme": ["./packages/theme/src/index.ts"],
       "@lun-web/theme/custom": ["./packages/theme/src/custom/custom.ts"],
       "@lun-web/react": ["./packages/react/index.ts"],
-      "@lun-web/utils": ["./packages/utils/index.ts"]
+      "@lun-web/utils": ["./packages/utils/index.ts"],
+      "data": ["./src/utils/data.ts"], // for docs
     }
   },
-  "include": ["./packages/**/*.ts", "./packages/**/*.tsx", "./utils/testSetup.ts"],
+  "include": [
+    "./packages/**/*.ts",
+    "./packages/**/*.tsx",
+    "./utils/testSetup.ts",
+    "./src/utils/*.ts",
+    "./src/components/*",
+    "./src/docs/.vitepress/theme/*.ts",
+    "./src/docs/.vitepress/locales.ts",
+    "./src/docs/**/*.vue.tsx",
+    "./packages/components/dist/elements-types-vue.d.ts"
+  ],
   "exclude": ["*.config.ts"]
 }
