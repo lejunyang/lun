@@ -17,11 +17,11 @@ $color-list: (
     'violet' 'iris' 'indigo' 'blue' 'cyan' 'teal' 'jade' 'green' 'grass' 'lime' 'mint' 'sky'
 ) !default;
 $contrast-color-map: (
-  sky: #1c2024,
-  mint: #1a211e,
-  lime: #1d211c,
-  yellow: #21201c,
-  amber: #21201c,
+  'amber': #21201c,
+  'lime': #1d211c,
+  'sky': #1c2024,
+  'mint': #1a211e,
+  'yellow': #21201c, // must add quota because yellow is a keyword color!
 ) !default;
 $color-name: 'color' !default;
 $accent-name: 'accent' !default;
