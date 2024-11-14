@@ -1,5 +1,21 @@
 # @lun-web/components
 
+## 0.0.1-alpha.4
+
+### Patch Changes
+
+### Features
+
+- `tree`: trigger `update` event whenever check, select or expand are triggered
+
+### Changes
+
+- `form`: add `rootStyle` prop, its inline style will not be assigned to the root element of the form.
+
+### Bug Fixes
+
+- `watermark`: fix wrong color when appearance is dark; fix that style observation is invalid
+
 ## 0.0.1-alpha.3
 
 ### Features
@@ -8,6 +24,7 @@
 - `components/dialog`: add custom renderer for header, remove `title` prop
 - `components/message`: support string param for `Message.open`
 - `components/switch`: add `beforeUpdate` to asynchronously determine whether to update checked status
+
 ### Changes
 
 - `colorPriority` of `GlobalStaticConfig`:
