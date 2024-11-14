@@ -66,7 +66,7 @@ export const measureTextWidth = (() => {
     let width = 0;
     if (inBrowser) {
       const { tabSize = 8 } = style || getCachedComputedStyle(document.body);
-      const tabSpace = ' '.repeat(Number(tabSize));
+      const tabSpace = ' '.repeat(Number(tabSize)); // FIXME what if tabSize is px?
       const ctx = getCanvasContext();
       Object.assign(ctx, getCanvasTextStyle(style));
       width = ctx.measureText(text.replace(/\t/g, tabSpace)).width;

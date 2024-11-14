@@ -228,7 +228,7 @@ const render = () => <l-button ref={buttonRef}></l-button>;
 
 **Javascript**
 
-- <Support is="promiseTry" /> [Promise.try](https://caniuse.com/?search=Promise.try) <SupportInfo chrome="128" edge="128" firefox="134" safari="no" />
+- <Support is="promiseTry" /> [Promise.try](https://caniuse.com/?search=Promise.try) <SupportInfo chrome="128" edge="128" firefox="135" safari="18.2" />
 - <Support is="withResolvers" /> [Promise.withResolvers](https://caniuse.com/?search=withResolvers) <SupportInfo chrome="119" edge="119" firefox="121" safari="17.4" />
 - <Support is="setIntersection" /> [Set.intersection](https://caniuse.com/?search=Set%20intersection) <SupportInfo chrome="122" edge="122" firefox="127" safari="17" />
 

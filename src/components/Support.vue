@@ -7,7 +7,7 @@ import { computed } from 'vue';
 import { supportCSSContentVisibility } from '../../packages/utils/src/browser/support';
 import {
   isSupportCSSStyleSheet,
-  isSupportFileSystemAccess,
+  supportFileSystemAccess,
   isSupportSlotAssign,
   supportCSSLayer,
   supportDialog,
@@ -28,7 +28,7 @@ const features = {
   slotAssign: isSupportSlotAssign(),
   inputCancel: 'unknown',
   popover: supportPopover,
-  showOpenFilePicker: isSupportFileSystemAccess(),
+  showOpenFilePicker: supportFileSystemAccess,
   getComposedRanges: typeof Selection !== 'undefined' && 'getComposedRanges' in Selection.prototype,
   anchorPosition: supportCSSAnchor,
   layer: supportCSSLayer,

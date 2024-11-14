@@ -6,13 +6,13 @@ const supportIntersect = getSupport('intersection'),
   supportDiff = getSupport('difference'),
   supportUnion = getSupport('union');
 
-export function intersectionOfSets(set1: Set<any>, set2: Set<any>) {
+export function intersectionOfSets<T1, T2>(set1: Set<T1>, set2: Set<T2>): Set<T1 & T2> {
   if (supportIntersect) {
     // @ts-ignore
     return set1.intersection(set2) as Set<any>;
   } else {
     let smaller: Set<any>;
-    const res = new Set(),
+    const res = new Set<any>(),
       bigger = set1.size > set2.size ? ((smaller = set2), set1) : ((smaller = set1), set2);
     for (const item of smaller) {
       if (bigger.has(item)) res.add(item);
@@ -32,7 +32,7 @@ function _process(set1: Set<any>, set2: Set<any>, /** 1: clone bigger one; falsy
   return [smallerOne, clone ? new Set(biggerOne) : biggerOne, set1] as const;
 }
 
-export function differenceOfSets<T extends Set<any>>(set1: T, set2: T): T {
+export function differenceOfSets<T>(set1: Set<T>, set2: Set<unknown>): Set<T> {
   if (supportDiff) {
     // @ts-ignore
     return set1.difference(set2) as T;
@@ -41,7 +41,7 @@ export function differenceOfSets<T extends Set<any>>(set1: T, set2: T): T {
     for (const item of smaller) {
       if (bigger.has(item)) res.delete(item);
     }
-    return res as T;
+    return res;
   }
 }
 

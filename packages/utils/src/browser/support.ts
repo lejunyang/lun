@@ -10,6 +10,8 @@ export const isSupportCSSStyleSheet = cacheFunctionResult(
 
 export const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
+const secure = inBrowser && isSecureContext;
+
 export const supportPopover = inBrowser && 'popover' in HTMLElement.prototype;
 
 export const supportDialog = typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype;
@@ -21,8 +23,8 @@ export const isInputSupportPicker = cacheFunctionResult(
 );
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
-export const isSupportFileSystemAccess = cacheFunctionResult(() => {
-  if (!inBrowser) return;
+export const supportFileSystemAccess = (() => {
+  if (!secure) return false;
   // ToDo: Remove this check once Permissions Policy integration
   // has happened, tracked in
   // https://github.com/WICG/file-system-access/issues/245.
@@ -37,10 +39,10 @@ export const isSupportFileSystemAccess = cacheFunctionResult(() => {
       return false;
     }
   }
-  return 'showOpenFilePicker' in self && isSecureContext;
-});
+  return 'showOpenFilePicker' in self;
+})();
 
-export const supportClipboard = inBrowser && isSecureContext && navigator.clipboard;
+export const supportClipboard = secure && navigator.clipboard;
 
 export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === 'function');
 
@@ -65,10 +67,10 @@ export const isSupportCheckVisibility = cacheFunctionResult(
 );
 
 export const supportDocumentPictureInPicture =
+  secure &&
   typeof documentPictureInPicture === 'object' &&
   documentPictureInPicture &&
-  isFunction(documentPictureInPicture.requestWindow) &&
-  isSecureContext;
+  isFunction(documentPictureInPicture.requestWindow);
 
 export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);
 

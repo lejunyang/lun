@@ -166,27 +166,28 @@ function internalRaf(
   callback: FrameRequestCallback,
   frames = 1,
   time: DOMHighResTimeStamp,
-  shouldCancel?: () => boolean,
+  shouldCancel?: () => any,
+  notCompose?: number,
 ) {
-  let localCanceled = false;
-  shouldCancel ||= () => localCanceled;
+  let localCanceled = 0;
+  const finalShouldCancel = notCompose ? shouldCancel : () => localCanceled || shouldCancel?.();
   if (!frames || frames < 0) {
-    !shouldCancel() && callback(time);
+    !finalShouldCancel?.() && callback(time);
     return noop;
   }
   const id = requestAnimationFrame((t) => {
-    if (shouldCancel!()) return;
-    internalRaf(callback, frames - 1, t, shouldCancel);
+    if (finalShouldCancel?.()) return;
+    internalRaf(callback, frames - 1, t, finalShouldCancel, 1);
   });
   return () => {
-    localCanceled = true;
+    localCanceled = 1;
     cancelAnimationFrame(id);
   };
 }
 
-export function rafThrottle<T extends (...args: any[]) => any>(callback: T, frames = 1, shouldCancel?: () => boolean) {
+export function rafThrottle<T extends (...args: any[]) => any>(func: T, frames = 1, shouldCancel?: () => boolean) {
   let queuedCallback: T | null;
-  if (frames < 0 || !frames) return callback;
+  if (frames < 0 || !frames) return func;
   return function (this: ThisType<T>, ...args: any[]) {
     if (!queuedCallback) {
       raf(
@@ -198,6 +199,6 @@ export function rafThrottle<T extends (...args: any[]) => any>(callback: T, fram
         shouldCancel,
       );
     }
-    queuedCallback = callback;
+    queuedCallback = func;
   } as T;
 }
