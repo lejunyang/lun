@@ -1,6 +1,6 @@
-import { ToAllMaybeRefLike, useCheckboxMethods, useSet, useWeakMap, useWeakSet, watchOnMounted } from '@lun-web/core';
+import { ToAllMaybeRefLike, useCheckboxMethods, useSet, useWeakMap, useWeakSet } from '@lun-web/core';
 import { at } from '@lun-web/utils';
-import { ComputedRef, watch } from 'vue';
+import { ComputedRef, onMounted, watch } from 'vue';
 import { createCount, getLevel, getValue, isLeafChild, isDisabled, Item, getChildren, getParent } from './tree.common';
 
 export function useTreeCheckMethods(
@@ -99,7 +99,9 @@ export function useTreeCheckMethods(
     replaceCheckedCount(checkedChildrenCountMap);
     replaceDisabledCount(disabledChildrenCountMap);
   };
-  watchOnMounted(() => childrenInfo.items, correctChecked, { immediate: true });
+  onMounted(() => {
+    watch(() => childrenInfo.items, correctChecked, { immediate: true });
+  });
   watch(current, (currentChecked) => {
     if (currentChecked !== correctedCheckedSet.value) {
       correctChecked(childrenInfo.items); // TODO items props with initial checked, see if intermediate is correct

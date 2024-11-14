@@ -1,7 +1,5 @@
-import { AnyFn, Fn, noop } from '@lun-web/utils';
-import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallowRef, watch, watchEffect } from 'vue';
-
-// from vue/use
+import { Fn } from '@lun-web/utils';
+import { getCurrentInstance, getCurrentScope, onMounted, onScopeDispose, shallowRef } from 'vue';
 
 export function useMounted() {
   const result = shallowRef(false);
@@ -16,22 +14,6 @@ export function tryOnScopeDispose(fn: Fn) {
   }
   return false;
 }
-
-const createWatchOnMounted =
-  <W extends AnyFn>(watch: W): ((...params: Parameters<W>) => void) =>
-  (...args) => {
-    const scope = getCurrentScope()!;
-    let stop = noop;
-    getCurrentInstance() &&
-      onMounted(() => {
-        scope.run(() => (stop = watch(...args)));
-      });
-    return () => stop();
-  };
-
-export const watchEffectOnMounted = createWatchOnMounted(watchEffect) as typeof watchEffect;
-
-export const watchOnMounted = createWatchOnMounted(watch) as typeof watch;
 
 export const useCleanUp = () => {
   let cleanups: ((() => void) | false | null | undefined)[] = [];

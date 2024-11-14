@@ -9,7 +9,7 @@ import type {
   AutoUpdateOptions,
 } from '@floating-ui/dom';
 import { autoUpdate, computePosition } from '@floating-ui/vue';
-import { computed, CSSProperties, ref, shallowReadonly, shallowRef, unref, watch, watchEffect } from 'vue';
+import { computed, CSSProperties, onMounted, ref, shallowReadonly, shallowRef, unref, watch, watchEffect } from 'vue';
 import type { UseFloatingOptions } from '@floating-ui/vue';
 import {
   offset as pluginOffset,
@@ -19,7 +19,7 @@ import {
   limitShift,
 } from '@floating-ui/vue';
 import { getCachedComputedStyle, getDPR, isFunction, roundByDPR, toPxIfNum } from '@lun-web/utils';
-import { MaybeRefLikeOrGetter, unrefOrGet, useCleanUp, VirtualElement, watchEffectOnMounted } from '@lun-web/core';
+import { MaybeRefLikeOrGetter, unrefOrGet, useCleanUp, VirtualElement } from '@lun-web/core';
 import { referenceRect } from './floating.store-rects';
 import { insetReverseMap } from './popover.anchor-position';
 
@@ -213,7 +213,7 @@ export function useFloating(
     flush: 'sync' as const,
   };
   watch([middleware, placementOption, strategyOption], update, watchOption);
-  watchEffectOnMounted(attach, watchOption);
+  onMounted(() => watchEffect(attach, watchOption));
   watch(openOption, reset, watchOption);
 
   return {
