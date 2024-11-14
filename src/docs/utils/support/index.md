@@ -18,7 +18,7 @@ import { isSupportElementInternals, supportCSSAutoHeightTransition } from '@lun-
 - `inBrowser`: 是否在浏览器环境中
 - `supportClipboard`: 是否支持Clipboard API
 - `supportDocumentPictureInPicture`: 是否支持Document Picture-in-Picture API
-- `isSupportFileSystemAccess`: 是否支持FileSystem Access API
+- `supportFileSystemAccess`: 是否支持FileSystem Access API
 
 ## HTML
 
@@ -46,7 +46,7 @@ import { isSupportElementInternals, supportCSSAutoHeightTransition } from '@lun-
 - `supportCSSLayer`: 是否支持@layer
 - `supportCSSSubgrid`: 是否支持Subgrid
 
-## 媒体监测
+## 媒体检测
 
 - `isPreferDark`: 用户是否偏向暗色主题
 

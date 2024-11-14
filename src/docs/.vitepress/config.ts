@@ -180,26 +180,26 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           text: locales[lang].sidebar.utils.browser.menu,
           collapsed: false,
           items: [
-            { text: locales[lang].sidebar.utils.browser.alias, link: wrapLink('/utils/alias/', lang) },
             { text: locales[lang].sidebar.utils.browser.support, link: wrapLink('/utils/support/', lang) },
             { text: locales[lang].sidebar.utils.browser.text, link: wrapLink('/utils/text/', lang) },
+            { text: locales[lang].sidebar.utils.browser.alias, link: wrapLink('/utils/alias/', lang) },
           ],
         },
         {
-          text: locales[lang].sidebar.utils.set,
-          link: wrapLink('/utils/set/', lang),
-        },
-        {
-          text: locales[lang].sidebar.utils.promise,
-          link: wrapLink('/utils/promise/', lang),
+          text: locales[lang].sidebar.utils.number,
+          link: wrapLink('/utils/number/', lang),
         },
         {
           text: locales[lang].sidebar.utils.string,
           link: wrapLink('/utils/string/', lang),
         },
         {
-          text: locales[lang].sidebar.utils.number,
-          link: wrapLink('/utils/number/', lang),
+          text: locales[lang].sidebar.utils.promise,
+          link: wrapLink('/utils/promise/', lang),
+        },
+        {
+          text: locales[lang].sidebar.utils.set,
+          link: wrapLink('/utils/set/', lang),
         },
         {
           text: locales[lang].sidebar.utils.time,

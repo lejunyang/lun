@@ -18,7 +18,7 @@ const getDependencyReleaseLine = async () => {
   return '';
 };
 
-export default {
+module.exports = {
   getReleaseLine,
   getDependencyReleaseLine,
 };
