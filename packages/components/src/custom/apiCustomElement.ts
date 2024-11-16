@@ -37,13 +37,13 @@ import { preprocessComponentOptions } from '../utils/component'; // don't import
 import {
   hyphenate,
   toNumberIfValid,
-  isFunction,
   isCSSStyleSheet,
   copyCSSStyleSheetsIfNeed,
   freeze,
   isArray,
   objectKeys,
   createElement,
+  runIfFn,
 } from '@lun-web/utils';
 import { virtualParentMap } from './virtualParent';
 
@@ -275,7 +275,6 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   private _ob?: MutationObserver | null = null;
   private _pendingResolve: Promise<void> | undefined;
   private _parent: VueElement | undefined;
-  private _skipRemoveSet = new Set<string>();
   // below three are vue' official support for non-shadowRoot custom element, we don't use that
   /**
    * dev only
@@ -340,13 +339,17 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     // }
     this._connected = true;
 
-    const parent = (this._parent = this._findParent());
-    if (isFunction(this._def.onConnected)) this._def.onConnected(this, parent);
+    const parent = this._findParent(),
+      parentChanged = parent !== this._parent;
+    this._parent = parent;
 
-    if (!this._instance) {
+    runIfFn(this._def.onConnected, this, parent);
+
+    if (this._instance && parentChanged) this._unmount();
+    if (!this._instance || parentChanged) {
       if (this._resolved) {
-        this._observe();
-        this._mount(this._def);
+        if (!this._instance) this._observe(); // previously fully unmounted
+        this._mount();
       } else {
         if (parent?._pendingResolve) {
           this._pendingResolve = parent._pendingResolve.then(() => {
@@ -360,6 +363,12 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     }
   }
 
+  private _unmount() {
+    this._app?.unmount();
+    if (this._instance) this._instance.ce = undefined;
+    this._app = this._instance = null;
+  }
+
   disconnectedCallback() {
     this._connected = false;
     nextTick(() => {
@@ -369,22 +378,18 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
           this._ob.disconnect();
           this._ob = null;
         }
-        // unmount
-        this._app && this._app.unmount();
-        if (this._instance) this._instance.ce = undefined;
-        this._app = this._instance = null;
+        this._unmount();
       }
     });
   }
 
   private _observe() {
-    if (this._ob) return;
-    this._ob = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        this._setAttr(m.attributeName!);
-      }
-    });
-
+    if (!this._ob)
+      this._ob = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          this._setAttr(m.attributeName!);
+        }
+      });
     this._ob.observe(this, { attributes: true });
   }
 
@@ -434,7 +439,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
       this._applyStyles(styles);
 
       // initial mount
-      this._mount(def);
+      this._mount();
     };
 
     const asyncDef = (this._def as ComponentOptions).__asyncLoader;
@@ -445,12 +450,8 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     }
   }
 
-  private _mount(def: InnerComponentDef) {
-    // __FEATURE_PROD_DEVTOOLS__
-    if (__DEV__ && !def.name) {
-      // @ts-expect-error
-      def.name = 'VueElement';
-    }
+  private _mount() {
+    const def = this._def;
     this._app = this._createApp(def);
     if (def.configureApp) {
       def.configureApp(this._app);
@@ -505,10 +506,6 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     const has = this.hasAttribute(key);
     const camelKey = camelize(key);
     let value: any = has ? this.getAttribute(key) : REMOVAL;
-    if (this._skipRemoveSet.has(camelKey)) {
-      if (value === REMOVAL) return;
-      else this._skipRemoveSet.delete(camelKey);
-    }
     if (has) {
       if (attrTransform) value = attrTransform(key, value, this);
       else if (this._numberProps?.[camelKey]) value = toNumberIfValid(value);
@@ -537,22 +534,21 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
           this._app._ceVNode!.key = val;
         }
       }
-      if (isFunction(this._def.onPropUpdate)) {
-        if (this._def.onPropUpdate(key, val, this) === false) return;
-      }
+      if (runIfFn(this._def.onPropUpdate, key, val, this) === false) return;
       if (shouldUpdate && this._instance) {
         this._update();
       }
       // reflect
       if (shouldReflect) {
+        this._ob?.disconnect();
         if (val === true) {
           this.setAttribute(hyphenate(key), '');
         } else if (typeof val === 'string' || typeof val === 'number') {
           this.setAttribute(hyphenate(key), val + '');
         } else if (!val) {
-          this._skipRemoveSet.add(key);
           this.removeAttribute(hyphenate(key));
         }
+        this._observe();
       }
     }
   }
@@ -607,7 +603,7 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
         };
 
         this._setParent();
-        if (isFunction(this._def.onCE)) this._def.onCE(instance, this, this._parent);
+        runIfFn(this._def.onCE, instance, this, this._parent);
       };
     }
     return vnode;
