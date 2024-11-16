@@ -1,5 +1,5 @@
 import { createUnrefCalls, objectComputed, unrefOrGetState, useEdit } from '@lun-web/core';
-import { createBinds, fromObject, hyphenate, pick, runIfFn } from '@lun-web/utils';
+import { createBinds, fromObject, hyphenate, objectKeys, pick, runIfFn } from '@lun-web/utils';
 import {
   MaybeRef,
   Ref,
@@ -9,6 +9,7 @@ import {
   isRef,
   onBeforeUnmount,
   onMounted,
+  onUnmounted,
   watchEffect,
 } from 'vue';
 import { useDefinedNameSpace } from './useNameSpace';
@@ -23,8 +24,14 @@ export const useCE = () => getCurrentInstance()!.ce! as VueElement;
  */
 export function useCEExpose(expose: Record<string | symbol, any>, extraDescriptors?: PropertyDescriptorMap) {
   const CE = useCE();
+  const keys = objectKeys(expose).concat(objectKeys(extraDescriptors || {}) as string[]);
   Object.defineProperties(CE, Object.getOwnPropertyDescriptors(expose));
   if (extraDescriptors) Object.defineProperties(CE, extraDescriptors);
+  onUnmounted(() => {
+    keys.forEach((k) => {
+      delete CE[k as keyof typeof CE];
+    });
+  });
 }
 
 let mustAddPrefixForCustomState: boolean | null = null; // in chromium 90~X, need to add '--' prefix for custom state or it will throw an error

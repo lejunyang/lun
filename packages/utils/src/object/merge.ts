@@ -6,6 +6,7 @@ import { AnyFn } from '../type';
 import { fromObject } from './process';
 import { runIfFn } from '../function';
 import { arrayFrom } from '../array';
+import { defaultProperties } from './_internal';
 
 // /**
 //  * property of `source` will overwrite target only when related property of `target` is null or undefined\
@@ -220,13 +221,6 @@ function getKeys<T extends (Record<string | symbol, any> | null | undefined)[]>(
   );
 }
 
-const getOwnPropertyDescriptor = () => {
-  return {
-    enumerable: true,
-    configurable: true,
-  };
-};
-
 export function createVirtualMerge<ReadOnly extends boolean = false>(
   handlerGetter: (...targets: any[]) => Omit<ProxyHandler<any>, 'get' | 'ownKeys' | 'getOwnPropertyDescriptor'>,
   transformTarget: (target: any) => any = (i) => i,
@@ -249,7 +243,7 @@ export function createVirtualMerge<ReadOnly extends boolean = false>(
           return keys;
         },
         // the result can be spread only when using getOwnPropertyDescriptor and ownKeys together
-        getOwnPropertyDescriptor,
+        getOwnPropertyDescriptor: () => defaultProperties,
       },
     ) as ReadOnly extends true ? Readonly<MergeObjects<T>> : MergeObjects<T>;
   };

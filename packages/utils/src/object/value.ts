@@ -1,5 +1,6 @@
 import { isArray, isObject } from '../is';
 import { stringToPath } from '../string';
+import { defaultProperties } from './_internal';
 import { MergeObjects } from './merge';
 
 export interface ObjectGet {
@@ -132,6 +133,7 @@ export function toGetterDescriptors<
   for (const key in target) {
     const newKey = (propertiesMap as any)?.[key] || key;
     descriptors[newKey] = {
+      ...defaultProperties,
       get() {
         return get(obj, isKeys ? newKey : key as any);
       },

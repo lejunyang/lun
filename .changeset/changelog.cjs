@@ -1,3 +1,5 @@
+// https://github.com/changesets/changesets/blob/main/packages/changelog-github/src/index.ts get Contributor
+
 /**
  *
  * @param {import('@changesets/types').NewChangesetWithCommit} changeset
