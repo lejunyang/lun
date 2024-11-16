@@ -89,7 +89,7 @@ export function getViteConfig(name: string, { version }: { version: string }, vi
           ...viteConfig?.build?.rollupOptions?.output,
           banner: `/**
 * ${name} v${version}
-* Copyright (c) 2023 lejunyang
+* Copyright (c) 2023 - present lejunyang
 * @license MIT
 **/`,
           globals: {

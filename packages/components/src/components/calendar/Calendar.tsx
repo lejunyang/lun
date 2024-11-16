@@ -202,7 +202,7 @@ export const Calendar = defineSSRCustomElement({
       let { shortWeekDays, monthBeforeYear, mini } = props;
       shortWeekDays ||= runIfFn(getShortWeekDays) || [];
       const weekFirstDay = getWeekFirstDay(),
-        view = viewDate.value;
+        view = viewDate.value!;
       const pickingDate = pickingType.value === 'date';
       const yearMonth = [
         <button class={[ns.e('year'), ns.e('info-btn')]} data-method="showYearPanel">

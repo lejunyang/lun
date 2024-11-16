@@ -82,7 +82,7 @@ export type UseDatePanelOptions = ToAllMaybeRefLike<
     enableNextCells?: boolean;
     value: DateValueType | DateValueType[] | [DateValueType, DateValueType][];
   }> & {
-    viewDate: Ref<DateValueType> | WritableComputedRef<DateValueType>;
+    viewDate: Ref<DateValueType | undefined> | WritableComputedRef<DateValueType | undefined>;
     format?: string;
     showTime?: boolean;
     use12Hours?: boolean;
@@ -255,7 +255,10 @@ export function useDatePanel(options: UseDatePanelOptions) {
       values = unrefOrGet(value);
     return multiple && range
       ? isArray(values)
-        ? (values.map((v) => formatRangeValue(v)).filter((i) => i.length) as [DateValueType, DateValueType][])
+        ? ((values as unknown[]).map((v) => formatRangeValue(v)).filter((i) => i.length) as [
+            DateValueType,
+            DateValueType,
+          ][])
         : []
       : null;
   });
@@ -264,7 +267,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
       values = unrefOrGet(value);
     return !multiple && range ? formatRangeValue(values) : null;
   });
-  const values = computed(() => ensureArray(unrefOrGet(value)).map((v) => parse(v)));
+  const values = computed(() => ensureArray(unrefOrGet(value)).map((v) => parse(v)) as DateValueType[]);
   // --- values ---
 
   const isInRange = (target: DateValueType, range: DateValueType[]) =>
@@ -396,7 +399,7 @@ export function useDatePanel(options: UseDatePanelOptions) {
   const createMethod = (next: boolean, type?: BaseDateType, offset?: number) => async () => {
     const [t, _offset] = getPanelOffset();
     await runIfFn(beforeViewChange, next ? 1 : -1);
-    viewDate.value = typeAdd(type ?? t, viewDate.value, (offset ?? _offset) * (next ? 1 : -1));
+    viewDate.value = typeAdd(type ?? t, viewDate.value!, (offset ?? _offset) * (next ? 1 : -1));
     direction.value = next ? 'right' : 'left';
   };
   const getIndexOfType = (type: DatePanelType) => panelTypes.findIndex((t) => t === type);
