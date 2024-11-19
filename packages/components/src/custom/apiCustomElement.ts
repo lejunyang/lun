@@ -44,6 +44,7 @@ import {
   objectKeys,
   createElement,
   runIfFn,
+  isConnected,
 } from '@lun-web/utils';
 import { virtualParentMap } from './virtualParent';
 
@@ -334,6 +335,8 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
   }
 
   connectedCallback() {
+    if (!isConnected(this)) return; // this can happen when connectedCallback is enqueued into microtask queue, but not been executed yet, and then disconnected
+
     // if (!this.shadowRoot) {
     //   this._parseSlots();
     // }
