@@ -18,9 +18,12 @@ lang: zh-CN
 
 根据需要并安装对应的库
 
-- 如果只需要组件，样式完全自定义的话，直接安装`@lun-web/components`即可
-- 如果需要主题，只需安装`@lun-web/theme`
-- 在 React 中使用需额外安装`@lun-web/react`，使用其导出的组件
+```shell
+npm i vue # 虽然vue从3.2开始支持自定义元素，但最好使用最新版，中间修复了很多相关问题
+npm i @lun-web/components
+npm i @lun-web/theme # 如果需要主题，则安装此库
+npm i @lun-web/react # 如果在React中使用且早于 React 19，则额外安装此库并使用其导出的组件
+```
 
 ## React 中使用
 
@@ -97,24 +100,29 @@ autoDefine();
 
 ```js
 import { defineButton } from '@lun-web/components';
-import {
-  importButtonBasicTheme,
-  importButtonSurfaceTheme,
-} from '@lun-web/theme';
-```
+import "@lun-web/components/define/theme-provider"; // 也可以直接通过import副作用来调用
 
-每个组件都导出了单独的 define 函数，用于单独引入该组件，没有使用的组件最终不会被打包，每个组件的主题也单独提供了 import 函数。
-组件的 define 函数可以单独对该组件以及它依赖的组件进行命名，而不是使用默认命名，例如
-
-```js
-importButtonBasicTheme();
-importButtonSurfaceTheme();
 // 第二个参数用于给该组件依赖的组件自定义命名
 defineButton('my-button', {
   spin: 'my-spin',
 });
 
-// 此后你便可以直接使用<my-button></my-button>和<my-spin></my-spin>了
+// 此后你便可以直接使用<my-button></my-button>, <my-spin></my-spin>以及<l-theme-provider></l-theme-provider>
+```
+
+每个组件都导出了单独的 define 函数，用于单独引入该组件，没有使用的组件最终不会被打包。
+
+第一个参数用于指定该组件命名，第二个参数用于指定其依赖的组件命名，不传参则是使用默认命名（全局配置）
+
+每个组件的主题提供了单独的 import 函数
+
+```js
+import {
+  importButtonBasicTheme,
+  importButtonSurfaceTheme,
+} from '@lun-web/theme';
+importButtonBasicTheme();
+importButtonSurfaceTheme();
 ```
 
 主题的引入除了组件维度的单独引入，还可以根据类型直接全部引入
@@ -135,6 +143,28 @@ import {
 
 需要这么做的原因是，大部分组件都有继承关系，部分状态由父组件提供。在 SSR 场景下，页面上的元素已经存在，如果子组件先被定义，此时它无法探测到父组件（组件未被定义时是无效组件），等父组件再被定义时子组件也不会被更新，便会出现问题
 :::
+
+## CDN引入
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@lun-web/utils/dist/lun-web-utils.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@lun-web/core/dist/lun-web-core.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@lun-web/plugins/dist/lun-web-plugins-vue.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@lun-web/components/dist/lun-web-components.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@lun-web/theme/dist/lun-web-theme.iife.js"></script>
+```
+
+CDN直接引入只提供开发打包版本，不建议在生产环境使用，引入后在全局即可访问
+
+```html
+<script>
+  LunWebTheme.importAllColors();
+  LunWebTheme.importAllP3Colors();
+  LunWebTheme.importAllThemes();
+  LunWebComponents.defineAllComponents();
+</script>
+```
 
 ## TS 支持
 
