@@ -1,5 +1,15 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
-import { inBrowser, isFunction, onOnce, withResolvers } from '@lun-web/utils';
+import {
+  createElement,
+  inBrowser,
+  isConnected,
+  isFunction,
+  onOnce,
+  supportCSSContainer,
+  supportCSSLayer,
+  supportCSSScope,
+  withResolvers,
+} from '@lun-web/utils';
 import * as data from './data';
 import { registerCustomRenderer } from '@lun-web/components';
 
@@ -105,6 +115,39 @@ export async function buildDepRequire(code: string) {
   };
 }
 
+let activeCodeBlock = '',
+  setScopeStyle: ((style: string) => void) | undefined;
+const blockStyleMap = new Map<string, HTMLStyleElement>();
+export function setActiveCodeBlock(name: string, _setScopeStyle?: (style: string) => void) {
+  activeCodeBlock = name;
+  if (!name) return;
+  setScopeStyle = _setScopeStyle;
+  applyStyle(); // clear previous style
+}
+
+export function unmountCodeBlock(name: string) {
+  const style = blockStyleMap.get(name);
+  if (style) style.remove();
+}
+
+const setStyle = (style: string) => {
+  let styleEl = blockStyleMap.get(activeCodeBlock);
+  if (!styleEl) blockStyleMap.set(activeCodeBlock, (styleEl = createElement('style')));
+  styleEl.textContent = style;
+  if (!isConnected(styleEl)) document.head.appendChild(styleEl);
+  return styleEl;
+};
+
+export function applyStyle(style?: string) {
+  if (!activeCodeBlock) return;
+  if (supportCSSScope && setScopeStyle) setScopeStyle(style ? `@scope {${style}}` : '');
+  else if (supportCSSContainer) {
+    setStyle(style ? `@container ${activeCodeBlock} (width > 0px) {${style}}` : '');
+  } else if (supportCSSLayer) {
+    setStyle(style ? `@layer ${activeCodeBlock} {${style}}` : '');
+  } else setStyle(style || '');
+}
+
 export async function runVueTSXCode(code: string) {
   await esbuildInit;
   const { transform } = await import('esbuild-wasm');
@@ -119,8 +162,8 @@ export async function runVueTSXCode(code: string) {
   });
   const requireDep = await buildDepRequire(res.code);
   if (!res.code.includes('var result')) throw new Error(errorMsg);
-  const func = new Function('require', 'h', 'Fragment', res.code + ';return result;');
-  const result = func(requireDep, dependencies.vue.h, dependencies.vue.Fragment);
+  const func = new Function('require', 'h', 'Fragment', 'applyStyle', res.code + ';return result;');
+  const result = func(requireDep, dependencies.vue.h, dependencies.vue.Fragment, applyStyle);
   if (!result?.default) throw new Error(errorMsg);
   return result.default;
 }
@@ -139,9 +182,9 @@ export async function runReactTSXCode(code: string) {
   });
   const requireDep = await buildDepRequire(res.code);
   if (!res.code.includes('var result')) throw new Error(errorMsg);
-  const func = new Function('require', 'createElement', 'Fragment', res.code + ';return result;');
+  const func = new Function('require', 'createElement', 'Fragment', 'applyStyle', res.code + ';return result;');
   const { createElement, Fragment } = await loadDep('react');
-  const result = func(requireDep, createElement, Fragment);
+  const result = func(requireDep, createElement, Fragment, applyStyle);
   if (!result?.default) throw new Error(errorMsg);
   return result.default;
 }
