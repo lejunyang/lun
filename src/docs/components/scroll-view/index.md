@@ -55,6 +55,10 @@ export type ScrollViewState = {
 
 <Test />
 
+## 综合滚动动画示例
+
+<!-- @Code:demo -->
+
 <script setup>
   import Test from './_devViewScroll.vue';
 </script>
