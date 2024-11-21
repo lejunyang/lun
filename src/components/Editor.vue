@@ -47,6 +47,15 @@ languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
   noSyntaxValidation: true,
 });
+languages.typescript.typescriptDefaults.setExtraLibs([
+  {
+    content: `
+/** set style for current code block. must be called in top level of current script. do not call it multiple times. */
+function applyStyle(style: string): void
+`,
+    filePath: '',
+  },
+]);
 
 // @ts-ignore
 self.MonacoEnvironment = {

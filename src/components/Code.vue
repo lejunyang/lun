@@ -2,7 +2,9 @@
   <ClientOnly>
     <!-- empty placeholder div -->
     <div v-if="skipRender" class="code-wrapper" style="height: 200px" ref="empty"></div>
-    <div v-else-if="!devHide" class="code-wrapper" ref="wrapperRef">
+    <div v-else-if="!devHide" class="code-wrapper" ref="wrapperRef" :style="{ containerName: props.name, containerType: 'inline-size' }">
+      <!-- use component in case of vue plugin error -->
+      <component is="style" v-if="scopeStyle">{{ scopeStyle }}</component>
       <div :class="`code-container`" v-if="!showGenerated || !initialized">
         <!-- this is to preventing long time white screen before initialized -->
         <slot></slot>
@@ -81,10 +83,20 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, reactive, watchEffect, defineAsyncComponent, computed, h, useTemplateRef, onMounted } from 'vue';
+import {
+  ref,
+  reactive,
+  watchEffect,
+  defineAsyncComponent,
+  computed,
+  h,
+  useTemplateRef,
+  onMounted,
+  onBeforeUnmount,
+} from 'vue';
 import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
-import { runVueTSXCode, runReactTSXCode, LazyEditor } from '../utils';
+import { runVueTSXCode, runReactTSXCode, LazyEditor, setActiveCodeBlock, unmountCodeBlock, applyStyle } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
@@ -201,6 +213,7 @@ const rendererProps = reactive({
   key: undefined as any,
 });
 
+const scopeStyle = ref('');
 const handleCodeChange = debounce(async () => {
   try {
     const code = codesMap[lang.value];
@@ -214,6 +227,9 @@ const handleCodeChange = debounce(async () => {
       );
       return;
     }
+    setActiveCodeBlock(props.name, (style) => {
+      scopeStyle.value = style;
+    });
     switch (lang.value) {
       case 'vueTSX':
         const vContent = await runVueTSXCode(code);
@@ -230,6 +246,7 @@ const handleCodeChange = debounce(async () => {
         rendererProps.type = 'react';
         break;
     }
+    setActiveCodeBlock('');
     rendererProps.key = Date.now(); // force to refresh, or vue may reuse old vnode content and cause some issues
     runIfFn(rendererProps.content); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
   } catch (e: any) {
@@ -246,6 +263,8 @@ const handleCodeChange = debounce(async () => {
     initialized.value = true;
   }
 }, 1000);
+
+onBeforeUnmount(() => unmountCodeBlock(props.name));
 
 const preCode = codesMap[lang.value];
 watchEffect(() => {
