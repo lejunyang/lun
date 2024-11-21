@@ -24,10 +24,12 @@ import {
   pick,
   setStyle,
   getCSSVarName,
+  ensureNumber,
 } from '@lun-web/utils';
 import { computed, onMounted, reactive, readonly, ref, Transition, TransitionProps, watch, watchEffect } from 'vue';
 import { unrefOrGet, useCleanUp, useResizeObserver } from '@lun-web/core';
 import { calcProgress, measureSubject } from './utils';
+import { numbersEqual } from '@lun-web/utils';
 
 const name = 'scroll-view';
 const parts = ['root'] as const;
@@ -54,6 +56,7 @@ export const ScrollView = defineSSRCustomElement({
   setup(props) {
     const CE = useCE(),
       root = ref<HTMLElement>();
+    const threshold = computed(() => ensureNumber(props.threshold, 0.0001));
     const scroller = computed(() => {
       let target = unrefOrGet(props.target),
         targetEl: Element | null | undefined,
@@ -80,12 +83,14 @@ export const ScrollView = defineSSRCustomElement({
         xBackward: false,
         yForward: false,
         yBackward: false,
-        get scrollXProgress() {
-          return state.scrollX / (scroller.value[1].scrollWidth - state.width || 1);
-        },
-        get scrollYProgress() {
-          return state.scrollY / (scroller.value[1].scrollHeight - state.height || 1);
-        },
+        scrollXProgress: computed<number>((old) => {
+          const res = state.scrollX / (scroller.value[1].scrollWidth - state.width || 1);
+          return numbersEqual(old!, res, threshold.value) ? old! : res;
+        }),
+        scrollYProgress: computed<number>((old) => {
+          const res = state.scrollY / (scroller.value[1].scrollHeight - state.height || 1);
+          return numbersEqual(old!, res, threshold.value) ? old! : res;
+        }),
       }),
       readonlyState = readonly(state),
       viewProgress = reactive({}) as Record<string, number>,
@@ -137,13 +142,13 @@ export const ScrollView = defineSSRCustomElement({
       const { x, y } = options;
       if (y) {
         const newProgress = calcProgress(state, y.measurement, 'y', y.range);
-        if (newProgress !== viewProgress[y.progressVarName])
-          runIfFn(y.onUpdate, (viewProgress[y.progressVarName] = newProgress));
+        if (!numbersEqual(newProgress, viewProgress[y.progressVarName], threshold.value))
+          runIfFn(y.onUpdate, (viewProgress[y.progressVarName] = newProgress), el);
       }
       if (x) {
         const newProgress = calcProgress(state, x.measurement, 'x', x.range);
-        if (newProgress !== viewProgress[x.progressVarName])
-          runIfFn(x.onUpdate, (viewProgress[x.progressVarName] = newProgress));
+        if (!numbersEqual(newProgress, viewProgress[x.progressVarName], threshold.value))
+          runIfFn(x.onUpdate, (viewProgress[x.progressVarName] = newProgress), el);
       }
     };
     const intersectionTargets = computed(() => {

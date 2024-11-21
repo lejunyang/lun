@@ -1,6 +1,6 @@
 import { MaybeRefLikeOrGetter } from '@lun-web/core';
 import { freeze } from '@lun-web/utils';
-import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropFunction, Prop } from 'common';
+import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropFunction, Prop, PropNumber } from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type ScrollViewSlot = {
@@ -22,7 +22,7 @@ export type ScrollViewObserveViewOption = {
   inset?: ScrollViewInsetValue | [ScrollViewInsetValue] | [ScrollViewInsetValue, ScrollViewInsetValue];
   axis?: 'x' | 'y';
   progressVarName: string;
-  onUpdate?: (progress: number) => void;
+  onUpdate?: (progress: number, target: Element) => void;
 };
 
 export type ScrollViewState = {
@@ -57,6 +57,8 @@ export const scrollViewProps = freeze({
   observeResize: PropBoolean(),
   scrollXProgressVarName: PropString(),
   scrollYProgressVarName: PropString(),
+  /** the threshold to update scroll progress or view progress, default to 0.0001 */
+  threshold: PropNumber(),
   observeView: Prop<ScrollViewObserveViewOption | ScrollViewObserveViewOption[]>(),
   hideScrollBar: PropBoolean(),
   getSlots:

@@ -2,6 +2,10 @@
 '@lun-web/components': patch
 ---
 
+### Features
+
+- `scroll-view`: add `threshold`; add target param in `onUpdate`
+
 ### Changes
 
 - methods and variables exposed to custom element will be deleted if element is fully unmounted
