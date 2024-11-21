@@ -1,6 +1,7 @@
 import url from 'esbuild-wasm/esbuild.wasm?url';
-import { inBrowser, isFunction, onOnce } from '@lun-web/utils';
+import { inBrowser, isFunction, onOnce, withResolvers } from '@lun-web/utils';
 import * as data from './data';
+import { registerCustomRenderer } from '@lun-web/components';
 
 const allowedImport = new Set([
   'vue',
@@ -39,22 +40,50 @@ const dependencies = {
   data: typeof data;
 };
 
-const initPromise = (async () => {
-  if (!inBrowser) return;
-  // don't load esbuild until window is loaded
-  return new Promise<void>((resolve) => {
-    const load = async () => {
-      const { initialize } = await import('esbuild-wasm');
-      await initialize({
-        wasmURL: url,
-      });
-      if (isFunction(dependencies.vue)) dependencies.vue = await dependencies.vue();
-      import('../components/Editor.vue'); // trigger load Editor but don't wait it
-      resolve();
-    };
-    onOnce(window, 'load', load);
+const loadDep = async <N extends keyof typeof dependencies>(name: N): Promise<(typeof dependencies)[N]> => {
+  if (isFunction(dependencies[name])) return (dependencies[name] = await (dependencies[name] as Function)());
+  else return dependencies[name];
+};
+
+const [windowLoaded, loadResolve] = withResolvers<any>();
+if (inBrowser) onOnce(window, 'load', loadResolve);
+
+export const LazyEditor = windowLoaded.then(() => import('../components/Editor.vue'));
+
+const esbuildInit = windowLoaded.then(async () => {
+  const { initialize } = await import('esbuild-wasm');
+  await initialize({
+    wasmURL: url,
   });
-})();
+  await loadDep('vue');
+});
+
+windowLoaded.then(async () => {
+  const { isValidElement, cloneElement } = await loadDep('react');
+  const { createRoot } = await loadDep('react-dom/client');
+  const reactRootMap = new WeakMap();
+  registerCustomRenderer('react', {
+    isValidContent(content) {
+      return isValidElement(content);
+    },
+    onMounted(content, target) {
+      if (reactRootMap.has(target)) return;
+      const root = createRoot(target);
+      reactRootMap.set(target, root);
+      root.render(content);
+    },
+    onUpdated(content, target) {
+      reactRootMap.get(target)?.render(content);
+    },
+    onBeforeUnmount(target) {
+      reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
+      reactRootMap.delete(target);
+    },
+    clone(content) {
+      return cloneElement(content);
+    },
+  });
+});
 
 export async function buildDepRequire(code: string) {
   const names: string[] = [];
@@ -69,9 +98,7 @@ export async function buildDepRequire(code: string) {
     if (!allowedImport.has(name)) {
       throw new Error(`import "${name}" is not allowed, can be only one of ${Array.from(allowedImport).join(', ')}`);
     }
-    if (isFunction(dependencies[name])) {
-      dependencies[name] = await (dependencies[name] as Function)();
-    }
+    await loadDep(name);
   }
   return (name: keyof typeof dependencies) => {
     return dependencies[name];
@@ -79,7 +106,7 @@ export async function buildDepRequire(code: string) {
 }
 
 export async function runVueTSXCode(code: string) {
-  await initPromise;
+  await esbuildInit;
   const { transform } = await import('esbuild-wasm');
   const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
   const res = await transform(transformVUpdateWithRegex(code), {
@@ -99,7 +126,7 @@ export async function runVueTSXCode(code: string) {
 }
 
 export async function runReactTSXCode(code: string) {
-  await initPromise;
+  await esbuildInit;
   const { transform } = await import('esbuild-wasm');
   const errorMsg = 'Must export a default ReactNode or a default function that returns a ReactNode';
   const res = await transform(transformVUpdateWithRegex(code), {
@@ -113,8 +140,7 @@ export async function runReactTSXCode(code: string) {
   const requireDep = await buildDepRequire(res.code);
   if (!res.code.includes('var result')) throw new Error(errorMsg);
   const func = new Function('require', 'createElement', 'Fragment', res.code + ';return result;');
-  if (isFunction(dependencies.react)) dependencies.react = await dependencies.react();
-  const { createElement, Fragment } = dependencies.react;
+  const { createElement, Fragment } = await loadDep('react');
   const result = func(requireDep, createElement, Fragment);
   if (!result?.default) throw new Error(errorMsg);
   return result.default;

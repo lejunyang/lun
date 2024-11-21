@@ -84,7 +84,7 @@
 import { ref, reactive, watchEffect, defineAsyncComponent, computed, h, useTemplateRef, onMounted } from 'vue';
 import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
-import { runVueTSXCode, runReactTSXCode } from '../utils';
+import { runVueTSXCode, runReactTSXCode, LazyEditor } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
@@ -104,7 +104,7 @@ const commonSVGProps = {
   viewBox: '0 0 16 16',
 };
 
-const Editor = inBrowser ? defineAsyncComponent(() => import('./Editor.vue')) : () => null;
+const Editor = inBrowser ? defineAsyncComponent(() => LazyEditor) : () => null;
 
 const props = defineProps({
   dev: { type: Boolean },

@@ -61,33 +61,6 @@ export default {
     GlobalStaticConfig.reflectStateToAttr = 'always';
     if (inBrowser) {
       injectOnce();
-      // lazy import react
-      (async () => {
-        const { isValidElement, cloneElement } = await import('react');
-        const { createRoot } = await import('react-dom/client');
-        const reactRootMap = new WeakMap();
-        registerCustomRenderer('react', {
-          isValidContent(content) {
-            return isValidElement(content);
-          },
-          onMounted(content, target) {
-            if (reactRootMap.has(target)) return;
-            const root = createRoot(target);
-            reactRootMap.set(target, root);
-            root.render(content);
-          },
-          onUpdated(content, target) {
-            reactRootMap.get(target)?.render(content);
-          },
-          onBeforeUnmount(target) {
-            reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
-            reactRootMap.delete(target);
-          },
-          clone(content) {
-            return cloneElement(content);
-          },
-        });
-      })();
 
       console.log('GlobalStaticConfig', GlobalStaticConfig);
       console.log('GlobalContextConfig', GlobalContextConfig);
