@@ -34,6 +34,7 @@
     "@vueuse/core": "^11.1",
     "esbuild-wasm": "^0.24",
     "monaco-editor": "^0.52.0",
+    "monaco-editor-auto-typings": "^0.4.5",
     "react": "rc",
     "react-dom": "rc",
     "vue": "catalog:"

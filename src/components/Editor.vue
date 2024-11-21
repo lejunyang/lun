@@ -14,6 +14,7 @@ import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useData } from 'vitepress';
 import { copyText } from '@lun-web/utils';
+import { AutoTypings, LocalStorageCache } from 'monaco-editor-auto-typings';
 
 const editorRef = ref<HTMLElement>();
 const height = ref('24px');
@@ -83,6 +84,27 @@ onMounted(() => {
     },
     scrollBeyondLastLine: false, // if it's true, the editor will have a one-screen size blank space at the bottom
   });
+  // don't add typing for localhost
+  if (location.protocol === 'https:')
+    AutoTypings.create(editor, {
+      sourceCache: new LocalStorageCache(),
+      shareCache: true,
+      monaco: {
+        editor: monacoEditor,
+        Uri,
+        languages,
+      } as any,
+      packageRecursionDepth: 5,
+      preloadPackages: true,
+      versions: {
+        '@lun-web/components': 'latest',
+        '@lun-web/core': 'latest',
+        '@lun-web/utils': 'latest',
+        '@lun-web/theme': 'latest',
+        '@lun-web/react': 'latest',
+        vue: 'latest',
+      },
+    });
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
   });

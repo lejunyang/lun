@@ -35,10 +35,10 @@ catalogs:
       version: 7.0.1
     react:
       specifier: rc
-      version: 19.0.0-rc-5c56b873-20241107
+      version: 19.0.0-rc.1
     react-dom:
       specifier: rc
-      version: 19.0.0-rc-5c56b873-20241107
+      version: 19.0.0-rc.1
     rimraf:
       specifier: ^6.0.1
       version: 6.0.1
@@ -88,10 +88,10 @@ importers:
         version: link:packages/utils
       '@vercel/analytics':
         specifier: ^1.4.1
-        version: 1.4.1(react@19.0.0-rc-5c56b873-20241107)(vue@3.5.13(typescript@5.6.3))
+        version: 1.4.1(react@19.0.0-rc.1)(vue@3.5.13(typescript@5.6.3))
       '@vercel/speed-insights':
         specifier: ^1.1.0
-        version: 1.1.0(react@19.0.0-rc-5c56b873-20241107)(vue@3.5.13(typescript@5.6.3))
+        version: 1.1.0(react@19.0.0-rc.1)(vue@3.5.13(typescript@5.6.3))
       '@vueuse/core':
         specifier: ^11.1
         version: 11.1.0(vue@3.5.13(typescript@5.6.3))
@@ -101,12 +101,15 @@ importers:
       monaco-editor:
         specifier: ^0.52.0
         version: 0.52.0
+      monaco-editor-auto-typings:
+        specifier: ^0.4.5
+        version: 0.4.5(monaco-editor@0.52.0)
       react:
         specifier: rc
-        version: 19.0.0-rc-5c56b873-20241107
+        version: 19.0.0-rc.1
       react-dom:
         specifier: rc
-        version: 19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107)
+        version: 19.0.0-rc.1(react@19.0.0-rc.1)
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.6.3)
@@ -188,7 +191,7 @@ importers:
         version: 4.3.0(@types/node@22.2.0)(rollup@4.22.2)(typescript@5.6.3)(vite@5.4.10(@types/node@22.2.0)(sass-embedded@1.81.0)(sass@1.77.6)(terser@5.36.0))
       vitepress:
         specifier: 1.5.0
-        version: 1.5.0(@algolia/client-search@4.24.0)(@types/node@22.2.0)(postcss@8.4.39)(react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107))(react@19.0.0-rc-5c56b873-20241107)(sass-embedded@1.81.0)(sass@1.77.6)(search-insights@2.14.0)(terser@5.36.0)(types-react@19.0.0-rc.1)(typescript@5.6.3)
+        version: 1.5.0(@algolia/client-search@4.24.0)(@types/node@22.2.0)(postcss@8.4.39)(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)(sass-embedded@1.81.0)(sass@1.77.6)(search-insights@2.14.0)(terser@5.36.0)(types-react@19.0.0-rc.1)(typescript@5.6.3)
       vitest:
         specifier: 'catalog:'
         version: 2.1.5(@types/node@22.2.0)(@vitest/browser@2.1.5)(happy-dom@15.11.0)(msw@2.6.5(@types/node@22.2.0)(typescript@5.6.3))(sass-embedded@1.81.0)(sass@1.77.6)(terser@5.36.0)
@@ -357,10 +360,10 @@ importers:
         version: 7.0.3
       react:
         specifier: 'catalog:'
-        version: 19.0.0-rc-5c56b873-20241107
+        version: 19.0.0-rc.1
       react-dom:
         specifier: 'catalog:'
-        version: 19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107)
+        version: 19.0.0-rc.1(react@19.0.0-rc.1)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2417,6 +2420,11 @@ packages:
   mlly@1.7.1:
     resolution: {integrity: sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==}
 
+  monaco-editor-auto-typings@0.4.5:
+    resolution: {integrity: sha512-J1iVXKKhcBRc8t3jhHl2l9WYhnnPBXFOSuRCIpiC7d2aEOX9ZhWuIAWcCtTtvAN4944lfi0lhjuTi4iebe8VDg==}
+    peerDependencies:
+      monaco-editor: '*'
+
   monaco-editor@0.52.0:
     resolution: {integrity: sha512-OeWhNpABLCeTqubfqLMXGsqf6OmPU6pHM85kF3dhy6kq5hnhuVS1p3VrEW/XhWHc71P2tHyS5JFySD8mgs1crw==}
 
@@ -2639,10 +2647,10 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-dom@19.0.0-rc-5c56b873-20241107:
-    resolution: {integrity: sha512-z60mK7HC5Cs3dz5dHLauTcnNe0LgeQNSX4BilnjBnV0BhHitQniPgmV87QhR2v4fryS4WRL2RF4NklwIhSCbCA==}
+  react-dom@19.0.0-rc.1:
+    resolution: {integrity: sha512-k8MfDX+4G+eaa1cXXI9QF4d+pQtYol3nx8vauqRWUEOPqC7NQn2qmEqUsLoSd28rrZUL+R3T2VC+kZ2Hyx1geQ==}
     peerDependencies:
-      react: 19.0.0-rc-5c56b873-20241107
+      react: 19.0.0-rc.1
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
@@ -2651,8 +2659,8 @@ packages:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
     engines: {node: '>=0.10.0'}
 
-  react@19.0.0-rc-5c56b873-20241107:
-    resolution: {integrity: sha512-cFT1p+jDiT5MSDCOAlllNC9cN6532458CNGZMw+8u33ffZuX3yf2XJtSwar/G9t47nEmqsurdvtIjqb603735g==}
+  react@19.0.0-rc.1:
+    resolution: {integrity: sha512-NZKln+uyPuyHchzP07I6GGYFxdAoaKhehgpCa3ltJGzwE31OYumLeshGaitA1R/fS5d9D2qpZVwTFAr6zCLM9w==}
     engines: {node: '>=0.10.0'}
 
   read-yaml-file@1.1.0:
@@ -2844,8 +2852,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  scheduler@0.25.0-rc-5c56b873-20241107:
-    resolution: {integrity: sha512-rt9KBjQg9XWMfNl0jNAKTRReFiuAG1U5Pi7b9IMZIMXSEfu5wSCPzqvygzvO38piDJag/ljLcFULHo7oLVDh7w==}
+  scheduler@0.25.0-rc.1:
+    resolution: {integrity: sha512-fVinv2lXqYpKConAMdergOl5owd0rY1O4P/QTe0aWKCqGtu7VsCt1iqQFxSJtqK4Lci/upVSBpGwVC7eWcuS9Q==}
 
   search-insights@2.14.0:
     resolution: {integrity: sha512-OLN6MsPMCghDOqlCtsIsYgtsC0pnwVTyT9Mu6A3ewOj1DxvzZF6COrn2g86E/c05xbktB0XN04m/t1Z+n+fTGw==}
@@ -3980,9 +3988,9 @@ snapshots:
 
   '@docsearch/css@3.6.2': {}
 
-  '@docsearch/js@3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107))(react@19.0.0-rc-5c56b873-20241107)(search-insights@2.14.0)(types-react@19.0.0-rc.1)':
+  '@docsearch/js@3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)(search-insights@2.14.0)(types-react@19.0.0-rc.1)':
     dependencies:
-      '@docsearch/react': 3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107))(react@19.0.0-rc-5c56b873-20241107)(search-insights@2.14.0)(types-react@19.0.0-rc.1)
+      '@docsearch/react': 3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)(search-insights@2.14.0)(types-react@19.0.0-rc.1)
       preact: 10.22.1
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -3991,7 +3999,7 @@ snapshots:
       - react-dom
       - search-insights
 
-  '@docsearch/react@3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107))(react@19.0.0-rc-5c56b873-20241107)(search-insights@2.14.0)(types-react@19.0.0-rc.1)':
+  '@docsearch/react@3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)(search-insights@2.14.0)(types-react@19.0.0-rc.1)':
     dependencies:
       '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.14.0)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)
@@ -3999,8 +4007,8 @@ snapshots:
       algoliasearch: 4.24.0
     optionalDependencies:
       '@types/react': types-react@19.0.0-rc.1
-      react: 19.0.0-rc-5c56b873-20241107
-      react-dom: 19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107)
+      react: 19.0.0-rc.1
+      react-dom: 19.0.0-rc.1(react@19.0.0-rc.1)
       search-insights: 2.14.0
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -4492,14 +4500,14 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vercel/analytics@1.4.1(react@19.0.0-rc-5c56b873-20241107)(vue@3.5.13(typescript@5.6.3))':
+  '@vercel/analytics@1.4.1(react@19.0.0-rc.1)(vue@3.5.13(typescript@5.6.3))':
     optionalDependencies:
-      react: 19.0.0-rc-5c56b873-20241107
+      react: 19.0.0-rc.1
       vue: 3.5.13(typescript@5.6.3)
 
-  '@vercel/speed-insights@1.1.0(react@19.0.0-rc-5c56b873-20241107)(vue@3.5.13(typescript@5.6.3))':
+  '@vercel/speed-insights@1.1.0(react@19.0.0-rc.1)(vue@3.5.13(typescript@5.6.3))':
     optionalDependencies:
-      react: 19.0.0-rc-5c56b873-20241107
+      react: 19.0.0-rc.1
       vue: 3.5.13(typescript@5.6.3)
 
   '@vitejs/plugin-react@4.3.1(vite@5.4.10(@types/node@22.2.0)(sass-embedded@1.81.0)(sass@1.77.6)(terser@5.36.0))':
@@ -5592,6 +5600,10 @@ snapshots:
       pkg-types: 1.2.0
       ufo: 1.5.4
 
+  monaco-editor-auto-typings@0.4.5(monaco-editor@0.52.0):
+    dependencies:
+      monaco-editor: 0.52.0
+
   monaco-editor@0.52.0: {}
 
   mri@1.2.0: {}
@@ -5780,16 +5792,16 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107):
+  react-dom@19.0.0-rc.1(react@19.0.0-rc.1):
     dependencies:
-      react: 19.0.0-rc-5c56b873-20241107
-      scheduler: 0.25.0-rc-5c56b873-20241107
+      react: 19.0.0-rc.1
+      scheduler: 0.25.0-rc.1
 
   react-is@17.0.2: {}
 
   react-refresh@0.14.2: {}
 
-  react@19.0.0-rc-5c56b873-20241107: {}
+  react@19.0.0-rc.1: {}
 
   read-yaml-file@1.1.0:
     dependencies:
@@ -5961,7 +5973,7 @@ snapshots:
       source-map-js: 1.2.0
     optional: true
 
-  scheduler@0.25.0-rc-5c56b873-20241107: {}
+  scheduler@0.25.0-rc.1: {}
 
   search-insights@2.14.0: {}
 
@@ -6276,10 +6288,10 @@ snapshots:
       sass-embedded: 1.81.0
       terser: 5.36.0
 
-  vitepress@1.5.0(@algolia/client-search@4.24.0)(@types/node@22.2.0)(postcss@8.4.39)(react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107))(react@19.0.0-rc-5c56b873-20241107)(sass-embedded@1.81.0)(sass@1.77.6)(search-insights@2.14.0)(terser@5.36.0)(types-react@19.0.0-rc.1)(typescript@5.6.3):
+  vitepress@1.5.0(@algolia/client-search@4.24.0)(@types/node@22.2.0)(postcss@8.4.39)(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)(sass-embedded@1.81.0)(sass@1.77.6)(search-insights@2.14.0)(terser@5.36.0)(types-react@19.0.0-rc.1)(typescript@5.6.3):
     dependencies:
       '@docsearch/css': 3.6.2
-      '@docsearch/js': 3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc-5c56b873-20241107(react@19.0.0-rc-5c56b873-20241107))(react@19.0.0-rc-5c56b873-20241107)(search-insights@2.14.0)(types-react@19.0.0-rc.1)
+      '@docsearch/js': 3.6.2(@algolia/client-search@4.24.0)(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)(search-insights@2.14.0)(types-react@19.0.0-rc.1)
       '@iconify-json/simple-icons': 1.2.11
       '@shikijs/core': 1.22.2
       '@shikijs/transformers': 1.22.2
