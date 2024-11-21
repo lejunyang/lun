@@ -122,6 +122,8 @@ export const isSupportCSSGridTrackAnimation = () => {
 
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
 export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
+export const supportCSSScope = typeof CSSScopeRule === 'function';
+export const supportCSSContainer = typeof CSSContainerRule === 'function';
 
 export const supportCSSDisplayP3 = supportCSSSupports && supports!('color', 'color(display-p3 1 1 1)');
 export const supportCSSOklch = supportCSSSupports && supports!('color', 'oklch(1% 1 1)');

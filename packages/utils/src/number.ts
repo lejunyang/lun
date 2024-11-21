@@ -1,15 +1,16 @@
 import { isNumber, isString } from './is';
 
-export function numbersEqual(num1: number, num2: number) {
-  return Math.abs(num1 - num2) < Number.EPSILON; // 2^-52
+const MIN = Number.EPSILON; // 2^-52
+export function numbersEqual(num1: number, num2: number, threshold = MIN) {
+  return Math.abs(num1 - num2) < threshold;
 }
 
-export function greaterThan(num1: number, num2: number) {
-  return num1 - num2 > Number.EPSILON;
+export function greaterThan(num1: number, num2: number, threshold = MIN) {
+  return num1 - num2 > threshold;
 }
 
-export function lessThan(num1: number, num2: number) {
-  return num2 - num1 > Number.EPSILON;
+export function lessThan(num1: number, num2: number, threshold = MIN) {
+  return num2 - num1 > threshold;
 }
 
 export function toNumberIfValid<T>(val: T, defaultVal?: number) {
