@@ -34,6 +34,8 @@
     },
     "./package.json": "./package.json"
   },
+  "jsdelivr": "./dist/lun-web-plugins-vue.iife.js",
+  "unpkg": "./dist/lun-web-plugins-vue.iife.js",
   "scripts": {
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",

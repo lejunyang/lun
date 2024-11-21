@@ -6,8 +6,19 @@ on:
       - main
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      docs:
+        description: 'Deploy docs'
+        required: false
+        default: false
+        type: boolean
+      publish:
+        description: 'Publish packages'
+        required: false
+        default: false
+        type: boolean
 
-# must have permissons same as call_docs
+# must have permissions same as call_docs
 permissions:
   pull-requests: write # for publish
   contents: write
@@ -47,7 +58,7 @@ jobs:
 
   call_docs:
     needs: build_packages
-    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && contains(github.event.head_commit.message, '[deploy docs]') && github.repository == 'lejunyang/lun' }}
+    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && (contains(github.event.head_commit.message, '[deploy docs]') || inputs.docs) && github.repository == 'lejunyang/lun' }}
     uses: ./.github/workflows/docs.yml
     with:
       run-id: ${{ github.run_id }}
@@ -55,7 +66,7 @@ jobs:
 
   call_publish:
     needs: build_packages
-    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && github.repository == 'lejunyang/lun' && ((contains(github.event.head_commit.message, '[publish]') && github.actor == 'lejunyang') || (startsWith(github.event.head_commit.message, 'Version Packages') && github.actor == 'github-actions[bot]')) }}
+    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && github.repository == 'lejunyang/lun' && ((contains(github.event.head_commit.message, '[publish]') && github.actor == 'lejunyang') || (startsWith(github.event.head_commit.message, 'Version Packages') && github.actor == 'github-actions[bot]') || inputs.publish) }}
     uses: ./.github/workflows/publish.yml
     with:
       run-id: ${{ github.run_id }}

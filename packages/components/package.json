@@ -57,6 +57,8 @@
     "./dist/*": "./dist/*"
   },
   "types": "./dist/index.d.ts",
+  "jsdelivr": "./dist/lun-web-components.iife.js",
+  "unpkg": "./dist/lun-web-components.iife.js",
   "scripts": {
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",

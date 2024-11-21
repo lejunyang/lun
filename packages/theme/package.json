@@ -52,6 +52,8 @@
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
+  "jsdelivr": "./dist/lun-web-theme.iife.js",
+  "unpkg": "./dist/lun-web-theme.iife.js",
   "scripts": {
     "dev": "vite",
     "gen": "node ./generate.cjs > ./src/scss/public/colors.scss",

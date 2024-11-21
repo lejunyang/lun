@@ -45,6 +45,8 @@
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
+  "jsdelivr": "./dist/lun-web-react.iife.js",
+  "unpkg": "./dist/lun-web-react.iife.js",
   "scripts": {
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
