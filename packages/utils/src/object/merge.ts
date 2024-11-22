@@ -1,4 +1,4 @@
-import { getTypeTag, isNil, isObject } from '../is';
+import { getTypeTag, isFunction, isNil, isObject, isPlainString } from '../is';
 import { capitalize, uncapitalize } from '../string';
 import { deepCopy } from './copy';
 import { objectGet, objectKeys } from './value';
@@ -6,7 +6,7 @@ import { AnyFn } from '../type';
 import { fromObject } from './process';
 import { runIfFn } from '../function';
 import { arrayFrom } from '../array';
-import { defaultProperties } from './_internal';
+import { defaultProperties, FUNC, OBJ } from '../_internal';
 
 // /**
 //  * property of `source` will overwrite target only when related property of `target` is null or undefined\
@@ -90,7 +90,7 @@ export type DeepMergeOptions = {
 
 const getTypeConfigPath = (sourceType: string, targetType: string) => `${sourceType}To${targetType}`;
 const isMergeStrategy = (s: any): s is DeepMergeStrategy => {
-  if (typeof s === 'function') return true;
+  if (isFunction(s)) return true;
   else return ['override', 'keep', 'copy'].includes(s);
 };
 export const defaultMergeOptions: DeepMergeOptions = {
@@ -128,8 +128,8 @@ export function deepMerge<TargetType extends object = any, SourceType extends ob
   mergeOptions?: DeepMergeOptions,
 ): TargetType & SourceType {
   // 如果source不是对象则与Object.assign逻辑保持一致。null或undefined会被忽略，如果是原始值则会转化为对象，而包装类中只有String有自己的enumerable properties，故只考虑string
-  if (typeof source === 'string') return Object.assign(target, source);
-  else if (typeof source !== 'object') return Object(target);
+  if (isPlainString(source)) return Object.assign(target, source);
+  else if (typeof source !== OBJ) return Object(target);
 
   const finalMergeOptions = { ...defaultMergeOptions, ...mergeOptions };
   const map = new Map();
@@ -144,14 +144,14 @@ export function deepMerge<TargetType extends object = any, SourceType extends ob
       const mergeConfigPath = [
         getTypeConfigPath(sourceType, targetType),
         // object的配置也适用于其他任意对象
-        isObject(_source) && getTypeConfigPath('object', targetType),
+        isObject(_source) && getTypeConfigPath(OBJ, targetType),
         isObject(_target) && getTypeConfigPath(sourceType, 'Object'),
         // nil的配置也适用于null和undefined
         isNil(_source) && getTypeConfigPath('nil', targetType),
         isNil(_target) && getTypeConfigPath(sourceType, 'Nil'),
         // function的配置也适用于asyncFunction
-        sourceType === 'function' && getTypeConfigPath('asyncFunction', targetType),
-        targetType === 'function' && getTypeConfigPath(sourceType, 'AsyncFunction'),
+        sourceType === FUNC && getTypeConfigPath('asyncFunction', targetType),
+        targetType === FUNC && getTypeConfigPath(sourceType, 'AsyncFunction'),
         // any可代表任意类型
         getTypeConfigPath('any', targetType),
         getTypeConfigPath(sourceType, 'Any'),
@@ -169,7 +169,7 @@ export function deepMerge<TargetType extends object = any, SourceType extends ob
     if (mergeStrategy === 'keep') return _target;
     else if (mergeStrategy === 'copy') return deepCopy(_source);
     else if (mergeStrategy === 'override') return _source;
-    else if (typeof mergeStrategy === 'function')
+    else if (isFunction(mergeStrategy))
       return mergeStrategy({
         sourceValue: _source,
         sourceValueType: sourceType,
@@ -179,8 +179,8 @@ export function deepMerge<TargetType extends object = any, SourceType extends ob
         target,
         path,
       });
-    else if (_source && typeof _source === 'object') {
-      if (typeof _target !== 'object' || !_target) _target = Object(_target);
+    else if (_source && typeof _source === OBJ) {
+      if (typeof _target !== OBJ || !_target) _target = Object(_target);
       map.set(_source, _target);
       Object.keys(_source).forEach((key) => {
         _target[key] = internalMerge(_target[key], _source[key], [...path, key]);

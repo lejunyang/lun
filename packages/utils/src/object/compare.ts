@@ -1,10 +1,10 @@
-import { isArray } from '../is';
+import { isArray, isObject } from '../is';
 import { runIfFn } from '../function';
 import { arrayFrom } from '../array';
 
 export function simpleObjectEquals(obj1: any, obj2: any, depths = Infinity): boolean {
   if (Object.is(obj1, obj2) || (obj1 == null && obj2 == null)) return true;
-  if (obj1 && obj2 && typeof obj1 === 'object' && typeof obj2 === 'object' && depths) {
+  if (isObject(obj1) && isObject(obj2) && depths) {
     const keys = new Set(Object.keys(obj1).concat(Object.keys(obj2)));
     return arrayFrom(keys).every((key) => simpleObjectEquals(obj1[key], obj2[key], depths - 1));
   }
@@ -34,7 +34,7 @@ function objectCompareWithPath(
 ) {
   if (Object.is(obj1, obj2)) return true;
   if (options?.looseNull && obj1 == null && obj2 == null) return true;
-  if (obj1 && obj2 && typeof obj1 === 'object' && typeof obj2 === 'object') {
+  if (isObject(obj1) && isObject(obj2)) {
     const obj1Path = map.get(obj1),
       obj2Path = map.get(obj2);
     if (obj1Path || obj2Path) return obj1Path === obj2Path; // circular

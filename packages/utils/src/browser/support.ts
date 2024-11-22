@@ -1,26 +1,21 @@
 import { withResolvers } from '../promise';
 import { cacheFunctionResult } from '../function';
 import { isFunction } from '../is';
-import { hideDomAndAppend } from './_internal';
 import { createElement } from './alias';
+import { FUNC, hideDomAndAppend, OBJ, UNDEF } from '../_internal';
 
-export const isSupportCSSStyleSheet = cacheFunctionResult(
-  () => typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document,
-);
+export const inBrowser = typeof window !== UNDEF && typeof document !== UNDEF;
 
-export const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+const secure = inBrowser && isSecureContext,
+  htmlProto = inBrowser ? HTMLElement.prototype : ({} as HTMLElement);
 
-const secure = inBrowser && isSecureContext;
+export const supportPopover = 'popover' in htmlProto;
 
-export const supportPopover = inBrowser && 'popover' in HTMLElement.prototype;
+export const supportDialog = typeof HTMLDialogElement === FUNC && 'open' in HTMLDialogElement.prototype;
 
-export const supportDialog = typeof HTMLDialogElement === 'function' && 'open' in HTMLDialogElement.prototype;
+export const isSupportResizeObserver = cacheFunctionResult(() => typeof ResizeObserver === FUNC);
 
-export const isSupportResizeObserver = cacheFunctionResult(() => typeof ResizeObserver === 'function');
-
-export const isInputSupportPicker = cacheFunctionResult(
-  () => typeof HTMLInputElement === 'function' && 'showPicker' in HTMLInputElement.prototype,
-);
+export const isInputSupportPicker = cacheFunctionResult(() => inBrowser && 'showPicker' in HTMLInputElement.prototype);
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
 export const supportFileSystemAccess = (() => {
@@ -44,16 +39,16 @@ export const supportFileSystemAccess = (() => {
 
 export const supportClipboard = secure && navigator.clipboard;
 
-export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === 'function');
+export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === FUNC);
 
 export const isSupportCustomStateSet = cacheFunctionResult(
   // @ts-ignore
-  () => isSupportElementInternals() && typeof CustomStateSet === 'function',
+  () => isSupportElementInternals() && typeof CustomStateSet === FUNC,
 );
 
 export const isSupportScrollEnd = cacheFunctionResult(() => inBrowser && 'onscrollend' in document);
 
-export const supportCustomElement = typeof customElements === 'object' && customElements;
+export const supportCustomElement = typeof customElements === OBJ && customElements;
 
 export const isSupportPlaintextEditable = cacheFunctionResult(() => {
   if (!inBrowser) return false;
@@ -62,22 +57,23 @@ export const isSupportPlaintextEditable = cacheFunctionResult(() => {
   return div.contentEditable === 'plaintext-only';
 });
 
-export const isSupportCheckVisibility = cacheFunctionResult(
-  () => inBrowser && isFunction(HTMLElement.prototype.checkVisibility),
-);
+export const isSupportCheckVisibility = cacheFunctionResult(() => isFunction(htmlProto.checkVisibility));
 
 export const supportDocumentPictureInPicture =
   secure &&
-  typeof documentPictureInPicture === 'object' &&
+  typeof documentPictureInPicture === OBJ &&
   documentPictureInPicture &&
   isFunction(documentPictureInPicture.requestWindow);
 
 export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);
 
-export const supportCSSApi = typeof CSS === 'object' && CSS;
+export const supportCSSApi = typeof CSS === OBJ && CSS;
 
-export const supportCSSHighLight =
-  supportCSSApi && typeof Highlight === 'function' && typeof CSS.highlights === 'object';
+export const isSupportCSSStyleSheet = cacheFunctionResult(
+  () => typeof CSSStyleSheet === FUNC && 'adoptedStyleSheets' in document,
+);
+
+export const supportCSSHighLight = supportCSSApi && typeof Highlight === FUNC && typeof CSS.highlights === OBJ;
 
 let supports: typeof CSS.supports;
 export const supportCSSSupports = supportCSSApi && isFunction((supports = CSS.supports));
@@ -121,9 +117,9 @@ export const isSupportCSSGridTrackAnimation = () => {
 };
 
 // css layer can not be checked by CSS.supports, but we can use CSSOM to check it
-export const supportCSSLayer = typeof CSSLayerBlockRule === 'function';
-export const supportCSSScope = typeof CSSScopeRule === 'function';
-export const supportCSSContainer = typeof CSSContainerRule === 'function';
+export const supportCSSLayer = typeof CSSLayerBlockRule === FUNC;
+export const supportCSSScope = typeof CSSScopeRule === FUNC;
+export const supportCSSContainer = typeof CSSContainerRule === FUNC;
 
 export const supportCSSDisplayP3 = supportCSSSupports && supports!('color', 'color(display-p3 1 1 1)');
 export const supportCSSOklch = supportCSSSupports && supports!('color', 'oklch(1% 1 1)');

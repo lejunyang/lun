@@ -1,6 +1,6 @@
+import { defaultProperties } from '../_internal';
 import { isArray, isObject } from '../is';
 import { stringToPath } from '../string';
-import { defaultProperties } from './_internal';
 import { MergeObjects } from './merge';
 
 export interface ObjectGet {
@@ -37,7 +37,7 @@ export function objectSet<T>(object: T, path: string | string[], value: any, ign
     const nextIsArray = Number.isInteger(+newPath[i + 1]);
     if (i === newPath.length - 1 && (ignoreOriginalValue || !(p in obj))) {
       obj[p] = value;
-    } else if (!(p in obj) || typeof obj[p] !== 'object' || !obj[p]) {
+    } else if (!isObject(obj[p]) || !(p in obj)) {
       obj[p] = nextIsArray ? [] : {};
     } else if (nextIsArray && !isArray(obj[p])) {
       obj[p] = [];
@@ -84,10 +84,8 @@ export function pickNonNil<
   }, {} as Pick<M, K[number]>);
 }
 
-/** it's annoying Object.keys() returns string[], use this instead */
-export const objectKeys = <T extends object>(obj: T) => {
-  return Object.keys(obj) as Array<keyof T>;
-};
+/** it's annoying Object.keys() returns string[], use this instead to get keyof object */
+export const objectKeys = <T extends object>(obj: T) => Object.keys(obj) as Array<keyof T>;
 
 export function toGetterDescriptors<
   O extends object,
@@ -103,11 +101,7 @@ export function toGetterDescriptors<
   [k in RemappedKey | Exclude<K, PMK>]: PropertyDescriptor;
 };
 
-export function toGetterDescriptors<
-  O extends object,
-  K extends keyof O = keyof O,
-  P extends K = K,
->(
+export function toGetterDescriptors<O extends object, K extends keyof O = keyof O, P extends K = K>(
   obj: O,
   propsArr?: P[],
   get?: (obj: O, k: K) => any,
@@ -129,13 +123,14 @@ export function toGetterDescriptors<
   [k in RemappedKey | Exclude<K, PMK>]: PropertyDescriptor;
 } {
   const descriptors = {} as any,
-    target = propertiesMap || obj, isKeys = isArray(propertiesMap);
+    target = propertiesMap || obj,
+    isKeys = isArray(propertiesMap);
   for (const key in target) {
     const newKey = (propertiesMap as any)?.[key] || key;
     descriptors[newKey] = {
       ...defaultProperties,
       get() {
-        return get(obj, isKeys ? newKey : key as any);
+        return get(obj, isKeys ? newKey : (key as any));
       },
     };
   }

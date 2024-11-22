@@ -1,6 +1,7 @@
 import { isFunction } from './is';
 import { AnyFn, EnsureParameters } from './type';
 
+/*@__NO_SIDE_EFFECTS__*/
 export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null);
   return ((str: string) => {
@@ -14,6 +15,7 @@ export const cacheStringFunction = <T extends (str: string) => string>(fn: T): T
  * @param fn
  * @returns
  */
+/*@__NO_SIDE_EFFECTS__*/
 export const cacheFunctionResult = <T extends (...args: any[]) => any>(fn: T) => {
   const cache: ReturnType<T>[] = [];
   return ((...args: Parameters<T>): ReturnType<T> => {
@@ -31,13 +33,12 @@ export function runIfFn<T, Args extends EnsureParameters<T, any[]> = EnsureParam
 }
 
 export function once<T extends AnyFn>(fn: T): T {
-  let called = false;
-  let result: ReturnType<T>;
+  let called = false,
+    result: ReturnType<T>;
   return function (this: any, ...args: Parameters<T>) {
     if (called) return result;
     called = true;
-    result = fn.apply(this, args);
-    return result;
+    return (result = fn.apply(this, args));
   } as T;
 }
 
