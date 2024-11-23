@@ -1,12 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue';
 import Theme from 'vitepress/theme';
-import {
-  GlobalStaticConfig,
-  GlobalContextConfig,
-  defineAllComponents,
-  registerCustomRenderer,
-} from '@lun-web/components';
+import { GlobalStaticConfig, GlobalContextConfig, defineAllComponents } from '@lun-web/components';
 import { importAllThemes, importAllColors, importAllP3Colors } from '@lun-web/theme';
 import { inBrowser } from 'vitepress';
 import '@lun-web/core/date-dayjs';
@@ -20,6 +15,7 @@ import Code from '../../../components/Code.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
 import CompThemePanel from '../../../components/CompThemePanel';
+import Playground from '../../../components/Playground.vue';
 import './style.css';
 import { once } from '@lun-web/utils';
 // import { on } from '@lun-web/utils';
@@ -45,6 +41,7 @@ export default {
     app.component('Support', Support);
     app.component('SupportInfo', SupportInfo);
     app.component('CompThemePanel', CompThemePanel);
+    app.component('Playground', Playground);
     app.config.warnHandler = (msg, _vm, _trace) => {
       // ignore injection not found warning
       if (msg.includes('injection') && msg.includes('not found')) return;

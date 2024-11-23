@@ -6,6 +6,7 @@ export default {
       components: '组件',
       palette: '调色',
       utils: 'Utils',
+      playground: '演练场',
     },
     sidebar: {
       basic: {
@@ -132,6 +133,7 @@ export default {
       components: 'Components',
       palette: 'Palette',
       utils: 'Utils',
+      playground: '演练场',
     },
     sidebar: {
       basic: {
