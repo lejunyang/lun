@@ -9,6 +9,7 @@ import {
   supportCSSLayer,
   supportCSSScope,
   withResolvers,
+  once,
 } from '@lun-web/utils';
 import * as data from './data';
 import { registerCustomRenderer } from '@lun-web/components';
@@ -67,6 +68,7 @@ export const LazyEditor = inBrowser
     })
   : () => null;
 
+// TODO remove esbuild, use babel/standalone instead, it's way more smaller than this, but how to output iife?
 const esbuildInit = windowLoaded.then(async () => {
   const { initialize } = await import('esbuild-wasm');
   await initialize({
@@ -93,7 +95,7 @@ windowLoaded.then(async () => {
       reactRootMap.get(target)?.render(content);
     },
     onBeforeUnmount(target) {
-      reactRootMap.get(target)?.unmount(); // TODO what will happen if unmount and then mount again?
+      reactRootMap.get(target)?.unmount();
       reactRootMap.delete(target);
     },
     clone(content) {
@@ -216,3 +218,30 @@ export function transformVUpdateWithRegex(code: string) {
     },
   );
 }
+
+const prefix = 'https://cdn.jsdelivr.net/npm/';
+const dtsLoadMap = {
+  vue: prefix + 'vue/dist/vue.d.ts',
+  '@vue/runtime-dom': prefix + '@vue/runtime-dom/dist/runtime-dom.d.ts',
+  '@vue/reactivity': prefix + '@vue/reactivity/dist/reactivity.d.ts',
+  '@vue/shared': prefix + '@vue/shared/dist/shared.d.ts',
+  '@vue/runtime-core': prefix + '@vue/runtime-core/dist/runtime-core.d.ts',
+  '@lun-web/components': prefix + '@lun-web/components/dist/index.d.ts',
+  '@lun-web/core': prefix + '@lun-web/core/dist/index.d.ts',
+  '@lun-web/theme': prefix + '@lun-web/theme/dist/index.d.ts',
+  '@lun-web/utils': prefix + '@lun-web/utils/dist/index.d.ts',
+  '@lun-web/react': prefix + '@lun-web/react/dist/index.d.ts',
+};
+export const getPackageTypes = once(async () => {
+  const typeMap: Record<string, string> = {};
+  await Promise.all(
+    Object.entries(dtsLoadMap).map(async ([name, url]) => {
+      const res = await fetch(url);
+      if (res.ok) {
+        const text = await res.text();
+        typeMap[name] = text;
+      }
+    }),
+  );
+  return typeMap;
+});
