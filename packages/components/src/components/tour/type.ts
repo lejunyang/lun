@@ -36,10 +36,6 @@ export const tourEmits = createEmits<
     updateStep: TourStep;
   } & OpenCloseEmits
 >([...(dialogEmits as unknown as string[]), 'updateStep']);
-freeze({
-  ...dialogEmits,
-  updateStep: (_: TourStep) => true,
-});
 
 export type TourSetupProps = ExtractPropTypes<typeof tourProps> & CommonProps;
 export type TourEvents = GetEventPropsFromEmits<typeof tourEmits>;

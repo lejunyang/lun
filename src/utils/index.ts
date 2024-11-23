@@ -12,6 +12,7 @@ import {
 } from '@lun-web/utils';
 import * as data from './data';
 import { registerCustomRenderer } from '@lun-web/components';
+import { defineAsyncComponent, h } from 'vue';
 
 const allowedImport = new Set([
   'vue',
@@ -58,7 +59,13 @@ const loadDep = async <N extends keyof typeof dependencies>(name: N): Promise<(t
 const [windowLoaded, loadResolve] = withResolvers<any>();
 if (inBrowser) onOnce(window, 'load', loadResolve);
 
-export const LazyEditor = windowLoaded.then(() => import('../components/Editor.vue'));
+const Editor = windowLoaded.then(() => import('../components/Editor.vue'));
+export const LazyEditor = inBrowser
+  ? defineAsyncComponent({
+      loader: () => Editor,
+      loadingComponent: () => h('l-spin'),
+    })
+  : () => null;
 
 const esbuildInit = windowLoaded.then(async () => {
   const { initialize } = await import('esbuild-wasm');

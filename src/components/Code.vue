@@ -72,7 +72,7 @@
           </svg>
         </div>
       </div>
-      <Editor
+      <LazyEditor
         v-model="codesMap[lang]"
         v-lazy-show="showEditor"
         :name="lang + name"
@@ -87,7 +87,6 @@ import {
   ref,
   reactive,
   watchEffect,
-  defineAsyncComponent,
   computed,
   h,
   useTemplateRef,
@@ -96,7 +95,7 @@ import {
 } from 'vue';
 import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
-import { runVueTSXCode, runReactTSXCode, LazyEditor, setActiveCodeBlock, unmountCodeBlock, applyStyle } from '../utils';
+import { runVueTSXCode, runReactTSXCode, LazyEditor, setActiveCodeBlock, unmountCodeBlock } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
@@ -115,8 +114,6 @@ const commonSVGProps = {
   fill: 'currentColor',
   viewBox: '0 0 16 16',
 };
-
-const Editor = inBrowser ? defineAsyncComponent(() => LazyEditor) : () => null;
 
 const props = defineProps({
   dev: { type: Boolean },
@@ -250,6 +247,7 @@ const handleCodeChange = debounce(async () => {
     rendererProps.key = Date.now(); // force to refresh, or vue may reuse old vnode content and cause some issues
     runIfFn(rendererProps.content); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
   } catch (e: any) {
+    setActiveCodeBlock('');
     console.error(e);
     rendererProps.type = 'vnode';
     rendererProps.content = (

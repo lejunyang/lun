@@ -1,6 +1,6 @@
 <template>
   <div class="wrap language-html">
-    <div class="editor" ref="editorRef"></div>
+    <div class="editor" ref="editorRef" :style="editorStyle"></div>
     <button title="Copy" class="copy" @click="copy"></button>
   </div>
 </template>
@@ -31,6 +31,13 @@ const props = defineProps({
     type: String,
     default: 'typescript',
   },
+  autoHeight: {
+    type: Boolean,
+    default: true,
+  },
+  editorStyle: {
+    type: Object
+  },
 });
 const { isDark } = useData();
 const emits = defineEmits(['update:modelValue']);
@@ -42,11 +49,14 @@ languages.typescript.typescriptDefaults.setCompilerOptions({
   allowNonTsExtensions: true,
   allowJs: true,
   strict: false,
+  moduleResolution: languages.typescript.ModuleResolutionKind.NodeJs,
+  allowSyntheticDefaultImports: true,
 });
 languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
   noSyntaxValidation: true,
 });
+
 languages.typescript.typescriptDefaults.setExtraLibs([
   {
     content: `
@@ -117,8 +127,10 @@ onMounted(() => {
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
   });
-  const contentHeight = Math.max(editor.getContentHeight(), 48);
-  height.value = `${contentHeight}px`;
+  if (props.autoHeight) {
+    const contentHeight = Math.max(editor.getContentHeight(), 48);
+    height.value = `${contentHeight}px`;
+  }
   editor.layout();
 });
 
@@ -127,8 +139,10 @@ watch(
   (val) => {
     if (editor && val !== editor.getValue()) {
       editor.setValue(val);
-      const contentHeight = editor.getContentHeight();
-      height.value = `${contentHeight}px`;
+      if (props.autoHeight) {
+        const contentHeight = editor.getContentHeight();
+        height.value = `${contentHeight}px`;
+      }
       editor.layout();
     }
   },

@@ -35,6 +35,7 @@
     "esbuild-wasm": "^0.24",
     "monaco-editor": "^0.52.0",
     "monaco-editor-auto-typings": "^0.4.5",
+    "path-browserify-esm": "^1.0.6",
     "react": "rc",
     "react-dom": "rc",
     "vue": "catalog:"

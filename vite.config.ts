@@ -57,7 +57,12 @@ export default defineConfig({
           '@lun-web/react': processPath('./packages/react/index'),
           ...commonAlias,
         }
-      : { ...commonAlias },
+      : {
+          ...commonAlias,
+          /** for monaco-editor-auto-typings, it uses 'path'... */ path: processPath(
+            './node_modules/path-browserify-esm/index.esm.js',
+          ),
+        },
   },
   css: {
     postcss: {
