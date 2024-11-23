@@ -76,7 +76,7 @@
         v-model="codesMap[lang]"
         v-lazy-show="showEditor"
         :name="lang + name"
-        :lang="lang === 'html' ? lang : 'typescript'"
+        :lang="lang === 'html' ? lang : 'tsx'"
       />
     </div>
   </ClientOnly>

@@ -9,7 +9,8 @@
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
-import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution.js';
+// @ts-ignore
+import { conf, language } from 'monaco-editor/esm/vs/basic-languages/typescript/typescript.js';
 import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
 import { ref, onMounted, onBeforeUnmount, watch, camelize, capitalize } from 'vue';
 import { useData } from 'vitepress';
@@ -17,6 +18,25 @@ import { copyText } from '@lun-web/utils';
 import { shikiToMonaco } from '@shikijs/monaco';
 import { createHighlighter } from 'shiki/bundle/web';
 import { components } from '@lun-web/components';
+import {
+  WorkerManager,
+  LibFiles,
+  SuggestAdapter,
+  SignatureHelpAdapter,
+  QuickInfoAdapter,
+  DocumentHighlightAdapter,
+  DefinitionAdapter,
+  ReferenceAdapter,
+  OutlineAdapter,
+  RenameAdapter,
+  FormatAdapter,
+  FormatOnTypeAdapter,
+  CodeActionAdaptor,
+  InlayHintsAdapter,
+  DiagnosticsAdapter,
+  // @ts-ignore
+} from 'monaco-editor/esm/vs/language/typescript/tsMode.js';
+import { getPackageTypes } from '../utils';
 
 const editorRef = ref<HTMLElement>();
 const height = ref('24px');
@@ -31,7 +51,7 @@ const props = defineProps({
   },
   lang: {
     type: String,
-    default: 'typescript',
+    default: 'tsx',
   },
   autoHeight: {
     type: Boolean,
@@ -46,17 +66,7 @@ const emits = defineEmits(['update:modelValue']);
 
 const copy = () => copyText(props.modelValue);
 
-(async () => {
-  const highlighter = await createHighlighter({
-    themes: ['vitesse-dark', 'vitesse-light'],
-    langs: ['typescript'],
-  });
-  languages.register({ id: 'typescript' });
-  shikiToMonaco(highlighter, {
-    editor: monacoEditor,
-    languages,
-  } as any);
-})();
+const getTheme = () => (isDark.value ? 'material-theme-darker' : 'material-theme-lighter');
 
 languages.typescript.typescriptDefaults.setCompilerOptions({
   skipLibCheck: true,
@@ -65,8 +75,6 @@ languages.typescript.typescriptDefaults.setCompilerOptions({
   strict: false,
   moduleResolution: languages.typescript.ModuleResolutionKind.NodeJs,
   allowSyntheticDefaultImports: true,
-  jsx: languages.typescript.JsxEmit.Preserve,
-  jsxImportSource: 'vue',
 });
 languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
@@ -79,22 +87,7 @@ languages.typescript.typescriptDefaults.setExtraLibs([
 /** set style for current code block. must be called in top level of current script. do not call it multiple times. */
 function applyStyle(style: string): void
 `,
-    filePath: '',
-  },
-  {
-    content: `import * as Vue from 'vue';
-import * as LunComp from '@lun-web/components';
-declare module 'vue/jsx-runtime' {
-  namespace JSX {
-    interface IntrinsicElements {
-      ${components
-        .map(
-          (comp) => `'l-${comp}': Vue.HTMLAttributes & Vue.ReservedProps & LunComp.${camelize(capitalize(comp))}Props;`,
-        )
-        .join('\n')}
-    }
-  }
-}`,
+    filePath: 'file:///global.d.ts',
   },
 ]);
 
@@ -104,12 +97,94 @@ self.MonacoEnvironment = {
     if (label === 'html') {
       return new htmlWorker();
     }
-    if (['typescript', 'javascript'].includes(label)) {
+    if (['typescript', 'javascript', 'tsx'].includes(label)) {
       return new tsWorker();
     }
     return new EditorWorker();
   },
 };
+
+(async () => {
+  const defaults = languages.typescript.typescriptDefaults;
+  // register tsx as typescirpt
+  languages.register({ id: 'tsx' });
+  languages.setLanguageConfiguration('tsx', conf);
+  languages.setMonarchTokensProvider('tsx', language);
+  // copy code from node_modules\monaco-editor\esm\vs\language\typescript\tsMode.js, register these to let tsx have same features as typescript
+  function asDisposable(disposables: any[]) {
+    return { dispose: () => disposeAll(disposables) };
+  }
+  function disposeAll(disposables: any[]) {
+    while (disposables.length) {
+      disposables.pop().dispose();
+    }
+  }
+  languages.onLanguage('tsx', () => {
+    const modeId = 'tsx';
+    const disposables = [];
+    const providers: any[] = [];
+    const client = new WorkerManager(modeId, defaults);
+    disposables.push(client);
+    const worker = (...uris: any[]) => {
+      return client.getLanguageServiceWorker(...uris);
+    };
+    const libFiles = new LibFiles(worker);
+    function registerProviders() {
+      const { modeConfiguration } = defaults;
+      disposeAll(providers);
+      if (modeConfiguration.completionItems) {
+        providers.push(languages.registerCompletionItemProvider(modeId, new SuggestAdapter(worker)));
+      }
+      if (modeConfiguration.signatureHelp) {
+        providers.push(languages.registerSignatureHelpProvider(modeId, new SignatureHelpAdapter(worker)));
+      }
+      if (modeConfiguration.hovers) {
+        providers.push(languages.registerHoverProvider(modeId, new QuickInfoAdapter(worker)));
+      }
+      if (modeConfiguration.documentHighlights) {
+        providers.push(languages.registerDocumentHighlightProvider(modeId, new DocumentHighlightAdapter(worker)));
+      }
+      if (modeConfiguration.definitions) {
+        providers.push(languages.registerDefinitionProvider(modeId, new DefinitionAdapter(libFiles, worker)));
+      }
+      if (modeConfiguration.references) {
+        providers.push(languages.registerReferenceProvider(modeId, new ReferenceAdapter(libFiles, worker)));
+      }
+      if (modeConfiguration.documentSymbols) {
+        providers.push(languages.registerDocumentSymbolProvider(modeId, new OutlineAdapter(worker)));
+      }
+      if (modeConfiguration.rename) {
+        providers.push(languages.registerRenameProvider(modeId, new RenameAdapter(libFiles, worker)));
+      }
+      if (modeConfiguration.documentRangeFormattingEdits) {
+        providers.push(languages.registerDocumentRangeFormattingEditProvider(modeId, new FormatAdapter(worker)));
+      }
+      if (modeConfiguration.onTypeFormattingEdits) {
+        providers.push(languages.registerOnTypeFormattingEditProvider(modeId, new FormatOnTypeAdapter(worker)));
+      }
+      if (modeConfiguration.codeActions) {
+        providers.push(languages.registerCodeActionProvider(modeId, new CodeActionAdaptor(worker)));
+      }
+      if (modeConfiguration.inlayHints) {
+        providers.push(languages.registerInlayHintsProvider(modeId, new InlayHintsAdapter(worker)));
+      }
+      if (modeConfiguration.diagnostics) {
+        providers.push(new DiagnosticsAdapter(libFiles, defaults, modeId, worker));
+      }
+    }
+    registerProviders();
+    disposables.push(asDisposable(providers));
+    return worker;
+  });
+  const highlighter = await createHighlighter({
+    themes: ['material-theme-darker', 'material-theme-lighter'],
+    langs: ['tsx', 'typescript'], // need 'typescript' also for type hint highlight
+  });
+  shikiToMonaco(highlighter, {
+    editor: monacoEditor,
+    languages,
+  } as any);
+})();
 
 let editor: monacoEditor.IStandaloneCodeEditor, model: monacoEditor.ITextModel | null;
 
@@ -124,7 +199,7 @@ onMounted(() => {
     model,
     automaticLayout: true,
     language: lang,
-    theme: isDark.value ? 'vitesse-dark' : 'vitesse-light',
+    theme: getTheme(),
     readOnly: false,
     fontSize: 16,
     overviewRulerBorder: false,
@@ -142,6 +217,27 @@ onMounted(() => {
     height.value = `${contentHeight}px`;
   }
   editor.layout();
+  getPackageTypes().then((types) => {
+    for (const [name, text] of Object.entries(types)) {
+      languages.typescript.typescriptDefaults.addExtraLib(text, 'file:///node_modules/' + name + '/index.d.ts');
+    }
+    languages.typescript.typescriptDefaults.addExtraLib(
+      `
+namespace JSX {
+  export interface IntrinsicElements extends import('vue').NativeElements {
+      ${components
+        .map(
+          (comp) =>
+            `'l-${comp}': import('vue').HTMLAttributes & import('vue').ReservedProps & import('@lun-web/components').${camelize(
+              capitalize(comp),
+            )}Props;`,
+        )
+        .join('\n')}
+  }
+}`,
+      'file:///packages.d.ts',
+    );
+  });
 });
 
 watch(
@@ -158,10 +254,10 @@ watch(
   },
 );
 
-watch(isDark, (val) => {
+watch(isDark, () => {
   if (editor)
     editor.updateOptions({
-      theme: val ? 'vitesse-dark' : 'vitesse-light',
+      theme: getTheme(),
     });
 });
 
