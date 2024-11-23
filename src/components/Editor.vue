@@ -11,10 +11,12 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution.js';
 import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, camelize, capitalize } from 'vue';
 import { useData } from 'vitepress';
 import { copyText } from '@lun-web/utils';
-import { AutoTypings, LocalStorageCache } from 'monaco-editor-auto-typings';
+import { shikiToMonaco } from '@shikijs/monaco';
+import { createHighlighter } from 'shiki/bundle/web';
+import { components } from '@lun-web/components';
 
 const editorRef = ref<HTMLElement>();
 const height = ref('24px');
@@ -36,13 +38,25 @@ const props = defineProps({
     default: true,
   },
   editorStyle: {
-    type: Object
+    type: Object,
   },
 });
 const { isDark } = useData();
 const emits = defineEmits(['update:modelValue']);
 
 const copy = () => copyText(props.modelValue);
+
+(async () => {
+  const highlighter = await createHighlighter({
+    themes: ['vitesse-dark', 'vitesse-light'],
+    langs: ['typescript'],
+  });
+  languages.register({ id: 'typescript' });
+  shikiToMonaco(highlighter, {
+    editor: monacoEditor,
+    languages,
+  } as any);
+})();
 
 languages.typescript.typescriptDefaults.setCompilerOptions({
   skipLibCheck: true,
@@ -51,6 +65,8 @@ languages.typescript.typescriptDefaults.setCompilerOptions({
   strict: false,
   moduleResolution: languages.typescript.ModuleResolutionKind.NodeJs,
   allowSyntheticDefaultImports: true,
+  jsx: languages.typescript.JsxEmit.Preserve,
+  jsxImportSource: 'vue',
 });
 languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
@@ -64,6 +80,21 @@ languages.typescript.typescriptDefaults.setExtraLibs([
 function applyStyle(style: string): void
 `,
     filePath: '',
+  },
+  {
+    content: `import * as Vue from 'vue';
+import * as LunComp from '@lun-web/components';
+declare module 'vue/jsx-runtime' {
+  namespace JSX {
+    interface IntrinsicElements {
+      ${components
+        .map(
+          (comp) => `'l-${comp}': Vue.HTMLAttributes & Vue.ReservedProps & LunComp.${camelize(capitalize(comp))}Props;`,
+        )
+        .join('\n')}
+    }
+  }
+}`,
   },
 ]);
 
@@ -93,7 +124,7 @@ onMounted(() => {
     model,
     automaticLayout: true,
     language: lang,
-    theme: isDark.value ? 'vs-dark' : 'vs',
+    theme: isDark.value ? 'vitesse-dark' : 'vitesse-light',
     readOnly: false,
     fontSize: 16,
     overviewRulerBorder: false,
@@ -103,27 +134,6 @@ onMounted(() => {
     },
     scrollBeyondLastLine: false, // if it's true, the editor will have a one-screen size blank space at the bottom
   });
-  // don't add typing for localhost
-  if (location.protocol === 'https:')
-    AutoTypings.create(editor, {
-      sourceCache: new LocalStorageCache(),
-      shareCache: true,
-      monaco: {
-        editor: monacoEditor,
-        Uri,
-        languages,
-      } as any,
-      packageRecursionDepth: 5,
-      preloadPackages: true,
-      versions: {
-        '@lun-web/components': 'latest',
-        '@lun-web/core': 'latest',
-        '@lun-web/utils': 'latest',
-        '@lun-web/theme': 'latest',
-        '@lun-web/react': 'latest',
-        vue: 'latest',
-      },
-    });
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
   });
@@ -151,7 +161,7 @@ watch(
 watch(isDark, (val) => {
   if (editor)
     editor.updateOptions({
-      theme: val ? 'vs-dark' : 'vs',
+      theme: val ? 'vitesse-dark' : 'vitesse-light',
     });
 });
 

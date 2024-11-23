@@ -29,15 +29,15 @@
     "@lun-web/react": "workspace:^",
     "@lun-web/theme": "workspace:^",
     "@lun-web/utils": "workspace:^",
+    "@shikijs/monaco": "^1.23.1",
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
     "@vueuse/core": "^11.1",
     "esbuild-wasm": "^0.24",
     "monaco-editor": "^0.52.0",
-    "monaco-editor-auto-typings": "^0.4.5",
-    "path-browserify-esm": "^1.0.6",
     "react": "rc",
     "react-dom": "rc",
+    "shiki": "^1.23.1",
     "vue": "catalog:"
   },
   "overrides": {

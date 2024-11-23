@@ -59,9 +59,6 @@ export default defineConfig({
         }
       : {
           ...commonAlias,
-          /** for monaco-editor-auto-typings, it uses 'path'... */ path: processPath(
-            './node_modules/path-browserify-esm/index.esm.js',
-          ),
         },
   },
   css: {
