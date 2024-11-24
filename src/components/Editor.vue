@@ -11,12 +11,15 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 // @ts-ignore
 import { conf, language } from 'monaco-editor/esm/vs/basic-languages/typescript/typescript.js';
-import { editor as monacoEditor, languages, Uri } from 'monaco-editor';
+import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution.js';
+// @ts-ignore manually import from below file, instead from editor.main.js, so that useless languages import can be avoided
+import { editor as monacoEditor, languages, Uri } from 'monaco-editor/esm/vs/editor/edcore.main.js';
 import { ref, onMounted, onBeforeUnmount, watch, camelize, capitalize } from 'vue';
 import { useData } from 'vitepress';
 import { copyText } from '@lun-web/utils';
-import { shikiToMonaco } from '@shikijs/monaco';
-import { createHighlighter } from 'shiki/bundle/web';
 import { components } from '@lun-web/components';
 import {
   WorkerManager,
@@ -36,6 +39,11 @@ import {
   DiagnosticsAdapter,
   // @ts-ignore
 } from 'monaco-editor/esm/vs/language/typescript/tsMode.js';
+import { shikiToMonaco } from '@shikijs/monaco';
+import { createHighlighterCore } from 'shiki/core';
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
+import lightTheme from 'shiki/themes/material-theme-lighter.mjs';
+import darkTheme from 'shiki/themes/material-theme-darker.mjs';
 import { getPackageTypes } from '../utils';
 
 const editorRef = ref<HTMLElement>();
@@ -176,9 +184,10 @@ self.MonacoEnvironment = {
     disposables.push(asDisposable(providers));
     return worker;
   });
-  const highlighter = await createHighlighter({
-    themes: ['material-theme-darker', 'material-theme-lighter'],
-    langs: ['tsx', 'typescript'], // need 'typescript' also for type hint highlight
+  const highlighter = await createHighlighterCore({
+    themes: [darkTheme, lightTheme],
+    langs: [import('shiki/langs/tsx.mjs'), import('shiki/langs/typescript.mjs'), import('shiki/langs/html.mjs')], // need 'typescript' also for type hint highlight
+    engine: createOnigurumaEngine(import('shiki/wasm')),
   });
   shikiToMonaco(highlighter, {
     editor: monacoEditor,

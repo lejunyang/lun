@@ -211,6 +211,8 @@ const dtsLoadMap = {
   '@lun-web/utils': prefix + '@lun-web/utils/dist/index.d.ts',
   '@lun-web/react': prefix + '@lun-web/react/dist/index.d.ts',
 };
+
+// if want to load more types, consider https://github.com/microsoft/TypeScript-Website/tree/v2/packages/ata
 export const getPackageTypes = once(async () => {
   const typeMap: Record<string, string> = {};
   await Promise.all(

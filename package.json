@@ -83,6 +83,7 @@
     "typescript": "catalog:",
     "vue": "catalog:",
     "@floating-ui/utils": "catalog:",
-    "@floating-ui/dom": "catalog:"
+    "@floating-ui/dom": "catalog:",
+    "shiki": "^1.23.1"
   }
 }
