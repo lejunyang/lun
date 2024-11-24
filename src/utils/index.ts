@@ -1,4 +1,3 @@
-import url from 'esbuild-wasm/esbuild.wasm?url';
 import {
   createElement,
   inBrowser,
@@ -14,6 +13,7 @@ import {
 import * as data from './data';
 import { registerCustomRenderer } from '@lun-web/components';
 import { defineAsyncComponent, h } from 'vue';
+import { vUpdate } from '@lun-web/plugins/babel';
 
 const allowedImport = new Set([
   'vue',
@@ -68,13 +68,12 @@ export const LazyEditor = inBrowser
     })
   : () => null;
 
-// TODO remove esbuild, use babel/standalone instead, it's way more smaller than this, but how to output iife?
-const esbuildInit = windowLoaded.then(async () => {
-  const { initialize } = await import('esbuild-wasm');
-  await initialize({
-    wasmURL: url,
-  });
+const babelInit = windowLoaded.then(async () => {
+  const Babel = await import('@babel/standalone');
+  // @ts-ignore
+  globalThis.Babel = Babel;
   await loadDep('vue');
+  return Babel;
 });
 
 windowLoaded.then(async () => {
@@ -157,66 +156,46 @@ export function applyStyle(style?: string) {
   } else setStyle(style || '');
 }
 
+async function transform(code: string) {
+  const Babel = await babelInit;
+  return Babel.transform(code, {
+    presets: ['react', 'typescript'],
+    filename: 'file.tsx',
+    plugins: ['transform-modules-commonjs', vUpdate],
+  }).code;
+}
+
 export async function runVueTSXCode(code: string) {
-  await esbuildInit;
-  const { transform } = await import('esbuild-wasm');
+  const transformedCode = await transform(code);
   const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
-  const res = await transform(transformVUpdateWithRegex(code), {
-    loader: 'tsx',
-    format: 'iife',
-    jsxFactory: 'h',
-    jsxFragment: 'Fragment',
-    jsxImportSource: 'vue',
-    globalName: 'result', // `var result = (() => {})();`
-  });
-  const requireDep = await buildDepRequire(res.code);
-  if (!res.code.includes('var result')) throw new Error(errorMsg);
-  const func = new Function('require', 'h', 'Fragment', 'applyStyle', res.code + ';return result;');
-  const result = func(requireDep, dependencies.vue.h, dependencies.vue.Fragment, applyStyle);
-  if (!result?.default) throw new Error(errorMsg);
-  return result.default;
+  if (!transformedCode?.includes('exports.default')) throw new Error(errorMsg);
+  const requireDep = await buildDepRequire(transformedCode);
+  const exports = {
+      default: undefined as any,
+    },
+    React = {
+      createElement: dependencies.vue.h,
+      Fragment: dependencies.vue.Fragment,
+    };
+  const func = new Function('exports', 'require', 'React', 'applyStyle', transformedCode);
+  func(exports, requireDep, React, applyStyle);
+  if (!exports.default) throw new Error(errorMsg);
+  return exports.default;
 }
 
 export async function runReactTSXCode(code: string) {
-  await esbuildInit;
-  const { transform } = await import('esbuild-wasm');
+  const transformedCode = await transform(code);
   const errorMsg = 'Must export a default ReactNode or a default function that returns a ReactNode';
-  const res = await transform(transformVUpdateWithRegex(code), {
-    loader: 'tsx',
-    format: 'iife',
-    jsxFactory: 'createElement',
-    jsxFragment: 'Fragment',
-    jsxImportSource: 'react',
-    globalName: 'result',
-  });
-  const requireDep = await buildDepRequire(res.code);
-  if (!res.code.includes('var result')) throw new Error(errorMsg);
-  const func = new Function('require', 'createElement', 'Fragment', 'applyStyle', res.code + ';return result;');
-  const { createElement, Fragment } = await loadDep('react');
-  const result = func(requireDep, createElement, Fragment, applyStyle);
-  if (!result?.default) throw new Error(errorMsg);
-  return result.default;
-}
-
-export function transformVUpdateWithRegex(code: string) {
-  return code.replace(
-    /v-update(-[a-zA-Z0-9]+)?(:[a-zA-Z0-9]+)?=\{([a-zA-Z0-9.[\]]+)\}/g,
-    (_match, prop1, prop2, expr) => {
-      if (prop2) {
-        // v-update-xxx:xxx
-        const prop = prop1?.slice(1) || 'value';
-        const eventDetailMember = prop2.slice(1);
-        return `${prop}={${expr}} onUpdate={(e) => ${expr} = e.detail.${eventDetailMember}}`;
-      } else if (prop1) {
-        // v-update-xxx
-        const prop = prop1.slice(1);
-        return `${prop}={${expr}} onUpdate={(e) => ${expr} = e.detail}`;
-      } else {
-        // v-update
-        return `value={${expr}} onUpdate={(e) => ${expr} = e.detail}`;
-      }
+  if (!transformedCode?.includes('exports.default')) throw new Error(errorMsg);
+  const requireDep = await buildDepRequire(transformedCode);
+  const exports = {
+      default: undefined as any,
     },
-  );
+    React = await loadDep('react');
+  const func = new Function('exports', 'require', 'React', 'applyStyle', transformedCode);
+  func(exports, requireDep, React, applyStyle);
+  if (!exports.default) throw new Error(errorMsg);
+  return exports.default;
 }
 
 const prefix = 'https://cdn.jsdelivr.net/npm/';

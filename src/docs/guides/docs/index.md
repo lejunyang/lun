@@ -11,19 +11,21 @@ lang: zh-CN
 
 - 点击右下角的按钮可以查看示例的源代码并编辑，**代码会实时编译并渲染到页面上**
 - 左下角可以选择语言，目前支持 Vue TSX, React TSX 和 HTML，对于各个语言，编写的代码有如下要求
+
   - Vue: 需要 export default 一个 Vnode 或 Vue 组件
   - React: 需要 export default 一个 ReactElement 或 React 函数组件
   - HTML：纯 HTML 字符串，注意 custom element 必须有闭合标签，不允许自闭合
-  
+
   绝大部分示例都只编写了 vue 的版本，没时间.jpg
+
 - 编写的代码中仅允许特定的 import，分别为`vue`, `react`, `react-dom`, `react-dom/client`, `@lun-web/components`, `@lun-web/core`, `@lun-web/utils`, `@lun-web/react`, `data`, import 其他内容会直接报错
 - 如果你需要编写样式作用于该代码块，你可以在代码顶层调用`applyStyle(style: string)`，试试在上面的示例中添加以下代码
 
 ```ts
 applyStyle(`.example-text { color: var(--l-accent-9) }`);
 ```
-该函数会根据浏览器支持情况向页面中添加`@scope`, `@container`或`@layer`样式，以此限定在该代码块内，若均不支持则直接添加样式。该函数仅能调用一次，后调用的覆盖之前的样式，HTML中不可用，因为只能写字符串，HTML中你可以自行添加`<style>@scope {}</style>`
 
+该函数会根据浏览器支持情况向页面中添加`@scope`, `@container`或`@layer`样式，以此限定在该代码块内，若均不支持则直接添加样式。该函数仅能调用一次，后调用的覆盖之前的样式，HTML 中不可用，因为只能写字符串，HTML 中你可以自行添加`<style>@scope {}</style>`
 
 ## 文档贡献
 
@@ -37,4 +39,4 @@ applyStyle(`.example-text { color: var(--l-accent-9) }`);
 
 然后在 `index.md` 中，我们需要以`<!-- @Code:basicUsage -->`注释来引入这些示例。
 
-注意，**必须编写 Vue 的代码示例**。由于 esbuild 加载需要时间，为避免明显的白屏时间，内部会直接引入这些 Vue 的代码示例并展示它们。当 esbuild 加载完毕后，若用户修改源代码或切换示例语言，便渲染动态生成的用例
+注意，**必须编写 Vue 的代码示例**。由于 babel 及依赖加载需要时间，为避免明显的白屏时间，内部会直接引入这些 Vue 的代码示例并展示它们。当 babel 和依赖加载完毕后，若用户修改源代码或切换示例语言，便渲染动态生成的用例
