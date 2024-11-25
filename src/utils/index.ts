@@ -13,7 +13,7 @@ import {
 import * as data from './data';
 import { registerCustomRenderer } from '@lun-web/components';
 import { defineAsyncComponent, h } from 'vue';
-import { vUpdate } from '@lun-web/plugins/babel';
+import { vUpdate, rUpdate } from '@lun-web/plugins/babel';
 import { strFromU8, strToU8, unzlibSync, zlibSync } from 'fflate';
 
 const allowedImport = new Set([
@@ -164,7 +164,7 @@ async function transform(code: string) {
   return Babel.transform(code, {
     presets: ['react', 'typescript'],
     filename: 'file.tsx',
-    plugins: ['transform-modules-commonjs', vUpdate],
+    plugins: ['transform-modules-commonjs', vUpdate, rUpdate],
   }).code;
 }
 
