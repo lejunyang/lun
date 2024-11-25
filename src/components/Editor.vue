@@ -92,7 +92,7 @@ languages.typescript.typescriptDefaults.setDiagnosticsOptions({
 languages.typescript.typescriptDefaults.setExtraLibs([
   {
     content: `
-/** set style for current code block. must be called in top level of current script. do not call it multiple times. */
+/** injected function specially for setting style for current code block. must be called in top level of current script. do not call it multiple times. */
 function applyStyle(style: string): void
 `,
     filePath: 'file:///global.d.ts',

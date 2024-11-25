@@ -2,7 +2,12 @@
   <ClientOnly>
     <!-- empty placeholder div -->
     <div v-if="skipRender" class="code-wrapper" style="height: 200px" ref="empty"></div>
-    <div v-else-if="!devHide" class="code-wrapper" ref="wrapperRef" :style="{ containerName: props.name, containerType: 'inline-size' }">
+    <div
+      v-else-if="!devHide"
+      class="code-wrapper"
+      ref="wrapperRef"
+      :style="{ containerName: props.name, containerType: 'inline-size' }"
+    >
       <!-- use component in case of vue plugin error -->
       <component is="style" v-if="scopeStyle">{{ scopeStyle }}</component>
       <div :class="`code-container`" v-if="!showGenerated || !initialized">
@@ -83,24 +88,14 @@
 </template>
 
 <script setup lang="tsx">
-import {
-  ref,
-  reactive,
-  watchEffect,
-  computed,
-  h,
-  useTemplateRef,
-  onMounted,
-  onBeforeUnmount,
-} from 'vue';
-import { debounce, objectKeys, runIfFn, isFunction, raf } from '@lun-web/utils';
+import { ref, reactive, watchEffect, computed, h, useTemplateRef, onMounted, onBeforeUnmount } from 'vue';
+import { debounce, objectKeys, runIfFn, raf } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
 import { runVueTSXCode, runReactTSXCode, LazyEditor, setActiveCodeBlock, unmountCodeBlock } from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
 import { Ref } from 'vue';
-import { createElement } from 'react';
 import { useIntersectionObserver } from '@lun-web/core';
 
 const data = useData();
@@ -229,18 +224,14 @@ const handleCodeChange = debounce(async () => {
     });
     switch (lang.value) {
       case 'vueTSX':
-        const vContent = await runVueTSXCode(code);
-        rendererProps.content = isFunction(vContent) ? h(vContent) : vContent;
-        rendererProps.type = 'vnode';
+        Object.assign(rendererProps, await runVueTSXCode(code));
         break;
       case 'html':
         rendererProps.type = 'html';
         rendererProps.content = code;
         break;
       case 'reactTSX':
-        const rContent = await runReactTSXCode(code);
-        rendererProps.content = isFunction(rContent) ? createElement(rContent) : rContent;
-        rendererProps.type = 'react';
+        Object.assign(rendererProps, await runReactTSXCode(code));
         break;
     }
     setActiveCodeBlock('');

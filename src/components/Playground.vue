@@ -18,14 +18,49 @@
 </template>
 
 <script setup lang="tsx">
-import { h, ref, shallowRef, watchEffect } from 'vue';
-import { LazyEditor, runVueTSXCode, setActiveCodeBlock } from '../utils';
-import { debounce, isFunction, runIfFn } from '@lun-web/utils';
+import { ref, shallowRef, watch, watchEffect } from 'vue';
+import { decode, encode, LazyEditor, runVueTSXCode, setActiveCodeBlock } from '../utils';
+import { debounce, runIfFn, inBrowser } from '@lun-web/utils';
+import { useBrowserLocation, useSessionStorage } from '@vueuse/core';
+import { useRoute } from 'vitepress';
+
+const locationData = useBrowserLocation(),
+  session = useSessionStorage('lun-playground', '');
+
+const route = useRoute();
 
 const model = ref(`import { ref } from 'vue';
 const model = ref("Hello, World!");
-applyStyle('.playground-preview { padding: 24px; }');
+applyStyle(\`l-input { margin: 24px; }\`);
 export default () => <l-input v-update={model.value}></l-input>`);
+
+let currentHash: string | undefined = locationData.value.hash || session.value;
+let data: ReturnType<typeof decode>;
+const update = (newHash: string, newModel: string) => {
+  currentHash = newHash;
+  if (model.value !== newModel) model.value = newModel;
+};
+inBrowser &&
+  watchEffect(() => {
+    if (!route.path.includes('playground')) return;
+    let { hash } = locationData.value;
+    hash = hash?.slice(1);
+    if (hash && hash !== currentHash && (data = decode(hash))) {
+      update(hash!, data.content);
+    } else if (session.value && session.value !== currentHash && (data = decode(session.value))) {
+      update(session.value, data.content);
+    }
+  });
+
+watch(
+  model,
+  debounce(() => {
+    const newHash = encode(model.value);
+    locationData.value.hash = newHash;
+    session.value = newHash;
+  }, 1000),
+);
+
 const scopeStyle = ref('');
 const content = shallowRef();
 
@@ -34,10 +69,10 @@ const handleCodeChange = debounce(async () => {
     setActiveCodeBlock('playground', (style) => {
       scopeStyle.value = style;
     });
-    const vContent = await runVueTSXCode(model.value);
-    content.value = isFunction(vContent) ? h(vContent) : vContent;
+    const result = await runVueTSXCode(model.value);
+    content.value = result.content;
     setActiveCodeBlock('');
-    runIfFn(vContent); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
+    runIfFn(result.content); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
   } catch (e: any) {
     setActiveCodeBlock('');
     console.error(e);
@@ -50,10 +85,11 @@ const handleCodeChange = debounce(async () => {
   }
 }, 1000);
 
-watchEffect(() => {
-  model.value;
-  handleCodeChange();
-});
+inBrowser &&
+  watchEffect(() => {
+    model.value;
+    handleCodeChange();
+  });
 </script>
 
 <style lang="scss" scoped>
@@ -62,7 +98,10 @@ watchEffect(() => {
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
-  & > div, l-spin {
+  container-name: playground;
+  container-type: inline-size;
+  & > div,
+  l-spin {
     width: 50%;
     height: 100%;
     flex: 1;
