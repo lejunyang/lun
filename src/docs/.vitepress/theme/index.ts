@@ -27,7 +27,7 @@ declare module '@lun-web/core' {
 }
 
 const injectOnce = once(() => {
-  if (!inBrowser && process.env.DEPLOYED_ON !== 'vercel') return;
+  if (!inBrowser && process.env.DEPLOYED_ON && process.env.DEPLOYED_ON !== 'vercel') return;
   inject();
   injectSpeedInsights();
 });
