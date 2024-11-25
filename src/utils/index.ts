@@ -14,6 +14,7 @@ import * as data from './data';
 import { registerCustomRenderer } from '@lun-web/components';
 import { defineAsyncComponent, h } from 'vue';
 import { vUpdate } from '@lun-web/plugins/babel';
+import { strFromU8, strToU8, unzlibSync, zlibSync } from 'fflate';
 
 const allowedImport = new Set([
   'vue',
@@ -63,7 +64,7 @@ if (inBrowser) onOnce(window, 'load', loadResolve);
 const Editor = windowLoaded.then(() => import('../components/Editor.vue'));
 export const LazyEditor = inBrowser
   ? defineAsyncComponent({
-      loader: () => Editor,
+      loader: __DEV__ ? () => import('../components/Editor.vue') : () => Editor,
       loadingComponent: () => h('l-spin'),
     })
   : () => null;
@@ -170,17 +171,22 @@ export async function runVueTSXCode(code: string) {
   const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
   if (!transformedCode?.includes('exports.default')) throw new Error(errorMsg);
   const requireDep = await buildDepRequire(transformedCode);
+  const { vue } = dependencies;
   const exports = {
       default: undefined as any,
     },
     React = {
-      createElement: dependencies.vue.h,
-      Fragment: dependencies.vue.Fragment,
+      createElement: vue.h,
+      Fragment: vue.Fragment,
     };
   const func = new Function('exports', 'require', 'React', 'applyStyle', transformedCode);
   func(exports, requireDep, React, applyStyle);
-  if (!exports.default) throw new Error(errorMsg);
-  return exports.default;
+  const content = exports.default;
+  if (!content) throw new Error(errorMsg);
+  return {
+    type: 'vnode',
+    content: vue.isVNode(content) ? content : vue.h(content),
+  };
 }
 
 export async function runReactTSXCode(code: string) {
@@ -194,8 +200,12 @@ export async function runReactTSXCode(code: string) {
     React = await loadDep('react');
   const func = new Function('exports', 'require', 'React', 'applyStyle', transformedCode);
   func(exports, requireDep, React, applyStyle);
-  if (!exports.default) throw new Error(errorMsg);
-  return exports.default;
+  const content = exports.default;
+  if (!content) throw new Error(errorMsg);
+  return {
+    type: 'react',
+    content: React.isValidElement(content) ? content : React.createElement(content),
+  };
 }
 
 const prefix = 'https://cdn.jsdelivr.net/npm/';
@@ -226,3 +236,30 @@ export const getPackageTypes = once(async () => {
   );
   return typeMap;
 });
+
+export function encode(content: string, version = '01') {
+  // version is useless for now, but might parse according to the version in future
+  const buffer = strToU8('L' + version + content);
+  const zipped = zlibSync(buffer, { level: 9 });
+  const binary = strFromU8(zipped, true);
+  return btoa(binary);
+}
+
+export function decode(hash?: string) {
+  if (!hash) return;
+  const binary = atob(hash);
+
+  // zlib header (x78), level 9 (xDA)
+  if (binary.startsWith('\x78\xDA')) {
+    const buffer = strToU8(binary, true);
+    const unzipped = unzlibSync(buffer);
+    const text = strFromU8(unzipped),
+      version = +text.slice(1, 3);
+    if (text[0] === 'L' && version && Number.isInteger(version)) {
+      return {
+        version,
+        content: text.slice(3),
+      };
+    }
+  }
+}

@@ -34,6 +34,7 @@
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
     "@vueuse/core": "^11.1",
+    "fflate": "^0.8.2",
     "monaco-editor": "^0.52.0",
     "react": "rc",
     "react-dom": "rc",

@@ -75,7 +75,7 @@ setInterval(() => {
   else growingProgress.value += 10;
 }, 1500);
 
-export const filesRenderer = (files) =>
+export const filesRenderer = (files?: File[] | File) =>
   ensureArray(files)
     .map((file) => file.name)
     .join(', ');
