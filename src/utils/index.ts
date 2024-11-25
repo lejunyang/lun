@@ -40,6 +40,7 @@ const dependencies = {
   '@lun-web/utils': () => import('@lun-web/utils'),
   '@lun-web/react': () => import('@lun-web/react'),
   data,
+  'react-error-boundary': () => import('react-error-boundary'),
 } as any as {
   vue: typeof import('vue');
   react: typeof import('react');
@@ -51,6 +52,7 @@ const dependencies = {
   '@lun-web/utils': typeof import('@lun-web/utils');
   '@lun-web/react': typeof import('@lun-web/react');
   data: typeof data;
+  'react-error-boundary': typeof import('react-error-boundary');
 };
 
 const loadDep = async <N extends keyof typeof dependencies>(name: N): Promise<(typeof dependencies)[N]> => {
@@ -166,6 +168,31 @@ async function transform(code: string) {
   }).code;
 }
 
+export function getErrorNode(error: Error, hFactory: any = h) {
+  setActiveCodeBlock('');
+  console.error(error);
+  return hFactory('div', { style: { width: '100%', textAlign: 'center' } }, [
+    hFactory('l-icon', { name: 'error', 'data-status-color': 'error', style: { fontSize: '36px' } }),
+    hFactory('pre', null, error.message),
+  ]);
+}
+
+type React = typeof import('react');
+export function wrapReactErrorBound(
+  element: React.ReactElement,
+  react: React,
+  bound: typeof import('react-error-boundary'),
+) {
+  const { createElement } = react;
+  return createElement(
+    bound.ErrorBoundary,
+    {
+      fallbackRender: ({ error }) => getErrorNode(error, createElement),
+    },
+    element,
+  );
+}
+
 export async function runVueTSXCode(code: string) {
   const transformedCode = await transform(code);
   const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
@@ -197,14 +224,15 @@ export async function runReactTSXCode(code: string) {
   const exports = {
       default: undefined as any,
     },
-    React = await loadDep('react');
+    React = await loadDep('react'),
+    Bound = await loadDep('react-error-boundary');
   const func = new Function('exports', 'require', 'React', 'applyStyle', transformedCode);
   func(exports, requireDep, React, applyStyle);
   const content = exports.default;
   if (!content) throw new Error(errorMsg);
   return {
     type: 'react',
-    content: React.isValidElement(content) ? content : React.createElement(content),
+    content: wrapReactErrorBound(React.isValidElement(content) ? content : React.createElement(content), React, Bound),
   };
 }
 

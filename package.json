@@ -38,6 +38,7 @@
     "monaco-editor": "^0.52.0",
     "react": "rc",
     "react-dom": "rc",
+    "react-error-boundary": "^4.1.2",
     "shiki": "^1.23.1",
     "vue": "catalog:"
   },

@@ -12,8 +12,22 @@ lang: zh-CN
 - 点击右下角的按钮可以查看示例的源代码并编辑，**代码会实时编译并渲染到页面上**
 - 左下角可以选择语言，目前支持 Vue TSX, React TSX 和 HTML，对于各个语言，编写的代码有如下要求
 
-  - Vue: 需要 export default 一个 Vnode 或 Vue 组件
-  - React: 需要 export default 一个 ReactElement 或 React 函数组件
+  - Vue: 需要 export default 一个 Vnode 或 Vue 组件，例如
+    ```tsx
+    export default <div />
+    export default () => <><button /></>
+    import { defineComponent } from 'vue'
+    export default defineComponent({})
+    ```
+  - React: 需要 export default 一个 ReactElement 或 React 组件，例如
+    ```tsx
+    export default <div />
+    import { useState } from 'react'
+    export default () => {
+      const [count, setCount] = useState(0)
+      return <div>{count}</div>
+    }
+    ```
   - HTML：纯 HTML 字符串，注意 custom element 必须有闭合标签，不允许自闭合
 
   绝大部分示例都只编写了 vue 的版本，没时间.jpg

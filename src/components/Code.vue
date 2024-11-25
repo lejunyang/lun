@@ -88,10 +88,17 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, reactive, watchEffect, computed, h, useTemplateRef, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, watchEffect, computed, useTemplateRef, onMounted, onBeforeUnmount, onErrorCaptured } from 'vue';
 import { debounce, objectKeys, runIfFn, raf } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
-import { runVueTSXCode, runReactTSXCode, LazyEditor, setActiveCodeBlock, unmountCodeBlock } from '../utils';
+import {
+  runVueTSXCode,
+  runReactTSXCode,
+  LazyEditor,
+  setActiveCodeBlock,
+  unmountCodeBlock,
+  getErrorNode,
+} from '../utils';
 import { inBrowser, useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
@@ -236,22 +243,19 @@ const handleCodeChange = debounce(async () => {
     }
     setActiveCodeBlock('');
     rendererProps.key = Date.now(); // force to refresh, or vue may reuse old vnode content and cause some issues
-    runIfFn(rendererProps.content); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
   } catch (e: any) {
-    setActiveCodeBlock('');
-    console.error(e);
     rendererProps.type = 'vnode';
-    rendererProps.content = (
-      <div style="width: 100%; text-align: center">
-        <l-icon name="error" data-status-color="error" style="font-size: 36px;" />
-        <pre>{e.message}</pre>
-      </div>
-    );
+    rendererProps.content = getErrorNode(e);
   } finally {
     loading.value = false;
     initialized.value = true;
   }
 }, 1000);
+
+onErrorCaptured((err) => {
+  rendererProps.type = 'vnode';
+  rendererProps.content = getErrorNode(err);
+});
 
 onBeforeUnmount(() => unmountCodeBlock(props.name));
 

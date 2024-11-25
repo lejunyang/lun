@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, shallowRef, watch, watchEffect } from 'vue';
-import { decode, encode, LazyEditor, runVueTSXCode, setActiveCodeBlock } from '../utils';
+import { onErrorCaptured, ref, shallowRef, watch, watchEffect } from 'vue';
+import { getErrorNode, decode, encode, LazyEditor, runVueTSXCode, setActiveCodeBlock } from '../utils';
 import { debounce, runIfFn, inBrowser } from '@lun-web/utils';
 import { useBrowserLocation, useSessionStorage } from '@vueuse/core';
 import { useRoute } from 'vitepress';
@@ -72,18 +72,14 @@ const handleCodeChange = debounce(async () => {
     const result = await runVueTSXCode(model.value);
     content.value = result.content;
     setActiveCodeBlock('');
-    runIfFn(result.content); // run it in advance in case of error, but don't assign the result to render content, because current func is async, not able to watch and rerender
   } catch (e: any) {
-    setActiveCodeBlock('');
-    console.error(e);
-    content.value = (
-      <div style="width: 100%; text-align: center">
-        <l-icon name="error" data-status-color="error" style="font-size: 36px;" />
-        <pre>{e.message}</pre>
-      </div>
-    );
+    content.value = getErrorNode(e);
   }
 }, 1000);
+
+onErrorCaptured((err) => {
+  content.value = getErrorNode(err);
+});
 
 inBrowser &&
   watchEffect(() => {
