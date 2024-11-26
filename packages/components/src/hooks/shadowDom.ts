@@ -34,7 +34,7 @@ export function useCEExpose(expose: Record<string | symbol, any>, extraDescripto
   });
 }
 
-let mustAddPrefixForCustomState: boolean | null = null; // in chromium 90~X, need to add '--' prefix for custom state or it will throw an error
+let mustAddPrefixForCustomState: boolean | undefined; // in chromium 90~125, must add '--' prefix for custom state or it will throw an error
 /**
  * update custom element's states automatically.
  * this depends on the ElementInternals property '_internals'.
@@ -64,22 +64,23 @@ export function useCEStates<
   const CE = useCE();
   // must in mount, form-item need to be set on mount
   onMounted(() => {
-    const stateSet = (CE as any)._internals?.states as Set<string>;
+    const stateSet = ((CE as any)._internals as ElementInternals | undefined)?.states;
     const { reflectStateToAttr, stateAttrType, statePrefix } = GlobalStaticConfig;
-    const setAttr = reflectStateToAttr === 'always' || (reflectStateToAttr === 'auto' && !stateSet);
+    let setAttr = reflectStateToAttr === 'always' || (reflectStateToAttr === 'auto' && !stateSet);
 
     const handleState = (k: string, v: any, addState = true) => {
       if (stateSet) {
         if (v && addState) {
-          if (mustAddPrefixForCustomState === null) {
+          if (mustAddPrefixForCustomState === undefined) {
             try {
               stateSet.add(k);
               mustAddPrefixForCustomState = false;
             } catch {
               mustAddPrefixForCustomState = true;
+              if (reflectStateToAttr === 'double-dash') setAttr = true;
             }
           } else if (!mustAddPrefixForCustomState) stateSet.add(k);
-          stateSet.add('--' + k); // always add prefix for chromium
+          stateSet.add('--' + k); // always add prefix for chromium because there are several versions that support both
         } else {
           stateSet.delete('--' + k);
           stateSet.delete(k);

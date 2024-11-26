@@ -4,6 +4,7 @@
 
 ### Features
 
+- `GlobalStaticConfig/reflectStateToAttr`: add `double-dash` option
 - `scroll-view`: add `threshold`; add target param in `onUpdate`
 - `form-item`: add rawValue and rawData in validator
 - `form-item`: support type=date min/max, greaterThan/lessThan transform
