@@ -1,6 +1,19 @@
 import { useForm } from '@lun-web/core';
 
-const form = useForm();
+const form = useForm({
+  defaultData: {
+    num: 21,
+  },
+  defaultFormState: {
+    statusMessages: {
+      num: {
+        error: ['数字必须小于20', '数字必须为偶数'],
+        warning: ['最好在15～20之间'],
+        success: ['数字必须大于10'],
+      },
+    },
+  },
+});
 const itemProps = {
   name: 'num',
   label: '数字',
@@ -8,7 +21,7 @@ const itemProps = {
   element: 'input',
   validateWhen: 'update',
   visibleStatuses: ['error', 'warning', 'success'],
-  validators: (value) => {
+  validators: (value: number) => {
     const moreThan10 = value > 10,
       lessThan20 = value < 20,
       even = value % 2 === 0,

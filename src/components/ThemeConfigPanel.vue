@@ -121,11 +121,6 @@ const toggleAppearanceWithTransition = inject('toggle-appearance', () => {});
     &[data-checked] .wrapper {
       outline: 2px solid var(--l-accent-9);
     }
-    @supports not selector(:state(a)) {
-      &:--checked .wrapper {
-        outline: 2px solid var(--l-accent-9);
-      }
-    }
     &:state(checked) .wrapper {
       outline: 2px solid var(--l-accent-9);
     }
@@ -168,11 +163,6 @@ const toggleAppearanceWithTransition = inject('toggle-appearance', () => {});
     // cannot use ',' for these three selectors, as they would all fail if one of them is not supported
     &[data-checked] .circle {
       outline: 2px solid var(--l-accent-9);
-    }
-    @supports not selector(:state(a)) {
-      &:--checked .circle {
-        outline: 2px solid var(--l-accent-9);
-      }
     }
     &:state(checked) .circle {
       outline: 2px solid var(--l-accent-9);

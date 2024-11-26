@@ -10,12 +10,12 @@ lang: zh-CN
 ```ts
 export type ValidatorStatusResult = { status?: Status; message: string };
 export type ValidatorResult = string | string[] | ValidatorStatusResult | ValidatorStatusResult[] | undefined | null;
-export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<ValidatorResult>;
+export type Validator = (value: any, rawValue: any, data: any, rawData: any; rule: Rule) => MaybePromise<ValidatorResult>;
 ```
 
-校验信息可以指定其状态（与主题`status`相同，包括：`success`, `warning`, `error`, `info`），通过`visibleStatuses`可以指定表单项展示哪些状态的信息，默认为 `error`；若校验信息为字符串，或者其为包含 message 的对象，但没有指定 status，则默认状态为 `error`。
+自定义校验器若返回字符串或没有指定状态则视为错误信息，若需要自定义状态，则可以如上类型格式指定`status`，其值与主题`status`相同，包括：`success`, `warning`, `error`, `info`
 
-默认只展示错误信息，只有错误状态的信息会校验失败，而通过调整相关属性可以额外展示一些信息，如下示例
+通过`visibleStatuses`可以指定表单项展示哪些状态的信息，默认为 `error`，即默认只展示错误信息，只有错误状态的信息会校验失败，而通过调整相关属性可以额外展示一些信息，如下示例
 
 <!-- FIXME 聚焦第一个，悬浮第二个，然后移出，结果tooltip还在 -->
 

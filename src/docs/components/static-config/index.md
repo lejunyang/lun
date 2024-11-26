@@ -22,9 +22,10 @@ export declare const GlobalStaticConfig: {
 
   /**
    * custom element's state will be set on native CustomElementState of ElementInternals, but it's not widely supported.
-   * this option is used to control whether to reflect the states to attribute.
-   * if set to 'always', the states will always be reflected to attribute,
-   * if set to 'auto', the states will be reflected to attribute when native CustomElementState is not supported,
+   * this option is used to control whether to reflect the states to attributes. it can be:
+   * - `always`: the states will always be reflected to attributes
+   * - `auto`: the states will be reflected to attribute when native CustomStateSet is not supported
+   * - `double-dash`: the states will be reflected to attribute when CustomStateSet is supported for double dashes (for chromium 90 ~ 125)
    */
   reflectStateToAttr: 'auto' | 'always' | 'never';
   /** determine whether to use dataset or class to reflect component's state to attribute */
