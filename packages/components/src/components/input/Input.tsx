@@ -210,7 +210,7 @@ export const Input = defineSSRCustomElement({
     const label = useAutoUpdateLabel(props);
 
     return () => {
-      const { disabled, readonly, editable } = editComputed;
+      const { disabled, editable } = editComputed;
       const {
         multiple,
         placeholder,
@@ -243,7 +243,7 @@ export const Input = defineSSRCustomElement({
           value={finalInputVal.value}
           placeholder={hasSpecialLabel || hidePlaceholderForMultiple ? undefined : placeholder}
           disabled={disabled}
-          readonly={readonly}
+          readonly={!editable}
           size={hidePlaceholderForMultiple ? 1 : undefined}
           {...inputHandlers}
         />

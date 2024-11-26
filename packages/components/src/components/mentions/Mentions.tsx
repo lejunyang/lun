@@ -154,7 +154,7 @@ export const Mentions = defineSSRCustomElement({
 
     const contenteditable = isSupportPlaintextEditable() ? 'plaintext-only' : 'true';
     return () => {
-      const { editable, readonly } = editComputed;
+      const { editable, interactive } = editComputed;
       const { placeholder, labelType, label, rows, cols, noOptions, resize } = props;
       const floatLabel = label || placeholder;
       const hasFloatLabel = labelType === 'float' && floatLabel;
@@ -177,7 +177,7 @@ export const Mentions = defineSSRCustomElement({
             />
             <div
               {...attrs}
-              tabindex={editable || readonly ? 0 : undefined}
+              tabindex={editable || interactive ? 0 : undefined}
               spellcheck={props.spellcheck}
               ref={editRef}
               part={compParts[3]}

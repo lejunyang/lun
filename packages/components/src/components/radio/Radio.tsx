@@ -29,7 +29,11 @@ export const Radio = defineSSRCustomElement({
       return value === props.value;
     });
     const handler = {
-      onChange() {
+      onChange(e: Event) {
+        if (!editComputed.editable) {
+          (e.target as HTMLInputElement).checked = !!checked.value;
+          return;
+        }
         emit('update', props.value);
       },
     };
@@ -62,6 +66,7 @@ export const Radio = defineSSRCustomElement({
             checked={checked.value}
             value={props.value}
             disabled={editComputed.disabled}
+            readonly={!editComputed.editable}
             onChange={handler.onChange}
             hidden
           />

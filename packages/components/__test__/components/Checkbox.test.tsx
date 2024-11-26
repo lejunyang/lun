@@ -107,4 +107,34 @@ describe('Checkbox', () => {
     expect(allChecked).to.be.false;
     expect(intermediate).to.be.false;
   });
+
+  it(`should not be able to check if it's disabled, readonly or loading`, async () => {
+    const onUpdate = vi.fn();
+    const ce = l('l-checkbox-group', {
+      disabled: true,
+      options,
+      onUpdate,
+    });
+    await nextTick();
+    const children = ce.shadowRoot!.firstElementChild!.children;
+    await userEvent.click(children[0]);
+    expect(onUpdate).not.toHaveBeenCalled();
+
+    ce.disabled = false;
+    ce.readonly = true;
+    await nextTick();
+    await userEvent.click(children[0]);
+    expect(onUpdate).not.toHaveBeenCalled();
+
+    ce.readonly = false;
+    ce.loading = true;
+    await nextTick();
+    await userEvent.click(children[0]);
+    expect(onUpdate).not.toHaveBeenCalled();
+
+    ce.loading = false;
+    await nextTick();
+    await userEvent.click(children[0]);
+    expect(onUpdate).toHaveBeenCalled();
+  });
 });
