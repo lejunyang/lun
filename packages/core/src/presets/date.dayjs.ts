@@ -117,7 +117,7 @@ const methods = {
     },
     isSame(type, date1, date2) {
       // isSame supports 'w', but seems there is a wrong type interface
-      return !!date1 && !!date2 && date1.isSame(date2, type as Exclude<BaseDateType, 'w'>);
+      return !!date1 && !!date2 && date1.isSame(date2, processType(type) as Exclude<BaseDateType, 'w'>);
     },
   },
 } satisfies DateMethods<Dayjs>;

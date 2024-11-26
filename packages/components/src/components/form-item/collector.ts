@@ -4,7 +4,7 @@ import { getCollectorOptions, Status } from 'common';
 import { FormItemProps, Rule } from './type';
 
 export type FormItemProvideExtra = {
-  getValue(vm?: ComponentInternalInstance | null): any;
+  getValue(vm?: ComponentInternalInstance | null, raw?: boolean): any;
   setValue(vm?: ComponentInternalInstance | null, value?: any, raw?: any): void;
   status: ComputedRef<Status | undefined>;
   validateProps: ComputedRef<Rule>;

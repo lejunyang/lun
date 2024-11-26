@@ -60,7 +60,7 @@ export const formProps = freeze({
   itemProps: PropObjOrFunc<
     | Partial<FormItemSetupProps>
     | ((params: {
-        formContext: CollectorContext<any, FormItemSetupProps, FormProvideExtra> | undefined;
+        formContext: CollectorContext<any, FormItemSetupProps, FormProvideExtra>;
         formItemProps: FormItemSetupProps;
       }) => Partial<FormItemSetupProps>)
   >(),

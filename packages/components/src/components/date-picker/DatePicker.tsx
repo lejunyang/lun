@@ -58,7 +58,7 @@ export const DatePicker = defineSSRCustomElement({
 
     const viewDate = useViewDate(props),
       valueModel = useValueModel(props, { hasRaw: true }),
-      inputModel = ref(format(parse(valueModel.value.value)) || undefined); // TODO multiple. consider moving multiple and range to useDateParseFormat
+      inputModel = ref(format(parse(valueModel.value.value)!) || undefined); // TODO multiple. consider moving multiple and range to useDateParseFormat
     const popoverRef = ref<iPopover>(),
       calendarRef = ref<iCalendar>(),
       inputRef = ref<iInput>();

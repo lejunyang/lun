@@ -2,9 +2,15 @@ import { isString, toRegExp } from '@lun-web/utils';
 import { GlobalStaticConfig } from '../config';
 import { Rule, ValidateMessages } from './type';
 import { intl, processStringWithParams } from 'common';
-import { isNumberInputType } from '@lun-web/core';
+import { isNumberInputType, createDateLocaleMethods, isDatePanelType, getDefaultTimeFormat } from '@lun-web/core';
 
-export const innerValidator = (value: any, _data: any, rule: Rule, msgs: ValidateMessages) => {
+export const innerValidator = (
+  value: any,
+  _data: any,
+  rule: Rule,
+  msgs: ValidateMessages,
+  dateLocaleMethods: ReturnType<typeof createDateLocaleMethods>,
+) => {
   const { type, min, max, greaterThan, lessThan, required, pattern, len } = rule;
   if (value == null)
     return required
@@ -78,6 +84,25 @@ export const innerValidator = (value: any, _data: any, rule: Rule, msgs: Validat
       );
   }
   // ------------------ number ------------------
+
+  // ------------------ date ------------------
+  if (isDatePanelType(type)) {
+    const { isValid, type: typeMethods, isBefore, isAfter } = GlobalStaticConfig.date,
+      { parse } = dateLocaleMethods;
+    const dateValue = parse(value, getDefaultTimeFormat({ type }));
+    if (!isValid(dateValue))
+      return processStringWithParams(msgs.type, rule) || intl('validation.date.type', rule).d('Must be a valid date');
+    if (greaterThan !== undefined && !isAfter(dateValue, greaterThan)) {
+      return processStringWithParams(msgs.greaterThan, rule) || intl('validation.date.greaterThan', rule).d('Must be after ${greaterThan}');
+    } else if (min !== undefined && !(isAfter(dateValue, min) || typeMethods.isSame(type, dateValue, min))) {
+      return processStringWithParams(msgs.min, rule) || intl('validation.date.min', rule).d('Must be equal or after ${min}');
+    } else if (lessThan !== undefined && !isBefore(dateValue, lessThan)) {
+      return processStringWithParams(msgs.lessThan, rule) || intl('validation.date.lessThan', rule).d('Must be before ${lessThan}');
+    } else if (max !== undefined && !(isBefore(dateValue, max) || typeMethods.isSame(type, dateValue, max))) {
+      return processStringWithParams(msgs.max, rule) || intl('validation.date.max', rule).d('Must be equal or before ${max}');
+    }
+  }
+  // ------------------ date ------------------
 
   // pattern check and len check ignore type, will convert value to string
   value = String(value);

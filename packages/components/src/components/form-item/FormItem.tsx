@@ -50,11 +50,24 @@ export const FormItem = defineSSRCustomElement({
   emits: formItemEmits,
   setup(itemProps, { emit: e, attrs }) {
     const contextConfig = useContextConfig();
-    const { parse } = createDateLocaleMethods(() => contextConfig.lang);
+    const dateLocaleMethods = createDateLocaleMethods(() => contextConfig.lang);
     const formContext = FormItemCollector.child();
     const { parent, layoutInfo } = formContext || {};
     const props = computed(() =>
-      virtualGetMerge(itemProps, runIfFn(parent?.props.itemProps, { formContext, formItemProps: itemProps })),
+      virtualGetMerge(
+        itemProps,
+        runIfFn(parent?.props.itemProps, { formContext, formItemProps: itemProps }),
+        // default props
+        {
+          colonMark: ':',
+          requiredMark: '*',
+          requiredMarkAlign: 'start',
+          helpType: 'icon',
+          tipType: 'tooltip',
+          validateWhen: ['blur', 'depChange'],
+          tipShowStatusIcon: true,
+        },
+      ),
     );
     const ns = useNamespace(name, { parent });
     const [_editComputed, editState] = useSetupEdit();
@@ -249,12 +262,15 @@ export const FormItem = defineSSRCustomElement({
     };
     if (!formContext) return render;
 
-    const emit = useSetupEvent<typeof e>({
-      update: (val) => {
-        if (canValidate('update')) validate();
-        emit('update', val);
+    const emit = useSetupEvent<typeof e>(
+      {
+        update: (val) => {
+          if (canValidate('update')) validate();
+          emit('update', val);
+        },
       },
-    });
+      { forceChildrenBubble: true },
+    );
 
     const path = computed(() => {
       const { name } = props.value;
@@ -262,6 +278,7 @@ export const FormItem = defineSSRCustomElement({
       return formContext.form.isPlainName(name) ? name : stringToPath(name);
     });
 
+    // TODO return rawRule, stringRule for validation msgs
     const validateProps = computed(() => {
       const { min, max, lessThan, greaterThan, len, step, precision, type, required, label, pattern } = props.value;
       return {
@@ -279,20 +296,20 @@ export const FormItem = defineSSRCustomElement({
       };
     });
 
-    const getOrSetValue = (vm?: ComponentInternalInstance, value?: any, raw?: any) => {
+    const createGetOrSet = (isSet?: number) => (vm?: ComponentInternalInstance, value?: any, raw?: any) => {
       const { setValue, getValue } = formContext.form;
       const { array } = props.value;
       if (!path.value) return;
-      const getOrSet = value !== undefined ? setValue : getValue;
-      if (isObject(value) && 'value' in value) value = value.value;
-      if (!array) return getOrSet(path.value, value);
+      if (isObject(value) && 'value' in value) value = value.value; // TODO
+      if (!array) return isSet ? setValue(path.value, value, raw) : getValue(path.value, raw);
       const index = inputContext.getChildVmIndex(vm);
       if (index === undefined) return;
-      return getOrSet(ensureArray(path.value).concat(String(index)), value, raw);
+      const arrPath = ensureArray(path.value).concat(String(index));
+      return isSet ? setValue(arrPath, value, raw) : getValue(arrPath, raw);
     };
 
     const inputContext = FormInputCollector.parent({
-      extraProvide: { getValue: getOrSetValue, setValue: getOrSetValue, status, validateProps },
+      extraProvide: { getValue: createGetOrSet(), setValue: createGetOrSet(1), status, validateProps },
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
@@ -318,21 +335,22 @@ export const FormItem = defineSSRCustomElement({
       } = GlobalStaticConfig;
       let transformType: string;
 
+      // early return if type of val is correct
       if (isNumberInputType(type) && ((transformType = 'number'), typeof val === transformType)) return val;
       else if (isDatePanelType(type) && (transformType = 'date')) {
-        const tVal = parse(val, getDefaultTimeFormat({ type }));
+        const tVal = dateLocaleMethods.parse(val, getDefaultTimeFormat({ type }));
         if (GlobalStaticConfig.date.isValid(tVal)) return tVal;
       }
 
       if (!transformType!) return val;
       if (!isPlainString(val)) return;
-      const valueOfOtherField = formContext.form.getValue(val);
+      const valueOfOtherField = formContext.form.getValue(val, true);
       switch (type) {
         case 'number':
           const numVal = toNumber(val);
           return isNaN(numVal) ? (isNumber(valueOfOtherField) ? valueOfOtherField : undefined) : numVal;
         case 'date':
-          const dateVal = parse(valueOfOtherField, getDefaultTimeFormat({ type }));
+          const dateVal = dateLocaleMethods.parse(valueOfOtherField, getDefaultTimeFormat({ type }));
           if (GlobalStaticConfig.date.isValid(dateVal)) return dateVal;
       }
     };
@@ -383,18 +401,18 @@ export const FormItem = defineSSRCustomElement({
 
     const validate = async (onCleanUp?: (cb: AnyFn) => void) => {
       const {
-        form: { getValue, data, setStatusMessages },
+        form: { getValue, data, rawData, setStatusMessages },
         parent,
       } = formContext;
-      const value = getValue(path.value);
+      const value = getValue(path.value),
+        rawValue = getValue(path.value, true);
       const { stopValidate, validators: formValidators } = parent!.props;
       const stopEarly = stopValidate === 'first-error';
       const { validators } = props.value;
-      const result = ensureArray(innerValidator(value, data, validateProps.value, validateMessages.value)) as (
-        | string
-        | ValidatorStatusResult
-      )[];
-      let errorCount = 0;
+      const result = ensureArray(
+        innerValidator(rawValue, rawData, validateProps.value, validateMessages.value, dateLocaleMethods),
+      ) as (string | ValidatorStatusResult)[];
+      let errorCount = result.length;
       if (stopEarly && result.length) {
         setStatusMessages(path.value, result);
         return [result, result.length] as const;
@@ -413,7 +431,7 @@ export const FormItem = defineSSRCustomElement({
       await Promise.allSettled(
         finalValidators.map(async (validator) => {
           if (!isFunction(validator) || stopped) return;
-          return promiseTry(() => validator(value, data, validateProps.value))
+          return promiseTry(() => validator(value, rawValue, data, rawData, validateProps.value))
             .then(collect)
             .catch(collect);
         }),
@@ -445,7 +463,6 @@ export const FormItem = defineSSRCustomElement({
       hooks.onFormItemDisconnected.exec(param);
       switch (props.value.unmountBehavior) {
         case 'delete':
-          console.log('delete');
           return deletePath(path.value);
         case 'toNull':
           return setValue(path.value, null);
@@ -459,21 +476,15 @@ export const FormItem = defineSSRCustomElement({
 });
 
 export type tFormItem = typeof FormItem;
-export type FormItemExpose = {}
+export type FormItemExpose = {};
 export type iFormItem = InstanceType<tFormItem> & FormItemExpose;
 
 export const defineFormItem = createDefineElement(
   name,
   FormItem,
+  // WARNING: defaultProps can affect virtualMerge, parent itemProps will be ignored, so better set defaultProps in third param of virtualMerge
   {
-    colonMark: ':',
-    requiredMark: '*',
-    requiredMarkAlign: 'start',
-    helpType: 'icon',
-    tipType: 'tooltip',
     required: undefined, // must, for runIfFn(required, formContext) ?? localRequired.value
-    validateWhen: ['blur', 'depChange'],
-    tipShowStatusIcon: true,
   },
   parts,
   {

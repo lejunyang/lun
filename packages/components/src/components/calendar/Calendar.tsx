@@ -35,6 +35,7 @@ export const Calendar = defineSSRCustomElement({
   name,
   props: calendarProps,
   emits: calendarEmits,
+  formAssociated: true,
   setup(props, { emit: e }) {
     const ns = useNamespace(name);
     useSetupEvent<typeof e>();

@@ -29,15 +29,15 @@ export function getConditionValue(
 
 export function processStatusMsgs(msgs: any) {
   let errorCount = 0;
-  const res = ensureTruthyArray(msgs)
-    .map((m) => {
-      if (isString(m)) return errorCount++, m;
+  const res = ensureTruthyArray(
+    ensureTruthyArray(msgs).map((m) => {
+      if (m && isString(m)) return errorCount++, m;
       else if (m?.message) {
         const status = m.status || 'error';
         if (status === 'error') errorCount++;
         return { message: m.message, status };
       }
-    })
-    .filter(Boolean) as (string | ValidatorStatusResult)[];
+    }),
+  ) as (string | ValidatorStatusResult)[];
   return [res, errorCount] as const;
 }

@@ -18,6 +18,12 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'validation.string.greaterThan': '长度不得小于等于${greaterThan}',
     'validation.string.lessThan': '长度不得大于等于${lessThan}',
 
+    'validation.date.type': '必须为有效日期',
+    'validation.date.min': '日期不得早于${min}',
+    'validation.date.max': '日期不得晚于${max}',
+    'validation.date.greaterThan': '日期不得早于等于${greaterThan}',
+    'validation.date.lessThan': '日期不得晚于等于${lessThan}',
+
     'validation.pattern': '格式不正确',
     'validation.len': '长度必须为${len}',
 

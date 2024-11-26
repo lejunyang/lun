@@ -28,7 +28,13 @@ import { freeze } from '@lun-web/utils';
 export type ValidatorStatusResult = { status?: Status; message: string };
 export type ValidatorResult = string | string[] | ValidatorStatusResult | ValidatorStatusResult[] | undefined | null;
 
-export type Validator = (value: any, data: any, rule: Rule) => MaybePromise<ValidatorResult>;
+export type Validator = (
+  value: any,
+  rawValue: any,
+  data: any,
+  rawData: any,
+  rule: Rule,
+) => MaybePromise<ValidatorResult>;
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
 
@@ -85,7 +91,7 @@ export const formItemProps = freeze({
    */
   helpType: PropString<'newLine' | 'tooltip' | 'icon'>(),
   tipType: PropString<'newLine' | 'tooltip'>(),
-  tipShowStatusIcon: PropBoolean(),
+  tipShowStatusIcon: undefBoolProp,
   visibleStatuses: PropStrOrArr<Status | Status[]>(),
   maxValidationMsg: PropNumber(),
   ...createTransitionProps('tip'),
@@ -144,11 +150,11 @@ export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> &
 
 export type Rule = {
   type?: InputType | DatePanelType;
-  min?: number;
-  max?: number;
+  min?: any;
+  max?: any;
   required?: boolean;
-  greaterThan?: number;
-  lessThan?: number;
+  greaterThan?: any;
+  lessThan?: any;
   label?: string;
   step?: number;
   precision?: number;
