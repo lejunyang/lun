@@ -17,9 +17,9 @@ export const useValueModel = createUseModel({
   defaultKey: 'value',
   defaultEvent: 'update',
   extra,
-  getFromExtra(extra) {
+  getFromExtra(extra, raw) {
     const [context, vm] = extra;
-    return context.getValue(vm);
+    return context.getValue(vm, raw);
   },
   setByExtra(extra, value, raw) {
     const [context, vm] = extra;
@@ -61,8 +61,9 @@ export const useCheckedModel = createUseModel({
   },
   setByExtra(extra, value) {
     const [context, vm] = extra;
-    const { trueValue, falseValue } = vm.props;
-    context.setValue(vm, value ? trueValue : falseValue);
+    const { trueValue, falseValue } = vm.props,
+      final = value ? trueValue : falseValue;
+    context.setValue(vm, final, final);
   },
   handleDefaultEmit(emit, vm) {
     return (name: string, ...args: any[]) => {

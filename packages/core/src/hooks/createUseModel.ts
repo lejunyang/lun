@@ -39,8 +39,8 @@ export function createUseModel<DK extends string, E extends () => any>({
   defaultEvent: string;
   handleDefaultEmit?: (fn: AnyFn, vm: ComponentInternalInstance) => AnyFn;
   extra?: E;
-  getFromExtra?: (extra: ReturnType<E> & {}) => any;
-  setByExtra?: (extra: ReturnType<E> & {}, value: any, raw?: undefined) => void;
+  getFromExtra?: (extra: ReturnType<E> & {}, raw?: boolean) => any;
+  setByExtra?: (extra: ReturnType<E> & {}, value: any, raw?: any) => void;
 }) {
   return function <P extends Record<string | symbol, unknown>, K extends keyof P = DK, Passive extends boolean = false>(
     props: P,
@@ -58,7 +58,7 @@ export function createUseModel<DK extends string, E extends () => any>({
     }
     const cloneFn = (val: P[K]) => (!clone ? val : isFunction(clone) ? clone(val) : JSON.parse(JSON.stringify(val)));
     const getter = () => {
-      const value = extraData && getFromExtra && getFromExtra(extraData);
+      const value = extraData && getFromExtra && getFromExtra(extraData, hasRaw);
       if (value !== undefined) return value;
       return props[key!] !== undefined ? cloneFn(props[key!]) : isFunction(extraSource) ? extraSource() : undefined;
     };
@@ -84,7 +84,7 @@ export function createUseModel<DK extends string, E extends () => any>({
         (v) => {
           const get = getter();
           if (!isUpdating && ((hasRaw ? v.value !== get && v.raw !== get : v !== get) || deep)) {
-            if (extraData && setByExtra) setByExtra(extraData, v, hasRaw ? v.raw : undefined);
+            if (extraData && setByExtra) setByExtra(extraData, v, hasRaw ? v.raw : v);
             triggerEmit(v as P[K]);
           }
         },
@@ -98,7 +98,7 @@ export function createUseModel<DK extends string, E extends () => any>({
           return getter()!;
         },
         set(value) {
-          if (extraData && setByExtra) setByExtra(extraData, value);
+          if (extraData && setByExtra) setByExtra(extraData, value, value);
           triggerEmit(value);
         },
       });

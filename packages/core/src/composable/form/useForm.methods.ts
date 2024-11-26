@@ -30,10 +30,10 @@ export function useFormMethods(params: ProcessedFormParams, options: UseFormOpti
       if (!path) return;
       if (isArray(path) || !methods.isPlainName(path)) {
         objectSet(data.value, path, value);
-        objectSet(rawData.value, path, rawValue);
+        objectSet(rawData.value, path, rawValue ?? value);
       } else {
         data.value[path] = value;
-        rawData.value[path] = rawValue;
+        rawData.value[path] = rawValue ?? value;
       }
       hooks.onUpdateValue.exec({ data: data.value, path, value, rawData: rawData.value });
     },
