@@ -84,4 +84,15 @@ describe('Select', () => {
     expect(tags[3].color).toBe(groupOptionsWithColors[1].color);
     expect(tags[4].color).toBe(groupOptionsWithColors[2].color);
   });
+
+  it('select should be disabled if parent is disabled', async () => {
+    const ce = l('l-theme-provider', {
+      disabled: true,
+      children: [['l-select']],
+    });
+    const select = ce.firstElementChild! as any;
+    // this issue is caused by popoverProps. selectProps was not excluding 'disabled' from popoverProps
+    expect(select._instance.props.disabled).to.be.undefined;
+    expect(select.shadowRoot!.firstElementChild!.classList.contains('is-disabled')).to.be.true;
+  });
 });

@@ -21,6 +21,7 @@ import { GetCustomRendererSource } from '../custom-renderer';
 
 export const selectPropsOfPopover = {
   ...omit(popoverProps, [
+    'disabled', // must... in case it affect edit props
     'open',
     'content',
     'popWidth',
@@ -36,7 +37,7 @@ export const selectPropsOfPopover = {
 
 export const selectProps = freeze({
   ...themeProps,
-  ...createOptionProps(true),
+  ...createOptionProps(true), // it includes editStateProps
   value: Prop(),
   multiple: PropBoolean(),
   filter: PropBoolOrFunc<boolean | ((inputValue: string | null, option: CommonOption) => boolean)>(),
