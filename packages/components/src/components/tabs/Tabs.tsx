@@ -106,12 +106,13 @@ export const Tabs = defineSSRCustomElement({
     );
 
     const updateVar = () => {
-      const el = wrapperRef.value!.children[activeIndex] as HTMLElement;
+      const { value } = wrapperRef,
+        el = value?.children[activeIndex] as HTMLElement;
       if (!el) return;
       const label = el.children[0] as HTMLElement,
         fields = ['width', 'height', 'left', 'top'];
       setStyle(
-        wrapperRef.value,
+        value,
         ns.v(
           fields.reduce((res, f) => {
             // @ts-ignore
@@ -166,11 +167,7 @@ export const Tabs = defineSSRCustomElement({
             </div>
           </div>
           {!noPanel && (
-            <TransitionGroup
-              {...transition()}
-              {...transitionAttrs}
-              onAfterEnter={transitionEnd}
-            >
+            <TransitionGroup {...transition()} {...transitionAttrs} onAfterEnter={transitionEnd}>
               {usingItems
                 ? tabs
                     .value!.map((t, i) => {
