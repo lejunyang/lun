@@ -13,6 +13,7 @@ describe('defineCustomElement', () => {
   const El = defineCustomElement({
     props: {
       msg: String,
+      renderer: Function,
     },
     setup(props) {
       useCEExpose({
@@ -20,7 +21,7 @@ describe('defineCustomElement', () => {
       });
       provide('context', props);
       const context = inject('context', {}) as typeof props;
-      return () => context.msg || props.msg;
+      return () => (props.renderer ? props.renderer(context, props) : context.msg || props.msg);
     },
   });
   customElements.define('my-el', El);
@@ -100,5 +101,22 @@ describe('defineCustomElement', () => {
     expect(parent!.shadowRoot!.textContent).toBe('msg2');
     await nextTick();
     expect(child!.shadowRoot!.textContent).toBe('msg2');
+  });
+
+  it('should resolve correct parent when element is slotted in nested context', async () => {
+    l('my-el', {
+      msg: 'GrandParent',
+      renderer: () => {
+        return (
+          <my-el msg="Parent">
+            <slot></slot>
+          </my-el>
+        );
+      },
+      children: [['my-el', { id: 'child' }]],
+    });
+    await nextTick();
+    const child = document.getElementById('child')!;
+    expect(child.shadowRoot!.textContent).toBe('Parent');
   });
 });

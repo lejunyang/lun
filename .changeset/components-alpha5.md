@@ -17,6 +17,7 @@
 ### Bug Fixes
 
 - fix parent issue when element is moved to other position in dom tree
+- fix parent resolving issue when element is slotted in another element in shadow dom
 - `tabs`: fix updateVar issue when unmounting
 - `form-item`: fix some props can not be set by form parent because of default props
 - `form-item`: fix `update` validate trigger issue

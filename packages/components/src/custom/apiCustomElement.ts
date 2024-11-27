@@ -320,7 +320,9 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     // locate nearest Vue custom element parent for provide/inject
     let parent: Node | null = this;
     // parentNode of shadowRoot is null, use host to get parentNode
-    while ((parent = parent && (parent.parentNode || (parent as ShadowRoot).host))) {
+    while (
+      (parent = parent && ((parent as Element).assignedSlot || parent.parentNode || (parent as ShadowRoot).host))
+    ) {
       const virtual = virtualParentMap.get(parent) as VueElement;
       if (virtual) parent = virtual;
       if (parent instanceof VueElement) return parent;
