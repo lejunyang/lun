@@ -1,6 +1,6 @@
 import { isString, toRegExp } from '@lun-web/utils';
 import { GlobalStaticConfig } from '../config';
-import { Rule, ValidateMessages } from './type';
+import { RawRule, Rule, ValidateMessages } from './type';
 import { intl, processStringWithParams } from 'common';
 import { isNumberInputType, createDateLocaleMethods, isDatePanelType, getDefaultTimeFormat } from '@lun-web/core';
 
@@ -8,10 +8,11 @@ export const innerValidator = (
   value: any,
   _data: any,
   rule: Rule,
+  rawRule: RawRule,
   msgs: ValidateMessages,
   dateLocaleMethods: ReturnType<typeof createDateLocaleMethods>,
 ) => {
-  const { type, min, max, greaterThan, lessThan, required, pattern, len } = rule;
+  const { type, min, max, greaterThan, lessThan, required, pattern, len } = rawRule;
   if (value == null)
     return required
       ? processStringWithParams(msgs.required, rule) ||

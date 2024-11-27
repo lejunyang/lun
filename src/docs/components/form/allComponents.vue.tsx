@@ -63,6 +63,9 @@ export default function () {
             <l-button>选择文件</l-button>
           </l-file-picker>
         </l-form-item>
+        <l-form-item name="date" label="日期">
+          <l-date-picker />
+        </l-form-item>
       </l-form>
       <pre>
         data:

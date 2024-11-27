@@ -34,6 +34,7 @@ export type Validator = (
   data: any,
   rawData: any,
   rule: Rule,
+  rawRule: RawRule
 ) => MaybePromise<ValidatorResult>;
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
@@ -150,15 +151,29 @@ export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> &
 
 export type Rule = {
   type?: InputType | DatePanelType;
+  min?: string;
+  max?: string;
+  required?: string;
+  greaterThan?: string;
+  lessThan?: string;
+  label?: string;
+  step?: string;
+  precision?: string;
+  len?: string;
+  pattern?: RegExp | string;
+};
+
+export type RawRule = {
+  type?: InputType | DatePanelType;
+  required?: boolean;
+  label?: string;
   min?: any;
   max?: any;
-  required?: boolean;
   greaterThan?: any;
   lessThan?: any;
-  label?: string;
-  step?: number;
-  precision?: number;
-  len?: number;
+  step?: any;
+  precision?: any;
+  len?: any;
   pattern?: RegExp | string;
 };
 

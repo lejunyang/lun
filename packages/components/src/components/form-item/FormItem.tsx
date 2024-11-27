@@ -1,9 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import {
   createDateLocaleMethods,
-  getDefaultTimeFormat,
-  isDatePanelType,
-  isNumberInputType,
   objectComputed,
   useCleanUp,
   UseFormReturn,
@@ -22,7 +19,6 @@ import {
   isEmpty,
   isFunction,
   isObject,
-  isPlainString,
   objectGet,
   promiseTry,
   runIfFn,
@@ -35,11 +31,12 @@ import {
   virtualGetMerge,
 } from '@lun-web/utils';
 import { defineIcon } from '../icon/Icon';
-import { GlobalStaticConfig, useContextConfig } from 'config';
+import { useContextConfig } from 'config';
 import { innerValidator } from './formItem.validate';
 import { getConditionValue, processStatusMsgs } from './utils';
 import { getCompParts, renderStatusIcon, Status, statuses } from 'common';
 import { wrapTransition } from './form-item.tip-transition';
+import { useRulesTransform } from './form-item.rules-transform';
 
 const name = 'form-item';
 const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line', 'tip-line'] as const;
@@ -146,8 +143,9 @@ export const FormItem = defineSSRCustomElement({
       };
     });
     const [stateClass, states] = useCEStates(() => ({
-      required: formContext ? validateProps.value.required : props.value.required,
+      required: formContext ? validateRawProps.required : props.value.required,
       ...layoutInfo?.value.itemState,
+      invalid: status.value === 'error',
     }));
 
     const [elementRef, errorActiveTarget] = useErrorTooltip(() => tips.tooltip, {
@@ -278,24 +276,6 @@ export const FormItem = defineSSRCustomElement({
       return formContext.form.isPlainName(name) ? name : stringToPath(name);
     });
 
-    // TODO return rawRule, stringRule for validation msgs
-    const validateProps = computed(() => {
-      const { min, max, lessThan, greaterThan, len, step, precision, type, required, label, pattern } = props.value;
-      return {
-        type,
-        required: (runIfFn(required, formContext) ?? localRequired.value) || false,
-        min: transform(min, type),
-        max: transform(max, type),
-        lessThan: transform(lessThan, type),
-        greaterThan: transform(greaterThan, type),
-        len: transform(len, type),
-        step: transform(step, type),
-        precision: transform(precision, type),
-        pattern,
-        label,
-      };
-    });
-
     const createGetOrSet = (isSet?: number) => (vm?: ComponentInternalInstance, value?: any, raw?: any) => {
       const { setValue, getValue } = formContext.form;
       const { array } = props.value;
@@ -308,8 +288,17 @@ export const FormItem = defineSSRCustomElement({
       return isSet ? setValue(arrPath, value, raw) : getValue(arrPath, raw);
     };
 
+    const localRequired = ref(false); // to required when depValues changed
+
+    const [validateRawProps, validateProps] = useRulesTransform(props, formContext, dateLocaleMethods, localRequired);
+
     const inputContext = FormInputCollector.parent({
-      extraProvide: { getValue: createGetOrSet(), setValue: createGetOrSet(1), status, validateProps },
+      extraProvide: {
+        getValue: createGetOrSet(),
+        setValue: createGetOrSet(1),
+        status,
+        validateProps: validateRawProps,
+      },
       onChildRemoved(_, index) {
         // delete the value of the removed child if this form item is an array
         const { array } = props.value;
@@ -322,38 +311,6 @@ export const FormItem = defineSSRCustomElement({
         }
       },
     });
-
-    /**
-     * transform prop like min, max, lessThan, greaterThan, len, step, precision.
-     * If it's a valid value for that type, return it;
-     * else if it's string, consider it as a path of other field, try to get it from formContext, check if the value is valid, return if true, otherwise return undefined
-     */
-    const transform = (val: any, type?: string) => {
-      const {
-        math: { isNaN, toNumber, isNumber },
-        // date: { isValid } // do not get date here, as date preset is not a must
-      } = GlobalStaticConfig;
-      let transformType: string;
-
-      // early return if type of val is correct
-      if (isNumberInputType(type) && ((transformType = 'number'), typeof val === transformType)) return val;
-      else if (isDatePanelType(type) && (transformType = 'date')) {
-        const tVal = dateLocaleMethods.parse(val, getDefaultTimeFormat({ type }));
-        if (GlobalStaticConfig.date.isValid(tVal)) return tVal;
-      }
-
-      if (!transformType!) return val;
-      if (!isPlainString(val)) return;
-      const valueOfOtherField = formContext.form.getValue(val, true);
-      switch (type) {
-        case 'number':
-          const numVal = toNumber(val);
-          return isNaN(numVal) ? (isNumber(valueOfOtherField) ? valueOfOtherField : undefined) : numVal;
-        case 'date':
-          const dateVal = dateLocaleMethods.parse(valueOfOtherField, getDefaultTimeFormat({ type }));
-          if (GlobalStaticConfig.date.isValid(dateVal)) return dateVal;
-      }
-    };
 
     const depInfo = computed(() => {
       // Get deps from the formItem' props, not the merged props, to avoid a dead loop case
@@ -373,8 +330,6 @@ export const FormItem = defineSSRCustomElement({
       });
       return { allFalsy, someFalsy, depValues, noneFalsy: !!temp.length && !someFalsy };
     });
-
-    const localRequired = ref(false); // to required when depValues changed
 
     watch(depInfo, (info, oldInfo, onCleanUp) => {
       let { clearWhenDepChange, array } = props.value;
@@ -410,7 +365,7 @@ export const FormItem = defineSSRCustomElement({
       const stopEarly = stopValidate === 'first-error';
       const { validators } = props.value;
       const result = ensureArray(
-        innerValidator(rawValue, rawData, validateProps.value, validateMessages.value, dateLocaleMethods),
+        innerValidator(rawValue, rawData, validateProps, validateRawProps, validateMessages.value, dateLocaleMethods),
       ) as (string | ValidatorStatusResult)[];
       let errorCount = result.length;
       if (stopEarly && result.length) {
@@ -431,7 +386,7 @@ export const FormItem = defineSSRCustomElement({
       await Promise.allSettled(
         finalValidators.map(async (validator) => {
           if (!isFunction(validator) || stopped) return;
-          return promiseTry(() => validator(value, rawValue, data, rawData, validateProps.value))
+          return promiseTry(() => validator(value, rawValue, data, rawData, validateProps, validateRawProps))
             .then(collect)
             .catch(collect);
         }),
