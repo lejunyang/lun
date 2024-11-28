@@ -265,9 +265,8 @@ export const getPackageTypes = once(async () => {
   return typeMap;
 });
 
-export function encode(content: string, version = '01') {
-  // version is useless for now, but might parse according to the version in future
-  const buffer = strToU8('L' + version + content);
+export function encode(content: string, otherInfo?: Record<string, string | number>) {
+  const buffer = strToU8(JSON.stringify({ ...otherInfo, 0: content }));
   const zipped = zlibSync(buffer, { level: 9 });
   const binary = strFromU8(zipped, true);
   return btoa(binary);
@@ -281,12 +280,17 @@ export function decode(hash?: string) {
   if (binary.startsWith('\x78\xDA')) {
     const buffer = strToU8(binary, true);
     const unzipped = unzlibSync(buffer);
-    const text = strFromU8(unzipped),
-      version = +text.slice(1, 3);
-    if (text[0] === 'L' && version && Number.isInteger(version)) {
+    let info;
+    const text = strFromU8(unzipped);
+    try {
+      info = JSON.parse(text);
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+    if (info?.[0]) {
       return {
-        version,
-        content: text.slice(3),
+        content: info[0],
       };
     }
   }
