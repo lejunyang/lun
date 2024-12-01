@@ -8,10 +8,10 @@ import {
   useSetupEvent,
 } from '@lun-web/core';
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, renderElement, virtualUnrefGetMerge } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
-import { isEmpty, isArray, runIfFn, raf, arrayFrom, shadowContains } from '@lun-web/utils';
+import { isEmpty, isArray, runIfFn, raf, arrayFrom, shadowContains, virtualGetMerge } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
@@ -64,7 +64,7 @@ export const Input = defineSSRCustomElement({
 
     const { inputHandlers, wrapperHandlers, numberMethods, stepUpHandlers, stepDownHandlers, state } = useMultipleInput(
       // it was computed, but spread props will make it re-compute every time the value changes, so use virtualGetMerge instead
-      virtualUnrefGetMerge(
+      virtualGetMerge(
         {
           value: valueModel,
           input: inputRef,
@@ -105,7 +105,7 @@ export const Input = defineSSRCustomElement({
 
     const finalInputVal = computed(() => {
       if (props.multiple) return valueForMultiple.value;
-      const { type } = validateProps.value;
+      const { type } = validateProps;
       const { value } = valueModel,
         str = strValModel.value;
       // +value === +str is to avoid input rerender when input is '1.' and type is number
@@ -127,7 +127,7 @@ export const Input = defineSSRCustomElement({
     const [stateClass, states] = useCEStates(() => ({
       empty: isEmpty(valueModel.value) && !valueForMultiple.value,
       multiple: props.multiple,
-      required: validateProps.value.required,
+      required: validateProps.required,
       withPrepend: !prependEmpty.value,
       withAppend: !appendEmpty.value,
       withRenderer: !rendererEmpty.value,
@@ -141,7 +141,7 @@ export const Input = defineSSRCustomElement({
 
     const numberStepIcons = computed(() => {
       const { stepControl, multiple } = props;
-      if (!isNumberInputType(validateProps.value.type) || multiple) return;
+      if (!isNumberInputType(validateProps.type) || multiple) return;
       const step = ns.e('step'),
         arrow = ns.e('arrow'),
         slot = ns.e('slot');
@@ -178,7 +178,7 @@ export const Input = defineSSRCustomElement({
     const [appendSlot, appendEmpty] = useSlot('append');
     const [rendererSlot, rendererEmpty] = useSlot('renderer');
 
-    const [passwordIcon, localType, togglePassword] = usePassword(() => validateProps.value.type, ns);
+    const [passwordIcon, localType, togglePassword] = usePassword(() => validateProps.type, ns);
 
     const clearIcon = computed(
       () =>

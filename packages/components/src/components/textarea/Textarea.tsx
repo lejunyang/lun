@@ -58,7 +58,7 @@ export const Textarea = defineSSRCustomElement({
       computed(() => {
         return {
           ...props,
-          ...validateProps.value,
+          ...validateProps,
           disabled: !editComputed.editable,
           input: textareaRef,
           value: valueModel,
@@ -86,7 +86,7 @@ export const Textarea = defineSSRCustomElement({
 
     const [stateClass, states] = useCEStates(() => ({
       empty: isEmpty(valueModel.value),
-      required: validateProps.value.required,
+      required: validateProps.required,
       withClearIcon: props.showClearIcon && editComputed.editable,
     }));
 

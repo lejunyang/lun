@@ -1,9 +1,9 @@
 import type { MaybeRefLikeOrGetter, UseModel } from '@lun-web/core';
-import { createUseModel, unrefOrGet } from '@lun-web/core';
+import { createUseModel, objectComputed, unrefOrGet } from '@lun-web/core';
 import { FormInputCollector } from '../components/form-item/collector';
 import { computed, getCurrentInstance, Ref } from 'vue';
 import { Status } from 'common';
-import { isSet, pickNonNil, ensureArray } from '@lun-web/utils';
+import { isSet, pickNonNil, ensureArray, objectKeys } from '@lun-web/utils';
 import { formItemRuleProps } from '../components/form-item/type';
 
 const extra = () => {
@@ -36,11 +36,11 @@ export const usePropsFromFormItem = (props: { status?: Status }) => {
   const context = FormInputCollector.child(false);
   return {
     status: computed(() => props.status || context?.status.value),
-    validateProps: computed(() =>
+    validateProps: objectComputed(() =>
       pickNonNil(
-        Object.keys(formItemRuleProps) as (keyof typeof formItemRuleProps)[],
+        objectKeys(formItemRuleProps) as (keyof typeof formItemRuleProps)[],
         props,
-        context?.validateProps.value,
+        context?.validateProps,
       ),
     ),
     context,

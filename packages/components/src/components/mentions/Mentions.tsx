@@ -117,7 +117,7 @@ export const Mentions = defineSSRCustomElement({
 
     const [stateClass, states] = useCEStates(() => ({
       empty: isEmpty(valueModel.value),
-      required: validateProps.value.required,
+      required: validateProps.required,
       withClearIcon: props.showClearIcon && editComputed.editable,
     }));
 
