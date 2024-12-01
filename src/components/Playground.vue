@@ -20,7 +20,7 @@
 <script setup lang="tsx">
 import { onErrorCaptured, ref, shallowRef, watch, watchEffect } from 'vue';
 import { getErrorNode, decode, encode, LazyEditor, runVueTSXCode, setActiveCodeBlock } from '../utils';
-import { debounce, runIfFn, inBrowser } from '@lun-web/utils';
+import { debounce, inBrowser } from '@lun-web/utils';
 import { useBrowserLocation, useSessionStorage } from '@vueuse/core';
 import { useRoute } from 'vitepress';
 
