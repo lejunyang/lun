@@ -43,6 +43,8 @@ import { defineSkeleton } from './skeleton';
 import { defineVirtualRenderer } from './virtual-renderer';
 import { defineScrollView } from './scroll-view';
 import { defineTree, defineTreeItem } from './tree';
+import { defineTable } from './table/Table';
+import { defineTableColumn } from './table/TableColumn';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -55,6 +57,8 @@ export function defineAllComponents() {
     defineTeleportHolder,
     defineAccordionGroup,
     defineAccordion,
+    defineTable,
+    defineTableColumn,
     defineTabs,
     defineTabItem,
     defineForm,
@@ -185,6 +189,7 @@ export * from './select';
 export * from './skeleton';
 export * from './spin';
 export * from './switch';
+export * from './table';
 export * from './tabs';
 export * from './tag';
 export * from './teleport-holder';

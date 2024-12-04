@@ -10,6 +10,8 @@ const wrapLink = (link: string, lang: string) => {
   return `/${lang}${link}`;
 };
 
+const notProd = process.env.NODE_ENV !== 'production';
+
 const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
   return {
     // https://vitepress.dev/reference/default-theme-config
@@ -81,7 +83,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
           text: locales[lang].sidebar.basic.menu,
           collapsed: false,
           items: [
-            process.env.NODE_ENV !== 'production' && {
+            notProd && {
               text: 'Test',
               link: wrapLink('/components/test/', lang),
             },
@@ -134,9 +136,9 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
                 { text: locales[lang].sidebar.dataDisplay.formItem, link: wrapLink('/components/form-item/', lang) },
               ],
             },
-            // { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/') },
+            notProd && { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/', lang) },
             { text: locales[lang].sidebar.dataDisplay.tree, link: wrapLink('/components/tree/', lang) },
-          ],
+          ].filter(Boolean),
         },
         {
           text: locales[lang].sidebar.pop.menu,
