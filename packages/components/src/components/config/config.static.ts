@@ -1,4 +1,4 @@
-import { freeze, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
+import { freeze, hasOwn, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
 import { error } from '../../utils';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun-web/core';
@@ -182,7 +182,8 @@ export const GlobalStaticConfig = new Proxy(
   {
     get(target, p, receiver) {
       const val = Reflect.get(p in presets ? presets : target, p, receiver);
-      if (__DEV__ && val == null) throw new Error(`GlobalStaticConfig '${String(p)}' has not been defined yet`);
+      if (__DEV__ && val == null && hasOwn(target, p))
+        throw new Error(`GlobalStaticConfig '${String(p)}' has not been defined yet`);
       return val;
     },
     set(target: any, p, newValue, receiver) {

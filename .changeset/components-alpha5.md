@@ -25,3 +25,4 @@
 - `select`: fix parent disabled is not working
 - `input,textarea`: should not be able to input when loading is true
 - `radio`: should not be able to check when loading or readonly is true
+- `GlobalStaticConfig`: fix accessing some props that are not owned by itself(like toString) can cause error
