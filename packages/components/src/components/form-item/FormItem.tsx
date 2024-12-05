@@ -1,6 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import {
   createDateLocaleMethods,
+  getVmIndex,
   objectComputed,
   useCleanUp,
   UseFormReturn,
@@ -282,7 +283,7 @@ export const FormItem = defineSSRCustomElement({
       if (!path.value) return;
       if (isObject(value) && 'value' in value) value = value.value; // TODO
       if (!array) return isSet ? setValue(path.value, value, raw) : getValue(path.value, raw);
-      const index = inputContext.getChildVmIndex(vm);
+      const index = getVmIndex(vm);
       if (index === undefined) return;
       const arrPath = ensureArray(path.value).concat(String(index));
       return isSet ? setValue(arrPath, value, raw) : getValue(arrPath, raw);

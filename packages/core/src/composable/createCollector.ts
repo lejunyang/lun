@@ -15,11 +15,11 @@ import {
   ref,
   onUnmounted,
   shallowReactive,
-  reactive,
   readonly,
 } from 'vue';
 import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { toUnrefGetterDescriptors } from '../utils';
+import { useWeakMap } from '../hooks';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
@@ -30,24 +30,32 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
   items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
   addItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
   removeItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
-  getChildVmIndex(child: any): number | undefined;
   getChildrenCollect(itemsArr: Ref<InstanceWithProps<ChildProps>[]>): {
     addItem: (child: UnwrapRef<InstanceWithProps<ChildProps>>) => void;
     removeItem: (child: UnwrapRef<InstanceWithProps<ChildProps>>) => void;
-    getChildVmIndex: (child: any) => number | undefined;
   };
 };
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
 
-const vmChildrenMap = reactive(new WeakMap<any, Ref<InstanceWithProps<any>[]>>()),
-  vmTreeLevelMap = reactive(new WeakMap<any, Ref<number>>()),
-  vmTreeParentMap = reactive(new WeakMap<any, any>());
+const [, getTreeChildren, setTreeChildren, deleteTreeChildren] = useWeakMap<any, Ref<InstanceWithProps<any>[]>>(),
+  [, getTreeLevel, setTreeLevel, deleteTreeLevel] = useWeakMap<any, Ref<number>>(),
+  [, getTreeParent, setTreeParent, deleteTreeParent] = useWeakMap<any, any>(),
+  [, getIndex, setIndex] = useWeakMap<any, number>(),
+  /** tree index is the index among the children of same parent in tree */
+  [, getTreeIndex, setTreeIndex] = useWeakMap<any, number>();
 
-export const getVmTreeDirectChildren = (vm?: ComponentInternalInstance) => vmChildrenMap.get(vm)?.value || [];
-export const getVmTreeLevel = (child?: ComponentInternalInstance) => vmTreeLevelMap.get(child)?.value;
+/** @private */
+export const getVmTreeDirectChildren = (vm?: ComponentInternalInstance) => getTreeChildren(vm)?.value || [];
+/** @private */
+export const getVmTreeLevel = (child?: ComponentInternalInstance) => getTreeLevel(child)?.value;
+/** @private */
 export const getVmTreeParent = (child?: ComponentInternalInstance): ComponentInternalInstance | undefined =>
-  vmTreeParentMap.get(child);
+  getTreeParent(child);
+/** @private */
+export const getVmIndex: (child?: ComponentInternalInstance) => number | undefined = getIndex;
+/** @private */
+export const getVmTreeIndex: (child?: ComponentInternalInstance) => number | undefined = getTreeIndex;
 
 /**
  * create a collector used for collecting component instances between Parent Component and Children Components.\
@@ -136,7 +144,6 @@ export function createCollector<
     }
 
     const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>, isTopParent?: boolean) => {
-      const getChildVmIndex = (childVm: any) => itemsArr.value.indexOf(childVm);
       return {
         addItem(child: any) {
           if (!child || runIfFn(skipChild, child, state.parentEl) === true) return;
@@ -166,22 +173,27 @@ export function createCollector<
               const pos = getPosition(0);
               if (pos & 4) prevIndex -= 1;
             }
-            value.splice(prevIndex + 1, 0, child);
-            if (onChildAdded) onChildAdded(child, prevIndex + 1, isTopParent);
+            const newIndex = prevIndex + 1;
+            value.splice(newIndex, 0, child);
+            for (let i = newIndex; i < value.length; i++) {
+              (isTopParent ? setIndex : setTreeIndex)(value[i], i);
+            }
+            if (onChildAdded) onChildAdded(child, newIndex, isTopParent);
           } else {
             value.push(child);
-            if (onChildAdded) onChildAdded(child, value.length - 1, isTopParent);
+            const newIndex = value.length - 1;
+            (isTopParent ? setIndex : setTreeIndex)(child, newIndex);
+            if (onChildAdded) onChildAdded(child, newIndex, isTopParent);
           }
           isTopParent && updateWait();
         },
         removeItem(child: any) {
-          const index = getChildVmIndex(child);
+          const index = (isTopParent ? getIndex : getTreeIndex)(child)!;
           if (index > -1) {
             itemsArr.value.splice(index, 1);
             if (onChildRemoved) onChildRemoved(child as any, index, isTopParent);
           }
         },
-        getChildVmIndex,
       };
     };
 
@@ -210,7 +222,6 @@ export function createCollector<
       }>,
       getChildren,
       vm: instance,
-      getChildVmIndex: provideContext.getChildVmIndex,
       provided: provideContext,
     };
   };
@@ -223,6 +234,7 @@ export function createCollector<
           ? {
               readonly isLeaf: boolean;
               readonly level: number;
+              readonly treeIndex: number;
               readonly nestedItems: InstanceWithProps<ChildProps>[];
             }
           : {})
@@ -236,7 +248,7 @@ export function createCollector<
           const isLeaf = ref(null as null | boolean),
             level = ref(0),
             nestedItems = ref([]);
-          vmChildrenMap.set(instance, nestedItems);
+          setTreeChildren(instance, nestedItems);
           const provideMethods = {
             getLevel: () => ((isLeaf.value = false), level.value),
             ...context.getChildrenCollect(nestedItems),
@@ -246,36 +258,36 @@ export function createCollector<
           const parentProvide = inject<typeof provideMethods>(CHILD_KEY);
           if (parentProvide) {
             level.value = parentProvide.getLevel() + 1;
-            vmTreeParentMap.set(instance, parentProvide.instance);
+            setTreeParent(instance, parentProvide.instance);
           }
-          vmTreeLevelMap.set(instance!, level);
+          setTreeLevel(instance!, level);
           const performCollect = () => parentProvide?.addItem(instance!);
           collectOnSetup ? performCollect() : onMounted(performCollect);
           onMounted(() => {
             if (isLeaf.value == null) isLeaf.value = true;
           });
           onBeforeUnmount(() => {
-            vmChildrenMap.delete(instance);
-            vmTreeParentMap.delete(instance);
-            vmTreeLevelMap.delete(instance!);
+            deleteTreeChildren(instance);
+            deleteTreeParent(instance);
+            deleteTreeLevel(instance);
             parentProvide?.removeItem(instance!);
           });
-          return toUnrefGetterDescriptors({ isLeaf, level, nestedItems });
+          return toUnrefGetterDescriptors({ isLeaf, level, nestedItems, treeIndex: () => getTreeIndex(instance) });
         }
       })();
 
-      const { getChildVmIndex, items } = context;
+      const { items } = context;
       // create a new context with index and isStart/isEnd props for every child
       context = Object.defineProperties({} as any, {
         ...toGetterDescriptors(context),
         index: {
-          get: () => getChildVmIndex(instance) ?? -1,
+          get: () => getIndex(instance) ?? -1,
         },
         isStart: {
-          get: () => getChildVmIndex(instance) === 0,
+          get: () => getIndex(instance) === 0,
         },
         isEnd: {
-          get: () => getChildVmIndex(instance) === items.value.length - 1,
+          get: () => getIndex(instance) === items.value.length - 1,
         },
         ...treeDescriptors,
       });
