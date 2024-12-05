@@ -1,0 +1,36 @@
+@use '../../mixins' as *;
+
+@include b(table-column) {
+  color: getGrayColor(12);
+
+  @include e(head) {
+    @include declareVarValues(
+      (
+        font-weight: (
+          head-font-weight,
+          700,
+        ),
+      )
+    );
+  }
+
+  @include e((head, cell)) {
+    box-sizing: border-box;
+    // box-shadow: 0 -1px getGrayColor(a5);
+    @include declareVars(
+      (
+        padding: cell-padding,
+        min-height: cell-min-height,
+      )
+    );
+  }
+
+  @include size(2) {
+    @include setVars(
+      (
+        cell-padding: getSpaceValue(3),
+        cell-min-height: calc(44px * getScaleValue()),
+      )
+    );
+  }
+}

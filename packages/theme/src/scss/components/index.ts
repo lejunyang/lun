@@ -67,6 +67,8 @@ import { importSkeletonBasicTheme } from './skeleton';
 import { importTreeBasicTheme } from './tree';
 import { importTreeItemBasicTheme } from './tree-item';
 import { importScrollViewBasicTheme } from './scroll-view';
+import { importTableBasicTheme } from './table';
+import { importTableColumnBasicTheme } from './table-column';
 
 export * from './button';
 export * from './calendar';
@@ -94,6 +96,8 @@ export * from './spin';
 export * from './switch';
 export * from './tabs';
 export * from './tab-item';
+export * from './table';
+export * from './table-column';
 export * from './tag';
 export * from './text';
 export * from './textarea';
@@ -140,6 +144,8 @@ export const importBasicTheme = () => {
   importTreeBasicTheme();
   importTreeItemBasicTheme();
   importScrollViewBasicTheme();
+  importTableBasicTheme();
+  importTableColumnBasicTheme();
 };
 
 export const importOutlineTheme = () => {
@@ -187,13 +193,14 @@ export const importGhostTheme = () => {
 export const autoImportTheme = once(() => {
   importCommonTheme();
   __internal_defineSubscriber.push((comp) => {
-    import(`./${comp}/index.ts`)
-      .then((m) => {
+    import(`./${comp}/index.ts`).then(
+      (m) => {
         Object.values(m).forEach((f: any) => f());
-      })
-      .catch(() => {
+      },
+      () => {
         // not every comp has theme, need to ignore the error
-      });
+      },
+    );
   });
 });
 
