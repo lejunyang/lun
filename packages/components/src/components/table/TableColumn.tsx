@@ -5,7 +5,7 @@ import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { getVmTreeDirectChildren, getVmTreeLevel } from '@lun-web/core';
-import { ComponentInternalInstance, getCurrentInstance, VNodeChild } from 'vue';
+import { ComponentInternalInstance, getCurrentInstance, ref, VNodeChild } from 'vue';
 import { ensureArray, objectGet } from '@lun-web/utils';
 
 const name = 'table-column';
@@ -27,8 +27,11 @@ export const TableColumn = defineSSRCustomElement({
       part: compParts[1],
     };
 
+    const cells = ref<HTMLElement[]>([]);
+    const [, isCollapsed] = context.collapsed;
+
     const getCell = (vm: ComponentInternalInstance, item: any) => (
-      <div class={ns.e('cell')} part={compParts[3]}>
+      <div class={ns.e('cell')} part={compParts[3]} ref={cells} ref_for={true}>
         {objectGet(item, vm.props.name as string)}
       </div>
     );
@@ -40,7 +43,7 @@ export const TableColumn = defineSSRCustomElement({
       return (
         <div
           {...headCommonProps}
-          v-show={+headColSpan! !== 0}
+          v-show={+headColSpan! !== 0 && !isCollapsed(vm)}
           style={{
             gridColumn:
               /**

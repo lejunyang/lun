@@ -5,7 +5,8 @@ import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray } from '@lun-web/utils';
-import { fComputed } from '@lun-web/core';
+import { fComputed, useWeakMap, useWeakSet } from '@lun-web/core';
+import { ComponentInternalInstance } from 'vue';
 
 const name = 'table';
 const parts = ['root'] as const;
@@ -16,10 +17,25 @@ export const Table = defineSSRCustomElement({
   emits: tableEmits,
   setup(props) {
     const ns = useNamespace(name);
-    const maxLevel = fComputed(() => Math.max(...context.value.map((child) => (getVmMaxChildLevel(child) || 0) + 1)));
+    const collapsed = useWeakSet(),
+      [replaceCollapsed, , addCollapsed] = collapsed;
+    const maxLevel = fComputed(() => {
+      replaceCollapsed();
+      let collapseCount = 0;
+      return Math.max(
+        ...context.value.map((child) => {
+          if (--collapseCount > 0) addCollapsed(child);
+          else collapseCount = +child.props.headColSpan!;
+          return (getVmMaxChildLevel(child) || 0) + 1;
+        }),
+      );
+    });
+    const widthMap = useWeakMap<ComponentInternalInstance, number>();
     const context = TableColumnCollector.parent({
       extraProvide: {
         maxLevel,
+        widthMap,
+        collapsed,
       },
     });
 
