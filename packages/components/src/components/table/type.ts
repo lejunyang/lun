@@ -8,6 +8,7 @@ import {
   PropArray,
   Prop,
   undefBoolProp,
+  PropNumber,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -27,10 +28,11 @@ export const tableColumnProps = freeze({
   name: PropString(),
   plainName: undefBoolProp,
   label: Prop(),
+  headColSpan: PropNumber(),
 });
 
 export const tableColumnEmits = createEmits<{}>([]);
 
-export type TableColumnSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
-export type TableColumnEvents = GetEventPropsFromEmits<typeof tableEmits>;
-export type TableColumnProps = Partial<TableSetupProps> & TableEvents;
+export type TableColumnSetupProps = ExtractPropTypes<typeof tableColumnProps> & CommonProps;
+export type TableColumnEvents = GetEventPropsFromEmits<typeof tableColumnEmits>;
+export type TableColumnProps = Partial<TableColumnSetupProps> & TableColumnEvents;
