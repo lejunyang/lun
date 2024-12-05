@@ -46,16 +46,16 @@ const [, getTreeChildren, setTreeChildren, deleteTreeChildren] = useWeakMap<any,
   [, getTreeIndex, setTreeIndex] = useWeakMap<any, number>();
 
 /** @private */
-export const getVmTreeDirectChildren = (vm?: ComponentInternalInstance) => getTreeChildren(vm)?.value || [];
+export const getVmTreeDirectChildren = (vm?: ComponentInternalInstance | null) => getTreeChildren(vm)?.value || [];
 /** @private */
-export const getVmTreeLevel = (child?: ComponentInternalInstance) => getTreeLevel(child)?.value;
+export const getVmTreeLevel = (child?: ComponentInternalInstance | null) => getTreeLevel(child)?.value;
 /** @private */
-export const getVmTreeParent = (child?: ComponentInternalInstance): ComponentInternalInstance | undefined =>
+export const getVmTreeParent = (child?: ComponentInternalInstance | null): ComponentInternalInstance | undefined =>
   getTreeParent(child);
 /** @private */
-export const getVmIndex: (child?: ComponentInternalInstance) => number | undefined = getIndex;
+export const getVmIndex: (child?: ComponentInternalInstance | null) => number | undefined = getIndex;
 /** @private */
-export const getVmTreeIndex: (child?: ComponentInternalInstance) => number | undefined = getTreeIndex;
+export const getVmTreeIndex: (child?: ComponentInternalInstance | null) => number | undefined = getTreeIndex;
 
 /**
  * create a collector used for collecting component instances between Parent Component and Children Components.\
@@ -144,6 +144,11 @@ export function createCollector<
     }
 
     const getChildrenCollect = (itemsArr: Ref<InstanceWithProps[]>, isTopParent?: boolean) => {
+      const updateIndexes = (newIndex: number) => {
+        for (let i = newIndex; i < itemsArr.value.length; i++) {
+          (isTopParent ? setIndex : setTreeIndex)(itemsArr.value[i], i);
+        }
+      };
       return {
         addItem(child: any) {
           if (!child || runIfFn(skipChild, child, state.parentEl) === true) return;
@@ -175,9 +180,7 @@ export function createCollector<
             }
             const newIndex = prevIndex + 1;
             value.splice(newIndex, 0, child);
-            for (let i = newIndex; i < value.length; i++) {
-              (isTopParent ? setIndex : setTreeIndex)(value[i], i);
-            }
+            updateIndexes(newIndex);
             if (onChildAdded) onChildAdded(child, newIndex, isTopParent);
           } else {
             value.push(child);
@@ -191,6 +194,7 @@ export function createCollector<
           const index = (isTopParent ? getIndex : getTreeIndex)(child)!;
           if (index > -1) {
             itemsArr.value.splice(index, 1);
+            updateIndexes(index);
             if (onChildRemoved) onChildRemoved(child as any, index, isTopParent);
           }
         },
@@ -226,7 +230,8 @@ export function createCollector<
     };
   };
   const child = <T = undefined>(collect = true, defaultContext?: T) => {
-    let instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>> | null;
+    const instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>>;
+    if (!instance) throw new Error('');
     type C = CollectorContext<
       ParentProps,
       ChildProps,
@@ -236,43 +241,71 @@ export function createCollector<
               readonly level: number;
               readonly treeIndex: number;
               readonly nestedItems: InstanceWithProps<ChildProps>[];
+              readonly maxChildLevel: number;
+              readonly leavesCount: number;
             }
           : {})
     >;
+    if (!collect && (instance as any)[CHILD_KEY])
+      return (instance as any)[CHILD_KEY] as T extends undefined ? C | undefined : C;
     let context = inject<T extends undefined ? C | undefined : C>(COLLECTOR_KEY, defaultContext as any);
 
     // @ts-ignore
     if (context?.[COLLECTOR_KEY]) {
       const treeDescriptors = (() => {
-        if (tree) {
+        if (tree && collect) {
           const isLeaf = ref(null as null | boolean),
             level = ref(0),
+            maxChildLevel = ref(0),
+            leavesCount = ref(0),
             nestedItems = ref([]);
           setTreeChildren(instance, nestedItems);
           const provideMethods = {
             getLevel: () => ((isLeaf.value = false), level.value),
             ...context.getChildrenCollect(nestedItems),
             instance,
+            cb: (maxLevel: number, isUnmount?: number) => {
+              isUnmount ? leavesCount.value-- : leavesCount.value++;
+              maxChildLevel.value = maxLevel;
+            },
           };
-          provide(CHILD_KEY, provideMethods);
           const parentProvide = inject<typeof provideMethods>(CHILD_KEY);
           if (parentProvide) {
             level.value = parentProvide.getLevel() + 1;
             setTreeParent(instance, parentProvide.instance);
+            const original = provideMethods.cb;
+            provideMethods.cb = (maxLevel, isUnmount) => (
+              original(maxLevel, isUnmount), parentProvide.cb(maxLevel, isUnmount)
+            );
           }
-          setTreeLevel(instance!, level);
+          provide(CHILD_KEY, provideMethods);
+          setTreeLevel(instance, level);
           const performCollect = () => parentProvide?.addItem(instance!);
           collectOnSetup ? performCollect() : onMounted(performCollect);
           onMounted(() => {
-            if (isLeaf.value == null) isLeaf.value = true;
+            if (isLeaf.value == null) {
+              isLeaf.value = true;
+              parentProvide?.cb(level.value);
+            }
           });
           onBeforeUnmount(() => {
             deleteTreeChildren(instance);
             deleteTreeParent(instance);
             deleteTreeLevel(instance);
             parentProvide?.removeItem(instance!);
+            if (isLeaf.value) {
+              // if no more children, should minus 1 for max level
+              parentProvide?.cb(level.value - (getVmTreeDirectChildren(instance).length ? 0 : 1), 1);
+            }
           });
-          return toUnrefGetterDescriptors({ isLeaf, level, nestedItems, treeIndex: () => getTreeIndex(instance) });
+          return toUnrefGetterDescriptors({
+            isLeaf,
+            level,
+            nestedItems,
+            treeIndex: () => getTreeIndex(instance),
+            maxChildLevel,
+            leavesCount,
+          });
         }
       })();
 
@@ -296,6 +329,7 @@ export function createCollector<
         collectOnSetup ? performCollect() : onMounted(performCollect);
         onBeforeUnmount(() => context!.removeItem(instance));
       }
+      (instance as any)[CHILD_KEY] = context;
     }
     return context;
   };
