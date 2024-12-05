@@ -40,6 +40,8 @@ const createExpose = (expose: string) => (vm: ComponentInternalInstance) => vm.e
 export const getVmLevel = createExpose('level');
 export const isVmLeafChild = createExpose('isLeaf');
 export const isVmDisabled = createExpose('disabled');
+export const getVmLeavesCount = createExpose('leavesCount');
+export const getVmMaxChildLevel = createExpose('maxChildLevel');
 export const getVmValue = (vm: ComponentInternalInstance) => vm.props.value;
 
 export const isVm = (i: any): i is ComponentInternalInstance => i && isVNode(i.vnode);

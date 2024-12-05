@@ -1,11 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, createImportStyle, getHostStyle, isVmLeafChild } from 'utils';
+import { createDefineElement, createImportStyle, getHostStyle, getVmLeavesCount, isVmLeafChild } from 'utils';
 import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { getVmTreeDirectChildren, getVmTreeLevel } from '@lun-web/core';
-import { ComponentInternalInstance, getCurrentInstance } from 'vue';
+import { ComponentInternalInstance, getCurrentInstance, VNodeChild } from 'vue';
 import { ensureArray, objectGet } from '@lun-web/utils';
 
 const name = 'table-column';
@@ -15,7 +15,7 @@ export const TableColumn = defineSSRCustomElement({
   name,
   props: tableColumnProps,
   emits: tableColumnEmits,
-  setup(props) {
+  setup() {
     const ns = useNamespace(name);
     const context = TableColumnCollector.child();
     if (!context) throw new Error('Table column must be used inside a table component');
@@ -27,59 +27,45 @@ export const TableColumn = defineSSRCustomElement({
       part: compParts[1],
     };
 
-    const renderHead = (vm: ComponentInternalInstance) => {
-      const children = getVmTreeDirectChildren(vm),
-        { headColSpan } = vm.props as TableColumnSetupProps,
-        level = getVmTreeLevel(vm),
-        head = (
-          <div
-            {...headCommonProps}
-            v-show={+headColSpan! !== 0}
-            style={{
-              gridColumn: !level && +headColSpan! > 1 ? `span ${headColSpan}` : undefined,
-            }}
-          >
-            {vm.props.label}
-          </div>
-        );
-      return children.length ? (
-        <div class={ns.em('head-group', 'vertical')} part={compParts[2]}>
-          {head}
-          <div
-            class={ns.em('head-group', 'horizontal')}
-            style={{ display: 'grid', gridTemplateColumns: `repeat(${children.length}, 1fr)` }}
-          >
-            {children.map((child) => renderHead(child))}
-          </div>
-        </div>
-      ) : (
-        head
-      );
-    };
-    const getLeafVms = (vm: ComponentInternalInstance): ComponentInternalInstance[] => {
-      const children = getVmTreeDirectChildren(vm);
-      return children.flatMap((child) => (isVmLeafChild(child) ? [child] : getLeafVms(child)));
-    };
     const getCell = (vm: ComponentInternalInstance, item: any) => (
       <div class={ns.e('cell')} part={compParts[3]}>
         {objectGet(item, vm.props.name as string)}
       </div>
     );
+    const getHead = (vm: ComponentInternalInstance) => {
+      const { headColSpan } = vm.props as TableColumnSetupProps,
+        level = getVmTreeLevel(vm),
+        leavesCount = getVmLeavesCount(vm);
+      return (
+        <div
+          {...headCommonProps}
+          v-show={+headColSpan! !== 0}
+          style={{
+            gridColumn:
+              leavesCount > 1 || (!level && +headColSpan! > 1) ? `span ${leavesCount || headColSpan}` : undefined,
+          }}
+        >
+          {vm.props.label}
+        </div>
+      );
+    };
+    const getContent = (vm: ComponentInternalInstance, result: VNodeChild[]) => {
+      const children = getVmTreeDirectChildren(vm),
+        isLeaf = isVmLeafChild(vm);
+      result.push(getHead(vm));
+      if (isLeaf) {
+        result.push(...ensureArray(context.parent!.props.data).map((item) => getCell(vm, item)));
+      } else {
+        children.forEach((child) => getContent(child, result));
+      }
+    };
     return () => {
       if (context.level) return; // only render top level column
-      const leafVms = getLeafVms(vm);
+      const content: VNodeChild[] = [];
+      getContent(vm, content);
       return (
         <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }}>
-          {renderHead(vm)}
-          {ensureArray(context.parent!.props.data).map((item) =>
-            leafVms.length > 1 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${leafVms.length}, 1fr)` }}>
-                {leafVms.map((vm) => getCell(vm, item))}
-              </div>
-            ) : (
-              getCell(vm, item)
-            ),
-          )}
+          {content}
         </div>
       );
     };

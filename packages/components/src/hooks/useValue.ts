@@ -27,11 +27,6 @@ export const useValueModel = createUseModel({
   },
 }) as UseModel<'value'>;
 
-export const useStatus = (props: { status?: Status }) => {
-  const context = FormInputCollector.child(false);
-  return [computed(() => props.status || context?.status.value), context] as const;
-};
-
 export const usePropsFromFormItem = (props: { status?: Status }) => {
   const context = FormInputCollector.child(false);
   return {

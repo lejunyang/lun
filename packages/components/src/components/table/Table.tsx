@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement } from 'utils';
+import { createDefineElement, getVmMaxChildLevel } from 'utils';
 import { tableEmits, tableProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
@@ -15,7 +15,7 @@ export const Table = defineSSRCustomElement({
   emits: tableEmits,
   setup(props) {
     const ns = useNamespace(name);
-    TableColumnCollector.parent();
+    const context = TableColumnCollector.parent();
 
     return () => {
       return (
@@ -25,7 +25,10 @@ export const Table = defineSSRCustomElement({
           style={{
             display: 'grid',
             gridAutoFlow: 'column',
-            gridTemplateRows: `repeat(${ensureArray(props.data).length + 1}, 1fr)`,
+            gridTemplateRows: `repeat(${
+              ensureArray(props.data).length +
+              Math.max(...context.value.map((child) => (getVmMaxChildLevel(child) || 0) + 1))
+            }, 1fr)`,
           }}
         >
           <slot></slot>
