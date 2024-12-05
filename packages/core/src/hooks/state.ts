@@ -1,5 +1,5 @@
 import { isFunction, runIfFn, ensureArray, globalObject } from '@lun-web/utils';
-import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions } from 'vue';
+import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions, ComputedGetter } from 'vue';
 import { createUnrefCalls, MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 
 /**
@@ -107,6 +107,11 @@ export function cacheComputed<T>(getter: (oldVal?: NoInfer<T>) => T, shouldUpdat
     if (cache === undefined || !shouldUpdate || shouldUpdate(cache)) return (cache = getter(cache));
     else return cache;
   });
+}
+
+export function fComputed<T>(get: ComputedGetter<T>) {
+  const res = computed(get);
+  return () => res.value;
 }
 
 const createUseSetOrMap =

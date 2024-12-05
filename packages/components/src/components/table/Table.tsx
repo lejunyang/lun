@@ -5,6 +5,7 @@ import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray } from '@lun-web/utils';
+import { fComputed } from '@lun-web/core';
 
 const name = 'table';
 const parts = ['root'] as const;
@@ -15,7 +16,12 @@ export const Table = defineSSRCustomElement({
   emits: tableEmits,
   setup(props) {
     const ns = useNamespace(name);
-    const context = TableColumnCollector.parent();
+    const maxLevel = fComputed(() => Math.max(...context.value.map((child) => (getVmMaxChildLevel(child) || 0) + 1)));
+    const context = TableColumnCollector.parent({
+      extraProvide: {
+        maxLevel,
+      },
+    });
 
     return () => {
       return (
@@ -25,10 +31,7 @@ export const Table = defineSSRCustomElement({
           style={{
             display: 'grid',
             gridAutoFlow: 'column',
-            gridTemplateRows: `repeat(${
-              ensureArray(props.data).length +
-              Math.max(...context.value.map((child) => (getVmMaxChildLevel(child) || 0) + 1))
-            }, 1fr)`,
+            gridTemplateRows: `repeat(${ensureArray(props.data).length + maxLevel()}, auto)`,
           }}
         >
           <slot></slot>

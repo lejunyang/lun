@@ -35,14 +35,21 @@ export const TableColumn = defineSSRCustomElement({
     const getHead = (vm: ComponentInternalInstance) => {
       const { headColSpan } = vm.props as TableColumnSetupProps,
         level = getVmTreeLevel(vm),
-        leavesCount = getVmLeavesCount(vm);
+        leavesCount = getVmLeavesCount(vm),
+        maxLevel = context.maxLevel();
       return (
         <div
           {...headCommonProps}
           v-show={+headColSpan! !== 0}
           style={{
             gridColumn:
+              /**
+               * leavesCount > 1: having multiple nested children columns
+               * !level && +headColSpan! > 1: colspan is set for root column head
+               */
               leavesCount > 1 || (!level && +headColSpan! > 1) ? `span ${leavesCount || headColSpan}` : undefined,
+            // leavesCount < value: other columns have nested columns, current column head needs also to be expanded
+            gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
         >
           {vm.props.label}

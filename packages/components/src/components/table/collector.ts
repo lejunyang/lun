@@ -3,7 +3,7 @@ import { TableProps, TableSetupProps } from './type';
 import { getCollectorOptions } from 'common';
 
 export type TableProvideExtra = {
-  a: 1;
+  maxLevel: () => number;
 };
 
 export const TableColumnCollector = createCollector<TableProps, TableSetupProps, TableProvideExtra, true>({
