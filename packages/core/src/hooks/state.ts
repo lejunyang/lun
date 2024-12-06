@@ -122,15 +122,23 @@ const createUseSetOrMap =
       isSet = type === 'Set' || type === 'WeakSet';
     // @ts-expect-error
     const binds = createUnrefCalls(result, 'add', 'has', 'set', 'get', 'delete', 'forEach') as any,
-      replace = (newObj: T = new constructor()) => (result.value = newObj);
+      replace = (newObj: T = new constructor()) => (result.value = newObj),
+      b1 = isSet ? binds.has : binds.get,
+      b2 = isSet ? binds.add : binds.set,
+      b3 = binds.delete;
     return Object.assign(result, {
       replace,
       [Symbol.iterator]: function* () {
         yield replace;
-        yield isSet ? binds.has : binds.get;
-        yield isSet ? binds.add : binds.set;
-        yield binds.delete;
+        yield b1;
+        yield b2;
+        yield b3;
       },
+      0: replace,
+      1: b1,
+      2: b2,
+      3: b3,
+      length: 4,
       ...binds,
     });
   };
