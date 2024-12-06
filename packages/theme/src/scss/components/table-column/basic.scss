@@ -4,6 +4,7 @@
   color: getGrayColor(12);
 
   @include e(head) {
+    background: getGrayColor(3);
     @include declareVarValues(
       (
         font-weight: (
@@ -14,9 +15,13 @@
     );
   }
 
+  @include e(cell) {
+    background: getGrayColor(1);
+  }
+
   @include e((head, cell)) {
     box-sizing: border-box;
-    // box-shadow: 0 -1px getGrayColor(a5);
+    outline: 1px solid getGrayColor(5);
     @include declareVars(
       (
         padding: cell-padding,
