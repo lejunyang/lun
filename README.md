@@ -23,6 +23,8 @@ English document is not translated yet, only the menus are translated for now
 
 ## Development
 
+For quick try, use [CodeSandbox](https://codesandbox.io/p/github/lejunyang/lun/main) to develop online
+
 ### Structure
 
 ```

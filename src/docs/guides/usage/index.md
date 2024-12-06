@@ -27,9 +27,9 @@ npm i @lun-web/react # 如果在React中使用且早于 React 19，则额外安�
 
 ## React 中使用
 
-React 是目前流行 web 框架中唯一不支持`customElement`的，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
+React 是目前流行 web 框架中最晚支持`customElement`的，其他框架早已支持，详情见[`Custom Elements Everywhere`](https://custom-elements-everywhere.com/)。在 React 18 及之前版本中使用自定义元素，只会将属性设置为 attribute，不会自动设置为元素的 property，也无法使用`onXXX`监听自定义元素的事件
 
-React 19 即将支持`customElement`，但目前还处于实验阶段。本文档使用的是 React 19 RC，在文档的 React 代码中可正常使用自定义元素。
+React 19 已经支持`customElement`，本文档使用的是 React 19，在文档的 React 代码中可正常使用自定义元素。
 
 对于 React 19 之前的版本，我们需要手动封装一层。`@lun-web/react`将`@lun-web/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
 
@@ -100,7 +100,7 @@ autoDefine();
 
 ```js
 import { defineButton } from '@lun-web/components';
-import "@lun-web/components/define/theme-provider"; // 也可以直接通过import副作用来调用
+import '@lun-web/components/define/theme-provider'; // 也可以直接通过import副作用来调用
 
 // 第二个参数用于给该组件依赖的组件自定义命名
 defineButton('my-button', {
@@ -117,10 +117,7 @@ defineButton('my-button', {
 每个组件的主题提供了单独的 import 函数
 
 ```js
-import {
-  importButtonBasicTheme,
-  importButtonSurfaceTheme,
-} from '@lun-web/theme';
+import { importButtonBasicTheme, importButtonSurfaceTheme } from '@lun-web/theme';
 importButtonBasicTheme();
 importButtonSurfaceTheme();
 ```
@@ -144,7 +141,7 @@ import {
 需要这么做的原因是，大部分组件都有继承关系，部分状态由父组件提供。在 SSR 场景下，页面上的元素已经存在，如果子组件先被定义，此时它无法探测到父组件（组件未被定义时是无效组件），等父组件再被定义时子组件也不会被更新，便会出现问题
 :::
 
-## CDN引入
+## CDN 引入
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
@@ -155,7 +152,7 @@ import {
 <script src="https://cdn.jsdelivr.net/npm/@lun-web/theme/dist/lun-web-theme.iife.js"></script>
 ```
 
-CDN直接引入只提供开发打包版本，不建议在生产环境使用，引入后在全局即可访问
+CDN 直接引入只提供开发打包版本，不建议在生产环境使用，引入后在全局即可访问
 
 ```html
 <script>
@@ -166,7 +163,7 @@ CDN直接引入只提供开发打包版本，不建议在生产环境使用，�
 </script>
 ```
 
-若因网络问题国内无法访问jsdelivr，可尝试将`cdn.jsdelivr.net`更换为`jsd.onmicrosoft.cn`
+若因网络问题国内无法访问 jsdelivr，可尝试将`cdn.jsdelivr.net`更换为`jsd.onmicrosoft.cn`
 
 ## TS 支持
 

@@ -1,0 +1,61 @@
+{
+  // These tasks will run in order when initializing your CodeSandbox project.
+  "setupTasks": [
+    {
+      "name": "Upgrade pnpm",
+      "command": "npm install -g pnpm"
+    },
+    {
+      "name": "Install Dependencies",
+      "command": "pnpm install"
+    },
+    {
+      "name": "Build Dependencies",
+      "command": "pnpm build"
+    }
+  ],
+
+  // These tasks can be run from CodeSandbox. Running one will open a log in the app.
+  "tasks": {
+    "dev": {
+      "name": "dev",
+      "command": "pnpm dev",
+      "runAtStart": true,
+      "preview": {
+        "port": 7000
+      }
+    },
+    "build:noType": {
+      "name": "build:noType",
+      "command": "pnpm build:noType"
+    },
+    "build": {
+      "name": "build",
+      "command": "pnpm build"
+    },
+    "docs:gen": {
+      "name": "docs:gen",
+      "command": "pnpm docs:gen"
+    },
+    "docs:build": {
+      "name": "docs:build",
+      "command": "pnpm docs:build"
+    },
+    "docs:preview": {
+      "name": "docs:preview",
+      "command": "pnpm docs:preview"
+    },
+    "test": {
+      "name": "test",
+      "command": "pnpm test"
+    },
+    "pre-version": {
+      "name": "pre-version",
+      "command": "pnpm pre-version"
+    },
+    "publish": {
+      "name": "publish",
+      "command": "pnpm publish"
+    }
+  }
+}
