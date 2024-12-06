@@ -136,7 +136,7 @@ const getThemeConfig = (lang: keyof typeof locales = 'zh-CN') => {
                 { text: locales[lang].sidebar.dataDisplay.formItem, link: wrapLink('/components/form-item/', lang) },
               ],
             },
-            notProd && { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/', lang) },
+            { text: locales[lang].sidebar.dataDisplay.table, link: wrapLink('/components/table/', lang) },
             { text: locales[lang].sidebar.dataDisplay.tree, link: wrapLink('/components/tree/', lang) },
           ].filter(Boolean),
         },

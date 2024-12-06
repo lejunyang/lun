@@ -58,3 +58,11 @@ export function arrayFrom<T, V>(arr: ArrayLike<T> | Iterable<T>, mapVal: (val: T
 export function arrayFrom(lengthOrArrayLike: number | ArrayLike<any> | Iterable<any>, mapVal?: any) {
   return Array.from(isNumber(lengthOrArrayLike) ? { length: lengthOrArrayLike } : lengthOrArrayLike, mapVal);
 }
+
+export function range(start: number, stop?: number, step = 1): number[] {
+  if (stop == null) {
+    stop = start;
+    start = 0;
+  }
+  return arrayFrom({ length: Math.max(Math.ceil((stop - start) / step), 0) }, (_, i) => start + i * step);
+}
