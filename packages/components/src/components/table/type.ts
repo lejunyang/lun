@@ -9,6 +9,7 @@ import {
   Prop,
   undefBoolProp,
   PropNumber,
+  PropBoolOrStr,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -29,6 +30,7 @@ export const tableColumnProps = freeze({
   plainName: undefBoolProp,
   label: Prop(),
   headColSpan: PropNumber(),
+  sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
 });
 
 export const tableColumnEmits = createEmits<{}>([]);

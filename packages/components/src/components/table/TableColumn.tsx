@@ -4,7 +4,7 @@ import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './typ
 import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
-import { getVmTreeDirectChildren, getVmTreeLevel } from '@lun-web/core';
+import { getVmTreeDirectChildren, getVmTreeLevel, useStickyColumn } from '@lun-web/core';
 import { ComponentInternalInstance, getCurrentInstance, ref, VNodeChild } from 'vue';
 import { ensureArray, objectGet } from '@lun-web/utils';
 
@@ -27,11 +27,14 @@ export const TableColumn = defineSSRCustomElement({
       part: compParts[1],
     };
 
-    const cells = ref<HTMLElement[]>([]);
+    const cells = ref<HTMLElement[]>([]),
+      rootHead = ref<HTMLElement>();
     const [, isCollapsed] = context.collapsed;
 
+    const getStickyStyle = useStickyColumn(rootHead);
+
     const getCell = (vm: ComponentInternalInstance, item: any) => (
-      <div class={ns.e('cell')} part={compParts[3]} ref={cells} ref_for={true}>
+      <div class={ns.e('cell')} part={compParts[3]} ref={cells} ref_for={true} style={getStickyStyle()}>
         {objectGet(item, vm.props.name as string)}
       </div>
     );
@@ -43,8 +46,10 @@ export const TableColumn = defineSSRCustomElement({
       return (
         <div
           {...headCommonProps}
-          v-show={+headColSpan! !== 0 && !isCollapsed(vm)}
+          v-show={!isCollapsed(vm)}
+          ref={level === 0 ? rootHead : undefined}
           style={{
+            ...getStickyStyle(),
             gridColumn:
               /**
                * leavesCount > 1: having multiple nested children columns

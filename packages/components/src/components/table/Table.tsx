@@ -1,12 +1,11 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getVmMaxChildLevel } from 'utils';
-import { tableEmits, tableProps } from './type';
+import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray } from '@lun-web/utils';
-import { fComputed, useWeakMap, useWeakSet } from '@lun-web/core';
-import { ComponentInternalInstance } from 'vue';
+import { fComputed, useStickyTable, useWeakSet } from '@lun-web/core';
 
 const name = 'table';
 const parts = ['root'] as const;
@@ -30,14 +29,13 @@ export const Table = defineSSRCustomElement({
         }),
       );
     });
-    const widthMap = useWeakMap<ComponentInternalInstance, number>();
     const context = TableColumnCollector.parent({
       extraProvide: {
         maxLevel,
-        widthMap,
         collapsed,
       },
     });
+    useStickyTable(context, (vm) => (vm.props as TableColumnSetupProps).sticky);
 
     return () => {
       return (
