@@ -5,13 +5,22 @@ lang: zh-CN
 
 :::warning 注
 highly highly highly experimental
+
+尚在初期功能实现验证阶段，初步决定使用Grid渲染表格，而不是table元素
 :::
 
 ## 嵌套列
 
+`l-table-column`可嵌套使用，在渲染时其会自动将表头组合形成多级结构
+
 <!-- @Code:test -->
 
 ## 行/列合并
+
+对于表格头，只需通过`headColSpan`即可设置表头合并
+
+而对于单元格，使用`cellProps`，动态设置`rowSpan`和`colSpan`即可设置单元格的合并。`rowSpan`和`colSpan`在内部有处理，只需给合并区域左上角那个单元格设置其属性即可，其他单元格无需设置对应属性。
+合并单元格遵循先设置先生效，后面被合并的单元格即使设置了也不会生效
 
 <!-- @Code:rowColSpan -->
 
