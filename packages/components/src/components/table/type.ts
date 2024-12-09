@@ -10,6 +10,7 @@ import {
   undefBoolProp,
   PropNumber,
   PropBoolOrStr,
+  PropObjOrFunc,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -24,12 +25,18 @@ export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
 export type TableProps = Partial<TableSetupProps> & TableEvents;
 
+export type TableCellProps = {
+  colSpan: number;
+  rowSpan: number;
+}
+
 export const tableColumnProps = freeze({
   type: PropString(),
   name: PropString(),
   plainName: undefBoolProp,
   label: Prop(),
   headColSpan: PropNumber(),
+  cellProps: PropObjOrFunc<TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)>(),
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
 });
 

@@ -5,7 +5,8 @@ import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray } from '@lun-web/utils';
-import { fComputed, useStickyTable, useWeakSet } from '@lun-web/core';
+import { fComputed, useStickyTable, useWeakMap, useWeakSet } from '@lun-web/core';
+import { ComponentInternalInstance, computed } from 'vue';
 
 const name = 'table';
 const parts = ['root'] as const;
@@ -17,7 +18,8 @@ export const Table = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const collapsed = useWeakSet(),
-      [replaceCollapsed, , addCollapsed] = collapsed;
+      [replaceCollapsed, , addCollapsed] = collapsed,
+      cellMerge = useWeakMap<ComponentInternalInstance, [startRowIndex: number, mergedCount: number][]>();
     const maxLevel = fComputed(() => {
       replaceCollapsed();
       let collapseCount = 0;
@@ -29,10 +31,13 @@ export const Table = defineSSRCustomElement({
         }),
       );
     });
+    const data = computed(() => ensureArray(props.data));
     const context = TableColumnCollector.parent({
       extraProvide: {
+        data,
         maxLevel,
         collapsed,
+        cellMerge,
       },
     });
     useStickyTable(context, (vm) => (vm.props as TableColumnSetupProps).sticky);
@@ -45,7 +50,7 @@ export const Table = defineSSRCustomElement({
           style={{
             display: 'grid',
             gridAutoFlow: 'column',
-            gridTemplateRows: `repeat(${ensureArray(props.data).length + maxLevel()}, auto)`,
+            gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
           }}
         >
           <slot></slot>
