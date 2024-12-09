@@ -28,6 +28,7 @@ type InstanceWithProps<P = Data> = ComponentInternalInstance & {
 export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra = Data> = ParentExtra & {
   parent: InstanceWithProps<ParentProps> | null;
   items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
+  getItems: () => InstanceWithProps<ChildProps>[];
   addItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
   removeItem: (child?: UnwrapRef<InstanceWithProps<ChildProps>> | null) => void;
   getChildrenCollect(itemsArr: Ref<InstanceWithProps<ChildProps>[]>): {
@@ -73,15 +74,15 @@ export function createCollector<
   PE extends any = Data,
   Tree extends boolean = false,
   ParentProps = P extends VueElementConstructor<infer T>
-    ? T
-    : P extends ComponentObjectPropsOptions
-    ? ExtractPropTypes<P>
-    : P,
+  ? T
+  : P extends ComponentObjectPropsOptions
+  ? ExtractPropTypes<P>
+  : P,
   ChildProps = C extends VueElementConstructor<infer T>
-    ? T
-    : P extends ComponentObjectPropsOptions
-    ? ExtractPropTypes<P>
-    : C,
+  ? T
+  : P extends ComponentObjectPropsOptions
+  ? ExtractPropTypes<P>
+  : C,
 >(options?: {
   name?: string;
   sort?: boolean;
@@ -201,20 +202,21 @@ export function createCollector<
       };
     };
 
-    const provideContext = Object.assign(extraProvide || {}, {
-      [COLLECTOR_KEY]: true,
-      parent: instance,
-      items,
-      getChildrenCollect,
-      ...getChildrenCollect(items, true),
-    } as CollectorContext<ParentProps, ChildProps>) as CollectorContext<ParentProps, ChildProps, PE>;
-    provide(COLLECTOR_KEY, provideContext);
     const empty: InstanceWithProps<ChildProps>[] = [],
       getChildren = () => {
         if ((!lazyChildren || state.parentMounted) && state.waitDone)
           return items.value as InstanceWithProps<ChildProps>[];
         else return empty;
       };
+    const provideContext = Object.assign(extraProvide || {}, {
+      [COLLECTOR_KEY]: true,
+      parent: instance,
+      items,
+      getItems: getChildren,
+      getChildrenCollect,
+      ...getChildrenCollect(items, true),
+    } as CollectorContext<ParentProps, ChildProps>) as CollectorContext<ParentProps, ChildProps, PE>;
+    provide(COLLECTOR_KEY, provideContext);
     return {
       get value() {
         return getChildren();
@@ -236,15 +238,15 @@ export function createCollector<
       ParentProps,
       ChildProps,
       PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean } & (Tree extends true
-          ? {
-              readonly isLeaf: boolean;
-              readonly level: number;
-              readonly treeIndex: number;
-              readonly nestedItems: InstanceWithProps<ChildProps>[];
-              readonly maxChildLevel: number;
-              readonly leavesCount: number;
-            }
-          : {})
+        ? {
+          readonly isLeaf: boolean;
+          readonly level: number;
+          readonly treeIndex: number;
+          readonly nestedItems: InstanceWithProps<ChildProps>[];
+          readonly maxChildLevel: number;
+          readonly leavesCount: number;
+        }
+        : {})
     >;
     if (!collect && (instance as any)[CHILD_KEY])
       return (instance as any)[CHILD_KEY] as T extends undefined ? C | undefined : C;

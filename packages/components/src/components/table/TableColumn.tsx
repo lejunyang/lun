@@ -5,8 +5,16 @@ import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { getVmTreeDirectChildren, getVmTreeLevel, useStickyColumn } from '@lun-web/core';
-import { ComponentInternalInstance, CSSProperties, getCurrentInstance, ref, VNodeChild } from 'vue';
-import { objectGet, runIfFn } from '@lun-web/utils';
+import {
+  ComponentInternalInstance,
+  CSSProperties,
+  getCurrentInstance,
+  ref,
+  VNodeChild,
+  toRaw,
+  onBeforeUnmount,
+} from 'vue';
+import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
 
 const name = 'table-column';
 const parts = ['root', 'head', 'group', 'cell'] as const;
@@ -23,7 +31,8 @@ export const TableColumn = defineSSRCustomElement({
     useExpose(context);
     const { collapsed, cellMerge, data } = context,
       [, isCollapsed] = collapsed,
-      [, getCellMergeInfo, setCellMergeInfo] = cellMerge;
+      [, getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
+      rawCellMerge = toRaw(cellMerge.value);
 
     const headCommonProps = {
       class: ns.e('head'),
@@ -32,18 +41,56 @@ export const TableColumn = defineSSRCustomElement({
 
     const cells = ref<HTMLElement[]>([]),
       rootHead = ref<HTMLElement>();
-    let rowMergedCount = 0;
+    let rowMergedCount = 0,
+      currentColMergeInfoIndex = 0,
+      mergeWithPrevColCount = 0,
+      hasMergedCols = new Set<ComponentInternalInstance>();
+    const clean = () => {
+      hasMergedCols.forEach((vm) => deleteColMergeInfo(vm));
+      hasMergedCols.clear();
+    };
+    onBeforeUnmount(clean);
 
     const getStickyStyle = useStickyColumn(rootHead);
+
+    // TODO handle colSpan for nested columns under the same parent
+    const updateMergeInfo = (rowIndex: number, colSpan: number, rowSpan: number) => {
+      const items = context.getItems();
+      colSpan--;
+      for (let i = context.index + 1; i < items.length && colSpan > 0; i++) {
+        const vm = items[i];
+        const mergeInfo = rawCellMerge.get(vm); // get from raw value to avoid it get tracked and then infinite loop
+        if (!isVmLeafChild(vm)) continue;
+        hasMergedCols.add(vm);
+        colSpan--;
+        if (mergeInfo) {
+          const lastInfo = at(mergeInfo, -1);
+          if (lastInfo && rowIndex === lastInfo[0] + lastInfo[1]) lastInfo[1] += rowSpan;
+          else mergeInfo.push([rowIndex, rowSpan]);
+          setColMergeInfo(vm, [...mergeInfo]);
+        } else {
+          setColMergeInfo(vm, [[rowIndex, rowSpan]]);
+        }
+      }
+    };
 
     const getCell = (vm: ComponentInternalInstance, item: any, index: number) => {
       const cellProps = runIfFn(props.cellProps, item, index, props),
         style: CSSProperties = {};
-      if (--rowMergedCount > 0) {
+      const mergeInfo = getColMergeInfo(vm)?.[currentColMergeInfoIndex];
+      if (mergeInfo?.[0] === index) mergeWithPrevColCount = mergeInfo[1];
+      if (--rowMergedCount > 0 || --mergeWithPrevColCount >= 0) {
         style.display = 'none';
+        if (!mergeWithPrevColCount) currentColMergeInfoIndex++;
       } else if (cellProps) {
-        const { rowSpan, colSpan } = cellProps;
-        if (rowSpan > 1) style.gridRow = `span ${(rowMergedCount = rowSpan)}`;
+        const { rowSpan, colSpan } = cellProps,
+          r = +rowSpan!,
+          c = +colSpan!;
+        if (r > 1) style.gridRow = `span ${(rowMergedCount = r)}`;
+        if (c > 1) {
+          style.gridColumn = `span ${c}`;
+          updateMergeInfo(index, c, ensureNumber(r, 1));
+        }
       }
       return (
         <div
@@ -90,13 +137,16 @@ export const TableColumn = defineSSRCustomElement({
       if (isLeaf) {
         result.push(...data.value.map((item, i) => getCell(vm, item, i)));
       } else {
-        children.forEach((child) => getContent(child, result));
+        children.forEach((child) => {
+          currentColMergeInfoIndex = 0;
+          getContent(child, result);
+        });
       }
     };
     return () => {
       if (context.level) return; // only render top level column
       rowMergedCount = 0;
-      const info = getCellMergeInfo(vm);
+      clean();
       const content: VNodeChild[] = [];
       getContent(vm, content);
       return (

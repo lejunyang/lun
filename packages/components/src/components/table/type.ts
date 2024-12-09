@@ -12,7 +12,7 @@ import {
   PropBoolOrStr,
   PropObjOrFunc,
 } from 'common';
-import { ExtractPropTypes } from 'vue';
+import { CSSProperties, ExtractPropTypes } from 'vue';
 
 export const tableProps = freeze({
   ...themeProps,
@@ -25,10 +25,11 @@ export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
 export type TableProps = Partial<TableSetupProps> & TableEvents;
 
-export type TableCellProps = {
+export type TableCellProps = Partial<{
   colSpan: number;
   rowSpan: number;
-}
+  style: CSSProperties
+}>
 
 export const tableColumnProps = freeze({
   type: PropString(),
