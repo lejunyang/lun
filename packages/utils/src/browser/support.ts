@@ -1,5 +1,5 @@
 import { withResolvers } from '../promise';
-import { cacheFunctionResult } from '../function';
+import { cacheFunctionByParams } from '../function';
 import { isFunction } from '../is';
 import { createElement } from './alias';
 import { FUNC, hideDomAndAppend, OBJ, UNDEF } from '../_internal';
@@ -13,9 +13,9 @@ export const supportPopover = 'popover' in htmlProto;
 
 export const supportDialog = typeof HTMLDialogElement === FUNC && 'open' in HTMLDialogElement.prototype;
 
-export const isSupportResizeObserver = cacheFunctionResult(() => typeof ResizeObserver === FUNC);
+export const isSupportResizeObserver = cacheFunctionByParams(() => typeof ResizeObserver === FUNC);
 
-export const isInputSupportPicker = cacheFunctionResult(() => inBrowser && 'showPicker' in HTMLInputElement.prototype);
+export const isInputSupportPicker = cacheFunctionByParams(() => inBrowser && 'showPicker' in HTMLInputElement.prototype);
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
 export const supportFileSystemAccess = (() => {
@@ -39,25 +39,25 @@ export const supportFileSystemAccess = (() => {
 
 export const supportClipboard = secure && navigator.clipboard;
 
-export const isSupportElementInternals = cacheFunctionResult(() => typeof ElementInternals === FUNC);
+export const isSupportElementInternals = cacheFunctionByParams(() => typeof ElementInternals === FUNC);
 
-export const isSupportCustomStateSet = cacheFunctionResult(
+export const isSupportCustomStateSet = cacheFunctionByParams(
   // @ts-ignore
   () => isSupportElementInternals() && typeof CustomStateSet === FUNC,
 );
 
-export const isSupportScrollEnd = cacheFunctionResult(() => inBrowser && 'onscrollend' in document);
+export const isSupportScrollEnd = cacheFunctionByParams(() => inBrowser && 'onscrollend' in document);
 
 export const supportCustomElement = typeof customElements === OBJ && customElements;
 
-export const isSupportPlaintextEditable = cacheFunctionResult(() => {
+export const isSupportPlaintextEditable = cacheFunctionByParams(() => {
   if (!inBrowser) return false;
   // https://stackoverflow.com/questions/10672081/how-to-detect-if-browser-supports-plaintext-only-value-in-contenteditable-para
   const div = createElement('div', { contenteditable: 'PLAINTEXT-ONLY' });
   return div.contentEditable === 'plaintext-only';
 });
 
-export const isSupportCheckVisibility = cacheFunctionResult(() => isFunction(htmlProto.checkVisibility));
+export const isSupportCheckVisibility = cacheFunctionByParams(() => isFunction(htmlProto.checkVisibility));
 
 export const supportDocumentPictureInPicture =
   secure &&
@@ -65,11 +65,11 @@ export const supportDocumentPictureInPicture =
   documentPictureInPicture &&
   isFunction(documentPictureInPicture.requestWindow);
 
-export const isSupportInert = cacheFunctionResult(() => inBrowser && 'inert' in document.body);
+export const isSupportInert = cacheFunctionByParams(() => inBrowser && 'inert' in document.body);
 
 export const supportCSSApi = typeof CSS === OBJ && CSS;
 
-export const isSupportCSSStyleSheet = cacheFunctionResult(
+export const isSupportCSSStyleSheet = cacheFunctionByParams(
   () => typeof CSSStyleSheet === FUNC && 'adoptedStyleSheets' in document,
 );
 
@@ -130,4 +130,4 @@ export const supportCSSContentVisibility = supportCSSSupports && supports!('cont
 
 export const supportTouch = inBrowser && 'ontouchstart' in document.body;
 
-export const isSupportSlotAssign = cacheFunctionResult(() => inBrowser && isFunction(HTMLSlotElement.prototype.assign));
+export const isSupportSlotAssign = cacheFunctionByParams(() => inBrowser && isFunction(HTMLSlotElement.prototype.assign));

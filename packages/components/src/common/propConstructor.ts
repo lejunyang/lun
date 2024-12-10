@@ -1,5 +1,5 @@
 import { PropType, TransitionProps } from 'vue';
-import { Constructor, UnwrapPrimitive, cacheFunctionResult } from '@lun-web/utils';
+import { Constructor, UnwrapPrimitive, cacheFunctionByParams } from '@lun-web/utils';
 import { Responsive } from '../hooks/useBreakpoint';
 
 const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => {
@@ -16,24 +16,24 @@ const createPropFactory = <Presets extends Constructor[]>(...types: Presets) => 
 };
 
 const objConstructor = Object as Constructor<Record<string, any>>;
-export const PropString = cacheFunctionResult(createPropFactory(String));
-export const PropNumber = cacheFunctionResult(createPropFactory(Number, String));
-export const PropBoolean = cacheFunctionResult(createPropFactory(Boolean));
-export const PropBoolOrStr = cacheFunctionResult(createPropFactory(Boolean, String));
-export const PropBoolOrFunc = cacheFunctionResult(createPropFactory(Boolean, Function));
-export const PropObject = cacheFunctionResult(createPropFactory(objConstructor));
-export const PropArray = cacheFunctionResult(createPropFactory(Array));
-export const PropSet = cacheFunctionResult(createPropFactory(Set, Array));
-export const PropFunction = cacheFunctionResult(createPropFactory(Function));
-export const PropObjOrFunc = cacheFunctionResult(createPropFactory(objConstructor, Function));
-export const PropObjOrStr = cacheFunctionResult(createPropFactory(objConstructor, String));
-export const PropObjOrBool = cacheFunctionResult(createPropFactory(Boolean, objConstructor));
-export const PropStrOrArr = cacheFunctionResult(createPropFactory(String, Array as Constructor<string[] | null>));
-export const PropNumOrArr = cacheFunctionResult(
+export const PropString = cacheFunctionByParams(createPropFactory(String));
+export const PropNumber = cacheFunctionByParams(createPropFactory(Number, String));
+export const PropBoolean = cacheFunctionByParams(createPropFactory(Boolean));
+export const PropBoolOrStr = cacheFunctionByParams(createPropFactory(Boolean, String));
+export const PropBoolOrFunc = cacheFunctionByParams(createPropFactory(Boolean, Function));
+export const PropObject = cacheFunctionByParams(createPropFactory(objConstructor));
+export const PropArray = cacheFunctionByParams(createPropFactory(Array));
+export const PropSet = cacheFunctionByParams(createPropFactory(Set, Array));
+export const PropFunction = cacheFunctionByParams(createPropFactory(Function));
+export const PropObjOrFunc = cacheFunctionByParams(createPropFactory(objConstructor, Function));
+export const PropObjOrStr = cacheFunctionByParams(createPropFactory(objConstructor, String));
+export const PropObjOrBool = cacheFunctionByParams(createPropFactory(Boolean, objConstructor));
+export const PropStrOrArr = cacheFunctionByParams(createPropFactory(String, Array as Constructor<string[] | null>));
+export const PropNumOrArr = cacheFunctionByParams(
   createPropFactory(String, Number, Array as Constructor<string[] | number[] | null>),
 );
-export const PropStrOrFunc = cacheFunctionResult(createPropFactory(String, Function));
-export const PropNumOrFunc = cacheFunctionResult(createPropFactory(Number, String, Function));
+export const PropStrOrFunc = cacheFunctionByParams(createPropFactory(String, Function));
+export const PropNumOrFunc = cacheFunctionByParams(createPropFactory(Number, String, Function));
 
 export const Prop = <T>() =>
   ({} as any as {
@@ -46,7 +46,7 @@ export const Prop = <T>() =>
  */
 export const valueProp = { ...PropBoolOrStr(Object, Number), default: undefined };
 
-export const PropResponsive = cacheFunctionResult(createPropFactory(Object, Number, String)) as <T>() => {
+export const PropResponsive = cacheFunctionByParams(createPropFactory(Object, Number, String)) as <T>() => {
   type: PropType<Responsive<T>>;
 };
 

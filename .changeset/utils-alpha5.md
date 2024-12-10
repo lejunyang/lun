@@ -12,3 +12,4 @@
 ### Changes
 
 - `withResolvers` now returns an array with three properties, instead of an object with an iterator
+- rename `cacheStringFunction` to `cacheFunctionByKey`, rename `cacheFunctionResult` to `cacheFunctionByParams` and change its cache way
