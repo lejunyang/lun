@@ -16,6 +16,7 @@ import {
   onUnmounted,
   shallowReactive,
   readonly,
+  nextTick,
 } from 'vue';
 import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { toUnrefGetterDescriptors } from '../utils';
@@ -285,10 +286,14 @@ export function createCollector<
           const performCollect = () => parentProvide?.addItem(instance!);
           collectOnSetup ? performCollect() : onMounted(performCollect);
           onMounted(() => {
-            if (isLeaf.value == null) {
-              isLeaf.value = true;
-              parentProvide?.cb(level.value);
+            const update = () => {
+              if (isLeaf.value == null) {
+                isLeaf.value = true;
+                parentProvide?.cb(level.value);
+              }
             }
+            // for custom element, need to delay to update isLeaf and callback, otherwise leavesCount is incorrect
+            instance.ce ? nextTick(update) : update();
           });
           onBeforeUnmount(() => {
             deleteTreeChildren(instance);
