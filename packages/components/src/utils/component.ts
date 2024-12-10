@@ -11,6 +11,7 @@ import { setDefaultsForPropOptions } from './vueUtils';
 import { warn } from './console';
 import {
   arrayFrom,
+  cacheFunctionByKey,
   createElement,
   fromObject,
   getFirstOfIterable,
@@ -66,8 +67,8 @@ type ExtractChainDepNames<T extends ComponentDependencyDefineMap> = T[keyof T] e
   dn?: infer ChainT,
 ) => void
   ? ChainT extends Record<string, string>
-    ? keyof ChainT
-    : never
+  ? keyof ChainT
+  : never
   : never;
 
 export function createDefineElement<
@@ -155,15 +156,13 @@ export function createImportDynamicStyle(
   return once(() => GlobalContextConfig.dynamicStyles[compKey].push(style));
 }
 
-const getComputedStyles = once(() => {
-  const { styles } = GlobalStaticConfig;
-  return fromObject(styles, (k, v) => [
-    k,
-    k === 'teleport-holder'
-      ? styles.common.concat(v).concat(...(componentsWithTeleport.map((c) => styles[c]) as any))
-      : styles.common.concat(v),
-  ]);
-});
+const getComputedStyles = cacheFunctionByKey(((k: string) => {
+  const { styles, styles: { common } } = GlobalStaticConfig, v = styles[k as OpenShadowComponentKey];
+  if (!v) return;
+  return k === 'teleport-holder'
+    ? common.concat(v).concat(...(componentsWithTeleport.map((c) => styles[c]) as any))
+    : common.concat(v)
+}));
 
 // custom element doesn't inherit vue app's context
 const warnHandler = (msg: string, _: any, trace: string) => {
@@ -196,7 +195,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
     };
     Object.defineProperties(options, {
       styles: {
-        get: () => getComputedStyles()[compKey],
+        get: () => getComputedStyles(compKey as OpenShadowComponentKey),
       },
       props: {
         get: once(() => setDefaultsForPropOptions(propsClone, GlobalStaticConfig.defaultProps[compKey])),
@@ -248,8 +247,8 @@ export function toElement(queryOrElement?: string | Element | null, queryParent:
   return isElement(queryOrElement)
     ? queryOrElement
     : isString(queryOrElement)
-    ? queryParent.querySelector(queryOrElement)
-    : null;
+      ? queryParent.querySelector(queryOrElement)
+      : null;
 }
 
 export function getFirstThemeProvider() {

@@ -26,3 +26,4 @@
 - `input,textarea`: should not be able to input when loading is true
 - `radio`: should not be able to check when loading or readonly is true
 - `GlobalStaticConfig`: fix accessing some props that are not owned by itself(like toString) can cause error
+- fix some components's common style are not applied because of cache

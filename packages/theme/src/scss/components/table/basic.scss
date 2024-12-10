@@ -1,7 +1,7 @@
 @use '../../mixins' as *;
 
 :host {
-  display: block;
+  display: flex; // to fix width issue for sticky
   overflow: auto;
 }
 
