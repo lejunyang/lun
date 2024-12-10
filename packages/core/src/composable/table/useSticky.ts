@@ -4,7 +4,6 @@ import {
   inject,
   provide,
   reactive,
-  Ref,
   shallowRef,
   toRaw,
   watch,
@@ -14,9 +13,10 @@ import { useWeakMap } from '../../hooks';
 import { CollectorParentReturn } from '../createCollector';
 import { useResizeObserver } from '../createUseObserver';
 import { getRect } from '@lun-web/utils';
+import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
 
 const key = Symbol(__DEV__ ? 'sticky' : '');
-type InstanceWithKey = ComponentInternalInstance & { [key]?: Ref<Element | undefined> };
+type InstanceWithKey = ComponentInternalInstance & { [key]?: MaybeRefLikeOrGetter<Element> };
 type StickyContext = [
   getOffset: (vm: InstanceWithKey) => number | undefined,
   getStickyType: (vm: ComponentInternalInstance) => 'left' | 'right' | undefined | boolean,
@@ -42,14 +42,17 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
   useResizeObserver({
     targets: () =>
       state.left.concat(state.right).map((vm) => {
-        const el = vm[key]?.value;
+        const el = unrefOrGet(vm[key]);
         if (el) elVmMap.set(el, vm);
         return el;
       }),
+    observeOptions: {
+      box: 'border-box',
+    },
     callback: (entries) => {
       entries.forEach((entry) => {
         const vm = elVmMap.get(entry.target);
-        if (vm) setWidth(vm, entry.contentRect.width);
+        if (vm) setWidth(vm, entry.borderBoxSize?.[0].inlineSize ?? (getRect(entry.target).width));
       });
     },
   });
@@ -77,7 +80,7 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
   ]);
 }
 
-export function useStickyColumn(elRef: Ref<Element | undefined>) {
+export function useStickyColumn(elRef: MaybeRefLikeOrGetter<Element>) {
   const vm = getCurrentInstance() as InstanceWithKey;
   vm[key] = elRef;
   const context = inject<StickyContext>(key);
@@ -87,16 +90,16 @@ export function useStickyColumn(elRef: Ref<Element | undefined>) {
     watchEffect(() => {
       const offset = context[0](vm),
         stickyType = processType(context[1](vm));
-      if (offset != null && lastOffset !== offset) {
-        return (style.value = { position: 'sticky', [stickyType!]: `${(lastOffset = offset)}px` });
-      }
-      lastOffset = style.value = undefined;
+      if (offset === lastOffset) return;
+      if (offset != null)
+        style.value = { position: 'sticky', [stickyType!]: `${(lastOffset = offset)}px` };
+      else lastOffset = style.value = undefined;
     });
 
   const unwatch =
     context &&
     watch(
-      [elRef, () => processType(context[1](vm)), context[2]],
+      [() => unrefOrGet(elRef), () => processType(context[1](vm)), context[2]],
       ([el, type, nums]) => {
         // if no collected, also need to return as at that time, the width may not be correct
         if ((type !== 'left' && type !== 'right') || !el || !nums) return;
