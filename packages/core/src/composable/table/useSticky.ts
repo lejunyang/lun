@@ -2,25 +2,26 @@ import {
   ComponentInternalInstance,
   getCurrentInstance,
   inject,
+  nextTick,
   provide,
   reactive,
+  ShallowRef,
   shallowRef,
   toRaw,
-  watch,
   watchEffect,
 } from 'vue';
 import { useWeakMap } from '../../hooks';
-import { CollectorParentReturn } from '../createCollector';
+import { CollectorParentReturn, getVmTreeDirectChildren } from '../createCollector';
 import { useResizeObserver } from '../createUseObserver';
 import { getRect } from '@lun-web/utils';
-import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
+import { MaybeRefLikeOrGetter } from '../../utils';
 
 const key = Symbol(__DEV__ ? 'sticky' : '');
 type InstanceWithKey = ComponentInternalInstance & { [key]?: MaybeRefLikeOrGetter<Element> };
 type StickyContext = [
   getOffset: (vm: InstanceWithKey) => number | undefined,
   getStickyType: (vm: ComponentInternalInstance) => 'left' | 'right' | undefined | boolean,
-  collected: () => number,
+  trackElWithVm: (el: Element, vm: ComponentInternalInstance) => void
 ];
 const [, getWidth, setWidth] = useWeakMap<ComponentInternalInstance, number | undefined | null>();
 const processType = (type: ReturnType<StickyContext[1]>) => (type === true ? 'left' : type || undefined);
@@ -38,14 +39,10 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
       else if (stickyType === 'right') state.right.push(vm as InstanceWithKey);
     });
   });
-  const elVmMap = useWeakMap<Element, InstanceWithKey>();
+  const elVmMap = new WeakMap<Element, InstanceWithKey>(), [, getVmEl, setVmEl] = useWeakMap<ComponentInternalInstance, Element>();
   useResizeObserver({
     targets: () =>
-      state.left.concat(state.right).map((vm) => {
-        const el = unrefOrGet(vm[key]);
-        if (el) elVmMap.set(el, vm);
-        return el;
-      }),
+      state.left.concat(state.right).map((vm) => getVmEl(vm)),
     observeOptions: {
       box: 'border-box',
     },
@@ -70,21 +67,32 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
           // MUST call toRaw, as it's processed by reactive
           if (toRaw(v) === vm) return offset;
           else if (width != null) {
+            if (getVmTreeDirectChildren(v).length) continue; // only calculate offset for leaf nodes
             offset += width;
           }
         }
       }
     },
     getStickyType,
-    () => state.left.length + state.right.length,
+    (el: Element | undefined, vm: ComponentInternalInstance) => {
+      if (el && elVmMap.get(el) !== vm) {
+        setVmEl(vm, el);
+        elVmMap.set(el, vm);
+        nextTick(() => {
+          // initialize width in next tick in case it gets tracked
+          if (getWidth(vm) == null && ['left', 'right'].includes(processType(getStickyType(vm))!)) setWidth(vm, getRect(el).width);
+        })
+      }
+    }
   ]);
 }
 
-export function useStickyColumn(elRef: MaybeRefLikeOrGetter<Element>) {
+type StickyStyle = { position: 'sticky'; left?: number; right?: number } | undefined
+const [, getStyle, setStyle] = useWeakMap<ComponentInternalInstance, ShallowRef<StickyStyle>>();
+export function useStickyColumn() {
   const vm = getCurrentInstance() as InstanceWithKey;
-  vm[key] = elRef;
   const context = inject<StickyContext>(key);
-  const style = shallowRef<{ position: 'sticky'; left?: number; right?: number } | undefined>();
+  const style = shallowRef<StickyStyle>();
   let lastOffset: number | undefined;
   context &&
     watchEffect(() => {
@@ -95,19 +103,7 @@ export function useStickyColumn(elRef: MaybeRefLikeOrGetter<Element>) {
         style.value = { position: 'sticky', [stickyType!]: `${(lastOffset = offset)}px` };
       else lastOffset = style.value = undefined;
     });
+  setStyle(vm, style);
 
-  const unwatch =
-    context &&
-    watch(
-      [() => unrefOrGet(elRef), () => processType(context[1](vm)), context[2]],
-      ([el, type, nums]) => {
-        // if no collected, also need to return as at that time, the width may not be correct
-        if ((type !== 'left' && type !== 'right') || !el || !nums) return;
-        // only set width once. Later it's updated by ResizeObserver
-        setWidth(vm, getRect(el).width);
-        unwatch!();
-      },
-      { flush: 'post' },
-    );
-  return () => style.value;
+  return [(instance = vm) => getStyle(instance)?.value, context?.[2]] as const;
 }

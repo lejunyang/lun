@@ -39,8 +39,7 @@ export const TableColumn = defineSSRCustomElement({
       part: compParts[1],
     };
 
-    const cells = ref<HTMLElement[]>([]),
-      rootHead = ref<HTMLElement>();
+    const cells = ref<HTMLElement[]>([]);
     let rowMergedCount = 0,
       currentColMergeInfoIndex = 0,
       mergeWithPrevColCount = 0,
@@ -51,7 +50,7 @@ export const TableColumn = defineSSRCustomElement({
     };
     onBeforeUnmount(clean);
 
-    const getStickyStyle = useStickyColumn(rootHead);
+    const [getStickyStyle, setHeaderVm] = useStickyColumn();
 
     // TODO handle colSpan for nested columns under the same parent
     const updateMergeInfo = (rowIndex: number, colSpan: number, rowSpan: number) => {
@@ -98,7 +97,7 @@ export const TableColumn = defineSSRCustomElement({
           part={compParts[3]}
           ref={cells}
           ref_for={true}
-          style={{ ...getStickyStyle(), ...style }}
+          style={{ ...getStickyStyle(vm), ...style }}
         >
           {objectGet(item, vm.props.name as string)}
         </div>
@@ -107,15 +106,18 @@ export const TableColumn = defineSSRCustomElement({
     const getHead = (vm: ComponentInternalInstance) => {
       const { headColSpan } = vm.props as TableColumnSetupProps,
         level = getVmTreeLevel(vm),
+        isLeaf = isVmLeafChild(vm),
         leavesCount = getVmLeavesCount(vm),
         maxLevel = context.maxLevel();
       return (
         <div
           {...headCommonProps}
           v-show={!isCollapsed(vm)}
-          ref={level === 0 ? rootHead : undefined}
+          ref={(el) => {
+            isLeaf && setHeaderVm!(el as Element, vm);
+          }}
           style={{
-            ...getStickyStyle(),
+            ...getStickyStyle(vm),
             gridColumn:
               /**
                * leavesCount > 1: having multiple nested children columns
