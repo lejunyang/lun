@@ -3,12 +3,12 @@
 @include b(table-column) {
   color: getGrayColor(12);
 
-  @include e(head) {
+  @include e(header) {
     background: getGrayColor(3);
     @include declareVarValues(
       (
         font-weight: (
-          head-font-weight,
+          header-font-weight,
           700,
         ),
       )
@@ -19,7 +19,7 @@
     background: getGrayColor(1);
   }
 
-  @include e((head, cell)) {
+  @include e((header, cell)) {
     box-sizing: border-box;
     outline: 1px solid getGrayColor(5);
     @include declareVars(

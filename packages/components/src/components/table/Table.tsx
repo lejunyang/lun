@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, getVmMaxChildLevel } from 'utils';
+import { createDefineElement, getVmMaxChildLevel, isVmLeafChild } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
-import { ensureArray } from '@lun-web/utils';
+import { ensureArray, toPxIfNum } from '@lun-web/utils';
 import { fComputed, getVmTreeParent, useStickyTable, useWeakMap, useWeakSet } from '@lun-web/core';
 import { ComponentInternalInstance, computed } from 'vue';
 
@@ -54,6 +54,9 @@ export const Table = defineSSRCustomElement({
             display: 'grid',
             gridAutoFlow: 'column',
             gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
+            gridTemplateColumns: context.value
+              .map((child) => (isVmLeafChild(child) ? toPxIfNum(child.props.width) || 'max-content' : ''))
+              .join(' '),
           }}
         >
           <slot></slot>

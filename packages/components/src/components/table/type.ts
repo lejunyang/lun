@@ -11,12 +11,15 @@ import {
   PropNumber,
   PropBoolOrStr,
   PropObjOrFunc,
+  PropBoolean,
 } from 'common';
 import { CSSProperties, ExtractPropTypes } from 'vue';
 
 export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
+  stickyHeader: PropBoolean(),
+  // TODO stickyRow
 });
 
 export const tableEmits = createEmits<{}>([]);
@@ -39,6 +42,7 @@ export const tableColumnProps = freeze({
   headColSpan: PropNumber(),
   cellProps: PropObjOrFunc<TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)>(),
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
+  width: PropNumber(),
 });
 
 export const tableColumnEmits = createEmits<{}>([]);

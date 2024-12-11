@@ -17,7 +17,7 @@ import {
 import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
 
 const name = 'table-column';
-const parts = ['root', 'head', 'group', 'cell'] as const;
+const parts = ['root', 'header', 'cell'] as const;
 const compParts = getCompParts(name, parts);
 export const TableColumn = defineSSRCustomElement({
   name,
@@ -35,7 +35,7 @@ export const TableColumn = defineSSRCustomElement({
       rawCellMerge = toRaw(cellMerge.value);
 
     const headCommonProps = {
-      class: ns.e('head'),
+      class: ns.e('header'),
       part: compParts[1],
     };
 
@@ -94,7 +94,7 @@ export const TableColumn = defineSSRCustomElement({
       return (
         <div
           class={ns.e('cell')}
-          part={compParts[3]}
+          part={compParts[2]}
           ref={cells}
           ref_for={true}
           style={{ ...getStickyStyle(vm), ...style }}
@@ -121,10 +121,10 @@ export const TableColumn = defineSSRCustomElement({
             gridColumn:
               /**
                * leavesCount > 1: having multiple nested children columns
-               * !level && +headColSpan! > 1: colspan is set for root column head
+               * !level && +headColSpan! > 1: colspan is set for root column header
                */
               leavesCount > 1 || (!level && +headColSpan! > 1) ? `span ${leavesCount || headColSpan}` : undefined,
-            // leavesCount < value: other columns have nested columns, current column head needs also to be expanded
+            // leavesCount < value: other columns have nested columns, current column header needs also to be expanded
             gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
         >
