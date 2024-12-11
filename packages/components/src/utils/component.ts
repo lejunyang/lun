@@ -26,6 +26,7 @@ import {
 import { PropString } from 'common';
 import { vContent } from '@lun-web/plugins/vue';
 import { useContextStyles } from '../hooks/useStyles';
+import { holderName } from '../components/config/utils';
 
 export function getElementFirstName(comp: ComponentKey) {
   return getFirstOfIterable(GlobalStaticConfig.actualNameMap[comp]);
@@ -67,8 +68,8 @@ type ExtractChainDepNames<T extends ComponentDependencyDefineMap> = T[keyof T] e
   dn?: infer ChainT,
 ) => void
   ? ChainT extends Record<string, string>
-  ? keyof ChainT
-  : never
+    ? keyof ChainT
+    : never
   : never;
 
 export function createDefineElement<
@@ -156,13 +157,17 @@ export function createImportDynamicStyle(
   return once(() => GlobalContextConfig.dynamicStyles[compKey].push(style));
 }
 
-const getComputedStyles = cacheFunctionByKey(((k: string) => {
-  const { styles, styles: { common } } = GlobalStaticConfig, v = styles[k as OpenShadowComponentKey];
+const getComputedStyles = cacheFunctionByKey((k: string) => {
+  const {
+      styles,
+      styles: { common },
+    } = GlobalStaticConfig,
+    v = styles[k as OpenShadowComponentKey];
   if (!v) return;
-  return k === 'teleport-holder'
+  return k === holderName
     ? common.concat(v).concat(...(componentsWithTeleport.map((c) => styles[c]) as any))
-    : common.concat(v)
-}));
+    : common.concat(v);
+});
 
 // custom element doesn't inherit vue app's context
 const warnHandler = (msg: string, _: any, trace: string) => {
@@ -247,8 +252,8 @@ export function toElement(queryOrElement?: string | Element | null, queryParent:
   return isElement(queryOrElement)
     ? queryOrElement
     : isString(queryOrElement)
-      ? queryParent.querySelector(queryOrElement)
-      : null;
+    ? queryParent.querySelector(queryOrElement)
+    : null;
 }
 
 export function getFirstThemeProvider() {

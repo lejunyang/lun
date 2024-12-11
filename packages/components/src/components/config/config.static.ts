@@ -1,69 +1,11 @@
-import { freeze, hasOwn, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
+import { hasOwn, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
 import { error } from '../../utils';
 import { getInitialCustomRendererMap } from '../custom-renderer/renderer.registry';
 import { presets } from '@lun-web/core';
-import { reduceFromComps } from './utils';
+import { ComponentKey, compStatic } from './utils';
 import { VueElement } from 'custom';
 
-const holderName = 'teleport-holder';
-export const componentsWithTeleport = freeze(['message', 'popover', 'select'] as const);
-export const noShadowComponents = freeze(['custom-renderer', 'virtual-renderer'] as const);
-export const closedShadowComponents = freeze(['watermark'] as const);
-export const openShadowComponents = freeze([
-  'accordion',
-  'accordion-group',
-  'button',
-  'calendar',
-  'callout',
-  'checkbox',
-  'checkbox-group',
-  'color-picker',
-  'date-picker',
-  'dialog',
-  'divider',
-  'doc-pip',
-  'file-picker',
-  'form',
-  'form-item',
-  'icon',
-  'input',
-  'mentions',
-  'message',
-  'popover',
-  'progress',
-  'radio',
-  'radio-group',
-  'range',
-  'scroll-view',
-  'select',
-  'select-option',
-  'select-optgroup',
-  'skeleton',
-  'spin',
-  'switch',
-  'table',
-  'table-column',
-  'tabs',
-  'tab-item',
-  'tag',
-  holderName,
-  'text',
-  'textarea',
-  'theme-provider',
-  'tooltip',
-  'tour',
-  'tree',
-  'tree-item',
-] as const);
-export const components = freeze([...openShadowComponents, ...noShadowComponents, ...closedShadowComponents] as const);
-export type ComponentKey = (typeof components)[number];
-export type OpenShadowComponentKey = (typeof openShadowComponents)[number];
-
-export type ComponentStyles = Record<'common' | OpenShadowComponentKey, (string | CSSStyleSheet)[]>;
-
 export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
-
-const styles = reduceFromComps(() => [] as (string | CSSStyleSheet)[], false) as ComponentStyles;
 
 const ignoreAttrSet = new Set(['class', 'part', 'exportparts', 'style']),
   needStyleComps = new Set(['form-item', 'tag', 'tooltip', 'divider', 'watermark']);
@@ -102,12 +44,7 @@ export const GlobalStaticConfig = new Proxy(
       if (needStyleComps.has(comp) && attr === 'style') return false;
       if (ignoreAttrSet.has(attr) || attr.startsWith('data-') || attr.startsWith('aria-')) return true;
     }) as (comp: ComponentKey, attribute: string, ce: VueElement) => boolean | void,
-    /** define transformers to transform element's attributes to props */
-    attrTransform: reduceFromComps(() => ({} as Record<string, (val: string | null) => any>), true, true),
-    /** a map of component's name to its all defined names set, e.g. `button` to `Set(['l-button', 'my-button'])` */
-    actualNameMap: reduceFromComps(() => new Set<string>()),
-    /** define default props of every component */
-    defaultProps: reduceFromComps(() => ({} as Record<string, any>)),
+    ...compStatic,
     /** whether to use constructed CSSStyleSheet when possible */
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** whether wrap &#64;layer for components' styles */
@@ -123,9 +60,6 @@ export const GlobalStaticConfig = new Proxy(
      * - `color-first`: use 'color' first
      */
     colorPriority: '' as ColorPriority,
-    availableVariants: reduceFromComps(() => new Set<string>(), false, false),
-    /** define every components' static styles, also can set global common style with `common` key */
-    styles,
     /** must define the breakpoints from smallest to largest */
     breakpoints: {
       xs: '520px',
@@ -146,20 +80,6 @@ export const GlobalStaticConfig = new Proxy(
     /** function used to process html string before using it, you can use this to do XSS filter */
     htmlPreprocessor: (html: string) => html,
     customRendererRegistry: getInitialCustomRendererMap(),
-    /**
-     * define every components' event init map, it's used to initialize the event object when dispatch event
-     * every entry accepts object or array value:
-     * - object value: `{ button: { composed: true, bubbles: true } }`, the object will be used for every event for that component
-     * - array value: `{ button: [{ composed: true }, { validClick: { bubbles: true } }] }` the first value will be used for every event, the second object can be the corresponding event's init(event name must be camelCase)
-     */
-    eventInitMap: reduceFromComps(
-      () =>
-        ({} as
-          | Omit<CustomEventInit, 'detail'>
-          | [Omit<CustomEventInit, 'detail'>, Record<string, Omit<CustomEventInit, 'detail'>>]),
-      true,
-      true,
-    ),
     ...(presets as {
       math: Required<
         import('@lun-web/core').MathMethods<

@@ -9,6 +9,7 @@
 - `form-item`: add rawValue and rawData in validator
 - `form-item`: distinguish rawRule and rule
 - `form-item`: support type=date min/max, greaterThan/lessThan transform
+- add `addUserComponent` util
 
 ### Changes
 

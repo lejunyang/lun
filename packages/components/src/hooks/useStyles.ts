@@ -5,6 +5,7 @@ import { computed, getCurrentInstance, h, watchEffect } from 'vue';
 import { useCE } from './shadowDom';
 import { error } from '../utils/console';
 import { processStringStyle } from '../utils/style';
+import { holderName } from '../components/config/utils';
 
 export function useContextStyles(name: OpenShadowComponentKey) {
   const vm = getCurrentInstance()!;
@@ -21,7 +22,7 @@ export function useContextStyles(name: OpenShadowComponentKey) {
     .concat(ensureArray(dynamicStyles[name]))
     .concat(() => (vm.props.innerStyle as string) || '');
 
-  if (name === 'teleport-holder') {
+  if (name === holderName) {
     styles.push(...componentsWithTeleport.flatMap((name) => dynamicStyles[name]));
   }
   const sheets: [CSSStyleSheet, getCSS: () => string][] = [];
