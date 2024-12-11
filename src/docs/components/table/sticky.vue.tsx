@@ -21,5 +21,6 @@ export default () => (
     <l-table-column name="phone" label="phone"></l-table-column>
     <l-table-column label="age" name="age" sticky="right"></l-table-column>
     <l-table-column name="address" label="address"></l-table-column>
+    <l-table-column label="age last" name="age" sticky="right"></l-table-column>
   </l-table>
 );

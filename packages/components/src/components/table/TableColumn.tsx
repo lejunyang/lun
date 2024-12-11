@@ -50,7 +50,8 @@ export const TableColumn = defineSSRCustomElement({
     };
     onBeforeUnmount(clean);
 
-    const [getStickyStyle, setHeaderVm] = useStickyColumn();
+    const [getStickyStyle, stickyContext] = useStickyColumn(),
+      [, getStickyType, setHeaderVm, isStickyEnd] = stickyContext!;
 
     // TODO handle colSpan for nested columns under the same parent
     const updateMergeInfo = (rowIndex: number, colSpan: number, rowSpan: number) => {
@@ -91,9 +92,12 @@ export const TableColumn = defineSSRCustomElement({
           updateMergeInfo(index, c, ensureNumber(r, 1));
         }
       }
+
+      const stickyType = getStickyType(vm),
+        stickyEnd = isStickyEnd(vm);
       return (
         <div
-          class={ns.e('cell')}
+          class={[ns.e('cell'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
           part={compParts[2]}
           ref={cells}
           ref_for={true}
@@ -108,13 +112,16 @@ export const TableColumn = defineSSRCustomElement({
         level = getVmTreeLevel(vm),
         isLeaf = isVmLeafChild(vm),
         leavesCount = getVmLeavesCount(vm),
-        maxLevel = context.maxLevel();
+        maxLevel = context.maxLevel(),
+        stickyType = getStickyType(vm),
+        stickyEnd = isStickyEnd(vm);
       return (
         <div
           {...headCommonProps}
+          class={[ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
           v-show={!isCollapsed(vm)}
           ref={(el) => {
-            isLeaf && setHeaderVm!(el as Element, vm);
+            isLeaf && setHeaderVm(el as Element, vm);
           }}
           style={{
             ...getStickyStyle(vm),
