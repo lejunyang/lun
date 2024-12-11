@@ -13,50 +13,58 @@ import {
 import { useWeakMap } from '../../hooks';
 import { CollectorParentReturn, getVmTreeDirectChildren } from '../createCollector';
 import { useResizeObserver } from '../createUseObserver';
-import { getRect } from '@lun-web/utils';
+import { at, getRect } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter } from '../../utils';
 
 const key = Symbol(__DEV__ ? 'sticky' : '');
 type InstanceWithKey = ComponentInternalInstance & { [key]?: MaybeRefLikeOrGetter<Element> };
 type StickyContext = [
-  getOffset: (vm: InstanceWithKey) => number | undefined,
-  getStickyType: (vm: ComponentInternalInstance) => 'left' | 'right' | undefined | boolean,
-  trackElWithVm: (el: Element, vm: ComponentInternalInstance) => void
+  getOffset: (vm: InstanceWithKey, withSelf?: number | boolean) => number | undefined,
+  getStickyType: (vm: ComponentInternalInstance | undefined) => 'left' | 'right' | undefined | boolean,
+  trackElWithVm: (el: Element, vm: ComponentInternalInstance) => void,
+  isStickEnd: (vm: ComponentInternalInstance | undefined) => boolean | undefined,
 ];
 const [, getWidth, setWidth] = useWeakMap<ComponentInternalInstance, number | undefined | null>();
 const processType = (type: ReturnType<StickyContext[1]>) => (type === true ? 'left' : type || undefined);
 export function useStickyTable(context: CollectorParentReturn, getStickyType: StickyContext[1]) {
   const state = reactive({
-    left: [] as InstanceWithKey[],
-    right: [] as InstanceWithKey[],
-  });
+    left: [],
+    right: [],
+  }) as {
+    left: InstanceWithKey[];
+    right: InstanceWithKey[];
+  };
+
+  const finalGetStickyType = (vm: ComponentInternalInstance | undefined) => processType(getStickyType(vm));
+
   watchEffect(() => {
     state.left = [];
     state.right = [];
     context.value.forEach((vm) => {
-      const stickyType = processType(getStickyType(vm));
+      const stickyType = finalGetStickyType(vm);
       if (stickyType === 'left') state.left.push(vm as InstanceWithKey);
       else if (stickyType === 'right') state.right.push(vm as InstanceWithKey);
     });
+    state.right.reverse();
   });
-  const elVmMap = new WeakMap<Element, InstanceWithKey>(), [, getVmEl, setVmEl] = useWeakMap<ComponentInternalInstance, Element>();
+  const elVmMap = new WeakMap<Element, InstanceWithKey>(),
+    [, getVmEl, setVmEl] = useWeakMap<ComponentInternalInstance, Element>();
   useResizeObserver({
-    targets: () =>
-      state.left.concat(state.right).map((vm) => getVmEl(vm)),
+    targets: () => state.left.concat(state.right).map((vm) => getVmEl(vm)),
     observeOptions: {
       box: 'border-box',
     },
     callback: (entries) => {
       entries.forEach((entry) => {
         const vm = elVmMap.get(entry.target);
-        if (vm) setWidth(vm, entry.borderBoxSize?.[0].inlineSize ?? (getRect(entry.target).width));
+        if (vm) setWidth(vm, entry.borderBoxSize?.[0].inlineSize ?? getRect(entry.target).width);
       });
     },
   });
 
-  provide<StickyContext>(key, [
-    (vm: InstanceWithKey) => {
-      const stickyType = processType(getStickyType(vm)),
+  const stickyContext: StickyContext = [
+    (vm: InstanceWithKey, withSelf?: number | boolean) => {
+      const stickyType = finalGetStickyType(vm),
         arr = state[stickyType!];
       if (arr) {
         if (getWidth(arr[0]) == null) return; // haven't set width yet, return undefined instead of 0
@@ -65,7 +73,7 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
           const v = arr[i],
             width = getWidth(v);
           // MUST call toRaw, as it's processed by reactive
-          if (toRaw(v) === vm) return offset;
+          if (toRaw(v) === toRaw(vm)) return withSelf ? offset + (width ?? 0) : offset;
           else if (width != null) {
             if (getVmTreeDirectChildren(v).length) continue; // only calculate offset for leaf nodes
             offset += width;
@@ -73,21 +81,29 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
         }
       }
     },
-    getStickyType,
+    finalGetStickyType,
     (el: Element | undefined, vm: ComponentInternalInstance) => {
       if (el && elVmMap.get(el) !== vm) {
         setVmEl(vm, el);
         elVmMap.set(el, vm);
         nextTick(() => {
           // initialize width in next tick in case it gets tracked
-          if (getWidth(vm) == null && ['left', 'right'].includes(processType(getStickyType(vm))!)) setWidth(vm, getRect(el).width);
-        })
+          if (getWidth(vm) == null && ['left', 'right'].includes(finalGetStickyType(vm)!))
+            setWidth(vm, getRect(el).width);
+        });
       }
-    }
-  ]);
+    },
+    (vm) => {
+      const stickyType = finalGetStickyType(vm),
+        arr = state[stickyType!];
+      return arr && toRaw(vm) === toRaw(at(arr, -1));
+    },
+  ];
+  provide(key, stickyContext);
+  return [state, stickyContext] as const;
 }
 
-type StickyStyle = { position: 'sticky'; left?: number; right?: number } | undefined
+type StickyStyle = { position: 'sticky'; left?: number; right?: number } | undefined;
 const [, getStyle, setStyle] = useWeakMap<ComponentInternalInstance, ShallowRef<StickyStyle>>();
 export function useStickyColumn() {
   const vm = getCurrentInstance() as InstanceWithKey;
@@ -99,11 +115,10 @@ export function useStickyColumn() {
       const offset = context[0](vm),
         stickyType = processType(context[1](vm));
       if (offset === lastOffset) return;
-      if (offset != null)
-        style.value = { position: 'sticky', [stickyType!]: `${(lastOffset = offset)}px` };
+      if (offset != null) style.value = { position: 'sticky', [stickyType!]: `${(lastOffset = offset)}px` };
       else lastOffset = style.value = undefined;
     });
   setStyle(vm, style);
 
-  return [(instance = vm) => getStyle(instance)?.value, context?.[2]] as const;
+  return [(instance = vm) => getStyle(instance)?.value, context] as const;
 }
