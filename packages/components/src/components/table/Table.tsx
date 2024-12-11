@@ -5,7 +5,7 @@ import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray } from '@lun-web/utils';
-import { fComputed, useStickyTable, useWeakMap, useWeakSet } from '@lun-web/core';
+import { fComputed, getVmTreeParent, useStickyTable, useWeakMap, useWeakSet } from '@lun-web/core';
 import { ComponentInternalInstance, computed } from 'vue';
 
 const name = 'table';
@@ -40,7 +40,10 @@ export const Table = defineSSRCustomElement({
         cellMerge,
       },
     });
-    useStickyTable(context, (vm) => (vm.props as TableColumnSetupProps).sticky);
+    const getSticky = (vm: ComponentInternalInstance) => (vm.props as TableColumnSetupProps).sticky,
+      getSelfOrParent = (vm: ComponentInternalInstance | undefined): ReturnType<typeof getSticky> =>
+        vm && (getSticky(vm) || getSelfOrParent(getVmTreeParent(vm)));
+    useStickyTable(context, getSelfOrParent);
 
     return () => {
       return (

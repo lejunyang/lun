@@ -26,4 +26,6 @@ highly highly highly experimental
 
 ## 粘性列
 
+在列上设置`sticky`属性即可将列固定在左侧(`left`或`true`)或右侧(`right`)。对于嵌套列来说，只需在顶层列设置即可，下面的列也会固定到同一位置
+
 <!-- @Code:sticky -->
