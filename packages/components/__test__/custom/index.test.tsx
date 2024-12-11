@@ -1,21 +1,39 @@
-import { defineCustomElement } from '@lun-web/components';
-import { useCEExpose } from 'hooks';
+import { addUserComponent, defineCustomElement } from '@lun-web/components';
+import { createCollector } from '@lun-web/core';
+import { useCEExpose, useExpose } from 'hooks';
 import { render } from 'vitest-browser-vue';
-import { inject, nextTick, provide } from 'vue';
+import { inject, nextTick, provide, Ref, ref } from 'vue';
+import { getCollectorOptions } from '../../src/common/index';
+import { getVmLeavesCount, getVmLevel, isVmLeafChild } from 'utils';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'my-el': HTMLElement & { msg: string; text: (() => string) | undefined };
+    'l-test': HTMLElement & { msg: string; text: (() => string) | undefined };
+  }
+}
+
+declare module '@lun-web/components' {
+  interface UserComponents {
+    open: 'test';
   }
 }
 
 describe('defineCustomElement', () => {
+  addUserComponent('test');
+  const TestCollector = createCollector({
+    ...getCollectorOptions('test', true),
+    tree: true,
+  });
   const El = defineCustomElement({
+    name: 'test',
     props: {
       msg: String,
       renderer: Function,
+      parent: Boolean,
     },
     setup(props) {
+      const collectorContext = props.parent ? TestCollector.parent() : TestCollector.child()!;
+      useExpose(collectorContext);
       useCEExpose({
         text: () => props.msg,
       });
@@ -24,7 +42,8 @@ describe('defineCustomElement', () => {
       return () => (props.renderer ? props.renderer(context, props) : context.msg || props.msg);
     },
   });
-  customElements.define('my-el', El);
+  type iEl = InstanceType<typeof El>;
+  customElements.define('l-test', El);
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -58,8 +77,8 @@ describe('defineCustomElement', () => {
   });
 
   it('move to another parent element', async () => {
-    const el1 = l('my-el', { msg: 'el1' });
-    const el2 = l('my-el', { msg: 'el2' });
+    const el1 = l('l-test', { msg: 'el1' });
+    const el2 = l('l-test', { msg: 'el2' });
     expect(el2.shadowRoot!.textContent).toBe('el2');
     el1.append(el2);
     await nextTick();
@@ -71,19 +90,19 @@ describe('defineCustomElement', () => {
     let parent: InstanceType<typeof El>, child: InstanceType<typeof El>;
     render(() => (
       <div>
-        <my-el
+        <l-test
           msg="msg1"
           ref={(el: any) => {
             if (el) parent = el;
           }}
         >
-          <my-el
+          <l-test
             msg="msg2"
             ref={(el: any) => {
               if (el) child = el;
             }}
-          ></my-el>
-        </my-el>
+          ></l-test>
+        </l-test>
       </div>
     ));
     let container = parent!.parentElement!;
@@ -104,19 +123,45 @@ describe('defineCustomElement', () => {
   });
 
   it('should resolve correct parent when element is slotted in nested context', async () => {
-    l('my-el', {
+    l('l-test', {
       msg: 'GrandParent',
       renderer: () => {
         return (
-          <my-el msg="Parent">
+          <l-test msg="Parent">
             <slot></slot>
-          </my-el>
+          </l-test>
         );
       },
-      children: [['my-el', { id: 'child' }]],
+      children: [['l-test', { id: 'child' }]],
     });
     await nextTick();
     const child = document.getElementById('child')!;
     expect(child.shadowRoot!.textContent).toBe('Parent');
+  });
+
+  it('should have correct tree info for tree context', async () => {
+    const firstChild = ref<iEl>(),
+      leafChild = ref<iEl>();
+    render(() => (
+      <l-test parent>
+        <l-test ref={firstChild}>
+          <l-test>
+            <l-test ref={leafChild}></l-test>
+            <l-test></l-test>
+          </l-test>
+          <l-test>
+            <l-test></l-test>
+            <l-test></l-test>
+          </l-test>
+        </l-test>
+      </l-test>
+    ));
+    await nextTick();
+    const getVm = (r: Ref<iEl | undefined>) => r.value!._instance!;
+    expect(isVmLeafChild(getVm(firstChild))).to.be.false;
+    expect(getVmLevel(getVm(firstChild))).toBe(0);
+    expect(getVmLeavesCount(getVm(firstChild))).toBe(4);
+    expect(isVmLeafChild(getVm(leafChild))).to.be.true;
+    expect(getVmLevel(getVm(leafChild))).toBe(2);
   });
 });

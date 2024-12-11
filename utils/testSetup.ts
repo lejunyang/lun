@@ -5,6 +5,13 @@ import '../packages/core/src/presets/date.dayjs';
 import { afterEach } from 'vitest';
 import { config } from '@vue/test-utils'
 
+const warn = console.warn.bind(console);
+
+console.warn = (...args: any[]) => {
+  if (String(args[0]).includes('Performing full mount instead')) return;
+  warn(...args);
+}
+
 config.global.config.warnHandler = (msg: string, _: any, trace: string) => {
   // ignore injection not found warning
   if (msg.includes('injection') && msg.includes('not found')) return;
