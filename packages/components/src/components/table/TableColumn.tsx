@@ -27,7 +27,7 @@ export const TableColumn = defineSSRCustomElement({
     const ns = useNamespace(name);
     const context = TableColumnCollector.child();
     if (!context) throw new Error('Table column must be used inside a table component');
-    const vm = getCurrentInstance()!;
+    const rootVm = getCurrentInstance()!;
     useExpose(context);
     const { collapsed, cellMerge, data } = context,
       [, isCollapsed] = collapsed,
@@ -108,9 +108,8 @@ export const TableColumn = defineSSRCustomElement({
       );
     };
     const getHead = (vm: ComponentInternalInstance) => {
-      const { headColSpan } = vm.props as TableColumnSetupProps,
+      const { headerColSpan } = vm.props as TableColumnSetupProps,
         level = getVmTreeLevel(vm),
-        isLeaf = isVmLeafChild(vm),
         leavesCount = getVmLeavesCount(vm),
         maxLevel = context.maxLevel(),
         stickyType = getStickyType(vm),
@@ -121,16 +120,16 @@ export const TableColumn = defineSSRCustomElement({
           class={[ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
           v-show={!isCollapsed(vm)}
           ref={(el) => {
-            isLeaf && setHeaderVm(el as Element, vm);
+            setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
           }}
           style={{
             ...getStickyStyle(vm),
             gridColumn:
               /**
                * leavesCount > 1: having multiple nested children columns
-               * !level && +headColSpan! > 1: colspan is set for root column header
+               * !level && +headerColSpan! > 1: colspan is set for root column header
                */
-              leavesCount > 1 || (!level && +headColSpan! > 1) ? `span ${leavesCount || headColSpan}` : undefined,
+              leavesCount > 1 || (!level && +headerColSpan! > 1) ? `span ${leavesCount || headerColSpan}` : undefined,
             // leavesCount < value: other columns have nested columns, current column header needs also to be expanded
             gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
@@ -157,7 +156,7 @@ export const TableColumn = defineSSRCustomElement({
       rowMergedCount = 0;
       clean();
       const content: VNodeChild[] = [];
-      getContent(vm, content);
+      getContent(rootVm, content);
       return (
         <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }}>
           {content}

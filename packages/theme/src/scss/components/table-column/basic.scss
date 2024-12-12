@@ -1,5 +1,19 @@
 @use '../../mixins' as *;
 
+// @keyframes shadow {
+//   0%,
+//   100% {
+//     box-shadow: inset 10px 0 8px -8px getGrayColor(a5);
+//   }
+// }
+
+// @keyframes shadowR {
+//   0%,
+//   100% {
+//     box-shadow: inset -10px 0 8px -8px getGrayColor(a5);
+//   }
+// }
+
 @include b(table-column) {
   color: getGrayColor(12);
 
@@ -29,6 +43,33 @@
       )
     );
   }
+
+  // @include is(sticky-end, false, true) {
+  //   &::after {
+  //     content: '';
+  //     position: absolute;
+  //     top: 0;
+  //     bottom: 0;
+  //     width: 30px;
+  //     animation-timeline: scroll(nearest x);
+  //   }
+  // }
+  // @include is((sticky-left, sticky-end), false, true) {
+  //   &::after {
+  //     right: 0;
+  //     transform: translateX(100%);
+  //     animation-name: shadow;
+  //     animation-range: 1px; // first sticky left offsetLeft + 1 // it's hard to calculate
+  //   }
+  // }
+  // @include is((sticky-right, sticky-end), false, true) {
+  //   &::after {
+  //     left: 0;
+  //     transform: translateX(-100%);
+  //     animation-name: shadowR;
+  //     animation-range: 0px calc(100% - 1px); // 100% - sticky-right-offset
+  //   }
+  // }
 
   @include size(2) {
     @include setVars(

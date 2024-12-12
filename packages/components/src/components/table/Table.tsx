@@ -1,5 +1,5 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, getVmMaxChildLevel, isVmLeafChild } from 'utils';
+import { createDefineElement, getVmMaxChildLevel, isVmLeafChild, renderElement } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
@@ -26,7 +26,7 @@ export const Table = defineSSRCustomElement({
       return Math.max(
         ...context.value.map((child) => {
           if (--collapseCount > 0) addCollapsed(child);
-          else collapseCount = +child.props.headColSpan!;
+          else collapseCount = +child.props.headerColSpan!;
           return (getVmMaxChildLevel(child) || 0) + 1;
         }),
       );
@@ -45,7 +45,11 @@ export const Table = defineSSRCustomElement({
         vm && (getSticky(vm) || getSelfOrParent(getVmTreeParent(vm)));
     useStickyTable(context, getSelfOrParent);
 
+    const renderColumns = (columns: any[] | undefined): any =>
+      columns &&
+      ensureArray(columns).map(({ /** must exclude children or it will be set as a prop */children, ...c }) => renderElement('table-column', c, renderColumns(children)));
     return () => {
+      const { columns } = props;
       return (
         <div
           class={ns.t}
@@ -59,6 +63,7 @@ export const Table = defineSSRCustomElement({
               .join(' '),
           }}
         >
+          {renderColumns(columns)}
           <slot></slot>
         </div>
       );

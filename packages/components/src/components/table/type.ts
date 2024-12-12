@@ -15,19 +15,6 @@ import {
 } from 'common';
 import { CSSProperties, ExtractPropTypes } from 'vue';
 
-export const tableProps = freeze({
-  ...themeProps,
-  data: PropArray(),
-  stickyHeader: PropBoolean(),
-  // TODO stickyRow
-});
-
-export const tableEmits = createEmits<{}>([]);
-
-export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
-export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
-export type TableProps = Partial<TableSetupProps> & TableEvents;
-
 export type TableCellProps = Partial<{
   colSpan: number;
   rowSpan: number;
@@ -39,10 +26,11 @@ export const tableColumnProps = freeze({
   name: PropString(),
   plainName: undefBoolProp,
   label: Prop(),
-  headColSpan: PropNumber(),
+  headerColSpan: PropNumber(),
   cellProps: PropObjOrFunc<TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)>(),
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
   width: PropNumber(),
+  resizable: PropBoolean(), // TODO
 });
 
 export const tableColumnEmits = createEmits<{}>([]);
@@ -50,3 +38,24 @@ export const tableColumnEmits = createEmits<{}>([]);
 export type TableColumnSetupProps = ExtractPropTypes<typeof tableColumnProps> & CommonProps;
 export type TableColumnEvents = GetEventPropsFromEmits<typeof tableColumnEmits>;
 export type TableColumnProps = Partial<TableColumnSetupProps> & TableColumnEvents;
+
+
+// -------------------------- Table Props --------------------------
+
+type TableColumnWithChildren = TableColumnProps & Partial<{
+  children: TableColumnWithChildren[]
+}>
+
+export const tableProps = freeze({
+  ...themeProps,
+  data: PropArray(),
+  columns: PropArray<TableColumnWithChildren[]>(),
+  stickyHeader: PropBoolean(),
+  // TODO stickyRow
+});
+
+export const tableEmits = createEmits<{}>([]);
+
+export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
+export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
+export type TableProps = Partial<TableSetupProps> & TableEvents;
