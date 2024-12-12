@@ -7,7 +7,6 @@ import {
   reactive,
   ShallowRef,
   shallowRef,
-  toRaw,
   watchEffect,
 } from 'vue';
 import { useWeakMap } from '../../hooks';
@@ -72,8 +71,7 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
         for (const i in arr) {
           const v = arr[i],
             width = getWidth(v);
-          // MUST call toRaw, as it's processed by reactive
-          if (toRaw(v) === toRaw(vm)) return withSelf ? offset + (width ?? 0) : offset;
+          if (v === vm) return withSelf ? offset + (width ?? 0) : offset;
           else if (width != null) {
             if (getVmTreeDirectChildren(v).length) continue; // only calculate offset for leaf nodes
             offset += width;
@@ -96,7 +94,7 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
     (vm) => {
       const stickyType = finalGetStickyType(vm),
         arr = state[stickyType!];
-      return arr && toRaw(vm) === toRaw(at(arr, -1));
+      return arr && vm === at(arr, -1);
     },
   ];
   provide(key, stickyContext);
@@ -109,14 +107,15 @@ export function useStickyColumn() {
   const vm = getCurrentInstance() as InstanceWithKey;
   const context = inject<StickyContext>(key);
   const style = shallowRef<StickyStyle>();
-  let lastOffset: number | undefined;
+  let lastOffset: number | undefined, lastType: 'left' | 'right' | undefined;
   context &&
     watchEffect(() => {
       const offset = context[0](vm),
         stickyType = processType(context[1](vm));
-      if (offset === lastOffset) return;
-      if (offset != null) style.value = { position: 'sticky', [stickyType!]: `${(lastOffset = offset)}px` };
-      else lastOffset = style.value = undefined;
+      if (offset === lastOffset && stickyType === lastType) return;
+      if (offset != null)
+        style.value = { position: 'sticky', [(lastType = stickyType!)]: `${(lastOffset = offset)}px` };
+      else lastType = lastOffset = style.value = undefined;
     });
   setStyle(vm, style);
 

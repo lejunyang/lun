@@ -17,6 +17,7 @@ import {
   shallowReactive,
   readonly,
   nextTick,
+  markRaw,
 } from 'vue';
 import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { toUnrefGetterDescriptors } from '../utils';
@@ -75,15 +76,15 @@ export function createCollector<
   PE extends any = Data,
   Tree extends boolean = false,
   ParentProps = P extends VueElementConstructor<infer T>
-  ? T
-  : P extends ComponentObjectPropsOptions
-  ? ExtractPropTypes<P>
-  : P,
+    ? T
+    : P extends ComponentObjectPropsOptions
+    ? ExtractPropTypes<P>
+    : P,
   ChildProps = C extends VueElementConstructor<infer T>
-  ? T
-  : P extends ComponentObjectPropsOptions
-  ? ExtractPropTypes<P>
-  : C,
+    ? T
+    : P extends ComponentObjectPropsOptions
+    ? ExtractPropTypes<P>
+    : C,
 >(options?: {
   name?: string;
   sort?: boolean;
@@ -134,6 +135,7 @@ export function createCollector<
     };
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) {
+      markRaw(instance);
       if (collectOnSetup) state.parentEl = getParentEl(instance);
       onMounted(() => {
         state.parentMounted = true;
@@ -235,19 +237,20 @@ export function createCollector<
   const child = <T = undefined>(collect = true, defaultContext?: T) => {
     const instance = getCurrentInstance() as UnwrapRef<InstanceWithProps<ChildProps>>;
     if (!instance) throw new Error('');
+    markRaw(instance);
     type C = CollectorContext<
       ParentProps,
       ChildProps,
       PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean } & (Tree extends true
-        ? {
-          readonly isLeaf: boolean;
-          readonly level: number;
-          readonly treeIndex: number;
-          readonly nestedItems: InstanceWithProps<ChildProps>[];
-          readonly maxChildLevel: number;
-          readonly leavesCount: number;
-        }
-        : {})
+          ? {
+              readonly isLeaf: boolean;
+              readonly level: number;
+              readonly treeIndex: number;
+              readonly nestedItems: InstanceWithProps<ChildProps>[];
+              readonly maxChildLevel: number;
+              readonly leavesCount: number;
+            }
+          : {})
     >;
     if (!collect && (instance as any)[CHILD_KEY])
       return (instance as any)[CHILD_KEY] as T extends undefined ? C | undefined : C;
@@ -291,7 +294,7 @@ export function createCollector<
                 isLeaf.value = true;
                 parentProvide?.cb(level.value);
               }
-            }
+            };
             // for custom element, need to delay to update isLeaf and callback, otherwise leavesCount is incorrect
             instance.ce ? nextTick(update) : update();
           });

@@ -20,3 +20,4 @@
 
 - `createCollector`: parent element can be undefined when adding item; invoke getParentEl if collectOnSetup is true
 - `createCollector`: fix child(collect: false) when tree is true
+- `createCollector`: add markRaw to avoid instance to be reactive
