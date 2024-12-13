@@ -6,18 +6,19 @@ lang: zh-CN
 :::warning 注
 highly highly highly experimental
 
-尚在初期功能实现验证阶段，初步决定使用Grid渲染表格，而不是table元素
+尚在初期功能实现验证阶段，初步决定使用 Grid 渲染表格，而不是 table 元素
 :::
 
 ## 嵌套列
 
 `l-table-column`可嵌套使用，在渲染时其会自动将表头组合形成多级结构
 
-<!-- @Code:test -->
+<!-- @Code:_devTest -->
+<!-- @Code:nested -->
 
 ## 行/列合并
 
-对于表格头，只需通过`headColSpan`即可设置表头合并
+对于表格头，只需通过`headerColSpan`即可设置表头合并
 
 而对于单元格，使用`cellProps`，动态设置`rowSpan`和`colSpan`即可设置单元格的合并。`rowSpan`和`colSpan`在内部有处理，只需给合并区域左上角那个单元格设置其属性即可，其他单元格无需设置对应属性。
 合并单元格遵循先设置先生效，后面被合并的单元格即使设置了也不会生效
@@ -26,6 +27,20 @@ highly highly highly experimental
 
 ## 粘性列
 
-在列上设置`sticky`属性即可将列固定在左侧(`left`或`true`)或右侧(`right`)。对于嵌套列来说，只需在顶层列设置即可，下面的列也会固定到同一位置
+通过`sticky`属性即可将列设置为粘性列，其可以为`left`（`true`相当于`left`）或`right`。对于嵌套列来说，只需在顶层列设置即可，下面的列也会粘到同一位置
 
 <!-- @Code:sticky -->
+
+## 自定义列宽
+
+通过`width`属性可设置列宽，表格列的宽度默认为`max-content`，其可以设置为任意 Grid 列有效值，例如`1fr`, `fit-content()`, `minmax(min, max)`等等，数字会被视为像素值。
+
+注意，在嵌套列的情况下，列宽仅允许在最底层的列上设置，非叶子节点列设置宽度无效
+
+<!-- @Code:width -->
+
+## 列内容对齐方式
+
+通过`align`属性可设置列内容的对齐方式，相当于给单元格设置`text-align`
+
+<!-- @Code:align -->

@@ -8,7 +8,7 @@ export default () => (
       cellProps={(_, index) => (index === 0 ? { rowSpan: 2 } : {})}
     ></l-table-column>
     <l-table-column label="age" name="age"></l-table-column>
-    <l-table-column name="tel" label="tel" headColSpan={2}></l-table-column>
+    <l-table-column name="tel" label="tel" headerColSpan={2}></l-table-column>
     <l-table-column
       name="phone"
       label="phone"
