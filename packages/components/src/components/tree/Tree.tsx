@@ -6,10 +6,11 @@ import { getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
-import { ComponentInternalInstance, computed } from 'vue';
+import { computed } from 'vue';
 import { ensureArray, unionOfSets } from '@lun-web/utils';
 import { useTreeCheckMethods } from './tree.check';
-import { InternalTreeItem, useTreeItems } from './tree.items';
+import { useTreeItems } from './tree.items';
+import { Item } from './tree.common';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -46,14 +47,14 @@ export const Tree = defineSSRCustomElement({
           : value.raw || new Set(ensureArray(value.value));
       });
 
-    const [propItemsInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);
+    const [propItemsInfo, propItemsValueInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);
     const [vmChildrenInfo, valueToVm] = useCollectorValue(() => context, true);
-    const valueToChild = (value: any) => valueToItem(value) ?? valueToVm(value);
+    const valueToChild = (value: any) => (valueToItem(value) ?? valueToVm(value)) as Item;
     const combinedChildren = objectComputed(() => {
       return {
-        items: ([] as (InternalTreeItem | ComponentInternalInstance)[]).concat(propItemsInfo.items, context.value),
-        noneLeafValuesSet: unionOfSets(propItemsInfo.noneLeafValuesSet, vmChildrenInfo.noneLeafValuesSet),
-        childrenValuesSet: unionOfSets(propItemsInfo.childrenValuesSet, vmChildrenInfo.childrenValuesSet),
+        items: ([] as (Item)[]).concat(propItemsInfo.items, context.value),
+        noneLeafValuesSet: unionOfSets(propItemsValueInfo.noneLeafValuesSet, vmChildrenInfo.noneLeafValuesSet),
+        childrenValuesSet: unionOfSets(propItemsValueInfo.childrenValuesSet, vmChildrenInfo.childrenValuesSet),
       };
     });
 
