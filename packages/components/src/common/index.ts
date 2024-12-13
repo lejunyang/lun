@@ -66,8 +66,8 @@ const collectorOptions = {
 export const getCollectorOptions = (
   name?: string,
   sort?: boolean,
-  onlyForProp?: boolean,
   skipInternalChildren?: boolean,
+  onlyForProp?: boolean,
 ) => ({
   ...collectorOptions,
   name,

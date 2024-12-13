@@ -37,11 +37,12 @@ export function setDefaultsForPropOptions<
 }
 
 const createExpose = (expose: string) => (vm: ComponentInternalInstance) => vm.exposed?.[expose];
-export const getVmLevel = createExpose('level');
-export const isVmLeafChild = createExpose('isLeaf');
 export const isVmDisabled = createExpose('disabled');
-export const getVmLeavesCount = createExpose('leavesCount');
-export const getVmMaxChildLevel = createExpose('maxChildLevel');
 export const getVmValue = (vm: ComponentInternalInstance) => vm.props.value;
 
 export const isVm = (i: any): i is ComponentInternalInstance => i && isVNode(i.vnode);
+
+export const getProp = <Item extends object, Prop extends keyof Item>(
+  vmOrItem: ComponentInternalInstance | Item,
+  prop: Prop,
+) => ((isVm(vmOrItem) ? vmOrItem.props : vmOrItem) as Item)[prop];

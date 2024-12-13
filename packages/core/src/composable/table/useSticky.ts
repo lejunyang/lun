@@ -10,7 +10,7 @@ import {
   watchEffect,
 } from 'vue';
 import { useWeakMap } from '../../hooks';
-import { CollectorParentReturn, isCollectedItemLeaf } from '../createCollector';
+import { isCollectedItemLeaf } from '../createCollector';
 import { useResizeObserver } from '../createUseObserver';
 import { at, getRect } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter } from '../../utils';
@@ -25,7 +25,7 @@ type StickyContext = [
 ];
 const [, getWidth, setWidth] = useWeakMap<ComponentInternalInstance, number | undefined | null>();
 const processType = (type: ReturnType<StickyContext[1]>) => (type === true ? 'left' : type || undefined);
-export function useStickyTable(context: CollectorParentReturn, getStickyType: StickyContext[1]) {
+export function useStickyTable(childrenVmGetter: () => (ComponentInternalInstance | undefined)[], getStickyType: StickyContext[1]) {
   const state = reactive({
     left: [],
     right: [],
@@ -39,7 +39,7 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
   watchEffect(() => {
     state.left = [];
     state.right = [];
-    context.value.forEach((vm) => {
+    childrenVmGetter().forEach((vm) => {
       const stickyType = finalGetStickyType(vm);
       if (stickyType === 'left') state.left.push(vm as InstanceWithKey);
       else if (stickyType === 'right') state.right.push(vm as InstanceWithKey);

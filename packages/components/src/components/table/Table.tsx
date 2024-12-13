@@ -1,12 +1,20 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, getVmMaxChildLevel, isVmLeafChild, renderElement } from 'utils';
+import { createDefineElement, getProp, renderElement } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray, toPxIfNum } from '@lun-web/utils';
-import { fComputed, getVmTreeParent, useStickyTable, useWeakMap, useWeakSet } from '@lun-web/core';
-import { ComponentInternalInstance, computed } from 'vue';
+import {
+  getCollectedItemTreeLevel,
+  getCollectedItemTreeParent,
+  isCollectedItemLeaf,
+  useCollectorExternalChildren,
+  useStickyTable,
+  useWeakMap,
+  useWeakSet,
+} from '@lun-web/core';
+import { ComponentInternalInstance, computed, watchEffect } from 'vue';
 
 const name = 'table';
 const parts = ['root'] as const;
@@ -19,37 +27,50 @@ export const Table = defineSSRCustomElement({
     const ns = useNamespace(name);
     const collapsed = useWeakSet(),
       [replaceCollapsed, , addCollapsed] = collapsed,
-      cellMerge = useWeakMap<ComponentInternalInstance, [startRowIndex: number, mergedCount: number][]>();
-    const maxLevel = fComputed(() => {
-      replaceCollapsed();
-      let collapseCount = 0;
-      return Math.max(
-        ...context.value.map((child) => {
-          if (--collapseCount > 0) addCollapsed(child);
-          else collapseCount = +child.props.headerColSpan!;
-          return (getVmMaxChildLevel(child) || 0) + 1;
-        }),
-      );
-    });
+      cellMerge = useWeakMap<
+        ComponentInternalInstance | TableColumnSetupProps,
+        [startRowIndex: number, mergedCount: number][]
+      >(),
+      columnVmMap = useWeakMap<TableColumnSetupProps, ComponentInternalInstance>(),
+      getColumnVm = columnVmMap[1];
+
     const data = computed(() => ensureArray(props.data));
+    const [columns, renderColumns] = useCollectorExternalChildren(
+      () => props.columns,
+      (column, children) => renderElement('table-column', { ...column, _: column }, children),
+      () => undefined,
+      true,
+    );
+    const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1;
     const context = TableColumnCollector.parent({
       extraProvide: {
         data,
-        maxLevel,
         collapsed,
         cellMerge,
+        columnVmMap,
+        columns,
+        maxLevel,
       },
     });
+
+    watchEffect(() => {
+      replaceCollapsed();
+      let collapseCount = 0;
+      (columns.items as (ComponentInternalInstance | TableColumnSetupProps)[])
+        .concat(context.value)
+        .forEach((child) => {
+          if (!isCollectedItemLeaf(child) || getCollectedItemTreeLevel(child)! > 0) return (collapseCount = 0);
+          if (--collapseCount > 0) addCollapsed(child);
+          else collapseCount = +getProp(child, 'headerColSpan')!;
+        });
+    });
+
     const getSticky = (vm: ComponentInternalInstance) => (vm.props as TableColumnSetupProps).sticky,
       getSelfOrParent = (vm: ComponentInternalInstance | undefined): ReturnType<typeof getSticky> =>
-        vm && (getSticky(vm) || getSelfOrParent(getVmTreeParent(vm)));
-    useStickyTable(context, getSelfOrParent);
+        vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
+    useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
 
-    const renderColumns = (columns: any[] | undefined): any =>
-      columns &&
-      ensureArray(columns).map(({ /** must exclude children or it will be set as a prop */children, ...c }) => renderElement('table-column', c, renderColumns(children)));
     return () => {
-      const { columns } = props;
       return (
         <div
           class={ns.t}
@@ -59,11 +80,11 @@ export const Table = defineSSRCustomElement({
             gridAutoFlow: 'column',
             gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
             gridTemplateColumns: context.value
-              .map((child) => (isVmLeafChild(child) ? toPxIfNum(child.props.width) || 'max-content' : ''))
+              .map((child) => (isCollectedItemLeaf(child) ? toPxIfNum(child.props.width) || 'max-content' : ''))
               .join(' '),
           }}
         >
-          {renderColumns(columns)}
+          {renderColumns()}
           <slot></slot>
         </div>
       );

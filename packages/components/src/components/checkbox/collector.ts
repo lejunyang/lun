@@ -13,4 +13,4 @@ export const CheckboxCollector = createCollector<
       isChecked: (value: unknown) => boolean;
     };
   }
->(getCollectorOptions('checkbox', false, true));
+>(getCollectorOptions('checkbox', false, false, true));

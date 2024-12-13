@@ -6,7 +6,7 @@ import { FUNC, hideDomAndAppend, OBJ, UNDEF } from '../_internal';
 
 export const inBrowser = typeof window !== UNDEF && typeof document !== UNDEF;
 
-const secure = inBrowser && isSecureContext,
+const secure = inBrowser && globalThis.isSecureContext, // for test environment, use globalThis
   htmlProto = inBrowser ? HTMLElement.prototype : ({} as HTMLElement);
 
 export const supportPopover = 'popover' in htmlProto;

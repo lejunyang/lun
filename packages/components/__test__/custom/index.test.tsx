@@ -1,10 +1,9 @@
 import { addUserComponent, defineCustomElement } from '@lun-web/components';
-import { createCollector, isCollectedItemLeaf } from '@lun-web/core';
+import { createCollector, getCollectedItemLeavesCount, getCollectedItemTreeLevel, isCollectedItemLeaf } from '@lun-web/core';
 import { useCEExpose, useExpose } from 'hooks';
 import { render } from 'vitest-browser-vue';
 import { inject, nextTick, provide, Ref, ref } from 'vue';
 import { getCollectorOptions } from '../../src/common/index';
-import { getVmLeavesCount, getVmLevel } from 'utils';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -159,9 +158,9 @@ describe('defineCustomElement', () => {
     await nextTick();
     const getVm = (r: Ref<iEl | undefined>) => r.value!._instance!;
     expect(isCollectedItemLeaf(getVm(firstChild))).to.be.false;
-    expect(getVmLevel(getVm(firstChild))).toBe(0);
-    expect(getVmLeavesCount(getVm(firstChild))).toBe(4);
+    expect(getCollectedItemTreeLevel(getVm(firstChild))).toBe(0);
+    expect(getCollectedItemLeavesCount(getVm(firstChild))).toBe(4);
     expect(isCollectedItemLeaf(getVm(leafChild))).to.be.true;
-    expect(getVmLevel(getVm(leafChild))).toBe(2);
+    expect(getCollectedItemTreeLevel(getVm(leafChild))).toBe(2);
   });
 });

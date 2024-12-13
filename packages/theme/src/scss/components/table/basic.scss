@@ -3,8 +3,10 @@
 :host {
   display: flex; // to fix width issue for sticky
   overflow: auto;
+  flex-grow: 1;
 }
 
 @include b(table) {
   position: relative;
+  flex: 1;
 }

@@ -1,10 +1,17 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, createImportStyle, getHostStyle, getVmLeavesCount, isVmLeafChild } from 'utils';
+import { createDefineElement, createImportStyle, getHostStyle, getProp, isVm } from 'utils';
 import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
-import { getVmTreeDirectChildren, getVmTreeLevel, useStickyColumn } from '@lun-web/core';
+import {
+  getCollectedItemIndex,
+  getCollectedItemLeavesCount,
+  getCollectedItemTreeChildren,
+  getCollectedItemTreeLevel,
+  isCollectedItemLeaf,
+  useStickyColumn,
+} from '@lun-web/core';
 import {
   ComponentInternalInstance,
   CSSProperties,
@@ -13,6 +20,7 @@ import {
   VNodeChild,
   toRaw,
   onBeforeUnmount,
+  watchEffect,
 } from 'vue';
 import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
 
@@ -29,10 +37,14 @@ export const TableColumn = defineSSRCustomElement({
     if (!context) throw new Error('Table column must be used inside a table component');
     const rootVm = getCurrentInstance()!;
     useExpose(context);
-    const { collapsed, cellMerge, data } = context,
+    const { collapsed, cellMerge, data, columnVmMap } = context,
       [, isCollapsed] = collapsed,
       [, getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
+      [, getColumnVm, setColumnVm] = columnVmMap,
       rawCellMerge = toRaw(cellMerge.value);
+    watchEffect(() => {
+      props._ && setColumnVm(props._, rootVm);
+    });
 
     const headCommonProps = {
       class: ns.e('header'),
@@ -42,10 +54,10 @@ export const TableColumn = defineSSRCustomElement({
     const cells = ref<HTMLElement[]>([]);
     let rowMergedCount = 0,
       currentColMergeInfoIndex = 0,
-      mergeWithPrevColCount = 0,
-      hasMergedCols = new Set<ComponentInternalInstance>();
+      mergeWithPrevColCount = 0;
+    const hasMergedCols = new Set<ComponentInternalInstance | TableColumnSetupProps>();
     const clean = () => {
-      hasMergedCols.forEach((vm) => deleteColMergeInfo(vm));
+      hasMergedCols.forEach((col) => deleteColMergeInfo(col));
       hasMergedCols.clear();
     };
     onBeforeUnmount(clean);
@@ -54,31 +66,36 @@ export const TableColumn = defineSSRCustomElement({
       [, getStickyType, setHeaderVm, isStickyEnd] = stickyContext!;
 
     // TODO handle colSpan for nested columns under the same parent
-    const updateMergeInfo = (rowIndex: number, colSpan: number, rowSpan: number) => {
-      const items = context.getItems();
+    const updateMergeInfo = (rowIndex: number, colIndex: number, colSpan: number, rowSpan: number) => {
+      const items = (context.columns.items as (TableColumnSetupProps | ComponentInternalInstance)[]).concat(
+        context.getItems(),
+      );
       colSpan--;
-      for (let i = context.index + 1; i < items.length && colSpan > 0; i++) {
-        const vm = items[i];
-        const mergeInfo = rawCellMerge.get(vm); // get from raw value to avoid it get tracked and then infinite loop
-        if (!isVmLeafChild(vm)) continue;
-        hasMergedCols.add(vm);
+      for (let i = colIndex + 1; i < items.length && colSpan > 0; i++) {
+        const col = items[i];
+        const mergeInfo = rawCellMerge.get(col); // get from raw value to avoid it get tracked and then infinite loop
+        if (!isCollectedItemLeaf(col)) return;
+        hasMergedCols.add(col);
         colSpan--;
         if (mergeInfo) {
           const lastInfo = at(mergeInfo, -1);
           if (lastInfo && rowIndex === lastInfo[0] + lastInfo[1]) lastInfo[1] += rowSpan;
           else mergeInfo.push([rowIndex, rowSpan]);
-          setColMergeInfo(vm, [...mergeInfo]);
+          setColMergeInfo(col, [...mergeInfo]);
         } else {
-          setColMergeInfo(vm, [[rowIndex, rowSpan]]);
+          setColMergeInfo(col, [[rowIndex, rowSpan]]);
         }
       }
     };
 
-    const getCell = (vm: ComponentInternalInstance, item: any, index: number) => {
-      const cellProps = runIfFn(props.cellProps, item, index, props),
+    const getCommonStyle = (column: ComponentInternalInstance | TableColumnSetupProps) =>
+      ({ textAlign: getProp(column, 'align') } satisfies CSSProperties);
+
+    const getCell = (column: ComponentInternalInstance | TableColumnSetupProps, item: any, rowIndex: number) => {
+      const cellProps = runIfFn(getProp(column, 'cellProps'), item, rowIndex, props),
         style: CSSProperties = {};
-      const mergeInfo = getColMergeInfo(vm)?.[currentColMergeInfoIndex];
-      if (mergeInfo?.[0] === index) mergeWithPrevColCount = mergeInfo[1];
+      const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
+      if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
       if (--rowMergedCount > 0 || --mergeWithPrevColCount >= 0) {
         style.display = 'none';
         if (!mergeWithPrevColCount) currentColMergeInfoIndex++;
@@ -89,11 +106,12 @@ export const TableColumn = defineSSRCustomElement({
         if (r > 1) style.gridRow = `span ${(rowMergedCount = r)}`;
         if (c > 1) {
           style.gridColumn = `span ${c}`;
-          updateMergeInfo(index, c, ensureNumber(r, 1));
+          updateMergeInfo(rowIndex, getCollectedItemIndex(column)!, c, ensureNumber(r, 1));
         }
       }
 
-      const stickyType = getStickyType(vm),
+      const vm = isVm(column) ? column : getColumnVm(column)!,
+        stickyType = getStickyType(vm),
         stickyEnd = isStickyEnd(vm);
       return (
         <div
@@ -101,49 +119,54 @@ export const TableColumn = defineSSRCustomElement({
           part={compParts[2]}
           ref={cells}
           ref_for={true}
-          style={{ ...getStickyStyle(vm), ...style }}
+          style={{ ...getStickyStyle(vm), ...style, ...getCommonStyle(column) }}
         >
-          {objectGet(item, vm.props.name as string)}
+          {objectGet(item, getProp(column, 'name'))}
         </div>
       );
     };
-    const getHead = (vm: ComponentInternalInstance) => {
-      const { headerColSpan } = vm.props as TableColumnSetupProps,
-        level = getVmTreeLevel(vm),
-        leavesCount = getVmLeavesCount(vm),
+    const getHead = (column: TableColumnSetupProps | ComponentInternalInstance) => {
+      const { headerColSpan, label } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
+        level = getCollectedItemTreeLevel(column),
+        leavesCount = getCollectedItemLeavesCount(column),
         maxLevel = context.maxLevel(),
+        isLeaf = isCollectedItemLeaf(column),
+        vm = isVm(column) ? column : getColumnVm(column)!,
         stickyType = getStickyType(vm),
         stickyEnd = isStickyEnd(vm);
       return (
         <div
           {...headCommonProps}
           class={[ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
-          v-show={!isCollapsed(vm)}
+          v-show={!isCollapsed(column)}
           ref={(el) => {
             setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
           }}
           style={{
             ...getStickyStyle(vm),
+            ...getCommonStyle(column),
             gridColumn:
               /**
                * leavesCount > 1: having multiple nested children columns
-               * !level && +headerColSpan! > 1: colspan is set for root column header
+               * isLeaf && !level && +headerColSpan! > 1: colspan is set for root column header
                */
-              leavesCount > 1 || (!level && +headerColSpan! > 1) ? `span ${leavesCount || headerColSpan}` : undefined,
+              leavesCount > 1 || (isLeaf && !level && +headerColSpan! > 1)
+                ? `span ${leavesCount || headerColSpan}`
+                : undefined,
             // leavesCount < value: other columns have nested columns, current column header needs also to be expanded
             gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
         >
-          {vm.props.label}
+          {label}
         </div>
       );
     };
-    const getContent = (vm: ComponentInternalInstance, result: VNodeChild[]) => {
-      const children = getVmTreeDirectChildren(vm),
-        isLeaf = isVmLeafChild(vm);
-      result.push(getHead(vm));
+    const getContent = (column: TableColumnSetupProps | ComponentInternalInstance, result: VNodeChild[]) => {
+      const children = getCollectedItemTreeChildren(column) as (TableColumnSetupProps | ComponentInternalInstance)[],
+        isLeaf = isCollectedItemLeaf(column);
+      result.push(getHead(column));
       if (isLeaf) {
-        result.push(...data.value.map((item, i) => getCell(vm, item, i)));
+        result.push(...data.value.map((item, i) => getCell(column, item, i)));
       } else {
         children.forEach((child) => {
           currentColMergeInfoIndex = 0;
@@ -156,7 +179,7 @@ export const TableColumn = defineSSRCustomElement({
       rowMergedCount = 0;
       clean();
       const content: VNodeChild[] = [];
-      getContent(rootVm, content);
+      getContent(props._ || rootVm, content);
       return (
         <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }}>
           {content}
