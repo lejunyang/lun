@@ -19,7 +19,7 @@ export type TreeExtraProvide = {
   };
 };
 export const TreeCollector = createCollector<TreeSetupProps, TreeItemSetupProps, TreeExtraProvide, true>({
-  ...getCollectorOptions('tree', true, false, true),
+  ...getCollectorOptions('tree', true, true),
   tree: true,
 });
 

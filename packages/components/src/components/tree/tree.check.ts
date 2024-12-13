@@ -8,10 +8,11 @@ import {
   getCollectedItemTreeParent,
   getCollectedItemTreeChildren,
   isCollectedItemLeaf,
+  createMapCountMethod,
 } from '@lun-web/core';
 import { at } from '@lun-web/utils';
 import { ComputedRef, onMounted, watch } from 'vue';
-import { createCount, getValue, isDisabled, Item } from './tree.common';
+import { getValue, isDisabled, Item } from './tree.common';
 
 export function useTreeCheckMethods(
   options: ToAllMaybeRefLike<
@@ -37,8 +38,8 @@ export function useTreeCheckMethods(
     [replaceDisabledCount, getDisabledCount] = useWeakMap<Item, number>(),
     [replaceIntermediate, hasIntermediate, addIntermediate, deleteIntermediate] = useWeakSet<Item>();
   const { current, onChange, valueToChild, childrenInfo } = options;
-  const countUp = createCount(itemDirectCheckedChildrenCountMap, 1),
-    countDown = createCount(itemDirectCheckedChildrenCountMap, -1);
+  const countUp = createMapCountMethod(itemDirectCheckedChildrenCountMap, 1),
+    countDown = createMapCountMethod(itemDirectCheckedChildrenCountMap, -1);
   const methods = useCheckboxMethods(options);
 
   const getChildrenCount = (item: Item) => {
@@ -53,8 +54,8 @@ export function useTreeCheckMethods(
     const checkedChildrenCountMap = new WeakMap<Item, number>(),
       disabledChildrenCountMap = new WeakMap<Item, number>();
 
-    const countUp = createCount(checkedChildrenCountMap, 1),
-      disableCountUp = createCount(disabledChildrenCountMap, 1);
+    const countUp = createMapCountMethod(checkedChildrenCountMap, 1),
+      disableCountUp = createMapCountMethod(disabledChildrenCountMap, 1);
 
     const checked = current.value;
     let lastNoneLeafLevel: number | undefined,
@@ -180,7 +181,9 @@ export function useTreeCheckMethods(
     deleteIntermediate(currentVm);
     if (!isLeaf && updateParent !== -1) {
       setCheckedCount(currentVm, isUnCheck ? 0 : getChildrenCount(currentVm));
-      getCollectedItemTreeChildren(currentVm).forEach((c) => internalUpdate(getValue(c as Item), currentChecked, 0, isUnCheck));
+      getCollectedItemTreeChildren(currentVm).forEach((c) =>
+        internalUpdate(getValue(c as Item), currentChecked, 0, isUnCheck),
+      );
     }
     if (updateParent && parent) {
       if (shouldUpdateParentCheck!) {

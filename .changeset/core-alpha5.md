@@ -11,6 +11,7 @@
 - `createCollector`: add maxChildLevel and leavesCount for tree collector
 - add `useStickyTable` and `useStickyColumn`
 - add private hook `useCollectorExternalChildren` for collector, rename some private collector utils
+- add `createMapCountMethod`
 
 ### Changes
 

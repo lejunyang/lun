@@ -190,3 +190,7 @@ export const useWeakMap = createUseSetOrMap('WeakMap') as any as <K extends Weak
   WeakMap<K, V>,
   ['get', 'has', 'set', 'delete']
 >;
+
+export const createMapCountMethod =
+  (map: MaybeRefLikeOrGetter<WeakMap<any, number> | Map<any, number>, true>, diff: number) => (item?: any) =>
+    item && unrefOrGet(map).set(item, (unrefOrGet(map).get(item) || 0) + diff);
