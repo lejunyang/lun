@@ -23,12 +23,19 @@ import {
 } from 'vue';
 import { ensureArray, isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter, toUnrefGetterDescriptors, unrefOrGet } from '../utils';
-import { useWeakMap } from '../hooks';
+import { createMapCountMethod, useWeakMap } from '../hooks';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
   props: P;
 };
+type ParentReadonlyState = Readonly<{
+  parentMounted: boolean;
+  parentEl: Element | null;
+  waitDone: boolean;
+  maxChildLevel: number;
+  maxLevelChild: ComponentInternalInstance | null;
+}>;
 export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra = Data> = ParentExtra & {
   parent: InstanceWithProps<ParentProps> | null;
   items: Ref<UnwrapRef<InstanceWithProps<ChildProps>>[]>;
@@ -39,6 +46,8 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
     addItem: (child: UnwrapRef<InstanceWithProps<ChildProps>>) => void;
     removeItem: (child: UnwrapRef<InstanceWithProps<ChildProps>>) => void;
   };
+  state: ParentReadonlyState;
+  updateMaxLevel(level: number, child: UnwrapRef<InstanceWithProps<ChildProps>>, isUnmounting?: number): void;
 };
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
@@ -52,7 +61,11 @@ const [, getTreeChildren, setTreeChildren, deleteTreeChildren] = useWeakMap<
   [, getIndex, setIndex] = useWeakMap<any, number>(),
   /** tree index is the index among the children of same parent in tree */
   [, getTreeIndex, setTreeIndex] = useWeakMap<any, number>(),
-  [, getIsLeaf, setItemLeaf] = useWeakMap<any, boolean>();
+  [, getIsLeaf, setItemLeaf] = useWeakMap<any, boolean>(),
+  leavesCountMap = useWeakMap<any, number>(),
+  [, getLeavesCount] = leavesCountMap,
+  leavesCountUp = createMapCountMethod(leavesCountMap, 1),
+  leavesCountDown = createMapCountMethod(leavesCountMap, -1);
 
 /** @private */
 export const getCollectedItemTreeChildren = (item?: unknown) => unref(getTreeChildren(item)) || [];
@@ -66,6 +79,8 @@ export const getCollectedItemIndex: (item?: unknown) => number | undefined = get
 export const getCollectedItemTreeIndex: (item?: unknown) => number | undefined = getTreeIndex;
 /** @private */
 export const isCollectedItemLeaf = (item?: unknown) => getIsLeaf(item) === true;
+/** @private */
+export const getCollectedItemLeavesCount = (item: unknown) => getLeavesCount(item) ?? 0;
 
 /**
  * create a collector used for collecting component instances between Parent Component and Children Components.\
@@ -131,6 +146,8 @@ export function createCollector<
       parentMounted: false,
       parentEl: null as Element | null,
       waitDone: !needWait,
+      maxChildLevel: 0,
+      maxLevelChild: null as UnwrapRef<InstanceWithProps<ChildProps>> | null,
     });
     let waitTimer: any;
     const updateWait = () => {
@@ -218,11 +235,29 @@ export function createCollector<
           return items.value as InstanceWithProps<ChildProps>[];
         else return empty;
       };
+    const readonlyState = readonly(state) as ParentReadonlyState;
     const provideContext = Object.assign(extraProvide || {}, {
       [COLLECTOR_KEY]: true,
       parent: instance,
       items,
+      state: readonlyState,
       getItems: getChildren,
+      updateMaxLevel: (maxLevel: number, child: any, isUnmounting?: number) => {
+        if (maxLevel > state.maxChildLevel) {
+          state.maxChildLevel = maxLevel;
+          state.maxLevelChild = child;
+        }
+        if (isUnmounting && state.maxLevelChild === child) {
+          state.maxChildLevel = 0;
+          items.value.forEach((item) => {
+            const level = getCollectedItemTreeLevel(item)!;
+            if (level > state.maxChildLevel) {
+              state.maxChildLevel = level;
+              state.maxLevelChild = item;
+            }
+          });
+        }
+      },
       getChildrenCollect,
       ...getChildrenCollect(items, true),
     } as CollectorContext<ParentProps, ChildProps>) as CollectorContext<ParentProps, ChildProps, PE>;
@@ -231,11 +266,7 @@ export function createCollector<
       get value() {
         return getChildren();
       },
-      state: readonly(state) as Readonly<{
-        parentMounted: boolean;
-        parentEl: Element | null;
-        waitDone: boolean;
-      }>,
+      state: readonlyState,
       getChildren,
       vm: instance,
       provided: provideContext,
@@ -253,8 +284,6 @@ export function createCollector<
               readonly level: number;
               readonly treeIndex: number;
               readonly nestedItems: InstanceWithProps<ChildProps>[];
-              readonly maxChildLevel: number;
-              readonly leavesCount: number;
             }
           : {})
     >;
@@ -267,17 +296,14 @@ export function createCollector<
       const treeDescriptors = (() => {
         if (tree && collect) {
           const level = ref(0),
-            maxChildLevel = ref(0),
-            leavesCount = ref(0),
             nestedItems = ref([]);
           setTreeChildren(instance, nestedItems);
           const provideMethods = {
             getLevel: () => (setItemLeaf(instance, false), level.value),
             ...context.getChildrenCollect(nestedItems),
             instance,
-            cb: (maxLevel: number, isUnmount?: number) => {
-              isUnmount ? leavesCount.value-- : leavesCount.value++;
-              maxChildLevel.value = maxLevel;
+            cb: (isUnmount?: number) => {
+              isUnmount ? leavesCountDown(instance) : leavesCountUp(instance);
             },
           };
           const parentProvide = inject<typeof provideMethods>(CHILD_KEY);
@@ -285,9 +311,7 @@ export function createCollector<
             level.value = parentProvide.getLevel() + 1;
             setTreeParent(instance, parentProvide.instance);
             const original = provideMethods.cb;
-            provideMethods.cb = (maxLevel, isUnmount) => (
-              original(maxLevel, isUnmount), parentProvide.cb(maxLevel, isUnmount)
-            );
+            provideMethods.cb = (isUnmount) => (original(isUnmount), parentProvide.cb(isUnmount));
           }
           provide(CHILD_KEY, provideMethods);
           setTreeLevel(instance, level);
@@ -297,7 +321,8 @@ export function createCollector<
             const update = () => {
               if (getIsLeaf(instance) == null) {
                 setItemLeaf(instance, true);
-                parentProvide?.cb(level.value);
+                parentProvide?.cb();
+                context!.updateMaxLevel(level.value, instance);
               }
             };
             // for custom element, need to delay to update isLeaf and callback, otherwise leavesCount is incorrect
@@ -309,16 +334,14 @@ export function createCollector<
             deleteTreeLevel(instance);
             parentProvide?.removeItem(instance!);
             if (isCollectedItemLeaf(instance)) {
-              // if no more children, should minus 1 for max level
-              parentProvide?.cb(level.value - (getCollectedItemTreeChildren(instance).length ? 0 : 1), 1);
+              parentProvide?.cb(1);
+              context!.updateMaxLevel(level.value, instance, 1);
             }
           });
           return toUnrefGetterDescriptors({
             level,
             nestedItems,
             treeIndex: () => getTreeIndex(instance),
-            maxChildLevel,
-            leavesCount,
           });
         }
       })();
@@ -354,9 +377,9 @@ export type CollectorParentReturn = ReturnType<ReturnType<typeof createCollector
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
 
 /** @private */
-export function useCollectorExternalChildren<T extends Record<string, unknown>, R>(
+export function useCollectorExternalChildren<T extends Record<string, unknown>, R = any>(
   itemsGetter: MaybeRefLikeOrGetter<T[]>,
-  render: (item: T, childrenRenderResult?: R[]) => R,
+  render: (item: T, childrenRenderResult?: NoInfer<R>[]) => R,
   itemPropsMapGetter?: MaybeRefLikeOrGetter<object>,
   tree?: boolean,
   onEffectStart?: () => void,
@@ -366,6 +389,7 @@ export function useCollectorExternalChildren<T extends Record<string, unknown>, 
   const state = shallowReactive({
     items: [] as T[],
     treeItems: [] as T[],
+    maxChildLevel: 0,
   });
   watchEffect(() => {
     onEffectStart && onEffectStart();
@@ -386,7 +410,9 @@ export function useCollectorExternalChildren<T extends Record<string, unknown>, 
         });
       onItem && onItem(item as T);
       if (tree) {
-        setTreeLevel(item, (getCollectedItemTreeLevel(parent) ?? -1) + 1);
+        const newLevel = (getCollectedItemTreeLevel(parent) ?? -1) + 1;
+        if (newLevel > state.maxChildLevel) state.maxChildLevel = newLevel;
+        setTreeLevel(item, newLevel);
         setTreeParent(item, parent);
         setTreeIndex(item, treeIndex);
       }
@@ -394,9 +420,11 @@ export function useCollectorExternalChildren<T extends Record<string, unknown>, 
       return item;
     };
     let index = 0;
+    const parentStack: Record<string, unknown>[] = [];
     const processArray = (arr: Record<string, unknown>[] | undefined | null, flattenResult: any[], parent?: any) => {
       let treeIndex = 0;
-      return ensureArray(arr).flatMap((_item) => {
+      if (parent) parentStack.push(parent);
+      const result = ensureArray(arr).flatMap((_item) => {
         if (!_item) return [];
         const item = processItem(_item, index, treeIndex, parent);
         index++;
@@ -406,12 +434,17 @@ export function useCollectorExternalChildren<T extends Record<string, unknown>, 
         if (tree) {
           onChildren && onChildren(item as T, children as T[]);
           setTreeChildren(item, children);
-          setItemLeaf(item, children.length ? false : true);
+          const isLeaf = !children.length;
+          setItemLeaf(item, isLeaf);
+          if (isLeaf) parentStack.forEach(leavesCountUp);
         }
         delete item.children; // in case children is set as a prop on element
         return [item];
       }) as T[];
+      if (parent) parentStack.pop();
+      return result;
     };
+    state.maxChildLevel = 0;
     state.treeItems = processArray(items as any, (state.items = []));
   });
 
