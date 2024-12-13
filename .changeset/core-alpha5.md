@@ -7,9 +7,10 @@
 - add `createUnrefCalls`
 - add `useSet`, `useMap`, `useWeakSet`, `useWeakMap` hooks
 - add `fComputed`
-- `createCollector`: add treeIndex collect, add getVmIndex and getVmTreeIndex, refactor reactive weakMap and index collect, remove getChildVmIndex
+- `createCollector`: add treeIndex collect, add getCollectedItemIndex and getCollectedItemTreeIndex, refactor reactive weakMap and index collect, remove getChildVmIndex
 - `createCollector`: add maxChildLevel and leavesCount for tree collector
 - add `useStickyTable` and `useStickyColumn`
+- add private hook `useCollectorExternalChildren` for collector, rename some private collector utils
 
 ### Changes
 

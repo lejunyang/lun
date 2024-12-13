@@ -1,4 +1,4 @@
-import { CollectorParentReturn, getVmIndex, MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
+import { CollectorParentReturn, getCollectedItemIndex, MaybeRefLikeOrGetter, unrefOrGet } from '@lun-web/core';
 import { isArrowDownEvent, isArrowUpEvent, prevent } from '@lun-web/utils';
 import { ref, ComponentInternalInstance, watchEffect, computed } from 'vue';
 
@@ -14,13 +14,13 @@ export function useActivateOption(
   const deactivate = () => (activeIndex.value = null);
   const methods = {
     isActive(vm: ComponentInternalInstance) {
-      return activeIndex.value != null && activeIndex.value === getVmIndex(vm);
+      return activeIndex.value != null && activeIndex.value === getCollectedItemIndex(vm);
     },
     getActiveChild() {
       return collectorParent.value[activeIndex.value!];
     },
     activate(vm: ComponentInternalInstance) {
-      const index = getVmIndex(vm);
+      const index = getCollectedItemIndex(vm);
       if (index !== undefined) activeIndex.value = index;
     },
     deactivate,

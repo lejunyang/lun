@@ -1,5 +1,5 @@
-import { CollectorParentReturn, objectComputed } from '@lun-web/core';
-import { isVmLeafChild, isVmDisabled } from 'utils';
+import { CollectorParentReturn, isCollectedItemLeaf, objectComputed } from '@lun-web/core';
+import { isVmDisabled } from 'utils';
 import { ComponentInternalInstance } from 'vue';
 
 export function useCollectorValue(context: () => CollectorParentReturn, tree?: boolean) {
@@ -13,7 +13,7 @@ export function useCollectorValue(context: () => CollectorParentReturn, tree?: b
         // exclude disabled option from value set
         if (!isVmDisabled(child)) {
           childrenValuesSet.add(value);
-          if (tree && !isVmLeafChild(child)) noneLeafValuesSet.add(value);
+          if (tree && !isCollectedItemLeaf(child)) noneLeafValuesSet.add(value);
         }
         valueToChildMap.set(value, child);
       }

@@ -10,7 +10,7 @@ import {
   watchEffect,
 } from 'vue';
 import { useWeakMap } from '../../hooks';
-import { CollectorParentReturn, getVmTreeDirectChildren } from '../createCollector';
+import { CollectorParentReturn, isCollectedItemLeaf } from '../createCollector';
 import { useResizeObserver } from '../createUseObserver';
 import { at, getRect } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter } from '../../utils';
@@ -73,7 +73,7 @@ export function useStickyTable(context: CollectorParentReturn, getStickyType: St
             width = getWidth(v);
           if (v === vm) return withSelf ? offset + (width ?? 0) : offset;
           else if (width != null) {
-            if (getVmTreeDirectChildren(v).length) continue; // only calculate offset for leaf nodes
+            if (!isCollectedItemLeaf(v)) continue; // only calculate offset for leaf nodes
             offset += width;
           }
         }

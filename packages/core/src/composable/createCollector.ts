@@ -18,9 +18,11 @@ import {
   readonly,
   nextTick,
   markRaw,
+  unref,
+  watchEffect,
 } from 'vue';
-import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
-import { toUnrefGetterDescriptors } from '../utils';
+import { ensureArray, isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
+import { MaybeRefLikeOrGetter, toUnrefGetterDescriptors, unrefOrGet } from '../utils';
 import { useWeakMap } from '../hooks';
 
 type Data = Record<string, unknown>;
@@ -41,24 +43,29 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
 
-const [, getTreeChildren, setTreeChildren, deleteTreeChildren] = useWeakMap<any, Ref<InstanceWithProps<any>[]>>(),
-  [, getTreeLevel, setTreeLevel, deleteTreeLevel] = useWeakMap<any, Ref<number>>(),
+const [, getTreeChildren, setTreeChildren, deleteTreeChildren] = useWeakMap<
+    any,
+    Ref<InstanceWithProps<any>[]> | unknown[]
+  >(),
+  [, getTreeLevel, setTreeLevel, deleteTreeLevel] = useWeakMap<any, Ref<number> | number>(),
   [, getTreeParent, setTreeParent, deleteTreeParent] = useWeakMap<any, any>(),
   [, getIndex, setIndex] = useWeakMap<any, number>(),
   /** tree index is the index among the children of same parent in tree */
-  [, getTreeIndex, setTreeIndex] = useWeakMap<any, number>();
+  [, getTreeIndex, setTreeIndex] = useWeakMap<any, number>(),
+  [, getIsLeaf, setItemLeaf] = useWeakMap<any, boolean>();
 
 /** @private */
-export const getVmTreeDirectChildren = (vm?: ComponentInternalInstance | null) => getTreeChildren(vm)?.value || [];
+export const getCollectedItemTreeChildren = (item?: unknown) => unref(getTreeChildren(item)) || [];
 /** @private */
-export const getVmTreeLevel = (child?: ComponentInternalInstance | null) => getTreeLevel(child)?.value;
+export const getCollectedItemTreeLevel = (item?: unknown) => unref(getTreeLevel(item));
 /** @private */
-export const getVmTreeParent = (child?: ComponentInternalInstance | null): ComponentInternalInstance | undefined =>
-  getTreeParent(child);
+export const getCollectedItemTreeParent = (item?: unknown): unknown | undefined => getTreeParent(item);
 /** @private */
-export const getVmIndex: (child?: ComponentInternalInstance | null) => number | undefined = getIndex;
+export const getCollectedItemIndex: (item?: unknown) => number | undefined = getIndex;
 /** @private */
-export const getVmTreeIndex: (child?: ComponentInternalInstance | null) => number | undefined = getTreeIndex;
+export const getCollectedItemTreeIndex: (item?: unknown) => number | undefined = getTreeIndex;
+/** @private */
+export const isCollectedItemLeaf = (item?: unknown) => getIsLeaf(item) === true;
 
 /**
  * create a collector used for collecting component instances between Parent Component and Children Components.\
@@ -243,7 +250,6 @@ export function createCollector<
       ChildProps,
       PE & { readonly index: number; readonly isStart: boolean; readonly isEnd: boolean } & (Tree extends true
           ? {
-              readonly isLeaf: boolean;
               readonly level: number;
               readonly treeIndex: number;
               readonly nestedItems: InstanceWithProps<ChildProps>[];
@@ -260,14 +266,13 @@ export function createCollector<
     if (context?.[COLLECTOR_KEY]) {
       const treeDescriptors = (() => {
         if (tree && collect) {
-          const isLeaf = ref(null as null | boolean),
-            level = ref(0),
+          const level = ref(0),
             maxChildLevel = ref(0),
             leavesCount = ref(0),
             nestedItems = ref([]);
           setTreeChildren(instance, nestedItems);
           const provideMethods = {
-            getLevel: () => ((isLeaf.value = false), level.value),
+            getLevel: () => (setItemLeaf(instance, false), level.value),
             ...context.getChildrenCollect(nestedItems),
             instance,
             cb: (maxLevel: number, isUnmount?: number) => {
@@ -290,8 +295,8 @@ export function createCollector<
           collectOnSetup ? performCollect() : onMounted(performCollect);
           onMounted(() => {
             const update = () => {
-              if (isLeaf.value == null) {
-                isLeaf.value = true;
+              if (getIsLeaf(instance) == null) {
+                setItemLeaf(instance, true);
                 parentProvide?.cb(level.value);
               }
             };
@@ -303,13 +308,12 @@ export function createCollector<
             deleteTreeParent(instance);
             deleteTreeLevel(instance);
             parentProvide?.removeItem(instance!);
-            if (isLeaf.value) {
+            if (isCollectedItemLeaf(instance)) {
               // if no more children, should minus 1 for max level
-              parentProvide?.cb(level.value - (getVmTreeDirectChildren(instance).length ? 0 : 1), 1);
+              parentProvide?.cb(level.value - (getCollectedItemTreeChildren(instance).length ? 0 : 1), 1);
             }
           });
           return toUnrefGetterDescriptors({
-            isLeaf,
             level,
             nestedItems,
             treeIndex: () => getTreeIndex(instance),
@@ -348,3 +352,71 @@ export function createCollector<
 
 export type CollectorParentReturn = ReturnType<ReturnType<typeof createCollector>['parent']>;
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
+
+/** @private */
+export function useCollectorExternalChildren<T extends Record<string, unknown>, R>(
+  itemsGetter: MaybeRefLikeOrGetter<T[]>,
+  render: (item: T, childrenRenderResult?: R[]) => R,
+  itemPropsMapGetter?: MaybeRefLikeOrGetter<object>,
+  tree?: boolean,
+  onEffectStart?: () => void,
+  onItem?: (item: T) => void,
+  onChildren?: (item: T, children: T[]) => void,
+) {
+  const state = shallowReactive({
+    items: [] as T[],
+    treeItems: [] as T[],
+  });
+  watchEffect(() => {
+    onEffectStart && onEffectStart();
+    const items = unrefOrGet(itemsGetter),
+      itemPropsMap = unrefOrGet(itemPropsMapGetter);
+    const processItem = (
+      _item: Record<string, unknown>,
+      index: number,
+      treeIndex: number,
+      parent?: Record<string, unknown>,
+    ) => {
+      const item = { ..._item };
+      markRaw(item); // it's very important to mark item as raw, as those weakMap are deep reactive, setting parent or children and then getting them can get wrong result for ===
+      if (itemPropsMap)
+        Object.entries(itemPropsMap).forEach(([key, value]) => {
+          item[key] = item[value];
+          item[value] = undefined;
+        });
+      onItem && onItem(item as T);
+      if (tree) {
+        setTreeLevel(item, (getCollectedItemTreeLevel(parent) ?? -1) + 1);
+        setTreeParent(item, parent);
+        setTreeIndex(item, treeIndex);
+      }
+      setIndex(item, index);
+      return item;
+    };
+    let index = 0;
+    const processArray = (arr: Record<string, unknown>[] | undefined | null, flattenResult: any[], parent?: any) => {
+      let treeIndex = 0;
+      return ensureArray(arr).flatMap((_item) => {
+        if (!_item) return [];
+        const item = processItem(_item, index, treeIndex, parent);
+        index++;
+        treeIndex++;
+        flattenResult.push(item);
+        const children = processArray(item.children as any, flattenResult, item);
+        if (tree) {
+          onChildren && onChildren(item as T, children as T[]);
+          setTreeChildren(item, children);
+          setItemLeaf(item, children.length ? false : true);
+        }
+        delete item.children; // in case children is set as a prop on element
+        return [item];
+      }) as T[];
+    };
+    state.treeItems = processArray(items as any, (state.items = []));
+  });
+
+  const renderItems = (arr: T[]): any =>
+    !!arr.length && arr.map((i) => render(i, renderItems(getCollectedItemTreeChildren(i) as T[])));
+
+  return [state, () => renderItems(state.treeItems)] as const;
+}
