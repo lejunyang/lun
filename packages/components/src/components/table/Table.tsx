@@ -75,6 +75,7 @@ export const Table = defineSSRCustomElement({
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
 
     const style = fComputed(() => ({
+      ...props.rootStyle,
       display: 'grid',
       gridAutoFlow: 'column',
       gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,

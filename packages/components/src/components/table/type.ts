@@ -14,13 +14,13 @@ import {
   PropBoolean,
   PropObject,
 } from 'common';
-import { CSSProperties, ExtractPropTypes } from 'vue';
+import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 
 export type TableCellProps = Partial<{
   colSpan: number;
   rowSpan: number;
-  style: CSSProperties;
-}>;
+}> &
+  HTMLAttributes;
 
 export const tableColumnProps = freeze({
   type: PropString(),
@@ -29,6 +29,7 @@ export const tableColumnProps = freeze({
   label: Prop(),
   /** determine the colSpan for header, will span and cover next columns. only apply to root columns with no children. if nested columns exist in the span, the span will stop right before it */
   headerColSpan: PropNumber(),
+  headerProps: PropObject(),
   cellProps: PropObjOrFunc<
     TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)
   >(),
@@ -36,7 +37,8 @@ export const tableColumnProps = freeze({
   width: PropNumber(),
   resizable: PropBoolean(), // TODO
   align: PropString<CSSProperties['text-align'] & {}>(),
-  overflow: PropBoolean(), // TODO
+  ellipsis: PropBoolean(), // TODO
+  overflow: PropString(), // TODO
   /** @private it's for internal use, representing the column object, do not use it yourself! */
   _: PropObject<any>(),
 });
@@ -58,6 +60,7 @@ export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
   columns: PropArray<TableColumnWithChildren[]>(),
+  rootStyle: PropObject<CSSProperties>(),
   stickyHeader: PropBoolean(),
   // TODO stickyRow
 });

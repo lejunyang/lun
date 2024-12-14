@@ -31,7 +31,7 @@ export const TableColumn = defineSSRCustomElement({
   name,
   props: tableColumnProps,
   emits: tableColumnEmits,
-  setup(props) {
+  setup(props, { attrs }) {
     const ns = useNamespace(name);
     const context = TableColumnCollector.child();
     if (!context) throw new Error(__DEV__ ? 'table-column must be under a lun table element' : '');
@@ -90,20 +90,19 @@ export const TableColumn = defineSSRCustomElement({
       ({ textAlign: getProp(column, 'align') } satisfies CSSProperties);
 
     const getCell = (column: ComponentInternalInstance | TableColumnSetupProps, item: any, rowIndex: number) => {
-      const cellProps = runIfFn(getProp(column, 'cellProps'), item, rowIndex, props),
-        style: CSSProperties = {};
+      const { rowSpan, colSpan, ...rest } = runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
+        cellStyle: CSSProperties = {};
       const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
       if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
       if (--rowMergedCount > 0 || --mergeWithPrevColCount >= 0) {
-        style.display = 'none';
+        cellStyle.display = 'none';
         if (!mergeWithPrevColCount) currentColMergeInfoIndex++;
-      } else if (cellProps) {
-        const { rowSpan, colSpan } = cellProps,
-          r = +rowSpan!,
+      } else if (rowSpan || colSpan) {
+        const r = +rowSpan!,
           c = +colSpan!;
-        if (r > 1) style.gridRow = `span ${(rowMergedCount = r)}`;
+        if (r > 1) cellStyle.gridRow = `span ${(rowMergedCount = r)}`;
         if (c > 1) {
-          style.gridColumn = `span ${c}`;
+          cellStyle.gridColumn = `span ${c}`;
           updateMergeInfo(rowIndex, getCollectedItemIndex(column)!, c, ensureNumber(r, 1));
         }
       }
@@ -117,14 +116,15 @@ export const TableColumn = defineSSRCustomElement({
           part={compParts[2]}
           ref={cells}
           ref_for={true}
-          style={{ ...getStickyStyle(vm), ...style, ...getCommonStyle(column) }}
+          style={{ ...getStickyStyle(vm), ...cellStyle, ...getCommonStyle(column) }}
+          {...rest}
         >
           {objectGet(item, getProp(column, 'name'))}
         </div>
       );
     };
     const getHead = (column: TableColumnSetupProps | ComponentInternalInstance) => {
-      const { headerColSpan, label } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
+      const { headerColSpan, label, headerProps } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
         level = getCollectedItemTreeLevel(column),
         leavesCount = getCollectedItemLeavesCount(column),
         maxLevel = context.maxLevel(),
@@ -154,6 +154,7 @@ export const TableColumn = defineSSRCustomElement({
             // leavesCount < value: other columns have nested columns, current column header needs also to be expanded
             gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
+          {...headerProps}
         >
           {label}
         </div>
@@ -180,7 +181,7 @@ export const TableColumn = defineSSRCustomElement({
       const content: VNodeChild[] = [];
       getContent(column, content);
       return (
-        <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }}>
+        <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={attrs.hidden as any}>
           {content}
         </div>
       );
