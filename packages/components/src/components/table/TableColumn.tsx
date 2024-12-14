@@ -23,6 +23,7 @@ import {
   watchEffect,
 } from 'vue';
 import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
+import { renderCustom } from '../custom-renderer';
 
 const name = 'table-column';
 const parts = ['root', 'header', 'cell'] as const;
@@ -124,7 +125,7 @@ export const TableColumn = defineSSRCustomElement({
       );
     };
     const getHead = (column: TableColumnSetupProps | ComponentInternalInstance) => {
-      const { headerColSpan, label, headerProps } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
+      const { headerColSpan, header, headerProps } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
         level = getCollectedItemTreeLevel(column),
         leavesCount = getCollectedItemLeavesCount(column),
         maxLevel = context.maxLevel(),
@@ -156,7 +157,7 @@ export const TableColumn = defineSSRCustomElement({
           }}
           {...headerProps}
         >
-          {label}
+          {renderCustom(header)}
         </div>
       );
     };

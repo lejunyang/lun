@@ -4,31 +4,31 @@ export default () => (
   <l-table
     data={tableData}
     columns={[
-      { name: 'name', width: 'min-content', label: 'Address' },
+      { name: 'name', width: 'min-content', header: 'Address' },
       {
-        label: 'GrandParent',
+        header: 'GrandParent',
         sticky: 'left',
         id: 'grandParent',
         children: [
           {
-            label: 'Parent1',
+            header: 'Parent1',
             id: 'parent1',
             children: [
-              { label: 'name', name: 'name', width: 100 },
-              { label: 'age', name: 'age', width: 50 },
+              { header: 'name', name: 'name', width: 100 },
+              { header: 'age', name: 'age', width: 50 },
             ],
           },
           {
-            label: 'Parent2',
+            header: 'Parent2',
             id: 'parent2',
             children: [
-              { label: 'name', name: 'name', width: 100 },
-              { label: 'age', name: 'age', width: 80 },
+              { header: 'name', name: 'name', width: 100 },
+              { header: 'age', name: 'age', width: 80 },
             ],
           },
         ],
       },
-      { name: 'tel', width: '1fr', label: 'Tel' },
+      { name: 'tel', width: '1fr', header: 'Tel' },
     ]}
   ></l-table>
 );

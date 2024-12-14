@@ -26,7 +26,7 @@ export const tableColumnProps = freeze({
   type: PropString(),
   name: PropString(),
   plainName: undefBoolProp,
-  label: Prop(),
+  header: Prop(),
   /** determine the colSpan for header, will span and cover next columns. only apply to root columns with no children. if nested columns exist in the span, the span will stop right before it */
   headerColSpan: PropNumber(),
   headerProps: PropObject(),

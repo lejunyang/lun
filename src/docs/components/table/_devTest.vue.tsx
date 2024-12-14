@@ -1,38 +1,38 @@
 import { tableData } from 'data';
 
 const columns = [
-  { label: 'name', name: 'name', width: 100, id: 'name', sticky: true },
+  { header: 'name', name: 'name', width: 100, id: 'name', sticky: true },
   {
-    label: 'GrandParent',
+    header: 'GrandParent',
     sticky: 'left',
     id: 'grandParent',
     children: [
       {
-        label: 'Parent1',
+        header: 'Parent1',
         id: 'parent1',
         children: [
-          { label: 'age', name: 'age', width: 100 },
-          { label: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
         ],
       },
       {
-        label: 'Parent2',
+        header: 'Parent2',
         id: 'parent2',
         children: [
-          { label: 'age', name: 'age', width: 100 },
-          { label: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
         ],
       },
     ],
   },
-  { label: 'tel', name: 'tel', headerColSpan: 2 },
-  { label: 'phone', name: 'phone' },
-  { label: 'address', name: 'address' },
-  { label: 'name', name: 'name' },
-  { label: 'tel', name: 'tel' },
-  { label: 'phone', name: 'phone' },
-  { label: 'age', name: 'age', sticky: 'right' },
-  { label: 'address', name: 'address' },
+  { header: 'tel', name: 'tel', headerColSpan: 2 },
+  { header: 'phone', name: 'phone' },
+  { header: 'address', name: 'address' },
+  { header: 'name', name: 'name' },
+  { header: 'tel', name: 'tel' },
+  { header: 'phone', name: 'phone' },
+  { header: 'age', name: 'age', sticky: 'right' },
+  { header: 'address', name: 'address' },
 ];
 
 export default () => (

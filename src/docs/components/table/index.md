@@ -9,9 +9,11 @@ highly highly highly experimental
 尚在初期功能实现验证阶段，初步决定使用 Grid 渲染表格，而不是 table 元素
 :::
 
-## 嵌套列
+## 基本使用
 
-`l-table-column`可嵌套使用，在渲染时其会自动将表头组合形成多级结构
+表格由行数据及列定义决定表格内容，可通过`columns`属性在表格上定义列，也可以直接在表格下渲染`l-table-column`，两种方式可结合使用，`columns`定义的列会在前面
+
+列可以嵌套，在渲染时其会自动将表头组合形成多级结构。`columns`通过指定`children`进行嵌套，而 DOM 则直接渲染子节点即可
 
 <!-- @Code:_devTest -->
 <!-- @Code:nested -->
@@ -44,3 +46,9 @@ highly highly highly experimental
 通过`align`属性可设置列内容的对齐方式，相当于给单元格设置`text-align`
 
 <!-- @Code:align -->
+
+## 列隐藏
+
+可直接通过 HTML `hidden`属性隐藏列。另外，由于表格由 Grid 实现，你也可以利用`0fr`来实现隐藏加过渡，你需要自行设置相应的样式来使过渡生效（由于单元格有 padding，隐藏时需要一点额外样式让其看起来更自然点）
+
+<!-- @Code:hidden -->

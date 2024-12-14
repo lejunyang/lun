@@ -48,38 +48,38 @@ const getColumnCells = (column: HTMLElement | null) =>
   Array.from(column!.shadowRoot!.firstElementChild!.children) as HTMLElement[];
 
 const columns = [
-  { label: 'name', name: 'name', width: 100, id: 'name', sticky: true },
+  { header: 'name', name: 'name', width: 100, id: 'name', sticky: true },
   {
-    label: 'GrandParent',
+    header: 'GrandParent',
     sticky: 'left',
     id: 'grandParent',
     children: [
       {
-        label: 'Parent1',
+        header: 'Parent1',
         id: 'parent1',
         children: [
-          { label: 'age', name: 'age', width: 100 },
-          { label: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
         ],
       },
       {
-        label: 'Parent2',
+        header: 'Parent2',
         id: 'parent2',
         children: [
-          { label: 'age', name: 'age', width: 100 },
-          { label: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
+          { header: 'age', name: 'age', width: 100 },
         ],
       },
     ],
   },
-  { label: 'tel', name: 'tel', headerColSpan: 2 },
-  { label: 'phone', name: 'phone' },
-  { label: 'address', name: 'address' },
-  { label: 'name', name: 'name' },
-  { label: 'tel', name: 'tel' },
-  { label: 'phone', name: 'phone' },
-  { label: 'age', name: 'age', sticky: 'right' },
-  { label: 'address', name: 'address' },
+  { header: 'tel', name: 'tel', headerColSpan: 2 },
+  { header: 'phone', name: 'phone' },
+  { header: 'address', name: 'address' },
+  { header: 'name', name: 'name' },
+  { header: 'tel', name: 'tel' },
+  { header: 'phone', name: 'phone' },
+  { header: 'age', name: 'age', sticky: 'right' },
+  { header: 'address', name: 'address' },
 ];
 
 describe('Table', () => {
@@ -89,25 +89,25 @@ describe('Table', () => {
       <l-table ref={table} data={tableData} columns={useColumns ? columns : undefined}>
         {!useColumns && (
           <>
-            <l-table-column label="name" name="name" sticky width={100} id="name"></l-table-column>
-            <l-table-column label="GrandParent" sticky="left" id="grandParent">
-              <l-table-column label="Parent1" id="parent1">
-                <l-table-column label="age" name="age" width={100}></l-table-column>
-                <l-table-column label="age" name="age" width={100}></l-table-column>
+            <l-table-column header="name" name="name" sticky width={100} id="name"></l-table-column>
+            <l-table-column header="GrandParent" sticky="left" id="grandParent">
+              <l-table-column header="Parent1" id="parent1">
+                <l-table-column header="age" name="age" width={100}></l-table-column>
+                <l-table-column header="age" name="age" width={100}></l-table-column>
               </l-table-column>
-              <l-table-column label="Parent2" id="parent2">
-                <l-table-column label="age" name="age" width={100}></l-table-column>
-                <l-table-column label="age" name="age" width={100}></l-table-column>
+              <l-table-column header="Parent2" id="parent2">
+                <l-table-column header="age" name="age" width={100}></l-table-column>
+                <l-table-column header="age" name="age" width={100}></l-table-column>
               </l-table-column>
             </l-table-column>
-            <l-table-column name="tel" label="tel" headerColSpan={2}></l-table-column>
-            <l-table-column name="phone" label="phone"></l-table-column>
-            <l-table-column name="address" label="address"></l-table-column>
-            <l-table-column label="name" name="name"></l-table-column>
-            <l-table-column name="tel" label="tel"></l-table-column>
-            <l-table-column name="phone" label="phone"></l-table-column>
-            <l-table-column label="age" name="age" sticky="right"></l-table-column>
-            <l-table-column name="address" label="address"></l-table-column>
+            <l-table-column name="tel" header="tel" headerColSpan={2}></l-table-column>
+            <l-table-column name="phone" header="phone"></l-table-column>
+            <l-table-column name="address" header="address"></l-table-column>
+            <l-table-column header="name" name="name"></l-table-column>
+            <l-table-column name="tel" header="tel"></l-table-column>
+            <l-table-column name="phone" header="phone"></l-table-column>
+            <l-table-column header="age" name="age" sticky="right"></l-table-column>
+            <l-table-column name="address" header="address"></l-table-column>
           </>
         )}
       </l-table>
