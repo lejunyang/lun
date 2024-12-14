@@ -8,7 +8,8 @@
 @use './transitions.scss' as *;
 @use './typography.scss' as *;
 
-:host([hidden]) {
+:host([hidden]:not([hidden='until-found'])) {
+  // new keyword until-found: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#description
   display: none;
 }
 

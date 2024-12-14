@@ -17,6 +17,13 @@
 @include b(table-column) {
   color: getGrayColor(12);
 
+  &[hidden]:not([hidden='until-found']) {
+    // new keyword until-found: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/hidden#description
+    @include e((header, cell)) {
+      display: none;
+    }
+  }
+
   @include e(header) {
     background: getGrayColor(3);
     @include declareVarValues(
