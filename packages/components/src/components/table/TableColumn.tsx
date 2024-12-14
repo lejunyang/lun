@@ -7,7 +7,6 @@ import { TableColumnCollector } from './collector';
 import {
   getCollectedItemIndex,
   getCollectedItemLeavesCount,
-  getCollectedItemTreeChildren,
   getCollectedItemTreeLevel,
   isCollectedItemLeaf,
   useStickyColumn,
@@ -47,11 +46,6 @@ export const TableColumn = defineSSRCustomElement({
       props._ && setColumnVm(props._, rootVm);
     });
 
-    const headCommonProps = {
-      class: ns.e('header'),
-      part: compParts[1],
-    };
-
     const cells = ref<HTMLElement[]>([]);
     let rowMergedCount = 0,
       currentColMergeInfoIndex = 0,
@@ -66,13 +60,12 @@ export const TableColumn = defineSSRCustomElement({
     const [getStickyStyle, stickyContext] = useStickyColumn(),
       [, getStickyType, setHeaderVm, isStickyEnd] = stickyContext!;
 
-    // TODO handle colSpan for nested columns under the same parent
     const updateMergeInfo = (rowIndex: number, colIndex: number, colSpan: number, rowSpan: number) => {
       const items = all();
       colSpan--;
       for (let i = colIndex + 1; i < items.length && colSpan > 0; i++) {
-        const col = items[i];
-        const mergeInfo = rawCellMerge.get(col); // get from raw value to avoid it get tracked and then infinite loop
+        const col = items[i],
+          mergeInfo = rawCellMerge.get(col); // get from raw value to avoid it get tracked and then infinite loop
         if (!isCollectedItemLeaf(col)) return;
         hasMergedCols.add(col);
         colSpan--;
@@ -135,8 +128,8 @@ export const TableColumn = defineSSRCustomElement({
         stickyEnd = isStickyEnd(vm);
       return (
         <div
-          {...headCommonProps}
-          class={[ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
+          class={[ns.e('header'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
+          part={compParts[1]}
           v-show={!isCollapsed(column)}
           ref={(el) => {
             setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
@@ -161,31 +154,20 @@ export const TableColumn = defineSSRCustomElement({
         </div>
       );
     };
-    const getContent = (column: TableColumnSetupProps | ComponentInternalInstance, result: VNodeChild[]) => {
-      const children = getCollectedItemTreeChildren(column) as (TableColumnSetupProps | ComponentInternalInstance)[],
-        isLeaf = isCollectedItemLeaf(column);
-      result.push(getHead(column));
-      if (isLeaf) {
-        result.push(...data.value.map((item, i) => getCell(column, item, i)));
-      } else {
-        children.forEach((child) => {
-          currentColMergeInfoIndex = 0;
-          getContent(child, result);
-        });
-      }
-    };
+
+    const wrap = (children: VNodeChild) => (
+      <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={attrs.hidden as any}>
+        {children}
+        <slot></slot>
+      </div>
+    );
     return () => {
       const column = props._ || rootVm;
-      if (getCollectedItemTreeLevel(column)) return; // only render top level column
+      // if it's not a leaf column, it should be a column with nested children, only render its header
+      if (!isCollectedItemLeaf(column)) return wrap(getHead(column));
       rowMergedCount = 0;
       clean();
-      const content: VNodeChild[] = [];
-      getContent(column, content);
-      return (
-        <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={attrs.hidden as any}>
-          {content}
-        </div>
-      );
+      return wrap([getHead(column), ...data.value.map((item, i) => getCell(column, item, i))]);
     };
   },
 });

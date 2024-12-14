@@ -449,7 +449,7 @@ export function useCollectorExternalChildren<T extends Record<string, unknown>, 
   });
 
   const renderItems = (arr: T[]): any =>
-    !!arr.length && arr.map((i) => render(i, renderItems(getCollectedItemTreeChildren(i) as T[])));
+    arr.length ? arr.map((i) => render(i, renderItems(getCollectedItemTreeChildren(i) as T[]))) : undefined;
 
   return [state, () => renderItems(state.treeItems)] as const;
 }
