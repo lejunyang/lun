@@ -13,6 +13,7 @@ import {
   useStickyTable,
   useWeakMap,
   useWeakSet,
+  fComputed,
 } from '@lun-web/core';
 import { ComponentInternalInstance, computed, watchEffect } from 'vue';
 
@@ -37,11 +38,15 @@ export const Table = defineSSRCustomElement({
     const data = computed(() => ensureArray(props.data));
     const [columns, renderColumns] = useCollectorExternalChildren(
       () => props.columns,
-      (column, children) => renderElement('table-column', { ...column, _: column }, children),
+      (column, children) =>
+        renderElement('table-column', { ...column, /** _ is for internal usage in column */ _: column }, children),
       () => undefined,
       true,
     );
-    const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1;
+    const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
+      all = fComputed(() =>
+        (columns.items as (ComponentInternalInstance | TableColumnSetupProps)[]).concat(context.value),
+      );
     const context = TableColumnCollector.parent({
       extraProvide: {
         data,
@@ -50,19 +55,18 @@ export const Table = defineSSRCustomElement({
         columnVmMap,
         columns,
         maxLevel,
+        all,
       },
     });
 
     watchEffect(() => {
       replaceCollapsed();
       let collapseCount = 0;
-      (columns.items as (ComponentInternalInstance | TableColumnSetupProps)[])
-        .concat(context.value)
-        .forEach((child) => {
-          if (!isCollectedItemLeaf(child) || getCollectedItemTreeLevel(child)! > 0) return (collapseCount = 0);
-          if (--collapseCount > 0) addCollapsed(child);
-          else collapseCount = +getProp(child, 'headerColSpan')!;
-        });
+      all().forEach((child) => {
+        if (!isCollectedItemLeaf(child) || getCollectedItemTreeLevel(child)! > 0) return (collapseCount = 0);
+        if (--collapseCount > 0) addCollapsed(child);
+        else collapseCount = +getProp(child, 'headerColSpan')!;
+      });
     });
 
     const getSticky = (vm: ComponentInternalInstance) => (vm.props as TableColumnSetupProps).sticky,
@@ -70,20 +74,18 @@ export const Table = defineSSRCustomElement({
         vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
 
+    const style = fComputed(() => ({
+      display: 'grid',
+      gridAutoFlow: 'column',
+      gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
+      gridTemplateColumns: all()
+        .map((child) => (isCollectedItemLeaf(child) ? toPxIfNum(getProp(child, 'width')) || 'max-content' : ''))
+        .join(' '),
+    }));
+
     return () => {
       return (
-        <div
-          class={ns.t}
-          part={compParts[0]}
-          style={{
-            display: 'grid',
-            gridAutoFlow: 'column',
-            gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
-            gridTemplateColumns: context.value
-              .map((child) => (isCollectedItemLeaf(child) ? toPxIfNum(child.props.width) || 'max-content' : ''))
-              .join(' '),
-          }}
-        >
+        <div class={ns.t} part={compParts[0]} style={style()}>
           {renderColumns()}
           <slot></slot>
         </div>

@@ -34,10 +34,10 @@ export const TableColumn = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const context = TableColumnCollector.child();
-    if (!context) throw new Error('Table column must be used inside a table component');
+    if (!context) throw new Error(__DEV__ ? 'table-column must be under a lun table element' : '');
     const rootVm = getCurrentInstance()!;
     useExpose(context);
-    const { collapsed, cellMerge, data, columnVmMap } = context,
+    const { collapsed, cellMerge, data, columnVmMap, all } = context,
       [, isCollapsed] = collapsed,
       [, getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
       [, getColumnVm, setColumnVm] = columnVmMap,
@@ -67,9 +67,7 @@ export const TableColumn = defineSSRCustomElement({
 
     // TODO handle colSpan for nested columns under the same parent
     const updateMergeInfo = (rowIndex: number, colIndex: number, colSpan: number, rowSpan: number) => {
-      const items = (context.columns.items as (TableColumnSetupProps | ComponentInternalInstance)[]).concat(
-        context.getItems(),
-      );
+      const items = all();
       colSpan--;
       for (let i = colIndex + 1; i < items.length && colSpan > 0; i++) {
         const col = items[i];
@@ -175,11 +173,12 @@ export const TableColumn = defineSSRCustomElement({
       }
     };
     return () => {
-      if (context.level) return; // only render top level column
+      const column = props._ || rootVm;
+      if (getCollectedItemTreeLevel(column)) return; // only render top level column
       rowMergedCount = 0;
       clean();
       const content: VNodeChild[] = [];
-      getContent(props._ || rootVm, content);
+      getContent(column, content);
       return (
         <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }}>
           {content}

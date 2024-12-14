@@ -12,6 +12,7 @@ export type TableProvideExtra = {
   >;
   columns: ReturnType<typeof useCollectorExternalChildren>[0];
   columnVmMap: ReturnType<typeof useWeakMap<TableColumnSetupProps, ComponentInternalInstance>>;
+  all: () => (ComponentInternalInstance | TableColumnSetupProps)[];
 };
 
 export const TableColumnCollector = createCollector<TableSetupProps, TableColumnSetupProps, TableProvideExtra, true>({
