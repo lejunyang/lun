@@ -1,9 +1,15 @@
-import { freeze } from '@lun-web/utils';
+import { freeze, TryGet } from '@lun-web/utils';
 import { GetEventPropsFromEmits, PropBoolean, PropString } from 'common';
 import { ExtractPropTypes, h } from 'vue';
 
+export interface UserRegistry {
+  // renderer: 'react'
+}
+
+export type CustomRendererType = 'vnode' | 'html' | 'text' | TryGet<UserRegistry, 'renderer'> | (string & {});
+
 export const customRendererProps = freeze({
-  type: PropString(),
+  type: PropString<CustomRendererType>(),
   preferHtml: PropBoolean(),
   content: { required: true },
 });
@@ -13,7 +19,7 @@ export const customRendererEmits = freeze({});
 type Raw = string | number | boolean | object;
 export type CustomRendererSource = {
   content: Raw | ((param: { h: typeof h }) => Raw);
-  type?: string;
+  type?: CustomRendererType;
   preferHtml?: boolean;
 } & Record<string, unknown>;
 

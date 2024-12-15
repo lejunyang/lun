@@ -40,10 +40,10 @@ export const allColorSet = new Set<AllColors>(themeColors.concat(grayColors as a
 export const themeVariants = ['solid', 'soft', 'surface', 'outline', 'classic', 'ghost'] as const;
 
 export const themeProps = freeze({
-  size: PropResponsive<'1' | '2' | '3'>(),
+  size: PropResponsive<'1' | '2' | '3' | (string & {})>(),
   color: PropString<ThemeColors>(),
   status: PropString<Status>(),
-  variant: PropString<ThemeVariants | string>(),
+  variant: PropString<ThemeVariants>(),
   radius: PropString<'none' | 'small' | 'medium' | 'large' | 'full'>(),
   highContrast: undefBoolProp,
   appearance: PropString<'light' | 'dark'>(),
@@ -55,9 +55,9 @@ export type ThemeProps = ExtractPropTypes<typeof themeProps>;
 export type ThemeConfig = {
   [key in keyof ThemeProps]: ThemeProps[key] | Record<OpenShadowComponentKey | 'common', ThemeProps[key]>;
 };
-export type ThemeColors = (typeof themeColors)[number];
-export type GrayColors = (typeof grayColors)[number];
+export type ThemeColors = (typeof themeColors)[number] | (string & {});
+export type GrayColors = (typeof grayColors)[number] | (string & {});
 export type AllColors = ThemeColors | GrayColors;
-export type ThemeVariants = (typeof themeVariants)[number];
+export type ThemeVariants = (typeof themeVariants)[number] | (string & {});
 
 export const pickThemeProps = (props: ThemeProps) => pick(props, objectKeys(themeProps));

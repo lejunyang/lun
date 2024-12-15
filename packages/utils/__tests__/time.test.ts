@@ -1,4 +1,4 @@
-import { debounce, throttle } from '../time';
+import { debounce, throttle } from '../src/time';
 
 describe('debounce', () => {
   let func: ReturnType<typeof vi.fn>;

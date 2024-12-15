@@ -13,8 +13,10 @@ import {
   PropObjOrFunc,
   PropBoolean,
   PropObject,
+  PropObjOrStr,
 } from 'common';
 import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
+import type { Property } from 'csstype';
 
 export type TableCellProps = Partial<{
   colSpan: number;
@@ -37,8 +39,8 @@ export const tableColumnProps = freeze({
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
   width: PropNumber(),
   resizable: PropBoolean(), // TODO
-  justify: PropString<CSSProperties['justifyContent'] & {}>(),
-  align: PropString<CSSProperties['alignItems'] & {}>(),
+  justify: PropString<Property.JustifyContent>(),
+  align: PropString<Property.AlignItems>(),
   ellipsis: PropBoolean(), // TODO
   overflow: PropString(), // TODO
   help: PropString(), // TODO
@@ -51,9 +53,9 @@ export const tableColumnEmits = createEmits<{}>([]);
 export type TableColumnSetupProps = Omit<ExtractPropTypes<typeof tableColumnProps>, '_'> & CommonProps;
 export type TableColumnEvents = GetEventPropsFromEmits<typeof tableColumnEmits>;
 export type TableColumnProps = Partial<TableColumnSetupProps> & TableColumnEvents;
+// -------------------------- Table Column Props --------------------------
 
 // -------------------------- Table Props --------------------------
-
 type TableColumnWithChildren = TableColumnProps &
   Partial<{
     children: TableColumnWithChildren[];
@@ -63,7 +65,7 @@ export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
   columns: PropArray<TableColumnWithChildren[]>(),
-  rootStyle: PropObject<CSSProperties>(),
+  rootStyle: PropObjOrStr<CSSProperties | string>(),
   stickyHeader: PropBoolean(),
   // TODO stickyRow
 });
@@ -73,3 +75,4 @@ export const tableEmits = createEmits<{}>([]);
 export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
 export type TableProps = Partial<TableSetupProps> & TableEvents;
+// -------------------------- Table Props --------------------------

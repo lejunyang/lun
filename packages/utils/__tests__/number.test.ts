@@ -1,4 +1,4 @@
-import { BigIntDecimal } from '../number';
+import { BigIntDecimal } from '../src/number';
 
 describe('BigIntDecimal', () => {
   test('should correctly initialize from a number', () => {
