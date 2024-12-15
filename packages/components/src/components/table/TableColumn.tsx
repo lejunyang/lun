@@ -92,9 +92,10 @@ export const TableColumn = defineSSRCustomElement({
           runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
         cellStyle: CSSProperties = {};
       const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
+      let cellShow = 1;
       if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
       if (--rowMergedCount > 0 || --mergeWithPrevColCount >= 0) {
-        cellStyle.display = 'none';
+        cellShow = 0;
         if (!mergeWithPrevColCount) currentColMergeInfoIndex++;
       } else if (rowSpan || colSpan) {
         const r = +rowSpan!,
@@ -111,6 +112,7 @@ export const TableColumn = defineSSRCustomElement({
         stickyEnd = isStickyEnd(vm);
       return (
         <div
+          v-show={cellShow}
           style={{ ...getStickyStyle(vm), ...getCommonStyle(column), ...cellStyle }}
           {...rest}
           class={[ns.e('cell'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}

@@ -3,10 +3,10 @@ import { ref } from 'vue';
 
 const show = ref(true),
   show2 = ref(true),
-  style = { overflow: 'hidden', whiteSpace: 'nowrap' },
+  style = { whiteSpace: 'nowrap' },
   showProps = { style },
   hiddenProps = {
-    style: { minWidth: 0, paddingInline: 0, transition: 'padding 0.1s 0.2s', ...style },
+    style: { minWidth: 0, ...style },
   };
 export default () => (
   <>

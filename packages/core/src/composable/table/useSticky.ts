@@ -103,6 +103,7 @@ export function useStickyTable(childrenVmGetter: () => (ComponentInternalInstanc
 
 type StickyStyle = { position: 'sticky'; left?: number; right?: number } | undefined;
 const [, getStyle, setStyle] = useWeakMap<ComponentInternalInstance, ShallowRef<StickyStyle>>();
+// maybe need to refactor. previously need to render all columns in the root column, so need to use vm as key
 export function useStickyColumn() {
   const vm = getCurrentInstance() as InstanceWithKey;
   const context = inject<StickyContext>(key);

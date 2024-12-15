@@ -1,7 +1,7 @@
 ---
 exclude_paths:
   - "**/*.js"
-  - "**/__test__/**"
+  - "**/__tests__/**"
   - "./src/**/*"
 include_paths:
   - "./packages/**"

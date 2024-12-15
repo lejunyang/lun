@@ -35,7 +35,8 @@ export const tableColumnProps = freeze({
   headerProps: PropObject(),
   cellProps: PropObjOrFunc<
     TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)
-  >(),
+    >(),
+  // autoGroup: PropBoolean(),
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
   width: PropNumber(),
   resizable: PropBoolean(), // TODO

@@ -116,6 +116,9 @@ export const tableData = [
     tel: '0571-22098909',
     phone: 18889898989,
     address: 'New York No. 1 Lake Park',
+    obj: {
+      a: 1,
+    },
   },
   {
     key: '2',
@@ -124,6 +127,9 @@ export const tableData = [
     phone: 18889898888,
     age: 42,
     address: 'London No. 1 Lake Park',
+    obj: {
+      a: 2,
+    },
   },
   {
     key: '3',
@@ -132,6 +138,9 @@ export const tableData = [
     tel: '0575-22098909',
     phone: 18900010002,
     address: 'Sydney No. 1 Lake Park',
+    obj: {
+      a: 3,
+    },
   },
   {
     key: '4',
@@ -140,6 +149,9 @@ export const tableData = [
     tel: '0575-22098909',
     phone: 18900010002,
     address: 'London No. 2 Lake Park',
+    obj: {
+      a: 4,
+    },
   },
   {
     key: '5',
@@ -148,5 +160,8 @@ export const tableData = [
     tel: '0575-22098909',
     phone: 18900010002,
     address: 'Dublin No. 2 Lake Park',
+    obj: {
+      a: 5,
+    },
   },
 ];

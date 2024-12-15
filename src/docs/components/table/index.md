@@ -11,12 +11,20 @@ highly highly highly experimental
 
 ## 基本使用
 
-表格由行数据及列定义决定表格内容，可通过`columns`属性在表格上定义列，也可以直接在表格下渲染`l-table-column`，两种方式可结合使用，`columns`定义的列会在前面
+表格由行数据及列定义决定表格内容，可通过`columns`属性在表格上定义列，也可以直接在表格下渲染`l-table-column`，两种方式可结合使用，属性定义的列会在前面
+
+列通过`name`属性指定其在每一行渲染的字段，与`l-form-item`类似，其可以为对象嵌套字段，例如`user.name`或`['user', 'name']`
 
 列可以嵌套，在渲染时其会自动将表头组合形成多级结构。`columns`通过指定`children`进行嵌套，而 DOM 则直接渲染子节点即可
 
 <!-- @Code:_devTest -->
 <!-- @Code:nested -->
+
+:::warning 注
+不要自行在表格及表格列下渲染其他内容，除非你使用绝对定位，否则其会严重影响Grid布局
+
+也不要更改表格列以及其Shadow DOM根节点样式的`display`属性，它们默认均为`display: contents`，也就是只渲染子节点，从而避免影响Grid布局，如有需要你可以更改为[Subgrid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid)
+:::
 
 ## 行/列合并
 
@@ -41,14 +49,16 @@ highly highly highly experimental
 
 <!-- @Code:width -->
 
-## 列内容对齐方式
+## 内容对齐方式
 
-通过`align`属性可设置列内容的对齐方式，相当于给单元格设置`text-align`
+通过`justify`和`align`属性可设置单元格的水平/垂直对齐方式，其会给单元格设置内联`justify-content`和`align-items`，默认水平对齐为`start`，垂直对齐为`center`
+
+对于嵌套列，该值不会影响其子节点列
 
 <!-- @Code:align -->
 
 ## 列隐藏
 
-可直接通过 HTML `hidden`属性隐藏列。另外，由于表格由 Grid 实现，你也可以利用`0fr`来实现隐藏加过渡，你需要自行设置相应的样式来使过渡生效（由于单元格有 padding，隐藏时需要一点额外样式让其看起来更自然点）
+可直接通过 HTML `hidden`属性隐藏列。另外，由于表格由 Grid 实现，你也可以利用`0fr`来实现隐藏加过渡，你需要如下所示自行设置相应的样式来使过渡生效
 
 <!-- @Code:hidden -->

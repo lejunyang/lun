@@ -18,6 +18,7 @@ export default () => (
         <l-table-column header="name" name="name"></l-table-column>
         <l-table-column header="age" name="age"></l-table-column>
       </l-table-column>
+      <l-table-column name="obj.a" header="obj.a"></l-table-column>
       <l-table-column name="tel" header="tel"></l-table-column>
       <l-table-column name="address" header="address"></l-table-column>
     </l-table>
