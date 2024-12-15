@@ -25,7 +25,7 @@ import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 
 const name = 'table-column';
-const parts = ['root', 'header', 'cell'] as const;
+const parts = ['root', 'header', 'cell', 'inner-header', 'inner-cell'] as const;
 const compParts = getCompParts(name, parts);
 export const TableColumn = defineSSRCustomElement({
   name,
@@ -81,10 +81,15 @@ export const TableColumn = defineSSRCustomElement({
     };
 
     const getCommonStyle = (column: ComponentInternalInstance | TableColumnSetupProps) =>
-      ({ textAlign: getProp(column, 'align') } satisfies CSSProperties);
+      ({
+        display: 'flex',
+        justifyContent: getProp(column, 'justify'),
+        alignItems: getProp(column, 'align'),
+      } satisfies CSSProperties);
 
     const getCell = (column: ComponentInternalInstance | TableColumnSetupProps, item: any, rowIndex: number) => {
-      const { rowSpan, colSpan, ...rest } = runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
+      const { rowSpan, colSpan, innerProps, ...rest } =
+          runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
         cellStyle: CSSProperties = {};
       const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
       if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
@@ -106,19 +111,25 @@ export const TableColumn = defineSSRCustomElement({
         stickyEnd = isStickyEnd(vm);
       return (
         <div
+          style={{ ...getStickyStyle(vm), ...getCommonStyle(column), ...cellStyle }}
+          {...rest}
           class={[ns.e('cell'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
           part={compParts[2]}
           ref={cells}
           ref_for={true}
-          style={{ ...getStickyStyle(vm), ...cellStyle, ...getCommonStyle(column) }}
-          {...rest}
         >
-          {objectGet(item, getProp(column, 'name'))}
+          <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'cell')]} part={compParts[4]}>
+            {objectGet(item, getProp(column, 'name'))}
+          </div>
         </div>
       );
     };
     const getHead = (column: TableColumnSetupProps | ComponentInternalInstance) => {
-      const { headerColSpan, header, headerProps } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
+      const {
+          headerColSpan,
+          header,
+          headerProps: { innerProps, ...rest } = {},
+        } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
         level = getCollectedItemTreeLevel(column),
         leavesCount = getCollectedItemLeavesCount(column),
         maxLevel = context.maxLevel(),
@@ -128,12 +139,6 @@ export const TableColumn = defineSSRCustomElement({
         stickyEnd = isStickyEnd(vm);
       return (
         <div
-          class={[ns.e('header'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
-          part={compParts[1]}
-          v-show={!isCollapsed(column)}
-          ref={(el) => {
-            setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
-          }}
           style={{
             ...getStickyStyle(vm),
             ...getCommonStyle(column),
@@ -148,9 +153,17 @@ export const TableColumn = defineSSRCustomElement({
             // leavesCount < value: other columns have nested columns, current column header needs also to be expanded
             gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
-          {...headerProps}
+          {...rest}
+          class={[ns.e('header'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
+          part={compParts[1]}
+          v-show={!isCollapsed(column)}
+          ref={(el) => {
+            setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
+          }}
         >
-          {renderCustom(header)}
+          <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'header')]} part={compParts[3]}>
+            {renderCustom(header)}
+          </div>
         </div>
       );
     };

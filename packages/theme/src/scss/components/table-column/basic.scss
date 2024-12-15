@@ -43,10 +43,19 @@
   @include e((header, cell)) {
     box-sizing: border-box;
     outline: 1px solid getGrayColor(5);
+    align-items: center;
+    overflow: hidden;
     @include declareVars(
       (
-        padding: cell-padding,
         min-height: cell-min-height,
+      )
+    );
+  }
+
+  @include e(inner) {
+    @include declareVars(
+      (
+        padding: inner-padding,
       )
     );
   }
@@ -81,7 +90,7 @@
   @include size(2) {
     @include setVars(
       (
-        cell-padding: getSpaceValue(3),
+        inner-padding: getSpaceValue(3),
         cell-min-height: calc(44px * getScaleValue()),
       )
     );

@@ -19,6 +19,7 @@ import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 export type TableCellProps = Partial<{
   colSpan: number;
   rowSpan: number;
+  innerProps: HTMLAttributes;
 }> &
   HTMLAttributes;
 
@@ -36,9 +37,11 @@ export const tableColumnProps = freeze({
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
   width: PropNumber(),
   resizable: PropBoolean(), // TODO
-  align: PropString<CSSProperties['text-align'] & {}>(),
+  justify: PropString<CSSProperties['justifyContent'] & {}>(),
+  align: PropString<CSSProperties['alignItems'] & {}>(),
   ellipsis: PropBoolean(), // TODO
   overflow: PropString(), // TODO
+  help: PropString(), // TODO
   /** @private it's for internal use, representing the column object, do not use it yourself! */
   _: PropObject<any>(),
 });
