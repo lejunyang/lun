@@ -41,11 +41,13 @@ highly highly highly experimental
 
 <!-- @Code:sticky -->
 
-## 自定义列宽
+## 自定义列宽与拖拽调整列宽
 
-通过`width`属性可设置列宽，表格列的宽度默认为`max-content`，其可以设置为任意 Grid 列有效值，例如`1fr`, `fit-content()`, `minmax(min, max)`等等，数字会被视为像素值。
+通过`width`属性可设置列宽，表格列的宽度默认为`max-content`，其可以设置为任意 Grid 列有效值，例如`1fr`, `fit-content()`, `minmax(min, max)`等等，数字会被视为像素值
 
-注意，在嵌套列的情况下，列宽仅允许在最底层的列上设置，非叶子节点列设置宽度无效
+设置`resizable`属性可允许用户通过拖拽表格头的右边界来调整列宽。用户调整列宽后，再去更新该列的`width`属性将不会生效，会以用户调整的列宽优先
+
+注意，在嵌套列的情况下，列宽仅允许在最底层的列上设置，非叶子节点列设置宽度无效。`resizable`也只能设置在最底层的列上
 
 <!-- @Code:width -->
 

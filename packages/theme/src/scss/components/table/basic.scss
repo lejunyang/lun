@@ -9,4 +9,13 @@
 @include b(table) {
   position: relative;
   flex: 1;
+
+  @include e(resizer) {
+    width: 2px;
+    cursor: col-resize;
+    user-select: none;
+    background: getAccentColor(9);
+    inset-block: 0;
+    z-index: 5;
+  }
 }

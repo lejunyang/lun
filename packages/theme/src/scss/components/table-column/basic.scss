@@ -45,6 +45,7 @@
     outline: 1px solid getGrayColor(5);
     align-items: center;
     overflow: hidden;
+    position: relative;
     @include declareVars(
       (
         min-height: cell-min-height,
@@ -58,6 +59,12 @@
         padding: inner-padding,
       )
     );
+  }
+
+  @include e(resizer) {
+    width: 2px;
+    z-index: 5;
+    user-select: none;
   }
 
   // @include is(sticky-end, false, true) {
