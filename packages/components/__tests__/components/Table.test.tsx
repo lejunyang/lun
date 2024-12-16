@@ -45,7 +45,7 @@ const tableData = [
 ];
 
 const getColumnCells = (column: HTMLElement | null) =>
-  Array.from(column!.shadowRoot!.firstElementChild!.children) as HTMLElement[];
+  (Array.from(column!.shadowRoot!.firstElementChild!.children) as HTMLElement[]).filter((i) => i.tagName !== 'SLOT');
 
 const columns = [
   { header: 'name', name: 'name', width: 100, id: 'name', sticky: true },
@@ -116,37 +116,50 @@ describe('Table', () => {
     await nextTick();
 
     const queryTarget = useColumns ? table.value!.shadowRoot! : document;
-    const name = queryTarget.getElementById('name'),
-      grandParent = queryTarget.getElementById('grandParent');
+    const name = queryTarget.getElementById('name')!,
+      grandParent = queryTarget.getElementById('grandParent')!;
 
-    const nameCells = getColumnCells(name);
+    let nameCells = getColumnCells(name);
 
-    await vi.waitFor(() => expect(nameCells[0].style.gridRow).toBe('span 3'));
+    await vi.waitFor(() => {
+      nameCells = getColumnCells(name);
+      expect(nameCells[0].style.gridRow).toBe('span 3');
+    });
     nameCells.forEach((cell) => {
       expect(cell.style.position).toBe('sticky');
       expect(cell.style.left).toBe('0px');
     });
 
     const grandParentCells = getColumnCells(grandParent);
-
-    expect(grandParentCells.length).toBe(27);
-    const headers = grandParentCells.filter((cell) => cell.classList.contains('l-table-column__header'));
-    expect(headers.length).toBe(7);
     // GrandParent header
-    expect(headers[0].style.left).toBe('100px');
-    expect(headers[0].style.gridColumn).toBe('span 4');
+    expect(grandParentCells[0].style.left).toBe('100px');
+    expect(grandParentCells[0].style.gridColumn).toBe('span 4');
+
+    const parent1 = grandParent.children[0] as HTMLElement,
+      parent2 = grandParent.children[1] as HTMLElement;
+    const parent1Cells = getColumnCells(parent1),
+      parent2Cells = getColumnCells(parent2);
     // Parent1 header
-    expect(headers[1].style.left).toBe('100px');
-    expect(headers[1].style.gridColumn).toBe('span 2');
-    // age header
-    expect(headers[2].style.left).toBe('100px');
-    expect(headers[3].style.left).toBe('200px');
+    expect(parent1Cells[0].style.left).toBe('100px');
+    expect(parent1Cells[0].style.gridColumn).toBe('span 2');
     // Parent2 header
-    expect(headers[4].style.left).toBe('300px');
-    expect(headers[4].style.gridColumn).toBe('span 2');
-    // age header
-    expect(headers[5].style.left).toBe('300px');
-    expect(headers[6].style.left).toBe('400px');
+    expect(parent2Cells[0].style.left).toBe('300px');
+    expect(parent2Cells[0].style.gridColumn).toBe('span 2');
+
+    const secondAgeColumn = parent1.children[1] as HTMLElement,
+      fourthAgeColumn = parent2.children[1] as HTMLElement;
+    const secondAgeCells = getColumnCells(secondAgeColumn),
+      fourthAgeCells = getColumnCells(fourthAgeColumn);
+    // Second age column
+    secondAgeCells.forEach((cell) => {
+      expect(cell.style.position).toBe('sticky');
+      expect(cell.style.left).toBe('200px');
+    });
+    // Fourth age column
+    fourthAgeCells.forEach((cell) => {
+      expect(cell.style.position).toBe('sticky');
+      expect(cell.style.left).toBe('400px');
+    });
   };
   it('nested sticky columns with dom children', async () => {
     await nestedTestCase();
