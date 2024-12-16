@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, getHostStyle, getProp, isVm } from 'utils';
-import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
+import { InternalColumn, tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
@@ -11,21 +11,12 @@ import {
   isCollectedItemLeaf,
   useStickyColumn,
 } from '@lun-web/core';
-import {
-  ComponentInternalInstance,
-  CSSProperties,
-  getCurrentInstance,
-  ref,
-  VNodeChild,
-  toRaw,
-  onBeforeUnmount,
-  watchEffect,
-} from 'vue';
+import { CSSProperties, getCurrentInstance, ref, VNodeChild, toRaw, onBeforeUnmount, watchEffect } from 'vue';
 import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 
 const name = 'table-column';
-const parts = ['root', 'header', 'cell', 'inner-header', 'inner-cell'] as const;
+const parts = ['root', 'header', 'cell', 'inner-header', 'inner-cell', 'resizer'] as const;
 const compParts = getCompParts(name, parts);
 export const TableColumn = defineSSRCustomElement({
   name,
@@ -36,6 +27,7 @@ export const TableColumn = defineSSRCustomElement({
     const context = TableColumnCollector.child();
     if (!context) throw new Error(__DEV__ ? 'table-column must be under a lun table element' : '');
     const rootVm = getCurrentInstance()!;
+    const getColumn = () => props._ || rootVm;
     useExpose(context);
     const { collapsed, cellMerge, data, columnVmMap, all } = context,
       [, isCollapsed] = collapsed,
@@ -50,7 +42,7 @@ export const TableColumn = defineSSRCustomElement({
     let rowMergedCount = 0,
       currentColMergeInfoIndex = 0,
       mergeWithPrevColCount = 0;
-    const hasMergedCols = new Set<ComponentInternalInstance | TableColumnSetupProps>();
+    const hasMergedCols = new Set<InternalColumn>();
     const clean = () => {
       hasMergedCols.forEach((col) => deleteColMergeInfo(col));
       hasMergedCols.clear();
@@ -80,14 +72,14 @@ export const TableColumn = defineSSRCustomElement({
       }
     };
 
-    const getCommonStyle = (column: ComponentInternalInstance | TableColumnSetupProps) =>
+    const getCommonStyle = (column: InternalColumn) =>
       ({
         display: 'flex',
         justifyContent: getProp(column, 'justify'),
         alignItems: getProp(column, 'align'),
       } satisfies CSSProperties);
 
-    const getCell = (column: ComponentInternalInstance | TableColumnSetupProps, item: any, rowIndex: number) => {
+    const getCell = (column: InternalColumn, item: any, rowIndex: number) => {
       const { rowSpan, colSpan, innerProps, ...rest } =
           runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
         cellStyle: CSSProperties = {};
@@ -126,11 +118,17 @@ export const TableColumn = defineSSRCustomElement({
         </div>
       );
     };
-    const getHead = (column: TableColumnSetupProps | ComponentInternalInstance) => {
+
+    const resizerPointerEnter = (e: PointerEvent) => {
+        context.showResize(e.target as HTMLElement, getColumn());
+      },
+      resizerStyle = { position: 'absolute' as const, right: 0, insetBlock: 0 };
+    const getHead = (column: InternalColumn) => {
       const {
           headerColSpan,
           header,
           headerProps: { innerProps, ...rest } = {},
+          resizable,
         } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
         level = getCollectedItemTreeLevel(column),
         leavesCount = getCollectedItemLeavesCount(column),
@@ -166,6 +164,14 @@ export const TableColumn = defineSSRCustomElement({
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'header')]} part={compParts[3]}>
             {renderCustom(header)}
           </div>
+          {isLeaf && resizable && (
+            <div
+              onPointerenter={resizerPointerEnter}
+              class={ns.e('resizer')}
+              part={compParts[5]}
+              style={resizerStyle}
+            ></div>
+          )}
         </div>
       );
     };
@@ -177,7 +183,7 @@ export const TableColumn = defineSSRCustomElement({
       </div>
     );
     return () => {
-      const column = props._ || rootVm;
+      const column = getColumn();
       // if it's not a leaf column, it should be a column with nested children, only render its header
       if (!isCollectedItemLeaf(column)) return wrap(getHead(column));
       rowMergedCount = 0;

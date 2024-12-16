@@ -1,18 +1,17 @@
 import { createCollector, useCollectorExternalChildren, useWeakMap, useWeakSet } from '@lun-web/core';
-import { TableSetupProps, TableColumnSetupProps } from './type';
+import { TableSetupProps, TableColumnSetupProps, InternalColumn } from './type';
 import { getCollectorOptions } from 'common';
 import { ComponentInternalInstance, ComputedRef } from 'vue';
 
 export type TableProvideExtra = {
   data: ComputedRef<unknown[]>;
   maxLevel: () => number;
-  collapsed: ReturnType<typeof useWeakSet<ComponentInternalInstance | TableColumnSetupProps>>;
-  cellMerge: ReturnType<
-    typeof useWeakMap<ComponentInternalInstance | TableColumnSetupProps, [startRowIndex: number, mergedCount: number][]>
-  >;
+  collapsed: ReturnType<typeof useWeakSet<InternalColumn>>;
+  cellMerge: ReturnType<typeof useWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>>;
   columns: ReturnType<typeof useCollectorExternalChildren>[0];
   columnVmMap: ReturnType<typeof useWeakMap<TableColumnSetupProps, ComponentInternalInstance>>;
-  all: () => (ComponentInternalInstance | TableColumnSetupProps)[];
+  all: () => InternalColumn[];
+  showResize(target: HTMLElement, column: InternalColumn): void;
 };
 
 export const TableColumnCollector = createCollector<TableSetupProps, TableColumnSetupProps, TableProvideExtra, true>({

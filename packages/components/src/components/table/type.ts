@@ -13,9 +13,8 @@ import {
   PropObjOrFunc,
   PropBoolean,
   PropObject,
-  PropObjOrStr,
 } from 'common';
-import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
+import { ComponentInternalInstance, CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
 
 export type TableCellProps = Partial<{
@@ -35,11 +34,11 @@ export const tableColumnProps = freeze({
   headerProps: PropObject(),
   cellProps: PropObjOrFunc<
     TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)
-    >(),
+  >(),
   // autoGroup: PropBoolean(),
   sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
   width: PropNumber(),
-  resizable: PropBoolean(), // TODO
+  resizable: PropBoolean(),
   justify: PropString<Property.JustifyContent>(),
   align: PropString<Property.AlignItems>(),
   ellipsis: PropBoolean(), // TODO
@@ -66,7 +65,7 @@ export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
   columns: PropArray<TableColumnWithChildren[]>(),
-  rootStyle: PropObjOrStr<CSSProperties | string>(),
+  rootStyle: PropObject<CSSProperties>(),
   stickyHeader: PropBoolean(),
   // TODO stickyRow
 });
@@ -77,3 +76,5 @@ export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
 export type TableProps = Partial<TableSetupProps> & TableEvents;
 // -------------------------- Table Props --------------------------
+
+export type InternalColumn = TableColumnSetupProps | ComponentInternalInstance;

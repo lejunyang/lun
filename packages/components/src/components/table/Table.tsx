@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getProp, renderElement } from 'utils';
-import { TableColumnSetupProps, tableEmits, tableProps } from './type';
+import { InternalColumn, TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
@@ -16,6 +16,7 @@ import {
   fComputed,
 } from '@lun-web/core';
 import { ComponentInternalInstance, computed, watchEffect } from 'vue';
+import useColumnResizer from './Table.ColumnResizer';
 
 const name = 'table';
 const parts = ['root'] as const;
@@ -28,12 +29,10 @@ export const Table = defineSSRCustomElement({
     const ns = useNamespace(name);
     const collapsed = useWeakSet(),
       [replaceCollapsed, , addCollapsed] = collapsed,
-      cellMerge = useWeakMap<
-        ComponentInternalInstance | TableColumnSetupProps,
-        [startRowIndex: number, mergedCount: number][]
-      >(),
+      cellMerge = useWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>(),
       columnVmMap = useWeakMap<TableColumnSetupProps, ComponentInternalInstance>(),
-      getColumnVm = columnVmMap[1];
+      getColumnVm = columnVmMap[1],
+      [, getColumnWidth, setColumnWidth] = useWeakMap<InternalColumn, number>();
 
     const data = computed(() => ensureArray(props.data));
     const [columns, renderColumns] = useCollectorExternalChildren(
@@ -43,10 +42,11 @@ export const Table = defineSSRCustomElement({
       () => undefined,
       true,
     );
+
+    const [resizerProps, showResize] = useColumnResizer(setColumnWidth);
+
     const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
-      all = fComputed(() =>
-        (columns.items as (ComponentInternalInstance | TableColumnSetupProps)[]).concat(context.value),
-      );
+      all = fComputed(() => (columns.items as InternalColumn[]).concat(context.value));
     const context = TableColumnCollector.parent({
       extraProvide: {
         data,
@@ -56,6 +56,7 @@ export const Table = defineSSRCustomElement({
         columns,
         maxLevel,
         all,
+        showResize,
       },
     });
 
@@ -80,7 +81,11 @@ export const Table = defineSSRCustomElement({
       gridAutoFlow: 'column',
       gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
       gridTemplateColumns: all()
-        .map((child) => (isCollectedItemLeaf(child) ? toPxIfNum(getProp(child, 'width')) || 'max-content' : ''))
+        .map((child) =>
+          isCollectedItemLeaf(child)
+            ? toPxIfNum(getColumnWidth(child) ?? getProp(child, 'width')) || 'max-content'
+            : '',
+        )
         .join(' '),
     }));
 
@@ -89,6 +94,7 @@ export const Table = defineSSRCustomElement({
         <div class={ns.t} part={compParts[0]} style={style()}>
           {renderColumns()}
           <slot></slot>
+          <div class={ns.e('resizer')} {...resizerProps}></div>
         </div>
       );
     };
