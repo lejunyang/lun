@@ -1,5 +1,4 @@
-
-import { formItemEmits, FormItemProps, formItemProps, defineFormItem, iFormItem } from '@lun-web/components';
+import { formItemEmits, formItemProps, defineFormItem, FormItemProps, iFormItem } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LFormItem = createComponent<FormItemProps, iFormItem>('form-item', defineFormItem, formItemProps, formItemEmits);

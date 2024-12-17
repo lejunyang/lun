@@ -1,5 +1,4 @@
-
-import { selectOptionEmits, SelectOptionProps, selectOptionProps, defineSelectOption, iSelectOption } from '@lun-web/components';
+import { selectOptionEmits, selectOptionProps, defineSelectOption, SelectOptionProps, iSelectOption } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LSelectOption = createComponent<SelectOptionProps, iSelectOption>('select-option', defineSelectOption, selectOptionProps, selectOptionEmits);

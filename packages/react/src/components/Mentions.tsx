@@ -1,5 +1,4 @@
-
-import { mentionsEmits, MentionsProps, mentionsProps, defineMentions, iMentions } from '@lun-web/components';
+import { mentionsEmits, mentionsProps, defineMentions, MentionsProps, iMentions } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LMentions = createComponent<MentionsProps, iMentions>('mentions', defineMentions, mentionsProps, mentionsEmits);

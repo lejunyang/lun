@@ -1,5 +1,4 @@
-
-import { dividerEmits, DividerProps, dividerProps, defineDivider, iDivider } from '@lun-web/components';
+import { dividerEmits, dividerProps, defineDivider, DividerProps, iDivider } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LDivider = createComponent<DividerProps, iDivider>('divider', defineDivider, dividerProps, dividerEmits);

@@ -1,5 +1,4 @@
-
-import { virtualRendererEmits, VirtualRendererProps, virtualRendererProps, defineVirtualRenderer, iVirtualRenderer } from '@lun-web/components';
+import { virtualRendererEmits, virtualRendererProps, defineVirtualRenderer, VirtualRendererProps, iVirtualRenderer } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LVirtualRenderer = createComponent<VirtualRendererProps, iVirtualRenderer>('virtual-renderer', defineVirtualRenderer, virtualRendererProps, virtualRendererEmits);

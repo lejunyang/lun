@@ -1,5 +1,4 @@
-
-import { spinEmits, SpinProps, spinProps, defineSpin, iSpin } from '@lun-web/components';
+import { spinEmits, spinProps, defineSpin, SpinProps, iSpin } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LSpin = createComponent<SpinProps, iSpin>('spin', defineSpin, spinProps, spinEmits);

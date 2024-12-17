@@ -26,6 +26,7 @@ const patchEvent = (node: Element, event: string, listener: any) => {
   }
 };
 
+/*@__NO_SIDE_EFFECTS__*/
 export default function <Props extends Record<string, any>, Instance extends HTMLElement>(
   compName: ComponentKey,
   defineFunc: () => void,

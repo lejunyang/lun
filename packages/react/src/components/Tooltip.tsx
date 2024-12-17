@@ -1,5 +1,4 @@
-
-import { tooltipEmits, TooltipProps, tooltipProps, defineTooltip, iTooltip } from '@lun-web/components';
+import { tooltipEmits, tooltipProps, defineTooltip, TooltipProps, iTooltip } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LTooltip = createComponent<TooltipProps, iTooltip>('tooltip', defineTooltip, tooltipProps, tooltipEmits);

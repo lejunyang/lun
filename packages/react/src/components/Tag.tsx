@@ -1,5 +1,4 @@
-
-import { tagEmits, TagProps, tagProps, defineTag, iTag } from '@lun-web/components';
+import { tagEmits, tagProps, defineTag, TagProps, iTag } from '@lun-web/components';
 import createComponent from '../createComponent';
 
 export const LTag = createComponent<TagProps, iTag>('tag', defineTag, tagProps, tagEmits);

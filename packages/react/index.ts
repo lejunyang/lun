@@ -30,6 +30,8 @@ export { LSelectOptgroup } from './src/components/SelectOptgroup';
 export { LSkeleton } from './src/components/Skeleton';
 export { LSpin } from './src/components/Spin';
 export { LSwitch } from './src/components/Switch';
+export { LTable } from './src/components/Table';
+export { LTableColumn } from './src/components/TableColumn';
 export { LTabs } from './src/components/Tabs';
 export { LTabItem } from './src/components/TabItem';
 export { LTag } from './src/components/Tag';
