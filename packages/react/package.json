@@ -51,8 +51,9 @@
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",
-    "build:iife": "cross-env NODE_ENV=development BUILD_FORMAT=iife vite build",
-    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && pnpm build:iife",
+    "build19:dev": "cross-env NODE_ENV=development REACT19=true vite build",
+    "build19:prod": "cross-env NODE_ENV=production REACT19=true vite build",
+    "build": "rimraf ./dist && pnpm build:dev && pnpm build:prod && pnpm build19:dev && pnpm build19:prod",
     "build:noType": "cross-env NO_TYPE_EMIT=true pnpm build",
     "v": "npm version"
   },

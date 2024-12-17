@@ -5,7 +5,7 @@
       "path": "../../tsconfig.node.json"
     }
   ],
-  "include": ["./index.ts", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "../../global.d.ts"],
+  "include": ["./index.ts", "./index19.ts", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "../../global.d.ts"],
   "exclude": ["src/__test__/**/*", "src/main.ts"],
   "compilerOptions": {
     "baseUrl": ".",

@@ -14,7 +14,11 @@ export const isDev = () => process.env.NODE_ENV === 'development';
 
 const deployedOn = process.env.DEPLOYED_ON;
 
-export function getViteConfig(name: string, { version }: { version: string }, viteConfig?: UserConfig) {
+export function getViteConfig(
+  name: string,
+  { version, dtsOptions }: { version: string; dtsOptions?: Parameters<typeof dts>[0] },
+  viteConfig?: UserConfig,
+) {
   const iife = isIIFE();
   const dev = iife || isDev() || !!process.env.VITEST;
   const noType = deployedOn || process.env.NO_TYPE_EMIT === 'true';
@@ -40,6 +44,7 @@ export function getViteConfig(name: string, { version }: { version: string }, vi
             // showVerboseMessages: true,
             // showDiagnostics: true,
           },
+          ...dtsOptions,
           // beforeWriteFile(filePath, content) {
           //   if (filePath.includes('define')) return false; // don't emit type file for component define files
           //   else return { filePath, content };
@@ -60,6 +65,7 @@ export function getViteConfig(name: string, { version }: { version: string }, vi
       },
     },
     build: {
+      ...viteConfig?.build,
       lib: {
         entry: './index.ts',
         name: name.replace(/[@/-]\w/g, (s) => s.slice(1).toUpperCase()),
@@ -80,7 +86,7 @@ export function getViteConfig(name: string, { version }: { version: string }, vi
       emptyOutDir: dev && !iife,
       rollupOptions: {
         external: iife
-          ? ['vue', '@lun-web/components', '@lun-web/core', '@lun-web/utils', '@lun-web/plugins/vue']
+          ? ['vue', 'react', '@lun-web/components', '@lun-web/core', '@lun-web/utils', '@lun-web/plugins/vue']
           : ['vue', /@lun-web\/.+/, 'react', /@vue\/.+/, /^dayjs.*/, /react-dom.*/, /@floating-ui.*/],
         output: {
           chunkFileNames() {

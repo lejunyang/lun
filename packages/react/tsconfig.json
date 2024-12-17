@@ -1,17 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": [
-    "./index.ts",
-    "./src/**/*.ts",
-    "./src/**/*.d.ts",
-    "./src/**/*.tsx",
-    "../../global.d.ts"
-  ],
+  "include": ["./index.ts", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "../../global.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "declarationDir": "dist",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
+    "types": []
     // "paths": {
     //   "@lun-web/components": ["../components/index.ts"],
     //   "@lun-web/core": ["../core/index.ts"],

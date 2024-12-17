@@ -15,6 +15,8 @@
       "new-javascript/wicg/file-system-access",
       "@types/dom-view-transitions",
       "vitest/globals",
+      "@vitest/browser/context",
+      "vitest-browser-vue",
       "@vitest/browser/providers/playwright",
       "vite/client",
       "./global.d.ts",
@@ -37,7 +39,7 @@
       "@lun-web/theme/custom": ["./packages/theme/src/custom/custom.ts"],
       "@lun-web/react": ["./packages/react/index.ts"],
       "@lun-web/utils": ["./packages/utils/index.ts"],
-      "data": ["./src/utils/data.ts"], // for docs
+      "data": ["./src/utils/data.ts"] // for docs
     }
   },
   "include": [
