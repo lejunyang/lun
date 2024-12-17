@@ -1,3 +1,4 @@
+import { deepCopy, getRect } from '@lun-web/utils';
 import { render } from 'vitest-browser-vue';
 import { nextTick, ref } from 'vue';
 
@@ -51,7 +52,7 @@ const columns = [
   { header: 'name', name: 'name', width: 100, id: 'name', sticky: true },
   {
     header: 'GrandParent',
-    sticky: 'left',
+    sticky: 'left' as const,
     id: 'grandParent',
     children: [
       {
@@ -78,7 +79,7 @@ const columns = [
   { header: 'name', name: 'name' },
   { header: 'tel', name: 'tel' },
   { header: 'phone', name: 'phone' },
-  { header: 'age', name: 'age', sticky: 'right' },
+  { header: 'age', name: 'age', sticky: 'right' as const },
   { header: 'address', name: 'address' },
 ];
 
@@ -167,5 +168,44 @@ describe('Table', () => {
 
   it('nested sticky columns with columns prop', async () => {
     await nestedTestCase(true);
+  });
+
+  it('resizable columns', async () => {
+    const resizableColumns = deepCopy(columns);
+    // @ts-ignore
+    resizableColumns[0].resizable = true;
+    // @ts-ignore
+    resizableColumns[1].children![0].children.forEach((column) => (column.resizable = true));
+
+    const table = l('l-table', {
+      data: tableData,
+      columns: resizableColumns,
+    });
+
+    await nextTick();
+    const queryTarget = table.shadowRoot!;
+    const tableResizer = queryTarget.querySelector('.l-table__resizer') as HTMLElement;
+    expect(tableResizer).not.toBeNull();
+    expect(tableResizer.style.opacity).toBe('0');
+    const name = queryTarget.getElementById('name')!;
+
+    const nameCells = getColumnCells(name);
+    const cellResizer = nameCells[0].querySelector('.l-table-column__resizer') as HTMLElement;
+    expect(cellResizer).not.toBeNull();
+
+    cellResizer.dispatchEvent(new PointerEvent('pointerenter'));
+    expect(tableResizer.style.opacity).toBe('1');
+
+    const rect = getRect(tableResizer),
+      startX = rect.x + rect.width / 2,
+      startY = rect.y + rect.height / 2;
+    tableResizer.dispatchEvent(new PointerEvent('pointerdown', { clientX: startX, clientY: startY, pointerId: 1 }));
+    tableResizer.dispatchEvent(new PointerEvent('pointermove', { clientX: startX + 50, clientY: startY }));
+    tableResizer.dispatchEvent(new PointerEvent('pointermove', { clientX: startX + 100, clientY: startY }));
+    tableResizer.dispatchEvent(new PointerEvent('pointerup', { clientX: startX + 100, clientY: startY }));
+
+    await nextTick();
+
+    expect(getRect(nameCells[0]).width).toBe(200);
   });
 });
