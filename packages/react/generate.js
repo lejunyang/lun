@@ -19,14 +19,17 @@ function toPascalCase(str) {
   return camelCase[0].toUpperCase() + camelCase.slice(1);
 }
 
-function generateCode(component) {
+function generateCode(component, react19AndLater) {
   const camelCase = toCamelCase(component);
   const pascalCase = toPascalCase(component);
-  return `
-import { ${camelCase}Emits, ${pascalCase}Props, ${camelCase}Props, define${pascalCase}, i${pascalCase} } from '@lun-web/components';
-import createComponent from '../createComponent';
+  return `import { ${
+    react19AndLater ? '' : `${camelCase}Emits, ${camelCase}Props, `
+  }define${pascalCase}, ${pascalCase}Props, i${pascalCase} } from '@lun-web/components';
+import createComponent from '../createComponent${react19AndLater ? '19' : ''}';
 
-export const L${pascalCase} = createComponent<${pascalCase}Props, i${pascalCase}>('${component}', define${pascalCase}, ${camelCase}Props, ${camelCase}Emits);
+export const L${pascalCase} = createComponent<${pascalCase}Props, i${pascalCase}>('${component}', define${pascalCase}${
+    react19AndLater ? '' : `, ${camelCase}Props, ${camelCase}Emits`
+  });
 if (__DEV__) L${pascalCase}.displayName = 'L${pascalCase}';
 `;
 }
@@ -36,15 +39,16 @@ function writeToFile(directory, component, code) {
   fs.writeFileSync(path.join(directory, fileName), code);
 }
 
-const directory = './src/components';
-
 let exportStatements = `export * from './src/hooks';\n`;
+let exportStatements19 = `export * from './src/hooks';\n`;
 components.forEach((component) => {
   const Comp = toPascalCase(component);
   exportStatements += `export { L${Comp} } from './src/components/${Comp}';\n`;
+  exportStatements19 += `export { L${Comp} } from './src/components19/${Comp}';\n`;
 
-  const code = generateCode(component);
-  writeToFile(directory, component, code);
+  writeToFile('./src/components', component, generateCode(component));
+  writeToFile('./src/components19', component, generateCode(component, true));
 });
 
 fs.writeFileSync('./index.ts', exportStatements);
+fs.writeFileSync('./index19.ts', exportStatements19);
