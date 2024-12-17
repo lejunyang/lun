@@ -10,7 +10,8 @@
   ],
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "./postinstall.js"
   ],
   "license": "MIT",
   "repository": {
@@ -48,6 +49,7 @@
   "jsdelivr": "./dist/lun-web-react.iife.js",
   "unpkg": "./dist/lun-web-react.iife.js",
   "scripts": {
+    "postinstall": "node ./postinstall.js",
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",

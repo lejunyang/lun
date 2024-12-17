@@ -36,8 +36,8 @@
     "@vueuse/core": "^11.1",
     "fflate": "^0.8.2",
     "monaco-editor": "^0.52.0",
-    "react": "^19",
-    "react-dom": "^19",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-error-boundary": "^4.1.2",
     "shiki": "^1.24.0",
     "vue": "catalog:"
