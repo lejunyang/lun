@@ -13,8 +13,18 @@ import {
   useStickyColumn,
   UseVirtualMeasurement,
 } from '@lun-web/core';
-import { CSSProperties, getCurrentInstance, ref, VNodeChild, toRaw, onBeforeUnmount, watchEffect, watch } from 'vue';
-import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
+import {
+  CSSProperties,
+  getCurrentInstance,
+  ref,
+  VNodeChild,
+  toRaw,
+  onBeforeUnmount,
+  watchEffect,
+  watch,
+  computed,
+} from 'vue';
+import { at, ensureNumber, isFunction, objectGet, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 
 const name = 'table-column';
@@ -43,12 +53,16 @@ export const TableColumn = defineSSRCustomElement({
     });
 
     const virtualOn = () => !virtual.options.disabled,
-      needMeasureCell = () => isCollectedItemInFirstBranch(getColumn()) && virtualOn();
-    watch([needMeasureCell, cells], ([need, cells]) => {
-      if (need) {
-        cells.forEach((cell) => virtual.measureElement(cell));
-      }
-    });
+      needMeasureCell = computed(() => isCollectedItemInFirstBranch(getColumn()) && virtualOn());
+    watch(
+      [needMeasureCell, cells],
+      ([need, cells]) => {
+        if (need) {
+          cells.forEach((cell) => virtual.measureElement(cell));
+        }
+      },
+      { deep: true, flush: 'post' },
+    );
 
     let rowMergedCount = 0,
       currentColMergeInfoIndex = 0,
@@ -93,7 +107,8 @@ export const TableColumn = defineSSRCustomElement({
     const getCell = (column: InternalColumn, item: any, rowIndex: number, key?: any) => {
       const { rowSpan, colSpan, innerProps, ...rest } =
           runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
-        cellStyle: CSSProperties = {};
+        cellStyle: CSSProperties = {},
+        renderer = getProp(column, 'renderer');
       const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
       let cellShow = 1;
       if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
@@ -112,7 +127,8 @@ export const TableColumn = defineSSRCustomElement({
 
       const vm = isVm(column) ? column : getColumnVm(column)!,
         stickyType = getStickyType(vm),
-        stickyEnd = isStickyEnd(vm);
+        stickyEnd = isStickyEnd(vm),
+        cellValue = objectGet(item, getProp(column, 'name'));
       return (
         <div
           key={key}
@@ -126,7 +142,7 @@ export const TableColumn = defineSSRCustomElement({
           ref_for={true}
         >
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'cell')]} part={compParts[4]}>
-            {objectGet(item, getProp(column, 'name'))}
+            {isFunction(renderer) ? renderCustom(renderer(cellValue, rowIndex, item, props)) : cellValue}
           </div>
         </div>
       );
@@ -197,7 +213,7 @@ export const TableColumn = defineSSRCustomElement({
         <slot></slot>
       </div>
     );
-    // header在滚下去之后还在渲染。。要拿掉
+
     return () => {
       const column = getColumn();
       // if it's not a leaf column, it should be a column with nested children, only render its header

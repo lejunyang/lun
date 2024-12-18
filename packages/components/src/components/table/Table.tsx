@@ -4,7 +4,7 @@ import { InternalColumn, TableColumnSetupProps, tableEmits, tableProps } from '.
 import { useCE, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
-import { ensureArray, runIfFn, toPxIfNum } from '@lun-web/utils';
+import { ensureArray, ensureNumber, runIfFn, toPxIfNum } from '@lun-web/utils';
 import {
   getCollectedItemTreeLevel,
   getCollectedItemTreeParent,
@@ -57,7 +57,10 @@ export const Table = defineSSRCustomElement({
         container: ce,
         observeContainerSize: true,
         disabled: virtualOff,
-        estimatedSize: 44,
+        estimatedSize: (item, index) => {
+          const height = runIfFn(props.rowHeight, item, index);
+          return ensureNumber(height, 44);
+        },
         staticPosition: true,
       }),
       virtualData = fComputed(() => (virtualOff() ? data.value : virtual.virtualItems.value));
@@ -94,7 +97,13 @@ export const Table = defineSSRCustomElement({
       virtualData()
         .map(
           (row, i) =>
-            toPxIfNum(runIfFn(props.rowHeight, virtualOff() ? row : (row as UseVirtualMeasurement).item, i)) || 'auto',
+            toPxIfNum(
+              runIfFn(
+                props.rowHeight,
+                virtualOff() ? row : (row as UseVirtualMeasurement).item,
+                virtualOff() ? i : (row as UseVirtualMeasurement).index,
+              ),
+            ) || 'auto',
         )
         .join(' '),
     );

@@ -14,9 +14,11 @@ import {
   PropBoolean,
   PropObject,
   PropNumOrFunc,
+  PropFunction,
 } from 'common';
 import { ComponentInternalInstance, CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
+import { GetCustomRendererSource } from '../custom-renderer';
 
 export type TableCellProps = Partial<{
   colSpan: number;
@@ -29,9 +31,11 @@ export const tableColumnProps = freeze({
   type: PropString(),
   name: PropString(),
   plainName: undefBoolProp,
-  header: Prop(),
+  header: Prop<GetCustomRendererSource>(),
+  renderer:
+    PropFunction<(value: unknown, rowIndex: number, rowData: unknown, columnProps: any) => GetCustomRendererSource>(),
   /** determine the colSpan for header, will span and cover next columns. only apply to root columns with no children. if nested columns exist in the span, the span will stop right before it */
-  headerColSpan: PropNumber(),
+  headerColSpan: PropNumber(), // TODO sticky support when having headerColSpan
   headerProps: PropObject(),
   cellProps: PropObjOrFunc<
     TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)
