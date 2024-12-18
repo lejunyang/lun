@@ -90,17 +90,19 @@ export function useVirtualList(options: UseVirtualOptions) {
     // syncScroll();
 
     // -------- scroll --------
-    listenScroll(
-      containerEl,
-      (updateState) => {
-        const offset = updateState[options.horizontal ? 'offsetX' : 'offsetY'];
-        if (offset === state.scrollOffset) return; // in case horizontal scroll happens in vertical mode
-        state.scrollAdjustments = 0;
-        state.scrollOffset = offset;
-        state.scrolling = updateState.scrolling;
-        state.forward = updateState[options.horizontal ? 'xForward' : 'yForward'];
-      },
-      options,
+    addClean(
+      listenScroll(
+        containerEl,
+        (updateState) => {
+          const offset = updateState[options.horizontal ? 'offsetX' : 'offsetY'];
+          if (offset === state.scrollOffset) return; // in case horizontal scroll happens in vertical mode
+          state.scrollAdjustments = 0;
+          state.scrollOffset = offset;
+          state.scrolling = updateState.scrolling;
+          state.forward = updateState[options.horizontal ? 'xForward' : 'yForward'];
+        },
+        options,
+      ),
     );
     // -------- scroll --------
 
@@ -197,13 +199,16 @@ export function useVirtualList(options: UseVirtualOptions) {
   };
 
   const virtualItems = computed(() => {
-    const { items, overscan, disabled, lanes } = processedOptions;
+    const { items, overscan, disabled, lanes } = processedOptions,
+      { customRange } = options,
+      { value } = measurements;
     if (disabled) return [];
-    const [start, end] = calculateRange(measurements.value, state.containerSize, state.scrollOffset);
+    const [start, end] = calculateRange(value, state.containerSize, state.scrollOffset);
     const finalStart = Math.max(0, start - overscan[0]),
       // if lanes > 1, need to add extra items
-      finalEnd = Math.min(items.length, end + overscan[1] + (lanes - 1));
-    return measurements.value.slice(finalStart, finalEnd);
+      finalEnd = Math.min(items.length, end + overscan[1] + (lanes - 1)),
+      renderMeasurements = value.slice(finalStart, finalEnd);
+    return customRange ? customRange(measurements.value, finalStart, finalEnd, renderMeasurements) : renderMeasurements;
   });
 
   const totalSize = computed(() => {
@@ -224,13 +229,16 @@ export function useVirtualList(options: UseVirtualOptions) {
   });
 
   const wrapperStyle = computed(() => {
-    const { horizontal } = options;
-    return {
+    const { horizontal, staticPosition } = options;
+    const res = {
       position: 'relative' as const,
       [horizontal ? 'width' : 'height']: `${totalSize.value}px`,
-      [horizontal ? 'height' : 'width']: '100%',
-      overflow: 'hidden',
     };
+    if (staticPosition) {
+      const [start] = offsets.value;
+      res.transform = `translate3d(${horizontal ? start + 'px,0' : '0,' + start + 'px'},0)`;
+    }
+    return res;
   });
 
   return {
@@ -241,5 +249,6 @@ export function useVirtualList(options: UseVirtualOptions) {
     wrapperStyle,
     offsets,
     state,
+    options: processedOptions,
   };
 }

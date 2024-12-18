@@ -38,7 +38,11 @@ const options = {
       const { renderer } = props;
       return (
         <div style={wrapperStyle.value}>
-          {isFunction(renderer) ? virtualItems.value.map((i) => renderCustom(renderer(i, crossAxis.virtualItems.value))) : null}
+          {isFunction(renderer)
+            ? virtualItems.value.map((item, _index, arr) =>
+                renderCustom(renderer(item, arr, crossAxis.virtualItems.value)),
+              )
+            : null}
         </div>
       );
     };

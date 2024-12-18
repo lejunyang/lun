@@ -15,6 +15,12 @@ export type UseVirtualOptions = {
     | null
     | [number, number]
     | ((items: any[], containerSize: number) => number | [number, number]);
+  customRange?: (
+    allMeasurements: UseVirtualMeasurement[],
+    start: number,
+    end: number,
+    renderMeasurements: UseVirtualMeasurement[],
+  ) => UseVirtualMeasurement[];
   initialContainerSize?: MaybeRefLikeOrGetter<number | string>;
   observeContainerSize?: boolean;
 
@@ -26,6 +32,7 @@ export type UseVirtualOptions = {
   initialScrollOffset?: MaybeRefLikeOrGetter<number>;
   scrollEndDelay?: number;
   shouldAdjustScroll?: (measurement: UseVirtualMeasurement, delta: number, state: UseVirtualState) => boolean;
+  staticPosition?: boolean;
 };
 
 export type UseVirtualMeasurement = {

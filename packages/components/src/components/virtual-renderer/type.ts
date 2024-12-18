@@ -31,9 +31,13 @@ type MainAxisProps = ExtractPropTypes<typeof mainAxisProps>;
 
 export const virtualRendererProps = freeze({
   horizontal: PropBoolean(),
-  renderer: PropFunction<(i: UseVirtualMeasurement, crossAxisItems: UseVirtualMeasurement[]) => any>(),
+  renderer:
+    PropFunction<
+      (i: UseVirtualMeasurement, mainAxisItems: UseVirtualMeasurement[], crossAxisItems: UseVirtualMeasurement[]) => any
+    >(),
   ...mainAxisProps,
   crossAxis: PropObject<MainAxisProps>(),
+  staticPosition: PropBoolean(),
 });
 
 export const virtualRendererEmits = freeze({});
