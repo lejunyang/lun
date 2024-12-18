@@ -49,7 +49,7 @@
   "jsdelivr": "./dist/lun-web-react.iife.js",
   "unpkg": "./dist/lun-web-react.iife.js",
   "scripts": {
-    "postinstall": "node ./postinstall.js",
+    "postinstall": "node ./postinstall.cjs",
     "dev": "vite",
     "build:dev": "cross-env NODE_ENV=development vite build",
     "build:prod": "cross-env NODE_ENV=production vite build",

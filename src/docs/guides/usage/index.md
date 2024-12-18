@@ -14,7 +14,7 @@ lang: zh-CN
 - [`@lun-web/plugins`](https://www.npmjs.com/package/@lun-web/plugins): 为 JSX 或 Vue template 提供自定义指令
 - [`@lun-web/components`](https://www.npmjs.com/package/@lun-web/components)：组件库，其依赖于上面三个
 - [`@lun-web/theme`](https://www.npmjs.com/package/@lun-web/theme)：主题库，其依赖于组件库
-- [`@lun-web/react`](https://www.npmjs.com/package/@lun-web/react)：为 react19 之前的版本封装的组件库，详细见下文[React 中使用](#react-中使用)
+- [`@lun-web/react`](https://www.npmjs.com/package/@lun-web/react)：为 React 封装的组件库，详细见下文[React 中使用](#react-中使用)
 
 根据需要并安装对应的库
 
@@ -22,7 +22,7 @@ lang: zh-CN
 npm i vue # 虽然vue从3.2开始支持自定义元素，但最好使用最新版，中间修复了很多相关问题
 npm i @lun-web/components
 npm i @lun-web/theme # 如果需要主题，则安装此库
-npm i @lun-web/react # 如果在React中使用且早于 React 19，则额外安装此库并使用其导出的组件
+npm i @lun-web/react # React 19可选此库，之前的版本则必须使用此库导出的组件
 ```
 
 ## React 中使用
@@ -40,6 +40,8 @@ export default function () {
   return <LInput onUpdate={() => {}} />;
 }
 ```
+
+React 19 中你仍可以使用这个包。在安装后其会检测当前安装的 React 版本，如果是 19 则使用另一个入口，避免使用了包装的版本，属性和事件的设置将完全由 React 处理。
 
 ## 全量引入
 
@@ -60,7 +62,7 @@ GlobalStaticConfig.xx = xx;
 
 // 引入所有的预设主题色
 importAllColors(); // 如果需要自定义主题色请参考顶部导航栏中的“调色”一栏
-// 如果需要P3广色域支持则调用如下函数，当支持的时候会使用display-p3
+// 如果需要P3广色域支持则额外调用如下函数，当支持的时候会使用display-p3
 // importAllP3Colors();
 
 // 引入所有预设主题
@@ -169,9 +171,9 @@ CDN 直接引入只提供开发打包版本，不建议在生产环境使用，�
 
 组件库的组件本身具有完整的类型支持，针对不同的框架，目前提供了以下类型定义：
 
-- `@lun-web/components/elements-types-vue`: Vue template 以及 JSX 的组件类型
-- `@lun-web/components/elements-types-react`: React JSX 组件类型
-- `@lun-web/components/elements-types-html`: document.createElement 组件类型支持
+- `@lun-web/components/elements-types-vue`: Vue template 以及 JSX 的元素类型
+- `@lun-web/components/elements-types-react`: React JSX 元素类型
+- `@lun-web/components/elements-types-html`: document.createElement等方式创建的元素类型支持
 
 你需要在 TS 配置文件中对应引入它们
 

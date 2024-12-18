@@ -15,8 +15,6 @@
       "new-javascript/wicg/file-system-access",
       "@types/dom-view-transitions",
       "vitest/globals",
-      "@vitest/browser/context",
-      "vitest-browser-vue",
       "@vitest/browser/providers/playwright",
       "vite/client",
       "./global.d.ts",
