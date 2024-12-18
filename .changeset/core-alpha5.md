@@ -12,6 +12,8 @@
 - add `useStickyTable` and `useStickyColumn`
 - add private hook `useCollectorExternalChildren` for collector, rename some private collector utils
 - add `createMapCountMethod`
+- add `isCollectedItemInFirstBranch` and `getCollectedItemMaxChildLevel` for collector
+- add `staticPosition` and `customRange` for useVirtualList
 
 ### Changes
 

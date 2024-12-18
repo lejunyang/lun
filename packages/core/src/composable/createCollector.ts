@@ -82,6 +82,22 @@ export const isCollectedItemLeaf = (item?: unknown) => getIsLeaf(item) === true;
 /** @private */
 export const getCollectedItemLeavesCount = (item: unknown) => getLeavesCount(item) ?? 0;
 
+const isFirst = (item: unknown) => getIndex(item) === 0,
+  selfAndParentFirst = (item: unknown): boolean =>
+    getTreeIndex(item) === 0 && (!getTreeParent(item) || selfAndParentFirst(getTreeParent(item)));
+/** @private */
+export const isCollectedItemFirstLeaf = (item: unknown) =>
+  isCollectedItemLeaf(item) && (isFirst(item) || selfAndParentFirst(item));
+/** @private first branch means nodes in this branch are all treeIndex=0 */
+export const isCollectedItemInFirstBranch = selfAndParentFirst;
+
+const calcLevel = (item: unknown, level: number): number =>
+  isCollectedItemLeaf(item)
+    ? level
+    : Math.max(...getCollectedItemTreeChildren(item).map((i) => calcLevel(i, level + 1)));
+/** @private */
+export const getCollectedItemMaxChildLevel = (item: unknown) => calcLevel(item, 0);
+
 /**
  * create a collector used for collecting component instances between Parent Component and Children Components.\
  * First two typescript generics `parent` and `child` are used to infer props type of parent and child instance, they can be `Vue custom element` or `Vue Component Props Option`, or just an object representing their props.
