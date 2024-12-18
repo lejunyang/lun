@@ -13,6 +13,7 @@ import {
   PropObjOrFunc,
   PropBoolean,
   PropObject,
+  PropNumOrFunc,
 } from 'common';
 import { ComponentInternalInstance, CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
@@ -65,6 +66,7 @@ export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
   columns: PropArray<TableColumnWithChildren[]>(),
+  rowHeight: PropNumOrFunc<Property.GridTemplateRows | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows)>(),
   rootStyle: PropObject<CSSProperties>(),
   stickyHeader: PropBoolean(),
   // TODO stickyRow

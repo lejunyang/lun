@@ -4,7 +4,7 @@ import { InternalColumn, TableColumnSetupProps, tableEmits, tableProps } from '.
 import { useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
-import { ensureArray, toPxIfNum } from '@lun-web/utils';
+import { ensureArray, runIfFn, toPxIfNum } from '@lun-web/utils';
 import {
   getCollectedItemTreeLevel,
   getCollectedItemTreeParent,
@@ -75,11 +75,14 @@ export const Table = defineSSRCustomElement({
         vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
 
+    const dataTemplateRows = fComputed(() =>
+      data.value.map((row, i) => toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto').join(' '),
+    );
     const style = fComputed(() => ({
       ...props.rootStyle,
       display: 'grid',
       gridAutoFlow: 'column',
-      gridTemplateRows: `repeat(${data.value.length + maxLevel()}, auto)`,
+      gridTemplateRows: dataTemplateRows() + ` repeat(${maxLevel()}, auto)`,
       gridTemplateColumns: all()
         .map((child) =>
           isCollectedItemLeaf(child)
