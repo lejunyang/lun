@@ -1,7 +1,7 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getProp, renderElement } from 'utils';
 import { InternalColumn, TableColumnSetupProps, tableEmits, tableProps } from './type';
-import { useNamespace } from 'hooks';
+import { useCE, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
 import { ensureArray, runIfFn, toPxIfNum } from '@lun-web/utils';
@@ -14,6 +14,8 @@ import {
   useWeakMap,
   useWeakSet,
   fComputed,
+  useVirtualList,
+  UseVirtualMeasurement,
 } from '@lun-web/core';
 import { ComponentInternalInstance, computed, watchEffect } from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
@@ -27,6 +29,7 @@ export const Table = defineSSRCustomElement({
   emits: tableEmits,
   setup(props) {
     const ns = useNamespace(name);
+    const ce = useCE();
     const collapsed = useWeakSet(),
       [replaceCollapsed, , addCollapsed] = collapsed,
       cellMerge = useWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>(),
@@ -47,9 +50,19 @@ export const Table = defineSSRCustomElement({
 
     const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
       all = fComputed(() => (columns.items as InternalColumn[]).concat(context.value));
+
+    const virtualOff = () => !props.virtual,
+      virtual = useVirtualList({
+        items: data,
+        container: ce,
+        observeContainerSize: true,
+        disabled: virtualOff,
+        estimatedSize: 44,
+        staticPosition: true,
+      }),
+      virtualData = fComputed(() => (virtualOff() ? data.value : virtual.virtualItems.value));
     const context = TableColumnCollector.parent({
       extraProvide: {
-        data,
         collapsed,
         cellMerge,
         columnVmMap,
@@ -57,6 +70,8 @@ export const Table = defineSSRCustomElement({
         maxLevel,
         all,
         showResize,
+        virtual,
+        data: virtualData,
       },
     });
 
@@ -76,13 +91,20 @@ export const Table = defineSSRCustomElement({
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
 
     const dataTemplateRows = fComputed(() =>
-      data.value.map((row, i) => toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto').join(' '),
+      virtualData()
+        .map(
+          (row, i) =>
+            toPxIfNum(runIfFn(props.rowHeight, virtualOff() ? row : (row as UseVirtualMeasurement).item, i)) || 'auto',
+        )
+        .join(' '),
     );
     const style = fComputed(() => ({
       ...props.rootStyle,
       display: 'grid',
       gridAutoFlow: 'column',
-      gridTemplateRows: dataTemplateRows() + ` repeat(${maxLevel()}, auto)`,
+      gridTemplateRows:
+        (props.noHeader ? '' : `repeat(${maxLevel()}, ${toPxIfNum(props.headerHeight) || 'auto'}) `) +
+        dataTemplateRows(),
       gridTemplateColumns: all()
         .map((child) =>
           isCollectedItemLeaf(child)
@@ -93,13 +115,14 @@ export const Table = defineSSRCustomElement({
     }));
 
     return () => {
-      return (
+      const node = (
         <div class={ns.t} part={compParts[0]} style={style()}>
           {renderColumns()}
           <slot></slot>
           <div class={ns.e('resizer')} {...resizerProps}></div>
         </div>
       );
+      return virtualOff() ? node : <div style={virtual.wrapperStyle.value}>{node}</div>;
     };
   },
 });

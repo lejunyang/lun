@@ -8,10 +8,12 @@ import {
   getCollectedItemIndex,
   getCollectedItemLeavesCount,
   getCollectedItemTreeLevel,
+  isCollectedItemInFirstBranch,
   isCollectedItemLeaf,
   useStickyColumn,
+  UseVirtualMeasurement,
 } from '@lun-web/core';
-import { CSSProperties, getCurrentInstance, ref, VNodeChild, toRaw, onBeforeUnmount, watchEffect } from 'vue';
+import { CSSProperties, getCurrentInstance, ref, VNodeChild, toRaw, onBeforeUnmount, watchEffect, watch } from 'vue';
 import { at, ensureNumber, objectGet, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 
@@ -29,16 +31,25 @@ export const TableColumn = defineSSRCustomElement({
     const rootVm = getCurrentInstance()!;
     const getColumn = () => props._ || rootVm;
     useExpose(context);
-    const { collapsed, cellMerge, data, columnVmMap, all } = context,
+    const { collapsed, cellMerge, data, columnVmMap, all, virtual, parent } = context,
       [, isCollapsed] = collapsed,
       [, getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
       [, getColumnVm, setColumnVm] = columnVmMap,
       rawCellMerge = toRaw(cellMerge.value);
+    const headerEl = ref<HTMLElement>(),
+      cells = ref<HTMLElement[]>([]);
     watchEffect(() => {
       props._ && setColumnVm(props._, rootVm);
     });
 
-    const cells = ref<HTMLElement[]>([]);
+    const virtualOn = () => !virtual.options.disabled,
+      needMeasureCell = () => isCollectedItemInFirstBranch(getColumn()) && virtualOn();
+    watch([needMeasureCell, cells], ([need, cells]) => {
+      if (need) {
+        cells.forEach((cell) => virtual.measureElement(cell));
+      }
+    });
+
     let rowMergedCount = 0,
       currentColMergeInfoIndex = 0,
       mergeWithPrevColCount = 0;
@@ -79,7 +90,7 @@ export const TableColumn = defineSSRCustomElement({
         alignItems: getProp(column, 'align'),
       } satisfies CSSProperties);
 
-    const getCell = (column: InternalColumn, item: any, rowIndex: number) => {
+    const getCell = (column: InternalColumn, item: any, rowIndex: number, key?: any) => {
       const { rowSpan, colSpan, innerProps, ...rest } =
           runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
         cellStyle: CSSProperties = {};
@@ -104,6 +115,8 @@ export const TableColumn = defineSSRCustomElement({
         stickyEnd = isStickyEnd(vm);
       return (
         <div
+          key={key}
+          data-index={rowIndex}
           v-show={cellShow}
           style={{ ...getStickyStyle(vm), ...getCommonStyle(column), ...cellStyle }}
           {...rest}
@@ -124,6 +137,7 @@ export const TableColumn = defineSSRCustomElement({
       },
       resizerStyle = { position: 'absolute' as const, right: 0, insetBlock: 0 };
     const getHead = (column: InternalColumn) => {
+      if (parent!.props.noHeader) return;
       const {
           headerColSpan,
           header,
@@ -158,6 +172,7 @@ export const TableColumn = defineSSRCustomElement({
           part={compParts[1]}
           v-show={!isCollapsed(column)}
           ref={(el) => {
+            headerEl.value = el as HTMLElement;
             setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
           }}
         >
@@ -182,13 +197,26 @@ export const TableColumn = defineSSRCustomElement({
         <slot></slot>
       </div>
     );
+    // header在滚下去之后还在渲染。。要拿掉
     return () => {
       const column = getColumn();
       // if it's not a leaf column, it should be a column with nested children, only render its header
       if (!isCollectedItemLeaf(column)) return wrap(getHead(column));
       rowMergedCount = 0;
       clean();
-      return wrap([getHead(column), ...data.value.map((item, i) => getCell(column, item, i))]);
+      return wrap([
+        getHead(column),
+        ...data().map((item, i) =>
+          virtualOn()
+            ? getCell(
+                column,
+                (item as UseVirtualMeasurement).item,
+                (item as UseVirtualMeasurement).index,
+                (item as UseVirtualMeasurement).key,
+              )
+            : getCell(column, item, i),
+        ),
+      ]);
     };
   },
 });

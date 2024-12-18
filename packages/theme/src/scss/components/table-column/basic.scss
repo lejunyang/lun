@@ -53,6 +53,13 @@
     );
   }
 
+  @include is((sticky-left), false, true) {
+    z-index: 1;
+  }
+  @include is((sticky-right), false, true) {
+    z-index: 2;
+  }
+
   @include e(inner) {
     @include declareVars(
       (

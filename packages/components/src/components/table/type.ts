@@ -66,9 +66,15 @@ export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
   columns: PropArray<TableColumnWithChildren[]>(),
-  rowHeight: PropNumOrFunc<Property.GridTemplateRows | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows)>(),
+  headerHeight: PropNumber<Property.GridTemplateRows>(),
+  rowHeight: PropNumOrFunc<
+    Property.GridTemplateRows | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows)
+  >(),
   rootStyle: PropObject<CSSProperties>(),
   stickyHeader: PropBoolean(),
+  virtual: PropBoolean(),
+  /** hide the header, currently it's conflict with sticky columns functionality */
+  noHeader: PropBoolean(),
   // TODO stickyRow
 });
 
