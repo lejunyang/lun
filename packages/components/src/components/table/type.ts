@@ -28,7 +28,7 @@ export type TableCellProps = Partial<{
   HTMLAttributes;
 
 export const tableColumnProps = freeze({
-  type: PropString(),
+  type: PropString<'index' | (string & {})>(),
   name: PropString(),
   plainName: undefBoolProp,
   header: Prop<GetCustomRendererSource>(),
@@ -41,7 +41,7 @@ export const tableColumnProps = freeze({
     TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)
   >(),
   // autoGroup: PropBoolean(),
-  sticky: PropBoolOrStr<boolean | 'left' | 'right'>(),
+  sticky: PropBoolOrStr<boolean | 'left' | 'right' | (string & {})>(),
   width: PropNumber(),
   resizable: PropBoolean(),
   justify: PropString<Property.JustifyContent>(),

@@ -21,7 +21,7 @@ import { ComponentInternalInstance, computed, watchEffect } from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
 
 const name = 'table';
-const parts = ['root'] as const;
+const parts = ['root', 'virtual-wrapper'] as const;
 const compParts = getCompParts(name, parts);
 export const Table = defineSSRCustomElement({
   name,
@@ -88,7 +88,8 @@ export const Table = defineSSRCustomElement({
       });
     });
 
-    const getSticky = (vm: ComponentInternalInstance) => (vm.props as TableColumnSetupProps).sticky,
+    const getSticky = (vm: ComponentInternalInstance) =>
+        (vm.props as TableColumnSetupProps).sticky as 'left' | 'right' | undefined,
       getSelfOrParent = (vm: ComponentInternalInstance | undefined): ReturnType<typeof getSticky> =>
         vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
@@ -131,7 +132,13 @@ export const Table = defineSSRCustomElement({
           <div class={ns.e('resizer')} {...resizerProps}></div>
         </div>
       );
-      return virtualOff() ? node : <div style={virtual.wrapperStyle.value}>{node}</div>;
+      return virtualOff() ? (
+        node
+      ) : (
+        <div style={virtual.wrapperStyle.value} part={compParts[1]}>
+          {node}
+        </div>
+      );
     };
   },
 });

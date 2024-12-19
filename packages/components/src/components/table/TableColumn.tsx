@@ -24,8 +24,9 @@ import {
   watch,
   computed,
 } from 'vue';
-import { at, ensureNumber, isFunction, objectGet, runIfFn } from '@lun-web/utils';
+import { at, ensureNumber, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
+import { renderCell } from './TableColumn.renderer';
 
 const name = 'table-column';
 const parts = ['root', 'header', 'cell', 'inner-header', 'inner-cell', 'resizer'] as const;
@@ -107,8 +108,7 @@ export const TableColumn = defineSSRCustomElement({
     const getCell = (column: InternalColumn, item: any, rowIndex: number, key?: any) => {
       const { rowSpan, colSpan, innerProps, ...rest } =
           runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
-        cellStyle: CSSProperties = {},
-        renderer = getProp(column, 'renderer');
+        cellStyle: CSSProperties = {};
       const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
       let cellShow = 1;
       if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
@@ -127,8 +127,7 @@ export const TableColumn = defineSSRCustomElement({
 
       const vm = isVm(column) ? column : getColumnVm(column)!,
         stickyType = getStickyType(vm),
-        stickyEnd = isStickyEnd(vm),
-        cellValue = objectGet(item, getProp(column, 'name'));
+        stickyEnd = isStickyEnd(vm);
       return (
         <div
           key={key}
@@ -142,7 +141,7 @@ export const TableColumn = defineSSRCustomElement({
           ref_for={true}
         >
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'cell')]} part={compParts[4]}>
-            {isFunction(renderer) ? renderCustom(renderer(cellValue, rowIndex, item, props)) : cellValue}
+            {renderCell(column, rowIndex, item, props)}
           </div>
         </div>
       );
