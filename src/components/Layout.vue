@@ -277,7 +277,7 @@ onMounted(() => {
 });
 onBeforeUnmount(() => pageProgress.destroy());
 
-const animationPool = [pullToSides, swapZ, polygonSlide, circleGrow];
+const animationPool = [polygonSlide, pullToSides, swapZ, polygonSlide, polygonSlide, circleGrow, polygonSlide];
 const randomAnimate = async (update: AnyFn) => {
   if (document.startViewTransition) {
     await document.startViewTransition(async () => {

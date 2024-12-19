@@ -4,13 +4,14 @@ lang: zh-CN
 ---
 
 :::warning 注
-Highly experimental
+Highly Highly Highly experimental
 :::
 
 ## 基本使用
 
-<!-- @Code:basicUsage -->
+虚拟项推荐使用绝对定位进行渲染，性能更佳。若因布局限制无法使用绝对定位，则可以添加`staticPosition`属性，其会自动给包裹的元素设置 transform，当然你可以给自行所有元素设置 transform
 
+<!-- @Code:basicUsage -->
 
 ## 虚拟纵向瀑布流
 

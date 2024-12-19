@@ -21,9 +21,9 @@ highly highly highly experimental
 <!-- @Code:nested -->
 
 :::warning 注
-不要自行在表格及表格列下渲染其他内容，除非你使用绝对定位，否则其会严重影响Grid布局
+不要自行在表格及表格列下渲染其他内容，除非你使用绝对定位，否则其会严重影响 Grid 布局
 
-也不要更改表格列以及其Shadow DOM根节点样式的`display`属性，它们默认均为`display: contents`，也就是只渲染子节点，从而避免影响Grid布局，如有需要你可以更改为[Subgrid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid)
+也不要更改表格列以及其 Shadow DOM 根节点样式的`display`属性，它们默认均为`display: contents`，也就是只渲染子节点，从而避免影响 Grid 布局，如有需要你可以更改为[Subgrid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid)
 :::
 
 ## 行/列合并
@@ -51,11 +51,18 @@ highly highly highly experimental
 
 <!-- @Code:width -->
 
+## 自定义行高
+
+通过`headerHeight`属性可设置表头的高度，其可以设置为任意 Grid 行有效值，例如`1fr`, `fit-content()`, `minmax(min, max)`等等，数字会被视为像素值，默认为`auto`
+
+通过`rowHeight`属性可设置行高，有效值同上，且其可以为函数，用于单独设置每一行的高度
+
+
 ## 内容对齐方式
 
-通过`justify`和`align`属性可设置单元格的水平/垂直对齐方式，其会给单元格设置内联`justify-content`和`align-items`，默认水平对齐为`start`，垂直对齐为`center`
+通过`justify`和`align`属性可设置单元格内容的水平/垂直对齐方式，其会给单元格设置内联`justify-content`和`align-items`，默认水平对齐为`start`，垂直对齐为`center`
 
-对于嵌套列，该值不会影响其子节点列
+对于嵌套列，该值不会影响其子节点列，只会影响其自身的表格头
 
 <!-- @Code:align -->
 
@@ -64,3 +71,15 @@ highly highly highly experimental
 可直接通过 HTML `hidden`属性隐藏列。另外，由于表格由 Grid 实现，你也可以利用`0fr`来实现隐藏加过渡，你需要如下所示自行设置相应的样式来使过渡生效
 
 <!-- @Code:hidden -->
+
+## 虚拟渲染
+
+添加`virtual`属性即可开启虚拟渲染，表格本身需要设置一定的高度来变成滚动容器，开启后将只渲染可见区域及附近的行。注意，暂不支持单元格合并，等虚拟渲染组件稳定后将开放更多属性
+
+:::info 注
+开启虚拟渲染后表格将通过`rowHeight`计算每行的行高，推荐返回数字以设置固定行高，否则需要渲染后计算行高以调整，表现有点不佳
+
+另外，开启虚拟渲染后推荐给列设置固定宽度而不是由内容撑开。如果由内容撑开，由于在滚动过程中只渲染了某些行，列宽度会可能会一直变化，从而导致布局闪烁变动
+:::
+
+<!-- @Code:virtual -->
