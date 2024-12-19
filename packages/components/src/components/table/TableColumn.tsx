@@ -183,7 +183,12 @@ export const TableColumn = defineSSRCustomElement({
             gridRow: !level && leavesCount < maxLevel ? `span ${maxLevel}` : undefined,
           }}
           {...rest}
-          class={[ns.e('header'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
+          class={[
+            ns.e('header'),
+            ns.is(`sticky-${stickyType}`, stickyType),
+            ns.is('sticky-end', stickyEnd),
+            ns.is('top-left', !level && !getCollectedItemIndex(column)),
+          ]}
           part={compParts[1]}
           v-show={!isCollapsed(column)}
           ref={(el) => {

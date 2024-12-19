@@ -25,24 +25,25 @@
   }
 
   @include e(header) {
-    background: getGrayColor(3);
+    background: getGrayColor(2);
     @include declareVarValues(
       (
         font-weight: (
           header-font-weight,
-          700,
+          500,
         ),
       )
     );
   }
 
   @include e(cell) {
-    background: getGrayColor(1);
+    background: getSemanticColor('background');
   }
 
   @include e((header, cell)) {
     box-sizing: border-box;
     outline: 1px solid getGrayColor(5);
+    outline-offset: -0.5px;
     align-items: center;
     overflow: hidden;
     position: relative;
@@ -58,6 +59,10 @@
   }
   @include is((sticky-right), false, true) {
     z-index: 2;
+  }
+
+  @include is(top-left, false, true) {
+    border-top-left-radius: getRadiusValue(3);
   }
 
   @include e(inner) {
@@ -101,11 +106,29 @@
   //   }
   // }
 
+  @include size(1) {
+    @include setVars(
+      (
+        inner-padding: getSpaceValue(2),
+        cell-min-height: calc(36px * getScaleValue()),
+      )
+    );
+  }
+
   @include size(2) {
     @include setVars(
       (
         inner-padding: getSpaceValue(3),
         cell-min-height: calc(44px * getScaleValue()),
+      )
+    );
+  }
+
+  @include size(3) {
+    @include setVars(
+      (
+        inner-padding: getSpaceValue(3) getSpaceValue(4),
+        cell-min-height: getSpaceValue(8),
       )
     );
   }

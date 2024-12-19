@@ -9,6 +9,14 @@
 @include b(table) {
   position: relative;
   flex: 1;
+  @include declareVars((font-size));
+
+  @at-root {
+    :host {
+      box-shadow: 0 0 0 0.5px getGrayColor(5);
+      border-radius: getRadiusValue(3);
+    }
+  }
 
   @include e(resizer) {
     width: 2px;
@@ -17,5 +25,27 @@
     background: getAccentColor(9);
     inset-block: 0;
     z-index: 5;
+  }
+
+  @include size(1) {
+    @include setVars(
+      (
+        font-size: getFontSizeValue(2),
+      )
+    );
+  }
+  @include size(2) {
+    @include setVars(
+      (
+        font-size: getFontSizeValue(2),
+      )
+    );
+  }
+  @include size(3) {
+    @include setVars(
+      (
+        font-size: getFontSizeValue(3),
+      )
+    );
   }
 }

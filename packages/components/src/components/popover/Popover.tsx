@@ -363,8 +363,8 @@ export type PopoverExpose = {
    */
   delayClosePopover: (ensure?: boolean) => void;
   updatePosition: () => void;
-  attachTarget(target?: Element | undefined, options?: PopoverAttachTargetOptions): void;
-  detachTarget(target?: Element | undefined): void;
+  attachTarget(target?: Element | undefined | null, options?: PopoverAttachTargetOptions): void;
+  detachTarget(target?: Element | undefined | null): void;
   detachAll(): void;
   readonly currentTarget: any;
   readonly isTopLayer: boolean;
