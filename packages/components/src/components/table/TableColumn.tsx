@@ -11,7 +11,6 @@ import {
   isCollectedItemInFirstBranch,
   isCollectedItemLeaf,
   useStickyColumn,
-  UseVirtualMeasurement,
 } from '@lun-web/core';
 import {
   CSSProperties,
@@ -219,24 +218,13 @@ export const TableColumn = defineSSRCustomElement({
     );
 
     return () => {
-      const column = getColumn();
+      const column = getColumn(),
+        isLeaf = isCollectedItemLeaf(column);
       // if it's not a leaf column, it should be a column with nested children, only render its header
-      if (!isCollectedItemLeaf(column)) return wrap(getHead(column));
+      if (!isLeaf) return wrap(getHead(column));
       rowMergedCount = 0;
       clean();
-      return wrap([
-        getHead(column),
-        ...data().map((item, i) =>
-          virtualOn()
-            ? getCell(
-                column,
-                (item as UseVirtualMeasurement).item,
-                (item as UseVirtualMeasurement).index,
-                (item as UseVirtualMeasurement).key,
-              )
-            : getCell(column, item, i),
-        ),
-      ]);
+      return wrap([getHead(column), ...data().map(([row, i, key]) => getCell(column, row, i, key))]);
     };
   },
 });

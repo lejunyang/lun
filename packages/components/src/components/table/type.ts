@@ -15,6 +15,7 @@ import {
   PropObject,
   PropNumOrFunc,
   PropFunction,
+  PropSet,
 } from 'common';
 import { ComponentInternalInstance, CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
@@ -64,12 +65,15 @@ export type TableColumnProps = Partial<TableColumnSetupProps> & TableColumnEvent
 type TableColumnWithChildren = TableColumnProps &
   Partial<{
     children: TableColumnWithChildren[];
+    key: string | number;
   }>;
 
 export const tableProps = freeze({
   ...themeProps,
   data: PropArray(),
+  dataPropsMap: PropObject<Record<'key' | 'children', string>>(),
   columns: PropArray<TableColumnWithChildren[]>(),
+  columnPropsMap: PropObject<Record<'key' | 'children', string>>(),
   headerHeight: PropNumber<Property.GridTemplateRows>(),
   rowHeight: PropNumOrFunc<
     Property.GridTemplateRows | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows)
@@ -80,9 +84,14 @@ export const tableProps = freeze({
   /** hide the header, currently it's conflict with sticky columns functionality */
   noHeader: PropBoolean(),
   // TODO stickyRow
+  expandable: PropFunction<(record: unknown, rowIndex: number) => boolean>(),
+  rowExpanded: PropSet(),
+  expandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
 });
 
-export const tableEmits = createEmits<{}>([]);
+export const tableEmits = createEmits<{
+  rowExpanded: (string | number)[] | Set<string | number>;
+}>(['rowExpanded']);
 
 export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;

@@ -15,13 +15,14 @@ import {
   useWeakSet,
   fComputed,
   useVirtualList,
-  UseVirtualMeasurement,
 } from '@lun-web/core';
 import { ComponentInternalInstance, computed, watchEffect } from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
+import useRowExpand from './Table.RowExpand';
+import { getRowKey } from './utils';
 
 const name = 'table';
-const parts = ['root', 'virtual-wrapper'] as const;
+const parts = ['root', 'virtual-wrapper', 'expanded-content'] as const;
 const compParts = getCompParts(name, parts);
 export const Table = defineSSRCustomElement({
   name,
@@ -42,7 +43,7 @@ export const Table = defineSSRCustomElement({
       () => props.columns,
       (column, children) =>
         renderElement('table-column', { ...column, /** _ is for internal usage in column */ _: column }, children),
-      () => undefined,
+      () => props.columnPropsMap,
       true,
     );
 
@@ -54,6 +55,7 @@ export const Table = defineSSRCustomElement({
     const virtualOff = () => !props.virtual,
       virtual = useVirtualList({
         items: data,
+        itemKey: (item, index) => getRowKey(props, item, index),
         container: ce,
         observeContainerSize: true,
         disabled: virtualOff,
@@ -63,7 +65,12 @@ export const Table = defineSSRCustomElement({
         },
         staticPosition: true,
       }),
-      virtualData = fComputed(() => (virtualOff() ? data.value : virtual.virtualItems.value));
+      virtualData = fComputed(() =>
+        virtualOff()
+          ? data.value.map((row, i) => [row, i, getRowKey(props, row, i)] as const)
+          : virtual.virtualItems.value.map((v) => [v.item, v.index, v.key] as const),
+      );
+    const [renderExpand, getExpandRowHeight, rowExpand] = useRowExpand(props, virtualData, maxLevel);
     const context = TableColumnCollector.parent({
       extraProvide: {
         collapsed,
@@ -75,6 +82,7 @@ export const Table = defineSSRCustomElement({
         showResize,
         virtual,
         data: virtualData,
+        rowExpand,
       },
     });
 
@@ -96,16 +104,7 @@ export const Table = defineSSRCustomElement({
 
     const dataTemplateRows = fComputed(() =>
       virtualData()
-        .map(
-          (row, i) =>
-            toPxIfNum(
-              runIfFn(
-                props.rowHeight,
-                virtualOff() ? row : (row as UseVirtualMeasurement).item,
-                virtualOff() ? i : (row as UseVirtualMeasurement).index,
-              ),
-            ) || 'auto',
-        )
+        .map(([row, i]) => (toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto') + getExpandRowHeight(row, i))
         .join(' '),
     );
     const style = fComputed(() => ({
@@ -127,6 +126,10 @@ export const Table = defineSSRCustomElement({
     return () => {
       const node = (
         <div class={ns.t} part={compParts[0]} style={style()}>
+          {renderExpand({
+            class: ns.e('expanded-content'),
+            part: compParts[2],
+          })}
           {renderColumns()}
           <slot></slot>
           <div class={ns.e('resizer')} {...resizerProps}></div>
