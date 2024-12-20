@@ -13,7 +13,7 @@ export function useTreeItems(props: { items?: any[]; itemPropsMap?: object }, ed
   });
   const [state, render] = useCollectorExternalChildren(
     () => props.items,
-    (item, children) => renderElement('tree-item', item, children as any),
+    (item, children) => renderElement('tree-item', { ...item, _: item }, children as any),
     () => props.itemPropsMap,
     true,
     () => {
@@ -30,8 +30,8 @@ export function useTreeItems(props: { items?: any[]; itemPropsMap?: object }, ed
       item.key ??= item.value;
     },
     (item, children) => {
-      if(children.length && !item.disabled) noneLeafValuesSet.add(item.value);
-    }
+      if (children.length && !item.disabled) noneLeafValuesSet.add(item.value);
+    },
   );
 
   return [state, valueInfo, render, (value: any) => valueInfo.valueToChildMap.get(value)] as const;

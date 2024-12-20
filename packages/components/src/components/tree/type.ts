@@ -73,10 +73,12 @@ export const treeItemProps = freeze({
   ...createTransitionProps('expand'),
   label: Prop(),
   value: Prop(),
+  /** @private it's for internal use, representing the column object, do not use it yourself! */
+  _: PropObject<any>(),
 });
 
 export const treeItemEmits = freeze({});
 
-export type TreeItemSetupProps = ExtractPropTypes<typeof treeItemProps> & CommonProps;
+export type TreeItemSetupProps = Omit<ExtractPropTypes<typeof treeItemProps>, '_'> & CommonProps;
 export type TreeItemEvents = GetEventPropsFromEmits<typeof treeItemEmits>;
 export type TreeItemProps = Partial<TreeItemSetupProps> & TreeItemEvents;

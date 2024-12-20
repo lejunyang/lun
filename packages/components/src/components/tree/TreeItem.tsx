@@ -1,12 +1,12 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { treeItemEmits, treeItemProps } from './type';
-import { useExpose, useNamespace, useSlot, useCEStates, useCEExpose } from 'hooks';
+import { useExpose, useNamespace, useSlot, useCEStates } from 'hooks';
 import { getCompParts, getTransitionProps } from 'common';
 import { TreeCollector } from './collector';
 import { toGetterDescriptors, toPxIfNum } from '@lun-web/utils';
-import { useSetupEdit } from '@lun-web/core';
-import { computed, Transition } from 'vue';
+import { getCollectedItemTreeLevel, isCollectedItemLeaf, useSetupEdit } from '@lun-web/core';
+import { computed, getCurrentInstance, Transition } from 'vue';
 import { defineCheckbox } from '../checkbox';
 
 const name = 'tree-item';
@@ -19,6 +19,8 @@ export const TreeItem = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
+    const vm = getCurrentInstance()!;
+    const item = () => props._ || vm;
 
     const context = TreeCollector.child()!;
     if (__DEV__ && !context) throw new Error(name + ' must be under tree component');
@@ -64,28 +66,20 @@ export const TreeItem = defineSSRCustomElement({
       },
     };
 
-    const contextDesc = toGetterDescriptors(context, ['level', 'isLeaf']);
-    useExpose(
-      {},
-      {
-        ...contextDesc,
-        ...toGetterDescriptors(editComputed, ['disabled']),
-      },
-    );
-    useCEExpose({}, contextDesc);
-    const [stateClass] = useCEStates(
-      () => ({
-        expanded,
-        selected,
-        checked,
-        lineSelectable,
-        labelSelectable,
-      })
-    );
+    useExpose({}, toGetterDescriptors(editComputed, ['disabled']));
+    const [stateClass] = useCEStates(() => ({
+      expanded,
+      selected,
+      checked,
+      lineSelectable,
+      labelSelectable,
+    }));
 
     const [renderLabel] = useSlot('label', () => props.label);
     return () => {
-      const { level, isLeaf, parent } = context;
+      const { parent } = context,
+        level = getCollectedItemTreeLevel(item())!,
+        isLeaf = isCollectedItemLeaf(item());
       return (
         <>
           <li

@@ -98,3 +98,18 @@ export const useGroupOpenMethods = (options: UseSelectOptions) => {
     toggleChild: result.toggle,
   };
 };
+
+export const useExpandMethods = (options: UseSelectOptions) => {
+  const result = useSelectMethods(options);
+  return {
+    /** @private used to get raw format model */
+    _: result._,
+    isExpanded: result.isSelected,
+    expandAll: result.selectAll,
+    collapseAll: result.unselectAll,
+    toggleExpand: result.toggle,
+    reverseExpand: result.reverse,
+    expand: result.select,
+    collapse: result.unselect,
+  };
+};

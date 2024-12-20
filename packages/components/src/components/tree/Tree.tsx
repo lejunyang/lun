@@ -4,7 +4,7 @@ import { treeEmits, treeProps } from './type';
 import { useValueSet, useCEExpose, useNamespace, useValueModel } from 'hooks';
 import { getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
-import { objectComputed, useCheckboxMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
+import { objectComputed, useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
 import { computed } from 'vue';
 import { ensureArray, unionOfSets } from '@lun-web/utils';
@@ -52,7 +52,7 @@ export const Tree = defineSSRCustomElement({
     const valueToChild = (value: any) => (valueToItem(value) ?? valueToVm(value)) as Item;
     const combinedChildren = objectComputed(() => {
       return {
-        items: ([] as (Item)[]).concat(propItemsInfo.items, context.value),
+        items: ([] as Item[]).concat(propItemsInfo.items, context.value),
         noneLeafValuesSet: unionOfSets(propItemsValueInfo.noneLeafValuesSet, vmChildrenInfo.noneLeafValuesSet),
         childrenValuesSet: unionOfSets(propItemsValueInfo.childrenValuesSet, vmChildrenInfo.childrenValuesSet),
       };
@@ -76,22 +76,13 @@ export const Tree = defineSSRCustomElement({
       },
       allValues: () => combinedChildren.childrenValuesSet,
     });
-    const _expandMethods = useCheckboxMethods({
+    const expandMethods = useExpandMethods({
       current: expandedValueSet,
       onChange(value) {
         expandedModel.value = value;
       },
       allValues: () => combinedChildren.noneLeafValuesSet,
     });
-    const expandMethods = {
-      isExpanded: _expandMethods.isChecked,
-      expandAll: _expandMethods.checkAll,
-      collapseAll: _expandMethods.uncheckAll,
-      toggleExpand: _expandMethods.toggle,
-      reverseExpand: _expandMethods.reverse,
-      expand: _expandMethods.check,
-      collapse: _expandMethods.uncheck,
-    };
     const methods = {
       select: selectMethods,
       check: checkMethods,
