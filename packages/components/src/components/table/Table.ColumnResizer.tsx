@@ -43,11 +43,7 @@ export default (updateColumnWidth: (column: InternalColumn, width: number) => vo
   };
 
   return [
-    {
-      ref: resizer,
-      ...handler,
-      style: hideStyle,
-    },
+    (props: Record<string, any>) => <div ref={resizer} style={hideStyle} {...handler} {...props}></div>,
     (target: HTMLElement, column: InternalColumn) => {
       if (resizeStart) return;
       currentColumn = column;

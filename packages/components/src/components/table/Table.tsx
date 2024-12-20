@@ -20,9 +20,10 @@ import { ComponentInternalInstance, computed, watchEffect } from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
 import useRowExpand from './Table.RowExpand';
 import { getRowKey } from './utils';
+import { defineTableColumn } from './TableColumn';
 
 const name = 'table';
-const parts = ['root', 'virtual-wrapper', 'expanded-content'] as const;
+const parts = ['root', 'virtual-wrapper', 'expanded-content', 'resizer'] as const;
 const compParts = getCompParts(name, parts);
 export const Table = defineSSRCustomElement({
   name,
@@ -47,7 +48,7 @@ export const Table = defineSSRCustomElement({
       true,
     );
 
-    const [resizerProps, showResize] = useColumnResizer(setColumnWidth);
+    const [renderResizer, showResize] = useColumnResizer(setColumnWidth);
 
     const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
       all = fComputed(() => (columns.items as InternalColumn[]).concat(context.value));
@@ -132,7 +133,10 @@ export const Table = defineSSRCustomElement({
           })}
           {renderColumns()}
           <slot></slot>
-          <div class={ns.e('resizer')} {...resizerProps}></div>
+          {renderResizer({
+            class: ns.e('resizer'),
+            part: compParts[3],
+          })}
         </div>
       );
       return virtualOff() ? (
@@ -150,4 +154,6 @@ export type tTable = typeof Table;
 export type TableExpose = {};
 export type iTable = InstanceType<tTable> & TableExpose;
 
-export const defineTable = createDefineElement(name, Table, {}, parts, {});
+export const defineTable = createDefineElement(name, Table, {}, parts, {
+  'table-column': defineTableColumn,
+});

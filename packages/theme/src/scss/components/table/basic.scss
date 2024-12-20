@@ -9,6 +9,7 @@
 @include b(table) {
   position: relative;
   flex: 1;
+  transition: grid-template-columns 0.3s, grid-template-rows 0.3s;
   @include declareVars((font-size));
 
   @at-root {

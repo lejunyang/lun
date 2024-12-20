@@ -3,11 +3,7 @@ import { ref } from 'vue';
 
 const show = ref(true),
   show2 = ref(true),
-  style = { whiteSpace: 'nowrap' },
-  showProps = { style },
-  hiddenProps = {
-    style: { minWidth: 0, ...style },
-  };
+  props = { style: { whiteSpace: 'nowrap' } };
 export default () => (
   <>
     <div class="w-full">
@@ -16,14 +12,14 @@ export default () => (
       address(0fr):
       <l-switch v-update-checked:checked={show2.value} />
     </div>
-    <l-table data={tableData} rootStyle={{ transition: 'grid-template-columns 0.3s' }}>
+    <l-table data={tableData}>
       <l-table-column name="tel" header="tel" hidden={!show.value}></l-table-column>
       <l-table-column
         name="address"
         header="address"
         width={show2.value ? '1fr' : '0fr'}
-        cellProps={show2.value ? showProps : hiddenProps}
-        headerProps={show2.value ? showProps : hiddenProps}
+        cellProps={props}
+        headerProps={props}
       ></l-table-column>
     </l-table>
   </>

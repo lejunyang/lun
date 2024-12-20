@@ -130,6 +130,8 @@ export const TableColumn = defineSSRCustomElement({
       return (
         <div
           key={key}
+          aria-rowindex={rowIndex + 1}
+          role="cell"
           data-index={rowIndex}
           v-show={cellShow}
           style={{ ...getStickyStyle(vm), ...getCommonStyle(column), ...cellStyle }}
@@ -167,6 +169,7 @@ export const TableColumn = defineSSRCustomElement({
         stickyEnd = isStickyEnd(vm);
       return (
         <div
+          role="columnheader"
           style={{
             ...getStickyStyle(vm),
             ...getCommonStyle(column),

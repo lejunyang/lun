@@ -47,11 +47,8 @@
     align-items: center;
     overflow: hidden;
     position: relative;
-    @include declareVars(
-      (
-        min-height: cell-min-height,
-      )
-    );
+    min-width: 0px;
+    min-height: 0px;
   }
 
   @include is((sticky-left), false, true) {
@@ -66,9 +63,11 @@
   }
 
   @include e(inner) {
+    box-sizing: border-box;
     @include declareVars(
       (
         padding: inner-padding,
+        min-height: inner-min-height,
       )
     );
   }
@@ -110,7 +109,7 @@
     @include setVars(
       (
         inner-padding: getSpaceValue(2),
-        cell-min-height: calc(36px * getScaleValue()),
+        inner-min-height: calc(36px * getScaleValue()),
       )
     );
   }
@@ -119,7 +118,7 @@
     @include setVars(
       (
         inner-padding: getSpaceValue(3),
-        cell-min-height: calc(44px * getScaleValue()),
+        inner-min-height: calc(44px * getScaleValue()),
       )
     );
   }
@@ -128,7 +127,7 @@
     @include setVars(
       (
         inner-padding: getSpaceValue(3) getSpaceValue(4),
-        cell-min-height: getSpaceValue(8),
+        inner-min-height: getSpaceValue(8),
       )
     );
   }

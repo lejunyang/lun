@@ -1,15 +1,15 @@
 import { assignProps, createLunElement, getFirstThemeProvider, toElement } from 'utils';
 import { DialogProps, dialogProps } from './type';
 import { HTMLAttributes, nextTick } from 'vue';
-import { objectKeys } from '@lun-web/utils';
+import { fromObject } from '@lun-web/utils';
 import { iDialog } from './Dialog';
 import { Status, renderStatusIcon } from 'common';
 import { renderCustom } from '../custom-renderer';
 
-const initialDialogProps = objectKeys(dialogProps).reduce((acc, key) => {
-  acc[key] = undefined;
-  return acc;
-}, {} as Record<keyof typeof dialogProps, undefined>);
+const initialDialogProps = fromObject(dialogProps, (k) => [k, undefined]) as Record<
+  keyof typeof dialogProps,
+  undefined
+>;
 
 export type DialogStaticMethodParams = Omit<DialogProps, 'open'> & {
   destroyOnClose?: boolean;
