@@ -30,10 +30,10 @@ export function fromObject<
   );
 }
 
-export function createBinds<T extends object, K extends GetFunctionKeys<T> = GetFunctionKeys<T>>(obj: T, keys: K[]) {
+export function createBinds<T extends object, K extends GetFunctionKeys<T> = GetFunctionKeys<T>>(obj: T, keys: K[], ...args: any[]) {
   return keys.reduce((acc, key) => {
     const val = obj[key];
-    if (isFunction(val)) acc[key] = val.bind(obj);
+    if (isFunction(val)) acc[key] = val.bind(obj, ...args);
     return acc;
   }, {} as { [P in K]: T[P] });
 }

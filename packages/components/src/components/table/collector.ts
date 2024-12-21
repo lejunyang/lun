@@ -1,4 +1,5 @@
 import {
+  CollectorContext,
   createCollector,
   useCollectorExternalChildren,
   useExpandMethods,
@@ -28,3 +29,6 @@ export const TableColumnCollector = createCollector<TableSetupProps, TableColumn
   ...getCollectorOptions('table', true, true),
   tree: true,
 });
+
+
+export type TableColumnCollectorContext = CollectorContext<TableSetupProps, TableColumnSetupProps, TableProvideExtra>;

@@ -30,7 +30,8 @@ export type TableCellProps = Partial<{
 }> &
   HTMLAttributes;
 
-export type TableActions = 'toggleRowExpand' | (string & {});
+export type TableActionKeys = 'toggleRowExpand' | (string & {});
+export type TableActions = Record<TableActionKeys, () => void>;
 
 export const tableColumnProps = freeze({
   type: PropString<'index' | (string & {})>(),
@@ -55,11 +56,11 @@ export const tableColumnProps = freeze({
   overflow: PropString(), // TODO
   help: PropString(), // TODO
   actions: PropObjOrStr<
-    | TableActions
+    | TableActionKeys
     | ((params: InternalTableActionParams) => void)
     | Record<
         'onCellClick' | 'onCellDblclick' | 'onCellContextmenu',
-        ((params: InternalTableActionParams) => void) | TableActions
+        ((params: InternalTableActionParams) => void) | TableActionKeys
       >
   >(),
   /** @private it's for internal use, representing the column object, do not use it yourself! */
@@ -69,8 +70,23 @@ export const tableColumnProps = freeze({
 export const tableColumnEmits = createEmits<{}>([]);
 
 export type TableColumnSetupProps = Omit<ExtractPropTypes<typeof tableColumnProps>, '_'> & CommonProps;
+export type TableActionParams = {
+  row: unknown;
+  index: number;
+  key: string | number;
+  props: TableColumnSetupProps;
+  get actions(): TableActions;
+};
 export type TableColumnEvents = GetEventPropsFromEmits<typeof tableColumnEmits>;
-export type TableColumnProps = Partial<TableColumnSetupProps> & TableColumnEvents;
+export type TableColumnProps = Omit<Partial<TableColumnSetupProps>, 'actions'> & {
+  actions?:
+    | TableActionKeys
+    | ((params: TableActionParams) => void)
+    | Record<
+        'onCellClick' | 'onCellDblclick' | 'onCellContextmenu',
+        ((params: TableActionParams) => void) | TableActionKeys
+      >;
+} & TableColumnEvents;
 // -------------------------- Table Column Props --------------------------
 
 // -------------------------- Table Props --------------------------
@@ -99,7 +115,14 @@ export const tableProps = freeze({
   expandable: PropFunction<(record: unknown, rowIndex: number) => boolean>(),
   rowExpanded: PropSet(),
   expandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
-  actions: PropObjOrStr(),
+  actions: PropObjOrStr<
+    | TableActionKeys
+    | ((params: TableActionParams) => void)
+    | Record<
+        'onRowClick' | 'onRowDblclick' | 'onRowContextmenu',
+        ((params: TableActionParams) => void) | TableActionKeys
+      >
+  >(),
 });
 
 export const tableEmits = createEmits<{
@@ -110,4 +133,3 @@ export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
 export type TableProps = Partial<TableSetupProps> & TableEvents;
 // -------------------------- Table Props --------------------------
-
