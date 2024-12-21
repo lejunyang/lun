@@ -21,11 +21,10 @@ export default (
     return keys;
   });
 
-  const key = 'rowExpanded',
-    expandedModel = useValueModel(props, {
-      key,
+  const expandedModel = useValueModel(props, {
+      key: 'rowExpanded',
       hasRaw: true,
-      eventName: key,
+      eventName: 'rowExpand',
     }),
     expandedSet = useValueSet(expandedModel, true);
 

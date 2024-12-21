@@ -1,6 +1,6 @@
 import { getRect, setStyle } from '@lun-web/utils';
 import { ref } from 'vue';
-import { InternalColumn } from './type';
+import { InternalColumn } from './internalType';
 
 export default (updateColumnWidth: (column: InternalColumn, width: number) => void) => {
   const resizer = ref<HTMLElement>(),

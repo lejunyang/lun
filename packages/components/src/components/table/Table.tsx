@@ -4,7 +4,7 @@ import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useCE, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
-import { ensureArray, ensureNumber, runIfFn, toPxIfNum } from '@lun-web/utils';
+import { arrayFrom, ensureArray, ensureNumber, runIfFn, toPxIfNum } from '@lun-web/utils';
 import {
   getCollectedItemTreeLevel,
   getCollectedItemTreeParent,
@@ -104,18 +104,19 @@ export const Table = defineSSRCustomElement({
         vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
 
-    const dataTemplateRows = fComputed(() =>
-      virtualData()
-        .map(([row, i]) => (toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto') + getExpandRowHeight(row, i))
-        .join(' '),
+    const templateRows = fComputed(() =>
+      [
+        ...(props.noHeader ? [] : arrayFrom(maxLevel(), () => toPxIfNum(props.headerHeight) || 'auto')),
+        ...virtualData().map(
+          ([row, i]) => (toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto') + getExpandRowHeight(row, i),
+        ),
+      ].join(' '),
     );
     const style = fComputed(() => ({
       ...props.rootStyle,
       display: 'grid',
       gridAutoFlow: 'column',
-      gridTemplateRows:
-        (props.noHeader ? '' : `repeat(${maxLevel()}, ${toPxIfNum(props.headerHeight) || 'auto'}) `) +
-        dataTemplateRows(),
+      gridTemplateRows: templateRows(),
       gridTemplateColumns: all()
         .map((child) =>
           isCollectedItemLeaf(child)

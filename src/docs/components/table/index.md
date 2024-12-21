@@ -4,9 +4,9 @@ lang: zh-CN
 ---
 
 :::warning 注
-highly highly highly experimental
+highly highly experimental
 
-尚在初期功能实现验证阶段，初步决定使用 Grid 渲染表格，而不是 table 元素
+尚在初期功能实现验证阶段，决定使用 Grid 渲染表格，而不是 table 元素
 :::
 
 ## 基本使用
@@ -37,7 +37,9 @@ highly highly highly experimental
 
 ## 粘性列
 
-通过`sticky`属性即可将列设置为粘性列，其可以为`left`（`true`相当于`left`）或`right`。对于嵌套列来说，只需在顶层列设置即可，下面的列也会粘到同一位置
+设置`sticky`属性即可将该列将变为粘性定位，其可以为`left`（`true`相当于`left`）或`right`。对于嵌套列来说，只需在顶层列设置即可，下面的列也会粘到同一位置
+
+暂不支持将设置了`headerColSpan`的列以及后面被它覆盖的列设置为粘性列
 
 <!-- @Code:sticky -->
 
@@ -57,13 +59,64 @@ highly highly highly experimental
 
 通过`rowHeight`属性可设置行高，有效值同上，且其可以为函数，用于单独设置每一行的高度
 
-## 内容对齐方式
+## 行展开
 
-通过`justify`和`align`属性可设置单元格内容的水平/垂直对齐方式，其会给单元格设置内联`justify-content`和`align-items`，默认水平对齐为`start`，垂直对齐为`center`
+通过一系列属性可开启表格的行展开功能，并自定义行展开的渲染内容：
 
-对于嵌套列，该值不会影响其子节点列，只会影响其自身的表格头
+- `expandable`：控制哪些行可展开
+- `expandedRenderer`：控制可展开行的渲染内容，其返回内容会用自定义渲染
+- `rowExpanded`：控制哪些行已展开，其可以为 Set 或数组，值为行数据的 key（没有则为 index），可通过`rowExpand`事件监听用户展开收起
 
-<!-- @Code:align -->
+你可以在表格或表格列上设置`actions`来控制哪里可以点击展开/收起，具体可见下一节。未来会添加展开/收起列
+
+:::details 展开/收起过渡动画
+由于表格是 Grid 布局，可展开行内容由`0fr <-> 1fr`控制是否渲染，因此支持CSS过渡，你可通过表格根元素的 transition 来控制
+
+另外，你可以看到下面的例子设置了固定的行高和表头高度，这是因为发现当其为默认auto时，展开/收起一行时会出现高度抖动，不知道为什么，而展开多行时没有问题
+:::
+
+<!-- @Code:expandable -->
+
+## 行与单元格动作
+
+表格内部定义了一系列动作用于调用，用户可以自行控制在什么情况下触发这些动作（如单击某行/某单元格），目前内部的动作仅有`toggleRowExpand`，用于展开/收起当前行的内容（可参考上一节）。未来会添加展开/收起、勾选等动作，或许还可以让用户统一添加自定义动作？
+
+表格和表格列上均可以通过`actions`属性设置需要监听的事件并触发相应动作，其可以为三种格式：
+
+- 字符串：在 click 后触发相应动作
+- 函数：在 click 后调用该函数，函数参数中可以获取点击区域的相关信息，如下
+
+```ts
+export type TableActionParams = {
+  /** 当前行数据 */
+  row: unknown;
+  /** 当前行索引 */
+  index: number;
+  /** 当前行数据的key */
+  key: string | number;
+  /** 当前列的属性 */
+  props: TableColumnSetupProps;
+  /** 内部动作对象，key为动作名称，value为函数，函数无需传参，已绑定当前行和列 */
+  get actions(): TableActions;
+};
+```
+
+- 对象：不同事件触发不同动作的对象，其格式如下
+
+```ts
+// 表格列可设置的对象
+type TableColumnActions = Record<
+  'onCellClick' | 'onCellDblclick' | 'onCellContextmenu',
+  ((params: TableActionParams) => void) | TableActionKeys
+>;
+// 表格可设置的对象
+type TableActions = Record<
+  'onRowClick' | 'onRowDblclick' | 'onRowContextmenu',
+  ((params: TableActionParams) => void) | TableActionKeys
+>;
+```
+
+<!-- @Code:actions -->
 
 ## 列隐藏
 
@@ -71,11 +124,13 @@ highly highly highly experimental
 
 <!-- @Code:hidden -->
 
-## 行展开
+## 内容对齐方式
 
-通过`expandable`属性可开启行展开功能
+通过`justify`和`align`属性可设置单元格内容的水平/垂直对齐方式，其会给单元格设置内联`justify-content`和`align-items`，默认水平对齐为`start`，垂直对齐为`center`
 
-<!-- @Code:expandable -->
+对于嵌套列，该值不会影响其子节点列，只会影响其自身的表格头
+
+<!-- @Code:align -->
 
 ## 虚拟渲染
 

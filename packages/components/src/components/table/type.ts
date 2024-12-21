@@ -126,8 +126,11 @@ export const tableProps = freeze({
 });
 
 export const tableEmits = createEmits<{
-  rowExpanded: (string | number)[] | Set<string | number>;
-}>(['rowExpanded']);
+  rowExpand: {
+    raw: Set<string | number>;
+    value: (string | number)[];
+  };
+}>(['rowExpand']);
 
 export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;

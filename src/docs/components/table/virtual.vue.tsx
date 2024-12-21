@@ -33,7 +33,7 @@ const columns = [
     { header: 'age', name: 'age', sticky: 'right' },
     { header: 'address', name: 'address' },
   ],
-  data = arrayFrom(1000, (_, i) => tableData[i % tableData.length]),
+  data = arrayFrom(1000, (_, i) => ({ ...tableData[i % tableData.length], key: i })),
   [first, second, ...rest] = columns;
 
 export default () => (
