@@ -16,10 +16,12 @@ import {
   PropNumOrFunc,
   PropFunction,
   PropSet,
+  PropObjOrStr,
 } from 'common';
-import { ComponentInternalInstance, CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
+import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
 import { GetCustomRendererSource } from '../custom-renderer';
+import { InternalTableActionParams } from './internalType';
 
 export type TableCellProps = Partial<{
   colSpan: number;
@@ -27,6 +29,8 @@ export type TableCellProps = Partial<{
   innerProps: HTMLAttributes;
 }> &
   HTMLAttributes;
+
+export type TableActions = 'toggleRowExpand' | (string & {});
 
 export const tableColumnProps = freeze({
   type: PropString<'index' | (string & {})>(),
@@ -50,6 +54,14 @@ export const tableColumnProps = freeze({
   ellipsis: PropBoolean(), // TODO
   overflow: PropString(), // TODO
   help: PropString(), // TODO
+  actions: PropObjOrStr<
+    | TableActions
+    | ((params: InternalTableActionParams) => void)
+    | Record<
+        'onCellClick' | 'onCellDblclick' | 'onCellContextmenu',
+        ((params: InternalTableActionParams) => void) | TableActions
+      >
+  >(),
   /** @private it's for internal use, representing the column object, do not use it yourself! */
   _: PropObject<any>(),
 });
@@ -87,6 +99,7 @@ export const tableProps = freeze({
   expandable: PropFunction<(record: unknown, rowIndex: number) => boolean>(),
   rowExpanded: PropSet(),
   expandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
+  actions: PropObjOrStr(),
 });
 
 export const tableEmits = createEmits<{
@@ -98,4 +111,3 @@ export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
 export type TableProps = Partial<TableSetupProps> & TableEvents;
 // -------------------------- Table Props --------------------------
 
-export type InternalColumn = TableColumnSetupProps | ComponentInternalInstance;

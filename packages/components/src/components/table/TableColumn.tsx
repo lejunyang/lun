@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
-import { createDefineElement, createImportStyle, getHostStyle, getProp, isVm } from 'utils';
-import { InternalColumn, tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
+import { createDefineElement, createImportStyle, getHostStyle, getProp, getProps, isVm } from 'utils';
+import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
@@ -26,6 +26,8 @@ import {
 import { at, ensureNumber, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { renderCell } from './TableColumn.renderer';
+import useColumnActions from './table-column.actions';
+import { InternalColumn } from './internalType';
 
 const name = 'table-column';
 const parts = ['root', 'header', 'cell', 'inner-header', 'inner-cell', 'resizer'] as const;
@@ -104,7 +106,7 @@ export const TableColumn = defineSSRCustomElement({
         alignItems: getProp(column, 'align'),
       } satisfies CSSProperties);
 
-    const getCell = (column: InternalColumn, item: any, rowIndex: number, key?: any) => {
+    const getCell = (column: InternalColumn, item: any, rowIndex: number, key: any, renderIndex: number) => {
       const { rowSpan, colSpan, innerProps, ...rest } =
           runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
         cellStyle: CSSProperties = {};
@@ -133,6 +135,7 @@ export const TableColumn = defineSSRCustomElement({
           aria-rowindex={rowIndex + 1}
           role="cell"
           data-index={rowIndex}
+          data-render-index={renderIndex}
           v-show={cellShow}
           style={{ ...getStickyStyle(vm), ...getCommonStyle(column), ...cellStyle }}
           {...rest}
@@ -159,7 +162,7 @@ export const TableColumn = defineSSRCustomElement({
           header,
           headerProps: { innerProps, ...rest } = {},
           resizable,
-        } = isVm(column) ? (column.props as TableColumnSetupProps) : column,
+        } = getProps<TableColumnSetupProps>(column),
         level = getCollectedItemTreeLevel(column),
         leavesCount = getCollectedItemLeavesCount(column),
         maxLevel = context.maxLevel(),
@@ -213,8 +216,10 @@ export const TableColumn = defineSSRCustomElement({
       );
     };
 
+    const handlers = useColumnActions(getColumn, context);
+
     const wrap = (children: VNodeChild) => (
-      <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={attrs.hidden as any}>
+      <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={attrs.hidden as any} {...handlers}>
         {children}
         <slot></slot>
       </div>
@@ -227,7 +232,10 @@ export const TableColumn = defineSSRCustomElement({
       if (!isLeaf) return wrap(getHead(column));
       rowMergedCount = 0;
       clean();
-      return wrap([getHead(column), ...data().map(([row, i, key]) => getCell(column, row, i, key))]);
+      return wrap([
+        getHead(column),
+        ...data().map(([row, i, key], renderIndex) => getCell(column, row, i, key, renderIndex)),
+      ]);
     };
   },
 });

@@ -1,6 +1,6 @@
 import { defineSSRCustomElement } from 'custom';
 import { createDefineElement, getProp, renderElement } from 'utils';
-import { InternalColumn, TableColumnSetupProps, tableEmits, tableProps } from './type';
+import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useCE, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector } from './collector';
@@ -21,6 +21,7 @@ import useColumnResizer from './Table.ColumnResizer';
 import useRowExpand from './Table.RowExpand';
 import { getRowKey } from './utils';
 import { defineTableColumn } from './TableColumn';
+import { InternalColumn } from './internalType';
 
 const name = 'table';
 const parts = ['root', 'virtual-wrapper', 'expanded-content', 'resizer'] as const;

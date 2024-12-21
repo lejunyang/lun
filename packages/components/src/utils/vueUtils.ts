@@ -46,3 +46,6 @@ export const getProp = <Item extends object, Prop extends keyof Item>(
   vmOrItem: ComponentInternalInstance | Item,
   prop: Prop,
 ) => ((isVm(vmOrItem) ? vmOrItem.props : vmOrItem) as Item)[prop];
+
+export const getProps = <Item extends object>(vmOrItem: ComponentInternalInstance | Item) =>
+  isVm(vmOrItem) ? vmOrItem.props as Item : vmOrItem;

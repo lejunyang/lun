@@ -6,9 +6,10 @@ import {
   useWeakMap,
   useWeakSet,
 } from '@lun-web/core';
-import { TableSetupProps, TableColumnSetupProps, InternalColumn } from './type';
+import { TableSetupProps, TableColumnSetupProps } from './type';
 import { getCollectorOptions } from 'common';
 import { ComponentInternalInstance } from 'vue';
+import { InternalColumn } from './internalType';
 
 export type TableProvideExtra = {
   data: () => (readonly [rowData: unknown, rowIndex: number, key: any])[];
