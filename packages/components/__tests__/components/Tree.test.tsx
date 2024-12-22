@@ -30,9 +30,9 @@ const items = [
 ];
 
 const getCheckboxAndClick = async (item: Element) => {
-  const checkbox = item.shadowRoot!.querySelector('l-checkbox');
+  const checkbox = item.shadowRoot!.querySelector('l-checkbox')!;
   expect(checkbox).not.toBeNull();
-  await userEvent.click(checkbox!);
+  checkbox.click();
 };
 
 describe('Tree', () => {

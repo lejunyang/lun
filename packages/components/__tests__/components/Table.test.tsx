@@ -1,4 +1,4 @@
-import { deepCopy, getRect } from '@lun-web/utils';
+import { at, deepCopy, getRect } from '@lun-web/utils';
 import { render } from 'vitest-browser-vue';
 import { nextTick, ref } from 'vue';
 
@@ -204,8 +204,43 @@ describe('Table', () => {
     tableResizer.dispatchEvent(new PointerEvent('pointermove', { clientX: startX + 100, clientY: startY }));
     tableResizer.dispatchEvent(new PointerEvent('pointerup', { clientX: startX + 100, clientY: startY }));
 
-    await nextTick();
+    await vi.waitFor(() => expect(getRect(getColumnCells(name)[0]).width).toBe(200));
+  });
 
-    expect(getRect(nameCells[0]).width).toBe(200);
+  it('expandable rows', async () => {
+    const expanded = ref(new Set()),
+      table = ref<HTMLElement>();
+    render(() => (
+      <l-table
+        ref={table}
+        data={tableData}
+        actions="toggleRowExpand"
+        columns={[
+          { header: 'name', name: 'name', width: '1fr' },
+          { header: 'age', name: 'age', width: '1fr' },
+        ]}
+        expandable={() => true}
+        expandedRenderer={(row) => row.address}
+        rowExpanded={expanded.value}
+        onRowExpand={(e) => {
+          expanded.value = e.detail.raw;
+        }}
+      ></l-table>
+    ));
+    await nextTick();
+    const tableShadowRoot = table.value!.shadowRoot!;
+    const expandedEls = Array.from(tableShadowRoot.firstElementChild!.children).slice(0, 5) as HTMLElement[];
+    expandedEls.forEach((el) => {
+      expect(el.classList.contains('l-table__expanded-content')).toBe(true);
+      expect(el.offsetHeight).toBe(0);
+    });
+
+    const firstCol = tableShadowRoot.querySelector('l-table-column');
+    const colCells = getColumnCells(firstCol);
+    at(colCells, -1)!.click();
+
+    await nextTick();
+    expect(expanded.value).to.deep.equal(new Set(['5']));
+    await vi.waitFor(() => expect(at(expandedEls, -1)!.offsetHeight).toBeGreaterThan(0));
   });
 });
