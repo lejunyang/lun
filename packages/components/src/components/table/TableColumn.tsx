@@ -36,7 +36,7 @@ export const TableColumn = defineSSRCustomElement({
   name,
   props: tableColumnProps,
   emits: tableColumnEmits,
-  setup(props, { attrs }) {
+  setup(props) {
     const ns = useNamespace(name);
     const context = TableColumnCollector.child();
     if (!context) throw new Error(__DEV__ ? 'table-column must be under a lun table element' : '');
@@ -219,7 +219,13 @@ export const TableColumn = defineSSRCustomElement({
     const handlers = useColumnActions(getColumn, context);
 
     const wrap = (children: VNodeChild) => (
-      <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={attrs.hidden as any} {...handlers}>
+      <div
+        class={ns.t}
+        part={compParts[0]}
+        style={{ display: 'contents' }}
+        hidden={getProp(getColumn(), 'hidden')}
+        {...handlers}
+      >
         {children}
         <slot></slot>
       </div>

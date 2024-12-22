@@ -3,7 +3,7 @@ import { createDefineElement, getProp, renderElement } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useCE, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
-import { TableColumnCollector } from './collector';
+import { TableColumnCollector, TableState } from './collector';
 import { arrayFrom, ensureArray, ensureNumber, runIfFn, toPxIfNum } from '@lun-web/utils';
 import {
   getCollectedItemTreeLevel,
@@ -16,7 +16,7 @@ import {
   fComputed,
   useVirtualList,
 } from '@lun-web/core';
-import { ComponentInternalInstance, computed, watchEffect } from 'vue';
+import { ComponentInternalInstance, computed, shallowReactive, watchEffect } from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
 import useRowExpand from './Table.RowExpand';
 import { getRowKey } from './utils';
@@ -39,6 +39,10 @@ export const Table = defineSSRCustomElement({
       columnVmMap = useWeakMap<TableColumnSetupProps, ComponentInternalInstance>(),
       getColumnVm = columnVmMap[1],
       [, getColumnWidth, setColumnWidth] = useWeakMap<InternalColumn, number>();
+
+    const state = shallowReactive({
+      hoveringIndex: null,
+    }) as TableState;
 
     const data = computed(() => ensureArray(props.data));
     const [columns, renderColumns] = useCollectorExternalChildren(
@@ -85,6 +89,7 @@ export const Table = defineSSRCustomElement({
         virtual,
         data: virtualData,
         rowExpand,
+        state,
       },
     });
 
@@ -119,7 +124,7 @@ export const Table = defineSSRCustomElement({
       gridTemplateRows: templateRows(),
       gridTemplateColumns: all()
         .map((child) =>
-          isCollectedItemLeaf(child)
+          isCollectedItemLeaf(child) && !getProp(child, 'hidden')
             ? toPxIfNum(getColumnWidth(child) ?? getProp(child, 'width')) || 'max-content'
             : '',
         )

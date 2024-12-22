@@ -12,6 +12,10 @@ import { getCollectorOptions } from 'common';
 import { ComponentInternalInstance } from 'vue';
 import { InternalColumn } from './internalType';
 
+export type TableState = {
+  hoveringIndex: number | null;
+};
+
 export type TableProvideExtra = {
   data: () => (readonly [rowData: unknown, rowIndex: number, key: any])[];
   maxLevel: () => number;
@@ -23,6 +27,7 @@ export type TableProvideExtra = {
   showResize(target: HTMLElement, column: InternalColumn): void;
   virtual: ReturnType<typeof useVirtualList>;
   rowExpand: ReturnType<typeof useExpandMethods>;
+  state: TableState;
 };
 
 export const TableColumnCollector = createCollector<TableSetupProps, TableColumnSetupProps, TableProvideExtra, true>({
