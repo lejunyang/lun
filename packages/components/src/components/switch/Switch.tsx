@@ -1,10 +1,10 @@
 import { defineSSRCustomElement } from 'custom';
 import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement } from 'utils';
-import { useCEStates, useCheckedModel, useNamespace } from 'hooks';
+import { interceptCEMethods, useCEStates, useCheckedModel, useNamespace } from 'hooks';
 import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
-import { Transition } from 'vue';
+import { ref, Transition } from 'vue';
 import { getCompParts } from 'common';
 import { isFunction, noop, promiseTry } from '@lun-web/utils';
 
@@ -21,6 +21,7 @@ export const Switch = defineSSRCustomElement({
     useSetupEvent();
     const checkedModel = useCheckedModel(props);
     const [editComputed, editState] = useSetupEdit();
+    const inputEl = ref<HTMLElement>();
 
     const inputHandlers = {
       onChange(e: Event) {
@@ -42,6 +43,7 @@ export const Switch = defineSSRCustomElement({
     };
 
     const [stateClass] = useCEStates(() => ({ checked: checkedModel.value }));
+    interceptCEMethods(inputEl);
 
     return () => {
       const checked = checkedModel.value;
@@ -51,6 +53,7 @@ export const Switch = defineSSRCustomElement({
         <>
           <label part={compParts[0]} class={stateClass.value}>
             <input
+              ref={inputEl}
               part={compParts[1]}
               type="checkbox"
               role="switch"

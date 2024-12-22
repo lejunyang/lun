@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
-import { useCEStates, useNamespace } from 'hooks';
+import { interceptCEMethods, useCEStates, useNamespace } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioProps } from './type';
 import { virtualGetMerge } from '@lun-web/utils';
@@ -22,6 +22,7 @@ export const Radio = defineSSRCustomElement({
     const radioContext = RadioCollector.child();
     const ns = useNamespace(name, { parent: radioContext?.parent });
     const mergedProps = virtualGetMerge(props, radioContext?.parent?.props);
+    const inputEl = ref<HTMLInputElement>();
 
     const checked = computed(() => {
       if (!radioContext?.parent) return props.checked;
@@ -50,6 +51,7 @@ export const Radio = defineSSRCustomElement({
         end: button && (props.end || radioContext?.isEnd),
       };
     });
+    interceptCEMethods(inputEl)
 
     return () => {
       const { labelPosition, noIndicator } = mergedProps;
@@ -62,6 +64,7 @@ export const Radio = defineSSRCustomElement({
         <label part={compParts[0]} class={stateClass.value}>
           {labelPosition === 'start' && labelPart}
           <input
+            ref={inputEl}
             type={name}
             checked={checked.value}
             value={props.value}

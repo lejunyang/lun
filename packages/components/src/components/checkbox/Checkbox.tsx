@@ -1,8 +1,8 @@
 import { defineSSRCustomElement } from 'custom';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement, warn } from 'utils';
-import { useCEStates, useCheckedModel, useExpose, useNamespace } from 'hooks';
+import { interceptCEMethods, useCEStates, useCheckedModel, useExpose, useNamespace } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -36,6 +36,7 @@ export const Checkbox = defineSSRCustomElement({
       if (props.checkForAll && !checkboxContext)
         warn(`checkbox with 'checkForAll' only works under checkbox-group, unless you want to manipulate it manually`);
     }
+    const inputEl = ref<HTMLInputElement>();
 
     const intermediate = computed(() => {
       if (!checkboxContext || props.excludeFromGroup) return props.intermediate && !props.checked;
@@ -81,6 +82,7 @@ export const Checkbox = defineSSRCustomElement({
       on: [checked, intermediate],
     }));
 
+    interceptCEMethods(inputEl);
     useExpose(refLikesToGetters({ disabled: () => editComputed.disabled }));
     return () => {
       const isChecked = checked.value,
@@ -108,6 +110,7 @@ export const Checkbox = defineSSRCustomElement({
                 {renderElement('icon', { name: 'dash', style: 'width: 100%; height: 100%' })}
               </slot>
               <input
+                ref={inputEl}
                 class={[ns.e('input')]}
                 part={compParts[2]}
                 type={name}

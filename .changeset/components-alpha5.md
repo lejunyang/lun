@@ -10,6 +10,7 @@
 - `form-item`: distinguish rawRule and rule
 - `form-item`: support type=date min/max, greaterThan/lessThan transform
 - add `addUserComponent` util
+- intercept `click`, `focus`, `blur` methods of `checkbox`, `radio`, `switch` to make them work for imperative call
 
 ### Changes
 
