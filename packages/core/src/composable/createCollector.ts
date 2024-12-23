@@ -23,7 +23,7 @@ import {
 } from 'vue';
 import { ensureArray, isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter, toUnrefGetterDescriptors, unrefOrGet } from '../utils';
-import { createMapCountMethod, useWeakMap } from '../hooks';
+import { createMapCountMethod, useRefWeakMap } from '../hooks';
 
 type Data = Record<string, unknown>;
 type InstanceWithProps<P = Data> = ComponentInternalInstance & {
@@ -52,18 +52,18 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
 
-const [, getTreeChildren, setTreeChildren, deleteTreeChildren] = useWeakMap<
+const [getTreeChildren, setTreeChildren, deleteTreeChildren] = useRefWeakMap<
     any,
     Ref<InstanceWithProps<any>[]> | unknown[]
   >(),
-  [, getTreeLevel, setTreeLevel, deleteTreeLevel] = useWeakMap<any, Ref<number> | number>(),
-  [, getTreeParent, setTreeParent, deleteTreeParent] = useWeakMap<any, any>(),
-  [, getIndex, setIndex] = useWeakMap<any, number>(),
+  [getTreeLevel, setTreeLevel, deleteTreeLevel] = useRefWeakMap<any, Ref<number> | number>(),
+  [getTreeParent, setTreeParent, deleteTreeParent] = useRefWeakMap<any, any>(),
+  [getIndex, setIndex] = useRefWeakMap<any, number>(),
   /** tree index is the index among the children of same parent in tree */
-  [, getTreeIndex, setTreeIndex] = useWeakMap<any, number>(),
-  [, getIsLeaf, setItemLeaf] = useWeakMap<any, boolean>(),
-  leavesCountMap = useWeakMap<any, number>(),
-  [, getLeavesCount] = leavesCountMap,
+  [getTreeIndex, setTreeIndex] = useRefWeakMap<any, number>(),
+  [getIsLeaf, setItemLeaf] = useRefWeakMap<any, boolean>(),
+  leavesCountMap = useRefWeakMap<any, number>(),
+  [getLeavesCount] = leavesCountMap,
   leavesCountUp = createMapCountMethod(leavesCountMap, 1),
   leavesCountDown = createMapCountMethod(leavesCountMap, -1);
 
@@ -407,6 +407,9 @@ export function useCollectorExternalChildren<T extends Record<string, unknown>, 
     treeItems: [] as T[],
     maxChildLevel: 0,
   });
+  // TODO 想想如何优化，不能一点小的变动就全部重新执行，可以考虑在render时添加onVnodeUnmounted这些，以便于局部更新
+  // 而且目前props items和children混用会有index问题
+  // 是否可以考虑在custom element时不用instance，而是用el。在onVnodeBeforeMount时也可以通过vnode拿到el，而不用等ref
   watchEffect(() => {
     onEffectStart && onEffectStart();
     const items = unrefOrGet(itemsGetter),

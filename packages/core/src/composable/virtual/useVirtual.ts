@@ -15,7 +15,7 @@ import {
 } from '@lun-web/utils';
 import { UseVirtualMeasurement, UseVirtualOptions } from './type';
 import { calculateRange, getEntryBorderSize, getFurthestMeasurement } from './utils';
-import { useCleanUp } from '../../hooks';
+import { useCleanUp, useRefMap } from '../../hooks';
 
 // inspired by tanstack/virtual
 
@@ -29,8 +29,7 @@ export function useVirtualList(options: UseVirtualOptions) {
       itemsArr = ensureArray(unrefOrGet(items)),
       overscanArr = ensureArray(runIfFn(overscan, itemsArr, state));
     let temp: number, disable: boolean | undefined;
-    if ((disable = (!estimatedSize && !fixedSize) || !itemsArr.length || runIfFn(disabled, itemsArr)))
-      keySizeMap.clear();
+    if ((disable = (!estimatedSize && !fixedSize) || !itemsArr.length || runIfFn(disabled, itemsArr))) clearKeySize();
     return {
       lanes: lanesNum < 1 ? 1 : lanesNum | 0,
       gap: ensureNumber(gap, 0),
@@ -44,7 +43,7 @@ export function useVirtualList(options: UseVirtualOptions) {
   });
 
   const keyElementMap = new Map<any, Element>(),
-    keySizeMap = reactive(new Map<any, number>());
+    [getKeySize, setKeySize, , clearKeySize] = useRefMap<any, number>();
   let pendingMeasuredIndex = -1,
     containerEl: HTMLElement;
   const state = reactive({
@@ -134,7 +133,7 @@ export function useVirtualList(options: UseVirtualOptions) {
       const offsetStart = furtherMeasurement
         ? furtherMeasurement.offsetEnd + ensureNumber(gap, 0)
         : ensureNumber(paddingStart, 0) + ensureNumber(scrollMargin, 0);
-      const size = keySizeMap.get(key) ?? +runIfFn(fixedSize || estimatedSize, item, minI)!;
+      const size = getKeySize(key) ?? +runIfFn(fixedSize || estimatedSize, item, minI)!;
       if (__DEV__ && !(size > 0)) {
         console.error('[useVirtual] Invalid item size for item at index ' + minI + '.');
       }
@@ -154,7 +153,7 @@ export function useVirtualList(options: UseVirtualOptions) {
   const updateItemSize = (index: number, size: number) => {
     const measurement = measurements.value[index];
     if (!measurement) return;
-    const itemSize = keySizeMap.get(measurement.key) ?? measurement.size;
+    const itemSize = getKeySize(measurement.key) ?? measurement.size;
     const delta = size - itemSize;
     if (!delta) {
       if (
@@ -165,7 +164,7 @@ export function useVirtualList(options: UseVirtualOptions) {
         syncScroll();
       }
       pendingMeasuredIndex = pendingMeasuredIndex >= 0 ? Math.min(pendingMeasuredIndex, index) : index;
-      keySizeMap.set(measurement.key, size);
+      setKeySize(measurement.key, size);
     }
   };
   const updateMeasure = (el: Element, entry?: ResizeObserverEntry) => {

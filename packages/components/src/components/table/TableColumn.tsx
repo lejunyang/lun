@@ -44,9 +44,9 @@ export const TableColumn = defineSSRCustomElement({
     const getColumn = () => props._ || rootVm;
     useExpose(context);
     const { collapsed, cellMerge, data, columnVmMap, all, virtual, parent } = context,
-      [, isCollapsed] = collapsed,
-      [, getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
-      [, getColumnVm, setColumnVm] = columnVmMap,
+      [isCollapsed] = collapsed,
+      [getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
+      [getColumnVm, setColumnVm] = columnVmMap,
       rawCellMerge = toRaw(cellMerge.value);
     const headerEl = ref<HTMLElement>(),
       cells = ref<HTMLElement[]>([]);

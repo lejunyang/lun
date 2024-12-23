@@ -128,7 +128,7 @@ const createUseSetOrMap =
       result = (shallow ? shallowRef : ref)<T>(new constructor()),
       isSet = type === S || type === WS;
     // @ts-expect-error
-    const binds = createUnrefCalls(result, 'add', 'has', 'set', 'get', 'delete', 'forEach') as any,
+    const binds = createUnrefCalls(result, 'add', 'has', 'set', 'get', 'delete', 'forEach', 'keys') as any,
       replace = (newObj: T = new constructor()) => (result.value = newObj);
     const arr = Object.assign([isSet ? binds.has : binds.get, isSet ? binds.add : binds.set, binds.delete, replace], {
       replace,
@@ -165,7 +165,7 @@ type GetIterableRefWithMethods<
  */
 export const useRefSet = createUseSetOrMap(S) as any as <K>() => GetIterableRefWithMethods<
   Set<K>,
-  ['add', 'has', 'delete', 'forEach']
+  ['add', 'has', 'delete', 'forEach', 'keys']
 >;
 
 /**
@@ -173,7 +173,7 @@ export const useRefSet = createUseSetOrMap(S) as any as <K>() => GetIterableRefW
  */
 export const useShallowRefSet = createUseSetOrMap(S, 1) as any as <K>() => GetIterableRefWithMethods<
   Set<K>,
-  ['add', 'has', 'delete', 'forEach'],
+  ['add', 'has', 'delete', 'forEach', 'keys'],
   true
 >;
 
@@ -197,7 +197,7 @@ export const useShallowRefWeakSet = createUseSetOrMap(WS, 1) as any as <
  */
 export const useRefMap = createUseSetOrMap(M) as any as <K, V>() => GetIterableRefWithMethods<
   Map<K, V>,
-  ['get', 'has', 'set', 'delete', 'forEach']
+  ['get', 'has', 'set', 'delete', 'forEach', 'keys']
 >;
 
 /**
@@ -205,7 +205,7 @@ export const useRefMap = createUseSetOrMap(M) as any as <K, V>() => GetIterableR
  */
 export const useShallowRefMap = createUseSetOrMap(M, 1) as any as <K, V>() => GetIterableRefWithMethods<
   Map<K, V>,
-  ['get', 'has', 'set', 'delete', 'forEach'],
+  ['get', 'has', 'set', 'delete', 'forEach', 'keys'],
   true
 >;
 

@@ -1,8 +1,9 @@
-import { reactive, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 import { isElement, isSupportResizeObserver, isTextOverflow } from '@lun-web/utils';
 import { tryOnScopeDispose } from './lifecycle';
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../utils';
 import { PopoverAttachTargetOptions } from '../composable';
+import { useRefSet, useRefWeakMap } from './state';
 
 export type UseOverflowWatcherOptions = {
   isDisabled?: MaybeRefLikeOrGetter<boolean>;
@@ -20,8 +21,9 @@ export type UseOverflowWatcherAttachOptions = Parameters<typeof isTextOverflow>[
 export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
   const { onOverflowChange, box, isDisabled, onAttach, onDetach } = options;
   const targetOptionMap = new WeakMap<Element, UseOverflowWatcherAttachOptions | undefined>(),
-    overflowStateMap = reactive(new WeakMap<Element, boolean>()),
-    openSet = reactive(new Set<Element>());
+    [getOverflowState, setOverflowState, deleteOverflowState] = useRefWeakMap<Element, boolean>(),
+    openSet = useRefSet<Element>(),
+    [, addOpenEl, deleteOpenEl, clearOpenEl] = openSet;
 
   let observer: ResizeObserver | null = null;
 
@@ -31,23 +33,23 @@ export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
       const options = targetOptionMap.get(target);
       const { isDisabled, overflow } = options || {};
       if (unrefOrGet(isDisabled)) {
-        overflowStateMap.delete(target);
-        openSet.delete(target);
+        deleteOverflowState(target);
+        deleteOpenEl(target);
         continue;
       }
       const temp = isTextOverflow(target as HTMLElement, options),
-        original = overflowStateMap.get(target);
+        original = getOverflowState(target);
       if (temp !== original) {
-        overflowStateMap.set(target, temp);
-        if (temp && unrefOrGet(overflow) === 'open') openSet.add(target);
-        else openSet.delete(target);
+        setOverflowState(target, temp);
+        if (temp && unrefOrGet(overflow) === 'open') addOpenEl(target);
+        else deleteOpenEl(target);
         onOverflowChange?.({ target, isOverflow: temp });
       }
     }
   };
 
   const clean = () => {
-    openSet.clear();
+    clearOpenEl();
     if (observer) {
       observer.disconnect();
       observer = null;
@@ -77,8 +79,8 @@ export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
     if (!isElement(el)) return;
     if (observer) observer.unobserve(el);
     targetOptionMap.delete(el);
-    overflowStateMap.delete(el);
-    openSet.delete(el);
+    deleteOverflowState(el);
+    deleteOpenEl(el);
     onDetach?.(el);
   };
 
@@ -95,7 +97,7 @@ export function useOverflowWatcher(options: UseOverflowWatcherOptions) {
       attachTarget,
       detachTarget,
       isOverflow(el: any) {
-        return overflowStateMap.get(el) || false;
+        return getOverflowState(el) || false;
       },
     },
     targetOptionMap,

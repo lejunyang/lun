@@ -48,7 +48,7 @@ const Tooltip = defineSSRCustomElement({
 
     return () => {
       const { open, target, content, anchorName } = props;
-      const overflowOpenEl = getFirstOfIterable(openSet);
+      const overflowOpenEl = getFirstOfIterable(openSet.value);
       const overflowOpen = overflowOpenEl ? true : undefined;
       return (
         <>

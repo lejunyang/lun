@@ -13,8 +13,9 @@ import {
   useNativeDialog,
   useSetupEdit,
   useSetupEvent,
+  useRefWeakMap,
 } from '@lun-web/core';
-import { Transition, TransitionProps, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue';
+import { Transition, TransitionProps, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { getCompParts, getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
@@ -37,7 +38,7 @@ const name = 'dialog';
 const parts = ['root', 'mask', 'panel', 'header', 'close', 'content', 'footer'] as const;
 const compParts = getCompParts(name, parts);
 /** a map to store all showing dialogs with mask in each container, to make sure only one mask is shown in each container at the same time. */
-const containerShowing = reactive(new WeakMap<HTMLElement | Window, HTMLElement[]>());
+const [getContainerShowing, setContainerShowing] = useRefWeakMap<HTMLElement | Window, HTMLElement[]>();
 export const Dialog = Object.assign(
   defineSSRCustomElement({
     name,
@@ -80,9 +81,9 @@ export const Dialog = Object.assign(
                 if ((maskShow.value = !noMask)) {
                   const con = lastContainer.value;
                   if (con) {
-                    const showing = containerShowing.get(con) || [];
+                    const showing = getContainerShowing(con) || [];
                     showing.push(dialog);
-                    containerShowing.set(con, showing);
+                    setContainerShowing(con, showing);
                   }
                 }
               }
@@ -93,8 +94,8 @@ export const Dialog = Object.assign(
               if (dialog) {
                 openModel.value = isOpen.value = maskShow.value = false;
                 if (container) {
-                  const showing = (containerShowing.get(container) || []).filter((el) => el !== dialog);
-                  containerShowing.set(container, showing);
+                  const showing = (getContainerShowing(container) || []).filter((el) => el !== dialog);
+                  setContainerShowing(container, showing);
                   lastContainer.value = undefined;
                 }
                 if (isUnmounting) return;
@@ -144,7 +145,7 @@ export const Dialog = Object.assign(
         const el = dialogRef.value,
           mask = maskRef.value!;
         if (!el || !mask) return;
-        if (at(containerShowing.get(lastContainer.value!), -1) === el) mask.style.display = '';
+        if (at(getContainerShowing(lastContainer.value!), -1) === el) mask.style.display = '';
         else mask.style.display = 'none';
       });
 
@@ -213,13 +214,11 @@ export const Dialog = Object.assign(
         },
       });
 
-      const [stateClass] = useCEStates(
-        () => ({
-          noTopLayer: props.noTopLayer || !supportDialog,
-          confirm: props.isConfirm,
-          noMask: props.noMask,
-        })
-      );
+      const [stateClass] = useCEStates(() => ({
+        noTopLayer: props.noTopLayer || !supportDialog,
+        confirm: props.isConfirm,
+        noMask: props.noMask,
+      }));
 
       const [renderHeader] = useSlot('header', () => props.header);
       const [renderContent] = useSlot(undefined, () => props.content);

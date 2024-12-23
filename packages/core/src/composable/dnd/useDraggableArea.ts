@@ -1,7 +1,7 @@
 import { MaybeRefLikeOrGetter, unrefOrGet } from '../../utils';
-import { reactive, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 import { clamp, on, prevent, rafThrottle, runIfFn, numbersEqual, getRect, roundByDPR } from '@lun-web/utils';
-import { useCleanUp } from '../../hooks';
+import { useCleanUp, useRefWeakMap } from '../../hooks';
 import { useTempInlineStyle } from '../dialog/useTempInlineStyle';
 
 // https://www.redblobgames.com/making-of/draggable/
@@ -93,7 +93,8 @@ export function useDraggableArea({
   /** haven't tested */
   nested?: boolean;
 }) {
-  const targetStates = reactive(new WeakMap<Element, DraggableElementState>());
+  const targetStates = useRefWeakMap<Element, DraggableElementState>(),
+    [getTargetStates, setTargetStates] = targetStates;
   let draggingCount = 0;
   const [storeAndSetStyle, restoreElStyle] = useTempInlineStyle(true);
 
@@ -122,7 +123,7 @@ export function useDraggableArea({
     if (button !== 0 || (ignoreWhenAlt && altKey)) return; // left button only
     const targetEl = target as Element,
       keyEl = asWhole ? unrefOrGet(el)! : targetEl;
-    const state = targetStates.get(keyEl);
+    const state = getTargetStates(keyEl);
     if (!draggable(targetEl, e, state)) return;
     // sometimes we can't stopPropagation, e.g. in popover content(ColorPicker). Popover also listens to pointerdown event to prevent unexpected closing
     if (nested) e.stopPropagation(); // for nested
@@ -152,7 +153,7 @@ export function useDraggableArea({
       pointerId,
     };
     if (!state || !rememberRelative) {
-      targetStates.set(
+      setTargetStates(
         keyEl,
         getState({
           relativeX: 0,
@@ -177,7 +178,7 @@ export function useDraggableArea({
 
   const handleEnd = ({ target }: PointerEvent) => {
     const targetEl = target as Element;
-    const state = targetStates.get(asWhole ? unrefOrGet(el)! : targetEl);
+    const state = getTargetStates(asWhole ? unrefOrGet(el)! : targetEl);
     if (!draggingCount || !state?.dragging) return;
     draggingCount -= 1;
     restoreElStyle(targetEl);
@@ -188,7 +189,7 @@ export function useDraggableArea({
   const emitMove = rafThrottle(
     (el: Element, state: DraggableElementState, oldState: DraggableElementState, keyEl: Element) => {
       if (runIfFn(onMove, el, state, oldState) !== false) {
-        targetStates.set(keyEl, state);
+        setTargetStates(keyEl, state);
       }
     },
     animationFrames,
@@ -198,7 +199,7 @@ export function useDraggableArea({
     const targetEl = e.target as Element,
       container = unrefOrGet(el)!,
       keyEl = asWhole ? container : targetEl;
-    const state = targetStates.get(keyEl);
+    const state = getTargetStates(keyEl);
     // check pointerId for touch devices simultaneous dragging
     if (!draggingCount || !state?.dragging || state.pointerId !== e.pointerId) return;
     if (nested) e.stopPropagation(); // for nested

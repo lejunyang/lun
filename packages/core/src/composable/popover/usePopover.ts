@@ -3,7 +3,6 @@ import {
   isElement,
   ensureArray,
   on,
-  off,
   noop,
   isEditElement,
   getDeepestActiveElement,
@@ -16,8 +15,8 @@ import {
   setIntersectOrHas,
   getRect,
 } from '@lun-web/utils';
-import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue';
-import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted } from '../../hooks';
+import { computed, nextTick, ref, watch, watchEffect } from 'vue';
+import { VirtualElement, tryOnScopeDispose, useClickOutside, useMounted, useRefMap, useRefWeakMap } from '../../hooks';
 import { objectComputed, unrefOrGet, unrefOrGetMulti } from '../../utils';
 import { useListen } from './useListen';
 import { createPopoverRectTarget } from './utils';
@@ -160,21 +159,23 @@ export function usePopover(_options: UsePopoverOptions) {
 
   // ------------------ extra targets ------------------
   // it's to support attaching events of triggering popover on other elements in an imperative manner
-  const extraTargetsMap = reactive(new Map<Element, ReturnType<typeof createTargetHandlers>>()),
-    extraTargetsOptionMap = reactive(new WeakMap<Element, PopoverAttachTargetOptions>());
+  const extraTargetCleanMap = useRefMap<Element, (() => void)[]>(),
+    [getExtraTargetClean, setExtraTargetClean, deleteExtraTargetClean] = extraTargetCleanMap,
+    extraTargetsOptionMap = useRefWeakMap<Element, PopoverAttachTargetOptions>(),
+    [getExtraTargetOptions, setExtraTargetOptions, deleteExtraTargetOptions] = extraTargetsOptionMap;
   const activeExtraTarget = ref<Element>(),
-    activeExtraTargetOptions = computed(() => extraTargetsOptionMap.get(activeExtraTarget.value!));
+    activeExtraTargetOptions = computed(() => getExtraTargetOptions(activeExtraTarget.value!));
   const methods = {
     attachTarget(target?: Element, options: PopoverAttachTargetOptions = {}) {
-      let originalOptions = extraTargetsOptionMap.get(target!);
+      let originalOptions = getExtraTargetOptions(target!);
       if (!isElement(target)) return;
       if (originalOptions && originalOptions !== options) {
-        extraTargetsOptionMap.set(target, options);
+        setExtraTargetOptions(target, options);
         return;
       }
       const targetHandlers = createTargetHandlers((e, method) => {
         if (method === 'open') {
-          if (unrefOrGet(extraTargetsOptionMap.get(target)?.isDisabled)) return false;
+          if (unrefOrGet(getExtraTargetOptions(target)?.isDisabled)) return false;
           // consider pointerdown also as focusin, or pointerdown can be prevented because of needPrevent when switching targets
           if (e.type !== 'focusin' && e.type !== 'pointerdown' && needPrevent(e, false)) {
             return false;
@@ -183,28 +184,26 @@ export function usePopover(_options: UsePopoverOptions) {
         }
         // no need to clear activeTarget when close, as every open will reset activeTarget
       });
-      extraTargetsMap.set(target, targetHandlers);
-      extraTargetsOptionMap.set(target, options);
-      for (const [key, handler] of Object.entries(targetHandlers)) {
-        on(target, key.slice(2).toLowerCase(), handler);
-      }
+      setExtraTargetClean(
+        target,
+        Object.entries(targetHandlers).map(([key, handler]) => on(target, key.slice(2).toLowerCase(), handler)),
+      );
+      setExtraTargetOptions(target, options);
     },
     detachTarget(target?: Element) {
       if (!isElement(target)) return;
-      const targetHandlers = extraTargetsMap.get(target);
+      const targetHandlers = getExtraTargetClean(target);
       if (!targetHandlers) return;
-      for (const [key, handler] of Object.entries(targetHandlers)) {
-        off(target, key.slice(2).toLowerCase(), handler);
-      }
-      extraTargetsMap.delete(target);
-      extraTargetsOptionMap.delete(target);
+      targetHandlers.forEach((offFn) => offFn());
+      deleteExtraTargetClean(target);
+      deleteExtraTargetOptions(target);
       if (target === activeExtraTarget.value) {
         options.closeNow();
         activeExtraTarget.value = undefined;
       }
     },
     detachAll() {
-      for (const target of extraTargetsMap.keys()) {
+      for (const target of extraTargetCleanMap.keys()) {
         methods.detachTarget(target);
       }
     },
@@ -272,7 +271,7 @@ export function usePopover(_options: UsePopoverOptions) {
         // we need to prevent this
         // if (targetFocusInTime - pointerDownTime < options.targetFocusThreshold) return false; // targetFocusInTime - pointerDownTime is not reliable, it can be 10+ms or 20+ms, use isShow instead
         // if (unrefOrGet(options.isShow) && !extraTargetsMap.value.has(e.currentTarget as any)) return false;
-        if (isClosing.value && !extraTargetsMap.has(cur)) {
+        if (isClosing.value && !getExtraTargetOptions(cur)) {
           return false;
         }
         return onTrigger(e, m);
@@ -348,7 +347,7 @@ export function usePopover(_options: UsePopoverOptions) {
       return 'close';
     }
     // options.target is a slot element, seems that slot element is always false when calling containsNode, so we need to get the host element
-    const target = [toHostIfSlot(unrefOrGet(_options.target)), ...extraTargetsMap.keys()].find(
+    const target = [toHostIfSlot(unrefOrGet(_options.target)), ...extraTargetCleanMap.keys()].find(
       (e) => isNode(e) && selection.containsNode(e, true),
     );
     if (target) {

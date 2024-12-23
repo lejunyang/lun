@@ -9,7 +9,7 @@ import {
   shallowRef,
   watchEffect,
 } from 'vue';
-import { useWeakMap } from '../../hooks';
+import { useRefWeakMap } from '../../hooks';
 import { isCollectedItemLeaf } from '../createCollector';
 import { useResizeObserver } from '../createUseObserver';
 import { at, getRect } from '@lun-web/utils';
@@ -23,7 +23,7 @@ type StickyContext = [
   trackElWithVm: (el: Element, vm: ComponentInternalInstance) => void,
   isStickEnd: (vm: ComponentInternalInstance | undefined) => boolean | undefined,
 ];
-const [, getWidth, setWidth] = useWeakMap<ComponentInternalInstance, number | undefined | null>();
+const [getWidth, setWidth] = useRefWeakMap<ComponentInternalInstance, number | undefined | null>();
 const processType = (type: ReturnType<StickyContext[1]>) => (type === true ? 'left' : type || undefined);
 export function useStickyTable(childrenVmGetter: () => (ComponentInternalInstance | undefined)[], getStickyType: StickyContext[1]) {
   const state = reactive({
@@ -47,7 +47,7 @@ export function useStickyTable(childrenVmGetter: () => (ComponentInternalInstanc
     state.right.reverse();
   });
   const elVmMap = new WeakMap<Element, InstanceWithKey>(),
-    [, getVmEl, setVmEl] = useWeakMap<ComponentInternalInstance, Element>();
+    [getVmEl, setVmEl] = useRefWeakMap<ComponentInternalInstance, Element>();
   useResizeObserver({
     targets: () => state.left.concat(state.right).map((vm) => getVmEl(vm)),
     observeOptions: {
@@ -102,7 +102,7 @@ export function useStickyTable(childrenVmGetter: () => (ComponentInternalInstanc
 }
 
 type StickyStyle = { position: 'sticky'; left?: number; right?: number } | undefined;
-const [, getStyle, setStyle] = useWeakMap<ComponentInternalInstance, ShallowRef<StickyStyle>>();
+const [getStyle, setStyle] = useRefWeakMap<ComponentInternalInstance, ShallowRef<StickyStyle>>();
 // maybe need to refactor. previously need to render all columns in the root column, so need to use vm as key
 export function useStickyColumn() {
   const vm = getCurrentInstance() as InstanceWithKey;

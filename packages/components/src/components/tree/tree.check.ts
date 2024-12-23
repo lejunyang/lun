@@ -2,9 +2,9 @@ import {
   getCollectedItemTreeLevel,
   ToAllMaybeRefLike,
   useCheckboxMethods,
-  useSet,
-  useWeakMap,
-  useWeakSet,
+  useRefSet,
+  useRefWeakMap,
+  useRefWeakSet,
   getCollectedItemTreeParent,
   getCollectedItemTreeChildren,
   isCollectedItemLeaf,
@@ -31,12 +31,12 @@ export function useTreeCheckMethods(
     valueToChild: (value: any) => Item | undefined;
   },
 ) {
-  const correctedCheckedSet = useSet(),
-    [replaceChecked, _hasChecked, addChecked] = correctedCheckedSet,
-    itemDirectCheckedChildrenCountMap = useWeakMap<Item, number>(),
-    [replaceCheckedCount, getCheckedCount, setCheckedCount] = itemDirectCheckedChildrenCountMap,
-    [replaceDisabledCount, getDisabledCount] = useWeakMap<Item, number>(),
-    [replaceIntermediate, hasIntermediate, addIntermediate, deleteIntermediate] = useWeakSet<Item>();
+  const correctedCheckedSet = useRefSet(),
+    [, addChecked, , replaceChecked] = correctedCheckedSet,
+    itemDirectCheckedChildrenCountMap = useRefWeakMap<Item, number>(),
+    [getCheckedCount, setCheckedCount, , replaceCheckedCount] = itemDirectCheckedChildrenCountMap,
+    [getDisabledCount, , , replaceDisabledCount] = useRefWeakMap<Item, number>(),
+    [hasIntermediate, addIntermediate, deleteIntermediate, replaceIntermediate] = useRefWeakSet<Item>();
   const { current, onChange, valueToChild, childrenInfo } = options;
   const countUp = createMapCountMethod(itemDirectCheckedChildrenCountMap, 1),
     countDown = createMapCountMethod(itemDirectCheckedChildrenCountMap, -1);

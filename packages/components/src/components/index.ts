@@ -26,7 +26,7 @@ import { defineWatermark } from './watermark/Watermark';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
-import { capitalize, once, supportCustomElement } from '@lun-web/utils';
+import { capitalize, getDocumentElement, isElement, once, supportCustomElement } from '@lun-web/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
@@ -113,20 +113,19 @@ const discover = (root: Element, defineFn?: (componentName: string) => void) => 
   const { namespace, defaultProps } = GlobalStaticConfig;
   const rootTagName = root.tagName.toLowerCase();
   const prefix = namespace + '-';
-  const rootIsLunElement = rootTagName.startsWith(prefix);
+  const componentsToRegister = new Set<string>();
   const reg = new RegExp(`^${prefix}`);
-  const componentNames = [...root.querySelectorAll(':not(:defined)')].flatMap((el) => {
+  if (rootTagName.startsWith(prefix) && !(supportCustomElement as CustomElementRegistry).get(rootTagName)) {
+    componentsToRegister.add(rootTagName.replace(reg, ''));
+  }
+  root.querySelectorAll(':not(:defined)').forEach((el) => {
     const name = el.tagName.toLowerCase().replace(reg, '');
-    return name in defaultProps ? [name] : [];
+    if (name in defaultProps) componentsToRegister.add(name);
   });
 
-  if (rootIsLunElement && !customElements.get(rootTagName)) {
-    componentNames.unshift(rootTagName.replace(reg, ''));
-  }
-  const componentsToRegister = [...new Set(componentNames)];
-  return componentsToRegister.map((componentName) => {
+  componentsToRegister.forEach((componentName) => {
     __internal_defineSubscriber.forEach((f) => f(componentName));
-    return defineFn
+    defineFn
       ? defineFn(componentName)
       : import(`./${componentName}/${componentName}.define.ts`).catch(() => {
           // some components may not have define.ts file, like radio-group
@@ -134,12 +133,13 @@ const discover = (root: Element, defineFn?: (componentName: string) => void) => 
   });
 };
 export const autoDefine = once(() => {
+  if (!supportCustomElement) return;
   const undefinedSet = new Set();
   components.forEach((comp) => {
     const tagName = GlobalStaticConfig.namespace + '-' + comp;
-    if (!customElements.get(tagName)) {
+    if (!(supportCustomElement as CustomElementRegistry).get(tagName)) {
       undefinedSet.add(comp);
-      customElements.whenDefined(tagName).then(() => {
+      (supportCustomElement as CustomElementRegistry).whenDefined(tagName).then(() => {
         undefinedSet.delete(comp);
         if (!undefinedSet.size) {
           observer.disconnect();
@@ -151,13 +151,13 @@ export const autoDefine = once(() => {
   const observer = new MutationObserver((mutations) => {
     for (const { addedNodes } of mutations) {
       for (const node of addedNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          discover(node as Element);
+        if (isElement(node)) {
+          discover(node);
         }
       }
     }
   });
-  observer.observe(document.documentElement, { subtree: true, childList: true });
+  observer.observe(getDocumentElement(), { subtree: true, childList: true });
   discover(document.body);
 });
 

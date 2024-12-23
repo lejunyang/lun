@@ -1,10 +1,10 @@
-import { ComponentInternalInstance, computed, getCurrentInstance, onBeforeUnmount, reactive } from 'vue';
+import { ComponentInternalInstance, computed, getCurrentInstance, onBeforeUnmount } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from '../components/config';
 import { fromObject, identity, isArray, isPreferDark, isString, objectKeys } from '@lun-web/utils';
 import { isHighlightStatus, isStatus, Status, ThemeProps, themeProps } from 'common';
 import { useBreakpoint } from './useBreakpoint';
 import { FormInputCollector } from '../components/form-item/collector';
-import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet } from '@lun-web/core';
+import { MaybeRefLikeOrGetter, unrefOrGetState, unrefOrGet, useRefWeakMap } from '@lun-web/core';
 import { useExpose } from './vue';
 import { rootSet } from '../utils/component';
 
@@ -24,7 +24,10 @@ const _bem = (namespace: string, block: string, blockSuffix: string, element: st
   return cls;
 };
 
-const vmParentMap = reactive(new WeakMap<ComponentInternalInstance, ComponentInternalInstance | null | undefined>());
+const [getVmParent, setVmParent, deleteVmParent] = useRefWeakMap<
+  ComponentInternalInstance,
+  ComponentInternalInstance | null | undefined
+>();
 
 /**
  * @returns [selfResult, parentResult, themeContextResult]
@@ -38,7 +41,7 @@ const getThemeValueOfAllSources = (
 ): [any, any, any] | [] => {
   if (!vm) return [];
   const selfResult = vm.props[key],
-    parent = vmParentMap.get(vm!),
+    parent = getVmParent(vm),
     theme = context?.theme?.[key];
   return [
     selfResult,
@@ -78,9 +81,9 @@ export const useNamespace = (
   const vm = getCurrentInstance()!;
   const context = FormInputCollector.child(false); // form-item will be theme parent for all its children
   if (!parent && context) parent = context.parent;
-  parent && vmParentMap.set(vm, parent);
+  parent && setVmParent(vm, parent);
   onBeforeUnmount(() => {
-    vmParentMap.delete(vm);
+    deleteVmParent(vm);
   });
 
   const { namespace, statePrefix, colorPriority } = GlobalStaticConfig;

@@ -87,7 +87,7 @@ export const ColorPicker = defineSSRCustomElement({
     const color = computed(() => getColor(!props.noAlpha));
     const updateValue = () => ((updated = true), (valueModel.value = color.value));
 
-    const targetStates = useDraggableArea({
+    const [, , deleteTargetState] = useDraggableArea({
       el: paletteRef,
       disabled: () => !editComputed.editable,
       draggable: (target, { offsetX, offsetY }) => {
@@ -99,7 +99,7 @@ export const ColorPicker = defineSSRCustomElement({
             top = offsetY / clientHeight,
             brightness = (1 - top) * 100;
           resetThumb(saturation, top);
-          targetStates.delete(thumb.value!);
+          deleteTargetState(thumb.value!);
           updateSL(saturation * 100, brightness);
           updateValue();
         }

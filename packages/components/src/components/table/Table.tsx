@@ -11,8 +11,8 @@ import {
   isCollectedItemLeaf,
   useCollectorExternalChildren,
   useStickyTable,
-  useWeakMap,
-  useWeakSet,
+  useRefWeakMap,
+  useRefWeakSet,
   fComputed,
   useVirtualList,
 } from '@lun-web/core';
@@ -33,12 +33,12 @@ export const Table = defineSSRCustomElement({
   setup(props) {
     const ns = useNamespace(name);
     const ce = useCE();
-    const collapsed = useWeakSet(),
-      [replaceCollapsed, , addCollapsed] = collapsed,
-      cellMerge = useWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>(),
-      columnVmMap = useWeakMap<TableColumnSetupProps, ComponentInternalInstance>(),
-      getColumnVm = columnVmMap[1],
-      [, getColumnWidth, setColumnWidth] = useWeakMap<InternalColumn, number>();
+    const collapsed = useRefWeakSet(),
+      [, addCollapsed, , replaceCollapsed] = collapsed,
+      cellMerge = useRefWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>(),
+      columnVmMap = useRefWeakMap<TableColumnSetupProps, ComponentInternalInstance>(),
+      getColumnVm = columnVmMap[0],
+      [getColumnWidth, setColumnWidth] = useRefWeakMap<InternalColumn, number>();
 
     const state = shallowReactive({
       hoveringIndex: null,

@@ -4,8 +4,8 @@ import {
   useCollectorExternalChildren,
   useExpandMethods,
   useVirtualList,
-  useWeakMap,
-  useWeakSet,
+  useRefWeakMap,
+  useRefWeakSet,
 } from '@lun-web/core';
 import { TableSetupProps, TableColumnSetupProps } from './type';
 import { getCollectorOptions } from 'common';
@@ -19,10 +19,10 @@ export type TableState = {
 export type TableProvideExtra = {
   data: () => (readonly [rowData: unknown, rowIndex: number, key: any])[];
   maxLevel: () => number;
-  collapsed: ReturnType<typeof useWeakSet<InternalColumn>>;
-  cellMerge: ReturnType<typeof useWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>>;
+  collapsed: ReturnType<typeof useRefWeakSet<InternalColumn>>;
+  cellMerge: ReturnType<typeof useRefWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>>;
   columns: ReturnType<typeof useCollectorExternalChildren>[0];
-  columnVmMap: ReturnType<typeof useWeakMap<TableColumnSetupProps, ComponentInternalInstance>>;
+  columnVmMap: ReturnType<typeof useRefWeakMap<TableColumnSetupProps, ComponentInternalInstance>>;
   all: () => InternalColumn[];
   showResize(target: HTMLElement, column: InternalColumn): void;
   virtual: ReturnType<typeof useVirtualList>;
