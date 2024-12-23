@@ -5,7 +5,7 @@
 ### Features
 
 - add `createUnrefCalls`
-- add `useSet`, `useMap`, `useWeakSet`, `useWeakMap` hooks
+- add `useShallowRefSet`, `useeShallowRefMap`, `useeShallowRefWeakSet`, `useeShallowRefWeakMap` hooks
 - add `fComputed`
 - `createCollector`: add treeIndex collect, add getCollectedItemIndex and getCollectedItemTreeIndex, refactor reactive weakMap and index collect, remove getChildVmIndex
 - `createCollector`: add maxChildLevel and leavesCount for tree collector

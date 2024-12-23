@@ -5,7 +5,7 @@
 ### Features
 
 - add `createUnrefCalls`
-- add `useSet`, `useMap`, `useWeakSet`, `useWeakMap` hooks
+- add `useRefSet`, `useRefMap`, `useRefWeakSet`, `useRefWeakMap` hooks
 
 ### Changes
 

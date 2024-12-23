@@ -1,5 +1,5 @@
 import { isFunction, runIfFn, ensureArray, globalObject } from '@lun-web/utils';
-import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions, ComputedGetter } from 'vue';
+import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions, ComputedGetter, ShallowRef } from 'vue';
 import { createUnrefCalls, MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
 
 /**
@@ -114,82 +114,116 @@ export function fComputed<T>(get: ComputedGetter<T>) {
   return () => res.value;
 }
 
+const S = 'Set',
+  WS = 'WeakSet',
+  M = 'Map',
+  WM = 'WeakMap';
 const createUseSetOrMap =
-  <TStr extends 'Set' | 'Map' | 'WeakSet' | 'WeakMap', T = InstanceType<(typeof globalThis)[TStr]>>(type: TStr) =>
+  <TStr extends 'Set' | 'Map' | 'WeakSet' | 'WeakMap', T = InstanceType<(typeof globalThis)[TStr]>>(
+    type: TStr,
+    shallow?: number,
+  ) =>
   () => {
     const constructor = globalObject[type] as any,
-      result = ref<T>(new constructor()),
-      isSet = type === 'Set' || type === 'WeakSet';
+      result = (shallow ? shallowRef : ref)<T>(new constructor()),
+      isSet = type === S || type === WS;
     // @ts-expect-error
     const binds = createUnrefCalls(result, 'add', 'has', 'set', 'get', 'delete', 'forEach') as any,
-      replace = (newObj: T = new constructor()) => (result.value = newObj),
-      b1 = isSet ? binds.has : binds.get,
-      b2 = isSet ? binds.add : binds.set,
-      b3 = binds.delete;
-    return Object.assign(result, {
+      replace = (newObj: T = new constructor()) => (result.value = newObj);
+    const arr = Object.assign([isSet ? binds.has : binds.get, isSet ? binds.add : binds.set, binds.delete, replace], {
       replace,
-      [Symbol.iterator]: function* () {
-        yield replace;
-        yield b1;
-        yield b2;
-        yield b3;
-      },
-      0: replace,
-      1: b1,
-      2: b2,
-      3: b3,
-      length: 4,
+      // [ReactiveFlags.IS_REF]: true,
+      __v_isRef: true, // might be tricky, but ReactiveFlags is not exposed by vue, it only exports a type
       ...binds,
     });
+    Object.defineProperty(arr, 'value', {
+      get: () => result.value,
+      set: replace,
+    });
+    return arr;
   };
 
 type SetOrMap = Set<any> | WeakSet<any> | Map<any, any> | WeakMap<any, any>;
 type GetIterateMethods<T extends SetOrMap, Methods> = T extends Set<any> | WeakSet<any>
   ? // @ts-expect-error
-    [replace: Methods['replace'], has: Methods['has'], add: Methods['add'], del: Methods['delete']]
+    [has: Methods['has'], add: Methods['add'], del: Methods['delete'], replace: Methods['replace']]
   : T extends Map<any, any> | WeakMap<any, any>
   ? // @ts-expect-error
-    [replace: Methods['replace'], get: Methods['get'], set: Methods['set'], del: Methods['delete']]
+    [get: Methods['get'], set: Methods['set'], del: Methods['delete'], replace: Methods['replace']]
   : never;
 
 type GetIterableRefWithMethods<
   T extends SetOrMap,
   M extends readonly string[],
+  Shallow extends boolean = false,
   K extends keyof T = M[number] extends keyof T ? M[number] : never,
   Methods = Pick<T, K> & { replace: (newObj?: T) => T },
-> = Ref<T> & Methods & GetIterateMethods<T, Methods>;
+> = (Shallow extends true ? ShallowRef<T> : Ref<T>) & Methods & GetIterateMethods<T, Methods>;
 
 /**
- * create a Set ref with add, has, delete, forEach and replace(replace ref's value with a new Set) methods, the ref is also an iterable object containing [replace, has, add, delete] methods
+ * create a Set ref with add, has, delete, forEach and replace(replace ref's value with a new Set) methods, the ref is also an array containing [replace, has, add, delete] methods
  */
-export const useSet = createUseSetOrMap('Set') as any as <K>() => GetIterableRefWithMethods<
+export const useRefSet = createUseSetOrMap(S) as any as <K>() => GetIterableRefWithMethods<
   Set<K>,
   ['add', 'has', 'delete', 'forEach']
 >;
 
 /**
- * create a WeakSet ref with add, has, delete and replace(replace ref's value with a new WeakSet) methods, the ref is also an iterable object containing [replace, has, add, delete] methods
+ * create a Set shallow ref with add, has, delete, forEach and replace(replace ref's value with a new Set) methods, the ref is also an array containing [replace, has, add, delete] methods
  */
-export const useWeakSet = createUseSetOrMap('WeakSet') as any as <K extends WeakKey>() => GetIterableRefWithMethods<
+export const useShallowRefSet = createUseSetOrMap(S, 1) as any as <K>() => GetIterableRefWithMethods<
+  Set<K>,
+  ['add', 'has', 'delete', 'forEach'],
+  true
+>;
+
+/**
+ * create a WeakSet ref with add, has, delete and replace(replace ref's value with a new WeakSet) methods, the ref is also an array containing [replace, has, add, delete] methods
+ */
+export const useRefWeakSet = createUseSetOrMap(WS) as any as <K extends WeakKey>() => GetIterableRefWithMethods<
   WeakSet<K>,
   ['add', 'has', 'delete']
 >;
 
 /**
- * create a Map ref with get, has, set, delete, forEach and replace(replace ref's value with a new Map) methods, the ref is also an iterable object containing [replace, get, set, delete] methods
+ * create a WeakSet shallow ref with add, has, delete and replace(replace ref's value with a new WeakSet) methods, the ref is also an array containing [replace, has, add, delete] methods
  */
-export const useMap = createUseSetOrMap('Map') as any as <K, V>() => GetIterableRefWithMethods<
+export const useShallowRefWeakSet = createUseSetOrMap(WS, 1) as any as <
+  K extends WeakKey,
+>() => GetIterableRefWithMethods<WeakSet<K>, ['add', 'has', 'delete'], true>;
+
+/**
+ * create a Map ref with get, has, set, delete, forEach and replace(replace ref's value with a new Map) methods, the ref is also an array containing [replace, get, set, delete] methods
+ */
+export const useRefMap = createUseSetOrMap(M) as any as <K, V>() => GetIterableRefWithMethods<
   Map<K, V>,
   ['get', 'has', 'set', 'delete', 'forEach']
 >;
 
 /**
- * create a WeakMap ref with get, has, set, delete and replace(replace ref's value with a new WeakMap) methods, the ref is also an iterable object containing [replace, get, set, delete] methods
+ * create a Map shallow ref with get, has, set, delete, forEach and replace(replace ref's value with a new Map) methods, the ref is also an array containing [replace, get, set, delete] methods
  */
-export const useWeakMap = createUseSetOrMap('WeakMap') as any as <K extends WeakKey, V>() => GetIterableRefWithMethods<
+export const useShallowRefMap = createUseSetOrMap(M, 1) as any as <K, V>() => GetIterableRefWithMethods<
+  Map<K, V>,
+  ['get', 'has', 'set', 'delete', 'forEach'],
+  true
+>;
+
+/**
+ * create a WeakMap ref with get, has, set, delete and replace(replace ref's value with a new WeakMap) methods, the ref is also an array containing [replace, get, set, delete] methods
+ */
+export const useRefWeakMap = createUseSetOrMap(WM) as any as <K extends WeakKey, V>() => GetIterableRefWithMethods<
   WeakMap<K, V>,
   ['get', 'has', 'set', 'delete']
 >;
+
+/**
+ * create a WeakMap shallow ref with get, has, set, delete and replace(replace ref's value with a new WeakMap) methods, the ref is also an array containing [replace, get, set, delete] methods
+ */
+export const useShallowRefWeakMap = createUseSetOrMap(WM, 1) as any as <
+  K extends WeakKey,
+  V,
+>() => GetIterableRefWithMethods<WeakMap<K, V>, ['get', 'has', 'set', 'delete'], true>;
 
 export const createMapCountMethod =
   (map: MaybeRefLikeOrGetter<WeakMap<any, number> | Map<any, number>, true>, diff: number) => (item?: any) =>
