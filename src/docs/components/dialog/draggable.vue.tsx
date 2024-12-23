@@ -6,10 +6,13 @@ export default () => {
   return (
     <>
       <l-button onClick={() => (open.value = true)}>Open Dialog</l-button>
-      <l-dialog v-update-open={open.value} header="Drag the left '+'" customDraggable={(el) => el.id === 'custom'}>
-        <span slot="header-start" id="custom" style="margin-right: 5px;font-size: 20px;cursor: move;font-weight: bold;">
-          +
-        </span>
+      <l-dialog v-update-open={open.value} customDraggable={(el) => el.id === 'custom'}>
+        <div slot="header">
+          <span id="custom" style="margin-rignht: 5px;font-size: 20px;cursor: move;font-weight: bold;">
+            +
+          </span>
+          Drag
+        </div>
         {text}
       </l-dialog>
     </>

@@ -17,6 +17,7 @@ import {
   runIfFn,
   getRect,
   arrayFrom,
+  prevent,
 } from '@lun-web/utils';
 import { GlobalStaticConfig } from '../config/config.static';
 import { getCompParts } from 'common';
@@ -173,8 +174,10 @@ export const Range = defineSSRCustomElement({
         if (index == null || !isEditable()) return;
         const value = processedValues.value[+index][0];
         if (isArrowLeftEvent(e) || isArrowDownEvent(e)) {
+          prevent(e); // prevent default behavior to avoid page scroll for arrow up and down
           updateVal(max(minus(value, step.value), minVal.value), +index);
         } else if (isArrowRightEvent(e) || isArrowUpEvent(e)) {
+          prevent(e);
           updateVal(min(plus(value, step.value), maxVal.value), +index);
         }
       },
