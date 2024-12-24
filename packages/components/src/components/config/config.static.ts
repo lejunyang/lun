@@ -10,6 +10,8 @@ export type ColorPriority = 'highlight-first' | 'status-first' | 'color-first';
 const ignoreAttrSet = new Set(['class', 'part', 'exportparts', 'style']),
   needStyleComps = new Set(['form-item', 'tag', 'tooltip', 'divider', 'watermark']);
 
+export type EventNameStyle = 'kebab' | 'camel' | 'pascal' | 'lower' | 'upper';
+
 /**
  * Please make sure modify the GlobalStaticConfig before you import the component or read the config\
  * change it dynamically may not work
@@ -45,6 +47,7 @@ export const GlobalStaticConfig = new Proxy(
       if (ignoreAttrSet.has(attr) || attr.startsWith('data-') || attr.startsWith('aria-')) return true;
     }) as (comp: ComponentKey, attribute: string, ce: VueElement) => boolean | void,
     ...compStatic,
+    eventNameStyle: ['camel', 'kebab', 'pascal'] as EventNameStyle | EventNameStyle[],
     /** whether to use constructed CSSStyleSheet when possible */
     preferCSSStyleSheet: isSupportCSSStyleSheet(),
     /** whether wrap &#64;layer for components' styles */

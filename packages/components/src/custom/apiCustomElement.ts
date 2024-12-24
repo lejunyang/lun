@@ -45,6 +45,7 @@ import {
   createElement,
   runIfFn,
   isConnected,
+  ensureArray,
 } from '@lun-web/utils';
 import { virtualParentMap } from './virtualParent';
 
@@ -71,6 +72,7 @@ export interface CustomElementOptions {
   onConnected?: (CE: VueElement, parent?: VueElement) => void;
   ignoreAttrs?: (key: string, CE: VueElement) => boolean | void;
   attrTransform?: (key: string, val: string | null, CE: VueElement) => any;
+  handleEventName?: (eventName: string) => string[] | string;
 }
 
 export type ExtractCEPropTypes<T> = T extends VueElementConstructor<ExtractPropTypes<infer P>> ? P : never;
@@ -600,11 +602,12 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
         instance.emit = (event: string, ...args: any[]) => {
           // dispatch both the raw and hyphenated versions of an event
           // to match Vue behavior
-          const init = this._def.customEventInit?.[event];
-          dispatch(event, init, ...args);
-          if (hyphenate(event) !== event) {
-            dispatch(hyphenate(event), init, ...args);
-          }
+          const { customEventInit, handleEventName } = this._def;
+          const init = customEventInit?.[event];
+          const events = ensureArray(handleEventName ? handleEventName(event) : event);
+          events.forEach((e) => {
+            dispatch(e, init, ...args);
+          });
         };
 
         this._setParent();

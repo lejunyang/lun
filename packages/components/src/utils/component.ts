@@ -1,6 +1,7 @@
 import {
   ComponentKey,
   componentsWithTeleport,
+  EventNameStyle,
   GlobalContextConfig,
   GlobalStaticConfig,
   OpenShadowComponentKey,
@@ -12,13 +13,18 @@ import { warn } from './console';
 import {
   arrayFrom,
   cacheFunctionByKey,
+  capitalize,
   createElement,
+  ensureArray,
   fromObject,
   getFirstOfIterable,
+  hyphenate,
+  identity,
   isArray,
   isCSSStyleSheet,
   isElement,
   isString,
+  objectKeys,
   once,
   runIfFn,
   supportCustomElement,
@@ -183,6 +189,14 @@ const warnHandler = (msg: string, _: any, trace: string) => {
 /** elements that are not under any other lun's custom elements */
 export const rootSet = new WeakSet();
 
+const eventNameProcessMap = {
+  kebab: (event) => hyphenate(event),
+  camel: identity,
+  lower: (event) => event.toLowerCase(),
+  upper: (event) => event.toUpperCase(),
+  pascal: (event) => capitalize(event),
+} as Record<EventNameStyle, (name: string) => string>;
+
 export function preprocessComponentOptions(options: ComponentOptions) {
   const compKey = options.name as ComponentKey;
   if (compKey && compKey in GlobalStaticConfig.defaultProps) {
@@ -210,6 +224,23 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       },
       ignoreAttrs: {
         get: () => ignoreAttrs,
+      },
+      handleEventName: {
+        get: once(() => {
+          const { eventNameStyle } = GlobalStaticConfig;
+          const map = {} as Record<string, string[]>;
+          const e = options.emits,
+            emits = (e ? (isArray(e) ? e : objectKeys(e)) : []) as string[];
+          emits.forEach((e) => {
+            const set = new Set<string>();
+            ensureArray(eventNameStyle).forEach((style) => {
+              const handle = eventNameProcessMap[style];
+              handle && set.add(handle(e));
+            });
+            map[e] = arrayFrom(set);
+          });
+          return (eventName: string) => map[eventName] || eventName;
+        }),
       },
     });
     options.inheritAttrs ||= false;
