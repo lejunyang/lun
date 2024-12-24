@@ -11,16 +11,22 @@
   },
   "changesets": [
     "components-alpha4",
+    "components-alpha5",
     "components",
     "core-alpha4",
+    "core-alpha5",
     "core",
     "plugins-alpha4",
+    "plugins-alpha5",
     "plugins",
     "react-alpha4",
+    "react-alpha5",
     "react",
     "theme-alpha4",
+    "theme-alpha5",
     "theme",
     "utils-alpha4",
+    "utils-alpha5",
     "utils"
   ]
 }
