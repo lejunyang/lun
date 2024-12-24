@@ -1,6 +1,6 @@
 import { ComponentKey, getElementFirstName } from '@lun-web/components';
 import { forwardRef, createElement, useRef, useImperativeHandle, useLayoutEffect, ReactNode } from 'react';
-import { on, off, inBrowser, capitalize, objectKeys } from '@lun-web/utils';
+import { on, off, inBrowser, capitalize, objectKeys, isArray } from '@lun-web/utils';
 
 /** element => (eventName, objectEventHandler) */
 const listenedEvents = new WeakMap<Element, Map<string, EventListenerObject>>();
@@ -33,13 +33,18 @@ export default function <Props extends Record<string, any>, Instance extends HTM
   props: Record<string, any>,
   emits?: Record<string, any>,
 ) {
-  /** onValidClick => validClick */
-  const eventMap = new Map(emits ? objectKeys(emits).map((k) => ['on' + capitalize(k), k]) : []);
+  /** onValidClick => ValidClick */
+  const eventMap = new Map(
+    emits
+      ? (isArray(emits) ? (emits as string[]) : objectKeys(emits)).map((k) => ['on' + capitalize(k), capitalize(k)])
+      : [],
+  );
   return forwardRef<Instance, Props & { children?: ReactNode }>((reactProps, ref) => {
     defineFunc();
     const name = getElementFirstName(compName) as string;
     if (!name) throw new Error(__DEV__ ? 'Invalid component name' : '');
 
+    // @ts-ignore
     const compRef = useRef<Instance>();
     useImperativeHandle(ref, () => compRef.current!);
     const prevPropKeySet = useRef(new Set<keyof Props>());
