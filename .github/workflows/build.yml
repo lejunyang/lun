@@ -66,7 +66,7 @@ jobs:
 
   call_publish:
     needs: build_packages
-    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && github.repository == 'lejunyang/lun' && ((contains(github.event.head_commit.message, '[publish]') && github.actor == 'lejunyang') || (startsWith(github.event.head_commit.message, 'Version Packages') && github.actor == 'github-actions[bot]') || inputs.publish) }}
+    if: ${{ !contains(github.event.head_commit.message, '[all skip]') && github.repository == 'lejunyang/lun' && github.actor == 'lejunyang' && (contains(github.event.head_commit.message, '[publish]') || startsWith(github.event.head_commit.message, 'Version Packages') || inputs.publish) }}
     uses: ./.github/workflows/publish.yml
     with:
       run-id: ${{ github.run_id }}

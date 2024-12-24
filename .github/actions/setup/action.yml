@@ -10,6 +10,13 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Print github context
+      shell: bash
+      run: |
+        echo "github.actor: ${{ github.actor }}"
+        echo "github.triggering_actor: ${{ github.triggering_actor }}"
+        echo "github.event: ${{ toJSON(github.event) }}"
+
     - name: Setup pnpm
       # Must not set shell for other actions...
       uses: pnpm/action-setup@v4
