@@ -8,7 +8,7 @@ A full-featured web components library based on Vue3
 - Well-encapsulated features and few required dependencies(vue and floating-ui), provides a set of high-quality components, relatively lightweight
 - Provides abundant global static and dynamic configurations, easy to customize not only CSS but also many internal behaviors
 - Styleless or with a beautiful preset theme based on @radix/colors, out-of-box dark mode and responsive ui support
-- Ready to use new Web APIs (Popover API, CSS Anchor Positioning CustomStateSet...), provide reasonable fallbacks
+- Ready to use new Web APIs (Popover API, CSS Anchor Positioning, CustomStateSet...), provide reasonable fallbacks
 - Full typescript support, provide type definitions for all components
 
 ## Warning
@@ -72,6 +72,7 @@ Technically yes, because web components is not framework-specific, but you need 
 ### Roadmap
 
 - fix bugs, remove experimental flags, complete their features
+  - Table
   - Tree
   - VirtualRenderer
   - Calendar、DatePicker
@@ -83,16 +84,14 @@ Technically yes, because web components is not framework-specific, but you need 
 - add test cases
 - add docs about Props, Events, Slots, Methods for components
 - features I want to add but haven't got time yet:
-  - some Form functions
+  - unify which one take precedence, prop or slot
+  - controlled mode or uncontrolled mode for some components. confirm if update events can be canceled
+  - finalize component Transition(css or config?)
   - integrate internal virtual rendering for Select、Tree, support external virtual rendering
   - provide better scroll-driven animation usage in ScrollView
-  - implement Table
   - add mask input, add input hint and tab completion, simplify input rendering
   - add color process preset, finish ColorPicker
   - finish Calendar
-  - unify which one take precedence, prop or slot
-  - controlled mode or uncontrolled mode for some components
-  - finalize component Transition(css or config?)
   - add some other components
 - accessibility support
 - gather feedback, finalize name and functions of components
