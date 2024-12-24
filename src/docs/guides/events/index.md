@@ -26,7 +26,9 @@ button.addEventListener('validClick', () => {});
 button.addEventListener('ValidClick', () => {});
 ```
 
-根据不同的框架以及你自己的偏好，你可以自行设置所需的格式以减少派发事件的数量。如果是 React，你可能只需`pascal`格式，如果是 Vue，你可能需要`kebab`和`camel`格式
+根据不同的框架以及你自己的偏好，你可以自行设置所需的格式以减少派发事件的数量：
+- 如果是 Vue，你可能只需`camel`和`kebab`格式，以`@validClick`或`@valid-click`的形式监听
+- 如果是 React，你可能只需`pascal`格式，以`onValidClick`的形式监听
 
 :::warning 注
 对于`@lun-web/react`来说，如果是 React19 之前的版本，那么只支持`pascal`格式，如果是 React19，各种格式都支持，但提供的组件 TS 类型只有`pascal`格式

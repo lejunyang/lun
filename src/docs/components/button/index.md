@@ -13,6 +13,8 @@ lang: zh-CN
 
 ## 异步函数自动 loading
 
+通过`asyncHandler`设置点击处理函数，若函数返回Promise，按钮会自动进入loading状态，并在Promise resolve后恢复正常状态
+
 <!-- @Code:autoLoading -->
 
 ## 按住模式

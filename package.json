@@ -23,7 +23,7 @@
   },
   "packageManager": "pnpm@9.9.0",
   "dependencies": {
-    "@babel/standalone": "^7.26.2",
+    "@babel/standalone": "^7.26.4",
     "@giscus/vue": "^3.0.0",
     "@lun-web/components": "workspace:^",
     "@lun-web/core": "workspace:^",
@@ -35,10 +35,10 @@
     "@vercel/speed-insights": "^1.1.0",
     "@vueuse/core": "^11.1",
     "fflate": "^0.8.2",
-    "monaco-editor": "^0.52.0",
+    "monaco-editor": "^0.52.2",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-error-boundary": "^4.1.2",
+    "react-error-boundary": "^5",
     "shiki": "^1.24.0",
     "vue": "catalog:"
   },
@@ -83,6 +83,10 @@
     "vue": "catalog:",
     "@floating-ui/utils": "catalog:",
     "@floating-ui/dom": "catalog:",
-    "shiki": "^1.24.0"
+    "shiki": "^1.24.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
   }
 }

@@ -67,6 +67,7 @@ export default {
       },
       guides: {
         usage: '如何使用',
+        CE: '自定义元素简易入门',
         docs: '文档说明',
         inherit: '属性继承',
         attrTransform: '属性转换',
@@ -194,6 +195,7 @@ export default {
       },
       guides: {
         usage: 'Usage',
+        CE: 'Custom Element Quick Start',
         docs: 'Docs',
         inherit: 'Props Inherit',
         attrTransform: 'Attributes transform',

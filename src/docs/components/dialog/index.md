@@ -7,7 +7,7 @@ lang: zh-CN
 
 <!-- @Code:basicUsage -->
 
-:::warning 注
+:::info 注
 
 - 默认情况下会组件使用 Top Layer Dialog（若支持），此时即使不渲染 mask，也无法与弹框之外的元素交互。若需要在无 mask 时与其他元素交互，请设置`noTopLayer`，非 Top Layer 的弹框由于为 fixed 定位，会受父级[Containing Block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block)影响
 - 浏览器默认会将焦点限制在 Top Layer Dialog 内部，但需要注意的是在聚焦到最后一个元素后，再使用 Tab 导航并不会跳回第一个可聚焦元素。然而在开启`noTopLayer`时，内部模拟的 focus trap 则会在弹框内部循环聚焦。如果需要 Top Layer Dialog 也遵循这个行为，请使用`alwaysTrapFocus`属性。

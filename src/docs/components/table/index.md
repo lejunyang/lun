@@ -4,7 +4,7 @@ lang: zh-CN
 ---
 
 :::warning 注
-highly highly experimental
+highly experimental
 
 尚在初期功能实现验证阶段，决定使用 Grid 渲染表格，而不是 table 元素
 :::

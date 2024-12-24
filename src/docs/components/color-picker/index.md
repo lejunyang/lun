@@ -4,7 +4,9 @@ lang: zh-CN
 ---
 
 :::warning 注
-Highly experimental
+Highly Highly Highly experimental
+
+会考虑添加 color 解析处理预设再完善该组件
 :::
 
 ## 基本使用

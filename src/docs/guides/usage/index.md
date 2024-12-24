@@ -3,7 +3,7 @@ title: 如何使用
 lang: zh-CN
 ---
 
-在使用本组件库之前，你需要了解自定义元素的相关知识，可参考[教程](https://zh.javascript.info/web-components)、[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)或[Vue](https://vuejs.org/guide/extras/web-components.html)，只需知道如何使用即可，无需了解如何创建
+在使用本组件库之前，你需要了解自定义元素的相关知识，简易入门可参考[下一节](/guides/custom-element/)，更多相关知识可参考[教程](https://zh.javascript.info/web-components)、[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)或[Vue](https://vuejs.org/guide/extras/web-components.html)，只需知道如何使用即可，无需了解如何创建
 
 ## 安装
 
@@ -31,7 +31,7 @@ React 是目前流行 web 框架中最晚支持`customElement`的，其他框架
 
 React 19 已经支持`customElement`，本文档使用的是 React 19，在文档的 React 代码中可正常使用自定义元素。
 
-对于 React 19 之前的版本，我们需要手动封装一层。`@lun-web/react`将`@lun-web/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。
+对于 React 19 之前的版本，我们需要手动封装一层。`@lun-web/react`将`@lun-web/components`中的每个组件都封装成了 React 组件，在 useLayoutEffect 中将属性和事件绑定到元素上，使之能够正常工作。使用这些组件无需在应用入口手动调用 define 函数，组件内部会自行调用
 
 ```tsx
 import { LInput } from '@lun-web/react';
@@ -173,9 +173,9 @@ CDN 直接引入只提供开发打包版本，不建议在生产环境使用，�
 
 - `@lun-web/components/elements-types-vue`: Vue template 以及 JSX 的元素类型
 - `@lun-web/components/elements-types-react`: React JSX 元素类型
-- `@lun-web/components/elements-types-html`: document.createElement等方式创建的元素类型支持
+- `@lun-web/components/elements-types-html`: document.createElement 等的元素类型支持
 
-你需要在 TS 配置文件中对应引入它们
+你需要在 TS 配置文件中的`types`字段中对应引入它们
 
 需要注意的是，提供的类型文件是针对默认`namespace`，也就是`l-button`, `l-input`等以`l`开头的组件，如果你自定义了命名空间，可以仿造以下示例编写
 
@@ -203,7 +203,7 @@ declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
       'l-button': React.HTMLAttributes<HTMLElement> &
-        React.RefAttributes<import('./index').iButton> &
+        React.RefAttributes<import('@lun-web/components').iButton> &
         import('@lun-web/components').ButtonProps;
     }
   }
