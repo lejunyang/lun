@@ -18,7 +18,7 @@
   }
 
   @include e(head) {
-    background: getSemanticColor('background');
+    // background: getGrayColor(a3);
     position: relative;
     z-index: 2;
     display: grid;

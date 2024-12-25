@@ -5,6 +5,13 @@ lang: zh-CN
 
 在使用本组件库之前，你需要了解自定义元素的相关知识，简易入门可参考[下一节](/guides/custom-element/)，更多相关知识可参考[教程](https://zh.javascript.info/web-components)、[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components/Using_custom_elements)或[Vue](https://vuejs.org/guide/extras/web-components.html)，只需知道如何使用即可，无需了解如何创建
 
+## 快速开始
+
+你可在 Stackblitz 中快速开始尝试：
+- [Vue3](https://stackblitz.com/edit/lun-vue3-start?file=src%2FApp.vue)
+- [React19](https://stackblitz.com/edit/lun-react19-start?file=src%2FApp.tsx)
+<!-- - [React18](https://stackblitz.com/edit/lun-react18-start?file=src%2FApp.tsx) 暂时不开放，有问题，首先是ts类型有问题，没有HTML属性，其次为什么onClick这样的事件无法绑定 -->
+
 ## 安装
 
 目前只发布了 alpha 版本，提供以下库：
@@ -164,6 +171,8 @@ CDN 直接引入只提供开发打包版本，不建议在生产环境使用，�
   LunWebComponents.defineAllComponents();
 </script>
 ```
+
+你可以在[CodePen](https://codepen.io/lejunyang/pen/dyxdVbR)快速尝试
 
 若因网络问题国内无法访问 jsdelivr，可尝试将`cdn.jsdelivr.net`更换为`jsd.onmicrosoft.cn`
 

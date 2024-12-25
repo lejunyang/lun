@@ -134,7 +134,7 @@ export default {
       components: 'Components',
       palette: 'Palette',
       utils: 'Utils',
-      playground: '演练场',
+      playground: 'Playground',
     },
     sidebar: {
       basic: {

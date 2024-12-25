@@ -25,22 +25,22 @@ export function registerCustomRenderer(type: string, registry: CustomRendererReg
 
 ```ts
 export type CustomRendererProps = {
-  content: unknown;
   type?: string;
+  content: unknown;
   preferHtml?: boolean;
 };
 ```
 
+- 通过`type`属性来指定渲染的类型(默认支持`vnode`, `html`和`text`)，若不指定则会自动检测，当为字符串时渲染为文本，除非设置了`preferHtml`
 - 通过`content`属性来指定需要自定义渲染的内容。其可以为函数，当为函数时视为 getter，可以在函数参数中获取 Vue 的 h 函数；当其为Vnode时会直接渲染，其还可以为 HTMLTemplateElement，会以[特殊规则](#渲染-htmltemplateelement)进行渲染
-- 通过`type`属性来指定渲染的类型(默认支持`vnode`, `html`和`text`)，若不指定则会自动检测，HTMLTemplateElement 不需要指定 type
 
 
-组件库内很多组件支持自定义渲染，例如 Callout 的 message 和 description，它既有这两个属性，也有这两个插槽。属性优先，其接受这样的值：
+组件库内很多组件支持自定义渲染，那些支持的属性的类型一般为`Raw | CustomRendererSource`。以 Callout 的 message 和 description为例，它既有这两个属性，也有这两个插槽。属性优先，当没有使用这两个属性时则支持使用插槽，其接受这样的值：
   - 字符串、数字、Vnode：直接渲染
-  - 包含 content 属性的对象：使用 CustomRenderer，会将该对象视为 CustomRenderer 的属性，传递给它并渲染
+  - 包含 `content` 属性的对象：使用 CustomRenderer 渲染，会将该对象视为 CustomRenderer 的属性，传递给它并渲染
   - 其他值：使用 CustomRenderer，直接作为`content`属性传递给 CustomRenderer
 
-当没有使用这两个属性时则支持使用插槽
+
 
 ## 渲染 ReactElement
 

@@ -81,16 +81,17 @@ pnpm test
   - Tabs
   - Accordion
   - DocPip
-- 添加测试用例
+- 完善测试用例
 - 完善文档，提供组件的 Props、Events、Slots、Methods 等详细说明
 - 添加其他想实现但没时间做的组件或功能
   - slot 与 prop 优先级统一，目前各个组件有些不同
   - 确定输入组件的受控模式，目前不统一。确定某些更新事件是否可取消
   - 组件 Transition 方案确定，目前全在 common css 里，可能考虑迁移到全局配置，放 js 中
-  - 为 Select、Tree 集成内部的虚拟渲染，同时支持外部虚拟渲染
+  - 为 Select、Tree 集成内部的虚拟渲染，同时支持外部虚拟渲染。完善 Table 的虚拟渲染
+  - 为 ScrollView 组件提供更完善的滚动驱动动画
   - Input 掩码输入，Input hint 及 tab 补全，分组 Input 输入，简化 Input 渲染
+  - 时间处理预设的完善，时间组件的完善
   - 添加颜色处理预设，完善 ColorPicker
-  - 大单元格 Calendar 渲染，完善模式切换，添加日历事件支持，农历支持
   - 其他想实现的...
 - Accessibility 支持
 - 收集社区意见，确定组件的功能，属性方法命名是否需要修改

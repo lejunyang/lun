@@ -81,17 +81,17 @@ Technically yes, because web components is not framework-specific, but you need 
   - Tabs
   - Accordion
   - DocPip
-- add test cases
+- add more test cases
 - add docs about Props, Events, Slots, Methods for components
 - features I want to add but haven't got time yet:
   - unify which one take precedence, prop or slot
   - controlled mode or uncontrolled mode for some components. confirm if update events can be canceled
   - finalize component Transition(css or config?)
-  - integrate internal virtual rendering for Select、Tree, support external virtual rendering
+  - integrate internal virtual rendering for Select、Tree, support external virtual rendering; improve Table virtual render
   - provide better scroll-driven animation usage in ScrollView
   - add mask input, add input hint and tab completion, simplify input rendering
+  - complete date preset and date components
   - add color process preset, finish ColorPicker
-  - finish Calendar
   - add some other components
 - accessibility support
 - gather feedback, finalize name and functions of components

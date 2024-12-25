@@ -45,6 +45,7 @@ export const locales = reactive<Record<string, Record<string, string | ((param?:
     'tour.next': '下一步',
     'tour.close': '结束',
   },
+  en: {},
 });
 
 export function processStringWithParams<T>(

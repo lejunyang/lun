@@ -49,7 +49,7 @@
     "@lun-web/utils": "workspace:^"
   },
   "peerDependencies": {
-    "@vue/compiler-core": "catalog:"
+    "@vue/compiler-core": "^3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

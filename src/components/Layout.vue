@@ -94,7 +94,7 @@
             repo="lejunyang/lun"
             repo-id="R_kgDOKRu0ww"
             mapping="specific"
-            :term="page.relativePath"
+            :term="keyword"
             category="Comments"
             category-id="DIC_kwDOKRu0w84CkFaB"
             strict="1"
@@ -115,7 +115,17 @@
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
 import { useData, inBrowser, useRouter } from 'vitepress';
-import { watchEffect, nextTick, provide, reactive, onMounted, onBeforeUnmount, useTemplateRef, watch } from 'vue';
+import {
+  watchEffect,
+  nextTick,
+  provide,
+  reactive,
+  onMounted,
+  onBeforeUnmount,
+  useTemplateRef,
+  watch,
+  computed,
+} from 'vue';
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
 import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun-web/components';
 import Giscus from '@giscus/vue';
@@ -156,6 +166,8 @@ const pickColorUpdate = (e: CustomEvent) => {
 const { isDark, lang, page, site } = useData();
 let lastClickX = 0,
   lastClickY = 0;
+
+const keyword = computed(() => page.value.relativePath.replace('/index.md', ''));
 
 const swapZ = (name = 'root', scale = 0.8, duration = 500) => {
   document.documentElement.animate(
@@ -302,9 +314,12 @@ router.onBeforeRouteChange = () => {
   console.debug('on before route change');
   pageProgress.start();
 };
-// @ts-ignore
+
 router.onAfterPageLoad = async () => {
   console.debug('on after page load');
+  setTimeout(() => {
+    console.debug('page info', page.value.relativePath, keyword.value, site.value.base);
+  });
   await pageProgress.stop();
   console.debug('page loading bar stopped');
   if (document.startViewTransition) {
@@ -319,6 +334,10 @@ router.onAfterPageLoad = async () => {
   }
 };
 router.onAfterRouteChanged = async () => {
+  console.debug('on after route changed');
+  if (page.value.isNotFound) {
+    return pageProgress.stop();
+  }
   if (routeResolve) {
     await nextTick();
     routeResolve();
