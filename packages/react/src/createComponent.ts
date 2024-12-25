@@ -1,4 +1,4 @@
-import { ComponentKey, getElementFirstName } from '@lun-web/components';
+import { ComponentKey, GlobalStaticConfig } from '@lun-web/components';
 import { forwardRef, createElement, useRef, useImperativeHandle, useLayoutEffect, ReactNode } from 'react';
 import { on, off, inBrowser, capitalize, objectKeys, isArray } from '@lun-web/utils';
 
@@ -39,10 +39,10 @@ export default function <Props extends Record<string, any>, Instance extends HTM
       ? (isArray(emits) ? (emits as string[]) : objectKeys(emits)).map((k) => ['on' + capitalize(k), capitalize(k)])
       : [],
   );
+  let name: string;
   return forwardRef<Instance, Props & { children?: ReactNode }>((reactProps, ref) => {
     defineFunc();
-    const name = getElementFirstName(compName) as string;
-    if (!name) throw new Error(__DEV__ ? 'Invalid component name' : '');
+    name ||= GlobalStaticConfig.namespace + '-' + compName;
 
     // @ts-ignore
     const compRef = useRef<Instance>();
