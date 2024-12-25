@@ -1,5 +1,5 @@
 import { ComponentKey, GlobalStaticConfig } from '@lun-web/components';
-import { createElement, ReactNode } from 'react';
+import { createElement, HTMLAttributes, ReactNode } from 'react';
 
 /*@__NO_SIDE_EFFECTS__*/
 export default function <Props extends Record<string, any>, Instance extends HTMLElement>(
@@ -11,5 +11,5 @@ export default function <Props extends Record<string, any>, Instance extends HTM
     defineFunc();
     name ||= GlobalStaticConfig.namespace + '-' + compName;
     return createElement(name, reactProps, children);
-  }) as React.FC<Props & { ref?: React.Ref<Instance>; children?: ReactNode }>;
+  }) as React.FC<Props & { ref?: React.Ref<Instance>; children?: ReactNode }> & HTMLAttributes<Instance>;
 }

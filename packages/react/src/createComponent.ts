@@ -1,5 +1,13 @@
 import { ComponentKey, GlobalStaticConfig } from '@lun-web/components';
-import { forwardRef, createElement, useRef, useImperativeHandle, useLayoutEffect, ReactNode } from 'react';
+import {
+  forwardRef,
+  createElement,
+  useRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  ReactNode,
+  HTMLAttributes,
+} from 'react';
 import { on, off, inBrowser, capitalize, objectKeys, isArray } from '@lun-web/utils';
 
 /** element => (eventName, objectEventHandler) */
@@ -40,7 +48,7 @@ export default function <Props extends Record<string, any>, Instance extends HTM
       : [],
   );
   let name: string;
-  return forwardRef<Instance, Props & { children?: ReactNode }>((reactProps, ref) => {
+  return forwardRef<Instance, Props & { children?: ReactNode } & HTMLAttributes<Instance>>((reactProps, ref) => {
     defineFunc();
     name ||= GlobalStaticConfig.namespace + '-' + compName;
 
@@ -79,13 +87,6 @@ export default function <Props extends Record<string, any>, Instance extends HTM
         prevPropKeySet.current = newPropKeySet;
       });
 
-    return createElement(
-      name,
-      {
-        ...remainProps,
-        ref: compRef,
-      },
-      reactProps.children,
-    );
+    return createElement(name, { ...remainProps, ref: compRef }, reactProps.children);
   });
 }

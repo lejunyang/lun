@@ -22,7 +22,7 @@ import path from 'path';
     const vueCompType = `Vue.DefineComponent<${propType}>`;
     // tried Omit<Vue.ReservedProps, 'ref'> & { ref?: string | Vue.Ref<${instanceType}> | ((el: ${instanceType} | null) => void) }, but ref doesn't work as expected
     const vuePropType = `Vue.HTMLAttributes & Vue.ReservedProps & ${propType}`;
-    const reactPropType = `React.HTMLAttributes<HTMLElement> & React.RefAttributes<${instanceType}> & ${propType}`;
+    const reactPropType = `React.HTMLAttributes<${instanceType}> & React.RefAttributes<${instanceType}> & ${propType}`;
     vueCompTypes.push(`    L${componentCamelName}: ${vueCompType};`);
     vueJSXTypes.push(`      'l-${componentTag}': ${vuePropType};`);
     htmlTypes.push(`    'l-${componentTag}': import('./index').i${componentCamelName};`);
