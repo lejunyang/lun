@@ -1,5 +1,13 @@
 # @lun-web/core
 
+## 0.0.1-alpha.6
+
+### Patch Changes
+
+### Chore
+
+- add check for date preset methods, throw error if not set
+
 ## 0.0.1-alpha.5
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @lun-web/components
 
+## 0.0.1-alpha.6
+
+### Patch Changes
+
+### Features
+
+- export `openShadowCommonProps`
+
 ## 0.0.1-alpha.5
 
 ### Patch Changes
