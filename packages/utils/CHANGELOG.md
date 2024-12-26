@@ -1,5 +1,7 @@
 # @lun-web/utils
 
+## 0.0.1-alpha.6
+
 ## 0.0.1-alpha.5
 
 ### Patch Changes

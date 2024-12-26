@@ -1,6 +1,6 @@
 {
   "name": "@lun-web/react",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.6",
   "description": "Compatible @lun-web/components layer for versions before React19",
   "keywords": [
     "web-components",
