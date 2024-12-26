@@ -9,8 +9,8 @@ import {
   ThemeProps,
   themeProps,
 } from 'common';
-import { OpenShadowComponentKey } from '../config/config.static';
 import { freeze, fromObject } from '@lun-web/utils';
+import { OpenShadowComponentKey } from 'config';
 
 export const themeProviderProps = freeze({
   ...editStateProps,

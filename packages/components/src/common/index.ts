@@ -1,8 +1,9 @@
 import { renderElement } from 'utils';
 import { Status } from './type';
-import { supportPopover } from '@lun-web/utils';
+import { freeze, supportPopover } from '@lun-web/utils';
 import { ComponentKey } from 'config';
 import { ComponentInternalInstance } from 'vue';
+import { PropString } from './propConstructor';
 
 export * from './editStateProps';
 export * from './emit';
@@ -78,4 +79,6 @@ export const getCollectorOptions = (
   },
 });
 
-
+export const openShadowCommonProps = freeze({
+  innerStyle: PropString(),
+});

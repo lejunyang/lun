@@ -28,9 +28,11 @@ export type { UserComponents, OpenShadowComponentKey, ComponentKey, ComponentSty
  */
 export function addUserComponent(name: TryGet<UserComponents, 'open'>) {
   Object.entries(staticConfig).forEach(([key, value]) => {
-    GlobalStaticConfig[key as keyof typeof staticConfig][name] = value[0]();
+    // @ts-ignore
+    GlobalStaticConfig[key][name] = value[0]();
   });
   Object.entries(contextConfigs).forEach(([key, value]) => {
-    GlobalContextConfig[key as keyof typeof contextConfigs][name] = value[0]();
+    // @ts-ignore
+    GlobalContextConfig[key][name] = value[0]();
   });
 }

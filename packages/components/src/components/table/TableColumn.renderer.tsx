@@ -1,8 +1,8 @@
 import { getProp } from 'utils';
 import { GetCustomRendererSource } from '../custom-renderer';
-import { InternalColumn } from './type';
 import { isFunction, objectGet } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
+import { InternalColumn } from './internalType';
 
 export const tableColumnRendererRegistry: Record<
   string,

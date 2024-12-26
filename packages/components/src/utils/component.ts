@@ -29,7 +29,7 @@ import {
   runIfFn,
   supportCustomElement,
 } from '@lun-web/utils';
-import { PropString } from 'common';
+import { openShadowCommonProps } from 'common';
 import { vContent } from '@lun-web/plugins/vue';
 import { useContextStyles } from '../hooks/useStyles';
 import { holderName } from '../components/config/utils';
@@ -259,7 +259,7 @@ export function preprocessComponentOptions(options: ComponentOptions) {
       return value;
     };
     const noShadow = shadowOptions === null || shadowOptions?.mode === 'closed';
-    if (!noShadow) propsClone.innerStyle = PropString();
+    if (!noShadow) Object.assign(propsClone, openShadowCommonProps);
     const originalSetup = setup;
     options.setup = (props: any, ctx: any) => {
       const vm = getCurrentInstance()!;
