@@ -182,6 +182,12 @@ importers:
       postcss-logical:
         specifier: 'catalog:'
         version: 7.0.1(postcss@8.4.39)
+      react-dom18:
+        specifier: npm:react-dom@^18
+        version: react-dom@18.3.1(react@19.0.0)
+      react18:
+        specifier: npm:react@^18
+        version: react@18.3.1
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -206,6 +212,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 2.1.5(@types/node@22.2.0)(@vitest/browser@2.1.5)(happy-dom@15.11.0)(msw@2.6.5(@types/node@22.2.0)(typescript@5.6.3))(sass-embedded@1.81.0)(sass@1.77.6)(terser@5.36.0)
+      vitest-browser-react:
+        specifier: ^0.0.4
+        version: 0.0.4(@types/react-dom@19.0.0)(@types/react@19.0.0)(@vitest/browser@2.1.5)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(vitest@2.1.5)
       vitest-browser-vue:
         specifier: ^0.0.1
         version: 0.0.1(@vitest/browser@2.1.5)(vitest@2.1.5)(vue@3.5.13(typescript@5.6.3))
@@ -2343,6 +2352,10 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
+
   loupe@3.1.2:
     resolution: {integrity: sha512-23I4pFZHmAemUnz8WZXbYRSKYj801VDaNv9ETuMh7IrMc7VuVVSo+Z9iLE3ni30+U48iDWfi30d3twAXBYmnCg==}
 
@@ -2666,6 +2679,11 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  react-dom@18.3.1:
+    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
+    peerDependencies:
+      react: ^19
+
   react-dom@19.0.0:
     resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
     peerDependencies:
@@ -2681,6 +2699,10 @@ packages:
 
   react-refresh@0.14.2:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
+    engines: {node: '>=0.10.0'}
+
+  react@18.3.1:
+    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
 
   react@19.0.0:
@@ -2884,6 +2906,9 @@ packages:
     resolution: {integrity: sha512-ByXE1oLD79GVq9Ht1PeHWCPMPB8XHpBuz1r85oByKHjZY6qV6rWnQovQzXJXuQ/XyE1Oj3iPk3lo28uzaRA2/Q==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  scheduler@0.23.2:
+    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
   scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
@@ -3231,6 +3256,22 @@ packages:
       markdown-it-mathjax3:
         optional: true
       postcss:
+        optional: true
+
+  vitest-browser-react@0.0.4:
+    resolution: {integrity: sha512-4uK8zgo5eHlhrBVEPX8ejRt8Bn4gzV6OZFTPdb1en3FtgjEhhst400XkIQHUC875Q90rOO5Tc4zPpCl8YXvoxg==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      '@types/react': ^19
+      '@types/react-dom': ^19
+      '@vitest/browser': '>=2.1.0'
+      react: ^19
+      react-dom: ^19
+      vitest: '>=2.1.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
         optional: true
 
   vitest-browser-vue@0.0.1:
@@ -5546,6 +5587,10 @@ snapshots:
 
   lodash@4.17.21: {}
 
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
+
   loupe@3.1.2: {}
 
   lru-cache@10.3.0: {}
@@ -5850,6 +5895,12 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
+  react-dom@18.3.1(react@19.0.0):
+    dependencies:
+      loose-envify: 1.4.0
+      react: 19.0.0
+      scheduler: 0.23.2
+
   react-dom@19.0.0(react@19.0.0):
     dependencies:
       react: 19.0.0
@@ -5863,6 +5914,10 @@ snapshots:
   react-is@17.0.2: {}
 
   react-refresh@0.14.2: {}
+
+  react@18.3.1:
+    dependencies:
+      loose-envify: 1.4.0
 
   react@19.0.0: {}
 
@@ -6045,6 +6100,10 @@ snapshots:
       immutable: 4.3.6
       source-map-js: 1.2.0
     optional: true
+
+  scheduler@0.23.2:
+    dependencies:
+      loose-envify: 1.4.0
 
   scheduler@0.25.0: {}
 
@@ -6402,6 +6461,16 @@ snapshots:
       - terser
       - typescript
       - universal-cookie
+
+  vitest-browser-react@0.0.4(@types/react-dom@19.0.0)(@types/react@19.0.0)(@vitest/browser@2.1.5)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(vitest@2.1.5):
+    dependencies:
+      '@vitest/browser': 2.1.5(@types/node@22.2.0)(playwright@1.48.2)(typescript@5.6.3)(vite@5.4.10(@types/node@22.2.0)(sass-embedded@1.81.0)(sass@1.77.6)(terser@5.36.0))(vitest@2.1.5)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      vitest: 2.1.5(@types/node@22.2.0)(@vitest/browser@2.1.5)(happy-dom@15.11.0)(msw@2.6.5(@types/node@22.2.0)(typescript@5.6.3))(sass-embedded@1.81.0)(sass@1.77.6)(terser@5.36.0)
+    optionalDependencies:
+      '@types/react': 19.0.0
+      '@types/react-dom': 19.0.0
 
   vitest-browser-vue@0.0.1(@vitest/browser@2.1.5)(vitest@2.1.5)(vue@3.5.13(typescript@5.6.3)):
     dependencies:

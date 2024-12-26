@@ -64,6 +64,8 @@
     "new-javascript": "^0.4.7",
     "playwright": "^1.48.2",
     "postcss-logical": "catalog:",
+    "react-dom18": "npm:react-dom@^18",
+    "react18": "npm:react@^18",
     "rimraf": "catalog:",
     "sass-embedded": "catalog:",
     "typescript": "catalog:",
@@ -72,6 +74,7 @@
     "vite-plugin-dts": "catalog:",
     "vitepress": "1.5.0",
     "vitest": "catalog:",
+    "vitest-browser-react": "^0.0.4",
     "vitest-browser-vue": "^0.0.1",
     "vue-tsc": "catalog:"
   },

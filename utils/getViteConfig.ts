@@ -119,20 +119,22 @@ export function getViteConfig(
     },
     resolve: {
       ...viteConfig?.resolve,
-      alias: {
-        ...(dev && !iife
-          ? {
-              '@lun-web/components': processPath('../packages/components/index'),
-              '@lun-web/utils': processPath('../packages/utils/index.ts'),
-              '@lun-web/core/date-dayjs': processPath('../packages/core/src/presets/date.dayjs.ts'),
-              '@lun-web/theme/custom': processPath('../packages/theme/src/custom/custom.ts'),
-              '@lun-web/core': processPath('../packages/core/index'),
-              '@lun-web/theme': processPath('../packages/theme/src'),
-            }
-          : {}),
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-        ...viteConfig?.resolve?.alias,
-      },
+      alias: Array.isArray(viteConfig?.resolve?.alias)
+        ? viteConfig?.resolve.alias
+        : {
+            ...(dev && !iife
+              ? {
+                  '@lun-web/components': processPath('../packages/components/index'),
+                  '@lun-web/utils': processPath('../packages/utils/index.ts'),
+                  '@lun-web/core/date-dayjs': processPath('../packages/core/src/presets/date.dayjs.ts'),
+                  '@lun-web/theme/custom': processPath('../packages/theme/src/custom/custom.ts'),
+                  '@lun-web/core': processPath('../packages/core/index'),
+                  '@lun-web/theme': processPath('../packages/theme/src'),
+                }
+              : {}),
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            ...viteConfig?.resolve?.alias,
+          },
     },
   });
 }

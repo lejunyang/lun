@@ -11,6 +11,8 @@ if (buildForReact19AndLater) {
   fs.writeFileSync('./package.json', JSON.stringify(json, null, 2));
 }
 
+const isTest = process.env.VITEST;
+
 export default getViteConfig(
   '@lun-web/react',
   {
@@ -33,6 +35,20 @@ export default getViteConfig(
         entry: buildForReact19AndLater ? './index19.ts' : './index.ts',
       },
       outDir: buildForReact19AndLater ? 'dist/19' : 'dist',
+    },
+    resolve: {
+      alias: isTest
+        ? [
+            {
+              find: 'react',
+              replacement: 'react18',
+            },
+            {
+              find: 'react-dom',
+              replacement: 'react-dom18',
+            },
+          ]
+        : undefined,
     },
   },
 );

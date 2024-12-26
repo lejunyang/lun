@@ -1,12 +1,26 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["./index.ts", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "../../global.d.ts"],
+  "include": [
+    "./index.ts",
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.tsx",
+    "../../global.d.ts",
+    "./__tests__/**/*"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
     "declarationDir": "dist",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "types": []
+    "types": [
+      "new-javascript/wicg/document-picture-in-picture",
+      "new-javascript/wicg/file-system-access",
+      "@types/dom-view-transitions",
+      "vitest/globals",
+      "@vitest/browser/providers/playwright",
+      "vite/client"
+    ]
     // "paths": {
     //   "@lun-web/components": ["../components/index.ts"],
     //   "@lun-web/core": ["../core/index.ts"],

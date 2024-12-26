@@ -53,4 +53,19 @@ export default defineWorkspace([
       environment: 'happy-dom',
     },
   },
+  {
+    extends: './packages/react/vite.config.ts',
+    test: {
+      name: '@lun-web/react',
+      globals: true,
+      root: './packages/react',
+      browser: {
+        enabled: true,
+        name: 'chromium',
+        provider: 'playwright',
+        // https://playwright.dev
+        providerOptions: {},
+      },
+    },
+  },
 ]);
