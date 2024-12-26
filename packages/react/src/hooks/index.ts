@@ -9,10 +9,12 @@ export const useReactForm = (
   },
 ) => {
   const [_, update] = useState(0);
+  // @ts-ignore
   const effectRef = useRef<EffectScope>();
   if (!effectRef.current) {
     effectRef.current = effectScope();
   }
+  // @ts-ignore
   const ref = useRef<UseFormReturn>();
   if (!ref.current) {
     effectRef.current.run(() => {

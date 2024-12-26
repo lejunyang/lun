@@ -59,6 +59,7 @@ export default defineWorkspace([
       name: '@lun-web/react',
       globals: true,
       root: './packages/react',
+      setupFiles: ['../../utils/reactTestSetup.ts'],
       browser: {
         enabled: true,
         name: 'chromium',

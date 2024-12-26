@@ -38,7 +38,10 @@ export default getViteConfig(
     },
     resolve: {
       alias: isTest
-        ? [
+        ? // use array will override default alias, so @lun-web will resolve to dist build
+          // resolving to dev file needs to remove some special alias for components package
+          // FIXME
+          [
             {
               find: 'react',
               replacement: 'react18',

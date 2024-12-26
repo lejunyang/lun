@@ -31,8 +31,16 @@ const createProxy = (obj: any, param: MaybeRefLikeOrGetter<any>) =>
       : undefined,
   ]);
 
+const checkDate = () => {
+  if (!presets.date)
+    throw new Error(
+      `Date preset methods are not initialized, did you forget to import '@lun-web/core/date-dayjs' or customize the preset yourself?`,
+    );
+};
+
 /** return proxies of the date locale methods with the language parameter bound, so that we don't have to pass it every time we call the locale method */
 export const createDateLocaleMethods = (lang: MaybeRefLikeOrGetter<string, true>) => {
+  __DEV__ && checkDate();
   return createProxy(presets.date.locale, lang) as {
     [k in keyof typeof presets.date.locale]: RemoveFirstParam<(typeof presets.date.locale)[k]>;
   };
@@ -40,6 +48,7 @@ export const createDateLocaleMethods = (lang: MaybeRefLikeOrGetter<string, true>
 
 /** return proxies of the date type methods with the language parameter bound, so that we don't have to pass it every time we call the type method */
 export const createDateTypeMethods = (t: MaybeRefLikeOrGetter<DateType, true>) => {
+  __DEV__ && checkDate();
   return createProxy(presets.date.type, t) as {
     [k in keyof typeof presets.date.type]: RemoveFirstParam<(typeof presets.date.type)[k]>;
   };
