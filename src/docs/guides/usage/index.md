@@ -10,7 +10,7 @@ lang: zh-CN
 你可在 Stackblitz 中快速开始尝试：
 - [Vue3](https://stackblitz.com/edit/lun-vue3-start?file=src%2FApp.vue)
 - [React19](https://stackblitz.com/edit/lun-react19-start?file=src%2FApp.tsx)
-<!-- - [React18](https://stackblitz.com/edit/lun-react18-start?file=src%2FApp.tsx) 暂时不开放，有问题，首先是ts类型有问题，没有HTML属性，其次为什么onClick这样的事件无法绑定 -->
+- [React18](https://stackblitz.com/edit/lun-react18-start?file=src%2FApp.tsx)
 
 ## 安装
 

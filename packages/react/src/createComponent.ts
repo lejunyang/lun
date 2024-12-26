@@ -1,4 +1,4 @@
-import { ComponentKey, GlobalStaticConfig } from '@lun-web/components';
+import { ComponentKey, GlobalStaticConfig, openShadowCommonProps, openShadowComponents } from '@lun-web/components';
 import {
   forwardRef,
   createElement,
@@ -43,50 +43,58 @@ export default function <Props extends Record<string, any>, Instance extends HTM
 ) {
   /** onValidClick => ValidClick */
   const eventMap = new Map(
-    emits
-      ? (isArray(emits) ? (emits as string[]) : objectKeys(emits)).map((k) => ['on' + capitalize(k), capitalize(k)])
-      : [],
-  );
+      emits
+        ? (isArray(emits) ? (emits as string[]) : objectKeys(emits)).map((k) => ['on' + capitalize(k), capitalize(k)])
+        : [],
+    ),
+    getEvent = (key: string) => eventMap.get(key),
+    predefinedProps = openShadowComponents.includes(compName as any) ? { ...openShadowCommonProps, ...props } : props;
   let name: string;
-  return forwardRef<Instance, Props & { children?: ReactNode } & HTMLAttributes<Instance>>((reactProps, ref) => {
-    defineFunc();
-    name ||= GlobalStaticConfig.namespace + '-' + compName;
+  return forwardRef<Instance, Props & { children?: ReactNode } & HTMLAttributes<Instance>>(
+    ({ children, ...reactProps }, ref) => {
+      defineFunc();
+      name ||= GlobalStaticConfig.namespace + '-' + compName;
 
-    // @ts-ignore
-    const compRef = useRef<Instance>();
-    useImperativeHandle(ref, () => compRef.current!);
-    const prevPropKeySet = useRef(new Set<keyof Props>());
-    const remainProps: Record<string, any> = {};
+      // @ts-ignore
+      const compRef = useRef<Instance>();
+      useImperativeHandle(ref, () => compRef.current!);
+      const prevPropKeySet = useRef(new Set<string>());
+      const remainProps: Record<string, any> = { ref: compRef },
+        elementProps: [key: string, value: any, isEvent?: number][] = [];
 
-    inBrowser &&
-      useLayoutEffect(() => {
-        const current = compRef.current as any;
-        if (!current) return;
-        const newElProps: Record<string, any> = {},
-          newPropKeySet = new Set<keyof Props>();
-        for (const [key, value] of Object.entries(reactProps)) {
-          const event = eventMap.get(key);
-          if (event) {
-            patchEvent(current, event, value);
-          } else if (key in props) {
-            current[key] = value;
-          } else {
-            remainProps[key] = value;
-            continue;
+      for (const [key, value] of Object.entries(reactProps)) {
+        const event = getEvent(key);
+        if (event) {
+          elementProps.push([event, value, 1]);
+        } else if (key in predefinedProps) {
+          elementProps.push([key, value]);
+        } else {
+          // React does not handle `className` for custom elements, need to use `class` instead
+          remainProps[key === 'className' ? 'class' : key] = value;
+        }
+      }
+
+      inBrowser &&
+        useLayoutEffect(() => {
+          const current = compRef.current as any;
+          if (!current) return;
+          const newPropKeySet = new Set<string>();
+          for (const [key, value, isEvent] of elementProps) {
+            if (isEvent) patchEvent(current, key, value);
+            else current[key] = value;
+            prevPropKeySet.current.delete(key);
+            newPropKeySet.add(key);
           }
-          newElProps[key] = value;
-          prevPropKeySet.current.delete(key);
-          newPropKeySet.add(key);
-        }
-        // "Unset" any props from previous render that no longer exist
-        for (const key of prevPropKeySet.current) {
-          const event = eventMap.get(key as any);
-          if (event) patchEvent(current, event, undefined);
-          else current[key] = undefined;
-        }
-        prevPropKeySet.current = newPropKeySet;
-      });
+          // "Unset" any props from previous render that no longer exist
+          for (const key of prevPropKeySet.current) {
+            const event = getEvent(key);
+            if (event) patchEvent(current, event, undefined);
+            else current[key] = undefined;
+          }
+          prevPropKeySet.current = newPropKeySet;
+        });
 
-    return createElement(name, { ...remainProps, ref: compRef }, reactProps.children);
-  });
+      return createElement(name, remainProps, children);
+    },
+  );
 }
