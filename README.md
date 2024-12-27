@@ -67,7 +67,7 @@ I don't found any library based on shadow DOM that has both useful and out-of-bo
 
 ### Could it be used in Vue2?
 
-Technically yes, because web components is not framework-specific, but you need to handle the import from vue2 and vue3 properly. Definitely needs some configurations in different CLI, haven't tested yet.
+Yes, because web components is not framework-specific, but you need to handle the import from vue2 and vue3 properly. If you're using vite or rollup, you can check [Lun Vue2 Start - StackBlitz](https://stackblitz.com/edit/lun-vue2-start?file=vite.config.js,src%2FApp.vue,package.json). Haven't tested webpack
 
 ### Roadmap
 

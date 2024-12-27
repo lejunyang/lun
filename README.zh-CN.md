@@ -62,7 +62,7 @@ pnpm test
 
 ### Vue2 可以用吗？
 
-理论上可以，因为 Web Components 本身的特性是框架无关的，但是需要 Vue2 和 Vue3 在一个项目共存，需要些配置，暂未测试
+可以，因为 Web Components 本身的特性是框架无关的，但是需要 Vue2 和 Vue3 在一个项目共存，需要些配置。如果是vite，可参考[Lun Vue2 Start - StackBlitz](https://stackblitz.com/edit/lun-vue2-start?file=vite.config.js,src%2FApp.vue,package.json)的配置，需要在 package.json 重命名来一个安装 vue3，然后通过rollup的自定义解析，将组件库内的vue导入定向到 vue3，这样就不会影响项目里原来的 vue2。webpack等有空再研究怎么配置
 
 ### 小程序可以用吗？
 

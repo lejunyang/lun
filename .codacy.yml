@@ -3,5 +3,6 @@ exclude_paths:
   - "**/*.js"
   - "**/__tests__/**"
   - "./src/**/*"
+  - "*.md"
 include_paths:
   - "./packages/**"

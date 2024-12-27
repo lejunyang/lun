@@ -13,9 +13,11 @@ runs:
     - name: Print github context
       shell: bash
       run: |
-        echo "github.actor: ${{ github.actor }}"
-        echo "github.triggering_actor: ${{ github.triggering_actor }}"
-        echo "github.event: ${{ toJSON(github.event) }}"
+        echo github.actor: "${{ github.actor }}"
+        echo github.triggering_actor: "${{ github.triggering_actor }}"
+        echo github.event.inputs: "${{ toJSON(github.event.inputs) }}"
+        echo inputs: "${{ toJSON(inputs) }}"
+        echo github.event.head_commit: "${{ toJSON(github.event.head_commit) }}"
 
     - name: Setup pnpm
       # Must not set shell for other actions...
@@ -32,12 +34,6 @@ runs:
     - name: Install
       shell: bash # Must set shell for every step in composite action...
       run: pnpm install --frozen-lockfile
-
-    - name: Check inputs
-      shell: bash
-      run: |
-        echo "github.event.inputs: ${{ toJSON(github.event.inputs) }}"
-        echo "inputs: ${{ toJSON(inputs) }}"
 
     - name: Check if needs to init test
       shell: bash
