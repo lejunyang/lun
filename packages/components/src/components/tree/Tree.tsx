@@ -77,6 +77,7 @@ export const Tree = defineSSRCustomElement({
       allValues: () => combinedChildren.childrenValuesSet,
     });
     const expandMethods = useExpandMethods({
+      multiple: true, // TODO defaultExpandAll 放进去
       current: expandedValueSet,
       onChange(value) {
         expandedModel.value = value;
