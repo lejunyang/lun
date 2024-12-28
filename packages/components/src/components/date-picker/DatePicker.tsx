@@ -7,7 +7,7 @@ import { definePopover, iPopover } from '../popover';
 import { useDateParseFormat, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createGetterForHasRawModel, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
 import { ref } from 'vue';
-import { isObject, virtualGetMerge } from '@lun-web/utils';
+import { extend, isObject } from '@lun-web/utils';
 import { useContextConfig } from 'config';
 
 const name = 'date-picker';
@@ -20,7 +20,7 @@ export const DatePicker = defineSSRCustomElement({
   setup(props, { emit: e }) {
     useNamespace(name);
     const context = useContextConfig();
-    const { parse, format } = useDateParseFormat(virtualGetMerge({ lang: () => context.lang }, props));
+    const { parse, format } = useDateParseFormat(extend(props, { lang: () => context.lang }));
 
     useSetupEdit();
     const emit = useSetupEvent<typeof e>(

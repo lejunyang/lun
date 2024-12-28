@@ -3,7 +3,7 @@ import { defineComponent, ref } from 'vue';
 import { createDefineElement, virtualUnrefGetMerge } from 'utils';
 import { virtualRendererProps, VirtualRendererSetupProps } from './type';
 import { useVirtualList } from '@lun-web/core';
-import { isFunction, virtualGetMerge } from '@lun-web/utils';
+import { extend, isFunction } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { useCE } from 'hooks';
 
@@ -18,12 +18,9 @@ const options = {
       getContainer = () => CE || container.value;
 
     const { wrapperStyle, virtualItems } = useVirtualList(
-      virtualGetMerge(
-        {
-          container: getContainer,
-        },
-        props,
-      ),
+      extend(props, {
+        container: getContainer,
+      }),
     );
     const crossAxis = useVirtualList(
       virtualUnrefGetMerge(

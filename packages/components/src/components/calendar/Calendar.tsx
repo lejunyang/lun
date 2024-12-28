@@ -15,12 +15,12 @@ import {
 import {
   AnyAsyncFn,
   capitalize,
+  extend,
   getRect,
   raf,
   runIfFn,
   supportTouch,
   toGetterDescriptors,
-  virtualGetMerge,
   withResolvers,
 } from '@lun-web/utils';
 import { useContextConfig } from '../config/config.context';
@@ -52,50 +52,47 @@ export const Calendar = defineSSRCustomElement({
     const scrollable = () => props.scrollable || supportTouch;
     const { cells, methods, direction, onTransitionEnd, handlers, prevCells, nextCells, state, expose, pickingType } =
       useDatePanel(
-        virtualGetMerge(
-          {
-            get type() {
-              return props.type || 'date';
-            },
-            lang,
-            value: createGetterForHasRawModel(valueModel),
-            viewDate,
-            ...(Object.fromEntries(panelTypes.map((t) => [`${t}Format`, () => getFormat(`${t}Format`)])) as Record<
-              'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat',
-              () => string
-            >),
-            getCell({ dataset: { row, col } }: HTMLElement) {
-              if (row && col) return [+row, +col] as [number, number];
-            },
-            onSelect(value: any, valueStr: any) {
-              valueModel.value = {
-                value: valueStr,
-                raw: value,
-              };
-            },
-            getFocusing: focusingInner,
-            enablePrevCells: scrollable,
-            enableNextCells: scrollable,
-            async beforeViewChange(offset: number) {
-              if (scrollable()) {
-                // >> 31 => positive: 0 negative: -1
-                const { value } = wrapper;
-                const target = value!.children[1 + ((offset >> 31) | 1)] as HTMLElement;
-                const { x, width } = getRect(target),
-                  { x: wx } = getRect(value!);
-                if (Math.abs(x - wx) > width / 2) {
-                  scrollIntoView(target, {
-                    behavior: 'smooth',
-                  });
-                  const [promise, resolve] = withResolvers();
-                  scrollEnd = resolve;
-                  return promise;
-                }
-              }
-            },
+        extend(props, {
+          get type() {
+            return props.type || 'date';
           },
-          props,
-        ),
+          lang,
+          value: createGetterForHasRawModel(valueModel),
+          viewDate,
+          ...(Object.fromEntries(panelTypes.map((t) => [`${t}Format`, () => getFormat(`${t}Format`)])) as Record<
+            'dateFormat' | 'weekFormat' | 'monthFormat' | 'quarterFormat' | 'yearFormat',
+            () => string
+          >),
+          getCell({ dataset: { row, col } }: HTMLElement) {
+            if (row && col) return [+row, +col] as [number, number];
+          },
+          onSelect(value: any, valueStr: any) {
+            valueModel.value = {
+              value: valueStr,
+              raw: value,
+            };
+          },
+          getFocusing: focusingInner,
+          enablePrevCells: scrollable,
+          enableNextCells: scrollable,
+          async beforeViewChange(offset: number) {
+            if (scrollable()) {
+              // >> 31 => positive: 0 negative: -1
+              const { value } = wrapper;
+              const target = value!.children[1 + ((offset >> 31) | 1)] as HTMLElement;
+              const { x, width } = getRect(target),
+                { x: wx } = getRect(value!);
+              if (Math.abs(x - wx) > width / 2) {
+                scrollIntoView(target, {
+                  behavior: 'smooth',
+                });
+                const [promise, resolve] = withResolvers();
+                scrollEnd = resolve;
+                return promise;
+              }
+            }
+          },
+        }),
       );
 
     let scrollEnd: (() => void) | null, observer: IntersectionObserver | undefined;

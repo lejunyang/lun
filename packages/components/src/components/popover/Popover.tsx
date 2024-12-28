@@ -28,9 +28,9 @@ import {
   runIfFn,
   toGetterDescriptors,
   toPxIfNum,
-  virtualGetMerge,
   getRect,
   getCSSVarName,
+  extend,
 } from '@lun-web/utils';
 import { useCE, useCEExpose, useNamespace, useSlot } from 'hooks';
 import { ElementRects } from '@floating-ui/vue';
@@ -91,25 +91,22 @@ export const Popover = defineSSRCustomElement({
       isClosing,
       actualTarget,
     } = usePopover(
-      virtualGetMerge(
-        {
-          onOpen() {
-            const popover = popRef.value,
-              p = positionedRef.value;
-            openPopover(popRef);
-            return !!(popover || p);
-          },
-          target: innerTarget,
-          pop: actualPop,
-          onPopContentClose(e: Event) {
-            // it's for nested type=teleport popover
-            // if pop content is about to close, dispatch the event to its virtual parent, so that its parent can handle the event to determine to close or not
-            const vParent = virtualParentMap.get(e.target as HTMLElement);
-            if (vParent) vParent.dispatchEvent(new Event(e.type, { bubbles: true })); // bubbles must be true
-          },
+      extend(props, {
+        onOpen() {
+          const popover = popRef.value,
+            p = positionedRef.value;
+          openPopover(popRef);
+          return !!(popover || p);
         },
-        props,
-      ),
+        target: innerTarget,
+        pop: actualPop,
+        onPopContentClose(e: Event) {
+          // it's for nested type=teleport popover
+          // if pop content is about to close, dispatch the event to its virtual parent, so that its parent can handle the event to determine to close or not
+          const vParent = virtualParentMap.get(e.target as HTMLElement);
+          if (vParent) vParent.dispatchEvent(new Event(e.type, { bubbles: true })); // bubbles must be true
+        },
+      }),
     );
 
     const slotRef = useAutoAttach(props, methods);
@@ -131,44 +128,38 @@ export const Popover = defineSSRCustomElement({
       currentTarget,
       actualPop as any,
       arrowRef,
-      virtualGetMerge(
-        {
-          strategy,
-          open: isOpen,
-          transform: () => props.useTransform,
-          off: () => !!isOn.value,
-          externalRects: rectsInfo,
-          get inline() {
-            return props.inline || options.triggers.has('select');
-          },
+      extend(props, {
+        strategy,
+        open: isOpen,
+        transform: () => props.useTransform,
+        off: () => !!isOn.value,
+        externalRects: rectsInfo,
+        get inline() {
+          return props.inline || options.triggers.has('select');
         },
-        props,
-      ),
+      }),
     );
 
     const { isOn, popStyle, render } = useAnchorPosition(
-      virtualGetMerge(
-        {
-          name: () => {
-            const { value } = actualTarget;
-            if (value === CE) {
-              const { anchorName } = props;
-              return anchorName && getCSSVarName(anchorName);
-            } else if (isElement(value)) {
-              // @ts-ignore
-              const { anchorName } = getCachedComputedStyle(value);
-              // anchorName defaults to none
-              return (anchorName as string)?.startsWith('--') && anchorName;
-            }
-          },
-          inner: () => actualTarget.value === CE,
-          off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
-          offset: getOffset,
-          type,
-          info: placementInfo,
+      extend(props, {
+        name: () => {
+          const { value } = actualTarget;
+          if (value === CE) {
+            const { anchorName } = props;
+            return anchorName && getCSSVarName(anchorName);
+          } else if (isElement(value)) {
+            // @ts-ignore
+            const { anchorName } = getCachedComputedStyle(value);
+            // anchorName defaults to none
+            return (anchorName as string)?.startsWith('--') && anchorName;
+          }
         },
-        props,
-      ),
+        inner: () => actualTarget.value === CE,
+        off: isTeleport, // disabled it for teleport because of CSS anchor position shadow tree limitation
+        offset: getOffset,
+        type,
+        info: placementInfo,
+      }),
     );
     // update rects for anchor position
     watchPostEffect(() => {

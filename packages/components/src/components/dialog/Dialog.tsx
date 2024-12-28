@@ -26,10 +26,10 @@ import {
   roundByDPR,
   supportDialog,
   toPxIfNum,
-  virtualGetMerge,
   getDocumentElement,
   withResolvers,
   getRect,
+  extend,
 } from '@lun-web/utils';
 import { useContextConfig } from 'config';
 import { getContainingBlock, isLastTraversableNode } from '@floating-ui/utils/dom';
@@ -67,71 +67,68 @@ export const Dialog = Object.assign(
         dialogLeaveResolver: (() => void) | undefined,
         isUnmounting: boolean;
       const { dialogHandlers, methods, maskHandlers } = useNativeDialog(
-        virtualGetMerge(
-          {
-            native: supportDialog,
-            isOpen,
-            open() {
-              const { noMask, noTopLayer } = props;
-              const dialog = dialogRef.value;
-              if (dialog) {
-                lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
-                supportDialog && (dialog as HTMLDialogElement)[noTopLayer ? 'show' : 'showModal']();
-                openModel.value = isOpen.value = true;
-                if ((maskShow.value = !noMask)) {
-                  const con = lastContainer.value;
-                  if (con) {
-                    const showing = getContainerShowing(con) || [];
-                    showing.push(dialog);
-                    setContainerShowing(con, showing);
-                  }
+        extend(props, {
+          native: supportDialog,
+          isOpen,
+          open() {
+            const { noMask, noTopLayer } = props;
+            const dialog = dialogRef.value;
+            if (dialog) {
+              lastActiveElement = getDeepestActiveElement(); // save the last active element before dialog open, as after dialog opens, the active element will be the dialog itself
+              supportDialog && (dialog as HTMLDialogElement)[noTopLayer ? 'show' : 'showModal']();
+              openModel.value = isOpen.value = true;
+              if ((maskShow.value = !noMask)) {
+                const con = lastContainer.value;
+                if (con) {
+                  const showing = getContainerShowing(con) || [];
+                  showing.push(dialog);
+                  setContainerShowing(con, showing);
                 }
               }
-            },
-            close() {
-              const dialog = dialogRef.value,
-                container = lastContainer.value;
-              if (dialog) {
-                openModel.value = isOpen.value = maskShow.value = false;
-                if (container) {
-                  const showing = (getContainerShowing(container) || []).filter((el) => el !== dialog);
-                  setContainerShowing(container, showing);
-                  lastContainer.value = undefined;
-                }
-                if (isUnmounting) return;
-                const [promise, resolve] = withResolvers();
-                dialogLeaveResolver = resolve;
-                return promise;
-              }
-            },
-            isPending: pending,
-            onPending(_pending: boolean) {
-              pending.value = _pending;
-              if (props.disableWhenPending) editState.disabled = _pending;
-            },
-            lockScroll: () => {
-              const { noTopLayer, noMask, noLockScroll } = props;
-              // if topLayer, we need to lock scroll anyway, as you can't interact with behind elements even when no mask
-              return !(noTopLayer && noMask) && !noLockScroll;
-            },
-            container() {
-              const { noMask, noTopLayer, container } = props;
-              const dialog = dialogRef.value;
-              if (!noMask && dialog) {
-                const dialogDocEl = getDocumentElement(dialog);
-                let con: HTMLElement | Window;
-                if (supportDialog && !noTopLayer) con = dialogDocEl;
-                else {
-                  con = (toElement(container) as HTMLElement) || getContainingBlock(dialog);
-                  // last traversable node: body, html, #document, consider them as window
-                  if (!con || isLastTraversableNode(con)) con = getDocumentElement(dialog);
-                }
-                return (lastContainer.value = con);
-              }
-            },
+            }
           },
-          props,
-        ),
+          close() {
+            const dialog = dialogRef.value,
+              container = lastContainer.value;
+            if (dialog) {
+              openModel.value = isOpen.value = maskShow.value = false;
+              if (container) {
+                const showing = (getContainerShowing(container) || []).filter((el) => el !== dialog);
+                setContainerShowing(container, showing);
+                lastContainer.value = undefined;
+              }
+              if (isUnmounting) return;
+              const [promise, resolve] = withResolvers();
+              dialogLeaveResolver = resolve;
+              return promise;
+            }
+          },
+          isPending: pending,
+          onPending(_pending: boolean) {
+            pending.value = _pending;
+            if (props.disableWhenPending) editState.disabled = _pending;
+          },
+          lockScroll: () => {
+            const { noTopLayer, noMask, noLockScroll } = props;
+            // if topLayer, we need to lock scroll anyway, as you can't interact with behind elements even when no mask
+            return !(noTopLayer && noMask) && !noLockScroll;
+          },
+          container() {
+            const { noMask, noTopLayer, container } = props;
+            const dialog = dialogRef.value;
+            if (!noMask && dialog) {
+              const dialogDocEl = getDocumentElement(dialog);
+              let con: HTMLElement | Window;
+              if (supportDialog && !noTopLayer) con = dialogDocEl;
+              else {
+                con = (toElement(container) as HTMLElement) || getContainingBlock(dialog);
+                // last traversable node: body, html, #document, consider them as window
+                if (!con || isLastTraversableNode(con)) con = getDocumentElement(dialog);
+              }
+              return (lastContainer.value = con);
+            }
+          },
+        }),
       );
 
       watch([openModel, dialogRef], ([open, dialog]) => {

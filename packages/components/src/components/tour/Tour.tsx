@@ -4,7 +4,7 @@ import { tourEmits, tourProps, TourStep } from './type';
 import { reactive, ref, watch } from 'vue';
 import { useCEExpose, useCEStates, useNamespace, useOpenModel } from 'hooks';
 import { defineDialog, iDialog } from '../dialog';
-import { ensureNumber, isArray, isElement, runIfFn, virtualGetMerge } from '@lun-web/utils';
+import { ensureNumber, extend, isArray, isElement, runIfFn } from '@lun-web/utils';
 import { createPopoverRectTarget, unrefOrGet, useSetupEvent } from '@lun-web/core';
 import { useFloating } from '../popover/useFloating';
 import { getCompParts, intl } from 'common';
@@ -39,15 +39,12 @@ export const Tour = defineSSRCustomElement({
       currentTarget,
       () => dialogRef.value?.panelElement!,
       arrowRef,
-      virtualGetMerge(
-        {
-          get offset() {
-            const { offset, highlightPadding } = props;
-            return ensureNumber(highlightPadding, 0) + ensureNumber(offset, 0);
-          },
+      extend(props, {
+        get offset() {
+          const { offset, highlightPadding } = props;
+          return ensureNumber(highlightPadding, 0) + ensureNumber(offset, 0);
         },
-        props,
-      ),
+      }),
     );
 
     const stepState = reactive({

@@ -1,7 +1,7 @@
 import { getTypeTag, isFunction, isNil, isObject, isPlainString } from '../is';
 import { capitalize, uncapitalize } from '../string';
 import { deepCopy } from './copy';
-import { objectGet, objectKeys } from './value';
+import { objectGet, objectKeys, toGetterDescriptors } from './value';
 import { AnyFn } from '../type';
 import { fromObject } from './process';
 import { runIfFn } from '../function';
@@ -266,6 +266,13 @@ export const virtualGetMerge = createVirtualMerge<true>(() => ({
 
 export function inherit<C extends Object, P extends Object>(child: C, parent: P): C & P {
   return Object.setPrototypeOf(child, parent);
+}
+
+export function extend<Proto extends object, Props extends object>(
+  prototype: Proto,
+  props: Props,
+): Proto & Readonly<Props> {
+  return Object.create(prototype, toGetterDescriptors(props));
 }
 
 export function assignIfNil<T extends Record<string, any>, S extends Partial<T>>(target: T, source: S) {
