@@ -6,8 +6,7 @@ import { getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
-import { computed } from 'vue';
-import { ensureArray, unionOfSets } from '@lun-web/utils';
+import { extend, unionOfSets } from '@lun-web/utils';
 import { useTreeCheckMethods } from './tree.check';
 import { useTreeItems } from './tree.items';
 import { Item } from './tree.common';
@@ -40,12 +39,7 @@ export const Tree = defineSSRCustomElement({
       expandedModel = useValueModel(props, getModelOptions('expand'));
     const selectedValueSet = useValueSet(selectedModel, isSelectMultiple),
       checkedValueSet = useValueSet(checkedModel, true),
-      expandedValueSet = computed(() => {
-        const { value } = expandedModel;
-        return props.defaultExpandAll && value.value == null
-          ? combinedChildren.noneLeafValuesSet
-          : value.raw || new Set(ensureArray(value.value));
-      });
+      expandedValueSet = useValueSet(expandedModel, true);
 
     const [propItemsInfo, propItemsValueInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);
     const [vmChildrenInfo, valueToVm] = useCollectorValue(() => context, true);
@@ -76,14 +70,19 @@ export const Tree = defineSSRCustomElement({
       },
       allValues: () => combinedChildren.childrenValuesSet,
     });
-    const expandMethods = useExpandMethods({
-      multiple: true, // TODO defaultExpandAll 放进去
-      current: expandedValueSet,
-      onChange(value) {
-        expandedModel.value = value;
-      },
-      allValues: () => combinedChildren.noneLeafValuesSet,
-    });
+    const expandMethods = useExpandMethods(
+      extend(
+        {
+          multiple: true,
+          current: expandedValueSet,
+          onChange(value) {
+            expandedModel.value = value;
+          },
+          allValues: () => combinedChildren.noneLeafValuesSet,
+        },
+        props, // to get `defaultExpandAll`
+      ),
+    );
     const methods = {
       select: selectMethods,
       check: checkMethods,

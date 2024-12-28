@@ -7,6 +7,7 @@ export * from './mentions';
 export * from './popover';
 export * from './select';
 export * from './table';
+export * from './tree';
 export * from './virtual';
 export * from './watermark';
 export * from './createCollector';
