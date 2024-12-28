@@ -1,24 +1,30 @@
 import { TableSetupProps } from './type';
-import { isFunction, runIfFn } from '@lun-web/utils';
+import { isFunction } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
-import { fComputed, useExpandMethods } from '@lun-web/core';
+import { fComputed, useExpandMethods, useRefSet } from '@lun-web/core';
 import { useValueModel, useValueSet } from 'hooks';
 import { getRowKey } from './utils';
+import { shallowRef, watchEffect } from 'vue';
 
 export default (
   props: TableSetupProps,
   data: () => (readonly [row: unknown, i: number, key: any])[],
   maxLevel: () => number,
 ) => {
-  const expandableKeySet = fComputed(() => {
-    const keys = new Set(),
-      { expandable } = props;
-    if (isFunction(expandable)) {
-      data().map(([row, i, key]) => {
-        if (expandable(row, i)) keys.add(key);
-      });
-    }
-    return keys;
+  const expandableKeySet = useRefSet(),
+    [canExpand, addExpandKey, , replace] = expandableKeySet,
+    expandedContentArr = shallowRef([] as any[]);
+  watchEffect(() => {
+    replace();
+    const { rowExpandedRenderer } = props;
+    if (!isFunction(rowExpandedRenderer)) return;
+    expandedContentArr.value = data().map(([row, rowIndex, key]) => {
+      const content = rowExpandedRenderer(row, rowIndex);
+      if (content != null) {
+        addExpandKey(key);
+        return content;
+      }
+    });
   });
 
   const expandedModel = useValueModel(props, {
@@ -37,8 +43,7 @@ export default (
     allValues: expandableKeySet,
   });
 
-  const hasExpand = () => expandableKeySet().size > 0,
-    canExpand = (key: any) => expandableKeySet().has(key);
+  const hasExpand = fComputed(() => expandableKeySet.value.size > 0);
 
   const getRowHeight = (row: unknown, index: number) => {
     const key = getRowKey(props, row, index);
@@ -50,20 +55,21 @@ export default (
     /** render the expanded content of expandable rows */
     (wrapperProps?: Record<string, any>) =>
       hasExpand()
-        ? data().map(([row, rowIndex, key], i) =>
-            canExpand(key) ? (
-              <div
-                style={{
-                  gridColumn: '1/-1',
-                  minHeight: 0,
-                  overflow: 'hidden',
-                  gridRow: `${maxLevel() + (i + 1) * 2}`,
-                }}
-                {...wrapperProps}
-              >
-                {renderCustom(runIfFn(props.expandedRenderer, row, rowIndex))}
-              </div>
-            ) : undefined,
+        ? expandedContentArr.value.map(
+            (content, i) =>
+              content != null && (
+                <div
+                  style={{
+                    gridColumn: '1/-1',
+                    minHeight: 0,
+                    overflow: 'hidden',
+                    gridRow: `${maxLevel() + (i + 1) * 2}`,
+                  }}
+                  {...wrapperProps}
+                >
+                  {renderCustom(content)}
+                </div>
+              ),
           )
         : undefined,
     getRowHeight,

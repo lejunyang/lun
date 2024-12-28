@@ -30,8 +30,7 @@ export default () => (
         },
       },
     ]}
-    expandable={() => true}
-    expandedRenderer={(row) => (
+    rowExpandedRenderer={(row) => (
       <div style="padding: 10px">
         <b>Address: </b>
         <code>{row.address}</code>

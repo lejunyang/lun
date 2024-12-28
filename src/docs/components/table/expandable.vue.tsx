@@ -12,8 +12,7 @@ export default () => (
       { header: 'name', name: 'name', width: '1fr' },
       { header: 'age', name: 'age', width: '1fr' },
     ]}
-    expandable={() => true}
-    expandedRenderer={(row) => (
+    rowExpandedRenderer={(row) => (
       <div style="padding: 10px">
         <b>Address: </b>
         <code>{row.address}</code>

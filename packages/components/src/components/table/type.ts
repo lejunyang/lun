@@ -113,9 +113,8 @@ export const tableProps = freeze({
   /** hide the header, currently it's conflict with sticky columns functionality */
   noHeader: PropBoolean(),
   // TODO stickyRow
-  expandable: PropFunction<(record: unknown, rowIndex: number) => boolean>(),
   rowExpanded: PropSet(),
-  expandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
+  rowExpandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
   actions: PropObjOrStr<
     | TableActionKeys
     | ((params: TableActionParams) => void)
