@@ -14,6 +14,6 @@ export default () => (
       header="phone"
       cellProps={(_, index) => (index === 2 ? { colSpan: 2, rowSpan: 2 } : {})}
     ></l-table-column>
-    <l-table-column name="address" header="address"></l-table-column>
+    <l-table-column name="address" header="address" width="1fr"></l-table-column>
   </l-table>
 );

@@ -35,6 +35,10 @@
 
   @include e((header, cell)) {
     box-sizing: border-box;
+    // border的缺陷：右sticky列会缺失左border，且右边的border会与表格边框冲突
+    // border-right: 1px solid getGrayColor(5);
+    // border-bottom: 1px solid getGrayColor(5);
+    // 如果使用grid gap + background来当单元格边框，则粗细不均，且同样有固定列的问题
     outline: 1px solid getGrayColor(5);
     outline-offset: -0.5px;
     align-items: center;

@@ -10,13 +10,29 @@
   position: relative;
   flex: 1;
   transition: grid-template-columns 0.3s, grid-template-rows 0.3s;
+  background: getSemanticColor('background');
   @include declareVars((font-size));
 
   @at-root {
     :host {
-      box-shadow: 0 0 0 0.5px getGrayColor(5);
+      outline: 1.5px solid getGrayColor(5);
+      outline-offset: -1px;
       border-radius: getRadiusValue(3);
+      scrollbar-width: thin;
+      scrollbar-color: getGrayColor(8) getSemanticColor('background');
     }
+    // :host::-webkit-scrollbar {
+    //   border-radius: getRadiusValue(3);
+    // }
+    // :host::-webkit-scrollbar-button {
+    //   background: getGrayColor(8);
+    // }
+    // :host::-webkit-scrollbar-thumb {
+    //   background: getGrayColor(8);
+    // }
+    // :host::-webkit-scrollbar-track {
+    //   background: getSemanticColor('background');
+    // }
   }
 
   @include e(resizer) {

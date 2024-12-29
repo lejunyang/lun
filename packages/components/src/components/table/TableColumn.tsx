@@ -55,6 +55,7 @@ export const TableColumn = defineCustomElement({
     });
 
     const virtualOn = () => !virtual.options.disabled,
+      // FIXME first branch issue when mix prop columns and children columns
       needMeasureCell = computed(() => isCollectedItemInFirstBranch(getColumn()) && virtualOn());
     watch(
       [needMeasureCell, cells],
@@ -192,7 +193,7 @@ export const TableColumn = defineCustomElement({
             ns.e('header'),
             ns.is(`sticky-${stickyType}`, stickyType),
             ns.is('sticky-end', stickyEnd),
-            ns.is('top-left', !level && !getCollectedItemIndex(column)),
+            // ns.is('top-left', !level && !getCollectedItemIndex(column)), // FIXME fix index to fix this for mix prop columns and children columns
           ]}
           part={compParts[1]}
           v-show={!isCollapsed(column)}

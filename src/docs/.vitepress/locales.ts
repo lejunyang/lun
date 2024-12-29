@@ -122,7 +122,7 @@ export default {
       hideCode: '隐藏代码',
       editInGithub: '前往Github编辑',
       codeSelect: '点击切换示例代码所用语言',
-      noUseCase: '暂未编写用例，你可以点击右下角编辑自行尝试，也欢迎前往Github参与贡献',
+      noUseCase: '暂未编写该语言用例，你可以点击右下角编辑自行尝试，也欢迎前往Github参与贡献',
       themeVariants: '变体与主题色',
       colorsVariants: '变体与所有颜色',
     },
@@ -251,7 +251,7 @@ export default {
       editInGithub: 'Edit in Github',
       codeSelect: 'Click to change the code of this use case',
       noUseCase:
-        'No use case founded, you can click the bottom right icon to edit and try it yourself. Also feel free to contribute in Github',
+        'No use case for this language founded, you can click the bottom right icon to edit and try it yourself. Also feel free to contribute in Github',
       themeVariants: 'Variants & Theme color',
       colorsVariants: 'Variants & All colors',
     },

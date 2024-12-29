@@ -195,7 +195,7 @@ export function wrapReactErrorBound(
 
 export async function runVueTSXCode(code: string) {
   const transformedCode = await transform(code);
-  const errorMsg = 'Must export a default VNode or a default function that returns a VNode';
+  const errorMsg = 'Must export a default VNode or a default Vue Component';
   if (!transformedCode?.includes('exports.default')) throw new Error(errorMsg);
   const requireDep = await buildDepRequire(transformedCode);
   const { vue } = dependencies;
@@ -218,7 +218,7 @@ export async function runVueTSXCode(code: string) {
 
 export async function runReactTSXCode(code: string) {
   const transformedCode = await transform(code);
-  const errorMsg = 'Must export a default ReactNode or a default function that returns a ReactNode';
+  const errorMsg = 'Must export a default ReactNode or a default React Component';
   if (!transformedCode?.includes('exports.default')) throw new Error(errorMsg);
   const requireDep = await buildDepRequire(transformedCode);
   const exports = {
