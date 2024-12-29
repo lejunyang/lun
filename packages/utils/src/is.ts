@@ -43,8 +43,8 @@ export function isFunction(target: unknown): target is Function {
 }
 
 export function isEmpty(target: unknown) {
-  if (isNilOrEmptyStr(target)) return true;
-  if (isArray(target)) return !target.length;
+  if (isNil(target)) return true;
+  if (isString(target) || isArray(target)) return !target.length;
   if (isSet(target) || isMap(target)) return !(target as Set<unknown> | Map<unknown, unknown>).size;
   if (isObject(target)) return !objectKeys(target).length;
   return false;

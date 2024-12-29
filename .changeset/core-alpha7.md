@@ -4,7 +4,7 @@
 
 ### Features
 
-- support `defaultExpandAll` for `useExpandMethods`
+- support `defaultSelectAll` for `useSelectMethods`
 
 ### Chore
 
