@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { dividerProps } from './type';
 import { createDefineElement } from 'utils';
 import { useNamespace, useSlot } from 'hooks';
@@ -9,7 +9,7 @@ import { toPxIfNum } from '@lun-web/utils';
 const name = 'divider';
 const parts = ['root', 'text'] as const;
 const compParts = getCompParts(name, parts);
-export const Divider = defineSSRCustomElement({
+export const Divider = defineCustomElement({
   name,
   props: dividerProps,
   setup(props, { attrs }) {

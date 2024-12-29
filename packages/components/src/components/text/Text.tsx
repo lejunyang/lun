@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, error, getHostStyle } from 'utils';
 import { textEmits, textProps } from './type';
 import { getCachedComputedStyle } from '@lun-web/utils';
@@ -11,7 +11,7 @@ const compParts = getCompParts(name, parts);
 const hidden = 'overflow:hidden;',
   ellipsisStyle = hidden + `white-space:nowrap;text-overflow:ellipsis;`,
   dirReverse: Record<string, string> = { ltr: 'rtl', rtl: 'ltr' };
-export const Text = defineSSRCustomElement({
+export const Text = defineCustomElement({
   name,
   props: textProps,
   emits: textEmits,

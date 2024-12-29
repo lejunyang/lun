@@ -156,7 +156,7 @@ export class BigIntDecimal {
   }
 
   /**
-   * @private Align BigIntDecimal with same decimal length. e.g. 12.3 > 5 => 1230000
+   * @internal Align BigIntDecimal with same decimal length. e.g. 12.3 > 5 => 1230000
    * This is used for plus function only.
    */
   alignDecimal(decimalLength: number): bigint {
@@ -195,7 +195,7 @@ export class BigIntDecimal {
   }
 
   /**
-   * @private
+   * @internal
    * if this or target is infinite, return infinite; if this or target is NaN, return NaN; or return undefined
    */
   private check(value: BigIntDecimalValue) {

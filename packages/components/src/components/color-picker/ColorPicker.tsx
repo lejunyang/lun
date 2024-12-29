@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { colorPickerEmits, colorPickerProps } from './type';
 import { iPopover } from '../popover';
@@ -21,7 +21,7 @@ for (let i = 0; i <= 360; i += 60) {
 const hueBackground = `linear-gradient(to right,${hueArr})`;
 const saturationImage = `linear-gradient(0deg,rgb(0 0 0),transparent), linear-gradient(90deg,rgb(255 255 255),rgb(255 255 255/0))`;
 
-export const ColorPicker = defineSSRCustomElement({
+export const ColorPicker = defineCustomElement({
   name,
   formAssociated: true,
   props: colorPickerProps,

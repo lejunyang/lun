@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { accordionGroupEmits, accordionGroupProps } from './type';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, updateRawSetModel } from 'hooks';
@@ -11,7 +11,7 @@ import { computed, ref, watchEffect } from 'vue';
 const name = 'accordion-group';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
-export const AccordionGroup = defineSSRCustomElement({
+export const AccordionGroup = defineCustomElement({
   name,
   props: accordionGroupProps,
   emits: accordionGroupEmits,

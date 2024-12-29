@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -14,7 +14,7 @@ import { TabsCollector } from './collector';
 const name = 'tabs';
 const parts = ['root', 'nav', 'content', 'wrapper', 'panel', 'tab', 'label'] as const;
 const compParts = getCompParts(name, parts);
-export const Tabs = defineSSRCustomElement({
+export const Tabs = defineCustomElement({
   name,
   props: tabsProps,
   emits: tabsEmits,

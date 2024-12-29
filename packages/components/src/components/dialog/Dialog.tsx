@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement, toElement } from 'utils';
 import { dialogEmits, dialogProps } from './type';
 import { useBreakpoint, useCEExpose, useCEStates, useNamespace, useOpenModel, useSlot } from 'hooks';
@@ -40,7 +40,7 @@ const compParts = getCompParts(name, parts);
 /** a map to store all showing dialogs with mask in each container, to make sure only one mask is shown in each container at the same time. */
 const [getContainerShowing, setContainerShowing] = useRefWeakMap<HTMLElement | Window, HTMLElement[]>();
 export const Dialog = Object.assign(
-  defineSSRCustomElement({
+  defineCustomElement({
     name,
     props: dialogProps,
     emits: dialogEmits,

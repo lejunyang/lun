@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { calloutEmits, calloutProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -10,7 +10,7 @@ import { runIfFn } from '@lun-web/utils';
 const name = 'callout';
 const parts = ['root', 'icon', 'close-icon', 'message', 'description'] as const;
 const compParts = getCompParts(name, parts);
-export const Callout = defineSSRCustomElement({
+export const Callout = defineCustomElement({
   name,
   props: calloutProps,
   emits: calloutEmits,

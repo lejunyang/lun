@@ -64,7 +64,7 @@ export const tableColumnProps = freeze({
       >
   >(),
   hidden: PropBoolOrStr(),
-  /** @private it's for internal use, representing the column object, do not use it yourself! */
+  /** @internal it's for internal use, representing the column object, do not use it yourself! */
   _: PropObject<any>(),
 });
 

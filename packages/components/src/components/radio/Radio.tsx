@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { computed, ref } from 'vue';
 import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
@@ -11,7 +11,7 @@ import { getCompParts } from 'common';
 const name = 'radio';
 const parts = ['root', 'label', 'indicator'] as const;
 const compParts = getCompParts(name, parts);
-export const Radio = defineSSRCustomElement({
+export const Radio = defineCustomElement({
   name,
   props: radioProps,
   emits: radioEmits,

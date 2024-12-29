@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { computed, ref, mergeProps, nextTick } from 'vue';
 import { closePopover, createDefineElement, openPopover, renderElement } from 'utils';
 import { selectEmits, selectProps, selectPropsOfPopover } from './type';
@@ -25,7 +25,7 @@ import { useSelect } from './useSelect';
 const name = 'select';
 const parts = ['content'] as const;
 const compParts = getCompParts(name, parts);
-export const Select = defineSSRCustomElement({
+export const Select = defineCustomElement({
   name,
   props: selectProps,
   formAssociated: true,

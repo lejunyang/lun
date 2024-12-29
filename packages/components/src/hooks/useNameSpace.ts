@@ -53,11 +53,11 @@ const getThemeValueOfAllSources = (
   ] as const;
 };
 
-/** @private */
+/** @internal */
 export const getThemeValue = (...args: Parameters<typeof getThemeValueOfAllSources>): any =>
   getThemeValueOfAllSources(...args).find(identity);
 
-/** @private */
+/** @internal */
 export const getAllThemeValues = (vm: ComponentInternalInstance | null | undefined) => {
   return objectKeys(themeProps).reduce((result, k) => {
     const val = getThemeValue(vm, k);

@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import {
   createDateLocaleMethods,
   getCollectedItemIndex,
@@ -42,7 +42,7 @@ import { useRulesTransform } from './form-item.rules-transform';
 const name = 'form-item';
 const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line', 'tip-line'] as const;
 const compParts = getCompParts(name, parts);
-export const FormItem = defineSSRCustomElement({
+export const FormItem = defineCustomElement({
   name,
   props: formItemProps,
   emits: formItemEmits,

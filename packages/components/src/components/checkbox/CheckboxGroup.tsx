@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { objectComputed, useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
@@ -11,7 +11,7 @@ import { getCompParts } from 'common';
 const name = 'checkbox-group';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
-export const CheckboxGroup = defineSSRCustomElement({
+export const CheckboxGroup = defineCustomElement({
   name,
   props: checkboxGroupProps,
   emits: checkboxGroupEmits,

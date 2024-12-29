@@ -11,7 +11,7 @@ export const useExpandMethods = (options: UseSelectOptions & { defaultExpandAll?
   };
   const result = useSelectMethods(options);
   return {
-    /** @private used to get raw format model */
+    /** @internal used to get raw format model */
     _: result._,
     isExpanded: (val: any): boolean => {
       if (options.defaultExpandAll && !updated && isEmpty(unrefOrGet(options.current))) return true;

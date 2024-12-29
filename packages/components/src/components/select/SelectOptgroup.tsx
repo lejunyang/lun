@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { selectOptgroupProps } from './type';
 import { useCEStates, useNamespace } from 'hooks';
@@ -10,7 +10,7 @@ import { getCompParts } from 'common';
 const name = 'select-optgroup';
 const parts = ['root', 'label', 'children'] as const;
 const compParts = getCompParts(name, parts);
-export const SelectOptgroup = defineSSRCustomElement({
+export const SelectOptgroup = defineCustomElement({
   name,
   props: selectOptgroupProps,
   setup(props) {

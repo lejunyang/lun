@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -9,7 +9,7 @@ import { getCompParts, getTransitionProps } from 'common';
 const name = 'tag';
 const parts = ['root', 'icon'] as const;
 const compParts = getCompParts(name, parts);
-export const Tag = defineSSRCustomElement({
+export const Tag = defineCustomElement({
   name,
   props: tagProps,
   emits: tagEmits,

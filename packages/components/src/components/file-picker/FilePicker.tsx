@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { refLikeToDescriptors, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, error } from 'utils';
 import { useCEExpose, useValueModel } from 'hooks';
@@ -11,7 +11,7 @@ import { isAbort } from './utils';
 // TODO drop support
 const name = 'file-picker';
 const parts = [] as const;
-export const FilePicker = defineSSRCustomElement({
+export const FilePicker = defineCustomElement({
   name,
   props: filePickerProps,
   emits: filePickerEmits,

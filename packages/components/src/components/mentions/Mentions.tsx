@@ -7,7 +7,7 @@ import {
   MentionsTriggerParam,
   useSetupEvent,
 } from '@lun-web/core';
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, usePropsFromFormItem, useValueModel } from 'hooks';
 import { AnyFn, extend, isEmpty, isSupportPlaintextEditable, raf, runIfFn } from '@lun-web/utils';
@@ -22,7 +22,7 @@ import { getCompParts, intl } from 'common';
 const name = 'mentions';
 const parts = ['root', 'float-label', 'wrapper', 'textarea', 'length-info', 'content'] as const;
 const compParts = getCompParts(name, parts);
-export const Mentions = defineSSRCustomElement({
+export const Mentions = defineCustomElement({
   name,
   formAssociated: true,
   props: mentionsProps,

@@ -1,6 +1,6 @@
 import { computed, nextTick, watchEffect } from 'vue';
 import { useSetupEdit, refLikeToDescriptors, useInput, useInputElement, useSetupEvent } from '@lun-web/core';
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useValueModel } from 'hooks';
 import { textareaEmits, textareaProps } from './type';
@@ -11,7 +11,7 @@ import { getCompParts, InputFocusOption } from 'common';
 const name = 'textarea';
 const parts = ['root', 'float-label', 'float-background', 'wrapper', 'textarea', 'length-info'] as const;
 const compParts = getCompParts(name, parts);
-export const Textarea = defineSSRCustomElement({
+export const Textarea = defineCustomElement({
   name,
   props: textareaProps,
   formAssociated: true,

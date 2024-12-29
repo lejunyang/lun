@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { accordionEmits, accordionProps } from './type';
 import { useCEStates, useNamespace, useOpenModel, useSlot } from 'hooks';
@@ -12,7 +12,7 @@ import { AccordionCollector } from './collector';
 const name = 'accordion';
 const parts = ['root', 'header', 'content', 'indicator'] as const;
 const compParts = getCompParts(name, parts);
-export const Accordion = defineSSRCustomElement({
+export const Accordion = defineCustomElement({
   name,
   props: accordionProps,
   emits: accordionEmits,

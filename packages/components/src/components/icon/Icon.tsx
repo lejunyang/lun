@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { VNode, isVNode, onUnmounted, shallowReactive, watchEffect } from 'vue';
 import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
@@ -10,7 +10,7 @@ const renderedIconNumMap = new Map<string, number>();
 
 const name = 'icon';
 const parts = [] as const;
-export const Icon = defineSSRCustomElement({
+export const Icon = defineCustomElement({
   name,
   props: iconProps,
   inheritAttrs: false,

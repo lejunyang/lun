@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { treeItemEmits, treeItemProps } from './type';
 import { useExpose, useNamespace, useSlot, useCEStates } from 'hooks';
@@ -12,7 +12,7 @@ import { defineCheckbox } from '../checkbox';
 const name = 'tree-item';
 const parts = ['root', 'children', 'indent', 'label'] as const;
 const compParts = getCompParts(name, parts);
-export const TreeItem = defineSSRCustomElement({
+export const TreeItem = defineCustomElement({
   name,
   props: treeItemProps,
   emits: treeItemEmits,

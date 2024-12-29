@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { skeletonEmits, skeletonProps } from './type';
 import { Transition } from 'vue';
@@ -9,7 +9,7 @@ import { useSetupEdit } from '@lun-web/core';
 const name = 'skeleton';
 const parts = [name] as const;
 const compParts = getCompParts(name, parts);
-export const Skeleton = defineSSRCustomElement({
+export const Skeleton = defineCustomElement({
   name,
   props: skeletonProps,
   emits: skeletonEmits,

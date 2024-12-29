@@ -16,11 +16,12 @@ runs:
         echo github.actor: "${{ github.actor }}"
         echo github.triggering_actor: "${{ github.triggering_actor }}"
         echo github.event.inputs: "${{ toJSON(github.event.inputs) }}"
-        echo inputs: "${{ toJSON(inputs) }}
+        echo inputs: "$INPUTS"
         echo github.event.head_commit: "$HEAD_COMMIT"
       env:
         # echo github.event.head_commit: "${{ toJSON(github.event.head_commit) }}"
         # should not directly print json, message may contain some escape characters. use env instead
+        INPUTS: ${{ toJSON(inputs) }}
         HEAD_COMMIT: ${{ toJSON(github.event.head_commit) }}
 
     - name: Setup pnpm

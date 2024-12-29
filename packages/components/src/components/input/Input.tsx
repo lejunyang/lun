@@ -7,7 +7,7 @@ import {
   isNumberInputType,
   useSetupEvent,
 } from '@lun-web/core';
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useSlot, useValueModel } from 'hooks';
 import { inputEmits, inputProps } from './type';
@@ -45,7 +45,7 @@ const parts = [
   'carousel-label',
 ] as const;
 const compParts = getCompParts(name, parts);
-export const Input = defineSSRCustomElement({
+export const Input = defineCustomElement({
   name,
   props: inputProps,
   formAssociated: true,

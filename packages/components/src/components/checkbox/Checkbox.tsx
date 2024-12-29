@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { computed, ref } from 'vue';
 import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement, warn } from 'utils';
@@ -12,7 +12,7 @@ import { getCompParts } from 'common';
 const name = 'checkbox';
 const parts = ['root', 'indicator', 'input', 'label'] as const;
 const compParts = getCompParts(name, parts);
-export const Checkbox = defineSSRCustomElement({
+export const Checkbox = defineCustomElement({
   name,
   props: checkboxProps,
   emits: checkboxEmits,

@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { spinProps } from './type';
 import { useNamespace } from 'hooks';
@@ -8,7 +8,7 @@ import { getCompParts } from 'common';
 const name = 'spin';
 const parts = ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'] as const;
 const compParts = getCompParts(name, parts);
-export const Spin = defineSSRCustomElement({
+export const Spin = defineCustomElement({
   name,
   props: spinProps,
   setup(props) {

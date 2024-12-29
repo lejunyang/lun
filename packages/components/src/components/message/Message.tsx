@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, openPopover, renderElement } from 'utils';
 import { MessageMethods, MessageOpenConfig, messageEmits, messageProps } from './type';
 import {
@@ -24,7 +24,7 @@ const name = 'message';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
 export const Message = Object.assign(
-  defineSSRCustomElement({
+  defineCustomElement({
     name,
     props: messageProps,
     emits: messageEmits,

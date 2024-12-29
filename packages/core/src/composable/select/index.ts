@@ -21,7 +21,7 @@ export function useSelectMethods(options: UseSelectOptions) {
     },
   });
   const methods = {
-    /** @private used to get raw format model */
+    /** @internal used to get raw format model */
     _: getParam,
     isSelected: (value: any) =>
       isMultiple() ? !!unrefOrGet(current)?.has(value) : unrefOrGet(current) === value && value != null,
@@ -71,7 +71,7 @@ export function useSelectMethods(options: UseSelectOptions) {
 export const useCheckboxMethods = (options: UseSelectOptions) => {
   const result = useSelectMethods({ ...options, multiple: true });
   return {
-    /** @private used to get raw format model */
+    /** @internal used to get raw format model */
     _: result._,
     isChecked: result.isSelected,
     checkAll: result.selectAll,
@@ -87,7 +87,7 @@ export const useCheckboxMethods = (options: UseSelectOptions) => {
 export const useGroupOpenMethods = (options: UseSelectOptions) => {
   const result = useSelectMethods(options);
   return {
-    /** @private used to get raw format model */
+    /** @internal used to get raw format model */
     _: result._,
     isOpen: result.isSelected,
     openAll: result.selectAll,

@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import {
   CSSProperties,
   computed,
@@ -49,7 +49,7 @@ import { useAutoAttach } from './popover.auto-attach';
 const name = 'popover';
 const parts = ['content', 'native', 'arrow'] as const;
 const compParts = getCompParts(name, parts);
-export const Popover = defineSSRCustomElement({
+export const Popover = defineCustomElement({
   name,
   props: popoverProps,
   emits: popoverEmits,

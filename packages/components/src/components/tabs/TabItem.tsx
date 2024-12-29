@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabItemEmits, tabItemProps } from './type';
 import { getCompParts } from 'common';
@@ -9,7 +9,7 @@ import { Transition } from 'vue';
 const name = 'tab-item';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
-export const TabItem = defineSSRCustomElement({
+export const TabItem = defineCustomElement({
   name,
   props: tabItemProps,
   emits: tabItemEmits,

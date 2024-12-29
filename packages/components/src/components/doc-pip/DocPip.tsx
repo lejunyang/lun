@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, error, getElementFirstName } from 'utils';
 import { DocPipAcceptStyle, docPipEmits, docPipProps } from './type';
 import {
@@ -18,7 +18,7 @@ import { on } from '@lun-web/utils';
 import { useContextConfig } from '../config/config.context';
 
 const name = 'doc-pip';
-export const DocPip = defineSSRCustomElement({
+export const DocPip = defineCustomElement({
   name,
   props: docPipProps,
   emits: docPipEmits,

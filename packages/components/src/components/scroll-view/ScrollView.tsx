@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, toElement } from 'utils';
 import {
   scrollViewEmits,
@@ -49,7 +49,7 @@ const register = (name?: string) => {
   }
   return name;
 };
-export const ScrollView = defineSSRCustomElement({
+export const ScrollView = defineCustomElement({
   name,
   props: scrollViewProps,
   emits: scrollViewEmits,

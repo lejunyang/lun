@@ -67,35 +67,35 @@ const [getTreeChildren, setTreeChildren, deleteTreeChildren] = useRefWeakMap<
   leavesCountUp = createMapCountMethod(leavesCountMap, 1),
   leavesCountDown = createMapCountMethod(leavesCountMap, -1);
 
-/** @private */
+/** @internal */
 export const getCollectedItemTreeChildren = (item?: unknown) => unref(getTreeChildren(item)) || [];
-/** @private */
+/** @internal */
 export const getCollectedItemTreeLevel = (item?: unknown) => unref(getTreeLevel(item));
-/** @private */
+/** @internal */
 export const getCollectedItemTreeParent = (item?: unknown): unknown | undefined => getTreeParent(item);
-/** @private */
+/** @internal */
 export const getCollectedItemIndex: (item?: unknown) => number | undefined = getIndex;
-/** @private */
+/** @internal */
 export const getCollectedItemTreeIndex: (item?: unknown) => number | undefined = getTreeIndex;
-/** @private */
+/** @internal */
 export const isCollectedItemLeaf = (item?: unknown) => getIsLeaf(item) === true;
-/** @private */
+/** @internal */
 export const getCollectedItemLeavesCount = (item: unknown) => getLeavesCount(item) ?? 0;
 
 const isFirst = (item: unknown) => getIndex(item) === 0,
   selfAndParentFirst = (item: unknown): boolean =>
     getTreeIndex(item) === 0 && (!getTreeParent(item) || selfAndParentFirst(getTreeParent(item)));
-/** @private */
+/** @internal */
 export const isCollectedItemFirstLeaf = (item: unknown) =>
   isCollectedItemLeaf(item) && (isFirst(item) || selfAndParentFirst(item));
-/** @private first branch means nodes in this branch are all treeIndex=0 */
+/** @internal first branch means nodes in this branch are all treeIndex=0 */
 export const isCollectedItemInFirstBranch = selfAndParentFirst;
 
 const calcLevel = (item: unknown, level: number): number =>
   isCollectedItemLeaf(item)
     ? level
     : Math.max(...getCollectedItemTreeChildren(item).map((i) => calcLevel(i, level + 1)));
-/** @private */
+/** @internal */
 export const getCollectedItemMaxChildLevel = (item: unknown) => calcLevel(item, 0);
 
 /**
@@ -392,7 +392,7 @@ export function createCollector<
 export type CollectorParentReturn = ReturnType<ReturnType<typeof createCollector>['parent']>;
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
 
-/** @private */
+/** @internal */
 export function useCollectorExternalChildren<T extends Record<string, unknown>, R = any>(
   itemsGetter: MaybeRefLikeOrGetter<T[]>,
   render: (item: T, childrenRenderResult?: NoInfer<R>[]) => R,

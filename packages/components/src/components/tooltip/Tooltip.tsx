@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { tooltipEmits, tooltipProps } from './type';
 import { createDefineElement, renderElement } from 'utils';
 import { definePopover, iPopover } from '../popover/Popover';
@@ -10,7 +10,7 @@ import { useContextConfig } from 'config';
 
 const name = 'tooltip';
 const parts = [] as const;
-const Tooltip = defineSSRCustomElement({
+const Tooltip = defineCustomElement({
   name,
   props: tooltipProps,
   emits: tooltipEmits,

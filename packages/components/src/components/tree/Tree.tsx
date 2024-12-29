@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { treeEmits, treeProps } from './type';
 import { useValueSet, useCEExpose, useNamespace, useValueModel } from 'hooks';
@@ -14,7 +14,7 @@ import { Item } from './tree.common';
 const name = 'tree';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
-export const Tree = defineSSRCustomElement({
+export const Tree = defineCustomElement({
   name,
   props: treeProps,
   emits: treeEmits,

@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, getHostStyle, getProp, getProps, isVm } from 'utils';
 import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
@@ -32,7 +32,7 @@ import { InternalColumn } from './internalType';
 const name = 'table-column';
 const parts = ['root', 'header', 'cell', 'inner-header', 'inner-cell', 'resizer'] as const;
 const compParts = getCompParts(name, parts);
-export const TableColumn = defineSSRCustomElement({
+export const TableColumn = defineCustomElement({
   name,
   props: tableColumnProps,
   emits: tableColumnEmits,

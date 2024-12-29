@@ -104,7 +104,7 @@ export const popoverProps = freeze({
   ...themeProps,
   variant: PropString<'styleless' | string>(),
 
-  /** @private internal usage */
+  /** @internal internal usage */
   rootClass: PropStrOrArr(),
 });
 

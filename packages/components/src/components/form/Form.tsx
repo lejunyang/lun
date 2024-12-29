@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from '../../custom/apiCustomElement';
+import { defineCustomElement } from '../../custom/apiCustomElement';
 import { UseFormReturn, unrefOrGet, useCleanUp, useForm, useSetupEdit } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { formEmits, formProps } from './type';
@@ -13,7 +13,7 @@ import { getCompParts } from 'common';
 const name = 'form';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
-export const Form = defineSSRCustomElement({
+export const Form = defineCustomElement({
   name,
   props: formProps,
   emits: formEmits,

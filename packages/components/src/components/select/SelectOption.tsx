@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { computed, getCurrentInstance } from 'vue';
 import { refLikesToGetters, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement } from 'utils';
@@ -13,7 +13,7 @@ import { getCompParts } from 'common';
 const name = 'select-option';
 const parts = ['root', 'label'] as const;
 const compParts = getCompParts(name, parts);
-export const SelectOption = defineSSRCustomElement({
+export const SelectOption = defineCustomElement({
   name,
   props: selectOptionProps,
   setup(props) {

@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
@@ -31,7 +31,7 @@ const parts = ['root', 'content', 'head', 'body', 'cell', 'inner', 'wrapper', 'h
 const compParts = getCompParts(name, parts);
 
 const panelTypes = ['date', 'week', 'month', 'quarter', 'year'] as const;
-export const Calendar = defineSSRCustomElement({
+export const Calendar = defineCustomElement({
   name,
   props: calendarProps,
   emits: calendarEmits,

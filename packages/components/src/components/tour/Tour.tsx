@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement, scrollIntoView, toElement } from 'utils';
 import { tourEmits, tourProps, TourStep } from './type';
 import { reactive, ref, watch } from 'vue';
@@ -13,7 +13,7 @@ import { hasRect } from '../popover/utils';
 const name = 'tour';
 const parts = ['arrow'] as const;
 const compParts = getCompParts(name, parts);
-export const Tour = defineSSRCustomElement({
+export const Tour = defineCustomElement({
   name,
   props: tourProps,
   emits: tourEmits,

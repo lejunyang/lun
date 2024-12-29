@@ -73,7 +73,7 @@ export const treeItemProps = freeze({
   ...createTransitionProps('expand'),
   label: Prop(),
   value: Prop(),
-  /** @private it's for internal use, representing the column object, do not use it yourself! */
+  /** @internal it's for internal use, representing the column object, do not use it yourself! */
   _: PropObject<any>(),
 });
 

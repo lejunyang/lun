@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, renderElement } from 'utils';
 import { interceptCEMethods, useCEStates, useCheckedModel, useNamespace } from 'hooks';
@@ -11,7 +11,7 @@ import { isFunction, noop, promiseTry } from '@lun-web/utils';
 const name = 'switch';
 const parts = ['root', 'input', 'children', 'thumb', 'checked', 'unchecked'] as const;
 const compParts = getCompParts(name, parts);
-export const Switch = defineSSRCustomElement({
+export const Switch = defineCustomElement({
   name,
   props: switchProps,
   emits: switchEmits,

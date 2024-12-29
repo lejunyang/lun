@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { rangeEmits, rangeProps } from './type';
 import { computed, nextTick, onMounted, onUpdated, reactive, ref } from 'vue';
@@ -26,7 +26,7 @@ import { defineTooltip, iTooltip } from '../tooltip';
 const name = 'range';
 const parts = ['root', 'thumb', 'rail', 'track', 'label', 'labels'] as const;
 const compParts = getCompParts(name, parts);
-export const Range = defineSSRCustomElement({
+export const Range = defineCustomElement({
   name,
   props: rangeProps,
   emits: rangeEmits,

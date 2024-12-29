@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { unrefOrGet, useSetupEdit } from '@lun-web/core';
 import { defineSpin } from '../spin';
 import { createDefineElement, renderElement } from 'utils';
@@ -11,7 +11,7 @@ import { getCompParts } from 'common';
 const name = 'button';
 const parts = ['root', 'spin', 'hold'] as const;
 const compParts = getCompParts(name, parts);
-export const Button = defineSSRCustomElement({
+export const Button = defineCustomElement({
   name,
   props: buttonProps,
   emits: buttonEmits,

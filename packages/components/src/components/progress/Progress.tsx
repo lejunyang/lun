@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { progressProps } from './type';
 import { useNamespace } from 'hooks';
@@ -12,7 +12,7 @@ const name = 'progress';
 const parts = ['root', 'text', 'stroke'] as const;
 const compParts = getCompParts(name, parts);
 export const Progress = Object.assign(
-  defineSSRCustomElement({
+  defineCustomElement({
     name,
     props: progressProps,
     setup(props, { emit }) {

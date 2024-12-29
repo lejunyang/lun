@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { closePopover, createDefineElement, renderElement } from 'utils';
 import { datePickerEmits, datePickerProps } from './type';
 import { defineCalendar, iCalendar } from '../calendar';
@@ -12,7 +12,7 @@ import { useContextConfig } from 'config';
 
 const name = 'date-picker';
 const parts = [] as const;
-export const DatePicker = defineSSRCustomElement({
+export const DatePicker = defineCustomElement({
   name,
   formAssociated: true,
   props: datePickerProps,

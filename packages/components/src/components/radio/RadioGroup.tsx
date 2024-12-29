@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
@@ -9,7 +9,7 @@ import { getCompParts } from 'common';
 const name = 'radio-group';
 const parts = ['root'] as const;
 const compParts = getCompParts(name, parts);
-export const RadioGroup = defineSSRCustomElement({
+export const RadioGroup = defineCustomElement({
   name,
   props: radioGroupProps,
   emits: radioEmits,

@@ -1,4 +1,4 @@
-import { defineSSRCustomElement } from 'custom';
+import { defineCustomElement } from 'custom';
 import { watermarkProps } from './type';
 import { createDefineElement, getElementFirstName, renderElement } from 'utils';
 import { useCE, useNamespace } from 'hooks';
@@ -55,7 +55,7 @@ const commonStyle = {
 let ceStyleString = '';
 const isTruthyOrZeroOrFalse = (v: any) => isTruthyOrZero(v) || v === false;
 
-export const Watermark = defineSSRCustomElement({
+export const Watermark = defineCustomElement({
   name,
   props: watermarkProps,
   shadowOptions: {
