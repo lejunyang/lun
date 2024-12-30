@@ -26,11 +26,11 @@ export const treeProps = freeze({
   selected: Prop<MaybeArray<any> | MaybeSet<any>>(),
   expanded: PropSet(),
   defaultExpandAll: PropBoolean(),
-  selectable: PropString<'line' | 'label'>(),
-  selectMode: PropString<'single' | 'multiple' | 'ctrl-multiple'>(),
+  selectable: PropString<'line' | 'label' | (string & {})>(),
+  selectionMode: PropString<'single' | 'multiple' | 'ctrl-multiple' | (string & {})>(),
   checkable: PropBoolean(),
   // TODO
-  checkStrategy: PropString<'tree' | 'separate'>(),
+  checkStrategy: PropString<'tree' | 'separate' | (string & {})>(),
   indentSize: PropNumber(),
 });
 

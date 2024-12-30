@@ -20,7 +20,7 @@ export const Tree = defineCustomElement({
   emits: treeEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const isSelectMultiple = () => ['multiple', 'ctrl-multiple'].includes(props.selectMode!);
+    const isSelectMultiple = () => ['multiple', 'ctrl-multiple'].includes(props.selectionMode!);
     const [editComputed] = useSetupEdit();
     const getModelOptions = (event: 'select' | 'check' | 'expand') => ({
       key: `${event}ed` as `${typeof event}ed`,
@@ -62,7 +62,7 @@ export const Tree = defineCustomElement({
       allValues: () => combinedChildren.childrenValuesSet,
     });
 
-    const selectMethods = useSelectMethods({
+    const [, selectMethods] = useSelectMethods({
       multiple: isSelectMultiple,
       current: selectedValueSet,
       onChange(value) {
@@ -70,7 +70,7 @@ export const Tree = defineCustomElement({
       },
       allValues: () => combinedChildren.childrenValuesSet,
     });
-    const expandMethods = useExpandMethods({
+    const [, expandMethods] = useExpandMethods({
       multiple: true,
       current: expandedValueSet,
       onChange(value) {

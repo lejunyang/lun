@@ -34,7 +34,7 @@ export default (
     }),
     expandedSet = useValueSet(expandedModel, true);
 
-  const expandMethods = useExpandMethods({
+  const [, expandMethods] = useExpandMethods({
     multiple: true,
     current: expandedSet,
     onChange(value) {

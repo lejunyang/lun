@@ -3,7 +3,7 @@ import { computed, ref, mergeProps, nextTick } from 'vue';
 import { closePopover, createDefineElement, openPopover, renderElement } from 'utils';
 import { selectEmits, selectProps, selectPropsOfPopover } from './type';
 import { definePopover, iPopover } from '../popover/Popover';
-import { refLikeToDescriptors, useSelectMethods, useSetupEdit, useTempState } from '@lun-web/core';
+import { refLikeToDescriptors, UseSelectMethods, useSetupEdit, useTempState } from '@lun-web/core';
 import { isFunction, isNilOrEmptyStr, objectKeys, pick, raf } from '@lun-web/utils';
 import { defineInput, iInput } from '../input/Input';
 import { defineSelectOption } from './SelectOption';
@@ -307,7 +307,7 @@ export const Select = defineCustomElement({
 });
 
 export type tSelect = typeof Select;
-export type SelectExpose = ReturnType<typeof useSelectMethods> & {
+export type SelectExpose = UseSelectMethods & {
   blur: () => void;
   focus: (option?: InputFocusOption) => void;
   readonly input: iInput;

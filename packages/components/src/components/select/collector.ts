@@ -1,4 +1,4 @@
-import { createCollector, useSelectMethods } from '@lun-web/core';
+import { createCollector, UseSelectMethods } from '@lun-web/core';
 import { ComponentInternalInstance } from 'vue';
 import { CommonProcessedOption } from 'hooks';
 import { SelectOptionProps, SelectProps } from './type';
@@ -7,7 +7,7 @@ import { getCollectorOptions } from 'common';
 export const SelectCollector = createCollector<
   SelectProps,
   SelectOptionProps,
-  ReturnType<typeof useSelectMethods> & {
+  UseSelectMethods & {
     isHidden: (option: CommonProcessedOption) => boolean;
     isActive: (vm: ComponentInternalInstance) => boolean;
     activate: (vm: ComponentInternalInstance) => void;

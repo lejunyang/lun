@@ -2,10 +2,10 @@ import {
   CollectorContext,
   createCollector,
   useCollectorExternalChildren,
-  useExpandMethods,
   useVirtualList,
   useRefWeakMap,
   useRefWeakSet,
+  UseExpandMethods,
 } from '@lun-web/core';
 import { TableSetupProps, TableColumnSetupProps } from './type';
 import { getCollectorOptions } from 'common';
@@ -26,7 +26,7 @@ export type TableProvideExtra = {
   all: () => InternalColumn[];
   showResize(target: HTMLElement, column: InternalColumn): void;
   virtual: ReturnType<typeof useVirtualList>;
-  rowExpand: ReturnType<typeof useExpandMethods>;
+  rowExpand: UseExpandMethods;
   state: TableState;
 };
 

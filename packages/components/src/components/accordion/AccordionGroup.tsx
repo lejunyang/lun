@@ -4,7 +4,7 @@ import { accordionGroupEmits, accordionGroupProps } from './type';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, updateRawSetModel } from 'hooks';
 import { getCompParts } from 'common';
 import { defineIcon } from '../icon';
-import { useGroupOpenMethods, useSetupEdit } from '@lun-web/core';
+import { useExpandMethods, UseExpandMethods, useSetupEdit } from '@lun-web/core';
 import { AccordionCollector } from './collector';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -27,7 +27,7 @@ export const AccordionGroup = defineCustomElement({
     });
     const openSet = useValueSet(openModel, multiple);
     const childrenNames = computed(() => new Set(context.value.map((c, i) => c.props.name || i)));
-    const methods = useGroupOpenMethods({
+    const [, methods] = useExpandMethods({
       current: openSet,
       multiple,
       allValues: childrenNames,
@@ -54,7 +54,7 @@ export const AccordionGroup = defineCustomElement({
 });
 
 export type tAccordionGroup = typeof AccordionGroup;
-export type AccordionGroupExpose = ReturnType<typeof useGroupOpenMethods>;
+export type AccordionGroupExpose = UseExpandMethods;
 export type iAccordionGroup = InstanceType<tAccordionGroup> & AccordionGroupExpose;
 
 export const defineAccordionGroup = createDefineElement(name, AccordionGroup, {}, parts, {

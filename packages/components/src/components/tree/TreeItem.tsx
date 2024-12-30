@@ -38,7 +38,7 @@ export const TreeItem = defineCustomElement({
       checkable = () => parentProps.checkable;
 
     const performSelect = (e: MouseEvent) => {
-      const method = parentProps.selectMode === 'ctrl-multiple' && !e.ctrlKey ? 'clearAndSelect' : 'select';
+      const method = parentProps.selectionMode === 'ctrl-multiple' && !e.ctrlKey ? 'clearAndSelect' : 'select';
       select[method](props.value);
     };
     const handleLineClick = (e: MouseEvent) => {

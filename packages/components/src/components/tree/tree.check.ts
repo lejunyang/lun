@@ -40,7 +40,7 @@ export function useTreeCheckMethods(
   const { current, onChange, valueToChild, childrenInfo } = options;
   const countUp = createMapCountMethod(itemDirectCheckedChildrenCountMap, 1),
     countDown = createMapCountMethod(itemDirectCheckedChildrenCountMap, -1);
-  const methods = useCheckboxMethods(options);
+  const [, methods] = useCheckboxMethods(options);
 
   const getChildrenCount = (item: Item) => {
     const children = getCollectedItemTreeChildren(item);

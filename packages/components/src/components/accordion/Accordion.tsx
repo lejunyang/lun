@@ -22,14 +22,14 @@ export const Accordion = defineCustomElement({
     const openModel = useOpenModel(props);
     const [editComputed] = useSetupEdit();
     const id = () => props.name ?? context?.index;
-    const isOpen = computed(() => (context ? context.isOpen(id()) : openModel.value));
+    const isOpen = computed(() => (context ? context.isExpanded(id()) : openModel.value));
 
     const [renderHeader] = useSlot('header', () => props.header);
     const [renderContent] = useSlot('', () => props.content);
 
     const handleToggle = () => {
       if (editComputed.disabled) return;
-      if (context) context.toggleChild(id());
+      if (context) context.toggleExpand(id());
       else openModel.value = !openModel.value;
     };
     const resolveIcon = (val?: string | { open?: string; close?: string }, defaultV?: string) => {

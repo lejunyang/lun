@@ -1,5 +1,6 @@
-import { arrayFrom, getFirstOfIterable, isEmpty, toNoneNilSet } from '@lun-web/utils';
+import { arrayFrom, differenceOfSets, getFirstOfIterable, isEmpty, toNoneNilSet } from '@lun-web/utils';
 import { ToAllMaybeRefLike, unrefOrGet } from '../../utils';
+import { onBeforeMount, reactive, watch } from 'vue';
 
 export type UseSelectOptions<T = any> = ToAllMaybeRefLike<
   {
@@ -10,19 +11,48 @@ export type UseSelectOptions<T = any> = ToAllMaybeRefLike<
     defaultSelectAll?: boolean;
   },
   true
-> & { onChange: (param: { value: T | T[]; raw: Set<T> | T }) => void };
+> & { onChange: (param: { value: T | T[]; raw: Set<T> | T }) => void; watchState?: boolean };
 
 export function useSelectMethods(options: UseSelectOptions) {
-  const { multiple, current, onChange, allValues } = options;
+  const { multiple, current, onChange, allValues, watchState } = options;
   const isMultiple = () => !!unrefOrGet(multiple);
+  let updated = 0;
+  const defaultAllSelected = () => !updated && unrefOrGet(options.defaultSelectAll) && isEmpty(unrefOrGet(current));
+  const initial = {
+      allSelected: false,
+      intermediate: false,
+    },
+    state = reactive({
+      ...initial,
+    });
+  watchState &&
+    onBeforeMount(() => {
+      // temporary fix. it should be immediately executed in setup, but in tree component, that will lead to access context before initialization.
+      watch(
+        [isMultiple, defaultAllSelected, () => unrefOrGet(current), () => unrefOrGet(allValues)],
+        ([multiple, allSelected, selected, all]) => {
+          if (multiple) {
+            if (allSelected) {
+              state.allSelected = true;
+              state.intermediate = false;
+              return;
+            }
+            const selectedEmpty = isEmpty(selected),
+              { size } = differenceOfSets(all, selected);
+            state.allSelected = !size && !selectedEmpty;
+            state.intermediate = !!size && !selectedEmpty;
+          } else Object.assign(state, initial);
+        },
+        { immediate: true },
+      );
+    });
   const getParam = (raw: any) => ({
     raw,
     get value() {
       return isMultiple() ? arrayFrom(raw) : raw;
     },
   });
-  let updated = 0;
-  const defaultAllSelected = () => !updated && unrefOrGet(options.defaultSelectAll) && isEmpty(unrefOrGet(current));
+
   const unselectAll = () => {
     onChange(getParam(isMultiple() ? new Set() : null));
   };
@@ -78,51 +108,48 @@ export function useSelectMethods(options: UseSelectOptions) {
       else methods.select(value);
     },
   };
-  return methods;
+  return [state, methods] as const;
 }
 
+export type UseSelectMethods = ReturnType<typeof useSelectMethods>[1];
+
 export const useCheckboxMethods = (options: UseSelectOptions) => {
-  const result = useSelectMethods({ ...options, multiple: true });
-  return {
-    /** @internal used to get raw format model */
-    _: result._,
-    isChecked: result.isSelected,
-    checkAll: result.selectAll,
-    uncheckAll: result.unselectAll,
-    check: result.select,
-    uncheck: result.unselect,
-    reverse: result.reverse,
-    toggle: result.toggle,
-    clearAndCheck: result.clearAndSelect,
-  };
+  const [state, methods] = useSelectMethods({ ...options, multiple: true });
+  return [
+    state,
+    {
+      /** @internal used to get raw format model */
+      _: methods._,
+      isChecked: methods.isSelected,
+      checkAll: methods.selectAll,
+      uncheckAll: methods.unselectAll,
+      check: methods.select,
+      uncheck: methods.unselect,
+      reverse: methods.reverse,
+      toggle: methods.toggle,
+      clearAndCheck: methods.clearAndSelect,
+    },
+  ] as const;
 };
 
-export const useGroupOpenMethods = (options: UseSelectOptions) => {
-  const result = useSelectMethods(options);
-  return {
-    /** @internal used to get raw format model */
-    _: result._,
-    isOpen: result.isSelected,
-    openAll: result.selectAll,
-    closeAll: result.unselectAll,
-    openChildren: result.select,
-    closeChildren: result.unselect,
-    reverseChildren: result.reverse,
-    toggleChild: result.toggle,
-  };
-};
+export type UseCheckboxMethods = ReturnType<typeof useCheckboxMethods>[1];
 
 export const useExpandMethods = (options: UseSelectOptions) => {
-  const result = useSelectMethods(options);
-  return {
-    /** @internal used to get raw format model */
-    _: result._,
-    isExpanded: result.isSelected,
-    expandAll: result.selectAll,
-    collapseAll: result.unselectAll,
-    toggleExpand: result.toggle,
-    reverseExpand: result.reverse,
-    expand: result.select,
-    collapse: result.unselect,
-  };
+  const [state, methods] = useSelectMethods(options);
+  return [
+    state,
+    {
+      /** @internal used to get raw format model */
+      _: methods._,
+      isExpanded: methods.isSelected,
+      expandAll: methods.selectAll,
+      collapseAll: methods.unselectAll,
+      toggleExpand: methods.toggle,
+      reverseExpand: methods.reverse,
+      expand: methods.select,
+      collapse: methods.unselect,
+    },
+  ] as const;
 };
+
+export type UseExpandMethods = ReturnType<typeof useExpandMethods>[1];

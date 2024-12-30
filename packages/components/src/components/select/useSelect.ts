@@ -19,7 +19,7 @@ export function useSelect(
     selectedValueSet = useValueSet(valueModel, isMultiple);
   const [childrenInfo, valueToChild, valueToLabel] = useCollectorValue(() => context);
 
-  const methods = useSelectMethods({
+  const [, methods] = useSelectMethods({
     multiple: isMultiple,
     current: selectedValueSet,
     onChange(value) {

@@ -51,7 +51,7 @@ export const CheckboxGroup = defineCustomElement({
           ),
         ),
     );
-    const methods = useCheckboxMethods({
+    const [, methods] = useCheckboxMethods({
       current: checkedValueSet,
       allValues: childValueSet,
       onChange(value) {
