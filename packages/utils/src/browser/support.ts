@@ -46,7 +46,7 @@ export const isSupportCustomStateSet = cacheFunctionByParams(
   () => isSupportElementInternals() && typeof CustomStateSet === FUNC,
 );
 
-export const isSupportScrollEnd = cacheFunctionByParams(() => inBrowser && 'onscrollend' in document);
+export const isSupportScrollEnd = cacheFunctionByParams(() => inBrowser && 'onscrollend' in htmlProto);
 
 export const supportCustomElement = typeof customElements === OBJ && customElements;
 
@@ -65,7 +65,7 @@ export const supportDocumentPictureInPicture =
   documentPictureInPicture &&
   isFunction(documentPictureInPicture.requestWindow);
 
-export const isSupportInert = cacheFunctionByParams(() => inBrowser && 'inert' in document.body);
+export const isSupportInert = cacheFunctionByParams(() => inBrowser && 'inert' in htmlProto);
 
 export const supportCSSApi = typeof CSS === OBJ && CSS;
 
@@ -128,6 +128,6 @@ export const supportCSSRegisterProperty = supportCSSSupports && CSS.registerProp
 
 export const supportCSSContentVisibility = supportCSSSupports && supports!('content-visibility', 'hidden');
 
-export const supportTouch = inBrowser && 'ontouchstart' in document.body;
+export const supportTouch = inBrowser && 'ontouchstart' in htmlProto;
 
 export const isSupportSlotAssign = cacheFunctionByParams(() => inBrowser && isFunction(HTMLSlotElement.prototype.assign));
