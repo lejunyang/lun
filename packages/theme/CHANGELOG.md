@@ -1,5 +1,13 @@
 # @lun-web/theme
 
+## 0.0.1-alpha.7
+
+### Patch Changes
+
+### Bug Fixes
+
+- `checkbox`: use `middle` instead of `bottom` for host `vertical-align`
+
 ## 0.0.1-alpha.6
 
 ## 0.0.1-alpha.5

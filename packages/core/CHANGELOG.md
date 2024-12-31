@@ -1,5 +1,18 @@
 # @lun-web/core
 
+## 0.0.1-alpha.7
+
+### Patch Changes
+
+### Features
+
+- support `defaultSelectAll` for `useSelectMethods`
+
+### Chore
+
+- add check for date preset methods, throw error if not set
+- refactor `useSelectMethods`
+
 ## 0.0.1-alpha.6
 
 ### Patch Changes

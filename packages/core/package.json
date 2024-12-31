@@ -1,6 +1,6 @@
 {
   "name": "@lun-web/core",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "Hooks and utils for developing components for Vue3",
   "keywords": [],
   "type": "module",
