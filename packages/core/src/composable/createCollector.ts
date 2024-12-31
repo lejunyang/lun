@@ -107,7 +107,7 @@ export const getCollectedItemMaxChildLevel = (item: unknown) => calcLevel(item, 
  * @param options.onlyForProp parent collects all children by default, use this to collect those only with same prop and propValue with parent. If it's a truthy value but not string, it will be considered as `onlyFor`
  * @returns
  */
-/*! #__NO_SIDE_EFFECTS__ */
+/*@__NO_SIDE_EFFECTS__*/
 export function createCollector<
   P extends any = Data,
   C extends any = Data,

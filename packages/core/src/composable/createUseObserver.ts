@@ -22,6 +22,7 @@ type OptionsMap = {
   };
 };
 
+/*@__NO_SIDE_EFFECTS__*/
 export function createUseObserver<
   NP extends NamePrefixes,
   N extends `${NP}Observer` = `${NP}Observer`,
