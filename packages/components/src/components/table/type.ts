@@ -1,4 +1,4 @@
-import { freeze } from '@lun-web/utils';
+import { freeze, MaybeArray, MaybeSet } from '@lun-web/utils';
 import {
   GetEventPropsFromEmits,
   PropString,
@@ -115,6 +115,8 @@ export const tableProps = freeze({
   // TODO stickyRow
   rowExpanded: PropSet(),
   rowExpandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
+  selected: Prop<MaybeArray<string | number> | MaybeSet<string | number>>(),
+  selectionMode: PropString<'single' | 'multiple'>(),
   actions: PropObjOrStr<
     | TableActionKeys
     | ((params: TableActionParams) => void)
@@ -130,7 +132,11 @@ export const tableEmits = createEmits<{
     raw: Set<string | number>;
     value: (string | number)[];
   };
-}>(['rowExpand']);
+  select: {
+    raw: MaybeSet<string | number>;
+    value: MaybeArray<string | number>;
+  };
+}>(['rowExpand', 'select']);
 
 export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
 export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;

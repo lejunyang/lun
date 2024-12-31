@@ -1,7 +1,7 @@
 import { defineCustomElement } from 'custom';
 import { createDefineElement, getProp, renderElement } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
-import { useCE, useNamespace } from 'hooks';
+import { useCE, useNamespace, useValueModel, useValueSet } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector, TableState } from './collector';
 import { arrayFrom, ensureArray, ensureNumber, runIfFn, toPxIfNum } from '@lun-web/utils';
@@ -15,13 +15,16 @@ import {
   useRefWeakSet,
   fComputed,
   useVirtualList,
+  useSelectMethods,
+  useShallowRefSet,
+  useShallowRefMap,
 } from '@lun-web/core';
-import { ComponentInternalInstance, computed, shallowReactive, watchEffect } from 'vue';
+import { ComponentInternalInstance, onBeforeUnmount, shallowReactive, shallowRef, watchEffect } from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
 import useRowExpand from './Table.RowExpand';
 import { getRowKey } from './utils';
 import { defineTableColumn } from './TableColumn';
-import { InternalColumn } from './internalType';
+import { InternalColumn, InternalRowInfo } from './internalType';
 
 const name = 'table';
 const parts = ['root', 'virtual-wrapper', 'expanded-content', 'resizer'] as const;
@@ -44,7 +47,22 @@ export const Table = defineCustomElement({
       hoveringIndex: null,
     }) as TableState;
 
-    const data = computed(() => ensureArray(props.data));
+    const keySet = useShallowRefSet(),
+      [, addKey, , replaceKeySet] = keySet,
+      [, setKeyData, , replaceKeyData] = useShallowRefMap(),
+      data = shallowRef([] as InternalRowInfo[]);
+    onBeforeUnmount(replaceKeySet);
+    onBeforeUnmount(replaceKeyData);
+    watchEffect(() => {
+      replaceKeySet();
+      replaceKeyData();
+      data.value = ensureArray(props.data).map((item, index) => {
+        const key = getRowKey(props, item, index);
+        addKey(key);
+        setKeyData(key, item);
+        return [item, index, key];
+      });
+    });
     const [columns, renderColumns] = useCollectorExternalChildren(
       () => props.columns,
       (column, children) =>
@@ -61,22 +79,35 @@ export const Table = defineCustomElement({
     const virtualOff = () => !props.virtual,
       virtual = useVirtualList({
         items: data,
-        itemKey: (item, index) => getRowKey(props, item, index),
+        itemKey: (item) => item[2],
         container: ce,
         observeContainerSize: true,
         disabled: virtualOff,
         estimatedSize: (item, index) => {
-          const height = runIfFn(props.rowHeight, item, index);
+          const height = runIfFn(props.rowHeight, item[0], index);
           return ensureNumber(height, 44);
         },
         staticPosition: true,
       }),
       virtualData = fComputed(() =>
-        virtualOff()
-          ? data.value.map((row, i) => [row, i, getRowKey(props, row, i)] as const)
-          : virtual.virtualItems.value.map((v) => [v.item, v.index, v.key] as const),
+        virtualOff() ? data.value : virtual.virtualItems.value.map((v) => v.item as InternalRowInfo),
       );
     const [renderExpand, getExpandRowHeight, rowExpand] = useRowExpand(props, virtualData, maxLevel);
+    const selectModel = useValueModel(props, {
+        key: 'selected',
+        hasRaw: true,
+        eventName: 'select',
+      }),
+      selectedSet = useValueSet(selectModel);
+    const select = useSelectMethods({
+      multiple: () => props.selectionMode === 'multiple',
+      watchState: true,
+      current: selectedSet,
+      allValues: keySet,
+      onChange: (param) => {
+        selectModel.value = param as any;
+      },
+    });
     const context = TableColumnCollector.parent({
       extraProvide: {
         collapsed,
@@ -90,9 +121,11 @@ export const Table = defineCustomElement({
         data: virtualData,
         rowExpand,
         state,
+        select,
       },
     });
 
+    // preprocess headerColSpan
     watchEffect(() => {
       replaceCollapsed();
       let collapseCount = 0;
