@@ -21,7 +21,8 @@ import {
 import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
 import { GetCustomRendererSource } from '../custom-renderer';
-import { InternalTableActionParams } from './internalType';
+import { InternalTableActionParams, InternalTableColumnRendererParams, TableColumnHeaderParams } from './internalType';
+import { TableExternalContext } from './collector';
 
 export type TableCellProps = Partial<{
   colSpan: number;
@@ -37,9 +38,8 @@ export const tableColumnProps = freeze({
   type: PropString<'index' | (string & {})>(),
   name: PropString(),
   plainName: undefBoolProp,
-  header: Prop<GetCustomRendererSource>(),
-  renderer:
-    PropFunction<(value: unknown, rowIndex: number, rowData: unknown, columnProps: any) => GetCustomRendererSource>(),
+  header: Prop<GetCustomRendererSource | ((params: TableColumnHeaderParams) => GetCustomRendererSource)>(),
+  renderer: PropFunction<(params: InternalTableColumnRendererParams) => GetCustomRendererSource>(),
   /** determine the colSpan for header, will span and cover next columns. only apply to root columns with no children. if nested columns exist in the span, the span will stop right before it */
   headerColSpan: PropNumber(), // TODO sticky support when having headerColSpan
   headerProps: PropObject(),
@@ -77,6 +77,14 @@ export type TableActionParams = {
   key: string | number;
   props: TableColumnSetupProps;
   get actions(): TableActions;
+};
+export type TableColumnRendererParams = {
+  value: unknown;
+  index: number;
+  row: unknown;
+  key: string | number;
+  props: TableColumnSetupProps;
+  context: TableExternalContext;
 };
 export type TableColumnEvents = GetEventPropsFromEmits<typeof tableColumnEmits>;
 export type TableColumnProps = Omit<Partial<TableColumnSetupProps>, 'actions'> & {

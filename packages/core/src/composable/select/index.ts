@@ -79,7 +79,7 @@ const createUseSelect = <SelectKey extends string = 'select', UnselectKey extend
             if (multiple) {
               if (allSelected) return updateState(true, false);
               const selectedEmpty = isEmpty(selected),
-                { size } = differenceOfSets(all, selected);
+                size = selectedEmpty ? 0 : differenceOfSets(all, selected).size;
               updateState(!size && !selectedEmpty, !!size && !selectedEmpty);
             } else Object.assign(state, initial);
           },
@@ -154,12 +154,15 @@ const createUseSelect = <SelectKey extends string = 'select', UnselectKey extend
 
 export const useSelectMethods = createUseSelect();
 
+export type UseSelectState = ReturnType<typeof useSelectMethods>[0];
 export type UseSelectMethods = ReturnType<typeof useSelectMethods>[1];
 
 export const useCheckboxMethods = createUseSelect('check', 'uncheck', true, true);
 
+export type UseCheckboxState = ReturnType<typeof useCheckboxMethods>[0];
 export type UseCheckboxMethods = ReturnType<typeof useCheckboxMethods>[1];
 
 export const useExpandMethods = createUseSelect('expand', 'collapse');
 
+export type UseExpandState = ReturnType<typeof useExpandMethods>[0];
 export type UseExpandMethods = ReturnType<typeof useExpandMethods>[1];

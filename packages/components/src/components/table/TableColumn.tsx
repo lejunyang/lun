@@ -3,7 +3,7 @@ import { createDefineElement, createImportStyle, getHostStyle, getProp, getProps
 import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
 import { getCompParts } from 'common';
-import { TableColumnCollector } from './collector';
+import { TableColumnCollector, toExternalContext } from './collector';
 import {
   getCollectedItemIndex,
   getCollectedItemLeavesCount,
@@ -48,6 +48,7 @@ export const TableColumn = defineCustomElement({
       [getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
       [getColumnVm, setColumnVm] = columnVmMap,
       rawCellMerge = toRaw(cellMerge.value);
+    const externalContext = toExternalContext(context);
     const headerEl = ref<HTMLElement>(),
       cells = ref<HTMLElement[]>([]);
     watchEffect(() => {
@@ -146,7 +147,7 @@ export const TableColumn = defineCustomElement({
           ref_for={true}
         >
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'cell')]} part={compParts[4]}>
-            {renderCell(column, rowIndex, item, props)}
+            {renderCell(column, rowIndex, key, item, props, externalContext)}
           </div>
         </div>
       );
@@ -203,7 +204,7 @@ export const TableColumn = defineCustomElement({
           }}
         >
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'header')]} part={compParts[3]}>
-            {renderCustom(header)}
+            {renderCustom(runIfFn(header, { props, context: externalContext, data: data() }))}
           </div>
           {isLeaf && resizable && (
             <div

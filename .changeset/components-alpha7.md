@@ -5,6 +5,7 @@
 ### Features
 
 - `tree`: improve `defaultExpandAll` behavior for first render
+- `table`: add row selection support; add radio and checkbox select column
 
 ### Changes
 

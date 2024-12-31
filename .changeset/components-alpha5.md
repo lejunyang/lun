@@ -11,6 +11,7 @@
 - `form-item`: support type=date min/max, greaterThan/lessThan transform
 - add `addUserComponent` util
 - intercept `click`, `focus`, `blur` methods of `checkbox`, `radio`, `switch` to make them work for imperative call
+- add `Table` component and many features
 
 ### Changes
 

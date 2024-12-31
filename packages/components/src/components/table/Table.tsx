@@ -98,9 +98,10 @@ export const Table = defineCustomElement({
         hasRaw: true,
         eventName: 'select',
       }),
-      selectedSet = useValueSet(selectModel);
+      multiple = () => props.selectionMode === 'multiple',
+      selectedSet = useValueSet(selectModel, multiple);
     const select = useSelectMethods({
-      multiple: () => props.selectionMode === 'multiple',
+      multiple,
       watchState: true,
       current: selectedSet,
       allValues: keySet,
