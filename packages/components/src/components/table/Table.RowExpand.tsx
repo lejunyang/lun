@@ -13,16 +13,17 @@ export default (
 ) => {
   const expandableKeySet = useRefSet(),
     [canExpand, addExpandKey, , replace] = expandableKeySet,
-    expandedContentArr = shallowRef([] as any[]);
+    expandedContentArr = shallowRef([] as ([any, number] | undefined)[]);
   watchEffect(() => {
     replace();
     const { rowExpandedRenderer } = props;
     if (!isFunction(rowExpandedRenderer)) return;
-    expandedContentArr.value = data().map(([row, rowIndex, key]) => {
+    let expandCount = 0;
+    expandedContentArr.value = data().map(([row, rowIndex, key], i) => {
       const content = rowExpandedRenderer(row, rowIndex);
       if (content != null) {
         addExpandKey(key);
-        return content;
+        return [content, i + ++expandCount + 1];
       }
     });
   });
@@ -56,18 +57,18 @@ export default (
     (wrapperProps?: Record<string, any>) =>
       hasExpand()
         ? expandedContentArr.value.map(
-            (content, i) =>
+            (content) =>
               content != null && (
                 <div
                   style={{
                     gridColumn: '1/-1',
                     minHeight: 0,
                     overflow: 'hidden',
-                    gridRow: `${maxLevel() + (i + 1) * 2}`,
+                    gridRow: `${maxLevel() + content[1]}`,
                   }}
                   {...wrapperProps}
                 >
-                  {renderCustom(content)}
+                  {renderCustom(content[0])}
                 </div>
               ),
           )

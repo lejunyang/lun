@@ -219,7 +219,7 @@ describe('Table', () => {
           { header: 'name', name: 'name', width: '1fr' },
           { header: 'age', name: 'age', width: '1fr' },
         ]}
-        rowExpandedRenderer={(row) => row.address}
+        rowExpandedRenderer={(row: any) => row.address}
         rowExpanded={expanded.value}
         onRowExpand={(e) => {
           expanded.value = e.detail.raw;
