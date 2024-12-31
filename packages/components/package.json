@@ -1,6 +1,6 @@
 {
   "name": "@lun-web/components",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "A full-featured web components library based on Vue3",
   "keywords": [
     "web-components",
