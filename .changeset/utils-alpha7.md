@@ -5,6 +5,7 @@
 ### Features
 
 - add `extend`
+- add cache for `stringToPath`
 
 ### Bug Fixes
 

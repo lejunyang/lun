@@ -16,7 +16,6 @@ import {
   PropNumOrFunc,
   PropFunction,
   PropSet,
-  PropObjOrStr,
 } from 'common';
 import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
@@ -31,8 +30,18 @@ export type TableCellProps = Partial<{
 }> &
   HTMLAttributes;
 
-export type TableActionKeys = 'toggleRowExpand' | (string & {});
-export type TableActions = Record<TableActionKeys, () => void>;
+export type TableActionKeys =
+  | 'rowExpand.toggle'
+  | 'rowExpand.expand'
+  | 'rowExpand.collapse'
+  | 'rowExpand.expandAll'
+  | 'rowExpand.collapseAll'
+  | 'rowSelect.toggle'
+  | 'rowSelect.select'
+  | 'rowSelect.unselect'
+  | 'rowSelect.selectAll'
+  | 'rowSelect.unselectAll'
+  | (string & {});
 
 export const tableColumnProps = freeze({
   type: PropString<'index' | (string & {})>(),
@@ -55,7 +64,7 @@ export const tableColumnProps = freeze({
   ellipsis: PropBoolean(), // TODO
   overflow: PropString(), // TODO
   help: PropString(), // TODO
-  actions: PropObjOrStr<
+  actions: Prop<
     | TableActionKeys
     | ((params: InternalTableActionParams) => void)
     | Record<
@@ -76,7 +85,7 @@ export type TableActionParams = {
   index: number;
   key: string | number;
   props: TableColumnSetupProps;
-  get actions(): TableActions;
+  context: TableExternalContext;
 };
 export type TableColumnRendererParams = {
   value: unknown;
@@ -111,9 +120,9 @@ export const tableProps = freeze({
   dataPropsMap: PropObject<Record<'key' | 'children', string>>(),
   columns: PropArray<TableColumnWithChildren[]>(),
   columnPropsMap: PropObject<Record<'key' | 'children', string>>(),
-  headerHeight: PropNumber<Property.GridTemplateRows>(),
+  headerHeight: PropNumber<Property.GridTemplateRows | number>(),
   rowHeight: PropNumOrFunc<
-    Property.GridTemplateRows | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows)
+    Property.GridTemplateRows | number | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows | number)
   >(),
   rootStyle: PropObject<CSSProperties>(),
   stickyHeader: PropBoolean(),
@@ -125,7 +134,7 @@ export const tableProps = freeze({
   rowExpandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
   selected: Prop<MaybeArray<string | number> | MaybeSet<string | number>>(),
   selectionMode: PropString<'single' | 'multiple'>(),
-  actions: PropObjOrStr<
+  actions: Prop<
     | TableActionKeys
     | ((params: TableActionParams) => void)
     | Record<

@@ -1,20 +1,20 @@
 import {
   capitalize,
-  createBinds,
   fromObject,
   isFunction,
   isHTMLElement,
   isString,
   iterateEventPath,
-  objectKeys,
+  objectGet,
 } from '@lun-web/utils';
-import { TableColumnCollectorContext } from './collector';
+import { TableColumnCollectorContext, toExternalContext } from './collector';
 import { TableActionKeys } from './type';
 import { getProp, getProps } from 'utils';
 import { fComputed } from '@lun-web/core';
 import { InternalColumn, InternalRowInfo, InternalTableActionParams } from './internalType';
 
 export default (column: () => InternalColumn, context: TableColumnCollectorContext) => {
+  const externalContext = toExternalContext(context);
   const checkTarget = (target: EventTarget | null) => {
     if (!isHTMLElement(target)) return;
     const { role } = target,
@@ -24,23 +24,23 @@ export default (column: () => InternalColumn, context: TableColumnCollectorConte
     }
   };
 
-  const tableActions: Record<TableActionKeys, (params: InternalTableActionParams) => void> = {
-    toggleRowExpand: ({ key }) => {
-      context.rowExpand.toggle(key);
+  const tableActions = new Proxy({} as Record<TableActionKeys, (params: InternalTableActionParams) => void>, {
+    get(target: Record<TableActionKeys, any>, key: TableActionKeys) {
+      if (target[key]) return target[key];
+      const action = objectGet(externalContext, key);
+      return isFunction(action) ? (target[key] = ({ key }: InternalTableActionParams) => action(key)) : undefined;
     },
-  };
+  });
 
   const normalizeActionKey = (event: string, target: 'Cell' | 'Row' = 'Cell') => 'on' + target + capitalize(event);
 
-  const rowInfoToParams = (rowInfo: InternalRowInfo) => {
-    const params = { row: rowInfo[0], index: rowInfo[1], key: rowInfo[2], props: getProps(column()) };
-    return {
-      ...params,
-      get actions() {
-        return createBinds(tableActions, objectKeys(tableActions), params) as Record<TableActionKeys, () => void>;
-      },
-    };
-  };
+  const rowInfoToParams = (rowInfo: InternalRowInfo) => ({
+    row: rowInfo[0],
+    index: rowInfo[1],
+    key: rowInfo[2],
+    props: getProps(column()),
+    context: externalContext,
+  });
 
   const resolveAction = (action: string | ((params: InternalTableActionParams) => void)) =>
     isString(action) && tableActions[action] ? tableActions[action] : isFunction(action) ? action : undefined;

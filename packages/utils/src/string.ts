@@ -17,7 +17,7 @@ export function uncapitalize<S extends string>(str: S) {
  * a..b => ['a', 'b']\
  * a[[b]]c => ['a', '[b]', 'c']
  */
-export function stringToPath(path?: string): string[] {
+export const stringToPath = cacheFunctionByKey((path?: string): string[] => {
   if (!isString(path)) return [];
   return path
     .replace(/\[(['"`]?)(.*?)(['"`]?)]/g, (_match: string, $1: string, $2: string, $3: string) => {
@@ -26,7 +26,7 @@ export function stringToPath(path?: string): string[] {
     })
     .split('.')
     .filter(Boolean);
-}
+});
 
 export function toRegExp(pattern: string | RegExp, flags?: string) {
   if (isRegExp(pattern)) return pattern;

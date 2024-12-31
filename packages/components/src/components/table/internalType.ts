@@ -1,5 +1,5 @@
 import { ComponentInternalInstance } from 'vue';
-import { TableActions, TableColumnSetupProps } from './type';
+import { TableColumnSetupProps } from './type';
 import { TableExternalContext } from './collector';
 
 export type InternalRowInfo = readonly [rowData: unknown, rowIndex: number, key: any];
@@ -10,7 +10,7 @@ export type InternalTableActionParams = {
   row: unknown;
   index: number;
   key: string | number;
-  get actions(): TableActions;
+  context: TableExternalContext;
 };
 
 export type TableColumnHeaderParams = { context: TableExternalContext; props: any; data: InternalRowInfo[] };
