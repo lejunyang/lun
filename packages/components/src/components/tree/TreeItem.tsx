@@ -43,7 +43,7 @@ export const TreeItem = defineCustomElement({
     };
     const handleLineClick = (e: MouseEvent) => {
       if (!editComputed.disabled) {
-        expand.toggleExpand(props.value);
+        expand.toggle(props.value);
         if (lineSelectable()) performSelect(e);
         if (checkable()) check.check(props.value);
       }

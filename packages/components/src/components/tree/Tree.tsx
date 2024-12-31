@@ -6,7 +6,7 @@ import { getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
-import { unionOfSets } from '@lun-web/utils';
+import { extend, unionOfSets } from '@lun-web/utils';
 import { useTreeCheckMethods } from './tree.check';
 import { useTreeItems } from './tree.items';
 import { Item } from './tree.common';
@@ -70,15 +70,19 @@ export const Tree = defineCustomElement({
       },
       allValues: () => combinedChildren.childrenValuesSet,
     });
-    const [, expandMethods] = useExpandMethods({
-      multiple: true,
-      current: expandedValueSet,
-      onChange(value) {
-        expandedModel.value = value;
-      },
-      allValues: () => combinedChildren.noneLeafValuesSet,
-      defaultSelectAll: () => props.defaultExpandAll,
-    });
+    const [, expandMethods] = useExpandMethods(
+      extend(
+        {
+          multiple: true,
+          current: expandedValueSet,
+          onChange(value) {
+            expandedModel.value = value;
+          },
+          allValues: () => combinedChildren.noneLeafValuesSet,
+        },
+        props,
+      ),
+    );
     const methods = {
       select: selectMethods,
       check: checkMethods,

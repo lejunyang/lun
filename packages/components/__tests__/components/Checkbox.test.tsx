@@ -50,14 +50,12 @@ describe('Checkbox', () => {
     });
     const group = ref();
     render(() => (
-      <>
-        <l-checkbox-group ref={group} onUpdate={onUpdate} options={[{ checkForAll: true, label: '全选' }, ...options]}>
-          <l-checkbox readonly value="readonly">
-            readonly项
-          </l-checkbox>
-          <l-checkbox>无value项</l-checkbox>
-        </l-checkbox-group>
-      </>
+      <l-checkbox-group ref={group} onUpdate={onUpdate} options={[{ checkForAll: true, label: '全选' }, ...options]}>
+        <l-checkbox readonly value="readonly">
+          readonly项
+        </l-checkbox>
+        <l-checkbox>无value项</l-checkbox>
+      </l-checkbox-group>
     ));
     const children = group.value.shadowRoot.firstElementChild.children as HTMLElement[];
     expect(children[0].hasAttribute('check-for-all')).to.be.true;

@@ -38,7 +38,7 @@ export default (
     multiple: true,
     current: expandedSet,
     onChange(value) {
-      expandedModel.value = value;
+      expandedModel.value = value as any;
     },
     allValues: expandableKeySet,
   });

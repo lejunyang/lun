@@ -1,10 +1,9 @@
 import { defineCustomElement } from 'custom';
-import { objectComputed, useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun-web/core';
+import { useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { CheckboxCollector } from './collector';
 import { computed } from 'vue';
-import { pick } from '@lun-web/utils';
 import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
 import { getCompParts } from 'common';
 
@@ -34,7 +33,7 @@ export const CheckboxGroup = defineCustomElement({
     const valueModel = useValueModel(props, {
       hasRaw: true,
       emit: (name, value) => {
-        Object.assign(value, pick(radioState, ['allChecked', 'intermediate']));
+        Object.assign(value, radioState);
         emit(name as any, value);
       },
     });
@@ -51,35 +50,19 @@ export const CheckboxGroup = defineCustomElement({
           ),
         ),
     );
-    const [, methods] = useCheckboxMethods({
-      current: checkedValueSet,
-      allValues: childValueSet,
-      onChange(value) {
-        valueModel.value = value;
-      },
-    });
+    const checkbox = useCheckboxMethods({
+        current: checkedValueSet,
+        allValues: childValueSet,
+        onChange(value) {
+          valueModel.value = value as any;
+        },
+      }),
+      [radioState, methods] = checkbox;
 
     useCEExpose(methods);
 
     useSetupEdit();
-    const radioState = objectComputed(() => {
-      let allChecked: boolean | null = null,
-        intermediate = false;
-      childValueSet.value.forEach((v) => {
-        if (methods.isChecked(v)) {
-          if (allChecked === null) allChecked = true;
-          intermediate = true;
-        } else allChecked = false;
-      });
-      if (allChecked) intermediate = false;
-      return {
-        allChecked: !!allChecked,
-        intermediate,
-        parentValueSet: checkedValueSet.value,
-        isChecked: methods.isChecked,
-      };
-    });
-    const children = CheckboxCollector.parent({ extraProvide: { radioState } });
+    const children = CheckboxCollector.parent({ extraProvide: checkbox });
 
     const [stateClass] = useCEStates(() => ({
       vertical: props.vertical,

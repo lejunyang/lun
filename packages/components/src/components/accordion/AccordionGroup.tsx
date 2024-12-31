@@ -33,7 +33,7 @@ export const AccordionGroup = defineCustomElement({
       allValues: childrenNames,
       onChange(value) {
         openModel.value = value;
-        emit('update', value);
+        emit('update', value as any);
       },
     });
     const context = AccordionCollector.parent({

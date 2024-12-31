@@ -83,13 +83,13 @@ const createUseSelect = <SelectKey extends string = 'select', UnselectKey extend
               updateState(!size && !selectedEmpty, !!size && !selectedEmpty);
             } else Object.assign(state, initial);
           },
-          { immediate: true },
+          { immediate: true, /** to be able to access new state in onChange immediately */ flush: 'sync' },
         );
       });
-    const getParam = (raw: any) => ({
+    const getParam = (raw: any, multiValue?: any) => ({
       raw,
       get value() {
-        return isMultiple() ? arrayFrom(raw) : raw;
+        return isMultiple() ? (multiValue ||= arrayFrom(raw)) : raw;
       },
     });
 

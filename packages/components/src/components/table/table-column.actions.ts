@@ -26,7 +26,7 @@ export default (column: () => InternalColumn, context: TableColumnCollectorConte
 
   const tableActions: Record<TableActionKeys, (params: InternalTableActionParams) => void> = {
     toggleRowExpand: ({ key }) => {
-      context.rowExpand.toggleExpand(key);
+      context.rowExpand.toggle(key);
     },
   };
 

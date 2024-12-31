@@ -40,13 +40,14 @@ export const Checkbox = defineCustomElement({
 
     const intermediate = computed(() => {
       if (!checkboxContext || props.excludeFromGroup) return props.intermediate && !props.checked;
-      return props.checkForAll && checkboxContext.radioState.intermediate;
+      return props.checkForAll && checkboxContext[0].intermediate;
     });
     const checked = computed(() => {
       if (!checkboxContext || props.excludeFromGroup) return checkedModel?.value ?? props.checked;
-      const { radioState } = checkboxContext;
-      const { allChecked, isChecked } = radioState;
-      return (allChecked && !editComputed.disabled) || (!props.checkForAll && isChecked(props.value));
+      return (
+        (checkboxContext[0].allChecked && !editComputed.disabled) ||
+        (!props.checkForAll && checkboxContext[1].isChecked(props.value))
+      );
     });
 
     const updateChecked = (checked: boolean) => {

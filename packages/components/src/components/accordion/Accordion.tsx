@@ -29,7 +29,7 @@ export const Accordion = defineCustomElement({
 
     const handleToggle = () => {
       if (editComputed.disabled) return;
-      if (context) context.toggleExpand(id());
+      if (context) context.toggle(id());
       else openModel.value = !openModel.value;
     };
     const resolveIcon = (val?: string | { open?: string; close?: string }, defaultV?: string) => {

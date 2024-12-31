@@ -24,7 +24,7 @@ export function useSelect(
     current: selectedValueSet,
     onChange(value) {
       valueModel.value = value;
-      if (onSingleSelect && !isMultiple()) onSingleSelect(value.raw);
+      if (onSingleSelect && !isMultiple()) onSingleSelect(value.raw as string);
     },
     allValues: () => childrenInfo.childrenValuesSet,
   });
