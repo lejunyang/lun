@@ -214,7 +214,7 @@ describe('Table', () => {
       <l-table
         ref={table}
         data={tableData}
-        actions="toggleRowExpand"
+        actions="rowExpand.toggle"
         columns={[
           { header: 'name', name: 'name', width: '1fr' },
           { header: 'age', name: 'age', width: '1fr' },

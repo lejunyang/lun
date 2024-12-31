@@ -59,6 +59,77 @@ highly experimental
 
 通过`rowHeight`属性可设置行高，有效值同上，且其可以为函数，用于单独设置每一行的高度
 
+## 行单选
+
+表格默认支持行单选，但是需要自行设置对应的动作或调用相关函数使行选中，可见下面的[行与单元格动作](#行与单元格动作)
+
+通过`selected`属性指定 key 可控制哪行被勾选，通过`select`事件可监听勾选变更
+
+你可以使用默认提供的`TABLE_RADIO_SELECT_COLUMN`渲染一个单选框列来更便捷地使用单选
+
+:::details 单选列对象详情
+`TABLE_RADIO_SELECT_COLUMN`就是一个如下所示的简单对象，如果你有更多的自定义需求可参考
+
+```ts
+{
+  type: 'radio-select',
+  width: 50,
+  justify: 'center',
+}
+// 这个type相当于给该列指定了下面这个renderer
+({ key, context }: InternalTableColumnRendererParams) =>
+  renderElement('radio', {
+    checked: context.rowSelect.isSelected(key),
+    onUpdate() {
+      context.rowSelect.select(key);
+    },
+  })
+```
+
+:::
+
+<!-- @Code:singleSelect -->
+
+## 行多选
+
+多选需要将`selectionMode`设置为`multiple`，且与单选一样需要自行配置动作或调用相关函数
+
+通过`selected`属性可控制哪行被勾选，其支持 Set 或数组，通过`select`事件可监听勾选变更
+
+你可以使用默认提供的`TABLE_CHECKBOX_SELECT_COLUMN`渲染一个复选框列来更便捷地使用多选
+
+:::details 复选列对象详情
+`TABLE_CHECKBOX_SELECT_COLUMN`就是一个如下所示的简单对象，如果你有更多的自定义需求可参考
+
+```ts
+{
+  type: 'checkbox-select',
+  width: 50,
+  justify: 'center',
+  header: ({ context: { rowSelectionState, rowSelect } }: { context: TableExternalContext }) =>
+    renderElement('checkbox', {
+      checked: rowSelectionState.allSelected,
+      intermediate: rowSelectionState.intermediate,
+      onUpdate(e: CustomEvent<{ checked: boolean }>) {
+        if (e.detail.checked) rowSelect.selectAll();
+        else rowSelect.unselectAll();
+      },
+    }),
+}
+// 这个type相当于给该列指定了下面这个renderer
+({ key, context }: InternalTableColumnRendererParams) =>
+  renderElement('checkbox', {
+    checked: context.rowSelect.isSelected(key),
+    onUpdate() {
+      context.rowSelect.toggle(key);
+    },
+  })
+```
+
+:::
+
+<!-- @Code:multipleSelect -->
+
 ## 行展开
 
 通过一系列属性可开启表格的行展开功能，并自定义行展开的渲染内容：
@@ -78,11 +149,21 @@ highly experimental
 
 ## 行与单元格动作
 
-表格内部定义了一系列动作用于调用，用户可以自行控制在什么情况下触发这些动作（如单击某行/某单元格），目前内部的动作仅有`toggleRowExpand`，用于展开/收起当前行的内容（可参考上一节）。未来会添加展开/收起、勾选等动作，或许还可以让用户统一添加自定义动作？
+表格内部定义了一系列动作用于调用，表格和表格列上均可以通过`actions`属性设置需要监听的事件并触发相应动作，其可以为三种格式：
 
-表格和表格列上均可以通过`actions`属性设置需要监听的事件并触发相应动作，其可以为三种格式：
-
-- 字符串：在 click 后触发相应动作
+- 字符串：在 click 后触发相应动作，目前内部支持的动作请查看详情
+  :::details 内部动作列表
+  - `rowExpand.toggle`: 展开/收起当前行
+  - `rowExpand.expand`: 展开当前行
+  - `rowExpand.collapse`: 收起当前行
+  - `rowExpand.expandAll`: 展开所有行
+  - `rowExpand.collapseAll`: 收起所有行
+  - `rowSelect.toggle`: 切换当前行选中状态
+  - `rowSelect.select`: 选中当前行
+  - `rowSelect.unselect`: 取消当前行选中
+  - `rowSelect.selectAll`: 全选所有行
+  - `rowSelect.unselectAll`: 取消全选所有行
+    :::
 - 函数：在 click 后调用该函数，函数参数中可以获取点击区域的相关信息，如下
 
 ```ts
@@ -95,8 +176,13 @@ export type TableActionParams = {
   key: string | number;
   /** 当前列的属性 */
   props: TableColumnSetupProps;
-  /** 内部动作对象，key为动作名称，value为函数，函数无需传参，已绑定当前行和列 */
-  get actions(): TableActions;
+  /**
+   * 供外部调用的一些方法和状态，
+   * 例如其中的`rowSelect`和`rowExpand`包含改变行选中和展开状态的方法，
+   * 也就是上面列出的那些动作
+   * 但不同的是，这些函数需要你手动传参（一般是传该行的key）
+   */
+  context: TableExternalContext;
 };
 ```
 

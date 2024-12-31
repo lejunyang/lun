@@ -1,20 +1,22 @@
-import { Message } from '@lun-web/components';
+import { Message, TABLE_CHECKBOX_SELECT_COLUMN } from '@lun-web/components';
 import { tableData } from 'data';
 
 export default () => (
   <l-table
     data={tableData}
     actions={(params) => {
-      Message.info(`You clicked on row ${params.index}, column "${params.props.header}"`);
+      Message.info(`You clicked on row ${params.index}, column "${params.props.name}"`);
     }}
+    selectionMode="multiple"
     columns={[
+      TABLE_CHECKBOX_SELECT_COLUMN,
       {
         header: 'name',
         name: 'name',
         width: '1fr',
         actions: {
-          onCellClick: (params) => {
-            params.actions.toggleRowExpand();
+          onCellClick: ({ context, key }) => {
+            context.rowExpand.toggle(key);
           },
           onCellContextmenu: ({ row, props }) => {
             Message.info(`You right clicked on cell ${row[props.name]}`);
@@ -25,8 +27,8 @@ export default () => (
         header: 'age',
         name: 'age',
         width: '1fr',
-        actions: () => {
-          Message.info(`No action, try click or right click on 'name' column`);
+        actions: ({ context, key }) => {
+          context.rowSelect.toggle(key);
         },
       },
     ]}
