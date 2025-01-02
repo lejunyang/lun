@@ -65,13 +65,13 @@ highly experimental
 
 通过`selected`属性指定 key 可控制哪行被勾选，通过`select`事件可监听勾选变更
 
-你可以使用默认提供的`TABLE_RADIO_SELECT_COLUMN`渲染一个单选框列来更便捷地使用单选
+你可以添加`selectColumn`属性使表格渲染默认的勾选列，其也可以设置为对象以添加其他你想要的列属性。如果你需要控制勾选列的顺序，你可以在`columns`数组中想要的位置添加默认提供的`TABLE_RADIO_SELECT_COLUMN`对象来渲染默认的单选框列，这个对象的详情可参考下面，因此你也可以自行设置这样的列来编写更多自定义逻辑
 
 :::details 单选列对象详情
 `TABLE_RADIO_SELECT_COLUMN`就是一个如下所示的简单对象，如果你有更多的自定义需求可参考
 
 ```ts
-{
+const TABLE_RADIO_SELECT_COLUMN = {
   type: 'radio-select',
   width: 50,
   justify: 'center',
@@ -96,13 +96,13 @@ highly experimental
 
 通过`selected`属性可控制哪行被勾选，其支持 Set 或数组，通过`select`事件可监听勾选变更
 
-你可以使用默认提供的`TABLE_CHECKBOX_SELECT_COLUMN`渲染一个复选框列来更便捷地使用多选
+与单选相同，你可以添加`selectColumn`属性使表格渲染默认的勾选列，当设置了`selectionMode`时添加的列会自动变为多选框列。同样你可以使用默认提供的`TABLE_CHECKBOX_SELECT_COLUMN`来自定义复选框列
 
 :::details 复选列对象详情
 `TABLE_CHECKBOX_SELECT_COLUMN`就是一个如下所示的简单对象，如果你有更多的自定义需求可参考
 
 ```ts
-{
+const TABLE_CHECKBOX_SELECT_COLUMN = {
   type: 'checkbox-select',
   width: 50,
   justify: 'center',

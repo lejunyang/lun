@@ -4,7 +4,7 @@ import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useCE, useNamespace, useValueModel, useValueSet } from 'hooks';
 import { getCompParts } from 'common';
 import { TableColumnCollector, TableState } from './collector';
-import { arrayFrom, ensureArray, ensureNumber, runIfFn, toPxIfNum } from '@lun-web/utils';
+import { arrayFrom, ensureArray, ensureNumber, ensureTruthyArray, isEmpty, runIfFn, toPxIfNum } from '@lun-web/utils';
 import {
   getCollectedItemTreeLevel,
   getCollectedItemTreeParent,
@@ -25,6 +25,7 @@ import useRowExpand from './Table.RowExpand';
 import { getRowKey } from './utils';
 import { defineTableColumn } from './TableColumn';
 import { InternalColumn, InternalRowInfo } from './internalType';
+import { TABLE_CHECKBOX_SELECT_COLUMN, TABLE_INDEX_COLUMN, TABLE_RADIO_SELECT_COLUMN } from './TableColumn.renderer';
 
 const name = 'table';
 const parts = ['root', 'virtual-wrapper', 'expanded-content', 'resizer'] as const;
@@ -47,6 +48,7 @@ export const Table = defineCustomElement({
       hoveringIndex: null,
     }) as TableState;
 
+    // ---data and key process---
     const keySet = useShallowRefSet(),
       [, addKey, , replaceKeySet] = keySet,
       [, setKeyData, , replaceKeyData] = useShallowRefMap(),
@@ -63,36 +65,9 @@ export const Table = defineCustomElement({
         return [item, index, key];
       });
     });
-    const [columns, renderColumns] = useCollectorExternalChildren(
-      () => props.columns,
-      (column, children) =>
-        renderElement('table-column', { ...column, /** _ is for internal usage in column */ _: column }, children),
-      () => props.columnPropsMap,
-      true,
-    );
+    // ---data and key process---
 
-    const [renderResizer, showResize] = useColumnResizer(setColumnWidth);
-
-    const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
-      all = fComputed(() => (columns.items as InternalColumn[]).concat(context.value));
-
-    const virtualOff = () => !props.virtual,
-      virtual = useVirtualList({
-        items: data,
-        itemKey: (item) => item[2],
-        container: ce,
-        observeContainerSize: true,
-        disabled: virtualOff,
-        estimatedSize: (item, index) => {
-          const height = runIfFn(props.rowHeight, item[0], index);
-          return ensureNumber(height, 44);
-        },
-        staticPosition: true,
-      }),
-      virtualData = fComputed(() =>
-        virtualOff() ? data.value : virtual.virtualItems.value.map((v) => v.item as InternalRowInfo),
-      );
-    const [renderExpand, getExpandRowHeight, rowExpand] = useRowExpand(props, virtualData, maxLevel);
+    // ---row selection---
     const selectModel = useValueModel(props, {
         key: 'selected',
         hasRaw: true,
@@ -109,6 +84,59 @@ export const Table = defineCustomElement({
         selectModel.value = param as any;
       },
     });
+    // ---row selection---
+
+    // ---prop `columns` process---
+    const propColumns = fComputed(() => {
+      const { columns, indexColumn, selectColumn } = props;
+      const predefined = ensureTruthyArray([
+        selectColumn
+          ? {
+              ...(multiple() ? TABLE_CHECKBOX_SELECT_COLUMN : TABLE_RADIO_SELECT_COLUMN),
+              ...(selectColumn as any),
+            }
+          : 0,
+        indexColumn ? { ...TABLE_INDEX_COLUMN, ...(indexColumn as any) } : 0,
+      ]);
+      return isEmpty(predefined) ? columns : predefined.concat(columns);
+    });
+    const [columns, renderColumns] = useCollectorExternalChildren(
+      propColumns,
+      (column, children) =>
+        renderElement('table-column', { ...column, /** _ is for internal usage in column */ _: column }, children),
+      () => props.columnPropsMap,
+      true,
+    );
+    // ---prop `columns` process---
+
+    const [renderResizer, showResize] = useColumnResizer(setColumnWidth);
+
+    const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
+      all = fComputed(() => (columns.items as InternalColumn[]).concat(context.value));
+
+    // ---virtual renderer---
+    const virtualOff = () => !props.virtual,
+      virtual = useVirtualList({
+        items: data,
+        itemKey: (item) => item[2],
+        container: ce,
+        observeContainerSize: true,
+        disabled: virtualOff,
+        estimatedSize: (item, index) => {
+          const height = runIfFn(props.rowHeight, item[0], index);
+          return ensureNumber(height, 44);
+        },
+        staticPosition: true,
+      }),
+      virtualData = fComputed(() =>
+        virtualOff() ? data.value : virtual.virtualItems.value.map((v) => v.item as InternalRowInfo),
+      );
+    // ---virtual renderer---
+
+    // ---row expansion---
+    const [renderExpand, getExpandRowHeight, rowExpand] = useRowExpand(props, virtualData, maxLevel);
+    // ---row expansion---
+
     const context = TableColumnCollector.parent({
       extraProvide: {
         collapsed,
@@ -137,11 +165,13 @@ export const Table = defineCustomElement({
       });
     });
 
+    // ---sticky columns---
     const getSticky = (vm: ComponentInternalInstance) =>
         (vm.props as TableColumnSetupProps).sticky as 'left' | 'right' | undefined,
       getSelfOrParent = (vm: ComponentInternalInstance | undefined): ReturnType<typeof getSticky> =>
         vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
     useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
+    // ---sticky columns---
 
     const templateRows = fComputed(() =>
       [

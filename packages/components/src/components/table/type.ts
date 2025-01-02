@@ -16,6 +16,7 @@ import {
   PropNumOrFunc,
   PropFunction,
   PropSet,
+  PropObjOrBool,
 } from 'common';
 import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
@@ -56,7 +57,7 @@ export const tableColumnProps = freeze({
     TableCellProps | ((item: unknown, rowIndex: number, columnProps: any) => TableCellProps | undefined)
   >(),
   // autoGroup: PropBoolean(),
-  sticky: PropBoolOrStr<boolean | 'left' | 'right' | (string & {})>(),
+  sticky: PropBoolOrStr<boolean | 'left' | 'right' | (string & {})>(), // TODO 'group-left' | 'group-right'
   width: PropNumber(),
   resizable: PropBoolean(),
   justify: PropString<Property.JustifyContent>(),
@@ -120,6 +121,8 @@ export const tableProps = freeze({
   dataPropsMap: PropObject<Record<'key' | 'children', string>>(),
   columns: PropArray<TableColumnWithChildren[]>(),
   columnPropsMap: PropObject<Record<'key' | 'children', string>>(),
+  indexColumn: PropObjOrBool<boolean | Omit<TableColumnProps, 'type'>>(),
+  selectColumn: PropObjOrBool<boolean | Omit<TableColumnProps, 'type'>>(),
   headerHeight: PropNumber<Property.GridTemplateRows | number>(),
   rowHeight: PropNumOrFunc<
     Property.GridTemplateRows | number | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows | number)
@@ -134,6 +137,7 @@ export const tableProps = freeze({
   rowExpandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
   selected: Prop<MaybeArray<string | number> | MaybeSet<string | number>>(),
   selectionMode: PropString<'single' | 'multiple'>(),
+  selectionArea: PropString(), // TODO
   actions: Prop<
     | TableActionKeys
     | ((params: TableActionParams) => void)
