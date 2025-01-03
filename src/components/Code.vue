@@ -89,7 +89,7 @@
 
 <script setup lang="tsx">
 import { ref, reactive, watchEffect, computed, useTemplateRef, onMounted, onBeforeUnmount, onErrorCaptured } from 'vue';
-import { debounce, objectKeys, runIfFn, raf } from '@lun-web/utils';
+import { debounce, objectKeys, raf } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
 import {
   runVueTSXCode,

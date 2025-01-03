@@ -153,10 +153,11 @@ export function createCollector<
   const parent = (params?: {
     extraProvide?: PE;
     lazyChildren?: boolean;
+    onBeforeChildAdd?: (child: InstanceWithProps<ChildProps>) => boolean | void;
     onChildAdded?: (child: InstanceWithProps<ChildProps>, index: number, isAddToTopParent?: boolean) => void;
     onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number, isRemoveFromTopParent?: boolean) => void;
   }) => {
-    const { extraProvide, lazyChildren = true, onChildAdded, onChildRemoved } = params || {};
+    const { extraProvide, lazyChildren = true, onBeforeChildAdd, onChildAdded, onChildRemoved } = params || {};
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
     const state = shallowReactive({
       parentMounted: false,
@@ -203,9 +204,10 @@ export function createCollector<
             } = itemsArr;
           // if 'onlyFor' is defined, accepts child only with the same value
           if (
-            finalOnlyFor &&
-            instance?.props[finalOnlyFor] &&
-            child.props[finalOnlyFor] !== instance.props[finalOnlyFor]
+            (onBeforeChildAdd && onBeforeChildAdd(child) === false) ||
+            (finalOnlyFor &&
+              instance?.props[finalOnlyFor] &&
+              child.props[finalOnlyFor] !== instance.props[finalOnlyFor])
           )
             return;
           // if parent hasn't mounted yet, children will call 'addItem' in mount order, we don't need to sort

@@ -184,15 +184,19 @@ export const Table = defineCustomElement({
     const style = fComputed(() => ({
       ...props.rootStyle,
       display: 'grid',
+      grid:
+        // gridTemplateRows
+        templateRows() +
+        '/' +
+        // gridTemplateColumns
+        all()
+          .map((child) =>
+            isCollectedItemLeaf(child) && !getProp(child, 'hidden')
+              ? toPxIfNum(getColumnWidth(child) ?? getProp(child, 'width')) || 'max-content'
+              : '',
+          )
+          .join(' '),
       gridAutoFlow: 'column',
-      gridTemplateRows: templateRows(),
-      gridTemplateColumns: all()
-        .map((child) =>
-          isCollectedItemLeaf(child) && !getProp(child, 'hidden')
-            ? toPxIfNum(getColumnWidth(child) ?? getProp(child, 'width')) || 'max-content'
-            : '',
-        )
-        .join(' '),
     }));
 
     return () => {
