@@ -98,7 +98,5 @@ export const defineSwitch = createDefineElement(
     falseValue: false,
   },
   parts,
-  {
-    spin: defineSpin,
-  },
+  [defineSpin],
 );

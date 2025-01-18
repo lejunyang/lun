@@ -49,6 +49,7 @@ export function isLunElement(el: any, comp: ComponentKey) {
 }
 
 const exportParts = {} as Record<ComponentKey, string>;
+/** record the dependencies of each component */
 const dependencySet = {} as Record<ComponentKey, Set<ComponentKey>>;
 export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1], children?: Parameters<typeof h>[2]) {
   const name = getElementFirstName(comp);
@@ -66,43 +67,45 @@ export function renderElement(comp: ComponentKey, props?: Parameters<typeof h>[1
   );
 }
 
-export type ComponentDependencyDefineMap = {
-  [key: string]: (name?: string, dn?: Record<string, string>) => void;
-};
-type ExtractChainDepNames<T extends ComponentDependencyDefineMap> = T[keyof T] extends (
-  name?: string,
-  dn?: infer ChainT,
-) => void
+type DefineFn = (name?: string, dn?: Record<string, string>) => void;
+type ExtractChain<T extends DefineFn> = T extends (name?: string, dn?: infer ChainT) => void
   ? ChainT extends Record<string, string>
     ? keyof ChainT
     : never
   : never;
+type ExtractDepName<T> =
+  | (T extends DefineFn ? ExtractChain<T> : never)
+  | (T extends { n: infer K } ? (K extends string ? K : never) : never);
 
 export function createDefineElement<
+  CompKey extends ComponentKey,
   Comp extends CustomElementConstructor,
   Keys extends keyof InstanceType<Comp> = keyof InstanceType<Comp>,
 >(
-  compKey: ComponentKey,
+  compKey: CompKey,
   Component: Comp,
   defaultProps?: {
     [k in Keys]?: InstanceType<Comp>[k];
   },
   parts?: readonly string[] | string[],
-): (name?: string) => void;
+): ((name?: string) => void) & { n: CompKey };
 
 export function createDefineElement<
-  T extends ComponentDependencyDefineMap,
+  CompKey extends ComponentKey,
+  T extends ((DefineFn & { n: ComponentKey }) | (() => void))[],
   Comp extends CustomElementConstructor,
   Keys extends keyof InstanceType<Comp> = keyof InstanceType<Comp>,
 >(
-  compKey: ComponentKey,
+  compKey: CompKey,
   Component: Comp,
   defaultProps: {
     [k in Keys]?: InstanceType<Comp>[k];
   },
   parts: readonly string[] | string[],
   dependencies: T,
-): (name?: string, dependencyNames?: Record<Exclude<keyof T, 'common'> | ExtractChainDepNames<T>, string>) => void;
+): ((name?: string, dependencyNames?: Partial<Record<ExtractDepName<T[number]>, string>>) => void) & {
+  n: CompKey;
+};
 
 /*@__NO_SIDE_EFFECTS__*/
 export function createDefineElement(
@@ -110,34 +113,40 @@ export function createDefineElement(
   Component: CustomElementConstructor,
   compDefaultProps?: Record<string, any>,
   parts?: string[] | readonly string[],
-  dependencies?: ComponentDependencyDefineMap,
+  dependencies?: Function[],
 ) {
-  return (name?: string, dependencyNameMap?: Record<string, string>) => {
-    if (!supportCustomElement) return;
-    const { defaultProps, actualNameMap, namespace } = GlobalStaticConfig;
-    name ||= namespace + '-' + compKey;
-    name = name.toLowerCase();
-    if (!customElements.get(name)) {
-      if (dependencies) {
-        const set = (dependencySet[compKey] ||= new Set());
-        for (const [k, v] of Object.entries(dependencies)) {
-          v(dependencyNameMap?.[k], dependencyNameMap);
-          if (k === 'common') continue;
-          set.add(k as ComponentKey);
-          if (dependencySet[k as ComponentKey]) dependencySet[k as ComponentKey].forEach((item) => set.add(item));
+  return Object.assign(
+    (name?: string, dependencyNameMap?: Record<string, string>) => {
+      if (!supportCustomElement) return;
+      const { defaultProps, actualNameMap, namespace } = GlobalStaticConfig;
+      name ||= namespace + '-' + compKey;
+      name = name.toLowerCase();
+      if (!supportCustomElement.get(name)) {
+        if (dependencies) {
+          const set = (dependencySet[compKey] ||= new Set());
+          for (const fn of dependencies) {
+            const fnName = (fn as any).n as ComponentKey;
+            fn(dependencyNameMap?.[fnName], dependencyNameMap);
+            if (fnName) set.add(fnName);
+            // add nested dependencies for current
+            if (dependencySet[fnName]) dependencySet[fnName].forEach((item) => set.add(item));
+          }
         }
+        if (compDefaultProps) defaultProps[compKey] = compDefaultProps;
+        if (parts)
+          exportParts[compKey] = parts
+            .map((p) => compKey + '-' + p)
+            .concat(arrayFrom(dependencySet[compKey] || [], (k) => exportParts[k]))
+            .filter(Boolean)
+            .join(',');
+        actualNameMap[compKey].add(name);
+        supportCustomElement.define(name, Component);
       }
-      if (compDefaultProps) defaultProps[compKey] = compDefaultProps;
-      if (parts)
-        exportParts[compKey] = parts
-          .map((p) => compKey + '-' + p)
-          .concat(arrayFrom(dependencySet[compKey] || [], (k) => exportParts[k]))
-          .filter(Boolean)
-          .join(',');
-      actualNameMap[compKey].add(name);
-      customElements.define(name, Component);
-    }
-  };
+    },
+    {
+      n: compKey,
+    },
+  );
 }
 
 /*@__NO_SIDE_EFFECTS__*/

@@ -161,6 +161,4 @@ export type TextareaExpose = {
 };
 export type iTextarea = InstanceType<tTextarea> & TextareaExpose;
 
-export const defineTextarea = createDefineElement(name, Textarea, {}, parts, {
-  icon: defineIcon,
-});
+export const defineTextarea = createDefineElement(name, Textarea, {}, parts, [defineIcon]);

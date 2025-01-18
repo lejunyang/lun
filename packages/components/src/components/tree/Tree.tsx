@@ -10,6 +10,7 @@ import { extend, unionOfSets } from '@lun-web/utils';
 import { useTreeCheckMethods } from './tree.check';
 import { useTreeItems } from './tree.items';
 import { Item } from './tree.common';
+import { defineTreeItem } from './TreeItem';
 
 const name = 'tree';
 const parts = ['root'] as const;
@@ -111,4 +112,4 @@ export type TreeExpose = {
 };
 export type iTree = InstanceType<tTree> & TreeExpose;
 
-export const defineTree = createDefineElement(name, Tree, {}, parts, {});
+export const defineTree = createDefineElement(name, Tree, {}, parts, [defineTreeItem]);

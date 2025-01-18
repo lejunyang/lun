@@ -210,8 +210,5 @@ export const defineTabs = createDefineElement(
     type: 'horizontal',
   },
   parts,
-  {
-    common: registerSwipeTransition,
-    icon: defineIcon,
-  },
+  [defineIcon, registerSwipeTransition],
 );

@@ -311,6 +311,4 @@ export type tRange = typeof Range;
 export type RangeExpose = {};
 export type iRange = InstanceType<tRange> & RangeExpose;
 
-export const defineRange = createDefineElement(name, Range, { type: 'horizontal' }, parts, {
-  tooltip: defineTooltip,
-});
+export const defineRange = createDefineElement(name, Range, { type: 'horizontal' }, parts, [defineTooltip]);

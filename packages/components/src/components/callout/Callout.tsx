@@ -118,6 +118,4 @@ export type tCallout = typeof Callout;
 export type CalloutExpose = {};
 export type iCallout = InstanceType<tCallout> & CalloutExpose;
 
-export const defineCallout = createDefineElement(name, Callout, {}, parts, {
-  icon: defineIcon,
-});
+export const defineCallout = createDefineElement(name, Callout, {}, parts, [defineIcon]);

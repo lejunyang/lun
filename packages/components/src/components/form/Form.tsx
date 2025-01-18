@@ -219,7 +219,5 @@ export const defineForm = createDefineElement(
     labelLayout: 'horizontal',
   },
   parts,
-  {
-    tooltip: defineTooltip,
-  },
+  [defineTooltip],
 );

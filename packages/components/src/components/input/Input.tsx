@@ -406,8 +406,5 @@ export const defineInput = createDefineElement(
     tagRemoveIcon: true,
   },
   parts,
-  {
-    icon: defineIcon,
-    tag: defineTag,
-  },
+  [defineIcon, defineTag],
 );

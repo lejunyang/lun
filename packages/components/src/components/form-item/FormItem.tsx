@@ -443,7 +443,5 @@ export const defineFormItem = createDefineElement(
     required: undefined, // must, for runIfFn(required, formContext) ?? localRequired.value
   },
   parts,
-  {
-    icon: defineIcon,
-  },
+  [defineIcon],
 );

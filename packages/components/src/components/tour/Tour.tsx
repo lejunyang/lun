@@ -162,7 +162,5 @@ export const defineTour = createDefineElement(
     shift: true,
   },
   parts,
-  {
-    dialog: defineDialog,
-  },
+  [defineDialog],
 );

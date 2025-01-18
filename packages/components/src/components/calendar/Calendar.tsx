@@ -278,6 +278,4 @@ export type CalendarExpose = Readonly<{
 }>;
 export type iCalendar = InstanceType<tCalendar> & CalendarExpose;
 
-export const defineCalendar = createDefineElement(name, Calendar, {}, parts, {
-  icon: defineIcon,
-});
+export const defineCalendar = createDefineElement(name, Calendar, {}, parts, [defineIcon]);

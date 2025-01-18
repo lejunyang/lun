@@ -73,6 +73,4 @@ export const SelectOption = defineCustomElement({
 export type tSelectOption = typeof SelectOption;
 export type iSelectOption = InstanceType<typeof SelectOption>;
 
-export const defineSelectOption = createDefineElement(name, SelectOption, {}, parts, {
-  icon: defineIcon,
-});
+export const defineSelectOption = createDefineElement(name, SelectOption, {}, parts, [defineIcon]);

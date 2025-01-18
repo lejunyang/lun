@@ -28,7 +28,7 @@ export const Tag = defineCustomElement({
     };
 
     // calling focus on tag doesn't work because of display: contents, so expose span's focus
-    interceptCEMethods(rootRef)
+    interceptCEMethods(rootRef);
 
     return () => {
       const { label, removable, tabindex } = props;
@@ -58,6 +58,4 @@ export type tTag = typeof Tag;
 export type TagExpose = {};
 export type iTag = InstanceType<tTag> & TagExpose;
 
-export const defineTag = createDefineElement(name, Tag, {}, parts, {
-  icon: defineIcon,
-});
+export const defineTag = createDefineElement(name, Tag, {}, parts, [defineIcon]);

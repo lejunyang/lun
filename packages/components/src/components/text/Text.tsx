@@ -93,9 +93,9 @@ export type tText = typeof Text;
 export type TextExpose = {};
 export type iText = InstanceType<tText> & TextExpose;
 
-export const defineText = createDefineElement(name, Text, {}, parts, {
+export const defineText = createDefineElement(name, Text, {}, parts, [
   // as this is mandatory style for ellipsis, put it in component, not in theme
-  common: createImportStyle(
+  createImportStyle(
     name,
     getHostStyle('display:inline-block', '[ellipsis]') +
       getHostStyle(ellipsisStyle, ':where([ellipsis]:not([ellipsis=start],[ellipsis=center]))') +
@@ -104,4 +104,4 @@ export const defineText = createDefineElement(name, Text, {}, parts, {
       `.ellipsis{${ellipsisStyle}flex:1}` +
       `.float{float:right;width:50%;}`,
   ),
-});
+]);

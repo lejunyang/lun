@@ -152,7 +152,5 @@ export const defineButton = createDefineElement(
     // variant: 'surface',
   },
   parts,
-  {
-    spin: defineSpin,
-  },
+  [defineSpin],
 );

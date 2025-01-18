@@ -344,9 +344,5 @@ export const defineDialog = createDefineElement(
     width: '450px',
   },
   parts,
-  {
-    spin: defineSpin,
-    icon: defineIcon,
-    button: defineButton,
-  },
+  [defineSpin, defineIcon, defineButton],
 );

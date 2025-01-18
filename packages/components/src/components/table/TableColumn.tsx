@@ -252,6 +252,6 @@ export type tTableColumn = typeof TableColumn;
 export type TableColumnExpose = {};
 export type iTableColumn = InstanceType<tTableColumn> & TableColumnExpose;
 
-export const defineTableColumn = createDefineElement(name, TableColumn, {}, parts, {
-  common: createImportStyle(name, getHostStyle(`display: contents;`)),
-});
+export const defineTableColumn = createDefineElement(name, TableColumn, {}, parts, [
+  createImportStyle(name, getHostStyle(`display: contents;`)),
+]);

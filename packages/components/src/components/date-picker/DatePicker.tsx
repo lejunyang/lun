@@ -97,8 +97,8 @@ export type tDatePicker = typeof DatePicker;
 export type DatePickerExpose = {};
 export type iDatePicker = InstanceType<tDatePicker> & DatePickerExpose;
 
-export const defineDatePicker = createDefineElement(name, DatePicker, {}, parts, {
-  input: defineInput,
-  popover: definePopover,
-  calendar: defineCalendar,
-});
+export const defineDatePicker = createDefineElement(name, DatePicker, {}, parts, [
+  defineInput,
+  definePopover,
+  defineCalendar,
+]);

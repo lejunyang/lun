@@ -231,9 +231,5 @@ export const defineMentions = createDefineElement(
     suffix: ' ',
   },
   parts,
-  {
-    icon: defineIcon,
-    popover: definePopover,
-    'select-option': defineSelectOption,
-  },
+  [defineIcon, definePopover, defineSelectOption],
 );

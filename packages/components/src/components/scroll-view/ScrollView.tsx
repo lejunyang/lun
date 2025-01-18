@@ -276,5 +276,4 @@ export const defineScrollView = createDefineElement(
     scrollYProgressVarName: 'scroll-y-progress',
   },
   parts,
-  {},
 );

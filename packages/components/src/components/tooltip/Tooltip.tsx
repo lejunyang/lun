@@ -99,7 +99,5 @@ export const defineTooltip = createDefineElement(
     // anchorName: 'tooltip',
   },
   parts,
-  {
-    popover: definePopover,
-  },
+  [definePopover],
 );

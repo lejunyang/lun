@@ -97,6 +97,4 @@ export type tProgress = typeof Progress;
 export type ProgressExpose = {};
 export type iProgress = InstanceType<typeof Progress> & ProgressExpose;
 
-export const defineProgress = createDefineElement(name, Progress, { type: 'wave' }, parts, {
-  icon: defineIcon,
-});
+export const defineProgress = createDefineElement(name, Progress, { type: 'wave' }, parts, [defineIcon]);

@@ -143,7 +143,5 @@ export const defineCheckbox = createDefineElement(
     labelPosition: 'end',
   },
   parts,
-  {
-    icon: defineIcon,
-  },
+  [defineIcon],
 );

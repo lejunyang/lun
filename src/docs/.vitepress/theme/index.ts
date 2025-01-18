@@ -26,8 +26,10 @@ declare module '@lun-web/core' {
   }
 }
 
+const deployedOn = (typeof process !== 'undefined' && process.env.DEPLOYED_ON) || import.meta.env.DEPLOYED_ON;
+
 const injectOnce = once(() => {
-  if (!inBrowser && process.env.DEPLOYED_ON && process.env.DEPLOYED_ON !== 'vercel') return;
+  if (!inBrowser || deployedOn !== 'vercel') return;
   inject();
   injectSpeedInsights();
 });

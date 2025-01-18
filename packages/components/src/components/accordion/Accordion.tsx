@@ -68,6 +68,4 @@ export type tAccordion = typeof Accordion;
 export type AccordionExpose = {};
 export type iAccordion = InstanceType<tAccordion> & AccordionExpose;
 
-export const defineAccordion = createDefineElement(name, Accordion, {}, parts, {
-  icon: defineIcon,
-});
+export const defineAccordion = createDefineElement(name, Accordion, {}, parts, [defineIcon]);

@@ -377,7 +377,5 @@ export const definePopover = createDefineElement(
     // anchorName: 'popover',
   },
   parts,
-  {
-    'teleport-holder': defineTeleportHolder,
-  },
+  [defineTeleportHolder],
 );

@@ -324,12 +324,5 @@ export const defineSelect = createDefineElement(
     autoActivateFirst: true,
   },
   parts,
-  {
-    'select-option': defineSelectOption,
-    'select-optgroup': defineSelectOptgroup,
-    popover: definePopover,
-    input: defineInput,
-    spin: defineSpin,
-    button: defineButton,
-  },
+  [defineSelectOption, defineSelectOptgroup, definePopover, defineInput, defineSpin, defineButton],
 );

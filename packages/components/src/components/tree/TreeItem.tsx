@@ -125,6 +125,4 @@ export const TreeItem = defineCustomElement({
 export type tTreeItem = typeof TreeItem;
 export type iTreeItem = InstanceType<tTreeItem>;
 
-export const defineTreeItem = createDefineElement(name, TreeItem, {}, parts, {
-  checkbox: defineCheckbox,
-});
+export const defineTreeItem = createDefineElement(name, TreeItem, {}, parts, [defineCheckbox]);

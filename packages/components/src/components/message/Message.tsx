@@ -207,8 +207,5 @@ export const defineMessage = createDefineElement(
     closable: true,
   },
   parts,
-  {
-    callout: defineCallout,
-    'teleport-holder': defineTeleportHolder,
-  },
+  [defineCallout, defineTeleportHolder],
 );
