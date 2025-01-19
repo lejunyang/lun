@@ -4,7 +4,7 @@ import { tagEmits, tagProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref } from 'vue';
 import { interceptCEMethods, useNamespace } from 'hooks';
-import { getCompParts, getTransitionProps } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps } from 'common';
 
 const name = 'tag';
 const parts = ['root', 'icon'] as const;
@@ -54,8 +54,8 @@ export const Tag = defineCustomElement({
   },
 });
 
-export type tTag = typeof Tag;
 export type TagExpose = {};
-export type iTag = InstanceType<tTag> & TagExpose;
+export type tTag = ElementWithExpose<typeof Tag, TagExpose>;
+export type iTag = InstanceType<tTag>;
 
 export const defineTag = createDefineElement(name, Tag, {}, parts, [defineIcon]);

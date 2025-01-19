@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { accordionGroupEmits, accordionGroupProps } from './type';
 import { useValueSet, useCEExpose, useCEStates, useNamespace, updateRawSetModel } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { useExpandMethods, UseExpandMethods, useSetupEdit } from '@lun-web/core';
 import { AccordionCollector } from './collector';
 import { computed, ref, watchEffect } from 'vue';
@@ -52,8 +52,8 @@ export const AccordionGroup = defineCustomElement({
   },
 });
 
-export type tAccordionGroup = typeof AccordionGroup;
 export type AccordionGroupExpose = UseExpandMethods;
-export type iAccordionGroup = InstanceType<tAccordionGroup> & AccordionGroupExpose;
+export type tAccordionGroup = ElementWithExpose<typeof AccordionGroup, AccordionGroupExpose>;
+export type iAccordionGroup = InstanceType<tAccordionGroup>;
 
 export const defineAccordionGroup = createDefineElement(name, AccordionGroup, {}, parts);

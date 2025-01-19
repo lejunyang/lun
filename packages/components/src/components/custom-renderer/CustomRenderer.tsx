@@ -7,6 +7,7 @@ import { customRendererProps } from './type';
 import { isArray, isHTMLTemplateElement, isNode, isObject, runIfFn } from '@lun-web/utils';
 import { generateWithTemplate } from './utils';
 import { useCE } from '../../hooks/shadowDom';
+import { ElementWithExpose } from 'common';
 
 const name = 'custom-renderer';
 
@@ -153,8 +154,8 @@ export const CustomRenderer = defineCustomElement({
   },
 });
 
-export type tCustomRenderer = typeof CustomRenderer;
-export type CustomRendererExpose = {}
-export type iCustomRenderer = InstanceType<tCustomRenderer> & CustomRendererExpose;
+export type CustomRendererExpose = {};
+export type tCustomRenderer = ElementWithExpose<typeof CustomRenderer, CustomRendererExpose>;
+export type iCustomRenderer = InstanceType<tCustomRenderer>;
 
 export const defineCustomRenderer = createDefineElement(name, CustomRenderer);

@@ -9,6 +9,7 @@ import { createGetterForHasRawModel, useCEStates, useNamespace, useValueModel, u
 import { ref } from 'vue';
 import { extend, isObject } from '@lun-web/utils';
 import { useContextConfig } from 'config';
+import { ElementWithExpose } from 'common';
 
 const name = 'date-picker';
 const parts = [] as const;
@@ -93,9 +94,9 @@ export const DatePicker = defineCustomElement({
   },
 });
 
-export type tDatePicker = typeof DatePicker;
 export type DatePickerExpose = {};
-export type iDatePicker = InstanceType<tDatePicker> & DatePickerExpose;
+export type tDatePicker = ElementWithExpose<typeof DatePicker, DatePickerExpose>;
+export type iDatePicker = InstanceType<tDatePicker>;
 
 export const defineDatePicker = createDefineElement(name, DatePicker, {}, parts, [
   defineInput,

@@ -4,6 +4,7 @@ import { GlobalStaticConfig, useContextConfig } from 'config';
 import { createDefineElement, error } from 'utils';
 import { iconProps } from './type';
 import { isFunction, isString } from '@lun-web/utils';
+import { ElementWithExpose } from 'common';
 
 export const iconResolveCache = new Map<string, { type: string; src: string }>();
 const renderedIconNumMap = new Map<string, number>();
@@ -110,8 +111,8 @@ export const Icon = defineCustomElement({
   },
 });
 
-export type tIcon = typeof Icon;
 export type IconExpose = {};
+export type tIcon = ElementWithExpose<typeof Icon, IconExpose>;
 export type iIcon = InstanceType<tIcon> & IconExpose;
 
 export const defineIcon = createDefineElement(

@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { dividerProps } from './type';
 import { createDefineElement } from 'utils';
 import { useNamespace, useSlot } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { normalizeStyle } from 'vue';
 import { toPxIfNum } from '@lun-web/utils';
 
@@ -41,8 +41,8 @@ export const Divider = defineCustomElement({
   },
 });
 
-export type tDivider = typeof Divider;
 export type DividerExpose = {};
-export type iDivider = InstanceType<tDivider> & DividerExpose;
+export type tDivider = ElementWithExpose<typeof Divider, DividerExpose>;
+export type iDivider = InstanceType<tDivider>;
 
 export const defineDivider = createDefineElement(name, Divider, {}, parts);

@@ -6,7 +6,7 @@ import { buttonEmits, buttonProps } from './type';
 import { interceptCEMethods, useCEExpose, useCEStates, useNamespace } from 'hooks';
 import { Transition, computed, ref } from 'vue';
 import { debounce as dF, isFunction, prevent, throttle as tF, copyText as copy, promiseTry } from '@lun-web/utils';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'button';
 const parts = ['root', 'spin', 'hold'] as const;
@@ -136,12 +136,12 @@ export const Button = defineCustomElement({
   },
 });
 
-export type tButton = typeof Button;
 export type ButtonExpose = {
   setTimeout(timeout: number, getCountdownTxt?: (remain: number) => string, interval?: number): void;
   clearTimeout(): void;
 };
-export type iButton = InstanceType<tButton> & ButtonExpose;
+export type tButton = ElementWithExpose<typeof Button, ButtonExpose>;
+export type iButton = InstanceType<tButton>;
 
 export const defineButton = createDefineElement(
   name,

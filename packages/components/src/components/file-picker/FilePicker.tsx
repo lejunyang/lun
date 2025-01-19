@@ -4,9 +4,20 @@ import { createDefineElement, error } from 'utils';
 import { useCEExpose, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
-import { AnyFn, arrayFrom, isArray, isString, supportFileSystemAccess, on, onOnce, runIfFn, supportTouch } from '@lun-web/utils';
+import {
+  AnyFn,
+  arrayFrom,
+  isArray,
+  isString,
+  supportFileSystemAccess,
+  on,
+  onOnce,
+  runIfFn,
+  supportTouch,
+} from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { isAbort } from './utils';
+import { ElementWithExpose } from 'common';
 
 // TODO drop support
 const name = 'file-picker';
@@ -287,12 +298,12 @@ export const FilePicker = defineCustomElement({
   },
 });
 
-export type tFilePicker = typeof FilePicker;
 export type FilePickerExpose = {
   pickFile(): Promise<void>;
   readonly innerValue: File | File[] | undefined;
 };
-export type iFilePicker = InstanceType<tFilePicker> & FilePickerExpose;
+export type tFilePicker = ElementWithExpose<typeof FilePicker, FilePickerExpose>;
+export type iFilePicker = InstanceType<tFilePicker>;
 
 export const defineFilePicker = createDefineElement(
   name,

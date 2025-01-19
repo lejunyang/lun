@@ -8,7 +8,7 @@ import { SelectOptgroupContext } from '.';
 import { defineIcon } from '../icon/Icon';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { SelectCollector } from './collector';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'select-option';
 const parts = ['root', 'label'] as const;
@@ -70,7 +70,8 @@ export const SelectOption = defineCustomElement({
   },
 });
 
-export type tSelectOption = typeof SelectOption;
+export type SelectOptionExpose = {};
+export type tSelectOption = ElementWithExpose<typeof SelectOption, SelectOptionExpose>;
 export type iSelectOption = InstanceType<typeof SelectOption>;
 
 export const defineSelectOption = createDefineElement(name, SelectOption, {}, parts, [defineIcon]);

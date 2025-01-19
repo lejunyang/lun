@@ -5,7 +5,7 @@ import { useCEStates, useNamespace } from 'hooks';
 import { useSetupEdit } from '@lun-web/core';
 import { SelectOptgroupContext } from '.';
 import { SelectCollector } from './collector';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'select-optgroup';
 const parts = ['root', 'label', 'children'] as const;
@@ -33,7 +33,8 @@ export const SelectOptgroup = defineCustomElement({
   },
 });
 
-export type tSelectOptgroup = typeof SelectOptgroup;
+export type SelectOptGroupExpose = {};
+export type tSelectOptgroup = ElementWithExpose<typeof SelectOptgroup, SelectOptGroupExpose>;
 export type iSelectOptgroup = InstanceType<tSelectOptgroup>;
 
 export const defineSelectOptgroup = createDefineElement(name, SelectOptgroup, {}, parts);

@@ -17,7 +17,7 @@ import {
   useOptions,
   useValueModel,
 } from 'hooks';
-import { getCompParts, InputFocusOption, intl, pickThemeProps } from 'common';
+import { ElementWithExpose, getCompParts, InputFocusOption, intl, pickThemeProps } from 'common';
 import { defineSpin } from '../spin/Spin';
 import { defineButton } from '../button/Button';
 import { useSelect } from './useSelect';
@@ -306,14 +306,14 @@ export const Select = defineCustomElement({
   },
 });
 
-export type tSelect = typeof Select;
 export type SelectExpose = UseSelectMethods & {
   blur: () => void;
   focus: (option?: InputFocusOption) => void;
   readonly input: iInput;
   readonly popover: iPopover;
 };
-export type iSelect = InstanceType<tSelect> & SelectExpose;
+export type tSelect = ElementWithExpose<typeof Select, SelectExpose>;
+export type iSelect = InstanceType<tSelect>;
 
 export const defineSelect = createDefineElement(
   'select',

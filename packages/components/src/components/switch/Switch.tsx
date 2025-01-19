@@ -5,7 +5,7 @@ import { interceptCEMethods, useCEStates, useCheckedModel, useNamespace } from '
 import { switchEmits, switchProps } from './type';
 import { defineSpin } from '../spin/Spin';
 import { ref, Transition } from 'vue';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { isFunction, noop, promiseTry } from '@lun-web/utils';
 
 const name = 'switch';
@@ -86,9 +86,9 @@ export const Switch = defineCustomElement({
   },
 });
 
-export type tSwitch = typeof Switch;
 export type SwitchExpose = {};
-export type iSwitch = InstanceType<tSwitch> & SwitchExpose;
+export type tSwitch = ElementWithExpose<typeof Switch, SwitchExpose>;
+export type iSwitch = InstanceType<tSwitch>;
 
 export const defineSwitch = createDefineElement(
   name,

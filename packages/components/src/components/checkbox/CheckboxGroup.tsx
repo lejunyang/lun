@@ -5,7 +5,7 @@ import { useValueSet, useCEExpose, useCEStates, useNamespace, useOptions, useVal
 import { CheckboxCollector } from './collector';
 import { computed } from 'vue';
 import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { defineCheckbox } from './Checkbox';
 
 const name = 'checkbox-group';
@@ -79,8 +79,8 @@ export const CheckboxGroup = defineCustomElement({
   },
 });
 
-export type tCheckboxGroup = typeof CheckboxGroup;
 export type CheckboxGroupExpose = ReturnType<typeof useCheckboxMethods>;
+export type tCheckboxGroup = ElementWithExpose<typeof CheckboxGroup, CheckboxGroupExpose>;
 export type iCheckboxGroup = InstanceType<tCheckboxGroup> & CheckboxGroupExpose;
 
 export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup, {}, parts, [defineCheckbox]);

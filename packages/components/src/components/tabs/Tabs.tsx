@@ -4,7 +4,7 @@ import { tabsEmits, tabsProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { TransitionGroup, computed, nextTick, ref, watchEffect } from 'vue';
 import { registerSwipeTransition, useNamespace, useTransition } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { capitalize, isArray, setStyle, toPxIfNum } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { useResizeObserver, useSetupEvent } from '@lun-web/core';
@@ -200,7 +200,8 @@ export const Tabs = defineCustomElement({
   },
 });
 
-export type tTabs = typeof Tabs;
+export type TabsExpose = {};
+export type tTabs = ElementWithExpose<typeof Tabs, TabsExpose>;
 export type iTabs = InstanceType<tTabs>;
 
 export const defineTabs = createDefineElement(

@@ -4,6 +4,7 @@ import { TeleportHolderProps, teleportHolderProps } from './type';
 import { useContextConfig } from 'config';
 import { createElement, isConnected } from '@lun-web/utils';
 import { holderName } from '../config/utils';
+import { ElementWithExpose } from 'common';
 
 const name = holderName;
 export const TeleportHolder = defineCustomElement({
@@ -20,9 +21,9 @@ export const TeleportHolder = defineCustomElement({
   },
 });
 
-export type tTeleportHolder = typeof TeleportHolder;
 export type TeleportHolderExpose = {};
-export type iTeleportHolder = InstanceType<tTeleportHolder> & TeleportHolderExpose;
+export type tTeleportHolder = ElementWithExpose<typeof TeleportHolder, TeleportHolderExpose>;
+export type iTeleportHolder = InstanceType<tTeleportHolder>;
 
 export const defineTeleportHolder = createDefineElement(name, TeleportHolder);
 

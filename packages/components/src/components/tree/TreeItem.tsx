@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { treeItemEmits, treeItemProps } from './type';
 import { useExpose, useNamespace, useSlot, useCEStates } from 'hooks';
-import { getCompParts, getTransitionProps } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps } from 'common';
 import { TreeCollector } from './collector';
 import { toGetterDescriptors, toPxIfNum } from '@lun-web/utils';
 import { getCollectedItemTreeLevel, isCollectedItemLeaf, useSetupEdit } from '@lun-web/core';
@@ -122,7 +122,8 @@ export const TreeItem = defineCustomElement({
   },
 });
 
-export type tTreeItem = typeof TreeItem;
+export type TreeItemExpose = {};
+export type tTreeItem = ElementWithExpose<typeof TreeItem, TreeItemExpose>;
 export type iTreeItem = InstanceType<tTreeItem>;
 
 export const defineTreeItem = createDefineElement(name, TreeItem, {}, parts, [defineCheckbox]);

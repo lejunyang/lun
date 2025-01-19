@@ -4,7 +4,7 @@ import { calloutEmits, calloutProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { Transition, ref, shallowRef, watchEffect } from 'vue';
 import { useNamespace, useSlot } from 'hooks';
-import { getTransitionProps, renderStatusIcon, getCompParts } from 'common';
+import { getTransitionProps, renderStatusIcon, getCompParts, ElementWithExpose } from 'common';
 import { runIfFn } from '@lun-web/utils';
 
 const name = 'callout';
@@ -114,8 +114,8 @@ export const Callout = defineCustomElement({
   },
 });
 
-export type tCallout = typeof Callout;
 export type CalloutExpose = {};
-export type iCallout = InstanceType<tCallout> & CalloutExpose;
+export type tCallout = ElementWithExpose<typeof Callout, CalloutExpose>;
+export type iCallout = InstanceType<tCallout>;
 
 export const defineCallout = createDefineElement(name, Callout, {}, parts, [defineIcon]);

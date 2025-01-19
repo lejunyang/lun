@@ -8,7 +8,7 @@ import { computed, getCurrentInstance, normalizeStyle, onBeforeUnmount, ref, sha
 import { ensureNumber, getCachedComputedStyle, pick, supportCSSSubgrid, toPxIfNum } from '@lun-web/utils';
 import { defineTooltip } from '../tooltip';
 import { FormProvideExtra, provideErrorTooltip, provideHelpTooltip } from './collector';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'form';
 const parts = ['root'] as const;
@@ -19,7 +19,8 @@ export const Form = defineCustomElement({
   emits: formEmits,
   setup(props, { emit }) {
     const ns = useNamespace(name);
-    const vm = getCurrentInstance()!, { ce } = vm;
+    const vm = getCurrentInstance()!,
+      { ce } = vm;
 
     const colsRef = useBreakpoint(props, 'cols', (v) => ensureNumber(v, 1));
     const layoutRef = useBreakpoint(props, 'layout');
@@ -205,9 +206,9 @@ export const Form = defineCustomElement({
   },
 });
 
-export type tForm = typeof Form;
 export type FormExpose = UseFormReturn;
-export type iForm = InstanceType<tForm> & FormExpose;
+export type tForm = ElementWithExpose<typeof Form, FormExpose>;
+export type iForm = InstanceType<tForm>;
 
 export const defineForm = createDefineElement(
   name,

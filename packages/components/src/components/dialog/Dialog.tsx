@@ -16,7 +16,7 @@ import {
   useRefWeakMap,
 } from '@lun-web/core';
 import { Transition, TransitionProps, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
-import { getCompParts, getTransitionProps, intl } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps, intl } from 'common';
 import { WatermarkContext } from '../watermark';
 import { methods } from './dialog.static-methods';
 import {
@@ -326,7 +326,6 @@ export const Dialog = Object.assign(
   methods,
 );
 
-export type tDialog = typeof Dialog;
 export type DialogExpose = {
   openDialog: () => void;
   closeDialog: () => Promise<void>;
@@ -334,7 +333,8 @@ export type DialogExpose = {
   readonly isOpen: boolean;
   readonly panelElement: HTMLDivElement | undefined;
 };
-export type iDialog = InstanceType<tDialog> & DialogExpose;
+export type tDialog = ElementWithExpose<typeof Dialog, DialogExpose>;
+export type iDialog = InstanceType<tDialog>;
 
 export const defineDialog = createDefineElement(
   name,

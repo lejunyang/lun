@@ -4,6 +4,7 @@ import { themeProviderProps } from './type';
 import { provideContextConfig } from '../config';
 import { provide, reactive, watchEffect } from 'vue';
 import { useSetupEdit } from '@lun-web/core';
+import { ElementWithExpose } from 'common';
 
 export const ThemeProviderKey = Symbol(__DEV__ ? 'ThemeProviderKey' : '');
 
@@ -36,8 +37,8 @@ export const ThemeProvider = defineCustomElement({
   },
 });
 
-export type tThemeProvider = typeof ThemeProvider;
 export type ThemeProviderExpose = {};
-export type iThemeProvider = InstanceType<tThemeProvider> & ThemeProviderExpose;
+export type tThemeProvider = ElementWithExpose<typeof ThemeProvider, ThemeProviderExpose>;
+export type iThemeProvider = InstanceType<tThemeProvider>;
 
 export const defineThemeProvider = createDefineElement(name, ThemeProvider);

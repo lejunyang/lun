@@ -26,6 +26,7 @@ import {
   raf,
   setStyle,
 } from '@lun-web/utils';
+import { ElementWithExpose } from 'common';
 
 const name = 'watermark';
 const none = 'none',
@@ -273,8 +274,8 @@ export const WatermarkContext = (() => {
   };
 })();
 
-export type tWatermark = typeof Watermark;
 export type WatermarkExpose = {};
-export type iWatermark = InstanceType<tWatermark> & WatermarkExpose;
+export type tWatermark = ElementWithExpose<typeof Watermark, WatermarkExpose>;
+export type iWatermark = InstanceType<tWatermark>;
 
 export const defineWatermark = createDefineElement(name, Watermark);

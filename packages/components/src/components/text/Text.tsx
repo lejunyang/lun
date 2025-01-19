@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, error, getHostStyle } from 'utils';
 import { textEmits, textProps } from './type';
 import { getCachedComputedStyle } from '@lun-web/utils';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { useAria, useCE, useNamespace, useSlot } from 'hooks';
 
 const name = 'text';
@@ -89,9 +89,9 @@ export const Text = defineCustomElement({
   },
 });
 
-export type tText = typeof Text;
 export type TextExpose = {};
-export type iText = InstanceType<tText> & TextExpose;
+export type tText = ElementWithExpose<typeof Text, TextExpose>;
+export type iText = InstanceType<tText>;
 
 export const defineText = createDefineElement(name, Text, {}, parts, [
   // as this is mandatory style for ellipsis, put it in component, not in theme

@@ -1,7 +1,7 @@
 import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { tabItemEmits, tabItemProps } from './type';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { TabsCollector } from './collector';
 import { useNamespace, useTransition } from 'hooks';
 import { Transition } from 'vue';
@@ -32,8 +32,8 @@ export const TabItem = defineCustomElement({
   },
 });
 
-export type tTabItem = typeof TabItem;
 export type TabItemExpose = {};
-export type iTabItem = InstanceType<tTabItem> & TabItemExpose;
+export type tTabItem = ElementWithExpose<typeof TabItem, TabItemExpose>;
+export type iTabItem = InstanceType<tTabItem>;
 
 export const defineTabItem = createDefineElement(name, TabItem, {}, parts);

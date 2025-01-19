@@ -9,7 +9,7 @@ import {
   ScrollViewState,
 } from './type';
 import { useCE } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import {
   getRect,
   listenScroll,
@@ -264,9 +264,9 @@ export const ScrollView = defineCustomElement({
   },
 });
 
-export type tScrollView = typeof ScrollView;
 export type ScrollViewExpose = {};
-export type iScrollView = InstanceType<tScrollView> & ScrollViewExpose;
+export type tScrollView = ElementWithExpose<typeof ScrollView, ScrollViewExpose>;
+export type iScrollView = InstanceType<tScrollView>;
 
 export const defineScrollView = createDefineElement(
   name,

@@ -4,7 +4,7 @@ import { createDefineElement } from 'utils';
 import { useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioGroupProps } from './type';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { defineRadio } from './Radio';
 
 const name = 'radio-group';
@@ -40,7 +40,8 @@ export const RadioGroup = defineCustomElement({
   },
 });
 
-export type tRadioGroup = typeof RadioGroup;
+export type RadioGroupExpose = {};
+export type tRadioGroup = ElementWithExpose<typeof RadioGroup, RadioGroupExpose>;
 export type iRadioGroup = InstanceType<tRadioGroup>;
 
 export const defineRadioGroup = createDefineElement(name, RadioGroup, {}, parts, [defineRadio]);

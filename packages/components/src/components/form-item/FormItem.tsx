@@ -35,7 +35,7 @@ import { defineIcon } from '../icon/Icon';
 import { useContextConfig } from 'config';
 import { innerValidator } from './formItem.validate';
 import { getConditionValue, processStatusMsgs } from './utils';
-import { getCompParts, renderStatusIcon, Status, statuses } from 'common';
+import { ElementWithExpose, getCompParts, renderStatusIcon, Status, statuses } from 'common';
 import { wrapTransition } from './form-item.tip-transition';
 import { useRulesTransform } from './form-item.rules-transform';
 
@@ -431,9 +431,9 @@ export const FormItem = defineCustomElement({
   },
 });
 
-export type tFormItem = typeof FormItem;
 export type FormItemExpose = {};
-export type iFormItem = InstanceType<tFormItem> & FormItemExpose;
+export type tFormItem = ElementWithExpose<typeof FormItem, FormItemExpose>;
+export type iFormItem = InstanceType<tFormItem>;
 
 export const defineFormItem = createDefineElement(
   name,

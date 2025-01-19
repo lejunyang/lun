@@ -15,7 +15,14 @@ import { isEmpty, isArray, runIfFn, raf, arrayFrom, shadowContains, virtualGetMe
 import { renderCustom } from '../custom-renderer/CustomRenderer';
 import { defineIcon } from '../icon/Icon';
 import { defineTag } from '../tag/Tag';
-import { getCompParts, getTransitionProps, InputFocusOption, pickThemeProps, renderStatusIcon } from 'common';
+import {
+  ElementWithExpose,
+  getCompParts,
+  getTransitionProps,
+  InputFocusOption,
+  pickThemeProps,
+  renderStatusIcon,
+} from 'common';
 import { GlobalStaticConfig } from 'config';
 import usePassword from './Input.password';
 import { useAutoUpdateLabel } from './hooks';
@@ -374,7 +381,6 @@ export const Input = defineCustomElement({
   },
 });
 
-export type tInput = typeof Input;
 export type InputExpose = {
   focus: (options?: InputFocusOption) => void;
   blur: () => void;
@@ -388,7 +394,8 @@ export type InputExpose = {
   readonly valueAsNumber: number;
   readonly input: HTMLInputElement;
 };
-export type iInput = InstanceType<tInput> & InputExpose;
+export type tInput = ElementWithExpose<typeof Input, InputExpose>;
+export type iInput = InstanceType<tInput>;
 
 export const defineInput = createDefineElement(
   name,

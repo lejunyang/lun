@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { progressProps } from './type';
 import { useNamespace } from 'hooks';
 import { computed } from 'vue';
-import { getCompParts, renderStatusIcon } from 'common';
+import { ElementWithExpose, getCompParts, renderStatusIcon } from 'common';
 import { defineIcon } from '../icon/Icon';
 import { toPxIfNum } from '@lun-web/utils';
 import { methods } from './progress.static-methods';
@@ -93,8 +93,8 @@ export const Progress = Object.assign(
   methods,
 );
 
-export type tProgress = typeof Progress;
 export type ProgressExpose = {};
-export type iProgress = InstanceType<typeof Progress> & ProgressExpose;
+export type tProgress = ElementWithExpose<typeof Progress, ProgressExpose>;
+export type iProgress = InstanceType<typeof Progress>;
 
 export const defineProgress = createDefineElement(name, Progress, { type: 'wave' }, parts, [defineIcon]);

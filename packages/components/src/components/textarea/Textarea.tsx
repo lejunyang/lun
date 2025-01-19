@@ -6,7 +6,7 @@ import { useCEExpose, useCEStates, useNamespace, usePropsFromFormItem, useValueM
 import { textareaEmits, textareaProps } from './type';
 import { getHeight, isEmpty, raf } from '@lun-web/utils';
 import { defineIcon } from '../icon/Icon';
-import { getCompParts, InputFocusOption } from 'common';
+import { ElementWithExpose, getCompParts, InputFocusOption } from 'common';
 
 const name = 'textarea';
 const parts = ['root', 'float-label', 'float-background', 'wrapper', 'textarea', 'length-info'] as const;
@@ -153,12 +153,12 @@ export const Textarea = defineCustomElement({
   },
 });
 
-export type tTextarea = typeof Textarea;
 export type TextareaExpose = {
   focus: (options?: InputFocusOption) => void;
   blur: () => void;
   readonly textarea: HTMLTextAreaElement;
 };
-export type iTextarea = InstanceType<tTextarea> & TextareaExpose;
+export type tTextarea = ElementWithExpose<typeof Textarea, TextareaExpose>;
+export type iTextarea = InstanceType<tTextarea>;
 
 export const defineTextarea = createDefineElement(name, Textarea, {}, parts, [defineIcon]);

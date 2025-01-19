@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement } from 'utils';
 import { treeEmits, treeProps } from './type';
 import { useValueSet, useCEExpose, useNamespace, useValueModel } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
 import { useCollectorValue } from '../../hooks/useCollectorValue';
@@ -106,10 +106,10 @@ export const Tree = defineCustomElement({
   },
 });
 
-export type tTree = typeof Tree;
 export type TreeExpose = {
   methods: TreeExtraProvide;
 };
-export type iTree = InstanceType<tTree> & TreeExpose;
+export type tTree = ElementWithExpose<typeof Tree, TreeExpose>;
+export type iTree = InstanceType<tTree>;
 
 export const defineTree = createDefineElement(name, Tree, {}, parts, [defineTreeItem]);

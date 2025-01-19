@@ -7,7 +7,7 @@ import { defineDialog, iDialog } from '../dialog';
 import { ensureNumber, extend, isArray, isElement, runIfFn } from '@lun-web/utils';
 import { createPopoverRectTarget, unrefOrGet, useSetupEvent } from '@lun-web/core';
 import { useFloating } from '../popover/useFloating';
-import { getCompParts, intl } from 'common';
+import { ElementWithExpose, getCompParts, intl } from 'common';
 import { hasRect } from '../popover/utils';
 
 const name = 'tour';
@@ -141,14 +141,14 @@ export const Tour = defineCustomElement({
   },
 });
 
-export type tTour = typeof Tour;
 export type TourExpose = {
   openTour(): Promise<true | void>;
   nextStep(): Promise<true | void>;
   prevStep(): Promise<true | void>;
   closeTour(): void;
 };
-export type iTour = InstanceType<tTour> & TourExpose;
+export type tTour = ElementWithExpose<typeof Tour, TourExpose>;
+export type iTour = InstanceType<tTour>;
 
 export const defineTour = createDefineElement(
   name,

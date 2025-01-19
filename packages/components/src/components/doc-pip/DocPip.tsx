@@ -16,6 +16,7 @@ import { onBeforeUnmount, ref, watchEffect } from 'vue';
 import { useAdoptedSheetsSnapshot, useSetupEdit } from '@lun-web/core';
 import { on } from '@lun-web/utils';
 import { useContextConfig } from '../config/config.context';
+import { ElementWithExpose } from 'common';
 
 const name = 'doc-pip';
 export const DocPip = defineCustomElement({
@@ -148,12 +149,12 @@ export const DocPip = defineCustomElement({
   },
 });
 
-export type tDocPip = typeof DocPip;
 export type DocPipExpose = {
   openPip: (...otherStyles: DocPipAcceptStyle[]) => Promise<boolean | undefined>;
   closePip: () => void;
   togglePip: () => Promise<boolean | undefined> | undefined;
 };
-export type iDocPip = InstanceType<tDocPip> & DocPipExpose;
+export type tDocPip = ElementWithExpose<typeof DocPip, DocPipExpose>;
+export type iDocPip = InstanceType<tDocPip>;
 
 export const defineDocPip = createDefineElement(name, DocPip);

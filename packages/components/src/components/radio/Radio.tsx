@@ -6,7 +6,7 @@ import { interceptCEMethods, useCEStates, useNamespace } from 'hooks';
 import { RadioCollector } from './collector';
 import { radioEmits, radioProps } from './type';
 import { virtualGetMerge } from '@lun-web/utils';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'radio';
 const parts = ['root', 'label', 'indicator'] as const;
@@ -51,7 +51,7 @@ export const Radio = defineCustomElement({
         end: button && (props.end || radioContext?.isEnd),
       };
     });
-    interceptCEMethods(inputEl)
+    interceptCEMethods(inputEl);
 
     return () => {
       const { labelPosition, noIndicator } = mergedProps;
@@ -81,9 +81,9 @@ export const Radio = defineCustomElement({
   },
 });
 
-export type tRadio = typeof Radio;
 export type RadioExpose = {};
-export type iRadio = InstanceType<typeof Radio> & RadioExpose;
+export type tRadio = ElementWithExpose<typeof Radio, RadioExpose>;
+export type iRadio = InstanceType<typeof Radio>;
 
 export const defineRadio = createDefineElement(
   name,

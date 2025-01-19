@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement, getProp, renderElement } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
 import { useCE, useNamespace, useValueModel, useValueSet } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { TableColumnCollector, TableState } from './collector';
 import { arrayFrom, ensureArray, ensureNumber, ensureTruthyArray, isEmpty, runIfFn, toPxIfNum } from '@lun-web/utils';
 import {
@@ -225,8 +225,8 @@ export const Table = defineCustomElement({
   },
 });
 
-export type tTable = typeof Table;
 export type TableExpose = {};
-export type iTable = InstanceType<tTable> & TableExpose;
+export type tTable = ElementWithExpose<typeof Table, TableExpose>;
+export type iTable = InstanceType<tTable>;
 
 export const defineTable = createDefineElement(name, Table, {}, parts, [defineTableColumn]);

@@ -34,7 +34,7 @@ import {
 } from '@lun-web/utils';
 import { useCE, useCEExpose, useNamespace, useSlot } from 'hooks';
 import { ElementRects } from '@floating-ui/vue';
-import { getCompParts, getTransitionProps, popSupport } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps, popSupport } from 'common';
 import { defineTeleportHolder, useTeleport } from '../teleport-holder';
 import { useContextConfig } from 'config';
 import { virtualParentMap } from '../../custom/virtualParent';
@@ -343,7 +343,6 @@ export const Popover = defineCustomElement({
   },
 });
 
-export type tPopover = typeof Popover;
 export type PopoverExpose = {
   openPopover: () => void;
   closePopover: () => void;
@@ -362,7 +361,8 @@ export type PopoverExpose = {
   readonly isOpen: boolean;
   readonly isShow: boolean;
 };
-export type iPopover = InstanceType<tPopover> & PopoverExpose;
+export type tPopover = ElementWithExpose<typeof Popover, PopoverExpose>;
+export type iPopover = InstanceType<tPopover>;
 
 export const definePopover = createDefineElement(
   name,

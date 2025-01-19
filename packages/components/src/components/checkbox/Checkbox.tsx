@@ -7,7 +7,7 @@ import { CheckboxCollector } from './collector';
 import { checkboxEmits, checkboxProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { isEnterDown } from '@lun-web/utils';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'checkbox';
 const parts = ['root', 'indicator', 'input', 'label'] as const;
@@ -132,9 +132,9 @@ export const Checkbox = defineCustomElement({
   },
 });
 
-export type tCheckbox = typeof Checkbox;
 export type CheckboxExpose = {};
-export type iCheckbox = InstanceType<tCheckbox> & CheckboxExpose;
+export type tCheckbox = ElementWithExpose<typeof Checkbox, CheckboxExpose>;
+export type iCheckbox = InstanceType<tCheckbox>;
 
 export const defineCheckbox = createDefineElement(
   name,

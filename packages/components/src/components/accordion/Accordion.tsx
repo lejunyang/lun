@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { accordionEmits, accordionProps } from './type';
 import { useCEStates, useNamespace, useOpenModel, useSlot } from 'hooks';
-import { getCompParts, getTransitionProps } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps } from 'common';
 import { defineIcon } from '../icon';
 import { computed, Transition } from 'vue';
 import { useSetupEdit } from '@lun-web/core';
@@ -64,8 +64,8 @@ export const Accordion = defineCustomElement({
   },
 });
 
-export type tAccordion = typeof Accordion;
 export type AccordionExpose = {};
-export type iAccordion = InstanceType<tAccordion> & AccordionExpose;
+export type tAccordion = ElementWithExpose<typeof Accordion, AccordionExpose>;
+export type iAccordion = InstanceType<tAccordion>;
 
 export const defineAccordion = createDefineElement(name, Accordion, {}, parts, [defineIcon]);

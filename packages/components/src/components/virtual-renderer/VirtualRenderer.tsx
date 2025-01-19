@@ -6,6 +6,7 @@ import { useVirtualList } from '@lun-web/core';
 import { extend, isFunction } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { useCE } from 'hooks';
+import { ElementWithExpose } from 'common';
 
 const name = 'virtual-renderer';
 
@@ -62,8 +63,8 @@ export const VirtualRenderer = defineCustomElement({
   shadowOptions: null,
 });
 
-export type tVirtualRenderer = typeof VirtualRenderer;
 export type VirtualRendererExpose = {};
-export type iVirtualRenderer = InstanceType<tVirtualRenderer> & VirtualRendererExpose;
+export type tVirtualRenderer = ElementWithExpose<typeof VirtualRenderer, VirtualRendererExpose>;
+export type iVirtualRenderer = InstanceType<tVirtualRenderer>;
 
 export const defineVirtualRenderer = createDefineElement(name, VirtualRenderer);

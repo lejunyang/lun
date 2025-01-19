@@ -20,7 +20,7 @@ import {
   prevent,
 } from '@lun-web/utils';
 import { GlobalStaticConfig } from '../config/config.static';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { defineTooltip, iTooltip } from '../tooltip';
 
 const name = 'range';
@@ -307,8 +307,8 @@ export const Range = defineCustomElement({
   },
 });
 
-export type tRange = typeof Range;
 export type RangeExpose = {};
-export type iRange = InstanceType<tRange> & RangeExpose;
+export type tRange = ElementWithExpose<typeof Range, RangeExpose>;
+export type iRange = InstanceType<tRange>;
 
 export const defineRange = createDefineElement(name, Range, { type: 'horizontal' }, parts, [defineTooltip]);

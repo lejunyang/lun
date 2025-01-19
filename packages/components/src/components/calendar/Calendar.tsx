@@ -3,7 +3,7 @@ import { createDefineElement, renderElement, scrollIntoView } from 'utils';
 import { calendarEmits, calendarProps } from './type';
 import { defineIcon } from '../icon/Icon';
 import { createGetterForHasRawModel, useCEExpose, useCEStates, useNamespace, useValueModel, useViewDate } from 'hooks';
-import { getCompParts, intl } from 'common';
+import { ElementWithExpose, getCompParts, intl } from 'common';
 import {
   createDateLocaleMethods,
   DateValueType,
@@ -268,7 +268,6 @@ export const Calendar = defineCustomElement({
   },
 });
 
-export type tCalendar = typeof Calendar;
 export type CalendarExpose = Readonly<{
   selecting: null | DateValueType;
   hovering: null | DateValueType;
@@ -276,6 +275,7 @@ export type CalendarExpose = Readonly<{
   parseDate(value: any): DateValueType | null;
   formatDate(value: DateValueType): string;
 }>;
-export type iCalendar = InstanceType<tCalendar> & CalendarExpose;
+export type tCalendar = ElementWithExpose<typeof Calendar, CalendarExpose>;
+export type iCalendar = InstanceType<tCalendar>;
 
 export const defineCalendar = createDefineElement(name, Calendar, {}, parts, [defineIcon]);

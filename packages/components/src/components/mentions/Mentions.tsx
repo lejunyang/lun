@@ -17,7 +17,7 @@ import { definePopover } from '../popover';
 import { defineSelectOption } from '../select';
 import { useSelect } from '../select/useSelect';
 import { renderCustom } from '../custom-renderer';
-import { getCompParts, intl } from 'common';
+import { ElementWithExpose, getCompParts, intl } from 'common';
 
 const name = 'mentions';
 const parts = ['root', 'float-label', 'wrapper', 'textarea', 'length-info', 'content'] as const;
@@ -220,7 +220,8 @@ export const Mentions = defineCustomElement({
   },
 });
 
-export type tMentions = typeof Mentions;
+export type MentionsExpose = {};
+export type tMentions = ElementWithExpose<typeof Mentions, MentionsExpose>;
 export type iMentions = InstanceType<tMentions>;
 
 export const defineMentions = createDefineElement(

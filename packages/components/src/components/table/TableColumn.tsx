@@ -2,7 +2,7 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement, createImportStyle, getHostStyle, getProp, getProps, isVm } from 'utils';
 import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 import { TableColumnCollector, toExternalContext } from './collector';
 import {
   getCollectedItemIndex,
@@ -248,9 +248,9 @@ export const TableColumn = defineCustomElement({
   },
 });
 
-export type tTableColumn = typeof TableColumn;
 export type TableColumnExpose = {};
-export type iTableColumn = InstanceType<tTableColumn> & TableColumnExpose;
+export type tTableColumn = ElementWithExpose<typeof TableColumn, TableColumnExpose>;
+export type iTableColumn = InstanceType<tTableColumn>;
 
 export const defineTableColumn = createDefineElement(name, TableColumn, {}, parts, [
   createImportStyle(name, getHostStyle(`display: contents;`)),

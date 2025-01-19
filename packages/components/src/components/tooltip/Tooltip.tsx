@@ -7,6 +7,7 @@ import { useCE, useCEExpose } from 'hooks';
 import { getFirstOfIterable, getInnerTextOfSlot, runIfFn, supportCSSAnchor } from '@lun-web/utils';
 import { onMounted, ref } from 'vue';
 import { useContextConfig } from 'config';
+import { ElementWithExpose } from 'common';
 
 const name = 'tooltip';
 const parts = [] as const;
@@ -85,11 +86,11 @@ const Tooltip = defineCustomElement({
   },
 });
 
-export type tTooltip = typeof Tooltip;
 export type TooltipExpose = {
   readonly popover: iPopover;
 } & ReturnType<typeof useOverflowWatcher>['methods'];
-export type iTooltip = InstanceType<tTooltip> & TooltipExpose;
+export type tTooltip = ElementWithExpose<typeof Tooltip, TooltipExpose>;
+export type iTooltip = InstanceType<tTooltip>;
 
 export const defineTooltip = createDefineElement(
   name,

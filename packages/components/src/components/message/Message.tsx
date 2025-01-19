@@ -12,7 +12,7 @@ import {
   watchEffect,
 } from 'vue';
 import { useCEExpose, useNamespace } from 'hooks';
-import { getCompParts, getTransitionProps, popSupport } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps, popSupport } from 'common';
 import { capitalize, objectKeys, omit, runIfFn } from '@lun-web/utils';
 import { defineCallout } from '../callout/Callout';
 import { methods } from './message.static-methods';
@@ -193,9 +193,9 @@ export const Message = Object.assign(
   methods,
 );
 
-export type tMessage = typeof Message;
 export type MessageExpose = MessageMethods;
-export type iMessage = InstanceType<tMessage> & MessageExpose;
+export type tMessage = ElementWithExpose<typeof Message, MessageExpose>;
+export type iMessage = InstanceType<tMessage>;
 
 export const defineMessage = createDefineElement(
   name,

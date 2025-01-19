@@ -28,3 +28,8 @@ export type InputFocusOption = { preventScroll?: boolean; cursor?: 'start' | 'en
 export type CommonProps = {
   innerStyle?: string;
 };
+
+export type ElementWithExpose<
+  El extends new (props?: Record<string, any>) => any,
+  Expose extends Record<string, any>,
+> = new (props?: Record<string, any>) => InstanceType<El> & Expose;

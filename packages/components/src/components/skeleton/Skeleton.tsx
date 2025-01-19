@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { skeletonEmits, skeletonProps } from './type';
 import { Transition } from 'vue';
 import { useNamespace } from 'hooks';
-import { getCompParts, getTransitionProps } from 'common';
+import { ElementWithExpose, getCompParts, getTransitionProps } from 'common';
 import { useSetupEdit } from '@lun-web/core';
 
 const name = 'skeleton';
@@ -34,8 +34,8 @@ export const Skeleton = defineCustomElement({
   },
 });
 
-export type tSkeleton = typeof Skeleton;
 export type SkeletonExpose = {};
-export type iSkeleton = InstanceType<tSkeleton> & SkeletonExpose;
+export type tSkeleton = ElementWithExpose<typeof Skeleton, SkeletonExpose>;
+export type iSkeleton = InstanceType<tSkeleton>;
 
 export const defineSkeleton = createDefineElement(name, Skeleton, {}, parts);

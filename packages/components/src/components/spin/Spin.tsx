@@ -3,7 +3,7 @@ import { createDefineElement } from 'utils';
 import { spinProps } from './type';
 import { useNamespace } from 'hooks';
 import { ref, watchEffect } from 'vue';
-import { getCompParts } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
 const name = 'spin';
 const parts = ['svg', 'circle', 'container', 'wrapper', 'mask', 'tip'] as const;
@@ -78,9 +78,9 @@ export const Spin = defineCustomElement({
   },
 });
 
-export type tSpin = typeof Spin;
 export type SpinExpose = {};
-export type iSpin = InstanceType<tSpin> & SpinExpose;
+export type tSpin = ElementWithExpose<typeof Spin, SpinExpose>;
+export type iSpin = InstanceType<tSpin>;
 
 export const defineSpin = createDefineElement(
   name,
