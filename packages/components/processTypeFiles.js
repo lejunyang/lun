@@ -17,15 +17,18 @@ import path from 'path';
 
   components.forEach((componentTag) => {
     const componentCamelName = camelize(capitalize(componentTag));
-    const propType = `import('./index').${componentCamelName}Props`,
-      instanceType = `import('./index').i${componentCamelName}`;
-    const vueCompType = `Vue.DefineComponent<${propType}>`;
+    const importPrefix = `LunComps.`;
+    const propType = `${importPrefix}${componentCamelName}Props`,
+      instanceType = `${importPrefix}i${componentCamelName}`;
     // tried Omit<Vue.ReservedProps, 'ref'> & { ref?: string | Vue.Ref<${instanceType}> | ((el: ${instanceType} | null) => void) }, but ref doesn't work as expected
-    const vuePropType = `Vue.HTMLAttributes & Vue.ReservedProps & ${propType}`;
+    const vuePropType = `Vue.HTMLAttributes & Vue.PublicProps & ${propType}`;
     const reactPropType = `React.HTMLAttributes<${instanceType}> & React.RefAttributes<${instanceType}> & ${propType}`;
-    vueCompTypes.push(`    L${componentCamelName}: ${vueCompType};`);
+    vueCompTypes.push(
+      // for DefineVueCustomElement, we must pass the third param to pick certain props, otherwise keyof VueElement will include all HTML attributes and conflict with Vue HTMLAttributes
+      `    L${componentCamelName}: ${importPrefix}DefineVueCustomElement<${importPrefix}i${componentCamelName}, ${importPrefix}${componentCamelName}EventMap, keyof ${importPrefix}${componentCamelName}SetupProps>;`,
+    );
     vueJSXTypes.push(`      'l-${componentTag}': ${vuePropType};`);
-    htmlTypes.push(`    'l-${componentTag}': import('./index').i${componentCamelName};`);
+    htmlTypes.push(`    'l-${componentTag}': ${importPrefix}.i${componentCamelName};`);
     reactTypes.push(`      'l-${componentTag}': ${reactPropType};`);
   });
 
@@ -34,6 +37,7 @@ import path from 'path';
     // must import vue in the module declaration file(or add export declaration), or it will override vue's declaration, which will lead to ts error `module 'vue' has no exported member xxx'
     // Apart from that, if we don't add this import declaration, we can't write native elements like button, div..., as they have all been overridden
     `import * as Vue from 'vue';
+import * as LunComps from './index';
 declare module 'vue' {
   interface GlobalComponents {
 ${vueCompTypes.join('\n')}
@@ -51,7 +55,8 @@ ${vueJSXTypes.join('\n')}
 
   fs.writeFileSync(
     './dist/elements-types-html.d.ts',
-    `declare global {
+    `import * as LunComps from './index';
+declare global {
   interface HTMLElementTagNameMap {
 ${htmlTypes.join('\n')}
   }
@@ -64,6 +69,7 @@ export {}`,
     './dist/elements-types-react.d.ts',
     // same as vue, need to import react
     `import * as React from 'react';
+import * as LunComps from './index';
 declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {

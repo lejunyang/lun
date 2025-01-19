@@ -129,7 +129,8 @@ export function defineCustomElement<
       ? {}
       : ExtractPropTypes<RuntimePropsOptions>
     : { [key in PropsKeys]?: any },
-  ResolvedProps = InferredProps & EmitsToProps<RuntimeEmitsOptions>,
+  // ResolvedProps = InferredProps & EmitsToProps<RuntimeEmitsOptions>, // original
+  ResolvedProps = InferredProps, // remove emits; events like `onUpdate` should not be props
 >(
   options: CustomElementOptions & {
     props?: (RuntimePropsOptions & ThisType<void>) | PropsKeys[];

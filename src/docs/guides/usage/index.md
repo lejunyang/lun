@@ -191,29 +191,31 @@ CDN 直接引入只提供开发打包版本，不建议在生产环境使用，�
 ```ts
 // Vue
 import * as Vue from 'vue';
+import * as LunComps from '@lun-web/components';
 // Vue template
 declare module 'vue' {
   interface GlobalComponents {
-    LButton: Vue.DefineComponent<import('@lun-web/components').ButtonProps>;
+    LButton: LunComps.DefineVueCustomElement<LunComps.iButton, LunComps.ButtonEventMap, keyof LunComps.ButtonSetupProps>;
   }
 }
 // Vue JSX
 declare module 'vue/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
-      'l-button': Vue.HTMLAttributes & Vue.ReservedProps & import('@lun-web/components').ButtonProps;
+      'l-button': Vue.HTMLAttributes & Vue.PublicProps & LunComps.ButtonProps;
     }
   }
 }
 
 // React
 import * as React from 'react';
+import * as LunComps from '@lun-web/components';
 declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
       'l-button': React.HTMLAttributes<HTMLElement> &
-        React.RefAttributes<import('@lun-web/components').iButton> &
-        import('@lun-web/components').ButtonProps;
+        React.RefAttributes<LunComps.iButton> &
+        LunComps.ButtonProps;
     }
   }
 }
