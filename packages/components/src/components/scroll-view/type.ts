@@ -1,6 +1,15 @@
 import { MaybeRefLikeOrGetter } from '@lun-web/core';
 import { freeze } from '@lun-web/utils';
-import { GetEventPropsFromEmits, PropString, CommonProps, PropBoolean, PropFunction, Prop, PropNumber } from 'common';
+import {
+  GetEventPropsFromEmits,
+  PropString,
+  CommonProps,
+  PropBoolean,
+  PropFunction,
+  Prop,
+  PropNumber,
+  GetEventMapFromEmits,
+} from 'common';
 import { ExtractPropTypes } from 'vue';
 
 export type ScrollViewSlot = {
@@ -74,5 +83,6 @@ export const scrollViewProps = freeze({
 export const scrollViewEmits = freeze({});
 
 export type ScrollViewSetupProps = ExtractPropTypes<typeof scrollViewProps> & CommonProps;
-export type ScrollViewEvents = GetEventPropsFromEmits<typeof scrollViewEmits>;
-export type ScrollViewProps = Partial<ScrollViewSetupProps> & ScrollViewEvents;
+export type ScrollViewEventProps = GetEventPropsFromEmits<typeof scrollViewEmits>;
+export type ScrollViewEventMap = GetEventMapFromEmits<typeof scrollViewEmits>;
+export type ScrollViewProps = Partial<ScrollViewSetupProps> & ScrollViewEventProps;

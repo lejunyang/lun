@@ -8,6 +8,7 @@ import {
   PropResponsive,
   PropNumber,
   PropBoolean,
+  GetEventMapFromEmits,
 } from 'common';
 import { AnchorHTMLAttributes, ExtractPropTypes } from 'vue';
 
@@ -28,5 +29,6 @@ export const textProps = freeze({
 export const textEmits = freeze({});
 
 export type TextSetupProps = ExtractPropTypes<typeof textProps> & CommonProps;
-export type TextEvents = GetEventPropsFromEmits<typeof textEmits>;
-export type TextProps = Partial<TextSetupProps> & TextEvents & AnchorHTMLAttributes;
+export type TextEventProps = GetEventPropsFromEmits<typeof textEmits>;
+export type TextEventMap = GetEventMapFromEmits<typeof textEmits>;
+export type TextProps = Partial<TextSetupProps> & TextEventProps & AnchorHTMLAttributes;

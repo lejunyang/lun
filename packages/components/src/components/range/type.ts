@@ -3,6 +3,7 @@ import {
   CommonProps,
   createEmits,
   editStateProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropFunction,
@@ -37,5 +38,6 @@ export const rangeEmits = createEmits<{
 }>(['update']);
 
 export type RangeSetupProps = ExtractPropTypes<typeof rangeProps> & CommonProps;
-export type RangeEvents = GetEventPropsFromEmits<typeof rangeEmits>;
-export type RangeProps = Partial<RangeSetupProps> & RangeEvents;
+export type RangeEventProps = GetEventPropsFromEmits<typeof rangeEmits>;
+export type RangeEventMap = GetEventMapFromEmits<typeof rangeEmits>;
+export type RangeProps = Partial<RangeSetupProps> & RangeEventProps;

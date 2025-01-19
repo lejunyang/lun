@@ -7,6 +7,7 @@ import {
   PropArray,
   createEmits,
   OpenCloseEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { MaybePromise, MaybeRefLikeOrGetter, VirtualElement } from '@lun-web/core';
@@ -38,5 +39,6 @@ export const tourEmits = createEmits<
 >([...(dialogEmits as unknown as string[]), 'updateStep']);
 
 export type TourSetupProps = ExtractPropTypes<typeof tourProps> & CommonProps;
-export type TourEvents = GetEventPropsFromEmits<typeof tourEmits>;
-export type TourProps = Partial<TourSetupProps> & TourEvents;
+export type TourEventProps = GetEventPropsFromEmits<typeof tourEmits>;
+export type TourEventMap = GetEventMapFromEmits<typeof tourEmits>;
+export type TourProps = Partial<TourSetupProps> & TourEventProps;

@@ -13,6 +13,7 @@ import {
   undefBoolProp,
   createEmits,
   PropObjOrStr,
+  GetEventMapFromEmits,
 } from 'common';
 import type { CollectorContext, MaybeRefLikeOrGetter, UseFormReturn } from '@lun-web/core';
 import { FormItemSetupProps, ValidateMessages, Validator } from '../form-item/type';
@@ -71,7 +72,8 @@ export const formEmits = createEmits<{
 }>(['update']);
 
 export type FormSetupProps = ExtractPropTypes<typeof formProps> & CommonProps;
-export type FormEvents = GetEventPropsFromEmits<typeof formEmits>;
+export type FormEventProps = GetEventPropsFromEmits<typeof formEmits>;
+export type FormEventMap = GetEventMapFromEmits<typeof formEmits>;
 export type FormProps = Omit<Partial<FormSetupProps>, 'itemProps'> & {
   itemProps?:
     | Partial<Omit<FormItemSetupProps, 'deps'>>
@@ -79,4 +81,4 @@ export type FormProps = Omit<Partial<FormSetupProps>, 'itemProps'> & {
         formContext: CollectorContext<FormSetupProps, FormItemSetupProps, FormProvideExtra> | undefined;
         formItemProps: FormItemSetupProps;
       }) => Partial<Omit<FormItemSetupProps, 'deps'>>);
-} & FormEvents;
+} & FormEventProps;

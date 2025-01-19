@@ -1,6 +1,7 @@
 import { Side } from '@floating-ui/vue';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   OpenCloseEmits,
   PropBoolean,
@@ -44,12 +45,13 @@ export type MessageOpenConfig = {
   duration?: number | string;
   resetDurationOnHover?: boolean;
 } & CalloutProps &
-  MessageEvents &
+  MessageEventProps &
   HTMLAttributes;
 
 export type MessageSetupProps = ExtractPropTypes<typeof messageProps> & CommonProps;
-export type MessageEvents = GetEventPropsFromEmits<typeof messageEmits>;
-export type MessageProps = Partial<MessageSetupProps> & MessageEvents;
+export type MessageEventProps = GetEventPropsFromEmits<typeof messageEmits>;
+export type MessageEventMap = GetEventMapFromEmits<typeof messageEmits>;
+export type MessageProps = Partial<MessageSetupProps> & MessageEventProps;
 
 export type MessageMethods = {
   open(config?: MessageOpenConfig): string;

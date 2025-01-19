@@ -1,5 +1,6 @@
 import { freeze } from '@lun-web/utils';
 import {
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   Prop,
   PropArray,
@@ -43,5 +44,6 @@ export const virtualRendererProps = freeze({
 export const virtualRendererEmits = freeze({});
 
 export type VirtualRendererSetupProps = ExtractPropTypes<typeof virtualRendererProps>;
-export type VirtualRendererEvents = GetEventPropsFromEmits<typeof virtualRendererEmits>;
-export type VirtualRendererProps = Partial<VirtualRendererSetupProps> & VirtualRendererEvents;
+export type VirtualRendererEventProps = GetEventPropsFromEmits<typeof virtualRendererEmits>;
+export type VirtualRendererEventMap = GetEventMapFromEmits<typeof virtualRendererEmits>;
+export type VirtualRendererProps = Partial<VirtualRendererSetupProps> & VirtualRendererEventProps;

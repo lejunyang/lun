@@ -2,6 +2,7 @@ import { DraggableFn, MaybePromise } from '@lun-web/core';
 import { CSSProperties, ExtractPropTypes } from 'vue';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   OpenCloseEmits,
   Prop,
@@ -74,5 +75,6 @@ export const dialogEmits = createEmits<
 >(['update', ...openCloseEmits]);
 
 export type DialogSetupProps = ExtractPropTypes<typeof dialogProps> & CommonProps;
-export type DialogEvents = GetEventPropsFromEmits<typeof dialogEmits>;
-export type DialogProps = Partial<DialogSetupProps> & DialogEvents;
+export type DialogEventProps = GetEventPropsFromEmits<typeof dialogEmits>;
+export type DialogEventMap = GetEventMapFromEmits<typeof dialogEmits>;
+export type DialogProps = Partial<DialogSetupProps> & DialogEventProps;

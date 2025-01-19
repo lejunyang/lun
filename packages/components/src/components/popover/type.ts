@@ -1,5 +1,6 @@
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   OpenCloseEmits,
   Prop,
@@ -111,5 +112,6 @@ export const popoverProps = freeze({
 export const popoverEmits = createEmits<OpenCloseEmits>(openCloseEmits);
 
 export type PopoverSetupProps = ExtractPropTypes<typeof popoverProps> & CommonProps;
-export type PopoverEvents = GetEventPropsFromEmits<typeof popoverEmits>;
-export type PopoverProps = Partial<PopoverSetupProps> & PopoverEvents;
+export type PopoverEventProps = GetEventPropsFromEmits<typeof popoverEmits>;
+export type PopoverEventMap = GetEventMapFromEmits<typeof popoverEmits>;
+export type PopoverProps = Partial<PopoverSetupProps> & PopoverEventProps;

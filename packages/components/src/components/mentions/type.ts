@@ -1,6 +1,7 @@
 import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   Prop,
   PropBoolean,
@@ -46,5 +47,6 @@ export const mentionsEmits = createEmits<{
 }>(['update', 'updateRaw', 'trigger', 'enterDown']);
 
 export type MentionsSetupProps = ExtractPropTypes<typeof mentionsProps> & CommonProps;
-export type MentionsEvents = GetEventPropsFromEmits<typeof mentionsEmits>;
-export type MentionsProps = Partial<MentionsSetupProps> & MentionsEvents;
+export type MentionsEventProps = GetEventPropsFromEmits<typeof mentionsEmits>;
+export type MentionsEventMap = GetEventMapFromEmits<typeof mentionsEmits>;
+export type MentionsProps = Partial<MentionsSetupProps> & MentionsEventProps;

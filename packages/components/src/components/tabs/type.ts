@@ -9,6 +9,7 @@ import {
   PropString,
   Prop,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { GetCustomRendererSource } from '../custom-renderer';
@@ -47,8 +48,9 @@ export const tabsEmits = createEmits<{
 }>(['update', 'remove', 'afterRemove']);
 
 export type TabsSetupProps = ExtractPropTypes<typeof tabsProps> & CommonProps;
-export type TabsEvents = GetEventPropsFromEmits<typeof tabsEmits>;
-export type TabsProps = Partial<TabsSetupProps> & TabsEvents;
+export type TabsEventProps = GetEventPropsFromEmits<typeof tabsEmits>;
+export type TabsEventMap = GetEventMapFromEmits<typeof tabsEmits>;
+export type TabsProps = Partial<TabsSetupProps> & TabsEventProps;
 
 export const tabItemProps = freeze({
   slot: PropString(),
@@ -60,5 +62,6 @@ export const tabItemProps = freeze({
 export const tabItemEmits = freeze({});
 
 export type TabItemSetupProps = ExtractPropTypes<typeof tabItemProps> & CommonProps;
-export type TabItemEvents = GetEventPropsFromEmits<typeof tabItemEmits>;
-export type TabItemProps = Partial<TabItemSetupProps> & TabItemEvents;
+export type TabItemEventProps = GetEventPropsFromEmits<typeof tabItemEmits>;
+export type TabItemEventMap = GetEventMapFromEmits<typeof tabItemEmits>;
+export type TabItemProps = Partial<TabItemSetupProps> & TabItemEventProps;

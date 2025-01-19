@@ -11,6 +11,7 @@ import {
   PropObjOrStr,
   editStateProps,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -52,5 +53,6 @@ export const calendarEmits = createEmits<{
 }>(['update', 'updateViewDate']);
 
 export type CalendarSetupProps = ExtractPropTypes<typeof calendarProps> & CommonProps;
-export type CalendarEvents = GetEventPropsFromEmits<typeof calendarEmits>;
-export type CalendarProps = Partial<CalendarSetupProps> & CalendarEvents;
+export type CalendarEventProps = GetEventPropsFromEmits<typeof calendarEmits>;
+export type CalendarEventMap = GetEventMapFromEmits<typeof calendarEmits>;
+export type CalendarProps = Partial<CalendarSetupProps> & CalendarEventProps;

@@ -9,6 +9,7 @@ import {
   CommonProps,
   undefBoolProp,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -32,8 +33,9 @@ export const radioEmits = createEmits<{
 }>(['update']);
 
 export type RadioSetupProps = ExtractPropTypes<typeof radioProps>;
-export type RadioEvents = GetEventPropsFromEmits<typeof radioEmits>;
-export type RadioProps = Partial<RadioSetupProps> & RadioEvents;
+export type RadioEventProps = GetEventPropsFromEmits<typeof radioEmits>;
+export type RadioEventMap = GetEventMapFromEmits<typeof radioEmits>;
+export type RadioProps = Partial<RadioSetupProps> & RadioEventProps;
 
 export const radioGroupProps = freeze({
   ...createOptionProps(false),
@@ -50,5 +52,6 @@ export const radioGroupEmits = createEmits<{
 }>(['update']);
 
 export type RadioGroupSetupProps = ExtractPropTypes<typeof radioGroupProps> & CommonProps;
-export type RadioGroupEvents = GetEventPropsFromEmits<typeof radioGroupEmits>;
-export type RadioGroupProps = Partial<RadioGroupSetupProps> & RadioGroupEvents;
+export type RadioGroupEventProps = GetEventPropsFromEmits<typeof radioGroupEmits>;
+export type RadioGroupEventMap = GetEventMapFromEmits<typeof radioGroupEmits>;
+export type RadioGroupProps = Partial<RadioGroupSetupProps> & RadioGroupEventProps;

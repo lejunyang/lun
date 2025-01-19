@@ -2,6 +2,7 @@ import { ExtractPropTypes, PropType } from 'vue';
 import {
   CommonProps,
   editStateProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   GrayColors,
   PropNumber,
@@ -27,5 +28,6 @@ export const themeProviderProps = freeze({
 export const themeProviderEmits = freeze({});
 
 export type ThemeProviderSetupProps = ExtractPropTypes<typeof themeProviderProps> & CommonProps;
-export type ThemeProviderEvents = GetEventPropsFromEmits<typeof themeProviderEmits>;
-export type ThemeProviderProps = Partial<ThemeProviderSetupProps>;
+export type ThemeProviderEventProps = GetEventPropsFromEmits<typeof themeProviderEmits>;
+export type ThemeProviderEventMap = GetEventMapFromEmits<typeof themeProviderEmits>;
+export type ThemeProviderProps = Partial<ThemeProviderSetupProps> & ThemeProviderEventProps;

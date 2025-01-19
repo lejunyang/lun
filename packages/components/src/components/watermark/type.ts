@@ -1,5 +1,6 @@
 import { AppearanceColor } from 'hooks';
 import {
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropNumber,
@@ -46,5 +47,6 @@ export const watermarkProps = freeze({
 export const watermarkEmits = freeze({});
 
 export type WatermarkSetupProps = ExtractPropTypes<typeof watermarkProps>;
-export type WatermarkEvents = GetEventPropsFromEmits<typeof watermarkEmits>;
-export type WatermarkProps = Partial<WatermarkSetupProps>;
+export type WatermarkEventProps = GetEventPropsFromEmits<typeof watermarkEmits>;
+export type WatermarkEventMap = GetEventMapFromEmits<typeof watermarkEmits>;
+export type WatermarkProps = Partial<WatermarkSetupProps> & WatermarkEventProps;

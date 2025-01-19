@@ -2,6 +2,7 @@ import { freeze } from '@lun-web/utils';
 import {
   CommonProps,
   createEmits,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropNumber,
@@ -32,5 +33,6 @@ export const progressEmits = createEmits<{
 }>(['done']);
 
 export type ProgressSetupProps = ExtractPropTypes<typeof progressProps> & CommonProps;
-export type ProgressEvents = GetEventPropsFromEmits<typeof progressEmits>;
-export type ProgressProps = Partial<ProgressSetupProps>;
+export type ProgressEventProps = GetEventPropsFromEmits<typeof progressEmits>;
+export type ProgressEventMap = GetEventMapFromEmits<typeof progressEmits>;
+export type ProgressProps = Partial<ProgressSetupProps> & ProgressEventProps;

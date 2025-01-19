@@ -13,6 +13,7 @@ import {
   PropObject,
   PropSet,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -64,8 +65,9 @@ export const treeEmits = createEmits<{
 }>(['update', 'check', 'select', 'expand']);
 
 export type TreeSetupProps = ExtractPropTypes<typeof treeProps> & CommonProps;
-export type TreeEvents = GetEventPropsFromEmits<typeof treeEmits>;
-export type TreeProps = Partial<TreeSetupProps> & TreeEvents;
+export type TreeEventProps = GetEventPropsFromEmits<typeof treeEmits>;
+export type TreeEventMap = GetEventMapFromEmits<typeof treeEmits>;
+export type TreeProps = Partial<TreeSetupProps> & TreeEventProps;
 
 export const treeItemProps = freeze({
   ...themeProps,
@@ -80,5 +82,6 @@ export const treeItemProps = freeze({
 export const treeItemEmits = freeze({});
 
 export type TreeItemSetupProps = Omit<ExtractPropTypes<typeof treeItemProps>, '_'> & CommonProps;
-export type TreeItemEvents = GetEventPropsFromEmits<typeof treeItemEmits>;
-export type TreeItemProps = Partial<TreeItemSetupProps> & TreeItemEvents;
+export type TreeItemEventProps = GetEventPropsFromEmits<typeof treeItemEmits>;
+export type TreeItemEventMap = GetEventMapFromEmits<typeof treeItemEmits>;
+export type TreeItemProps = Partial<TreeItemSetupProps> & TreeItemEventProps;

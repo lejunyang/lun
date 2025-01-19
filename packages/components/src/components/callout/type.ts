@@ -2,6 +2,7 @@ import { freeze } from '@lun-web/utils';
 import {
   CloseEmits,
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   Prop,
   PropFunction,
@@ -35,5 +36,6 @@ export const calloutProps = freeze({
 export const calloutEmits = createEmits<CloseEmits>(closeEmits);
 
 export type CalloutSetupProps = ExtractPropTypes<typeof calloutProps> & CommonProps;
-export type CalloutEvents = GetEventPropsFromEmits<typeof calloutEmits>;
-export type CalloutProps = Partial<CalloutSetupProps> & CalloutEvents;
+export type CalloutEventProps = GetEventPropsFromEmits<typeof calloutEmits>;
+export type CalloutEventMap = GetEventMapFromEmits<typeof calloutEmits>;
+export type CalloutProps = Partial<CalloutSetupProps> & CalloutEventProps;

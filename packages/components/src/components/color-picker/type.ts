@@ -8,6 +8,7 @@ import {
   themeProps,
   PropBoolean,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -26,5 +27,6 @@ export const colorPickerEmits = createEmits<{
 }>(['update']);
 
 export type ColorPickerSetupProps = ExtractPropTypes<typeof colorPickerProps> & CommonProps;
-export type ColorPickerEvents = GetEventPropsFromEmits<typeof colorPickerEmits>;
-export type ColorPickerProps = Partial<ColorPickerSetupProps> & ColorPickerEvents;
+export type ColorPickerEventProps = GetEventPropsFromEmits<typeof colorPickerEmits>;
+export type ColorPickerEventMap = GetEventMapFromEmits<typeof colorPickerEmits>;
+export type ColorPickerProps = Partial<ColorPickerSetupProps> & ColorPickerEventProps;

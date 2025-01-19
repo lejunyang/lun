@@ -13,6 +13,7 @@ import {
   createEmits,
   OpenCloseEmits,
   openCloseEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { freeze, MaybeArray, MaybeSet } from '@lun-web/utils';
 
@@ -37,8 +38,9 @@ export const accordionEmits = createEmits<
 >(['update', ...openCloseEmits]);
 
 export type AccordionSetupProps = ExtractPropTypes<typeof accordionProps> & CommonProps;
-export type AccordionEvents = GetEventPropsFromEmits<typeof accordionEmits>;
-export type AccordionProps = Partial<AccordionSetupProps> & AccordionEvents;
+export type AccordionEventProps = GetEventPropsFromEmits<typeof accordionEmits>;
+export type AccordionEventMap = GetEventMapFromEmits<typeof accordionEmits>;
+export type AccordionProps = Partial<AccordionSetupProps> & AccordionEventProps;
 
 type OpenType = string | number;
 
@@ -55,5 +57,6 @@ export const accordionGroupEmits = createEmits<{
 }>(['update']);
 
 export type AccordionGroupSetupProps = ExtractPropTypes<typeof accordionGroupProps> & CommonProps;
-export type AccordionGroupEvents = GetEventPropsFromEmits<typeof accordionGroupEmits>;
-export type AccordionGroupProps = Partial<AccordionGroupSetupProps> & AccordionGroupEvents;
+export type AccordionGroupEventProps = GetEventPropsFromEmits<typeof accordionGroupEmits>;
+export type AccordionGroupEventMap = GetEventMapFromEmits<typeof accordionGroupEmits>;
+export type AccordionGroupProps = Partial<AccordionGroupSetupProps> & AccordionGroupEventProps;

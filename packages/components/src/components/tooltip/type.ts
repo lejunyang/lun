@@ -1,6 +1,6 @@
 import { ExtractPropTypes, PropType } from 'vue';
 import { popoverProps } from '../popover/type';
-import { CommonProps, createEmits, GetEventPropsFromEmits, OpenCloseEmits, openCloseEmits } from 'common';
+import { CommonProps, createEmits, GetEventMapFromEmits, GetEventPropsFromEmits, OpenCloseEmits, openCloseEmits } from 'common';
 import { freeze } from '@lun-web/utils';
 
 export const tooltipProps = freeze({
@@ -15,5 +15,6 @@ export const tooltipEmits = createEmits<
 >([...openCloseEmits, 'overflowChange']);
 
 export type TooltipSetupProps = ExtractPropTypes<typeof tooltipProps> & CommonProps;
-export type TooltipEvents = GetEventPropsFromEmits<typeof tooltipEmits>;
-export type TooltipProps = Partial<TooltipSetupProps> & TooltipEvents;
+export type TooltipEventProps = GetEventPropsFromEmits<typeof tooltipEmits>;
+export type TooltipEventMap = GetEventMapFromEmits<typeof tooltipEmits>;
+export type TooltipProps = Partial<TooltipSetupProps> & TooltipEventProps;

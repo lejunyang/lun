@@ -9,6 +9,7 @@ import {
   CommonProps,
   PropSet,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { createOptionProps } from '../../hooks/useOptions';
@@ -68,8 +69,10 @@ export const checkboxGroupEmits = createEmits<{
 }>(['update']);
 
 export type CheckboxSetupProps = ExtractPropTypes<typeof checkboxProps> & CommonProps;
-export type CheckboxEvents = GetEventPropsFromEmits<typeof checkboxEmits>;
-export type CheckboxProps = Partial<CheckboxSetupProps> & CheckboxEvents;
+export type CheckboxEventProps = GetEventPropsFromEmits<typeof checkboxEmits>;
+export type CheckboxEventMap = GetEventMapFromEmits<typeof checkboxEmits>;
+export type CheckboxProps = Partial<CheckboxSetupProps> & CheckboxEventProps;
 export type CheckboxGroupSetupProps = ExtractPropTypes<typeof checkboxGroupProps> & CommonProps;
-export type CheckboxGroupEvents = GetEventPropsFromEmits<typeof checkboxGroupEmits>;
-export type CheckboxGroupProps = Partial<CheckboxGroupSetupProps> & CheckboxGroupEvents;
+export type CheckboxGroupEventProps = GetEventPropsFromEmits<typeof checkboxGroupEmits>;
+export type CheckboxGroupEventMap = GetEventMapFromEmits<typeof checkboxGroupEmits>;
+export type CheckboxGroupProps = Partial<CheckboxGroupSetupProps> & CheckboxGroupEventProps;

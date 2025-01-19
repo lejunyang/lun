@@ -1,6 +1,7 @@
 import { PropType, ExtractPropTypes } from 'vue';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   LogicalPosition,
   PropBoolOrFunc,
@@ -34,7 +35,7 @@ export type Validator = (
   data: any,
   rawData: any,
   rule: Rule,
-  rawRule: RawRule
+  rawRule: RawRule,
 ) => MaybePromise<ValidatorResult>;
 
 export type ValidateTrigger = 'blur' | 'update' | 'depChange' | 'input' | 'change';
@@ -138,9 +139,10 @@ export const formItemEmits = createEmits<{
 }>(['update']);
 
 export type FormItemSetupProps = ExtractPropTypes<typeof formItemProps> & CommonProps;
-export type FormItemEvents = GetEventPropsFromEmits<typeof formItemEmits>;
+export type FormItemEventProps = GetEventPropsFromEmits<typeof formItemEmits>;
+export type FormItemEventMap = GetEventMapFromEmits<typeof formItemEmits>;
 export type FormItemProps = Omit<Partial<FormItemSetupProps>, 'elementProps'> &
-  FormItemEvents & {
+  FormItemEventProps & {
     elementProps?:
       | object
       | ((param: {

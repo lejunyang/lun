@@ -2,6 +2,7 @@ import { InputPeriod, InputPeriodWithAuto, InputType } from '@lun-web/core';
 import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   Prop,
   PropBoolean,
@@ -96,5 +97,6 @@ export const inputEmits = createEmits<{
 }>(['update', 'tagsComposing', 'tagsAdd', 'tagsRemove', 'enterDown']);
 
 export type InputSetupProps = ExtractPropTypes<typeof inputProps> & CommonProps;
-export type InputEvents = GetEventPropsFromEmits<typeof inputEmits>;
-export type InputProps = Partial<InputSetupProps> & InputEvents;
+export type InputEventProps = GetEventPropsFromEmits<typeof inputEmits>;
+export type InputEventMap = GetEventMapFromEmits<typeof inputEmits>;
+export type InputProps = Partial<InputSetupProps> & InputEventProps;

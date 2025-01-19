@@ -17,6 +17,7 @@ import {
   PropFunction,
   PropSet,
   PropObjOrBool,
+  GetEventMapFromEmits,
 } from 'common';
 import { CSSProperties, ExtractPropTypes, HTMLAttributes } from 'vue';
 import type { Property } from 'csstype';
@@ -96,7 +97,8 @@ export type TableColumnRendererParams = {
   props: TableColumnSetupProps;
   context: TableExternalContext;
 };
-export type TableColumnEvents = GetEventPropsFromEmits<typeof tableColumnEmits>;
+export type TableColumnEventProps = GetEventPropsFromEmits<typeof tableColumnEmits>;
+export type TableColumnEventMap = GetEventMapFromEmits<typeof tableColumnEmits>;
 export type TableColumnProps = Omit<Partial<TableColumnSetupProps>, 'actions'> & {
   actions?:
     | TableActionKeys
@@ -105,7 +107,7 @@ export type TableColumnProps = Omit<Partial<TableColumnSetupProps>, 'actions'> &
         'onCellClick' | 'onCellDblclick' | 'onCellContextmenu',
         ((params: TableActionParams) => void) | TableActionKeys
       >;
-} & TableColumnEvents;
+} & TableColumnEventProps;
 // -------------------------- Table Column Props --------------------------
 
 // -------------------------- Table Props --------------------------
@@ -135,9 +137,9 @@ export const tableProps = freeze({
   // TODO stickyRow
   rowExpanded: PropSet(),
   rowExpandedRenderer: PropFunction<(record: unknown, rowIndex: number) => GetCustomRendererSource>(),
+  rowHoverable: PropBoolean(),
   selected: Prop<MaybeArray<string | number> | MaybeSet<string | number>>(),
   selectionMode: PropString<'single' | 'multiple'>(),
-  selectionArea: PropString(), // TODO
   actions: Prop<
     | TableActionKeys
     | ((params: TableActionParams) => void)
@@ -160,6 +162,7 @@ export const tableEmits = createEmits<{
 }>(['rowExpand', 'select']);
 
 export type TableSetupProps = ExtractPropTypes<typeof tableProps> & CommonProps;
-export type TableEvents = GetEventPropsFromEmits<typeof tableEmits>;
-export type TableProps = Partial<TableSetupProps> & TableEvents;
+export type TableEventProps = GetEventPropsFromEmits<typeof tableEmits>;
+export type TableEventMap = GetEventMapFromEmits<typeof tableEmits>;
+export type TableProps = Partial<TableSetupProps> & TableEventProps;
 // -------------------------- Table Props --------------------------

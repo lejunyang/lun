@@ -2,6 +2,7 @@ import { MaybePromise } from '@lun-web/core';
 import { freeze } from '@lun-web/utils';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropFunction,
@@ -31,5 +32,6 @@ export const switchEmits = createEmits<{
 }>(['update']);
 
 export type SwitchSetupProps = ExtractPropTypes<typeof switchProps> & CommonProps;
-export type SwitchEvents = GetEventPropsFromEmits<typeof switchEmits>;
-export type SwitchProps = Partial<SwitchSetupProps> & SwitchEvents;
+export type SwitchEventProps = GetEventPropsFromEmits<typeof switchEmits>;
+export type SwitchEventMap = GetEventMapFromEmits<typeof switchEmits>;
+export type SwitchProps = Partial<SwitchSetupProps> & SwitchEventProps;

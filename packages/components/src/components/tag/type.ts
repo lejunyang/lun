@@ -7,6 +7,7 @@ import {
   CommonProps,
   PropObjOrBool,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -24,5 +25,6 @@ export const tagEmits = createEmits<{
 }>(['remove', 'afterRemove']);
 
 export type TagSetupProps = ExtractPropTypes<typeof tagProps> & CommonProps;
-export type TagEvents = GetEventPropsFromEmits<typeof tagEmits>;
-export type TagProps = Partial<TagSetupProps> & TagEvents;
+export type TagEventProps = GetEventPropsFromEmits<typeof tagEmits>;
+export type TagEventMap = GetEventMapFromEmits<typeof tagEmits>;
+export type TagProps = Partial<TagSetupProps> & TagEventProps;

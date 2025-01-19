@@ -12,6 +12,7 @@ import {
   CommonProps,
   Prop,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { popoverProps } from '../popover/type';
 import { freeze, MaybeArray, MaybeSet, objectKeys, omit } from '@lun-web/utils';
@@ -89,13 +90,16 @@ export const selectOptgroupProps = freeze({
 export const selectOptgroupEmits = freeze({});
 
 export type SelectSetupProps = ExtractPropTypes<typeof selectProps> & CommonProps;
-export type SelectEvents = GetEventPropsFromEmits<typeof selectEmits>;
-export type SelectProps = Partial<SelectSetupProps> & SelectEvents;
+export type SelectEventProps = GetEventPropsFromEmits<typeof selectEmits>;
+export type SelectEventMap = GetEventMapFromEmits<typeof selectEmits>;
+export type SelectProps = Partial<SelectSetupProps> & SelectEventProps;
 
 export type SelectOptionSetupProps = ExtractPropTypes<typeof selectOptionProps> & CommonProps;
-export type SelectOptionEvents = GetEventPropsFromEmits<typeof selectOptionEmits>;
-export type SelectOptionProps = Partial<SelectOptionSetupProps>;
+export type SelectOptionEventProps = GetEventPropsFromEmits<typeof selectOptionEmits>;
+export type SelectOptionEventMap = GetEventMapFromEmits<typeof selectOptionEmits>;
+export type SelectOptionProps = Partial<SelectOptionSetupProps> & SelectOptionEventProps;
 
 export type SelectOptgroupSetupProps = ExtractPropTypes<typeof selectOptgroupProps> & CommonProps;
-export type SelectOptgroupEvents = GetEventPropsFromEmits<typeof selectOptgroupEmits>;
-export type SelectOptgroupProps = Partial<SelectOptgroupSetupProps>;
+export type SelectOptgroupEventProps = GetEventPropsFromEmits<typeof selectOptgroupEmits>;
+export type SelectOptgroupEventMap = GetEventMapFromEmits<typeof selectOptgroupEmits>;
+export type SelectOptgroupProps = Partial<SelectOptgroupSetupProps> & SelectOptgroupEventProps;

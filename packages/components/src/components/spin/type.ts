@@ -1,6 +1,7 @@
 import { freeze } from '@lun-web/utils';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropNumber,
@@ -24,5 +25,6 @@ export const spinProps = freeze({
 export const spinEmits = freeze({});
 
 export type SpinSetupProps = ExtractPropTypes<typeof spinProps> & CommonProps;
-export type SpinEvents = GetEventPropsFromEmits<typeof spinEmits>;
-export type SpinProps = Partial<SpinSetupProps>;
+export type SpinEventProps = GetEventPropsFromEmits<typeof spinEmits>;
+export type SpinEventMap = GetEventMapFromEmits<typeof spinEmits>;
+export type SpinProps = Partial<SpinSetupProps> & SpinEventProps;

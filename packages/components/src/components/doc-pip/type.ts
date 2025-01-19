@@ -3,6 +3,7 @@ import {
   CommonProps,
   createEmits,
   editStateProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropObjOrStr,
@@ -29,5 +30,6 @@ export const docPipEmits = createEmits<{
 }>(['open', 'close']);
 
 export type DocPipSetupProps = ExtractPropTypes<typeof docPipProps> & CommonProps;
-export type DocPipEvents = GetEventPropsFromEmits<typeof docPipEmits>;
-export type DocPipProps = Partial<DocPipSetupProps> & DocPipEvents;
+export type DocPipEventProps = GetEventPropsFromEmits<typeof docPipEmits>;
+export type DocPipEventMap = GetEventMapFromEmits<typeof docPipEmits>;
+export type DocPipProps = Partial<DocPipSetupProps> & DocPipEventProps;

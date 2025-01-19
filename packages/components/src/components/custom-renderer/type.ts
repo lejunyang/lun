@@ -1,5 +1,5 @@
 import { freeze, TryGet } from '@lun-web/utils';
-import { GetEventPropsFromEmits, PropBoolean, PropString } from 'common';
+import { GetEventMapFromEmits, GetEventPropsFromEmits, PropBoolean, PropString } from 'common';
 import { ExtractPropTypes, h } from 'vue';
 
 export interface UserRegistry {
@@ -28,5 +28,6 @@ export type GetCustomRendererSource<T extends any[] = never, FuncOnly extends bo
   : Raw | CustomRendererSource | (T extends any[] ? (...params: T) => CustomRendererSource : never);
 
 export type CustomRendererSetupProps = ExtractPropTypes<typeof customRendererProps> & Record<string, any>;
-export type CustomRendererEvents = GetEventPropsFromEmits<typeof customRendererEmits>;
-export type CustomRendererProps = Partial<CustomRendererSetupProps> & CustomRendererEvents;
+export type CustomRendererEventProps = GetEventPropsFromEmits<typeof customRendererEmits>;
+export type CustomRendererEventMap = GetEventMapFromEmits<typeof customRendererEmits>;
+export type CustomRendererProps = Partial<CustomRendererSetupProps> & CustomRendererEventProps;

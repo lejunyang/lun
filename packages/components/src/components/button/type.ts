@@ -13,6 +13,7 @@ import {
   CommonProps,
   Prop,
   createEmits,
+  GetEventMapFromEmits,
 } from 'common';
 import { freeze } from '@lun-web/utils';
 import { MaybeRefLikeOrGetter } from '@lun-web/core';
@@ -44,5 +45,6 @@ export const buttonEmits = createEmits<{
 }>(['validClick', 'timeout', 'copySuccess', 'copyFail']);
 
 export type ButtonSetupProps = ExtractPropTypes<typeof buttonProps> & CommonProps;
-export type ButtonEvents = GetEventPropsFromEmits<typeof buttonEmits>;
-export type ButtonProps = Partial<ButtonSetupProps> & ButtonEvents;
+export type ButtonEventProps = GetEventPropsFromEmits<typeof buttonEmits>;
+export type ButtonEventMap = GetEventMapFromEmits<typeof buttonEmits>;
+export type ButtonProps = Partial<ButtonSetupProps> & ButtonEventProps;

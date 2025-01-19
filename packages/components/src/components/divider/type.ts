@@ -1,5 +1,5 @@
 import { freeze } from '@lun-web/utils';
-import { PropBoolean, PropString, PropObjOrStr, CommonProps, GetEventPropsFromEmits } from 'common';
+import { PropBoolean, PropString, PropObjOrStr, CommonProps, GetEventPropsFromEmits, GetEventMapFromEmits } from 'common';
 import { ExtractPropTypes, CSSProperties } from 'vue';
 
 export const dividerProps = freeze({
@@ -13,5 +13,6 @@ export const dividerProps = freeze({
 export const dividerEmits = freeze({});
 
 export type DividerSetupProps = ExtractPropTypes<typeof dividerProps> & CommonProps;
-export type DividerEvents = GetEventPropsFromEmits<typeof dividerEmits>;
-export type DividerProps = Partial<DividerSetupProps>;
+export type DividerEventProps = GetEventPropsFromEmits<typeof dividerEmits>;
+export type DividerEventMap = GetEventMapFromEmits<typeof dividerEmits>;
+export type DividerProps = Partial<DividerSetupProps> & DividerEventProps;

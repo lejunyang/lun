@@ -1,6 +1,7 @@
 import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   Prop,
   PropBoolean,
@@ -56,5 +57,6 @@ export const filePickerEmits = createEmits<{
 }>(['update', 'exceedMaxCount', 'exceedMaxSize', 'exceedMaxTotalSize', 'cancel']);
 
 export type FilePickerSetupProps = ExtractPropTypes<typeof filePickerProps> & CommonProps;
-export type FilePickerEvents = GetEventPropsFromEmits<typeof filePickerEmits>;
-export type FilePickerProps = Partial<FilePickerSetupProps> & FilePickerEvents;
+export type FilePickerEventProps = GetEventPropsFromEmits<typeof filePickerEmits>;
+export type FilePickerEventMap = GetEventMapFromEmits<typeof filePickerEmits>;
+export type FilePickerProps = Partial<FilePickerSetupProps> & FilePickerEventProps;

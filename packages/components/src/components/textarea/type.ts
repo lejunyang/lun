@@ -2,6 +2,7 @@ import { ExtractPropTypes } from 'vue';
 import {
   CommonProps,
   createEmits,
+  GetEventMapFromEmits,
   GetEventPropsFromEmits,
   PropBoolean,
   PropNumber,
@@ -36,5 +37,6 @@ export const textareaEmits = createEmits<{
 }>(['update', 'enterDown']);
 
 export type TextareaSetupProps = ExtractPropTypes<typeof textareaProps> & CommonProps;
-export type TextareaEvents = GetEventPropsFromEmits<typeof textareaEmits>;
-export type TextareaProps = Partial<TextareaSetupProps> & TextareaEvents;
+export type TextareaEventProps = GetEventPropsFromEmits<typeof textareaEmits>;
+export type TextareaEventMap = GetEventMapFromEmits<typeof textareaEmits>;
+export type TextareaProps = Partial<TextareaSetupProps> & TextareaEventProps;
