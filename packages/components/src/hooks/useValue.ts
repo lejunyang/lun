@@ -32,11 +32,7 @@ export const usePropsFromFormItem = (props: { status?: Status }) => {
   return {
     status: computed(() => props.status || context?.status.value),
     validateProps: objectComputed(() =>
-      pickNonNil(
-        objectKeys(formItemRuleProps) as (keyof typeof formItemRuleProps)[],
-        props,
-        context?.validateProps,
-      ),
+      pickNonNil(objectKeys(formItemRuleProps) as (keyof typeof formItemRuleProps)[], props, context?.validateProps),
     ),
     context,
   };
@@ -95,6 +91,11 @@ export const useViewDate = createUseModel({
   defaultKey: 'viewDate',
   defaultEvent: 'updateViewDate',
 }) as UseModel<'viewDate'>;
+
+export const useCurrentModel = createUseModel({
+  defaultKey: 'current',
+  defaultEvent: 'update',
+}) as UseModel<'current'>;
 
 export const createGetterForHasRawModel = (model: Ref<{ value: any; raw?: any }>) => () =>
   model.value.raw || model.value.value;

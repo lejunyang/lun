@@ -52,6 +52,7 @@ export const openShadowComponents = freeze([
   'input',
   'mentions',
   'message',
+  'pagination',
   'popover',
   'progress',
   'radio',

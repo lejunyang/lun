@@ -45,6 +45,7 @@ import { defineScrollView } from './scroll-view';
 import { defineTree, defineTreeItem } from './tree';
 import { defineTable } from './table/Table';
 import { defineTableColumn } from './table/TableColumn';
+import { definePagination } from './pagination';
 
 export function defineAllComponents() {
   if (!supportCustomElement) return;
@@ -99,6 +100,7 @@ export function defineAllComponents() {
     defineScrollView,
     defineTree,
     defineTreeItem,
+    definePagination,
   };
   // first define those already exist in the document for SSR
   discover(document.body, (comp) => {
@@ -180,6 +182,7 @@ export * from './icon';
 export * from './input';
 export * from './mentions';
 export * from './message';
+export * from './pagination';
 export * from './popover';
 export * from './progress';
 export * from './radio';
