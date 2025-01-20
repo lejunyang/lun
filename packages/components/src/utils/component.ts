@@ -132,7 +132,10 @@ export function createDefineElement(
             if (dependencySet[fnName]) dependencySet[fnName].forEach((item) => set.add(item));
           }
         }
-        if (compDefaultProps) defaultProps[compKey] = compDefaultProps;
+        if (compDefaultProps) {
+          // respect defaultProps that are already existed
+          defaultProps[compKey] = Object.assign(compDefaultProps, defaultProps[compKey]);
+        }
         if (parts)
           exportParts[compKey] = parts
             .map((p) => compKey + '-' + p)

@@ -10,6 +10,10 @@
 
 - `table`: fix expandable rows grid-row index
 
+### Changes
+
+- calling components' define functions will not override defaultProps if it already exists
+
 ### Types
 
 - add EventMap type for all components

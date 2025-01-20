@@ -45,7 +45,7 @@ ${vueCompTypes.join('\n')}
 }
 declare module 'vue/jsx-runtime' {
   namespace JSX {
-    interface IntrinsicElements {
+    export interface IntrinsicElements {
 ${vueJSXTypes.join('\n')}
     }
   }
@@ -72,7 +72,7 @@ export {}`,
 import * as LunComps from './index';
 declare module 'react/jsx-runtime' {
   namespace JSX {
-    interface IntrinsicElements {
+    export interface IntrinsicElements {
 ${reactTypes.join('\n')}
     }
   }
