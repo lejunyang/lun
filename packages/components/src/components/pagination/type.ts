@@ -15,12 +15,26 @@ export const paginationProps = freeze({
   ...themeProps,
   ...editStateProps,
   current: PropNumber(),
-  /** total count of pages */
+  /** total number of pages */
   pages: PropNumber(),
   pageSize: PropNumber(),
-  /** total count of data items, should use with pageSize */
+  /** total number of data items, should be used with `pageSize` to calculate pages. If `total` and `pageSize` are valid, they take precedence over `pages` */
   total: PropNumber(),
+  /**
+   * @default 1
+   * determine the number of buttons to display on each side between the current page button and dotsQuickJump button
+   */
+  siblings: PropNumber(),
+  /**
+   * @default 1
+   * determine the number of buttons to display on the left/right boundary before/after the dotsQuickJump button
+   */
+  boundaries: PropNumber(),
   noControls: PropBoolean(),
+  /**
+   * @default 5
+   */
+  dotsJump: PropNumber(),
 });
 
 export const paginationEmits = createEmits<{

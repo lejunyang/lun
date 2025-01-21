@@ -21,7 +21,7 @@ export const Pagination = defineCustomElement({
       currentPage = fComputed(() => ensureNumber(current.value, 1));
     const totalPages = fComputed(() => {
       const { pages, total, pageSize } = props;
-      return ensureNumber((total as number) / (pageSize as number), ensureNumber(pages, 1));
+      return ensureNumber(Math.ceil((total as number) / (pageSize as number)), ensureNumber(pages, 1));
     });
 
     const canPrev = () => currentPage() > 1,
@@ -35,42 +35,49 @@ export const Pagination = defineCustomElement({
     const next = () => {
       if (canNext()) update(currentPage() + 1);
     };
+    const jumpPrev = () => update(currentPage() - ensureNumber(props.dotsJump, 5));
+    const jumpNext = () => update(currentPage() + ensureNumber(props.dotsJump, 5));
+
+    const getBtnProps = (onClick: () => void, disabled?: (() => boolean) | false, index?: number) => {
+      const finalDisabled = !editComputed.editable || (disabled && disabled());
+      return {
+        class: [ns.e('button'), ns.is('disabled', finalDisabled), ns.is('current', index === currentPage())],
+        part: compParts[1],
+        onClick: onClick,
+        disabled: finalDisabled,
+      };
+    };
+    const prevButtonProps = fComputed(() => getBtnProps(prev, () => !canPrev())),
+      nextButtonProps = fComputed(() => getBtnProps(next, () => !canNext())),
+      prevJumpButtonProps = fComputed(() => getBtnProps(jumpPrev)),
+      nextJumpButtonProps = fComputed(() => getBtnProps(jumpNext));
 
     return () => {
-      const { noControls } = props;
-      const { editable } = editComputed;
+      const { noControls, siblings, boundaries } = props,
+        siblingsNum = ensureNumber(siblings, 1),
+        boundariesNum = ensureNumber(boundaries, 1);
+      const pages = totalPages(),
+        current = currentPage(),
+        needLeftDots = current - siblingsNum - boundariesNum > 2,
+        needRightDots = current + siblingsNum + boundariesNum < pages - 1,
+        // "2" represents the min count in left dots
+        leftMinCount = boundariesNum + 2 + siblingsNum;
+
       return (
         <div class={ns.t} part={compParts[0]}>
-          {!noControls && (
-            <button
-              class={[ns.e('button'), ns.is('disabled', !canPrev())]}
-              part={compParts[1]}
-              onClick={prev}
-              disabled={!canPrev() || !editable}
-            >
-              {renderElement('icon', { name: 'left' })}
-            </button>
-          )}
-          {arrayFrom(totalPages(), (_, i) => (
-            <button
-              class={[ns.e('button'), ns.is('disabled', !editable), ns.is('active', i + 1 === currentPage())]}
-              part={compParts[1]}
-              onClick={() => update(i + 1)}
-              disabled={!editable}
-            >
-              {i + 1}
-            </button>
-          ))}
-          {!noControls && (
-            <button
-              class={[ns.e('button'), ns.is('disabled', !canNext())]}
-              part={compParts[1]}
-              onClick={next}
-              disabled={!canNext() || !editable}
-            >
-              {renderElement('icon', { name: 'right' })}
-            </button>
-          )}
+          {!noControls && <button {...prevButtonProps()}>{renderElement('icon', { name: 'left' })}</button>}
+          {arrayFrom(pages, (_, i) => {
+            if (needLeftDots) {
+              if (i === boundariesNum) return <button {...prevJumpButtonProps()}>...</button>;
+              if (i < current - siblingsNum - 1 && i > boundariesNum) return null;
+            }
+            if (needRightDots && i < pages - boundariesNum) {
+              if (i === pages - boundariesNum - 1) return <button {...nextJumpButtonProps()}>...</button>;
+              if (i >= current + siblingsNum && i > leftMinCount) return null;
+            }
+            return <button {...getBtnProps(() => update(i + 1), false, i + 1)}>{i + 1}</button>;
+          })}
+          {!noControls && <button {...nextButtonProps()}>{renderElement('icon', { name: 'right' })}</button>}
         </div>
       );
     };
