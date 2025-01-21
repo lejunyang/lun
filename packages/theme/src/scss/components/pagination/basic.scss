@@ -20,17 +20,17 @@ button {
 
   @include e(button) {
     width: getDeclaredVar(button-size);
+    cursor: pointer;
     @include declareVars(
       (
         border-radius: button-border-radius,
       )
     );
-  }
-
-  @include is(disabled, false, true) {
-    cursor: getDisabledCursor();
-    & * {
-      pointer-events: none;
+    @include is(disabled) {
+      cursor: getDisabledCursor();
+      & * {
+        pointer-events: none;
+      }
     }
   }
 
