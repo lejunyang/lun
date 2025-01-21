@@ -104,6 +104,7 @@ export function createDefineElement<
   parts: readonly string[] | string[],
   dependencies: T,
 ): ((name?: string, dependencyNames?: Partial<Record<ExtractDepName<T[number]>, string>>) => void) & {
+  /** @internal represents the component name */
   n: CompKey;
 };
 

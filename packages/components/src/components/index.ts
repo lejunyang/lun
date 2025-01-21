@@ -26,7 +26,7 @@ import { defineWatermark } from './watermark/Watermark';
 import { defineProgress } from './progress/Progress';
 import { defineTextarea } from './textarea/Textarea';
 import { defineTeleportHolder } from './teleport-holder/TeleportHolder';
-import { capitalize, getDocumentElement, isElement, once, supportCustomElement } from '@lun-web/utils';
+import { getDocumentElement, isElement, once, supportCustomElement } from '@lun-web/utils';
 import { GlobalStaticConfig, components } from './config';
 import { defineMentions } from './mentions/Mentions';
 import { defineDocPip } from './doc-pip';
@@ -37,7 +37,6 @@ import { defineTour } from './tour/Tour';
 import { defineColorPicker } from './color-picker';
 import { defineTabs, defineTabItem } from './tabs';
 import { defineAccordion, defineAccordionGroup } from './accordion';
-import { camelize } from 'vue';
 import { defineText } from './text/Text';
 import { defineSkeleton } from './skeleton';
 import { defineVirtualRenderer } from './virtual-renderer';
@@ -52,62 +51,65 @@ export function defineAllComponents() {
   // found that provide and inject are strongly rely on the dom order of the elements, as in defineCustomElement parent is searched by parentNode and instanceof
   // In SSR, if elements are already in the document and the parent is defined after the child, it will not work
   // So we need to define the providers first
-  const comps = {
-    defineWatermark,
-    defineThemeProvider,
-    defineTeleportHolder,
-    defineAccordionGroup,
-    defineAccordion,
-    defineTable,
-    defineTableColumn,
-    defineTabs,
-    defineTabItem,
-    defineForm,
-    defineFormItem,
-    defineButton,
-    defineMessage,
-    defineCalendar,
-    defineCallout,
-    defineCheckboxGroup,
-    defineCheckbox,
-    defineCustomRenderer,
-    defineDatePicker,
-    defineDialog,
-    defineDivider,
-    defineIcon,
-    defineInput,
-    definePopover,
-    defineRadioGroup,
-    defineRadio,
-    defineRange,
-    defineSelect,
-    defineSelectOptgroup,
-    defineSelectOption,
-    defineSpin,
-    defineSwitch,
-    defineTag,
-    defineTooltip,
-    defineFilePicker,
-    defineProgress,
-    defineTextarea,
-    defineMentions,
-    defineDocPip,
-    defineTour,
-    defineColorPicker,
-    defineText,
-    defineSkeleton,
-    defineVirtualRenderer,
-    defineScrollView,
-    defineTree,
-    defineTreeItem,
-    definePagination,
-  };
-  // first define those already exist in the document for SSR
-  discover(document.body, (comp) => {
-    // @ts-ignore
-    comps[`define${capitalize(camelize(comp))}`]?.();
+  const defineArr = [
+      defineWatermark,
+      defineThemeProvider,
+      defineTeleportHolder,
+      defineAccordionGroup,
+      defineAccordion,
+      defineTable,
+      defineTableColumn,
+      defineTabs,
+      defineTabItem,
+      defineForm,
+      defineFormItem,
+      defineButton,
+      defineMessage,
+      defineCalendar,
+      defineCallout,
+      defineCheckboxGroup,
+      defineCheckbox,
+      defineCustomRenderer,
+      defineDatePicker,
+      defineDialog,
+      defineDivider,
+      defineIcon,
+      defineInput,
+      definePopover,
+      defineRadioGroup,
+      defineRadio,
+      defineRange,
+      defineSelect,
+      defineSelectOptgroup,
+      defineSelectOption,
+      defineSpin,
+      defineSwitch,
+      defineTag,
+      defineTooltip,
+      defineFilePicker,
+      defineProgress,
+      defineTextarea,
+      defineMentions,
+      defineDocPip,
+      defineTour,
+      defineColorPicker,
+      defineText,
+      defineSkeleton,
+      defineVirtualRenderer,
+      defineScrollView,
+      defineTree,
+      defineTreeItem,
+      definePagination,
+    ],
+    defineMap: Record<string, () => void> = {};
+  defineArr.forEach((d) => {
+    defineMap[d.n] = d;
   });
-  Object.values(comps).forEach((d) => d());
+  // first define those already exist in the document for SSR
+  discover(getDocumentElement(), (comp) => {
+    defineMap[comp]?.();
+  });
+  defineArr.forEach((d) => d());
 }
 
 export const __internal_defineSubscriber: ((componentName: string) => void)[] = [];
