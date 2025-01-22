@@ -40,7 +40,7 @@ import { wrapTransition } from './form-item.tip-transition';
 import { useRulesTransform } from './form-item.rules-transform';
 
 const name = 'form-item';
-const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'wrapper', 'help-line', 'tip-line'] as const;
+const parts = ['root', 'label', 'content', 'required-mark', 'colon', 'element', 'help-line', 'tip-line'] as const;
 const compParts = getCompParts(name, parts);
 export const FormItem = defineCustomElement({
   name,
@@ -240,12 +240,16 @@ export const FormItem = defineCustomElement({
             {element ? (
               renderElement(
                 element,
-                { ...runIfFn(elementProps, { formContext, formItemProps: props.value }), ref: elementRef },
+                {
+                  ...runIfFn(elementProps, { formContext, formItemProps: props.value }),
+                  ref: elementRef,
+                  class: ns.e('element'),
+                },
                 <slot />,
               )
             ) : (
               // can not set elementRef on slot, popover requires an element with bounding rect to attach to, so wrap slot with a span
-              <span ref={elementRef} part={compParts[5]} class={ns.e('wrapper')}>
+              <span ref={elementRef} part={compParts[5]} class={ns.e('element')}>
                 <slot />
               </span>
             )}
