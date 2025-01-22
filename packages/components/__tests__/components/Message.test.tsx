@@ -47,7 +47,7 @@ describe('Message', () => {
     await vi.waitFor(() => expect(onAfterClose).toBeCalledTimes(1));
     expect(onAllClosed).not.toBeCalled();
 
-    const second = (message.shadowRoot as HTMLElement).querySelector(`[data-key='second']`)!;
+    const second = message.shadowRoot!.querySelector(`[data-key='second']`)!;
     expect(second).not.toBeNull();
     await userEvent.hover(second); // hover to pause and reset auto close
     await vi.advanceTimersByTimeAsync(5000);

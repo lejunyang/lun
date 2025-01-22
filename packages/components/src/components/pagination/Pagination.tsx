@@ -58,11 +58,10 @@ export const Pagination = defineCustomElement({
         boundariesNum = ensureNumber(boundaries, 1);
       const pages = totalPages(),
         current = currentPage(),
-        needLeftDots = current - siblingsNum - boundariesNum > 2,
-        needRightDots = current + siblingsNum + boundariesNum < pages - 1,
-        // "2" represents the min count in left dots
-        leftMinCount = boundariesNum + 2 + siblingsNum;
-
+        // "2" represents the min count in dots
+        minCount = boundariesNum + 2 + siblingsNum,
+        needLeftDots = current - siblingsNum - boundariesNum > 2 && pages - boundariesNum > minCount,
+        needRightDots = current + siblingsNum + boundariesNum < pages - 1;
       return (
         <div class={ns.t} part={compParts[0]}>
           {!noControls && <button {...prevButtonProps()}>{renderElement('icon', { name: 'left' })}</button>}
@@ -71,9 +70,9 @@ export const Pagination = defineCustomElement({
               if (i === boundariesNum) return <button {...prevJumpButtonProps()}>...</button>;
               if (i < current - siblingsNum - 1 && i > boundariesNum) return null;
             }
-            if (needRightDots && i < pages - boundariesNum) {
+            if (needRightDots && i < pages - boundariesNum && i > minCount) {
               if (i === pages - boundariesNum - 1) return <button {...nextJumpButtonProps()}>...</button>;
-              if (i >= current + siblingsNum && i > leftMinCount) return null;
+              if (i >= current + siblingsNum) return null;
             }
             return <button {...getBtnProps(() => update(i + 1), false, i + 1)}>{i + 1}</button>;
           })}
