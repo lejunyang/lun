@@ -1,0 +1,64 @@
+@use '../../mixins' as *;
+
+@include b(pagination) {
+  @include variant(solid) {
+    color: getAccentColor(contrast);
+
+    @include e(button) {
+      &:focus-visible {
+        outline: 2px solid getFocusColor();
+        outline-offset: 2px;
+      }
+      @include hover {
+        background-color: getGrayColor(a3);
+      }
+
+      @include is(current) {
+        background-color: getAccentColor(9);
+        @include hover {
+          background-color: getAccentColor(10);
+        }
+        @include active {
+          background-color: getAccentColor(10);
+          @include declareVars(
+            (
+              filter: solid-active-filter,
+            )
+          );
+        }
+      }
+      @include is(disabled) {
+        color: getGrayColor(a8);
+        background-color: transparent;
+      }
+      @include is((disabled, current)) {
+        background-color: getGrayColor(a3);
+      }
+    }
+
+    @include is(high-contrast, true) {
+      @include e(button) {
+        @include is(current) {
+          color: getGrayColor(1);
+          background-color: getAccentColor(12);
+          @include hover {
+            background-color: getAccentColor(12);
+            @include declareVars(
+              (
+                filter: solid-high-contrast-hover-filter,
+              )
+            );
+          }
+          @include active {
+            background-color: getAccentColor(12);
+            @include declareVars(
+              (
+                filter: solid-high-contrast-active-filter,
+              )
+            );
+          }
+        }
+      }
+    }
+  }
+}

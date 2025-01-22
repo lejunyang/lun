@@ -5,24 +5,6 @@
     background-color: getAccentColor(9);
     color: getAccentColor(contrast);
 
-    @include setVars(
-      (
-        solid-active-filter: brightness(0.92) saturate(1.1),
-        solid-high-contrast-hover-filter: contrast(0.88) saturate(1.1) brightness(1.1),
-        solid-high-contrast-active-filter: contrast(0.82) saturate(1.2) brightness(1.16),
-        hold-background-color: getAccentColor(8),
-      )
-    );
-    @include is(dark) {
-      @include setVars(
-        (
-          solid-active-filter: brightness(1.08),
-          solid-high-contrast-hover-filter: contrast(0.88) saturate(1.3) brightness(1.18),
-          solid-high-contrast-active-filter: brightness(0.95) saturate(1.2),
-        )
-      );
-    }
-
     @include hover {
       background-color: getAccentColor(10);
     }

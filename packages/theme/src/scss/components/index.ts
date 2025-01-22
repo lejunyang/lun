@@ -69,7 +69,11 @@ import { importTreeItemBasicTheme } from './tree-item';
 import { importScrollViewBasicTheme } from './scroll-view';
 import { importTableBasicTheme } from './table';
 import { importTableColumnBasicTheme } from './table-column';
-import { importPaginationBasicTheme, importPaginationSurfaceTheme } from './pagination/index.ts';
+import {
+  importPaginationBasicTheme,
+  importPaginationSolidTheme,
+  importPaginationSurfaceTheme,
+} from './pagination/index.ts';
 
 export * from './button';
 export * from './calendar';
@@ -171,6 +175,7 @@ export const importSolidTheme = () => {
   importTagSolidTheme();
   importTabsSolidTheme();
   importTextSolidTheme();
+  importPaginationSolidTheme();
 };
 
 export const importSurfaceTheme = () => {
