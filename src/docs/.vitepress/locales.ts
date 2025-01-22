@@ -56,9 +56,10 @@ export default {
         watermark: 'Watermark 水印',
       },
       layout: {
-        menu: '布局组件',
+        menu: '内容编排',
         accordion: 'Accordion 手风琴',
         divider: 'Divider 分割线',
+        pagination: 'Pagination 分页',
         tabs: 'Tabs 标签组',
       },
       typography: {
@@ -184,9 +185,10 @@ export default {
         watermark: 'Watermark',
       },
       layout: {
-        menu: 'Layout',
+        menu: 'Content Organization',
         accordion: 'Accordion',
         divider: 'Divider',
+        pagination: 'Pagination',
         tabs: 'Tabs',
       },
       typography: {
