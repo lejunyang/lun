@@ -4,8 +4,9 @@ import { paginationEmits, paginationProps } from './type';
 import { useCurrentModel, useNamespace } from 'hooks';
 import { ElementWithExpose, getCompParts } from 'common';
 import { fComputed, useSetupEdit } from '@lun-web/core';
-import { arrayFrom, ensureNumber } from '@lun-web/utils';
+import { arrayFrom, ensureNumber, isArray } from '@lun-web/utils';
 import { defineIcon } from '../icon';
+import { VNodeChild } from 'vue';
 
 const name = 'pagination';
 const parts = ['root', 'button'] as const;
@@ -52,31 +53,39 @@ export const Pagination = defineCustomElement({
       prevJumpButtonProps = fComputed(() => getBtnProps(jumpPrev)),
       nextJumpButtonProps = fComputed(() => getBtnProps(jumpNext));
 
+    const controlRenderMap: Record<string, () => VNodeChild> = {
+      prev: () => <button {...prevButtonProps()}>{renderElement('icon', { name: 'left' })}</button>,
+      pages: () => {
+        const { siblings, boundaries } = props,
+          siblingsNum = ensureNumber(siblings, 1),
+          boundariesNum = ensureNumber(boundaries, 1);
+        const pages = totalPages(),
+          current = currentPage(),
+          // "2" represents the min count in dots
+          minCount = boundariesNum + 2 + siblingsNum,
+          needLeftDots = current - siblingsNum - boundariesNum > 2 && pages - boundariesNum > minCount,
+          needRightDots = current + siblingsNum + boundariesNum < pages - 1;
+        return arrayFrom(pages, (_, i) => {
+          if (needLeftDots) {
+            if (i === boundariesNum) return <button {...prevJumpButtonProps()}>...</button>;
+            if (i < current - siblingsNum - 1 && i > boundariesNum) return null;
+          }
+          if (needRightDots && i < pages - boundariesNum && i > minCount) {
+            if (i === pages - boundariesNum - 1) return <button {...nextJumpButtonProps()}>...</button>;
+            if (i >= current + siblingsNum) return null;
+          }
+          return <button {...getBtnProps(() => update(i + 1), false, i + 1)}>{i + 1}</button>;
+        });
+      },
+      next: () => <button {...nextButtonProps()}>{renderElement('icon', { name: 'right' })}</button>,
+    };
+
     return () => {
-      const { noControls, siblings, boundaries } = props,
-        siblingsNum = ensureNumber(siblings, 1),
-        boundariesNum = ensureNumber(boundaries, 1);
-      const pages = totalPages(),
-        current = currentPage(),
-        // "2" represents the min count in dots
-        minCount = boundariesNum + 2 + siblingsNum,
-        needLeftDots = current - siblingsNum - boundariesNum > 2 && pages - boundariesNum > minCount,
-        needRightDots = current + siblingsNum + boundariesNum < pages - 1;
+      const { controls } = props,
+        finalControls = isArray(controls) ? controls : ['prev', 'pages', 'next'];
       return (
         <div class={ns.t} part={compParts[0]}>
-          {!noControls && <button {...prevButtonProps()}>{renderElement('icon', { name: 'left' })}</button>}
-          {arrayFrom(pages, (_, i) => {
-            if (needLeftDots) {
-              if (i === boundariesNum) return <button {...prevJumpButtonProps()}>...</button>;
-              if (i < current - siblingsNum - 1 && i > boundariesNum) return null;
-            }
-            if (needRightDots && i < pages - boundariesNum && i > minCount) {
-              if (i === pages - boundariesNum - 1) return <button {...nextJumpButtonProps()}>...</button>;
-              if (i >= current + siblingsNum) return null;
-            }
-            return <button {...getBtnProps(() => update(i + 1), false, i + 1)}>{i + 1}</button>;
-          })}
-          {!noControls && <button {...nextButtonProps()}>{renderElement('icon', { name: 'right' })}</button>}
+          {finalControls.map((control) => controlRenderMap[control]?.())}
         </div>
       );
     };
