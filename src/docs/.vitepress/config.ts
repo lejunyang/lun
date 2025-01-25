@@ -287,6 +287,7 @@ export default defineConfig({
       themeConfig: {
         ...getThemeConfig('zh-CN'),
         outline: {
+          level: [2, 3],
           label: '大纲',
         },
         sidebarMenuLabel: '目录',
@@ -320,6 +321,9 @@ export default defineConfig({
           pattern(payload) {
             return `https://github.com/lejunyang/lun/tree/main/src/docs/${payload.relativePath}`;
           },
+        },
+        outline: {
+          level: [2, 3],
         },
         ...getThemeConfig('en'),
       },
