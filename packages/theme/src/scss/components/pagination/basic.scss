@@ -10,7 +10,8 @@ button {
 @include b(pagination) {
   display: flex;
   flex-wrap: nowrap;
-  height: getDeclaredVar(button-size);
+  align-items: center;
+  @include declareVars((font-size));
   @include declareVarValues(
     (
       gap: getSpaceValue(1),
@@ -20,6 +21,7 @@ button {
 
   @include e(button) {
     width: getDeclaredVar(button-size);
+    height: getDeclaredVar(button-size);
     cursor: pointer;
     @include declareVars(
       (
@@ -39,6 +41,7 @@ button {
       (
         button-size: getSpaceValue(6),
         button-border-radius: getRadiusValue(1, 'full'),
+        font-size: getFontSizeValue(1),
       )
     );
   }
@@ -48,6 +51,7 @@ button {
       (
         button-size: calc(getSpaceValue(6) + 4px),
         button-border-radius: getRadiusValue(2, 'full'),
+        font-size: getFontSizeValue(2),
       )
     );
   }
@@ -57,6 +61,7 @@ button {
       (
         button-size: getSpaceValue(7),
         button-border-radius: getRadiusValue(3, 'full'),
+        font-size: getFontSizeValue(3),
       )
     );
   }

@@ -2,7 +2,6 @@
 
 @include b(pagination) {
   @include variant(solid) {
-    color: getAccentColor(contrast);
 
     @include e(button) {
       &:focus-visible {
@@ -14,6 +13,7 @@
       }
 
       @include is(current) {
+        color: getAccentColor(contrast);
         background-color: getAccentColor(9);
         @include hover {
           background-color: getAccentColor(10);

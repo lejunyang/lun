@@ -4,12 +4,13 @@ import { paginationEmits, paginationProps } from './type';
 import { useCurrentModel, useNamespace } from 'hooks';
 import { ElementWithExpose, getCompParts } from 'common';
 import { fComputed, useSetupEdit } from '@lun-web/core';
-import { arrayFrom, ensureNumber, isArray } from '@lun-web/utils';
+import { arrayFrom, ensureNumber, isArray, runIfFn, toNumberOrUndefined } from '@lun-web/utils';
 import { defineIcon } from '../icon';
 import { VNodeChild } from 'vue';
+import { renderCustom } from '../custom-renderer';
 
 const name = 'pagination';
-const parts = ['root', 'button'] as const;
+const parts = ['root', 'button', 'total'] as const;
 const compParts = getCompParts(name, parts);
 export const Pagination = defineCustomElement({
   name,
@@ -20,9 +21,10 @@ export const Pagination = defineCustomElement({
     const [editComputed] = useSetupEdit();
     const current = useCurrentModel(props),
       currentPage = fComputed(() => ensureNumber(current.value, 1));
+    const pageSize = fComputed(() => toNumberOrUndefined(props.pageSize)),
+      total = fComputed(() => toNumberOrUndefined(props.total));
     const totalPages = fComputed(() => {
-      const { pages, total, pageSize } = props;
-      return ensureNumber(Math.ceil((total as number) / (pageSize as number)), ensureNumber(pages, 1));
+      return ensureNumber(Math.ceil(total()! / pageSize()!), ensureNumber(props.pages, 1));
     });
 
     const canPrev = () => currentPage() > 1,
@@ -78,6 +80,17 @@ export const Pagination = defineCustomElement({
         });
       },
       next: () => <button {...nextButtonProps()}>{renderElement('icon', { name: 'right' })}</button>,
+      detail: () => {
+        const size = pageSize(),
+          current = currentPage();
+        return (
+          <span class={ns.e('total')} part={compParts[2]}>
+            {size
+              ? `${(current - 1) * size + 1} - ${current * size} / ${total() ?? totalPages() * size}`
+              : `${current} / ${totalPages()}`}
+          </span>
+        );
+      },
     };
 
     return () => {
@@ -85,7 +98,19 @@ export const Pagination = defineCustomElement({
         finalControls = isArray(controls) ? controls : ['prev', 'pages', 'next'];
       return (
         <div class={ns.t} part={compParts[0]}>
-          {finalControls.map((control) => controlRenderMap[control]?.())}
+          {finalControls.map((control) => {
+            const render = controlRenderMap[control as any];
+            if (render) return render();
+            else if (control)
+              return renderCustom(
+                runIfFn(control, {
+                  pageSize: pageSize(),
+                  total: total(),
+                  pages: totalPages(),
+                  current: currentPage(),
+                }),
+              );
+          })}
         </div>
       );
     };

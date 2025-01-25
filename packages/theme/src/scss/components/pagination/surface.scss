@@ -2,9 +2,7 @@
 
 @include b(pagination) {
   @include variant(surface) {
-    color: getAccentColor(a11);
     @include e(button) {
-      color: getAccentColor(a11);
       &:focus-visible {
         outline: 2px solid getFocusColor();
         outline-offset: -1px;
@@ -14,6 +12,7 @@
       }
 
       @include is(current) {
+        color: getAccentColor(a11);
         background-color: getAccentColor(surface);
         box-shadow: inset 0 0 0 1px getAccentColor(a7);
         @include hover {
@@ -36,7 +35,9 @@
 
     @include is(high-contrast, true) {
       @include e(button) {
-        color: getAccentColor(12);
+        @include is(current) {
+          color: getAccentColor(12);
+        }
       }
     }
   }
