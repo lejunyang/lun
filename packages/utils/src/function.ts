@@ -1,10 +1,11 @@
 import { isFunction } from './is';
-import { AnyFn, EnsureParameters } from './type';
+import { AnyFn, EnsureParameters, ExcludeNonFunc } from './type';
+import { ensureArray } from './array';
 
 /**
  * cache the result of function by first parameter
- * @param fn 
- * @returns 
+ * @param fn
+ * @returns
  */
 /*@__NO_SIDE_EFFECTS__*/
 export const cacheFunctionByKey = <T extends (str: string) => unknown>(fn: T): T => {
@@ -24,15 +25,16 @@ export const cacheFunctionByKey = <T extends (str: string) => unknown>(fn: T): T
 export const cacheFunctionByParams = <T extends (...args: any[]) => any>(fn: T) => {
   const cache: Record<string, ReturnType<T>> = {};
   return ((...args: Parameters<T>): ReturnType<T> => {
-    const key = args.join(''), hit = cache[key];
+    const key = args.join(''),
+      hit = cache[key];
     if (hit != null) return hit;
     else return (cache[key] = fn(...args));
   }) as T;
 };
 
-export function runIfFn<T, Args extends EnsureParameters<T, any[]> = EnsureParameters<T, any[]>>(
+export function runIfFn<T, Args extends any[] = EnsureParameters<ExcludeNonFunc<T>, any[]>>(
   target: T,
-  ...args: Args
+  ...args: NoInfer<Args>
 ): T extends AnyFn ? ReturnType<T> : T {
   return isFunction(target) ? target(...args) : (target as any);
 }
@@ -47,4 +49,14 @@ export function once<T extends AnyFn>(fn: T): T {
   } as T;
 }
 
-export function noop() { }
+export function noop() {}
+
+export function pipe(this: any, ...fnOrArgs: unknown[]) {
+  let args: unknown[] = [];
+  for (const arg of fnOrArgs) {
+    if (isFunction(arg)) {
+      args = ensureArray(arg.apply(this, args));
+    } else args.push(arg);
+  }
+  return args;
+}
