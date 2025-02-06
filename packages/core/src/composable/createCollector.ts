@@ -167,14 +167,6 @@ export function createCollector<
       maxLevelChild: null as UnwrapRef<InstanceWithProps<ChildProps>> | null,
     });
 
-    let waitTimer: any;
-    const updateWait = () => {
-      if (!needWait || state.waitDone) return;
-      clearTimeout(waitTimer);
-      waitTimer = setTimeout(() => {
-        state.waitDone = true;
-      });
-    };
     let instance = getCurrentInstance() as InstanceWithProps<ParentProps> | null;
     if (instance) {
       markRaw(instance);
@@ -182,7 +174,11 @@ export function createCollector<
       onMounted(() => {
         state.parentMounted = true;
         state.parentEl = getParentEl(instance);
-        updateWait();
+        if (needWait) {
+          nextTick(() => {
+            state.waitDone = true;
+          });
+        }
       });
       onUnmounted(() => {
         items.value = [];
@@ -235,7 +231,6 @@ export function createCollector<
             (isTopParent ? setIndex : setTreeIndex)(child, newIndex);
             if (onChildAdded) onChildAdded(child, newIndex, isTopParent);
           }
-          isTopParent && updateWait();
         },
         removeItem(child: any) {
           const index = (isTopParent ? getIndex : getTreeIndex)(child)!;
