@@ -26,7 +26,7 @@ import { MaybeRefLikeOrGetter, toUnrefGetterDescriptors, unrefOrGet } from '../u
 import { createMapCountMethod, useRefWeakMap } from '../hooks';
 
 type Data = Record<string, unknown>;
-type InstanceWithProps<P = Data> = ComponentInternalInstance & {
+export type InstanceWithProps<P = Data> = ComponentInternalInstance & {
   props: P;
 };
 type ParentReadonlyState = Readonly<{
@@ -166,6 +166,7 @@ export function createCollector<
       maxChildLevel: 0,
       maxLevelChild: null as UnwrapRef<InstanceWithProps<ChildProps>> | null,
     });
+
     let waitTimer: any;
     const updateWait = () => {
       if (!needWait || state.waitDone) return;

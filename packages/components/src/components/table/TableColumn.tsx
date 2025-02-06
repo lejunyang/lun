@@ -1,28 +1,20 @@
 import { defineCustomElement } from 'custom';
-import { createDefineElement, createImportStyle, getHostStyle, getProp, getProps, isVm } from 'utils';
+import { createDefineElement, createImportStyle, getHostStyle } from 'utils';
 import { tableColumnEmits, tableColumnProps, TableColumnSetupProps } from './type';
 import { useExpose, useNamespace } from 'hooks';
 import { ElementWithExpose, getCompParts } from 'common';
 import { TableColumnCollector, toExternalContext } from './collector';
 import {
+  fComputed,
   getCollectedItemIndex,
   getCollectedItemLeavesCount,
   getCollectedItemTreeLevel,
+  InstanceWithProps,
   isCollectedItemInFirstBranch,
   isCollectedItemLeaf,
   useStickyColumn,
 } from '@lun-web/core';
-import {
-  CSSProperties,
-  getCurrentInstance,
-  ref,
-  VNodeChild,
-  toRaw,
-  onBeforeUnmount,
-  watchEffect,
-  watch,
-  computed,
-} from 'vue';
+import { CSSProperties, getCurrentInstance, ref, VNodeChild, toRaw, onBeforeUnmount, watch, computed } from 'vue';
 import { at, ensureNumber, runIfFn } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { renderCell } from './TableColumn.renderer';
@@ -40,24 +32,18 @@ export const TableColumn = defineCustomElement({
     const ns = useNamespace(name);
     const context = TableColumnCollector.child();
     if (!context) throw new Error(__DEV__ ? 'table-column must be under a lun table element' : '');
-    const rootVm = getCurrentInstance()!;
-    const getColumn = () => props._ || rootVm;
+    const rootVm = getCurrentInstance() as InstanceWithProps<TableColumnSetupProps>;
     useExpose(context);
-    const { collapsed, cellMerge, data, columnVmMap, all, virtual, parent } = context,
-      [isCollapsed] = collapsed,
+    const { collapsed, cellMerge, data, all, virtual, parent } = context,
       [getColMergeInfo, setColMergeInfo, deleteColMergeInfo] = cellMerge,
-      [getColumnVm, setColumnVm] = columnVmMap,
       rawCellMerge = toRaw(cellMerge.value);
+    const isCollapsed = fComputed(() => collapsed[0](rootVm));
     const externalContext = toExternalContext(context);
     const headerEl = ref<HTMLElement>(),
       cells = ref<HTMLElement[]>([]);
-    watchEffect(() => {
-      props._ && setColumnVm(props._, rootVm);
-    });
 
     const virtualOn = () => !virtual.options.disabled,
-      // FIXME first branch issue when mix prop columns and children columns
-      needMeasureCell = computed(() => isCollectedItemInFirstBranch(getColumn()) && virtualOn());
+      needMeasureCell = computed(() => isCollectedItemInFirstBranch(rootVm) && virtualOn());
     watch(
       [needMeasureCell, cells],
       ([need, cells]) => {
@@ -101,18 +87,17 @@ export const TableColumn = defineCustomElement({
       }
     };
 
-    const getCommonStyle = (column: InternalColumn) =>
+    const getCommonStyle = () =>
       ({
         display: 'flex',
-        justifyContent: getProp(column, 'justify'),
-        alignItems: getProp(column, 'align'),
+        justifyContent: props.justify,
+        alignItems: props.align,
       } satisfies CSSProperties);
 
-    const getCell = (column: InternalColumn, item: any, rowIndex: number, key: any, renderIndex: number) => {
-      const { rowSpan, colSpan, innerProps, ...rest } =
-          runIfFn(getProp(column, 'cellProps'), item, rowIndex, props) || {},
+    const getCell = (item: any, rowIndex: number, key: any, renderIndex: number) => {
+      const { rowSpan, colSpan, innerProps, ...rest } = runIfFn(props.cellProps, item, rowIndex, props) || {},
         cellStyle: CSSProperties = {};
-      const mergeInfo = getColMergeInfo(column)?.[currentColMergeInfoIndex];
+      const mergeInfo = getColMergeInfo(rootVm)?.[currentColMergeInfoIndex];
       let cellShow = 1;
       if (mergeInfo?.[0] === rowIndex) mergeWithPrevColCount = mergeInfo[1];
       if (--rowMergedCount > 0 || --mergeWithPrevColCount >= 0) {
@@ -124,13 +109,12 @@ export const TableColumn = defineCustomElement({
         if (r > 1) cellStyle.gridRow = `span ${(rowMergedCount = r)}`;
         if (c > 1) {
           cellStyle.gridColumn = `span ${c}`;
-          updateMergeInfo(rowIndex, getCollectedItemIndex(column)!, c, ensureNumber(r, 1));
+          updateMergeInfo(rowIndex, getCollectedItemIndex(rootVm)!, c, ensureNumber(r, 1));
         }
       }
 
-      const vm = isVm(column) ? column : getColumnVm(column)!,
-        stickyType = getStickyType(vm),
-        stickyEnd = isStickyEnd(vm);
+      const stickyType = getStickyType(rootVm),
+        stickyEnd = isStickyEnd(rootVm);
       return (
         <div
           key={key}
@@ -139,7 +123,7 @@ export const TableColumn = defineCustomElement({
           data-index={rowIndex}
           data-render-index={renderIndex}
           v-show={cellShow}
-          style={{ ...getStickyStyle(vm), ...getCommonStyle(column), ...cellStyle }}
+          style={{ ...getStickyStyle(rootVm), ...getCommonStyle(), ...cellStyle }}
           {...rest}
           class={[ns.e('cell'), ns.is(`sticky-${stickyType}`, stickyType), ns.is('sticky-end', stickyEnd)]}
           part={compParts[2]}
@@ -147,37 +131,31 @@ export const TableColumn = defineCustomElement({
           ref_for={true}
         >
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'cell')]} part={compParts[4]}>
-            {renderCell(column, rowIndex, key, item, props, externalContext)}
+            {renderCell(rootVm, rowIndex, key, item, props, externalContext)}
           </div>
         </div>
       );
     };
 
     const resizerPointerEnter = (e: PointerEvent) => {
-        context.showResize(e.target as HTMLElement, getColumn());
+        context.showResize(e.target as HTMLElement, rootVm);
       },
       resizerStyle = { position: 'absolute' as const, right: 0, insetBlock: 0 };
-    const getHead = (column: InternalColumn) => {
+    const getHead = () => {
       if (parent!.props.noHeader) return;
-      const {
-          headerColSpan,
-          header,
-          headerProps: { innerProps, ...rest } = {},
-          resizable,
-        } = getProps<TableColumnSetupProps>(column),
-        level = getCollectedItemTreeLevel(column),
-        leavesCount = getCollectedItemLeavesCount(column),
+      const { headerColSpan, header, headerProps: { innerProps, ...rest } = {}, resizable } = props,
+        level = getCollectedItemTreeLevel(rootVm),
+        leavesCount = getCollectedItemLeavesCount(rootVm),
         maxLevel = context.maxLevel(),
-        isLeaf = isCollectedItemLeaf(column),
-        vm = isVm(column) ? column : getColumnVm(column)!,
-        stickyType = getStickyType(vm),
-        stickyEnd = isStickyEnd(vm);
+        isLeaf = isCollectedItemLeaf(rootVm),
+        stickyType = getStickyType(rootVm),
+        stickyEnd = isStickyEnd(rootVm);
       return (
         <div
           role="columnheader"
           style={{
-            ...getStickyStyle(vm),
-            ...getCommonStyle(column),
+            ...getStickyStyle(rootVm),
+            ...getCommonStyle(),
             gridColumn:
               /**
                * leavesCount > 1: having multiple nested children columns
@@ -197,10 +175,10 @@ export const TableColumn = defineCustomElement({
             // ns.is('top-left', !level && !getCollectedItemIndex(column)), // FIXME fix index to fix this for mix prop columns and children columns
           ]}
           part={compParts[1]}
-          v-show={!isCollapsed(column)}
+          v-show={!isCollapsed()}
           ref={(el) => {
             headerEl.value = el as HTMLElement;
-            setHeaderVm(el as Element, vm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
+            setHeaderVm(el as Element, rootVm); // always set it whether it's a leaf or not. because isLeaf may be incorrect at the start when rendering columns in table's shadow DOM
           }}
         >
           <div {...innerProps} class={[ns.e('inner'), ns.em('inner', 'header')]} part={compParts[3]}>
@@ -218,32 +196,23 @@ export const TableColumn = defineCustomElement({
       );
     };
 
-    const handlers = useColumnActions(getColumn, context);
+    const handlers = useColumnActions(() => rootVm, context);
 
     const wrap = (children: VNodeChild) => (
-      <div
-        class={ns.t}
-        part={compParts[0]}
-        style={{ display: 'contents' }}
-        hidden={getProp(getColumn(), 'hidden')}
-        {...handlers}
-      >
+      <div class={ns.t} part={compParts[0]} style={{ display: 'contents' }} hidden={props.hidden} {...handlers}>
         {children}
         <slot></slot>
       </div>
     );
 
     return () => {
-      const column = getColumn(),
-        isLeaf = isCollectedItemLeaf(column);
+      if (!context.state.waitDone) return;
+      const isLeaf = isCollectedItemLeaf(rootVm);
       // if it's not a leaf column, it should be a column with nested children, only render its header
-      if (!isLeaf) return wrap(getHead(column));
+      if (!isLeaf) return wrap(getHead());
       rowMergedCount = 0;
       clean();
-      return wrap([
-        getHead(column),
-        ...data().map(([row, i, key], renderIndex) => getCell(column, row, i, key, renderIndex)),
-      ]);
+      return wrap([getHead(), ...data().map(([row, i, key], renderIndex) => getCell(row, i, key, renderIndex))]);
     };
   },
 });

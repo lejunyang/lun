@@ -74,7 +74,7 @@ export const tableColumnProps = freeze({
         ((params: InternalTableActionParams) => void) | TableActionKeys
       >
   >(),
-  hidden: PropBoolOrStr(),
+  hidden: PropBoolOrStr<HTMLAttributes['hidden'] & {}>(),
   /** @internal it's for internal use, representing the column object, do not use it yourself! */
   _: PropObject<any>(),
 });

@@ -40,8 +40,6 @@ export const Table = defineCustomElement({
     const collapsed = useRefWeakSet(),
       [, addCollapsed, , replaceCollapsed] = collapsed,
       cellMerge = useRefWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>(),
-      columnVmMap = useRefWeakMap<TableColumnSetupProps, ComponentInternalInstance>(),
-      getColumnVm = columnVmMap[0],
       [getColumnWidth, setColumnWidth] = useRefWeakMap<InternalColumn, number>();
 
     const state = shallowReactive({
@@ -100,7 +98,7 @@ export const Table = defineCustomElement({
       ]);
       return isEmpty(predefined) ? columns : predefined.concat(columns);
     });
-    const [columns, renderColumns] = useCollectorExternalChildren(
+    const [, renderColumns] = useCollectorExternalChildren(
       propColumns,
       (column, children) =>
         renderElement('table-column', { ...column, /** _ is for internal usage in column */ _: column }, children),
@@ -111,8 +109,8 @@ export const Table = defineCustomElement({
 
     const [renderResizer, showResize] = useColumnResizer(setColumnWidth);
 
-    const maxLevel = () => Math.max(context.state.maxChildLevel, columns.maxChildLevel) + 1,
-      all = fComputed(() => (columns.items as InternalColumn[]).concat(context.value));
+    const maxLevel = () => context.state.maxChildLevel + 1,
+      all = fComputed(() => context.value);
 
     // ---virtual renderer---
     const virtualOff = () => !props.virtual,
@@ -141,8 +139,6 @@ export const Table = defineCustomElement({
       extraProvide: {
         collapsed,
         cellMerge,
-        columnVmMap,
-        columns,
         maxLevel,
         all,
         showResize,
@@ -156,6 +152,7 @@ export const Table = defineCustomElement({
 
     // preprocess headerColSpan
     watchEffect(() => {
+      if (!context.state.waitDone) return;
       replaceCollapsed();
       let collapseCount = 0;
       all().forEach((child) => {
@@ -170,7 +167,7 @@ export const Table = defineCustomElement({
         (vm.props as TableColumnSetupProps).sticky as 'left' | 'right' | undefined,
       getSelfOrParent = (vm: ComponentInternalInstance | undefined): ReturnType<typeof getSticky> =>
         vm && (getSticky(vm) || getSelfOrParent(getCollectedItemTreeParent(vm) as ComponentInternalInstance));
-    useStickyTable(() => columns.items.map(getColumnVm).concat(context.value), getSelfOrParent);
+    useStickyTable(() => context.value, getSelfOrParent);
     // ---sticky columns---
 
     const templateRows = fComputed(() =>

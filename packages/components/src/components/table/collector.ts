@@ -1,7 +1,6 @@
 import {
   CollectorContext,
   createCollector,
-  useCollectorExternalChildren,
   useVirtualList,
   useRefWeakMap,
   useRefWeakSet,
@@ -12,7 +11,6 @@ import {
 } from '@lun-web/core';
 import { TableSetupProps, TableColumnSetupProps } from './type';
 import { getCollectorOptions } from 'common';
-import { ComponentInternalInstance } from 'vue';
 import { InternalColumn } from './internalType';
 
 export type TableState = {
@@ -24,8 +22,6 @@ export type TableProvideExtra = {
   maxLevel: () => number;
   collapsed: ReturnType<typeof useRefWeakSet<InternalColumn>>;
   cellMerge: ReturnType<typeof useRefWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>>;
-  columns: ReturnType<typeof useCollectorExternalChildren>[0];
-  columnVmMap: ReturnType<typeof useRefWeakMap<TableColumnSetupProps, ComponentInternalInstance>>;
   all: () => InternalColumn[];
   showResize(target: HTMLElement, column: InternalColumn): void;
   virtual: ReturnType<typeof useVirtualList>;
@@ -47,7 +43,7 @@ export const toExternalContext = ({ rowExpand, select }: TableProvideExtra) => (
 });
 
 export const TableColumnCollector = createCollector<TableSetupProps, TableColumnSetupProps, TableProvideExtra, true>({
-  ...getCollectorOptions('table', true, true),
+  ...getCollectorOptions('table', true),
   tree: true,
 });
 

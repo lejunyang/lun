@@ -1,6 +1,6 @@
-import { ComponentInternalInstance } from 'vue';
 import { TableColumnSetupProps } from './type';
 import { TableExternalContext } from './collector';
+import { InstanceWithProps } from '@lun-web/core';
 
 export type InternalRowInfo = readonly [rowData: unknown, rowIndex: number, key: any];
 
@@ -24,4 +24,4 @@ export type InternalTableColumnRendererParams = {
   context: TableExternalContext;
 };
 
-export type InternalColumn = TableColumnSetupProps | ComponentInternalInstance;
+export type InternalColumn = TableColumnSetupProps | InstanceWithProps<TableColumnSetupProps>;
