@@ -75,8 +75,6 @@ export const tableColumnProps = freeze({
       >
   >(),
   hidden: PropBoolOrStr<HTMLAttributes['hidden'] & {}>(),
-  /** @internal it's for internal use, representing the column object, do not use it yourself! */
-  _: PropObject<any>(),
 });
 
 export const tableColumnEmits = createEmits<{}>([]);
@@ -129,7 +127,7 @@ export const tableProps = freeze({
   rowHeight: PropNumOrFunc<
     Property.GridTemplateRows | number | ((rowData: unknown, rowIndex: number) => Property.GridTemplateRows | number)
   >(),
-  rootStyle: PropObject<CSSProperties>(),
+  rootStyle: PropObject<Record<keyof CSSProperties, string | null | undefined>>(),
   stickyHeader: PropBoolean(),
   virtual: PropBoolean(),
   /** hide the header, currently it's conflict with sticky columns functionality */

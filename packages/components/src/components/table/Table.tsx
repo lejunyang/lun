@@ -1,7 +1,7 @@
 import { defineCustomElement } from 'custom';
 import { createDefineElement, getProp, renderElement } from 'utils';
 import { TableColumnSetupProps, tableEmits, tableProps } from './type';
-import { useCE, useNamespace, useValueModel, useValueSet } from 'hooks';
+import { useCE, useNamespace, useValueModel, useValueSet, usePropChildrenRender } from 'hooks';
 import { ElementWithExpose, getCompParts } from 'common';
 import { TableColumnCollector, TableState } from './collector';
 import { arrayFrom, ensureArray, ensureNumber, ensureTruthyArray, isEmpty, runIfFn, toPxIfNum } from '@lun-web/utils';
@@ -9,7 +9,6 @@ import {
   getCollectedItemTreeLevel,
   getCollectedItemTreeParent,
   isCollectedItemLeaf,
-  useCollectorExternalChildren,
   useStickyTable,
   useRefWeakMap,
   useRefWeakSet,
@@ -18,8 +17,17 @@ import {
   useSelectMethods,
   useShallowRefSet,
   useShallowRefMap,
+  useInlineStyle,
 } from '@lun-web/core';
-import { ComponentInternalInstance, onBeforeUnmount, shallowReactive, shallowRef, watchEffect } from 'vue';
+import {
+  ComponentInternalInstance,
+  computed,
+  onBeforeUnmount,
+  ref,
+  shallowReactive,
+  shallowRef,
+  watchEffect,
+} from 'vue';
 import useColumnResizer from './Table.ColumnResizer';
 import useRowExpand from './Table.RowExpand';
 import { getRowKey } from './utils';
@@ -36,7 +44,8 @@ export const Table = defineCustomElement({
   emits: tableEmits,
   setup(props) {
     const ns = useNamespace(name);
-    const ce = useCE();
+    const ce = useCE(),
+      rootEl = ref<HTMLElement>();
     const collapsed = useRefWeakSet(),
       [, addCollapsed, , replaceCollapsed] = collapsed,
       cellMerge = useRefWeakMap<InternalColumn, [startRowIndex: number, mergedCount: number][]>(),
@@ -98,12 +107,11 @@ export const Table = defineCustomElement({
       ]);
       return isEmpty(predefined) ? columns : predefined.concat(columns);
     });
-    const [, renderColumns] = useCollectorExternalChildren(
+    const renderColumns = usePropChildrenRender(
       propColumns,
-      (column, children) =>
-        renderElement('table-column', { ...column, /** _ is for internal usage in column */ _: column }, children),
+      (column, children) => renderElement('table-column', column, children),
+      1,
       () => props.columnPropsMap,
-      true,
     );
     // ---prop `columns` process---
 
@@ -170,22 +178,15 @@ export const Table = defineCustomElement({
     useStickyTable(() => context.value, getSelfOrParent);
     // ---sticky columns---
 
-    const templateRows = fComputed(() =>
-      [
-        ...(props.noHeader ? [] : arrayFrom(maxLevel(), () => toPxIfNum(props.headerHeight) || 'auto')),
-        ...virtualData().map(
-          ([row, i]) => (toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto') + getExpandRowHeight(row, i),
-        ),
-      ].join(' '),
-    );
-    const style = fComputed(() => ({
-      ...props.rootStyle,
-      display: 'grid',
-      grid:
-        // gridTemplateRows
-        templateRows() +
-        '/' +
-        // gridTemplateColumns
+    const gridTemplateRows = fComputed(() =>
+        [
+          ...(props.noHeader ? [] : arrayFrom(maxLevel(), () => toPxIfNum(props.headerHeight) || 'auto')),
+          ...virtualData().map(
+            ([row, i]) => (toPxIfNum(runIfFn(props.rowHeight, row, i)) || 'auto') + getExpandRowHeight(row, i),
+          ),
+        ].join(' '),
+      ),
+      gridTemplateColumns = fComputed(() =>
         all()
           .map((child) =>
             isCollectedItemLeaf(child) && !getProp(child, 'hidden')
@@ -193,12 +194,20 @@ export const Table = defineCustomElement({
               : '',
           )
           .join(' '),
-      gridAutoFlow: 'column',
-    }));
+      );
+    useInlineStyle(
+      rootEl,
+      computed(() => ({
+        ...props.rootStyle,
+        display: 'grid',
+        grid: gridTemplateRows() + '/' + gridTemplateColumns(),
+        gridAutoFlow: 'column',
+      })),
+    );
 
     return () => {
       const node = (
-        <div class={ns.t} part={compParts[0]} style={style()}>
+        <div class={ns.t} part={compParts[0]} ref={rootEl}>
           {renderExpand({
             class: ns.e('expanded-content'),
             part: compParts[2],

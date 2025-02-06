@@ -1,3 +1,4 @@
+import { nextNTicks } from '@lun-web/core';
 import { at, deepCopy, getRect } from '@lun-web/utils';
 import { render } from 'vitest-browser-vue';
 import { nextTick, ref } from 'vue';
@@ -114,7 +115,7 @@ describe('Table', () => {
       </l-table>
     ));
 
-    await nextTick();
+    await nextNTicks(3);
 
     const queryTarget = useColumns ? table.value!.shadowRoot! : document;
     const name = queryTarget.getElementById('name')!,
@@ -182,7 +183,7 @@ describe('Table', () => {
       columns: resizableColumns,
     });
 
-    await nextTick();
+    await nextNTicks(3);
     const queryTarget = table.shadowRoot!;
     const tableResizer = queryTarget.querySelector('.l-table__resizer') as HTMLElement;
     expect(tableResizer).not.toBeNull();
@@ -226,7 +227,7 @@ describe('Table', () => {
         }}
       ></l-table>
     ));
-    await nextTick();
+    await nextNTicks(3);
     const tableShadowRoot = table.value!.shadowRoot!;
     const expandedEls = Array.from(tableShadowRoot.firstElementChild!.children).slice(0, 5) as HTMLElement[];
     expandedEls.forEach((el) => {

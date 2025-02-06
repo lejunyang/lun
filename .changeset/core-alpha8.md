@@ -5,3 +5,4 @@
 ### Features
 
 - add `useInlineStyle`
+- add `nextNTicks`

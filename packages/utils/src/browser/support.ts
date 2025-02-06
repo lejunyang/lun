@@ -4,7 +4,7 @@ import { isFunction } from '../is';
 import { createElement } from './alias';
 import { FUNC, hideDomAndAppend, OBJ, UNDEF } from '../_internal';
 
-export const inBrowser = typeof window !== UNDEF && typeof document !== UNDEF;
+export const inBrowser = typeof navigator !== UNDEF;
 
 const secure = inBrowser && globalThis.isSecureContext, // for test environment, use globalThis
   htmlProto = inBrowser ? HTMLElement.prototype : ({} as HTMLElement);

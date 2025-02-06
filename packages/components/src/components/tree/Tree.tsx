@@ -5,7 +5,7 @@ import { useValueSet, useCEExpose, useNamespace, useValueModel } from 'hooks';
 import { ElementWithExpose, getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
 import { objectComputed, useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
-import { useCollectorValue } from '../../hooks/useCollectorValue';
+import { useCollectorValue } from 'hooks';
 import { extend, unionOfSets } from '@lun-web/utils';
 import { useTreeCheckMethods } from './tree.check';
 import { useTreeItems } from './tree.items';

@@ -79,7 +79,7 @@ export function setStyle(
   style: string | null | undefined,
 ): string | false;
 
-export function setStyle<S extends Partial<CSSStyleDeclaration> | Record<string, string | number | undefined | null>>(
+export function setStyle<S extends Record<string, string | number | undefined | null>>(
   node: HTMLElement | SVGElement | MathMLElement | null | undefined,
   style: S,
   importantMap?: boolean | Record<keyof S, boolean>,
