@@ -1,5 +1,5 @@
 import { hyphenate } from '../string';
-import { getTypeTag, isNumber } from '../is';
+import { getTypeTag, isNumber, isString } from '../is';
 import { getWindow } from './dom';
 import { isElement } from './is';
 import { isSupportCSSStyleSheet } from './support';
@@ -74,21 +74,38 @@ export function copyCSSStyleSheetsIfNeed(sheets: CSSStyleSheet[], currentNode?: 
   return sheets.map((s) => (needCopyCSSStyleSheet(s, currentNode) ? copyCSSStyleSheet(s, win) : s));
 }
 
+export function setStyle(
+  node: HTMLElement | SVGElement | MathMLElement | null | undefined,
+  style: string | null | undefined,
+): string | false;
+
 export function setStyle<S extends Partial<CSSStyleDeclaration> | Record<string, string | number | undefined | null>>(
   node: HTMLElement | SVGElement | MathMLElement | null | undefined,
   style: S,
   importantMap?: boolean | Record<keyof S, boolean>,
+): false | [Pick<S, keyof S>, Record<keyof S, boolean>];
+
+export function setStyle(
+  node: HTMLElement | SVGElement | MathMLElement | null | undefined,
+  style: any,
+  importantMap?: boolean | {},
 ) {
-  if (!isElement(node) || !node.style) return false;
-  const prev = {} as Pick<S, keyof S>,
-    originalImportantMap = {} as Record<keyof S, boolean>;
+  let styleDeclaration: CSSStyleDeclaration;
+  if (!isElement(node) || !(styleDeclaration = node.style)) return false;
+  if (!style || isString(style)) {
+    const prevText = styleDeclaration.cssText;
+    styleDeclaration.cssText = style ?? '';
+    return prevText;
+  }
+  const prev = {},
+    originalImportantMap = {};
   for (const [key, value] of Object.entries(style)) {
     const hk = hyphenate(key);
     // @ts-ignore
-    prev[key] = node.style.getPropertyValue(hk); // can not get '--xxx-yy' property through node.style, must use getPropertyValue
+    prev[key] = styleDeclaration.getPropertyValue(hk); // can not get '--xxx-yy' property through node.style, must use getPropertyValue
     // @ts-ignore
-    originalImportantMap[key] = !!node.style.getPropertyPriority(hk);
-    node.style.setProperty(
+    originalImportantMap[key] = !!styleDeclaration.getPropertyPriority(hk);
+    styleDeclaration.setProperty(
       hk,
       (value as any) ?? '', // value can undefined => "undefined"
       importantMap === true || (importantMap as any)?.[key] ? 'important' : undefined,

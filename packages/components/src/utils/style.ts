@@ -1,4 +1,4 @@
-import { isArray, isString, isSupportCSSStyleSheet, supportCSSLayer } from '@lun-web/utils';
+import { isArray, isSupportCSSStyleSheet, setStyle, supportCSSLayer } from '@lun-web/utils';
 import { GlobalStaticConfig } from 'config';
 import { mergeProps } from 'vue';
 
@@ -38,8 +38,7 @@ export function assignProps(target: HTMLElement, ...props: Record<string, any>[]
   delete merged.style;
   Object.assign(target, merged);
   if (style) {
-    if (isString(style)) target.style.cssText = style as string;
-    else Object.assign(target.style, style);
+    setStyle(target, style);
   }
 }
 

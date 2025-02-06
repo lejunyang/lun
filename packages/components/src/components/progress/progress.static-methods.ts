@@ -1,4 +1,4 @@
-import { isConnected, on, raf, runIfFn, withResolvers } from '@lun-web/utils';
+import { isConnected, on, raf, runIfFn, setStyle, withResolvers } from '@lun-web/utils';
 import { createLunElement, getFirstThemeProvider, toElement } from 'utils';
 import { iProgress } from './Progress';
 
@@ -24,11 +24,11 @@ export const methods = {
         zIndex,
       },
     });
-    const hide = () => (progress.style.cssText = `opacity:0;pointer-events:none;`);
+    const hide = () => setStyle(progress, `opacity:0;pointer-events:none;`);
     hide();
     const init = (clearProgressInline = true) => {
       value = 0;
-      if (clearProgressInline) progress.style.cssText = ``;
+      if (clearProgressInline) setStyle(progress, ``);
       Object.assign(progress, {
         value,
         strokeStyle: {

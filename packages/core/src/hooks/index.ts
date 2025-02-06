@@ -1,4 +1,5 @@
 export * from './createUseModel';
+export * from './DOM';
 export * from './instance';
 export * from './lifecycle';
 export * from './shadowDOM';

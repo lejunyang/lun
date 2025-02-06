@@ -56,6 +56,9 @@ const commonStyle = {
 let ceStyleString = '';
 const isTruthyOrZeroOrFalse = (v: any) => isTruthyOrZero(v) || v === false;
 
+const getCSSText = <E extends HTMLElement | undefined>(el: E) =>
+  el?.style.cssText as E extends undefined ? string | undefined : string;
+
 export const Watermark = defineCustomElement({
   name,
   props: watermarkProps,
@@ -64,7 +67,7 @@ export const Watermark = defineCustomElement({
   },
   onPropUpdate(key, value, ce) {
     if (key === 'style' && ceStyleString && value !== ceStyleString) {
-      ce.style.cssText = ceStyleString;
+      setStyle(ce, ceStyleString);
       return false;
     }
   },
@@ -124,8 +127,8 @@ export const Watermark = defineCustomElement({
           }
         }
         if (m.type === 'attributes' && m.attributeName === 'style') {
-          if (div.style.cssText !== lastWatermarkStyle) div.style.cssText = lastWatermarkStyle;
-          if (wrapper.style.cssText !== lastSlotWrapperStyle) wrapper.style.cssText = lastSlotWrapperStyle;
+          if (getCSSText(div) !== lastWatermarkStyle) setStyle(div, lastWatermarkStyle);
+          if (getCSSText(wrapper) !== lastSlotWrapperStyle) setStyle(wrapper, lastSlotWrapperStyle);
         }
       }
     });
@@ -139,10 +142,10 @@ export const Watermark = defineCustomElement({
         attributes: true,
         subtree: true,
       });
-    if (ceStyleString) CE.style.cssText = ceStyleString;
+    if (ceStyleString) setStyle(CE, ceStyleString);
     else {
       setStyle(CE, ceStyle, true);
-      ceStyleString = CE.style.cssText;
+      ceStyleString = getCSSText(CE);
     }
     onMounted(() => {
       allowedChildren.add(slotWrapper.value!);
@@ -229,9 +232,9 @@ export const Watermark = defineCustomElement({
       const { value } = markDiv;
       if (value) {
         Object.assign(value.style, markStyle.value);
-        lastWatermarkStyle = value.style.cssText;
+        lastWatermarkStyle = getCSSText(value);
       }
-      lastSlotWrapperStyle = slotWrapper.value?.style.cssText || '';
+      lastSlotWrapperStyle = getCSSText(slotWrapper.value) || '';
     });
 
     // provide render to show watermark in dialog, provide watermark to reuse

@@ -1,5 +1,5 @@
 import { ensureArray } from '../array';
-import { isArray, isObject } from '../is';
+import { isArray } from '../is';
 import { on } from './event';
 import { setStyle } from './style';
 import { uncapitalize } from '../string';
@@ -34,7 +34,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   if (props)
     for (const [key, value] of Object.entries(props)) {
       if (options?.skipFalsyValue && !value) continue;
-      if (key === 'style') isObject(value) ? setStyle(dom, value) : (dom.style.cssText = value as string);
+      if (key === 'style') setStyle(dom, value);
       else if (key === 'class') dom.className = value as string;
       else if (key === 'children') {
         dom.append(
