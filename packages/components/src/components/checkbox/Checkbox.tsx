@@ -18,10 +18,10 @@ export const Checkbox = defineCustomElement({
   emits: checkboxEmits,
   formAssociated: true,
   setup(props, { emit: e }) {
-    const checkboxContext = CheckboxCollector.child();
-    const ns = useNamespace(name, { parent: checkboxContext?.parent });
     const emit = useSetupEvent<typeof e>();
     const [editComputed] = useSetupEdit();
+    const checkboxContext = CheckboxCollector.child();
+    const ns = useNamespace(name, { parent: checkboxContext?.parent });
     // if it's under CheckboxGroup, it will not be considered as a model
     const checkedModel = checkboxContext
       ? undefined

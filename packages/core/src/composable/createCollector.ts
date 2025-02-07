@@ -20,7 +20,7 @@ import {
   markRaw,
   unref,
 } from 'vue';
-import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
+import { AnyFn, isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
 import { toUnrefGetterDescriptors } from '../utils';
 import { createMapCountMethod, useRefWeakMap } from '../hooks';
 
@@ -47,11 +47,7 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
   };
   state: ParentReadonlyState;
   updateMaxLevel(level: number, child: UnwrapRef<InstanceWithProps<ChildProps>>, isUnmounting?: number): void;
-  childSetup?: (
-    props: ChildProps,
-    vm: InstanceWithProps<ChildProps>,
-    context: CollectorContext<ParentProps, ChildProps, ParentExtra>,
-  ) => void;
+  childSetup?: AnyFn;
 };
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
@@ -157,7 +153,11 @@ export function createCollector<
   const parent = (params?: {
     extraProvide?: PE;
     lazyChildren?: boolean;
-    childSetup?: (props: ChildProps, vm: InstanceWithProps<ChildProps>) => void;
+    childSetup?: (
+      props: ChildProps,
+      vm: InstanceWithProps<ChildProps>,
+      context: CollectorContext<ParentProps, ChildProps, PE>,
+    ) => void;
     onBeforeChildAdd?: (child: InstanceWithProps<ChildProps>) => boolean | void;
     onChildAdded?: (child: InstanceWithProps<ChildProps>, index: number, isAddToTopParent?: boolean) => void;
     onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number, isRemoveFromTopParent?: boolean) => void;
@@ -392,12 +392,7 @@ export function createCollector<
         const performCollect = () => context!.addItem(instance);
         collectOnSetup ? performCollect() : onMounted(performCollect);
         onBeforeUnmount(() => context!.removeItem(instance));
-        runIfFn(
-          context!.childSetup,
-          instance.props as ChildProps,
-          instance as InstanceWithProps<ChildProps>,
-          context as any,
-        );
+        runIfFn(context!.childSetup, instance.props, instance, context);
       }
       (instance as any)[CHILD_KEY] = context;
     }

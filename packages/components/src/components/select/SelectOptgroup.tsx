@@ -14,10 +14,10 @@ export const SelectOptgroup = defineCustomElement({
   name,
   props: selectOptgroupProps,
   setup(props) {
+    const [_editComputed] = useSetupEdit();
     const selectContext = SelectCollector.child(false, props.selectContext);
     const ns = useNamespace(name, { parent: selectContext?.parent });
     SelectOptgroupContext.provide();
-    const [_editComputed] = useSetupEdit();
     const [stateClass] = useCEStates(() => null);
 
     return () => (

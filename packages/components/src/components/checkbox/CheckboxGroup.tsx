@@ -1,10 +1,17 @@
 import { defineCustomElement } from 'custom';
 import { useCheckboxMethods, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement } from 'utils';
-import { useValueSet, useCEExpose, useCEStates, useNamespace, useOptions, useValueModel } from 'hooks';
+import {
+  useValueSet,
+  useCEExpose,
+  useCEStates,
+  useNamespace,
+  useOptions,
+  useValueModel,
+  useChildrenValue,
+} from 'hooks';
 import { CheckboxCollector } from './collector';
-import { computed } from 'vue';
-import { CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
+import { CheckboxSetupProps, CheckboxUpdateDetail, checkboxGroupEmits, checkboxGroupProps } from './type';
 import { ElementWithExpose, getCompParts } from 'common';
 import { defineCheckbox } from './Checkbox';
 
@@ -40,20 +47,13 @@ export const CheckboxGroup = defineCustomElement({
     });
     const checkedValueSet = useValueSet(valueModel, true);
 
-    const childValueSet = computed(
-      () =>
-        new Set(
-          children.value.flatMap((i) =>
-            // nullish value, checkForAll, excludeFromGroup, disabled checkbox will be excluded from children values
-            i.props.value != null && !i.props.checkForAll && !i.props.excludeFromGroup && !i.exposed?.disabled
-              ? [i.props.value]
-              : [],
-          ),
-        ),
+    const [childSetup, childrenValues] = useChildrenValue<CheckboxSetupProps>(
+      (childProps) => childProps.checkForAll || childProps.excludeFromGroup,
     );
+
     const checkbox = useCheckboxMethods({
         current: checkedValueSet,
-        allValues: childValueSet,
+        allValues: childrenValues,
         onChange(value) {
           valueModel.value = value as any;
         },
@@ -63,7 +63,7 @@ export const CheckboxGroup = defineCustomElement({
     useCEExpose(methods);
 
     useSetupEdit();
-    const children = CheckboxCollector.parent({ extraProvide: checkbox });
+    CheckboxCollector.parent({ extraProvide: checkbox, childSetup });
 
     const [stateClass] = useCEStates(() => ({
       vertical: props.vertical,

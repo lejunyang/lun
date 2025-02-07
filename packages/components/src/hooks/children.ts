@@ -1,39 +1,14 @@
 import {
-  CollectorParentReturn,
   fComputed,
   isCollectedItemLeaf,
   MaybeRefLikeOrGetter,
-  objectComputed,
   unrefOrGet,
   useEdit,
+  useRefMap,
   useRefSet,
 } from '@lun-web/core';
-import { ensureArray } from '@lun-web/utils';
-import { isVmDisabled } from 'utils';
-import { ComponentInternalInstance, nextTick, onMounted, watch } from 'vue';
-
-export function useCollectorValue(context: () => CollectorParentReturn, tree?: boolean) {
-  const childrenInfo = objectComputed(() => {
-    const childrenValuesSet = new Set<any>(),
-      noneLeafValuesSet = new Set<any>(),
-      valueToChildMap = new Map<any, ComponentInternalInstance>();
-    context().value.forEach((child) => {
-      const { value } = child.props;
-      if (value != null) {
-        // exclude disabled option from value set
-        if (!isVmDisabled(child)) {
-          childrenValuesSet.add(value);
-          if (tree && !isCollectedItemLeaf(child)) noneLeafValuesSet.add(value);
-        }
-        valueToChildMap.set(value, child);
-      }
-    });
-    return { childrenValuesSet, valueToChildMap, noneLeafValuesSet };
-  });
-  const valueToChild = (value: any) => childrenInfo.valueToChildMap.get(value);
-  const valueToLabel = (value: any) => valueToChild(value)?.props.label as string | undefined;
-  return [childrenInfo, valueToChild, valueToLabel] as const;
-}
+import { ensureArray, runIfFn } from '@lun-web/utils';
+import { ComponentInternalInstance, nextTick, onMounted, watch, watchEffect } from 'vue';
 
 export function usePropChildrenRender<T extends Record<string, unknown>, R = any>(
   itemsGetter: MaybeRefLikeOrGetter<T[]>,
@@ -69,22 +44,23 @@ export function usePropChildrenRender<T extends Record<string, unknown>, R = any
   return () => renderItems(processedItems());
 }
 
-export function useChildrenValue() {
+export function useChildrenValue<ChildProps>(invalidCondition?: (props: ChildProps) => boolean | undefined) {
   const childrenValues = useRefSet(),
     [, addChildValue, deleteChildValue] = childrenValues,
     noneLeafValues = useRefSet(),
     [, addNoneLeafValue, deleteNoneLeafValue] = noneLeafValues,
-    valueToChildMap = new Map<any, ComponentInternalInstance>();
+    valueToChildMap = useRefMap<any, ComponentInternalInstance>(),
+    [getChild, setValueToChild, deleteValueToChild] = valueToChildMap;
 
   return [
     /** child setup */
     (props: any, instance: ComponentInternalInstance) => {
       const editComputed = useEdit()!;
       const getVal = () => props.value,
-        isDisabled = () => editComputed.disabled;
+        isInvalid = () => editComputed.disabled || runIfFn(invalidCondition, props);
       const removeValue = (val: any) => {
         deleteChildValue(val);
-        valueToChildMap.delete(val);
+        deleteValueToChild(val);
         deleteNoneLeafValue(val);
       };
       onMounted(() => {
@@ -92,28 +68,28 @@ export function useChildrenValue() {
         watch(
           getVal,
           (value, old) => {
-            if (value != null && !isDisabled()) {
+            if (value != null && !isInvalid()) {
               addChildValue(value);
-              valueToChildMap.set(value, instance);
+              setValueToChild(value, instance);
               if (isLeaf === true) addNoneLeafValue(value);
             }
             removeValue(old);
           },
           { immediate: true },
         );
-        watch(isDisabled, (disabled) => {
-          if (disabled) removeValue(getVal());
+        watchEffect(() => {
+          if (isInvalid()) removeValue(getVal());
         });
         nextTick(() => {
-          if (!(isLeaf = isCollectedItemLeaf(instance)) && !isDisabled()) addNoneLeafValue(getVal());
+          if (!(isLeaf = isCollectedItemLeaf(instance)) && !isInvalid()) addNoneLeafValue(getVal());
         });
       });
     },
     childrenValues,
     noneLeafValues,
     /** value to child */
-    (value: any) => valueToChildMap.get(value),
+    getChild,
     /** value to label */
-    (value: any) => valueToChildMap.get(value)?.props.label as string | undefined,
+    (value: any) => getChild(value)?.props.label as string | undefined,
   ] as const;
 }

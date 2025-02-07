@@ -1,6 +1,6 @@
 import { useSelectMethods } from '@lun-web/core';
 import { Ref } from 'vue';
-import { CommonProcessedOption, useValueSet, useCollectorValue } from 'hooks';
+import { CommonProcessedOption, useValueSet, useChildrenValue } from 'hooks';
 import { SelectCollector } from './collector';
 import { useActivateOption } from './useActivateOption';
 
@@ -17,7 +17,7 @@ export function useSelect(
 ) {
   const isMultiple = () => props.multiple,
     selectedValueSet = useValueSet(valueModel, isMultiple);
-  const [childrenInfo, valueToChild, valueToLabel] = useCollectorValue(() => context);
+  const [childSetup, childrenValues, , valueToChild, valueToLabel] = useChildrenValue();
 
   const [, methods] = useSelectMethods({
     multiple: isMultiple,
@@ -26,9 +26,10 @@ export function useSelect(
       valueModel.value = value;
       if (onSingleSelect && !isMultiple()) onSingleSelect(value.raw as string);
     },
-    allValues: () => childrenInfo.childrenValuesSet,
+    allValues: childrenValues,
   });
   const context = SelectCollector.parent({
+    childSetup,
     extraProvide: {
       ...methods,
       isHidden(option) {

@@ -17,6 +17,8 @@ export const SelectOption = defineCustomElement({
   name,
   props: selectOptionProps,
   setup(props) {
+    useSetupEvent();
+    const [editComputed] = useSetupEdit();
     const selectContext = SelectCollector.child(!props.excludeFromSelect, props.selectContext);
     const optgroup = SelectOptgroupContext.inject();
     if (!selectContext) {
@@ -24,9 +26,6 @@ export const SelectOption = defineCustomElement({
     }
     const vm = getCurrentInstance()!;
     const ns = useNamespace(name, { parent: optgroup || selectContext.parent });
-
-    useSetupEvent();
-    const [editComputed] = useSetupEdit();
 
     const selected = computed(() => {
       return selectContext.isSelected(props.value);
