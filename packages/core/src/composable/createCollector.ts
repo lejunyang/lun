@@ -19,10 +19,9 @@ import {
   nextTick,
   markRaw,
   unref,
-  watchEffect,
 } from 'vue';
-import { ensureArray, isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
-import { MaybeRefLikeOrGetter, toUnrefGetterDescriptors, unrefOrGet } from '../utils';
+import { isString, nearestBinarySearch, runIfFn, toGetterDescriptors } from '@lun-web/utils';
+import { toUnrefGetterDescriptors } from '../utils';
 import { createMapCountMethod, useRefWeakMap } from '../hooks';
 
 type Data = Record<string, unknown>;
@@ -48,6 +47,11 @@ export type CollectorContext<ParentProps = Data, ChildProps = Data, ParentExtra 
   };
   state: ParentReadonlyState;
   updateMaxLevel(level: number, child: UnwrapRef<InstanceWithProps<ChildProps>>, isUnmounting?: number): void;
+  childSetup?: (
+    props: ChildProps,
+    vm: InstanceWithProps<ChildProps>,
+    context: CollectorContext<ParentProps, ChildProps, ParentExtra>,
+  ) => void;
 };
 
 const defaultGetEl = (vm: ComponentInternalInstance) => vm.proxy?.$el;
@@ -153,11 +157,19 @@ export function createCollector<
   const parent = (params?: {
     extraProvide?: PE;
     lazyChildren?: boolean;
+    childSetup?: (props: ChildProps, vm: InstanceWithProps<ChildProps>) => void;
     onBeforeChildAdd?: (child: InstanceWithProps<ChildProps>) => boolean | void;
     onChildAdded?: (child: InstanceWithProps<ChildProps>, index: number, isAddToTopParent?: boolean) => void;
     onChildRemoved?: (child: InstanceWithProps<ChildProps>, index: number, isRemoveFromTopParent?: boolean) => void;
   }) => {
-    const { extraProvide, lazyChildren = true, onBeforeChildAdd, onChildAdded, onChildRemoved } = params || {};
+    const {
+      extraProvide,
+      lazyChildren = true,
+      childSetup,
+      onBeforeChildAdd,
+      onChildAdded,
+      onChildRemoved,
+    } = params || {};
     const items = ref<InstanceWithProps<ChildProps>[]>([]);
     const state = shallowReactive({
       parentMounted: false,
@@ -256,6 +268,7 @@ export function createCollector<
       items,
       state: readonlyState,
       getItems: getChildren,
+      childSetup,
       updateMaxLevel: (maxLevel: number, child: any, isUnmounting?: number) => {
         if (maxLevel > state.maxChildLevel) {
           state.maxChildLevel = maxLevel;
@@ -379,6 +392,12 @@ export function createCollector<
         const performCollect = () => context!.addItem(instance);
         collectOnSetup ? performCollect() : onMounted(performCollect);
         onBeforeUnmount(() => context!.removeItem(instance));
+        runIfFn(
+          context!.childSetup,
+          instance.props as ChildProps,
+          instance as InstanceWithProps<ChildProps>,
+          context as any,
+        );
       }
       (instance as any)[CHILD_KEY] = context;
     }
@@ -389,84 +408,3 @@ export function createCollector<
 
 export type CollectorParentReturn = ReturnType<ReturnType<typeof createCollector>['parent']>;
 export type CollectorChildReturn<P = Data, C = Data> = ReturnType<ReturnType<typeof createCollector<P, C>>['child']>;
-
-/** @internal */
-export function useCollectorExternalChildren<T extends Record<string, unknown>, R = any>(
-  itemsGetter: MaybeRefLikeOrGetter<T[]>,
-  render: (item: T, childrenRenderResult?: NoInfer<R>[]) => R,
-  itemPropsMapGetter?: MaybeRefLikeOrGetter<object>,
-  tree?: boolean,
-  onEffectStart?: () => void,
-  onItem?: (item: T) => void,
-  onChildren?: (item: T, children: T[]) => void,
-) {
-  const state = shallowReactive({
-    items: [] as T[],
-    treeItems: [] as T[],
-    maxChildLevel: 0,
-  });
-  // TODO 想想如何优化，不能一点小的变动就全部重新执行，可以考虑在render时添加onVnodeUnmounted这些，以便于局部更新
-  // 而且目前props items和children混用会有index问题
-  // 是否可以考虑在custom element时不用instance，而是用el。在onVnodeBeforeMount时也可以通过vnode拿到el，而不用等ref
-  watchEffect(() => {
-    onEffectStart && onEffectStart();
-    const items = unrefOrGet(itemsGetter),
-      itemPropsMap = unrefOrGet(itemPropsMapGetter);
-    const processItem = (
-      _item: Record<string, unknown>,
-      index: number,
-      treeIndex: number,
-      parent?: Record<string, unknown>,
-    ) => {
-      const item = { ..._item };
-      markRaw(item); // it's very important to mark item as raw, as those weakMap are deep reactive, setting parent or children and then getting them can get wrong result for ===
-      if (itemPropsMap)
-        Object.entries(itemPropsMap).forEach(([key, value]) => {
-          item[key] = item[value];
-          item[value] = undefined;
-        });
-      onItem && onItem(item as T);
-      if (tree) {
-        const newLevel = (getCollectedItemTreeLevel(parent) ?? -1) + 1;
-        if (newLevel > state.maxChildLevel) state.maxChildLevel = newLevel;
-        setTreeLevel(item, newLevel);
-        setTreeParent(item, parent);
-        setTreeIndex(item, treeIndex);
-      }
-      setIndex(item, index);
-      return item;
-    };
-    let index = 0;
-    const parentStack: Record<string, unknown>[] = [];
-    const processArray = (arr: Record<string, unknown>[] | undefined | null, flattenResult: any[], parent?: any) => {
-      let treeIndex = 0;
-      if (parent) parentStack.push(parent);
-      const result = ensureArray(arr).flatMap((_item) => {
-        if (!_item) return [];
-        const item = processItem(_item, index, treeIndex, parent);
-        index++;
-        treeIndex++;
-        flattenResult.push(item);
-        const children = processArray(item.children as any, flattenResult, item);
-        if (tree) {
-          onChildren && onChildren(item as T, children as T[]);
-          setTreeChildren(item, children);
-          const isLeaf = !children.length;
-          setItemLeaf(item, isLeaf);
-          if (isLeaf) parentStack.forEach(leavesCountUp);
-        }
-        delete item.children; // in case children is set as a prop on element
-        return [item];
-      }) as T[];
-      if (parent) parentStack.pop();
-      return result;
-    };
-    state.maxChildLevel = 0;
-    state.treeItems = processArray(items as any, (state.items = []));
-  });
-
-  const renderItems = (arr: T[]): any =>
-    arr.length ? arr.map((i) => render(i, renderItems(getCollectedItemTreeChildren(i) as T[]))) : undefined;
-
-  return [state, () => renderItems(state.treeItems)] as const;
-}

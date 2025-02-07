@@ -79,7 +79,13 @@ const createUseSelect = <SelectKey extends string = 'select', UnselectKey extend
             if (multiple) {
               if (allSelected) return updateState(true, false);
               const selectedEmpty = isEmpty(selected),
-                size = selectedEmpty ? 0 : differenceOfSets(all, selected).size;
+                size = selectedEmpty
+                  ? 0
+                  : differenceOfSets(
+                      all,
+                      selected,
+                      /** //TODO always use polyfill for now to prevent Error: Method Set.prototype.difference called on incompatible receiver #<Set>  */ true,
+                    ).size;
               updateState(!size && !selectedEmpty, !!size && !selectedEmpty);
             } else Object.assign(state, initial);
           },

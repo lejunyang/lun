@@ -6,3 +6,8 @@
 
 - add `useInlineStyle`
 - add `nextNTicks`
+- add `childSetup` for `createCollector`
+
+### Changes
+
+- remove private hook `useCollectorExternalChildren`
