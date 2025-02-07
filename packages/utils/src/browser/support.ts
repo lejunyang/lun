@@ -2,20 +2,27 @@ import { withResolvers } from '../promise';
 import { cacheFunctionByParams } from '../function';
 import { isFunction } from '../is';
 import { createElement } from './alias';
-import { FUNC, hideDomAndAppend, OBJ, UNDEF } from '../_internal';
+import { FUNC, hideDomAndAppend, OBJ } from '../_internal';
+import { globalObject } from '../get';
 
-export const inBrowser = typeof navigator !== UNDEF;
+export const inBrowser = typeof navigator === OBJ;
 
-const secure = inBrowser && globalThis.isSecureContext, // for test environment, use globalThis
-  htmlProto = inBrowser ? HTMLElement.prototype : ({} as HTMLElement);
+const secure = globalObject.isSecureContext,
+  getHTMLProto = <K extends '' | 'Dialog' | 'Input' | 'Slot'>(key: K) =>
+    (globalObject[`HTML${key}Element`]?.prototype ||
+      Object.create(null)) as any as (typeof globalThis)[`HTML${K}Element`]['prototype'],
+  htmlProto = getHTMLProto(''),
+  dialogProto = getHTMLProto('Dialog'),
+  inputProto = getHTMLProto('Input'),
+  slotProto = getHTMLProto('Slot');
 
 export const supportPopover = 'popover' in htmlProto;
 
-export const supportDialog = typeof HTMLDialogElement === FUNC && 'open' in HTMLDialogElement.prototype;
+export const supportDialog = 'open' in dialogProto;
 
 export const isSupportResizeObserver = cacheFunctionByParams(() => typeof ResizeObserver === FUNC);
 
-export const isInputSupportPicker = cacheFunctionByParams(() => inBrowser && 'showPicker' in HTMLInputElement.prototype);
+export const isInputSupportPicker = cacheFunctionByParams(() => 'showPicker' in inputProto);
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
 export const supportFileSystemAccess = (() => {
@@ -128,6 +135,6 @@ export const supportCSSRegisterProperty = supportCSSSupports && CSS.registerProp
 
 export const supportCSSContentVisibility = supportCSSSupports && supports!('content-visibility', 'hidden');
 
-export const supportTouch = inBrowser && 'ontouchstart' in htmlProto;
+export const supportTouch = 'ontouchstart' in htmlProto;
 
-export const isSupportSlotAssign = cacheFunctionByParams(() => inBrowser && isFunction(HTMLSlotElement.prototype.assign));
+export const isSupportSlotAssign = cacheFunctionByParams(() => isFunction(slotProto.assign));

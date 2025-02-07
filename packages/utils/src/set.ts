@@ -6,8 +6,8 @@ const supportIntersect = getSupport('intersection'),
   supportDiff = getSupport('difference'),
   supportUnion = getSupport('union');
 
-export function intersectionOfSets<T1, T2>(set1: Set<T1>, set2: Set<T2>): Set<T1 & T2> {
-  if (supportIntersect) {
+export function intersectionOfSets<T1, T2>(set1: Set<T1>, set2: Set<T2>, usePolyfill?: boolean): Set<T1 & T2> {
+  if (supportIntersect && !usePolyfill) {
     // @ts-ignore
     return set1.intersection(set2) as Set<any>;
   } else {
@@ -32,8 +32,8 @@ function _process(set1: Set<any>, set2: Set<any>, /** 1: clone bigger one; falsy
   return [smallerOne, clone ? new Set(biggerOne) : biggerOne, set1] as const;
 }
 
-export function differenceOfSets<T>(set1: Set<T>, set2: Set<unknown>): Set<T> {
-  if (supportDiff) {
+export function differenceOfSets<T>(set1: Set<T>, set2: Set<unknown>, usePolyfill?: boolean): Set<T> {
+  if (supportDiff && !usePolyfill) {
     // @ts-ignore
     return set1.difference(set2) as T;
   } else {
@@ -45,8 +45,8 @@ export function differenceOfSets<T>(set1: Set<T>, set2: Set<unknown>): Set<T> {
   }
 }
 
-export function unionOfSets<T1, T2>(set1: Set<T1>, set2: Set<T2>): Set<T1 | T2> {
-  if (supportUnion)
+export function unionOfSets<T1, T2>(set1: Set<T1>, set2: Set<T2>, usePolyfill?: boolean): Set<T1 | T2> {
+  if (supportUnion && !usePolyfill)
     // @ts-ignore
     return set1.union(set2);
   const [smaller, bigger] = _process(set1, set2, 1);
