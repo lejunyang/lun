@@ -1,15 +1,12 @@
 import { defineCustomElement } from 'custom';
-import { createDefineElement } from 'utils';
+import { createDefineElement, renderElement } from 'utils';
 import { treeEmits, treeProps } from './type';
-import { useValueSet, useCEExpose, useNamespace, useValueModel } from 'hooks';
+import { useValueSet, useCEExpose, useNamespace, useValueModel, useChildrenValue, usePropChildrenRender } from 'hooks';
 import { ElementWithExpose, getCompParts } from 'common';
 import { TreeCollector, TreeExtraProvide } from './collector';
-import { objectComputed, useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
-import { useCollectorValue } from 'hooks';
-import { extend, unionOfSets } from '@lun-web/utils';
+import { useExpandMethods, useSelectMethods, useSetupEdit } from '@lun-web/core';
+import { extend } from '@lun-web/utils';
 import { useTreeCheckMethods } from './tree.check';
-import { useTreeItems } from './tree.items';
-import { Item } from './tree.common';
 import { defineTreeItem } from './TreeItem';
 
 const name = 'tree';
@@ -22,7 +19,7 @@ export const Tree = defineCustomElement({
   setup(props, { emit }) {
     const ns = useNamespace(name);
     const isSelectMultiple = () => ['multiple', 'ctrl-multiple'].includes(props.selectionMode!);
-    const [editComputed] = useSetupEdit();
+    useSetupEdit();
     const getModelOptions = (event: 'select' | 'check' | 'expand') => ({
       key: `${event}ed` as `${typeof event}ed`,
       hasRaw: true as true,
@@ -42,25 +39,23 @@ export const Tree = defineCustomElement({
       checkedValueSet = useValueSet(checkedModel, true),
       expandedValueSet = useValueSet(expandedModel, true);
 
-    const [propItemsInfo, propItemsValueInfo, renderItems, valueToItem] = useTreeItems(props, editComputed);
-    const [vmChildrenInfo, valueToVm] = useCollectorValue(() => context, true);
-    const valueToChild = (value: any) => (valueToItem(value) ?? valueToVm(value)) as Item;
-    const combinedChildren = objectComputed(() => {
-      return {
-        items: ([] as Item[]).concat(propItemsInfo.items, context.value),
-        noneLeafValuesSet: unionOfSets(propItemsValueInfo.noneLeafValuesSet, vmChildrenInfo.noneLeafValuesSet),
-        childrenValuesSet: unionOfSets(propItemsValueInfo.childrenValuesSet, vmChildrenInfo.childrenValuesSet),
-      };
-    });
+    const [childSetup, childrenValues, noneLeafValues, valueToChild] = useChildrenValue();
+    const renderItems = usePropChildrenRender(
+      () => props.items,
+      (item, children) => renderElement('tree-item', item, children),
+      1,
+      () => props.itemPropsMap,
+    );
 
     const checkMethods = useTreeCheckMethods({
       current: checkedValueSet,
-      childrenInfo: combinedChildren,
+      getItems: () => context.value,
+      noneLeafValues,
       valueToChild,
       onChange(value) {
         checkedModel.value = value;
       },
-      allValues: () => combinedChildren.childrenValuesSet,
+      allValues: childrenValues,
     });
 
     const [, selectMethods] = useSelectMethods({
@@ -69,7 +64,7 @@ export const Tree = defineCustomElement({
       onChange(value) {
         selectedModel.value = value;
       },
-      allValues: () => combinedChildren.childrenValuesSet,
+      allValues: childrenValues,
     });
     const [, expandMethods] = useExpandMethods(
       extend(
@@ -79,7 +74,7 @@ export const Tree = defineCustomElement({
           onChange(value) {
             expandedModel.value = value;
           },
-          allValues: () => combinedChildren.noneLeafValuesSet,
+          allValues: noneLeafValues,
         },
         props,
       ),
@@ -90,6 +85,7 @@ export const Tree = defineCustomElement({
       expand: expandMethods,
     };
     const context = TreeCollector.parent({
+      childSetup,
       extraProvide: methods,
     });
 

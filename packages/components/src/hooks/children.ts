@@ -5,10 +5,12 @@ import {
   MaybeRefLikeOrGetter,
   objectComputed,
   unrefOrGet,
+  useEdit,
+  useRefSet,
 } from '@lun-web/core';
 import { ensureArray } from '@lun-web/utils';
 import { isVmDisabled } from 'utils';
-import { ComponentInternalInstance } from 'vue';
+import { ComponentInternalInstance, nextTick, onMounted, watch } from 'vue';
 
 export function useCollectorValue(context: () => CollectorParentReturn, tree?: boolean) {
   const childrenInfo = objectComputed(() => {
@@ -65,4 +67,53 @@ export function usePropChildrenRender<T extends Record<string, unknown>, R = any
     arr?.length ? arr.map((i) => render(i, renderItems(childrenMap.get(i) as T[]))) : undefined;
 
   return () => renderItems(processedItems());
+}
+
+export function useChildrenValue() {
+  const childrenValues = useRefSet(),
+    [, addChildValue, deleteChildValue] = childrenValues,
+    noneLeafValues = useRefSet(),
+    [, addNoneLeafValue, deleteNoneLeafValue] = noneLeafValues,
+    valueToChildMap = new Map<any, ComponentInternalInstance>();
+
+  return [
+    /** child setup */
+    (props: any, instance: ComponentInternalInstance) => {
+      const editComputed = useEdit()!;
+      const getVal = () => props.value,
+        isDisabled = () => editComputed.disabled;
+      const removeValue = (val: any) => {
+        deleteChildValue(val);
+        valueToChildMap.delete(val);
+        deleteNoneLeafValue(val);
+      };
+      onMounted(() => {
+        let isLeaf: boolean | undefined;
+        watch(
+          getVal,
+          (value, old) => {
+            if (value != null && !isDisabled()) {
+              addChildValue(value);
+              valueToChildMap.set(value, instance);
+              if (isLeaf === true) addNoneLeafValue(value);
+            }
+            removeValue(old);
+          },
+          { immediate: true },
+        );
+        watch(isDisabled, (disabled) => {
+          if (disabled) removeValue(getVal());
+        });
+        nextTick(() => {
+          if (!(isLeaf = isCollectedItemLeaf(instance)) && !isDisabled()) addNoneLeafValue(getVal());
+        });
+      });
+    },
+    childrenValues,
+    noneLeafValues,
+    /** value to child */
+    (value: any) => valueToChildMap.get(value),
+    /** value to label */
+    (value: any) => valueToChildMap.get(value)?.props.label as string | undefined,
+  ] as const;
 }

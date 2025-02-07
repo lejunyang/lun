@@ -9,6 +9,7 @@ import {
   getCollectedItemTreeChildren,
   isCollectedItemLeaf,
   createMapCountMethod,
+  unrefOrGet,
 } from '@lun-web/core';
 import { at } from '@lun-web/utils';
 import { ComputedRef, onMounted, watch } from 'vue';
@@ -22,11 +23,8 @@ export function useTreeCheckMethods(
     true
   > & {
     current: ComputedRef<Set<any>>;
-    childrenInfo: {
-      items: Item[];
-      childrenValuesSet: Set<any>;
-      noneLeafValuesSet: Set<any>;
-    };
+    getItems: () => Item[];
+    noneLeafValues: ReturnType<typeof useRefSet>;
     onChange: (param: { value: unknown[]; raw: Set<unknown> }) => void;
     valueToChild: (value: any) => Item | undefined;
   },
@@ -37,7 +35,7 @@ export function useTreeCheckMethods(
     [getCheckedCount, setCheckedCount, , replaceCheckedCount] = itemDirectCheckedChildrenCountMap,
     [getDisabledCount, , , replaceDisabledCount] = useRefWeakMap<Item, number>(),
     [hasIntermediate, addIntermediate, deleteIntermediate, replaceIntermediate] = useRefWeakSet<Item>();
-  const { current, onChange, valueToChild, childrenInfo } = options;
+  const { current, onChange, valueToChild, getItems, noneLeafValues, allValues } = options;
   const countUp = createMapCountMethod(itemDirectCheckedChildrenCountMap, 1),
     countDown = createMapCountMethod(itemDirectCheckedChildrenCountMap, -1);
   const [, methods] = useCheckboxMethods(options as any);
@@ -111,11 +109,11 @@ export function useTreeCheckMethods(
     replaceDisabledCount(disabledChildrenCountMap);
   };
   onMounted(() => {
-    watch(() => childrenInfo.items, correctChecked, { immediate: true });
+    watch(getItems, correctChecked, { immediate: true });
   });
   watch(current, (currentChecked) => {
     if (currentChecked !== correctedCheckedSet.value) {
-      correctChecked(childrenInfo.items); // TODO items props with initial checked, see if intermediate is correct
+      correctChecked(getItems()); // TODO items props with initial checked, see if intermediate is correct
     }
   });
 
@@ -210,7 +208,7 @@ export function useTreeCheckMethods(
 
   const internalCheckAll = () => {
     replaceCheckedCount();
-    childrenInfo.noneLeafValuesSet.forEach((value) => {
+    noneLeafValues.forEach((value) => {
       const item = valueToChild(value);
       if (item) setCheckedCount(item, getChildrenCount(item));
     });
@@ -220,7 +218,7 @@ export function useTreeCheckMethods(
     checkAll() {
       replaceIntermediate();
       internalCheckAll();
-      onChange(methods._(replaceChecked(childrenInfo.childrenValuesSet)));
+      onChange(methods._(replaceChecked(unrefOrGet(allValues))));
     },
     uncheckAll() {
       replaceIntermediate();
@@ -237,7 +235,7 @@ export function useTreeCheckMethods(
       // const leafSet = differenceOfSets(childrenInfo.childrenValuesSet, childrenInfo.noneLeafValuesSet);
       // onChange(methods._((correctedCheckedSet.value = differenceOfSets(leafSet, correctedCheckedSet.value))));
       // previous was using differenceOfSets, but we can only get leaf values from that
-      const result = new Set(childrenInfo.childrenValuesSet);
+      const result = new Set(unrefOrGet(allValues));
       internalCheckAll();
       correctedCheckedSet.forEach((value) => {
         if (isCollectedItemLeaf(valueToChild(value))) internalUpdate(value, result, 1, 1);

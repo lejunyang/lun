@@ -1,4 +1,3 @@
-import { userEvent } from '@vitest/browser/context';
 import { nextTick } from 'vue';
 
 const items = [
@@ -58,6 +57,7 @@ describe('Tree', () => {
       }),
       root = ce.shadowRoot!;
 
+    await nextTick();
     await nextTick();
     const item1 = root.querySelector('l-tree-item[value="1"]')!;
     expect(item1).not.toBeNull();
