@@ -20,7 +20,7 @@ export function useSetupEdit(options?: {
   adjust?: (state: EditState) => EditState | null | void;
   initialLocalState?: LocalEditState;
   noInherit?: boolean;
-}): [
+}): readonly [
   Readonly<EditState>,
   {
     disabled: boolean;
@@ -65,14 +65,15 @@ export function useSetupEdit(options?: {
   });
 
   provide(EDIT_PROVIDER_KEY, currentEditComputed);
-  (ctx as any)[EDIT_PROVIDER_KEY] = currentEditComputed;
+  const ret = [currentEditComputed, localState] as const;
+  (ctx as any)[EDIT_PROVIDER_KEY] = ret;
 
-  return [currentEditComputed, localState] as const;
+  return ret;
 }
 
 export function useEdit() {
   const vm = getCurrentInstance() as
-    | (ComponentInternalInstance & { [EDIT_PROVIDER_KEY]?: Readonly<EditState> })
+    | (ComponentInternalInstance & { [EDIT_PROVIDER_KEY]?: [Readonly<EditState>] })
     | undefined;
-  return vm?.[EDIT_PROVIDER_KEY];
+  return vm?.[EDIT_PROVIDER_KEY]?.[0];
 }

@@ -17,6 +17,7 @@
       "vitest/globals",
       "@vitest/browser/providers/playwright",
       "vite/client",
+      "vue",
       "./global.d.ts",
       "./packages/components/dist/elements-types-vue.d.ts",
       "./packages/components/src/types/vue-type-fix.d.ts"

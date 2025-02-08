@@ -60,7 +60,6 @@ export function useChildrenValue<ChildProps>(invalidCondition?: (props: ChildPro
         isInvalid = () => editComputed.disabled || runIfFn(invalidCondition, props);
       const removeValue = (val: any) => {
         deleteChildValue(val);
-        deleteValueToChild(val);
         deleteNoneLeafValue(val);
       };
       onMounted(() => {
@@ -68,12 +67,15 @@ export function useChildrenValue<ChildProps>(invalidCondition?: (props: ChildPro
         watch(
           getVal,
           (value, old) => {
-            if (value != null && !isInvalid()) {
-              addChildValue(value);
+            if (value != null) {
               setValueToChild(value, instance);
-              if (isLeaf === true) addNoneLeafValue(value);
+              if (!isInvalid()) {
+                addChildValue(value);
+                if (isLeaf === true) addNoneLeafValue(value);
+              }
             }
             removeValue(old);
+            deleteValueToChild(old);
           },
           { immediate: true },
         );
