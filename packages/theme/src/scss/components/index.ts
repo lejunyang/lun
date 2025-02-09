@@ -71,6 +71,8 @@ import { importTableBasicTheme } from './table';
 import { importTableColumnBasicTheme } from './table-column';
 import {
   importPaginationBasicTheme,
+  importPaginationOutlineTheme,
+  importPaginationSoftTheme,
   importPaginationSolidTheme,
   importPaginationSurfaceTheme,
 } from './pagination/index.ts';
@@ -159,6 +161,7 @@ export const importOutlineTheme = () => {
   importCalloutOutlineTheme();
   importTagOutlineTheme();
   importTextOutlineTheme();
+  importPaginationOutlineTheme();
 };
 
 export const importSoftTheme = () => {
@@ -168,6 +171,7 @@ export const importSoftTheme = () => {
   importInputSoftTheme();
   importTagSoftTheme();
   importTextSoftTheme();
+  importPaginationSoftTheme();
 };
 
 export const importSolidTheme = () => {

@@ -1,0 +1,46 @@
+@use '../../mixins' as *;
+
+@include b(pagination) {
+  @include variant(outline) {
+    @include e(button) {
+      @include hover {
+        background-color: getGrayColor(a3);
+      }
+
+      &:focus-visible {
+        outline: 2px solid getFocusColor();
+        outline-offset: -1px;
+      }
+
+      @include is(current) {
+        box-shadow: inset 0 0 0 1px getAccentColor(a8);
+        color: getAccentColor(a11);
+        @include hover {
+          background-color: getAccentColor(a2);
+        }
+        @include active {
+          background-color: getAccentColor(a3);
+        }
+      }
+
+      @include is(disabled) {
+        background-color: transparent;
+      }
+
+      @include is((disabled, current)) {
+        box-shadow: inset 0 0 0 1px getGrayColor(a7);
+        color: getGrayColor(a8);
+        background-color: transparent;
+      }
+    }
+
+    @include is(high-contrast, true) {
+      @include e(button) {
+        @include is(current) {
+          box-shadow: inset 0 0 0 1px getAccentColor(a7), inset 0 0 0 1px getGrayColor(a11);
+          color: getAccentColor(12);
+        }
+      }
+    }
+  }
+}

@@ -111,7 +111,7 @@
   }
 
   @include e(content) {
-    overflow: hidden;
+    overflow: auto;
     display: grid;
   }
   @include e(panel) {
