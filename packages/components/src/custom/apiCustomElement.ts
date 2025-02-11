@@ -23,7 +23,6 @@ import {
   ComponentObjectPropsOptions,
   App,
   ComponentOptionsBase,
-  EmitsToProps,
   ComponentProvideOptions,
   Directive,
   Component,
@@ -46,6 +45,7 @@ import {
   runIfFn,
   isConnected,
   ensureArray,
+  inBrowser,
 } from '@lun-web/utils';
 import { virtualParentMap } from './virtualParent';
 
@@ -214,7 +214,7 @@ export const defineSSRCustomElement = ((options: any, extraOptions?: ComponentOp
   return defineCustomElement(options, extraOptions, createSSRApp);
 }) as typeof defineCustomElement;
 
-const BaseClass = (typeof HTMLElement !== 'undefined' ? HTMLElement : class {}) as typeof HTMLElement;
+const BaseClass = (inBrowser ? HTMLElement : class {}) as typeof HTMLElement;
 
 type InnerComponentDef = ConcreteComponent & CustomElementOptions;
 
@@ -411,7 +411,8 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
 
     // set initial attrs
     for (let i = 0; i < this.attributes.length; i++) {
-      this._setAttr(this.attributes[i].name);
+      const key = this.attributes[i].name;
+      if (!(key in this._props)) this._setAttr(key);
     }
 
     this._observe();
@@ -466,7 +467,6 @@ export class VueElement extends BaseClass implements ComponentCustomElementInter
     }
     this._app._ceVNode = this._createVNode();
     this._app.mount(this._def.shadowOptions === null ? this : shadowRootMap.get(this)!);
-
     // already added useCEExpose, remove below
     // apply expose after mount
     // const exposed = this._instance && this._instance.exposed;
