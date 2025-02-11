@@ -5,8 +5,6 @@ import { createElement } from './alias';
 import { FUNC, hideDomAndAppend, OBJ } from '../_internal';
 import { globalObject } from '../get';
 
-export const inBrowser = typeof navigator === OBJ;
-
 const secure = globalObject.isSecureContext,
   getHTMLProto = <K extends '' | 'Dialog' | 'Input' | 'Slot'>(key: K) =>
     (globalObject[`HTML${key}Element`]?.prototype ||
@@ -15,6 +13,8 @@ const secure = globalObject.isSecureContext,
   dialogProto = getHTMLProto('Dialog'),
   inputProto = getHTMLProto('Input'),
   slotProto = getHTMLProto('Slot');
+
+export const inBrowser = 'style' in htmlProto;
 
 export const supportPopover = 'popover' in htmlProto;
 
