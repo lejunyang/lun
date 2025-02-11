@@ -11,6 +11,7 @@ import {
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 import { GetCustomRendererSource } from '../custom-renderer';
+import { CommonProcessedOption } from 'hooks';
 
 export const paginationProps = freeze({
   ...themeProps,
@@ -19,7 +20,7 @@ export const paginationProps = freeze({
   /** total number of pages */
   pages: PropNumber(),
   pageSize: PropNumber(),
-  pageSizeOptions: PropArray<number[]>(),
+  pageSizeOptions: PropArray<(number | CommonProcessedOption<number>)[]>(),
   /** total number of data items, should be used with `pageSize` to calculate pages. If `total` and `pageSize` are valid, they take precedence over `pages` */
   total: PropNumber(),
   /**

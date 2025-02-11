@@ -2,12 +2,13 @@ import { defineCustomElement } from 'custom';
 import { createDefineElement, renderElement } from 'utils';
 import { paginationEmits, paginationProps } from './type';
 import { useCurrentModel, useNamespace } from 'hooks';
-import { ElementWithExpose, getCompParts } from 'common';
+import { ElementWithExpose, getCompParts, intl } from 'common';
 import { fComputed, useSetupEdit } from '@lun-web/core';
-import { arrayFrom, ensureNumber, isArray, runIfFn, toNumberOrUndefined } from '@lun-web/utils';
+import { arrayFrom, ensureArray, ensureNumber, isArray, isNumber, runIfFn, toNumberOrUndefined } from '@lun-web/utils';
 import { defineIcon } from '../icon';
 import { VNodeChild } from 'vue';
 import { renderCustom } from '../custom-renderer';
+import { defineSelect } from '../select';
 
 const name = 'pagination';
 const parts = ['root', 'button', 'total'] as const;
@@ -16,7 +17,7 @@ export const Pagination = defineCustomElement({
   name,
   props: paginationProps,
   emits: paginationEmits,
-  setup(props) {
+  setup(props, { emit }) {
     const ns = useNamespace(name);
     const [editComputed] = useSetupEdit();
     const current = useCurrentModel(props),
@@ -26,6 +27,11 @@ export const Pagination = defineCustomElement({
     const totalPages = fComputed(() => {
       return ensureNumber(Math.ceil(total()! / pageSize()!), ensureNumber(props.pages, 1));
     });
+    const pageSizeOptions = fComputed(() =>
+      ensureArray(props.pageSizeOptions ?? [10, 20, 50, 100]).map((i) =>
+        isNumber(i) ? { value: i, label: intl('pagination.sizeLabel', { size: i }).d(`${i} / page`) } : i,
+      ),
+    );
 
     const canPrev = () => currentPage() > 1,
       canNext = () => currentPage() < totalPages();
@@ -91,6 +97,16 @@ export const Pagination = defineCustomElement({
           </span>
         );
       },
+      sizes: () => {
+        return renderElement('select', {
+          value: pageSize(),
+          clickOption: 'select',
+          onUpdate(e: CustomEvent<{ raw: number }>) {
+            emit('pageSizeUpdate', +e.detail.raw);
+          },
+          options: pageSizeOptions(),
+        });
+      },
     };
 
     return () => {
@@ -121,4 +137,4 @@ export type PaginationExpose = {};
 export type tPagination = ElementWithExpose<typeof Pagination, PaginationExpose>;
 export type iPagination = InstanceType<tPagination>;
 
-export const definePagination = createDefineElement(name, Pagination, {}, parts, [defineIcon]);
+export const definePagination = createDefineElement(name, Pagination, {}, parts, [defineIcon, defineSelect]);
