@@ -34,7 +34,7 @@ describe('Input', () => {
     };
     const ce = l('l-input', {
       multiple: true,
-      value: [1, 2, 3],
+      value: ['1', '2', '3'],
       ...handlers,
     });
     ce.focus();
@@ -57,8 +57,8 @@ describe('Input', () => {
     await userEvent.keyboard('{Backspace}');
     expect(onUpdate).toHaveBeenCalled();
     expect(onTagsRemove).toHaveBeenCalled();
-    expect(removed!).be.deep.equal([2]);
-    expect(value).be.deep.equal([1, 3]);
+    expect(removed!).be.deep.equal(['2']);
+    expect(value).be.deep.equal(['1', '3']);
 
     // after delete, tag3 should be focused
     const newTag3 = getTag();

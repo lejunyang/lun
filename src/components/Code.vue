@@ -89,7 +89,7 @@
 
 <script setup lang="tsx">
 import { ref, reactive, watchEffect, computed, useTemplateRef, onMounted, onBeforeUnmount, onErrorCaptured } from 'vue';
-import { debounce, objectKeys, raf } from '@lun-web/utils';
+import { debounce, objectKeys, raf, inBrowser } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
 import {
   runVueTSXCode,
@@ -99,7 +99,7 @@ import {
   unmountCodeBlock,
   getErrorNode,
 } from '../utils';
-import { inBrowser, useData } from 'vitepress';
+import { useData } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
 import { Ref } from 'vue';

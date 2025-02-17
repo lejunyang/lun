@@ -1,6 +1,4 @@
 import { inBrowser } from './support';
 
-export const isPreferDark = (() => {
-  const media = inBrowser ? matchMedia('(prefers-color-scheme: dark)') : null;
-  return () => !!media?.matches;
-})();
+const media = inBrowser ? /*@__PURE__*/ matchMedia('(prefers-color-scheme: dark)') : null;
+export const isPreferDark = () => !!media?.matches;

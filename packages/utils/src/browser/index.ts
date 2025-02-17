@@ -1,3 +1,4 @@
+export * from './support';
 export * from './alias';
 export * from './detect';
 export * from './dom';
@@ -10,6 +11,5 @@ export * from './screen';
 export * from './scroll';
 export * from './shadowDom';
 export * from './style';
-export * from './support';
 export * from './tabbable';
 export * from './text';

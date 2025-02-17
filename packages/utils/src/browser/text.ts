@@ -1,4 +1,4 @@
-import { hideDomAndAppend } from '../_internal';
+import { hideDomAndAppend } from '../_internalMethods';
 import { createElement, isConnected } from './alias';
 import { getCachedComputedStyle } from './style';
 import { inBrowser, supportClipboard } from './support';

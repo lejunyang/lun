@@ -2,10 +2,12 @@ import { withResolvers } from '../promise';
 import { cacheFunctionByParams } from '../function';
 import { isFunction } from '../is';
 import { createElement } from './alias';
-import { FUNC, hideDomAndAppend, OBJ } from '../_internal';
+import { FUNC, OBJ } from '../_internal';
+import { hideDomAndAppend } from '../_internalMethods';
 import { globalObject } from '../get';
 
 const secure = globalObject.isSecureContext,
+  /*@__NO_SIDE_EFFECTS__*/
   getHTMLProto = <K extends '' | 'Dialog' | 'Input' | 'Slot'>(key: K) =>
     (globalObject[`HTML${key}Element`]?.prototype ||
       Object.create(null)) as any as (typeof globalThis)[`HTML${K}Element`]['prototype'],
@@ -25,7 +27,7 @@ export const isSupportResizeObserver = cacheFunctionByParams(() => typeof Resize
 export const isInputSupportPicker = cacheFunctionByParams(() => 'showPicker' in inputProto);
 
 // https://github.dev/GoogleChromeLabs/browser-fs-access
-export const supportFileSystemAccess = (() => {
+export const supportFileSystemAccess = /*@__PURE__*/ (() => {
   if (!secure) return false;
   // ToDo: Remove this check once Permissions Policy integration
   // has happened, tracked in

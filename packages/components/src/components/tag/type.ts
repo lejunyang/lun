@@ -8,6 +8,7 @@ import {
   PropObjOrBool,
   createEmits,
   GetEventMapFromEmits,
+  PropNumber,
 } from 'common';
 import { ExtractPropTypes } from 'vue';
 
@@ -16,7 +17,7 @@ export const tagProps = freeze({
   ...createTransitionProps('remove'),
   label: PropString(),
   removable: PropObjOrBool(),
-  tabindex: PropString(), // temp fix because of vue bug
+  tabindex: PropNumber(), // temp fix because of vue bug
 });
 
 export const tagEmits = createEmits<{

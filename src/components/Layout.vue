@@ -114,7 +114,7 @@
 </template>
 <script setup lang="ts">
 import Theme from 'vitepress/theme';
-import { useData, inBrowser, useRouter } from 'vitepress';
+import { useData, useRouter } from 'vitepress';
 import {
   watchEffect,
   nextTick,
@@ -129,7 +129,7 @@ import {
 import ThemeConfigPanel from './ThemeConfigPanel.vue';
 import { GlobalContextConfig, Progress, themeColors, activeBreakpoint, iPopover } from '@lun-web/components';
 import Giscus from '@giscus/vue';
-import { on, AnyFn, withResolvers } from '@lun-web/utils';
+import { on, AnyFn, withResolvers, inBrowser } from '@lun-web/utils';
 import { text } from '../utils/data';
 
 const Layout = Theme.Layout;
