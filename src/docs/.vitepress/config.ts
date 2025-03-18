@@ -241,9 +241,9 @@ export default defineConfig({
     // options for @mdit-vue/plugin-toc
     // https://github.com/mdit-vue/mdit-vue/tree/main/packages/plugin-toc#options
     // toc: { level: [1, 2] }, // default: [2, 3]
-    preConfig(md) {
-      const oldRender = md.render.bind(md);
-      md.render = (src, env) => {
+    async preConfig(md) {
+      const oldRender = md.renderAsync.bind(md);
+      md.renderAsync = async (src, env) => {
         const newSrc = replaceCodeTags(env.path, src);
         return oldRender(newSrc, env);
       };

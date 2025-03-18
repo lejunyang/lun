@@ -150,8 +150,10 @@ const sizeGroup = useTemplateRef('sizeGroup'),
 // if not in home page, popover is undefined
 watch(popover, (p) => {
   if (!p) return;
-  p.attachTarget(sizeGroup.value!, { slotName: 'size' }); // if in other page, popover is undefined...
-  p.attachTarget(scaleInput.value!, { slotName: 'scale' });
+  nextTick(() => {
+    p.attachTarget(sizeGroup.value!, { slotName: 'size' }); // if in other page, popover is undefined...
+    p.attachTarget(scaleInput.value!, { slotName: 'scale' });
+  });
 });
 
 provide('lun-theme', theme);
