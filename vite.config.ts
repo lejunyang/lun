@@ -23,6 +23,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 7000,
     fs: {
+      // FIXME
       cachedChecks: false, // after upgrading vite, adding file will cause error
     },
   },

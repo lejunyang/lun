@@ -291,7 +291,7 @@ onMounted(() => {
 });
 onBeforeUnmount(() => pageProgress.destroy());
 
-const animationPool = [polygonSlide, pullToSides, swapZ, polygonSlide, polygonSlide, circleGrow, polygonSlide];
+const animationPool = [polygonSlide, pullToSides, circleGrow, swapZ, polygonSlide, circleGrow, pullToSides];
 const randomAnimate = async (update: AnyFn) => {
   if (document.startViewTransition) {
     await document.startViewTransition(async () => {
@@ -335,7 +335,7 @@ router.onAfterPageLoad = async () => {
     return transition.promise;
   }
 };
-router.onAfterRouteChanged = async () => {
+router.onAfterRouteChange = async () => {
   console.debug('on after route changed');
   if (page.value.isNotFound) {
     return pageProgress.stop();

@@ -1,6 +1,6 @@
 import { FUNC, NUM, OBJ, STR } from './_internal';
 import { globalObject } from './get';
-import { objectKeys } from './object';
+// import { objectKeys } from './object/value';
 
 export function getTypeTag(variable: unknown) {
   return Object.prototype.toString.call(variable).slice(8, -1);
@@ -46,7 +46,8 @@ export function isEmpty(target: unknown) {
   if (isNil(target)) return true;
   if (isString(target) || isArray(target)) return !target.length;
   if (isSet(target) || isMap(target)) return !(target as Set<unknown> | Map<unknown, unknown>).size;
-  if (isObject(target)) return !objectKeys(target).length;
+  // TODO temporarily remove objectKeys because of circular dependency in vitest
+  if (isObject(target)) return !Object.keys(target).length;
   return false;
 }
 

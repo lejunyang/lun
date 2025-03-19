@@ -13,3 +13,4 @@ export * from './shadowDom';
 export * from './style';
 export * from './tabbable';
 export * from './text';
+export * from './time';

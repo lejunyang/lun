@@ -10,7 +10,7 @@ export default defineWorkspace([
       setupFiles: ['../../utils/testSetup.ts'], // it's relative to root, must be set here, not in vite.config.ts
       browser: {
         enabled: true,
-        name: 'chromium',
+        name: 'chromium', // FIXME deprecated
         provider: 'playwright',
         // https://playwright.dev
         providerOptions: {},
@@ -66,6 +66,7 @@ export default defineWorkspace([
         provider: 'playwright',
         // https://playwright.dev
         providerOptions: {},
+        headless: true,
       },
     },
   },

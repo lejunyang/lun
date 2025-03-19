@@ -1,4 +1,5 @@
-import { debounce, rafThrottle } from '../time';
+import { debounce } from '../time';
+import { rafThrottle } from './time';
 import { AnyFn } from '../type';
 import { getDocumentElement } from './dom';
 import { on } from './event';
