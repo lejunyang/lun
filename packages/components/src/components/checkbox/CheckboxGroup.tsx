@@ -83,4 +83,4 @@ export type CheckboxGroupExpose = ReturnType<typeof useCheckboxMethods>;
 export type tCheckboxGroup = ElementWithExpose<typeof CheckboxGroup, CheckboxGroupExpose>;
 export type iCheckboxGroup = InstanceType<tCheckboxGroup> & CheckboxGroupExpose;
 
-export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup, {}, parts, [defineCheckbox]);
+export const defineCheckboxGroup = createDefineElement(name, CheckboxGroup, {}, parts);

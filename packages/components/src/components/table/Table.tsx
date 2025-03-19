@@ -235,4 +235,4 @@ export type TableExpose = {};
 export type tTable = ElementWithExpose<typeof Table, TableExpose>;
 export type iTable = InstanceType<tTable>;
 
-export const defineTable = createDefineElement(name, Table, {}, parts, [defineTableColumn]);
+export const defineTable = createDefineElement(name, Table, {}, parts);

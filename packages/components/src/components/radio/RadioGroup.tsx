@@ -44,4 +44,4 @@ export type RadioGroupExpose = {};
 export type tRadioGroup = ElementWithExpose<typeof RadioGroup, RadioGroupExpose>;
 export type iRadioGroup = InstanceType<tRadioGroup>;
 
-export const defineRadioGroup = createDefineElement(name, RadioGroup, {}, parts, [defineRadio]);
+export const defineRadioGroup = createDefineElement(name, RadioGroup, {}, parts);

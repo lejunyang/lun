@@ -108,4 +108,4 @@ export type TreeExpose = {
 export type tTree = ElementWithExpose<typeof Tree, TreeExpose>;
 export type iTree = InstanceType<tTree>;
 
-export const defineTree = createDefineElement(name, Tree, {}, parts, [defineTreeItem]);
+export const defineTree = createDefineElement(name, Tree, {}, parts);
