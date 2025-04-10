@@ -228,6 +228,7 @@ onMounted(() => {
       enabled: false,
     },
     scrollBeyondLastLine: false, // if it's true, the editor will have a one-screen size blank space at the bottom
+    fixedOverflowWidgets: true, // in case the hint's tooltip is blocked
   });
   editor.onDidChangeModelContent(() => {
     emits('update:modelValue', editor.getValue());
