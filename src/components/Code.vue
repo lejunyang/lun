@@ -27,6 +27,20 @@
           :title="locales[userLang]?.components.codeSelect"
         />
         <div class="code-block-actions">
+          <svg
+            v-if="lang === 'vueTSX'"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+            @click="copyPlaygroundLink"
+          >
+            <title>{{ locales[userLang]?.components.shareUrl }}</title>
+            <path
+              d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"
+            />
+          </svg>
           <svg v-bind="commonSVGProps" @click="goToGithubSource">
             <title>{{ locales[userLang]?.components.editInGithub }}</title>
             <path
@@ -89,7 +103,7 @@
 
 <script setup lang="tsx">
 import { ref, reactive, watchEffect, computed, useTemplateRef, onMounted, onBeforeUnmount, onErrorCaptured } from 'vue';
-import { debounce, objectKeys, raf, inBrowser } from '@lun-web/utils';
+import { debounce, objectKeys, raf, inBrowser, copyText } from '@lun-web/utils';
 import { VueCustomRenderer } from '@lun-web/components';
 import {
   runVueTSXCode,
@@ -98,8 +112,9 @@ import {
   setActiveCodeBlock,
   unmountCodeBlock,
   getErrorNode,
+  encode,
 } from '../utils';
-import { useData } from 'vitepress';
+import { useData, withBase } from 'vitepress';
 import { useFullscreen } from '@vueuse/core';
 import locales from '../docs/.vitepress/locales';
 import { Ref } from 'vue';
@@ -272,6 +287,12 @@ watchEffect(() => {
 
 const wrapperRef = ref<HTMLElement>();
 const { isFullscreen, toggle, isSupported } = useFullscreen(wrapperRef);
+
+const copyPlaygroundLink = () => {
+  const urlLang = userLang.value === 'zh-CN' ? '' : `/${userLang.value}`;
+  const url = `${location.origin}${withBase(urlLang + '/playground/#' + encode(codesMap[lang.value]))}`;
+  copyText(url);
+};
 </script>
 
 <style lang="scss">
