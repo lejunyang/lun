@@ -39,7 +39,7 @@ src // docs
 utils // utils for this workspace
 ```
 
-Requires node>=20 and pnpm>=9.9.0 to run locally. If there is no local build, run build first.
+Requires node>=20 and pnpm>=9.9.0 to run locally. **If there is no local build, run build first**.
 
 ```
 pnpm install

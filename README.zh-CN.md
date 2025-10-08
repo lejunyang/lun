@@ -37,14 +37,14 @@ src // 文档
 utils // 构建utils
 ```
 
-本地运行需要 node>=20 以及 pnpm>=9.9.0，如果本地没有构建过，需要先运行一次 build
+本地运行需要 node>=20 以及 pnpm>=9.9.0，如果本地没有构建过，**需要先运行一次 build**
 
 ```
 pnpm install
 pnpm build
 pnpm dev
 
-pnpm exec playwright install # if you want to run e2e tests
+pnpm exec playwright install # 跑e2e测试前需要额外安装
 pnpm test
 ```
 

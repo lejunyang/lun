@@ -16,32 +16,7 @@ import { defineAsyncComponent, h } from 'vue';
 import { vUpdate, rUpdate } from '@lun-web/plugins/babel';
 import { strFromU8, strToU8, unzlibSync, zlibSync } from 'fflate';
 
-const allowedImport = new Set([
-  'vue',
-  'react',
-  'react-dom',
-  'react-dom/client',
-  '@lun-web/components',
-  '@lun-web/core',
-  '@lun-web/theme',
-  '@lun-web/utils',
-  '@lun-web/react',
-  'data',
-]);
-
-const dependencies = {
-  vue: () => import('vue'),
-  react: () => import('react'),
-  'react-dom': () => import('react-dom'),
-  'react-dom/client': () => import('react-dom/client'),
-  '@lun-web/components': () => import('@lun-web/components'),
-  '@lun-web/core': () => import('@lun-web/core'),
-  '@lun-web/theme': () => import('@lun-web/theme'),
-  '@lun-web/utils': () => import('@lun-web/utils'),
-  '@lun-web/react': () => import('@lun-web/react'),
-  data,
-  'react-error-boundary': () => import('react-error-boundary'),
-} as any as {
+type LocalDep = {
   vue: typeof import('vue');
   react: typeof import('react');
   'react-dom': typeof import('react-dom');
@@ -55,9 +30,41 @@ const dependencies = {
   'react-error-boundary': typeof import('react-error-boundary');
 };
 
-const loadDep = async <N extends keyof typeof dependencies>(name: N): Promise<(typeof dependencies)[N]> => {
-  if (isFunction(dependencies[name])) return (dependencies[name] = await (dependencies[name] as Function)());
-  else return dependencies[name];
+const dependencies = {
+  vue: () => import('vue'),
+  react: () => import('react'),
+  'react-dom': () => import('react-dom'),
+  'react-dom/client': () => import('react-dom/client'),
+  '@lun-web/components': () => import('@lun-web/components'),
+  '@lun-web/core': () => import('@lun-web/core'),
+  '@lun-web/theme': () => import('@lun-web/theme'),
+  '@lun-web/utils': () => import('@lun-web/utils'),
+  '@lun-web/react': () => import('@lun-web/react'),
+  data,
+  'react-error-boundary': () => import('react-error-boundary'),
+} as any as LocalDep & {
+  [k: string]: any;
+};
+
+const loadDep = async <N extends string>(name: N): Promise<N extends keyof LocalDep ? LocalDep[N] : any> => {
+  if (dependencies[name]) {
+    if (isFunction(dependencies[name])) return (dependencies[name] = await (dependencies[name] as Function)());
+    else return dependencies[name];
+  }
+  let url = name;
+  if (!name.startsWith('http://') && !name.startsWith('https://')) {
+    url = `https://esm.run/${name}` as any;
+  }
+  const module = await import(/* @vite-ignore */ url)
+    .then((m) => {
+      dependencies[name] = m;
+      return m;
+    })
+    .catch((e) => {
+      console.error(e);
+      throw new Error(`Failed to load module "${url}", you can try another CDN URL`);
+    });
+  return module;
 };
 
 const [windowLoaded, loadResolve] = withResolvers<any>();
@@ -114,11 +121,7 @@ export async function buildDepRequire(code: string) {
     names.push(match[1]);
     match = regexp.exec(code);
   }
-  for (const _name of names) {
-    const name = _name as keyof typeof dependencies;
-    if (!allowedImport.has(name)) {
-      throw new Error(`import "${name}" is not allowed, can be only one of ${Array.from(allowedImport).join(', ')}`);
-    }
+  for (const name of names) {
     await loadDep(name);
   }
   return (name: keyof typeof dependencies) => {

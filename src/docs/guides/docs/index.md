@@ -32,7 +32,17 @@ lang: zh-CN
 
   绝大部分示例都只编写了 vue 的版本，没时间.jpg
 
-- 编写的代码中仅允许特定的 import，分别为`vue`, `react`, `react-dom`, `react-dom/client`, `@lun-web/components`, `@lun-web/core`, `@lun-web/utils`, `@lun-web/react`, `data`, import 其他内容会直接报错
+- 编写的代码允许import ESM模块，内置的模块会直接引入（包括`vue`, `react`, `react-dom`, `react-dom/client`, `@lun-web/components`, `@lun-web/core`, `@lun-web/utils`, `@lun-web/react`, `data`）, 其他未知的模块会使用`https://esm.run/${moduleName}`引入，你也可以直接import ESM的CDN URL
+
+
+```tsx
+import { ref } from 'vue';
+import lodash from 'lodash-es'; // 会改为import lodash from 'https://esm.run/lodash-es';
+import d3 from 'https://esm.run/d3@7.8.3'; // 会直接import该URL
+
+export default <div />
+```
+
 - 如果你需要编写样式作用于该代码块，你可以在代码顶层调用`applyStyle(style: string)`，试试在上面的示例中添加以下代码
 
 ```ts
