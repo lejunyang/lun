@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "composite": true,
-    "baseUrl": ".",
     "jsx": "preserve",
     "jsxImportSource": "react",
     "types": [

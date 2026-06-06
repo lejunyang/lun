@@ -1,6 +1,17 @@
 import { isFunction, runIfFn, ensureArray, globalObject } from '@lun-web/utils';
-import { computed, ref, shallowRef, watchEffect, Ref, watch, WatchOptions, ComputedGetter, ShallowRef } from 'vue';
+import {
+  computed,
+  ref,
+  shallowRef,
+  watchEffect,
+  Ref,
+  watch,
+  WatchOptions,
+  ComputedGetter,
+  ShallowRef,
+} from 'vue';
 import { createUnrefCalls, MaybeRefLikeOrGetter, unrefOrGet } from '../utils/ref';
+import { tryOnScopeDispose } from './lifecycle';
 
 /**
  * create a temporary ref，which means ref value is initialized with getter and you can change it as you want, but it will reset the value when getter updates
@@ -100,6 +111,9 @@ export function usePromiseRef<MT, T = MT extends MaybePromiseOrGetter<infer R> ?
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybePromiseOrGetter<T> = MaybePromise<T> | (() => MaybePromise<T>);
 
+// TODO 改成deps依赖数组的形式；() => deps[] 或 MayRef<Dep>[]
+// 改为watch加shallowRef
+
 /** it's for computed that always returns a new value in getter(like return an object literal). return a same old value to cache the result so that it won't trigger other effects */
 export function cacheComputed<T>(getter: (oldVal?: NoInfer<T>) => T, shouldUpdate?: (oldVal: NoInfer<T>) => boolean) {
   let cache: T;
@@ -140,6 +154,7 @@ const createUseSetOrMap =
       get: () => result.value,
       set: replace,
     });
+    tryOnScopeDispose(() => setTimeout(() => (result.value = undefined))); // delay clearing because value can be accessed in other lifecycle hooks
     return arr;
   };
 

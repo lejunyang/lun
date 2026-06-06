@@ -1,3 +1,4 @@
+import { InstanceWithProps } from '@lun-web/core';
 import { isFunction, isObject } from '@lun-web/utils';
 import { ComponentInternalInstance, ComponentObjectPropsOptions, ExtractPropTypes, isVNode } from 'vue';
 
@@ -42,10 +43,14 @@ export const getVmValue = (vm: ComponentInternalInstance) => vm.props.value;
 
 export const isVm = (i: any): i is ComponentInternalInstance => i && isVNode(i.vnode);
 
-export const getProp = <Item extends object, Prop extends keyof Item>(
-  vmOrItem: ComponentInternalInstance | Item,
+export const getProp = <
+  ItemOrVM extends InstanceWithProps | object,
+  Props extends object = ItemOrVM extends InstanceWithProps<infer p> ? (p extends object ? p : never) : ItemOrVM,
+  Prop extends keyof Props = never,
+>(
+  vmOrItem: ItemOrVM,
   prop: Prop,
-) => ((isVm(vmOrItem) ? vmOrItem.props : vmOrItem) as Item)[prop];
+): Props[Prop] => ((isVm(vmOrItem) ? vmOrItem.props : vmOrItem) as Props)[prop];
 
 export const getProps = <Item extends object>(vmOrItem: ComponentInternalInstance | Item) =>
-  isVm(vmOrItem) ? vmOrItem.props as Item : vmOrItem;
+  isVm(vmOrItem) ? (vmOrItem.props as Item) : vmOrItem;
