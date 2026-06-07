@@ -1,36 +1,32 @@
 <template>
   <div v-if="data" class="component-props-table">
-    <template v-for="(group, gi) in data.groups" :key="group.label">
-      <template v-if="group.label === 'own'">
-        <div v-if="group.props.length === 0" class="component-props-empty">
-          {{ data.locale === 'en' ? 'No documented props.' : '该组件无独有属性' }}
-        </div>
-        <l-table
-          v-else
-          :columns="columns"
-          :data="group.props"
-          :data-key="rowKey(gi)"
-        />
-      </template>
-      <l-accordion v-else :header="group.displayLabel" :open="false">
-        <l-table
-          v-if="group.props.length"
-          :columns="columns"
-          :data="group.props"
-          :data-key="rowKey(gi)"
-        />
-        <div v-else class="component-props-empty">
-          {{ data.locale === 'en' ? 'Bag could not be resolved.' : '该 spread 暂未支持自动解析' }}
-        </div>
-      </l-accordion>
+    <PropGroups :groups="data.groups" :scope="0" />
+
+    <template v-if="data.related && data.related.length">
+      <h3 class="component-props-related-title">
+        {{ isEn ? 'Related Components' : '相关组件' }}
+      </h3>
+      <l-accordion-group multiple>
+        <l-accordion
+          v-for="(rel, ri) in data.related"
+          :key="rel.componentName"
+          :header="`<${ns}-${rel.componentName}>`"
+          :open="false"
+        >
+          <PropGroups :groups="rel.groups" :scope="ri + 1" />
+        </l-accordion>
+      </l-accordion-group>
     </template>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, h } from 'vue';
+<script setup lang="tsx">
+import { computed } from 'vue';
+import { GlobalStaticConfig } from '@lun-web/components';
 
 const props = defineProps<{ payload?: string }>();
+
+const ns = (GlobalStaticConfig as any)?.namespace || 'l';
 
 const decoded = computed(() => {
   if (!props.payload) return null;
@@ -52,15 +48,16 @@ const decoded = computed(() => {
   }
 });
 
-const data = computed(() => decoded.value as {
-  locale: 'zh-CN' | 'en';
-  componentName: string;
-  groups: Array<{
-    label: string;
-    displayLabel: string;
-    props: Array<{ name: string; type: string; default: string; desc: string }>;
-  }>;
-} | null);
+type PropEntry = { name: string; type: string; default: string; desc: string };
+type Group = { label: string; displayLabel: string; props: PropEntry[] };
+type Sub = { componentName: string; groups: Group[] };
+
+const data = computed(
+  () =>
+    decoded.value as
+      | ({ locale: 'zh-CN' | 'en'; related?: Sub[] } & Sub)
+      | null,
+);
 
 const isEn = computed(() => data.value?.locale === 'en');
 
@@ -69,8 +66,7 @@ const columns = computed(() => [
     header: isEn.value ? 'Prop' : '属性',
     name: 'name',
     width: '180px',
-    renderer: ({ row }: any) =>
-      h('code', { class: 'component-prop-name' }, row?.name),
+    renderer: ({ row }: any) => <code class="component-prop-name">{row?.name}</code>,
   },
   {
     header: isEn.value ? 'Description' : '说明',
@@ -81,19 +77,50 @@ const columns = computed(() => [
     header: isEn.value ? 'Type' : '类型',
     name: 'type',
     width: '1fr',
-    renderer: ({ row }: any) =>
-      h('code', { class: 'component-prop-type' }, row?.type || '—'),
+    renderer: ({ row }: any) => <code class="component-prop-type">{row?.type || '—'}</code>,
   },
   {
     header: isEn.value ? 'Default' : '默认值',
     name: 'default',
     width: '0.6fr',
-    renderer: ({ row }: any) =>
-      h('code', { class: 'component-prop-default' }, row?.default || '—'),
+    renderer: ({ row }: any) => <code class="component-prop-default">{row?.default || '—'}</code>,
   },
 ]);
 
-const rowKey = (gi: number) => (item: any) => `${gi}:${item?.name ?? ''}`;
+const PropGroups = (innerProps: { groups: Group[]; scope: number }) => {
+  const rowKey = (gi: number) => (item: any) => `${innerProps.scope}:${gi}:${item?.name ?? ''}`;
+  const emptyText = (msg: { en: string; zh: string }) => (
+    <div class="component-props-empty">{isEn.value ? msg.en : msg.zh}</div>
+  );
+
+  return (
+    <>
+      {innerProps.groups.map((group, gi) => {
+        if (group.label === 'own') {
+          if (!group.props.length)
+            return emptyText({ en: 'No documented props.', zh: '该组件无独有属性' });
+          return (
+            <l-table
+              key={`own-${gi}`}
+              columns={columns.value}
+              data={group.props}
+              data-key={rowKey(gi)}
+            />
+          );
+        }
+        return (
+          <l-accordion key={`inh-${gi}`} header={group.displayLabel} open={false}>
+            {group.props.length ? (
+              <l-table columns={columns.value} data={group.props} data-key={rowKey(gi)} />
+            ) : (
+              emptyText({ en: 'Bag could not be resolved.', zh: '该 spread 暂未支持自动解析' })
+            )}
+          </l-accordion>
+        );
+      })}
+    </>
+  );
+};
 </script>
 
 <style>
@@ -107,6 +134,11 @@ const rowKey = (gi: number) => (item: any) => `${gi}:${item?.name ?? ''}`;
 }
 .component-props-table l-accordion {
   margin-bottom: 12px;
+}
+.component-props-related-title {
+  margin: 1.5em 0 0.75em;
+  font-size: 16px;
+  font-weight: 600;
 }
 .component-prop-name {
   font-weight: 600;

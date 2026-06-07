@@ -13,7 +13,6 @@ import { extractComponentProps, type Locale } from './extractComponentProps';
  */
 export function injectPropsTable(filePath: string, fileContent: string): string {
   if (!filePath) {
-    console.error('[injectPropsTable] no filepath');
     return fileContent;
   }
   const norm = filePath.replace(/\\/g, '/');
@@ -60,10 +59,9 @@ export function injectPropsTable(filePath: string, fileContent: string): string 
 
 function serializeForVue(extracted: ReturnType<typeof extractComponentProps>, locale: Locale) {
   if (!extracted) return null;
-  return {
-    locale,
-    componentName: extracted.componentName,
-    groups: extracted.groups.map((g) => ({
+  const serializeOne = (r: NonNullable<ReturnType<typeof extractComponentProps>>) => ({
+    componentName: r.componentName,
+    groups: r.groups.map((g) => ({
       label: g.label,
       displayLabel: g.displayLabel[locale] || g.displayLabel['zh-CN'] || g.label,
       props: g.props.map((p) => ({
@@ -73,5 +71,10 @@ function serializeForVue(extracted: ReturnType<typeof extractComponentProps>, lo
         desc: p.desc[locale] || p.desc['zh-CN'] || '',
       })),
     })),
+  });
+  return {
+    locale,
+    ...serializeOne(extracted),
+    related: (extracted.related || []).map(serializeOne),
   };
 }

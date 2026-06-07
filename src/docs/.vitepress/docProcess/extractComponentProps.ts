@@ -30,6 +30,9 @@ export interface ExtractedGroup {
 export interface ExtractResult {
   componentName: string;
   groups: ExtractedGroup[];
+  /** Sibling custom elements declared in the same folder (e.g. `checkbox-group` for `checkbox`).
+   * Empty for components that have no related sub/parent elements. */
+  related?: ExtractResult[];
 }
 
 interface FactoryToTypeOptions {
@@ -669,29 +672,82 @@ function kebabToCamel(name: string): string {
   return name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }
 
-/** Top-level: extract props for a component kebab name. */
-export function extractComponentProps(componentKebab: string): ExtractResult | null {
-  const compDir = path.join(COMPONENTS_DIR, componentKebab);
-  const typeFile = path.join(compDir, 'type.ts');
-  if (!fs.existsSync(typeFile)) return null;
-  const source = fs.readFileSync(typeFile, 'utf8');
+/**
+ * Scan all .tsx files in a component folder for `defineCustomElement({ name, props })` calls
+ * and return one entry per custom element declared. Resolves `name`/`props` identifiers back
+ * to the top-level `const name = '<kebab>'` declarations in the same file.
+ */
+function discoverCustomElementsInFolder(dir: string): Array<{ kebab: string; propsVar: string; file: string }> {
+  if (!fs.existsSync(dir)) return [];
+  const out: Array<{ kebab: string; propsVar: string; file: string }> = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!/\.tsx$/.test(f) || f.includes('.test.')) continue;
+    const file = path.join(dir, f);
+    const source = fs.readFileSync(file, 'utf8');
+    const sf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 
-  // Prefer the exact `<componentCamel>Props` constant; fall back to first `*Props = freeze(`
-  // for backward compat. Without this, files declaring both `popoverFloatingUIProps` and
-  // `popoverProps` (or similar pairs) would surface the wrong bag.
-  const camel = kebabToCamel(componentKebab);
-  const exact = new RegExp(`export\\s+const\\s+(${camel}Props)\\b`);
-  const exactMatch = source.match(exact);
-  const propsVar = exactMatch ? exactMatch[1] : (() => {
-    const m = source.match(/export\s+const\s+(\w+Props)\s*=\s*freeze\s*\(/);
-    return m ? m[1] : null;
-  })();
-  if (!propsVar) return null;
+    // Collect top-level `const x = 'literal'` so we can resolve identifier references
+    const stringConsts = new Map<string, string>();
+    sf.forEachChild((node) => {
+      if (!ts.isVariableStatement(node)) return;
+      for (const decl of node.declarationList.declarations) {
+        if (!ts.isIdentifier(decl.name) || !decl.initializer) continue;
+        if (ts.isStringLiteralLike(decl.initializer)) {
+          stringConsts.set(decl.name.text, decl.initializer.text);
+        }
+      }
+    });
 
+    const visit = (node: ts.Node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === 'defineCustomElement' &&
+        node.arguments.length &&
+        ts.isObjectLiteralExpression(node.arguments[0])
+      ) {
+        const opts = node.arguments[0];
+        let kebab = '';
+        let propsVar = '';
+        for (const p of opts.properties) {
+          if (!ts.isPropertyAssignment(p) && !ts.isShorthandPropertyAssignment(p)) continue;
+          const key = p.name && (ts.isIdentifier(p.name) || ts.isStringLiteralLike(p.name)) ? p.name.text : '';
+          if (key === 'name') {
+            if (ts.isPropertyAssignment(p)) {
+              if (ts.isStringLiteralLike(p.initializer)) kebab = p.initializer.text;
+              else if (ts.isIdentifier(p.initializer)) kebab = stringConsts.get(p.initializer.text) || '';
+            } else {
+              // shorthand: `name`
+              kebab = stringConsts.get('name') || '';
+            }
+          } else if (key === 'props') {
+            if (ts.isPropertyAssignment(p) && ts.isIdentifier(p.initializer)) propsVar = p.initializer.text;
+            else if (ts.isShorthandPropertyAssignment(p)) propsVar = 'props';
+          }
+        }
+        if (kebab && propsVar) out.push({ kebab, propsVar, file });
+      }
+      node.forEachChild(visit);
+    };
+    visit(sf);
+  }
+  return out;
+}
+
+/** Inner extraction for a (kebab, propsVar) pair. Used by both the top-level entry and the
+ * recursive related-component pass. Avoid infinite recursion by tracking visited kebabs. */
+function extractOne(
+  compDir: string,
+  componentKebab: string,
+  propsVar: string,
+  typeFile: string,
+  source: string,
+  visited: Set<string>,
+): ExtractResult | null {
   const result = parsePropsObjectFromSource(source, typeFile, propsVar);
   if (!result) return null;
 
-  // Apply default-value discovery on top of @default tags (tsdoc wins; this is fallback)
+  // Apply default discovery from .tsx files in the same folder
   const tsxCandidates = fs.readdirSync(compDir).filter((f) => /\.tsx$/.test(f) && !f.includes('.test.'));
   const defaults: Record<string, string> = {};
   for (const f of tsxCandidates) {
@@ -705,5 +761,49 @@ export function extractComponentProps(componentKebab: string): ExtractResult | n
     }
   }
   result.componentName = componentKebab;
+  return result;
+}
+
+/** Top-level: extract props for a component kebab name. */
+export function extractComponentProps(componentKebab: string, _visited?: Set<string>): ExtractResult | null {
+  const visited = _visited || new Set<string>();
+  if (visited.has(componentKebab)) return null;
+  visited.add(componentKebab);
+
+  const compDir = path.join(COMPONENTS_DIR, componentKebab);
+  const typeFile = path.join(compDir, 'type.ts');
+  if (!fs.existsSync(typeFile)) return null;
+  const source = fs.readFileSync(typeFile, 'utf8');
+
+  // Prefer the exact `<componentCamel>Props` constant; fall back to first `*Props = freeze(`
+  // for backward compat. Without this, files declaring both `popoverFloatingUIProps` and
+  // `popoverProps` (or similar pairs) would surface the wrong bag.
+  const camel = kebabToCamel(componentKebab);
+  const exact = new RegExp(`export\\s+const\\s+(${camel}Props)\\b`);
+  const exactMatch = source.match(exact);
+  const propsVar = exactMatch
+    ? exactMatch[1]
+    : (() => {
+        const m = source.match(/export\s+const\s+(\w+Props)\s*=\s*freeze\s*\(/);
+        return m ? m[1] : null;
+      })();
+  if (!propsVar) return null;
+
+  const result = extractOne(compDir, componentKebab, propsVar, typeFile, source, visited);
+  if (!result) return null;
+
+  // Discover RELATED custom elements declared in the same folder (e.g. CheckboxGroup next to
+  // Checkbox, SelectOption/SelectOptgroup next to Select). Skip self; resolve each via the
+  // same pipeline so the table renders identically to the primary component.
+  const declared = discoverCustomElementsInFolder(compDir);
+  const related: ExtractResult[] = [];
+  for (const { kebab, propsVar: relPropsVar } of declared) {
+    if (kebab === componentKebab || visited.has(kebab)) continue;
+    visited.add(kebab);
+    const r = extractOne(compDir, kebab, relPropsVar, typeFile, source, visited);
+    if (r) related.push(r);
+  }
+  if (related.length) result.related = related;
+
   return result;
 }
