@@ -60,6 +60,52 @@ Why each layer exists:
 | Use `undefBoolProp` for tri-state booleans (`open`, `disabled`, …) | rely on Vue's default `false` for booleans (it breaks inherit chains) |
 | `createEmits<{ event: Payload | undefined }>(['event'])` — type + runtime list both required | array-only emits (no type info) or type-only (Vue won't see it) |
 
+## TSDoc convention for component props
+
+Each prop in a frozen `<comp>Props` object is documented with a TSDoc block immediately above it. The docs site reads these blocks at build time (`src/docs/.vitepress/docProcess/injectPropsTable.ts`) and renders the "组件属性 / Props" table at the bottom of every component page. Anything off the convention is silently skipped.
+
+Recognised tags:
+
+| Tag | Required? | Meaning |
+|---|---|---|
+| `@locale.zh-CN <text>` | yes (zh) | Chinese description. Authoring language of this project. |
+| `@locale.en <text>` | strongly recommended | English description. Falls back to `@locale.zh-CN` when missing. |
+| `@default <expr>` | when there is a default | Display value for the "默认值" column. Plain text — write it the way users would type it (`true`, `'start'`, `4`, `/[\s,]/`). |
+| `@type <text>` | rarely | Override the auto-derived display type. Use when the inferred string is unreadable (deep generics, long unions). Keep it short. |
+| `@internal` | when applicable | Mark the prop as internal — excluded from the docs table. |
+
+Layout rules:
+
+- Untagged free text in the block is treated as `@locale.zh-CN` content. Don't mix free text with `@locale.zh-CN` — pick one. (The skill writes the tagged form.)
+- Each tag is one logical line. A tag's text ends at the next `@tag` or the end of the block. Multiline descriptions are allowed; line breaks become spaces in the table.
+- Description text is **prose**, not Markdown — no inline code spans, no link syntax. Keep it short (one sentence ideal, two max).
+- `@default` is **the single source of truth for defaults shown in the docs**. The skill discovers defaults from `createDefineElement(..., { ... })`, in-setup destructuring fallbacks (`const { x = 'y' } = props`), and shared bags (`undefBoolProp`, `valueProp`), and writes them into `@default`. If a default later changes in code, re-run the skill.
+
+Example:
+
+```ts
+export const filePickerProps = freeze({
+  ...editStateProps,
+  /**
+   * @locale.zh-CN 移动端提示操作系统直接打开拍摄/录音设备而非文件选择器，映射到原生 input 的 capture 属性
+   * @locale.en Mobile-only hint asking the OS to open a capture device directly instead of the file picker. Maps to native input `capture`.
+   */
+  capture: PropBoolOrStr<'user' | 'environment' | boolean>(),
+  /**
+   * @locale.zh-CN 优先使用 showOpenFilePicker，不支持时回退到 input
+   * @locale.en Prefer showOpenFilePicker; fall back to input where unsupported.
+   * @default true
+   */
+  preferFileApi: PropBoolean(),
+  /** @internal */
+  _bridgeOnly: PropBoolean(),
+});
+```
+
+Spread bags (`...editStateProps`, `...themeProps`, `...createTransitionProps(...)`, `...createOptionProps(...)`, sibling `<comp>Props`) are resolved automatically — the table shows their props under a collapsible "继承的通用属性" section. Don't duplicate their tsdoc into the consumer component.
+
+To regenerate or update tsdoc across one or more components, invoke the **`component-tsdoc`** skill — it scans `type.ts`, probes defaults, and preserves any human-written descriptions.
+
 ## Common subsystems
 
 ### `useSetupEdit`

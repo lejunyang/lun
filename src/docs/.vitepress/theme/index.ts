@@ -12,6 +12,7 @@ import { Dayjs } from '@lun-web/core/date-dayjs';
 import { vContent } from '@lun-web/plugins/vue';
 import Layout from '../../../components/Layout.vue';
 import Code from '../../../components/Code.vue';
+import ComponentProps from '../../../components/ComponentProps.vue';
 import Support from '../../../components/Support.vue';
 import SupportInfo from '../../../components/SupportInfo.vue';
 import CompThemePanel from '../../../components/CompThemePanel';
@@ -40,6 +41,7 @@ export default {
   enhanceApp: (({ app }) => {
     app.directive('content', vContent);
     app.component('Code', Code);
+    app.component('ComponentProps', ComponentProps);
     app.component('Support', Support);
     app.component('SupportInfo', SupportInfo);
     app.component('CompThemePanel', CompThemePanel);

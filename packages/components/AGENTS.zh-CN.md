@@ -60,6 +60,52 @@ src/
 | 三态布尔（`open`、`disabled` …）用 `undefBoolProp` | 依赖 Vue 默认的 `false`（会断继承链） |
 | `createEmits<{ event: Payload | undefined }>(['event'])` —— 类型 + 字符串列表都必须 | 只给数组没类型，或只给类型 Vue 看不到 |
 
+## 组件属性的 TSDoc 规范
+
+每个 `<comp>Props` 中的 prop 前都需写一个 TSDoc 块。文档站点构建时（`src/docs/.vitepress/docProcess/injectPropsTable.ts`）会读取这些块，在每个组件页底部生成"组件属性 / Props"表格。不符合规范的内容会被静默跳过。
+
+支持的标签：
+
+| 标签 | 是否必需 | 含义 |
+|---|---|---|
+| `@locale.zh-CN <text>` | 必需（中文站） | 中文描述，是本项目的主语言 |
+| `@locale.en <text>` | 强烈建议 | 英文描述。缺省时回退到 `@locale.zh-CN` |
+| `@default <expr>` | 有默认值时 | "默认值"列显示的内容。用户写代码会怎么写就怎么写（`true`、`'start'`、`4`、`/[\s,]/`） |
+| `@type <text>` | 少数情况 | 覆盖自动推断的类型字符串。仅用于推断结果不可读的情况（深泛型、超长 union） |
+| `@internal` | 视情况 | 标记为内部 prop，不进表格 |
+
+排版规则：
+
+- 块内无标签的自由文本视为 `@locale.zh-CN`。不要同时用自由文本和 `@locale.zh-CN`，二选一（skill 写入时统一用带标签形式）。
+- 每个标签是一段逻辑文本，标签的内容延续到下一个 `@tag` 或块尾。允许跨行，跨行的换行在表格中转为空格。
+- 描述是**纯文本散文**，不是 Markdown，不要写反引号代码或链接。短为佳，一两句话。
+- `@default` 是**文档表格"默认值"列的唯一数据源**。skill 会从 `createDefineElement(..., { ... })`、setup 中的解构默认（`const { x = 'y' } = props`）、共享 bag（`undefBoolProp`、`valueProp`）等多处探查并写入。代码里默认值变了，重跑 skill。
+
+示例：
+
+```ts
+export const filePickerProps = freeze({
+  ...editStateProps,
+  /**
+   * @locale.zh-CN 移动端提示操作系统直接打开拍摄/录音设备而非文件选择器，映射到原生 input 的 capture 属性
+   * @locale.en Mobile-only hint asking the OS to open a capture device directly instead of the file picker. Maps to native input `capture`.
+   */
+  capture: PropBoolOrStr<'user' | 'environment' | boolean>(),
+  /**
+   * @locale.zh-CN 优先使用 showOpenFilePicker，不支持时回退到 input
+   * @locale.en Prefer showOpenFilePicker; fall back to input where unsupported.
+   * @default true
+   */
+  preferFileApi: PropBoolean(),
+  /** @internal */
+  _bridgeOnly: PropBoolean(),
+});
+```
+
+`...editStateProps`、`...themeProps`、`...createTransitionProps(...)`、`...createOptionProps(...)`、兄弟 `<comp>Props` 等 spread bag 会被自动解析 —— 它们的 prop 会折叠在表格底部的"继承的通用属性"区域。不要在使用方组件里再为它们写 tsdoc。
+
+要对一个或多个组件生成/更新 tsdoc，调用 **`component-tsdoc`** skill，它会扫描 `type.ts`、探查默认值并保留所有人工写的描述。
+
 ## 常用子系统
 
 ### `useSetupEdit`

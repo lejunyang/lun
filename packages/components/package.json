@@ -31,13 +31,13 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts",
       "browser": {
         "development": "./dist/lun-web-components.development.js",
         "default": "./dist/lun-web-components.production.js"
       },
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "default": {
         "development": "./dist/lun-web-components.development.js",
         "default": "./dist/lun-web-components.production.js"

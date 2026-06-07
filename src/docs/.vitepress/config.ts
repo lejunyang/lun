@@ -1,7 +1,8 @@
 import { defineConfig, DefaultTheme } from 'vitepress';
 import { transformLazyShow } from 'v-lazy-show';
 import locales from './locales';
-import { replaceCodeTags } from './replaceCodeTags';
+import { replaceCodeTags } from './docProcess/replaceCodeTags';
+import { injectPropsTable } from './docProcess/injectPropsTable';
 import viteConfig from '../../../vite.config';
 import { vUpdate } from '@lun-web/plugins/vue';
 
@@ -244,7 +245,8 @@ export default defineConfig({
     async preConfig(md) {
       const oldRender = md.renderAsync.bind(md);
       md.renderAsync = async (src, env) => {
-        const newSrc = replaceCodeTags(env.path, src);
+        let newSrc = injectPropsTable(env.path, src);
+        newSrc = replaceCodeTags(env.path, newSrc);
         return oldRender(newSrc, env);
       };
     },
