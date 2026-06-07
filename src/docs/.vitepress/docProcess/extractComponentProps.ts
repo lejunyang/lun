@@ -622,7 +622,11 @@ export function readCreateDefineDefaults(tsxFile: string): Record<string, string
           if (!ts.isPropertyAssignment(p)) continue;
           if (!ts.isIdentifier(p.name) && !ts.isStringLiteralLike(p.name)) continue;
           const key = (p.name as ts.Identifier | ts.StringLiteralLike).text;
-          out[key] = source.slice(p.initializer.getStart(sf), p.initializer.getEnd()).trim();
+          const valueText = source.slice(p.initializer.getStart(sf), p.initializer.getEnd()).trim();
+          // skip explicit undefined — semantically the same as "no default"; FormItem and
+          // Input use `{ required: undefined }` here as a no-op to suppress inherited defaults
+          if (valueText === 'undefined') continue;
+          out[key] = valueText;
         }
       }
     }
@@ -660,6 +664,11 @@ export function readSetupDestructureDefaults(tsxFile: string): Record<string, st
   return out;
 }
 
+/** Convert a kebab-case name to camelCase, e.g. `file-picker` → `filePicker`. */
+function kebabToCamel(name: string): string {
+  return name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+}
+
 /** Top-level: extract props for a component kebab name. */
 export function extractComponentProps(componentKebab: string): ExtractResult | null {
   const compDir = path.join(COMPONENTS_DIR, componentKebab);
@@ -667,10 +676,17 @@ export function extractComponentProps(componentKebab: string): ExtractResult | n
   if (!fs.existsSync(typeFile)) return null;
   const source = fs.readFileSync(typeFile, 'utf8');
 
-  // discover the props var name: <camel>Props in freeze(...)
-  const m = source.match(/export\s+const\s+(\w+Props)\s*=\s*freeze\s*\(/);
-  if (!m) return null;
-  const propsVar = m[1];
+  // Prefer the exact `<componentCamel>Props` constant; fall back to first `*Props = freeze(`
+  // for backward compat. Without this, files declaring both `popoverFloatingUIProps` and
+  // `popoverProps` (or similar pairs) would surface the wrong bag.
+  const camel = kebabToCamel(componentKebab);
+  const exact = new RegExp(`export\\s+const\\s+(${camel}Props)\\b`);
+  const exactMatch = source.match(exact);
+  const propsVar = exactMatch ? exactMatch[1] : (() => {
+    const m = source.match(/export\s+const\s+(\w+Props)\s*=\s*freeze\s*\(/);
+    return m ? m[1] : null;
+  })();
+  if (!propsVar) return null;
 
   const result = parsePropsObjectFromSource(source, typeFile, propsVar);
   if (!result) return null;
