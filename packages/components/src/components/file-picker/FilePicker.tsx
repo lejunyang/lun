@@ -1,7 +1,7 @@
 import { defineCustomElement } from 'custom';
 import { refLikeToDescriptors, useSetupEdit, useSetupEvent } from '@lun-web/core';
 import { createDefineElement, error } from 'utils';
-import { useCEExpose, useValueModel } from 'hooks';
+import { useCEExpose, useCEStates, useNamespace, useValueModel } from 'hooks';
 import { FileOpenTypeOption, filePickerEmits, filePickerProps } from './type';
 import { computed, ref } from 'vue';
 import {
@@ -12,16 +12,17 @@ import {
   supportFileSystemAccess,
   on,
   onOnce,
+  prevent,
   runIfFn,
   supportTouch,
 } from '@lun-web/utils';
 import { renderCustom } from '../custom-renderer';
 import { isAbort } from './utils';
-import { ElementWithExpose } from 'common';
+import { ElementWithExpose, getCompParts } from 'common';
 
-// TODO drop support
 const name = 'file-picker';
-const parts = [] as const;
+const parts = ['root', 'input'] as const;
+const compParts = getCompParts(name, parts);
 export const FilePicker = defineCustomElement({
   name,
   props: filePickerProps,
@@ -29,6 +30,7 @@ export const FilePicker = defineCustomElement({
   formAssociated: true,
   setup(props, { emit: e }) {
     const emit = useSetupEvent<typeof e>();
+    useNamespace(name);
     const [editComputed, editState] = useSetupEdit();
     const valueModel = useValueModel(props);
     const inputRef = ref<HTMLInputElement>();
@@ -44,44 +46,49 @@ export const FilePicker = defineCustomElement({
       if (files.length > (maxCount as number)) emit('exceedMaxCount', files.slice((maxCount as number) - files.length));
       return (maxCount as number) >= 0 ? files.slice(0, maxCount as number) : files;
     };
-    const useOverSizeCheck = () => {
+    /**
+     * Collect-and-filter pipeline shared by the input change handler, the drop handler and the
+     * showOpenFilePicker path. Each `check(file)` returns whether the file passes; after feeding
+     * all files, call `emitChecks()` once to flush typeMismatch / exceedMaxSize / exceedMaxTotalSize.
+     */
+    const useFileFilter = () => {
       const oversizeFiles: File[] = [],
-        files: File[] = [];
+        mismatchFiles: File[] = [],
+        accepted: File[] = [];
       let totalSize = 0;
+      const { strictAccept } = props;
+      const mimes = mimeTypes.value,
+        exts = extensions.value;
+      const needCheckFileType = strictAccept && (mimes.size || exts.size) && !mimes.has('*/*');
+      const isTypeValid = (file: File) => {
+        if (!needCheckFileType) return true;
+        const fileExt = file.name.split('.').pop()?.toLowerCase();
+        return (
+          mimes.has(file.type) ||
+          (!!fileExt && exts.has(fileExt)) ||
+          mimes.has(file.type.replace(/\/.+/, '/*'))
+        );
+      };
       return [
         (file: File) => {
+          if (!isTypeValid(file)) return mismatchFiles.push(file), false;
           totalSize += file.size;
-          files.push(file);
+          accepted.push(file);
           return isFileSizeValid(file) || (oversizeFiles.push(file), false);
         },
-        /** check if needs to emit events */
         () => {
+          if (mismatchFiles.length) emit('typeMismatch', mismatchFiles);
           if (oversizeFiles.length) emit('exceedMaxSize', oversizeFiles);
-          if (totalSize > (props.maxTotalSize as number)) emit('exceedMaxTotalSize', files);
+          if (totalSize > (props.maxTotalSize as number)) emit('exceedMaxTotalSize', accepted);
         },
       ] as const;
     };
 
     const processFiles = (files: File[]) => {
-      const { strictAccept } = props;
-      const mimes = mimeTypes.value,
-        exts = extensions.value;
-      const needCheckFileType = strictAccept && (mimes.size || exts.size) && !mimes.has('*/*');
-      const [checkSize, checkEmit] = useOverSizeCheck();
-      files = toLimitCount(
-        files.filter((file) => {
-          const fileExt = file.name.split('.').pop()?.toLowerCase();
-          return (
-            (!needCheckFileType ||
-              mimes.has(file.type) ||
-              (fileExt && exts.has(fileExt)) ||
-              mimes.has(file.type.replace(/\/.+/, '/*'))) &&
-            checkSize(file)
-          );
-        }),
-      );
-      checkEmit();
-      valueModel.value = isMultiple() ? files : files[0];
+      const [check, emitChecks] = useFileFilter();
+      const filtered = toLimitCount(files.filter(check));
+      emitChecks();
+      valueModel.value = isMultiple() ? filtered : filtered[0];
     };
 
     const finishPicking = () => {
@@ -110,11 +117,11 @@ export const FilePicker = defineCustomElement({
         supportTouch &&
           !navigator.userAgent.includes('Mac') &&
           on(document, 'visibilitychange', () => {
-            // once document is show, check if picked any file
-            if (!document.hidden)
-              setTimeout(() => {
-                if (!picked) clean();
-              }, 20); // wait for change event, not sure 20ms is too fast or not on some devices // TODO
+            // once document is shown, wait a tick for the input change event to land first
+            // (visibilitychange fires before change on Android). 20ms is conservative enough for
+            // mid-range Android while still feeling instant. If the change event fired, `picked`
+            // will be true here and we skip emitting cancel.
+            if (!document.hidden) setTimeout(() => !picked && clean(), 20);
           }),
         // focus does's work, use pointer check instead
         // In Mac chromium, pointermove will still be fired when file dialog opens... but only be fired when pointer moves from file dialog to browser window, so check the event timeStamp to detect if it's continuous move
@@ -224,11 +231,8 @@ export const FilePicker = defineCustomElement({
           const picker = showOpenFilePicker(options);
           await picker
             .then(async (handles: any) => {
-              let files = await Promise.all(handles.map((h: any) => h.getFile()));
-              const [checkSize, checkEmit] = useOverSizeCheck();
-              files = toLimitCount(files.filter((f) => checkSize(f)));
-              checkEmit();
-              valueModel.value = isMultiple() ? files : files[0];
+              const files = await Promise.all<File>(handles.map((h: any) => h.getFile()));
+              processFiles(files);
             })
             .catch((e: any) => {
               if (isAbort(e)) emit('cancel');
@@ -266,6 +270,47 @@ export const FilePicker = defineCustomElement({
       },
     };
 
+    const dragging = ref(false);
+    // dragenter/leave bubble from descendants, so moving the cursor across a child boundary fires
+    // a leave on the parent before re-entering — counting depth keeps `dragging` stable while the
+    // pointer is anywhere inside the host. Reset to 0 on drop or when depth underflows.
+    let dragDepth = 0;
+    const dropHandlers = {
+      onDragenter(e: DragEvent) {
+        if (!props.drop || !editComputed.editable) return;
+        if (!e.dataTransfer?.types?.includes('Files')) return;
+        prevent(e);
+        if (++dragDepth === 1) dragging.value = true;
+      },
+      onDragover(e: DragEvent) {
+        if (!props.drop || !editComputed.editable) return;
+        if (!e.dataTransfer?.types?.includes('Files')) return;
+        // must preventDefault on dragover or the drop event won't fire
+        prevent(e);
+        e.dataTransfer.dropEffect = 'copy';
+      },
+      onDragleave(e: DragEvent) {
+        if (!props.drop || !editComputed.editable) return;
+        if (!e.dataTransfer?.types?.includes('Files')) return;
+        if (--dragDepth <= 0) {
+          dragDepth = 0;
+          dragging.value = false;
+        }
+      },
+      onDrop(e: DragEvent) {
+        if (!props.drop || !editComputed.editable) return;
+        const items = e.dataTransfer?.files;
+        if (!items?.length) return;
+        prevent(e);
+        // drop swallows the matching leave events, so reset depth manually
+        dragDepth = 0;
+        dragging.value = false;
+        processFiles(arrayFrom(items));
+      },
+    };
+
+    const [stateClass] = useCEStates(() => ({ dragging: dragging.value }));
+
     useCEExpose(
       {
         pickFile,
@@ -275,16 +320,18 @@ export const FilePicker = defineCustomElement({
 
     return () => {
       const { disabled } = editComputed;
-      const { directory, multiple, filesRenderer } = props;
+      const { directory, multiple, capture, drop, filesRenderer } = props;
       const content = runIfFn(filesRenderer, valueModel.value);
       return (
-        <>
+        <span part={compParts[0]} class={stateClass.value} {...(drop ? dropHandlers : {})}>
           <input
             ref={inputRef}
+            part={compParts[1]}
             accept={inputAccept.value}
             // @ts-ignore
             webkitdirectory={directory}
             multiple={multiple}
+            capture={capture as any}
             type="file"
             hidden
             disabled={disabled}
@@ -292,7 +339,7 @@ export const FilePicker = defineCustomElement({
           />
           <slot {...slotHandlers}></slot>
           {content && renderCustom(content)}
-        </>
+        </span>
       );
     };
   },

@@ -22,6 +22,23 @@ lang: zh-CN
 
 <!-- @Code:directory -->
 
+## 拖拽
+
+通过`drop`属性可开启拖拽上传，将文件拖拽到组件本身（包含 slot 内的触发元素）即可触发选择。组件会在拖拽进入时添加`dragging`状态，便于自定义样式
+
+<!-- @Code:drop -->
+
+## 拍照 / 录像
+
+通过`capture`属性可在移动端直接调起摄像头或麦克风，可选值：
+
+- `"user"` 前置摄像头
+- `"environment"` 后置摄像头
+- `true` 由浏览器自行选择
+- 仅当移动端使用 input 兜底时生效（非 file system access API）
+
+<!-- @Code:capture -->
+
 ## 取消事件
 
 `file-picker`在取消文件选择时会触发`cancel`事件，内部采用了兼容方式实现：
@@ -45,6 +62,12 @@ lang: zh-CN
 通过`maxSize`可限制选择文件的大小，单位为字节，超过大小的文件会被忽略，可通过`exceedMaxSize`事件检查哪些文件被忽略
 
 <!-- @Code:maxSize -->
+
+## 类型校验
+
+配合`strictAccept`开启严格类型校验时，文件类型不符的会被忽略，可通过`typeMismatch`事件拿到这些文件并提示用户
+
+<!-- @Code:typeMismatch -->
 
 <script setup>
 import { supportFileSystemAccess } from '@lun-web/utils';

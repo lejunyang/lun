@@ -54,7 +54,8 @@ Why each layer exists:
 | `interceptCEMethods(innerInputRef)` when delegating `focus/blur/click` | rely on default behaviour (custom element won't focus the inner native) |
 | `renderElement('icon', { name: 'x' })` | `<l-icon name="x" />` (hard-codes the namespace) |
 | `freeze(props)` and `freeze(emits)` (via `createEmits`) | mutable prop / emit objects |
-| `parts = ['root', ...] as const; compParts = getCompParts(name, parts); part={compParts[0]}` | repeat the part string per call site |
+| `parts = ['root', ...] as const; compParts = getCompParts(name, parts); part={compParts[0]}` — every shadow-root element gets a `part`, including `<input>` / wrappers / icons; pass the same `parts` to `createDefineElement` so `exportparts` is auto-wired | repeat the part string per call site; ship a shadow node without a `part` (consumers can't `::part()` style it, and dependency `exportparts` chains break) |
+| When you already apply `stateClass` (the value returned by `useCEStates`), let it carry the block class — `stateClass` is `[ns.t, ns.is(states)]` and `ns.t` already includes `ns.b()` + size/variant/color theme classes. **`useCEStates` reads the namespace via `useDefinedNameSpace()`, so you still must call `useNamespace(name)` once in setup** even if you don't use its return value (see `AccordionGroup.tsx`) | `class={[stateClass.value, ns.b()]}` — `ns.b()` ends up duplicated; or skipping `useNamespace(name)` entirely — `stateClass.value` will be `''` |
 | Put defaults in `createDefineElement(name, Comp, { defaults }, ...)` | put `default:` inside the prop option |
 | Use `undefBoolProp` for tri-state booleans (`open`, `disabled`, …) | rely on Vue's default `false` for booleans (it breaks inherit chains) |
 | `createEmits<{ event: Payload | undefined }>(['event'])` — type + runtime list both required | array-only emits (no type info) or type-only (Vue won't see it) |

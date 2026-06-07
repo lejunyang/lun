@@ -4,6 +4,7 @@ import {
   GetEventMapFromEmits,
   GetEventPropsFromEmits,
   Prop,
+  PropBoolOrStr,
   PropBoolean,
   PropNumber,
   PropObjOrStr,
@@ -27,8 +28,11 @@ export const filePickerProps = freeze({
   ...editStateProps,
   value: PropObject<File | File[]>(),
   multiple: PropBoolean(),
-  // TODO add directory add capture
   directory: PropBoolean(),
+  /** mobile only: hint that the OS should open a media capture device directly instead of the file picker. Maps to native input `capture` attribute. */
+  capture: PropBoolOrStr<'user' | 'environment' | boolean>(),
+  /** enable drag-and-drop onto the slotted trigger element */
+  drop: PropBoolean(),
   /** max size of a single file */
   maxSize: PropNumber(),
   /** max count of picked files when it's multiple */
@@ -47,14 +51,15 @@ export const filePickerProps = freeze({
   loadingWhenPick: PropBoolean(),
 });
 
-// TODO typeMismatch
 export const filePickerEmits = createEmits<{
   update: File | File[];
   exceedMaxCount: File[];
   exceedMaxSize: File[];
   exceedMaxTotalSize: File[];
+  /** fired when picked files do not match `mimeTypes`/`extensions` under `strictAccept` */
+  typeMismatch: File[];
   cancel: undefined;
-}>(['update', 'exceedMaxCount', 'exceedMaxSize', 'exceedMaxTotalSize', 'cancel']);
+}>(['update', 'exceedMaxCount', 'exceedMaxSize', 'exceedMaxTotalSize', 'typeMismatch', 'cancel']);
 
 export type FilePickerSetupProps = ExtractPropTypes<typeof filePickerProps> & CommonProps;
 export type FilePickerEventProps = GetEventPropsFromEmits<typeof filePickerEmits>;

@@ -54,7 +54,8 @@ src/
 | `interceptCEMethods(innerInputRef)` 委托 `focus/blur/click` | 默认行为不会聚焦内部原生元素 |
 | `renderElement('icon', { name: 'x' })` | `<l-icon name="x" />`（写死 namespace） |
 | `freeze(props)` 和（通过 `createEmits`）`freeze(emits)` | 可变的 prop/emit 对象 |
-| `parts = ['root', ...] as const; compParts = getCompParts(name, parts); part={compParts[0]}` | 每处现拼 part 字符串 |
+| `parts = ['root', ...] as const; compParts = getCompParts(name, parts); part={compParts[0]}` — shadow root 内每个可见元素都要有 `part`（包括 `<input>` / 包装层 / 图标）；同时把同一个 `parts` 传给 `createDefineElement` 以便自动连 `exportparts` | 每处现拼 part 字符串；无 part 的 shadow 节点会让用户无法 `::part()` 样式化，且依赖的 `exportparts` 链条断裂 |
+| 已经用了 `stateClass`（`useCEStates` 的返回值）的话，它已经带了 block 类，因为 `stateClass` 是 `[ns.t, ns.is(states)]`，而 `ns.t` 已经包含 `ns.b()` + size/variant/color 主题类。**`useCEStates` 内部通过 `useDefinedNameSpace()` 读 namespace，所以 setup 里即使不接返回值也必须调一次 `useNamespace(name)`**（参见 `AccordionGroup.tsx`） | `class={[stateClass.value, ns.b()]}` — `ns.b()` 重复；或完全不调 `useNamespace(name)` — `stateClass.value` 会是空字符串 |
 | 默认值放 `createDefineElement(name, Comp, { defaults }, ...)` | 把 `default:` 写在 prop 选项里 |
 | 三态布尔（`open`、`disabled` …）用 `undefBoolProp` | 依赖 Vue 默认的 `false`（会断继承链） |
 | `createEmits<{ event: Payload | undefined }>(['event'])` —— 类型 + 字符串列表都必须 | 只给数组没类型，或只给类型 Vue 看不到 |
